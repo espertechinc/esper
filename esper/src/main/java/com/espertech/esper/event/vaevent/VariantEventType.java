@@ -148,7 +148,7 @@ public class VariantEventType implements EventTypeSPI {
             return null;
         }
 
-        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, metadata.getPublicName(), propertyName);
         propertyGetterCodegeneratedCache.put(propertyName, getterCode);
         return getterCode;
     }
@@ -229,7 +229,15 @@ public class VariantEventType implements EventTypeSPI {
         return null;
     }
 
+    public EventPropertyGetterMappedSPI getGetterMappedSPI(String mappedProperty) {
+        return null;
+    }
+
     public EventPropertyGetterIndexed getGetterIndexed(String indexedProperty) {
+        return null;
+    }
+
+    public EventPropertyGetterIndexedSPI getGetterIndexedSPI(String propertyName) {
         return null;
     }
 

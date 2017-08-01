@@ -41,7 +41,7 @@ public class ExpressionGuardFactory implements GuardFactory, MetaDefItem, Serial
         }
         expression = parameters.get(0);
 
-        if (JavaClassHelper.getBoxedType(parameters.get(0).getExprEvaluator().getType()) != Boolean.class) {
+        if (JavaClassHelper.getBoxedType(parameters.get(0).getForge().getEvaluationType()) != Boolean.class) {
             throw new GuardParameterException(errorMessage);
         }
 
@@ -49,6 +49,6 @@ public class ExpressionGuardFactory implements GuardFactory, MetaDefItem, Serial
     }
 
     public Guard makeGuard(PatternAgentInstanceContext context, MatchedEventMap beginState, Quitable quitable, EvalStateNodeNumber stateNodeId, Object guardState) {
-        return new ExpressionGuard(convertor, expression.getExprEvaluator(), quitable);
+        return new ExpressionGuard(convertor, expression.getForge().getExprEvaluator(), quitable);
     }
 }

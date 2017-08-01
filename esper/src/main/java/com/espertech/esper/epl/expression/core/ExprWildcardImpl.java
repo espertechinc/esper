@@ -11,15 +11,19 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.type.WildcardParameter;
 
 import java.io.StringWriter;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.enumValue;
+
 /**
  * Expression for use within crontab to specify a wildcard.
  */
-public class ExprWildcardImpl extends ExprNodeBase implements ExprEvaluator, ExprWildcard {
-    private static final WildcardParameter WILDCARD_PARAMETER = new WildcardParameter();
+public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEvaluator, ExprWildcard {
     private static final long serialVersionUID = -6098833102154556698L;
 
     public ExprWildcardImpl() {
@@ -49,11 +53,27 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprEvaluator, Exp
         return null;
     }
 
-    public Class getType() {
-        return WildcardParameter.class;
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        return WILDCARD_PARAMETER;
+        return WildcardParameter.INSTANCE;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return enumValue(WildcardParameter.class, "INSTANCE");
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
+    }
+
+    public Class getEvaluationType() {
+        return WildcardParameter.class;
     }
 }

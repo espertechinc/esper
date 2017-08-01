@@ -53,7 +53,7 @@ public class ExecClientAggregationMultiFunctionPlugIn implements RegressionExecu
         SupportUpdateListener listener = new SupportUpdateListener();
         stmtScalar.addListener(listener);
 
-        Object[][] expectedScalar = new Object[][]{{"c0", String.class, null, null}, {"c1", int.class, null, null}};
+        Object[][] expectedScalar = new Object[][]{{"c0", String.class, null, null}, {"c1", Integer.class, null, null}};
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalar, stmtScalar.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -75,7 +75,7 @@ public class ExecClientAggregationMultiFunctionPlugIn implements RegressionExecu
         stmtScalarArray.addListener(listener);
 
         Object[][] expectedScalarArray = new Object[][]{
-                {"c0", String[].class, null, null}, {"c1", int[].class, null, null},
+                {"c0", String[].class, null, null}, {"c1", Integer[].class, null, null},
                 {"c2", Boolean.class, null, null}, {"c3", Boolean.class, null, null},
         };
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarArray, stmtScalarArray.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());

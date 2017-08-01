@@ -200,26 +200,8 @@
 			<title>Keyed Segmented Context</title>
 			
 			<para>
-				  The keyed segmented context assigns events to context partitions based on the values of one or more event properties, using the value of these property(s) as a key that picks a unique context partition directly. Each event thus belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one set of key values.
+				  This context assigns events to context partitions based on the values of one or more event properties, using the value of these property(s) as a key that picks a unique context partition directly. Each event thus belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one set of key values.
 			</para>
-			
-			<para>
-				  The keyed segmented context allocates new context partitions for each distinct key value (or combination of key values for multiple keys, 
-  <literal>hashCode</literal> and <literal>equals</literal>-semantics apply). For each event arriving the engine checks whether a context partition for the key value(s) already exists
-  and if a partition does not exist the engine allocates a new context partition for the key value(s).
-			</para>
-			
-			<note>
-				<para> 
-					The keyed segmented context does not terminate context partitions. Each distinct key value and context partition stays around forever,
-					unless your application manually removes the context partition using the context partition management API.
-				</para>
-				<para> 
-					For terminating context partitions please use the overlapping context with the <literal>distinct</literal>-keyword and <literal>terminated by</literal> 
-					as described in <xref linkend="context_def_overlapping_distinct"/>. Please note that for overlapping contexts each event applies to each context partition
-					and you must specify filter criteria to define how events apply to context partitions.
-				</para>
-			</note>
 
 			<para>
 				The syntax for creating a keyed segmented context is as follows: 
@@ -902,13 +884,6 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 select t1 from pattern [
   t1=TrainEnterEvent -> timer:interval(5 min) and not TrainLeaveEvent(trainId = context.te.trainId)
   ]]]></programlisting>
-  
-			<note>
-				<para>
-					Each event applies to each context partition. Your EPL must specify filter criteria such as <literal>trainId = context.te.trainId</literal>
-					if you want each context partition to look for specific events.
-				</para>
-			</note>
 
 			<para>
 			  Since the <literal>TrainEnterEvent</literal> that initiates a new context partition also counts towards the statement, the first part of the pattern (the <literal>t1=TrainEnterEvent</literal>) is satisfied by that initiating event.
@@ -1013,9 +988,6 @@ select t1 from pattern [
 							<row>
 								<entry><literal>endTime</literal></entry>
 								<entry>The end time of the context partition. This field is only available in the case that it can be computed from the crontab or time period expression that is provided.
-									This is the computed end time and the actual time that a context partition terminates may differ depending on time control 
-									of system time versus event or other external time.
-									Use <literal>current_timestamp</literal> instead to obtain the current engine time.
 								</entry>
 							</row>
 						</tbody>

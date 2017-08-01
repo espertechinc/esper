@@ -23,6 +23,14 @@ public class CodegenNamedParam {
         this.name = name;
     }
 
+    public Class getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public void render(StringBuilder builder, Map<Class, String> imports) {
         appendClassName(builder, type, null, imports);
         builder.append(" ").append(name);
@@ -37,11 +45,7 @@ public class CodegenNamedParam {
         return result;
     }
 
-    public static List<CodegenNamedParam> from(Class typeOne, String nameOne) {
-        return Collections.singletonList(new CodegenNamedParam(typeOne, nameOne));
-    }
-
-    public static void render(StringBuilder builder, List<CodegenNamedParam> params, Map<Class, String> imports) {
+    public static void render(StringBuilder builder, List<CodegenNamedParam> params, Map<Class, String> imports, CodegenIndent indent) {
         String delimiter = "";
         for (CodegenNamedParam param : params) {
             builder.append(delimiter);
@@ -52,5 +56,14 @@ public class CodegenNamedParam {
 
     public void mergeClasses(Set<Class> classes) {
         classes.add(type);
+    }
+
+    public static void render(StringBuilder builder, Map<Class, String> imports, List<CodegenNamedParam> params) {
+        String delimiter = "";
+        for (CodegenNamedParam param : params) {
+            builder.append(delimiter);
+            param.render(builder, imports);
+            delimiter = ",";
+        }
     }
 }

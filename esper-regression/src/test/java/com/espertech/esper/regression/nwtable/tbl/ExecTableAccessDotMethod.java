@@ -121,7 +121,7 @@ public class ExecTableAccessDotMethod implements RegressionExecution {
                 "select lastever(longPrimitive) as a1, window(*) as a2 from SupportBean#time(10 seconds)" +
                 (grouped ? " group by theString" : "");
         EPStatement stmtInto = SupportModelHelper.createByCompileOrParse(epService, soda, eplInto);
-        Object[][] expectedAggType = new Object[][]{{"a1", long.class}, {"a2", SupportBean[].class}};
+        Object[][] expectedAggType = new Object[][]{{"a1", Long.class}, {"a2", SupportBean[].class}};
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtInto.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         String key = grouped ? "[\"E1\"]" : "";

@@ -11,46 +11,66 @@
 package com.espertech.esper.codegen.model.statement;
 
 import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenIndent;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CodegenStatementIf extends CodegenStatementWBlockBase {
-
-    private List<CodegenStatementIfConditionBlock> blocks = new ArrayList<>(2);
+    private List<CodegenStatementIfConditionBlock> blocks = new ArrayList<CodegenStatementIfConditionBlock>();
     private CodegenBlock optionalElse;
 
     public CodegenStatementIf(CodegenBlock parent) {
         super(parent);
     }
 
-    public CodegenBlock getOptionalElse() {
+    public CodegenBlock ifBlock(CodegenExpression condition) {
+        if (!blocks.isEmpty()) {
+            throw new IllegalStateException("Use add-else instead");
+        }
+        CodegenBlock block = new CodegenBlock(this);
+        blocks.add(new CodegenStatementIfConditionBlock(condition, block));
+        return block;
+    }
+
+    public CodegenBlock addElseIf(CodegenExpression condition) {
+        if (blocks.isEmpty()) {
+            throw new IllegalStateException("Use if-block instead");
+        }
+        CodegenBlock block = new CodegenBlock(this);
+        blocks.add(new CodegenStatementIfConditionBlock(condition, block));
+        return block;
+    }
+
+    public CodegenBlock addElse() {
+        if (blocks.isEmpty()) {
+            throw new IllegalStateException("Use if-block instead");
+        }
+        if (optionalElse != null) {
+            throw new IllegalStateException("Else already found");
+        }
+        optionalElse = new CodegenBlock(this);
         return optionalElse;
     }
 
-    public void setOptionalElse(CodegenBlock optionalElse) {
-        this.optionalElse = optionalElse;
-    }
+    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        String delimiter = "";
-        for (CodegenStatementIfConditionBlock pair : blocks) {
-            builder.append(delimiter);
-            builder.append("if (");
-            pair.getCondition().render(builder, imports);
-            builder.append(") {\n");
-            pair.getBlock().render(builder, imports);
-            builder.append("}");
-            delimiter = "\n";
+        Iterator<CodegenStatementIfConditionBlock> it = blocks.iterator();
+        CodegenStatementIfConditionBlock first = it.next();
+        first.render(builder, imports, level, indent);
+
+        while (it.hasNext()) {
+            builder.append(" else ");
+            it.next().render(builder, imports, level, indent);
         }
+
         if (optionalElse != null) {
-            builder.append("else {\n");
-            optionalElse.render(builder, imports);
+            builder.append(" else {\n");
+            optionalElse.render(builder, imports, level + 1, indent);
+            indent.indent(builder, level);
             builder.append("}");
         }
+        builder.append("\n");
     }
 
     public void mergeClasses(Set<Class> classes) {
@@ -60,9 +80,5 @@ public class CodegenStatementIf extends CodegenStatementWBlockBase {
         if (optionalElse != null) {
             optionalElse.mergeClasses(classes);
         }
-    }
-
-    public void add(CodegenExpression condition, CodegenBlock block) {
-        blocks.add(new CodegenStatementIfConditionBlock(condition, block));
     }
 }

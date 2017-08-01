@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class ExprDotEvalParamLambda extends ExprDotEvalParam {
     private List<String> goesToNames;    // (x, y) => doSomething   .... parameter names are x and y
     private EventType[] goesToTypes;
 
-    public ExprDotEvalParamLambda(int parameterNum, ExprNode body, ExprEvaluator bodyEvaluator, int streamCountIncoming, List<String> goesToNames, EventType[] goesToTypes) {
+    public ExprDotEvalParamLambda(int parameterNum, ExprNode body, ExprForge bodyEvaluator, int streamCountIncoming, List<String> goesToNames, EventType[] goesToTypes) {
         super(parameterNum, body, bodyEvaluator);
         this.streamCountIncoming = streamCountIncoming;
         this.goesToNames = goesToNames;

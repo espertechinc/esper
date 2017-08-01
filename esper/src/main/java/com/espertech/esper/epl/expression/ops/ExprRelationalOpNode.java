@@ -10,13 +10,12 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.type.RelationalOpEnum;
 
 /**
  * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
-public interface ExprRelationalOpNode extends ExprNode, ExprEvaluator {
+public interface ExprRelationalOpNode extends ExprNode {
     public RelationalOpEnum getRelationalOpEnum();
 }

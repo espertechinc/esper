@@ -20,6 +20,7 @@ import com.espertech.esper.core.start.EPStatementStartMethodOnTriggerItem;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.spec.OnTriggerSplitStreamDesc;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
@@ -32,11 +33,17 @@ import java.util.List;
 public class StatementAgentInstanceFactoryOnTriggerSplit extends StatementAgentInstanceFactoryOnTriggerBase {
     private final EPStatementStartMethodOnTriggerItem[] items;
     private final EventType activatorResultEventType;
+    private final ExprEvaluator[] whereClauseEvals;
 
     public StatementAgentInstanceFactoryOnTriggerSplit(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, SubSelectStrategyCollection subSelectStrategyCollection, EPStatementStartMethodOnTriggerItem[] items, EventType activatorResultEventType) {
         super(statementContext, statementSpec, services, activator, subSelectStrategyCollection);
         this.items = items;
         this.activatorResultEventType = activatorResultEventType;
+
+        whereClauseEvals = new ExprEvaluator[items.length];
+        for (int i = 0; i < items.length; i++) {
+            whereClauseEvals[i] = items[i].getWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(items[i].getWhereClause().getForge(), statementContext.getEngineImportService(), StatementAgentInstanceFactoryOnTriggerSplit.class, false, statementContext.getStatementName());
+        }
     }
 
     public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {
@@ -53,11 +60,6 @@ public class StatementAgentInstanceFactoryOnTriggerSplit extends StatementAgentI
             if (tableName != null) {
                 tableStateInstances[i] = agentInstanceContext.getStatementContext().getTableService().getState(tableName, agentInstanceContext.getAgentInstanceId());
             }
-        }
-
-        ExprEvaluator[] whereClauseEvals = new ExprEvaluator[items.length];
-        for (int i = 0; i < items.length; i++) {
-            whereClauseEvals[i] = items[i].getWhereClause() == null ? null : items[i].getWhereClause().getExprEvaluator();
         }
 
         OnTriggerSplitStreamDesc desc = (OnTriggerSplitStreamDesc) statementSpec.getOnTriggerDesc();

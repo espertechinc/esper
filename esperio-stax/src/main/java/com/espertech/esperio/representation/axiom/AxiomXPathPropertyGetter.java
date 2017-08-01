@@ -123,27 +123,27 @@ public class AxiomXPathPropertyGetter implements TypedEventPropertyGetter {
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
         throw getUnsupported();
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         throw getUnsupported();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         throw getUnsupported();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw getUnsupported();
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw getUnsupported();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw getUnsupported();
     }
 

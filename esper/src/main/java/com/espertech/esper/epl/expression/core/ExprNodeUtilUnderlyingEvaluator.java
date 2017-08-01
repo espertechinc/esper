@@ -28,7 +28,4 @@ public class ExprNodeUtilUnderlyingEvaluator implements ExprEvaluator {
         return eventsPerStream[streamNum].getUnderlying();
     }
 
-    public Class getType() {
-        return resultType;
-    }
 }

@@ -47,7 +47,7 @@ public class ExecEventBeanJavaBeanAccessor implements RegressionExecution {
         epService.getEPRuntime().sendEvent(theEvent);
 
         for (String name : new String[]{"intPrimitive", "explicitFInt", "explicitMGetInt", "explicitMReadInt"}) {
-            assertEquals(int.class, eventType.getPropertyType(name));
+            assertEquals(Integer.class, eventType.getPropertyType(name));
             assertEquals(10, listener.getLastNewData()[0].get(name));
         }
     }

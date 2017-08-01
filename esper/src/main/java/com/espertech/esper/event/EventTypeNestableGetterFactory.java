@@ -11,8 +11,6 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.client.EventPropertyGetterIndexed;
-import com.espertech.esper.client.EventPropertyGetterMapped;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
 import com.espertech.esper.event.bean.BeanEventType;
@@ -27,13 +25,13 @@ public interface EventTypeNestableGetterFactory {
 
     public EventPropertyGetterSPI getPropertyProvidedGetter(Map<String, Object> nestableTypes, String propertyName, Property prop, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetterMapped getPropertyProvidedGetterMap(Map<String, Object> nestableTypes, String mappedPropertyName, MappedProperty mappedProperty, EventAdapterService eventAdapterService);
+    public EventPropertyGetterMappedSPI getPropertyProvidedGetterMap(Map<String, Object> nestableTypes, String mappedPropertyName, MappedProperty mappedProperty, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetterIndexed getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService);
+    public EventPropertyGetterIndexedSPI getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService);
 
     public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetterSPI getGetterEventBean(String name);
+    public EventPropertyGetterSPI getGetterEventBean(String name, Class underlyingType);
 
     public EventPropertyGetterSPI getGetterEventBeanArray(String name, EventType eventType);
 

@@ -56,10 +56,10 @@ public class TestExprRegexpNode extends TestCase {
     }
 
     public void testEvaluate() throws Exception {
-        assertFalse((Boolean) regexpNodeNormal.evaluate(makeEvent("bcd"), false, null));
-        assertTrue((Boolean) regexpNodeNormal.evaluate(makeEvent("ab"), false, null));
-        assertTrue((Boolean) regexpNodeNot.evaluate(makeEvent("bcd"), false, null));
-        assertFalse((Boolean) regexpNodeNot.evaluate(makeEvent("ab"), false, null));
+        assertFalse((Boolean) regexpNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent("bcd"), false, null));
+        assertTrue((Boolean) regexpNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent("ab"), false, null));
+        assertTrue((Boolean) regexpNodeNot.getForge().getExprEvaluator().evaluate(makeEvent("bcd"), false, null));
+        assertFalse((Boolean) regexpNodeNot.getForge().getExprEvaluator().evaluate(makeEvent("ab"), false, null));
     }
 
     public void testEquals() throws Exception {

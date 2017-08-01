@@ -12,9 +12,11 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.OneEventCollection;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.List;
@@ -23,8 +25,8 @@ public class NamedWindowOnMergeMatch {
     private ExprEvaluator optionalCond;
     private List<NamedWindowOnMergeAction> actions;
 
-    public NamedWindowOnMergeMatch(ExprNode optionalCond, List<NamedWindowOnMergeAction> actions) {
-        this.optionalCond = optionalCond != null ? optionalCond.getExprEvaluator() : null;
+    public NamedWindowOnMergeMatch(ExprNode optionalCond, List<NamedWindowOnMergeAction> actions, EngineImportService engineImportService, String statementName) {
+        this.optionalCond = optionalCond != null ? ExprNodeCompiler.allocateEvaluator(optionalCond.getForge(), engineImportService, this.getClass(), false, statementName) : null;
         this.actions = actions;
     }
 

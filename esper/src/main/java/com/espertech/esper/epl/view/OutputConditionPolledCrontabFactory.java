@@ -38,7 +38,7 @@ public final class OutputConditionPolledCrontabFactory implements OutputConditio
         int count = 0;
         for (ExprNode parameters : scheduleSpecExpressionList) {
             ExprNode node = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, parameters, validationContext);
-            expressions[count++] = node.getExprEvaluator();
+            expressions[count++] = ExprNodeCompiler.allocateEvaluator(node.getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
         }
     }
 

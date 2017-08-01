@@ -27,7 +27,7 @@ public class SubordIndexedTableLookupStrategySingleExprFactory implements Subord
 
     public SubordIndexedTableLookupStrategySingleExprFactory(boolean isNWOnTrigger, int streamCountOuter, SubordPropHashKey hashKey) {
         this.streamCountOuter = streamCountOuter;
-        this.evaluator = hashKey.getHashKey().getKeyExpr().getExprEvaluator();
+        this.evaluator = hashKey.getHashKey().getKeyExpr().getForge().getExprEvaluator();
         this.isNWOnTrigger = isNWOnTrigger;
         this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.SINGLEEXPR, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(hashKey.getHashKey().getKeyExpr())});
     }

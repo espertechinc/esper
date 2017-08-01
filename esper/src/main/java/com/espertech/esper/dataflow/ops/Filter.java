@@ -56,7 +56,7 @@ public class Filter implements DataFlowOpLifecycle {
         singleOutputPort = prepareContext.getOutputPorts().size() == 1;
 
         ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWFILTER, filter, prepareContext.getStatementContext(), eventType, false);
-        evaluator = validated.getExprEvaluator();
+        evaluator = ExprNodeCompiler.allocateEvaluator(validated.getForge(), prepareContext.getServicesContext().getEngineImportService(), Filter.class, false, prepareContext.getStatementContext().getStatementName());
         theEvent = prepareContext.getServicesContext().getEventAdapterService().getShellForType(eventType);
         eventsPerStream[0] = theEvent;
 

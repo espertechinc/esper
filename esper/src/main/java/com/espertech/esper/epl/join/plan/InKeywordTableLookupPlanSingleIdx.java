@@ -54,7 +54,7 @@ public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan {
         PropertyIndexedEventTableSingle single = (PropertyIndexedEventTableSingle) eventTable[0];
         ExprEvaluator[] evaluators = new ExprEvaluator[expressions.length];
         for (int i = 0; i < expressions.length; i++) {
-            evaluators[i] = expressions[i].getExprEvaluator();
+            evaluators[i] = expressions[i].getForge().getExprEvaluator();
         }
         return new InKeywordSingleTableLookupStrategyExpr(evaluators,
                 super.getLookupStream(), single, new LookupStrategyDesc(LookupStrategyType.INKEYWORDSINGLEIDX, ExprNodeUtility.toExpressionStringsMinPrecedence(expressions)));

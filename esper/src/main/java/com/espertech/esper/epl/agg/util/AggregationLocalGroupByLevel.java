@@ -20,13 +20,15 @@ public class AggregationLocalGroupByLevel {
     private final AggregationMethodFactory[] methodFactories;
     private final AggregationStateFactory[] stateFactories;
     private final ExprEvaluator[] partitionEvaluators;
+    private final Class[] partitionEvaluatorsTypes;
     private final boolean isDefaultLevel;
 
-    public AggregationLocalGroupByLevel(ExprEvaluator[] methodEvaluators, AggregationMethodFactory[] methodFactories, AggregationStateFactory[] stateFactories, ExprEvaluator[] partitionEvaluators, boolean defaultLevel) {
+    public AggregationLocalGroupByLevel(ExprEvaluator[] methodEvaluators, AggregationMethodFactory[] methodFactories, AggregationStateFactory[] stateFactories, ExprEvaluator[] partitionEvaluators, Class[] partitionEvaluatorsTypes, boolean defaultLevel) {
         this.methodEvaluators = methodEvaluators;
         this.methodFactories = methodFactories;
         this.stateFactories = stateFactories;
         this.partitionEvaluators = partitionEvaluators;
+        this.partitionEvaluatorsTypes = partitionEvaluatorsTypes;
         isDefaultLevel = defaultLevel;
     }
 
@@ -48,5 +50,9 @@ public class AggregationLocalGroupByLevel {
 
     public boolean isDefaultLevel() {
         return isDefaultLevel;
+    }
+
+    public Class[] getPartitionEvaluatorsTypes() {
+        return partitionEvaluatorsTypes;
     }
 }

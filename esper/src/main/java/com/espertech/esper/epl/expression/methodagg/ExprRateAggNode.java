@@ -50,10 +50,10 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
                 double secInterval = ((ExprTimePeriod) first).evaluateAsSeconds(null, true, validationContext.getExprEvaluatorContext());
                 intervalTime = validationContext.getEngineImportService().getTimeAbacus().deltaForSecondsDouble(secInterval);
             } else if (ExprNodeUtility.isConstantValueExpr(first)) {
-                if (!JavaClassHelper.isNumeric(first.getExprEvaluator().getType())) {
+                if (!JavaClassHelper.isNumeric(first.getForge().getEvaluationType())) {
                     throw new ExprValidationException(message);
                 }
-                Number num = (Number) first.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
+                Number num = (Number) first.getForge().getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
                 intervalTime = validationContext.getEngineImportService().getTimeAbacus().deltaForSecondsNumber(num);
             } else {
                 throw new ExprValidationException(message);
@@ -68,7 +68,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
         }
 
         String message = "The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation";
-        Class boxedParamOne = JavaClassHelper.getBoxedType(first.getExprEvaluator().getType());
+        Class boxedParamOne = JavaClassHelper.getBoxedType(first.getForge().getEvaluationType());
         if (boxedParamOne != Long.class) {
             throw new ExprValidationException(message);
         }
@@ -79,7 +79,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
             throw new ExprValidationException("The rate aggregation function does not allow the current engine timestamp as a parameter");
         }
         if (this.positionalParams.length > 1) {
-            if (!JavaClassHelper.isNumeric(this.positionalParams[1].getExprEvaluator().getType())) {
+            if (!JavaClassHelper.isNumeric(this.positionalParams[1].getForge().getEvaluationType())) {
                 throw new ExprValidationException("The rate aggregation function accepts an expression returning a numeric value to accumulate as an optional second parameter");
             }
         }

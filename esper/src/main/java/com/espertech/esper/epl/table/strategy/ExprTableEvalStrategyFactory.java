@@ -21,7 +21,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadataColumnPlain;
 
 public class ExprTableEvalStrategyFactory {
 
-    public static ExprEvaluator getTableAccessEvalStrategy(ExprNode exprNode, String tableName, Integer streamNum, TableMetadataColumnAggregation agg) {
+    public static ExprTableExprEvaluatorBase getTableAccessEvalStrategy(ExprNode exprNode, String tableName, Integer streamNum, TableMetadataColumnAggregation agg) {
         if (!agg.getFactory().isAccessAggregation()) {
             return new ExprTableExprEvaluatorMethod(exprNode, tableName, agg.getColumnName(), streamNum, agg.getFactory().getResultType(), agg.getMethodOffset());
         } else {

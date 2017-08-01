@@ -155,7 +155,7 @@ public class QueryPlanIndexBuilder {
                     QueryGraphValueEntryHashKeyed keyDesc = keyPropertiesJoin.get(i);
                     ExprNode compareNode = keyDesc.getKeyExpr();
 
-                    Class keyPropType = JavaClassHelper.getBoxedType(compareNode.getExprEvaluator().getType());
+                    Class keyPropType = JavaClassHelper.getBoxedType(compareNode.getForge().getEvaluationType());
                     Class indexedPropType = JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyType(indexPropertiesJoin[i]));
                     Class coercionType = indexedPropType;
                     if (keyPropType != indexedPropType) {
@@ -241,7 +241,7 @@ public class QueryPlanIndexBuilder {
                     subqRangeDesc = new SubordPropRangeKey(rangeDesc, coercionType);
                 } else {
                     QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeDesc;
-                    Class keyPropType = relOp.getExpression().getExprEvaluator().getType();
+                    Class keyPropType = relOp.getExpression().getForge().getEvaluationType();
                     Class indexedPropType = JavaClassHelper.getBoxedType(allStreamTypesZeroIndexed[0].getPropertyType(rangeIndexProp));
                     Class coercionType = indexedPropType;
                     if (keyPropType != indexedPropType) {
@@ -267,14 +267,14 @@ public class QueryPlanIndexBuilder {
                     if (inKeywordSingleIdxProp != null) {
                         continue;
                     }
-                    Class coercionType = keys[0].getExprEvaluator().getType();  // for in-comparison the same type is required
+                    Class coercionType = keys[0].getForge().getEvaluationType();  // for in-comparison the same type is required
                     inKeywordSingleIdxProp = new SubordPropInKeywordSingleIndex(key, coercionType, keys);
                 }
 
                 List<QueryGraphValuePairInKWMultiIdx> inkwMultis = queryGraphValue.getInKeywordMulti();
                 if (!inkwMultis.isEmpty()) {
                     QueryGraphValuePairInKWMultiIdx multi = inkwMultis.get(0);
-                    inKeywordMultiIdxProp = new SubordPropInKeywordMultiIndex(ExprNodeUtility.getIdentResolvedPropertyNames(multi.getIndexed()), multi.getIndexed()[0].getExprEvaluator().getType(), multi.getKey().getKeyExpr());
+                    inKeywordMultiIdxProp = new SubordPropInKeywordMultiIndex(ExprNodeUtility.getIdentResolvedPropertyNames(multi.getIndexed()), multi.getIndexed()[0].getForge().getEvaluationType(), multi.getKey().getKeyExpr());
                 }
 
                 if (inKeywordSingleIdxProp != null && inKeywordMultiIdxProp != null) {

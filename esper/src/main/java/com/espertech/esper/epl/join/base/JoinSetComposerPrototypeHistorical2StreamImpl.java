@@ -15,40 +15,35 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.join.pollindex.PollResultIndexingStrategy;
 import com.espertech.esper.epl.join.pollindex.PollResultIndexingStrategyNoIndex;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.Viewable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetComposerPrototype {
 
-    private static final Logger log = LoggerFactory.getLogger(JoinSetComposerPrototypeFactory.class);
-
-    private final ExprNode optionalFilterNode;
+    private final ExprEvaluator optionalFilterEval;
     private final EventType[] streamTypes;
     private final ExprEvaluatorContext exprEvaluatorContext;
     private final int polledViewNum;
     private final int streamViewNum;
     private final boolean isOuterJoin;
-    private final ExprNode outerJoinEqualsNode;
+    private final ExprEvaluator outerJoinEqualsEval;
     private final Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> indexStrategies;
     private final boolean isAllHistoricalNoSubordinate;
     private final OuterJoinDesc[] outerJoinDescList;
     private final boolean allowIndexInit;
 
-    public JoinSetComposerPrototypeHistorical2StreamImpl(ExprNode optionalFilterNode, EventType[] streamTypes, ExprEvaluatorContext exprEvaluatorContext, int polledViewNum, int streamViewNum, boolean outerJoin, ExprNode outerJoinEqualsNode, Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> indexStrategies, boolean allHistoricalNoSubordinate, OuterJoinDesc[] outerJoinDescList, boolean allowIndexInit) {
-        this.optionalFilterNode = optionalFilterNode;
+    public JoinSetComposerPrototypeHistorical2StreamImpl(ExprEvaluator optionalFilterEval, EventType[] streamTypes, ExprEvaluatorContext exprEvaluatorContext, int polledViewNum, int streamViewNum, boolean outerJoin, ExprEvaluator outerJoinEqualsEval, Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> indexStrategies, boolean allHistoricalNoSubordinate, OuterJoinDesc[] outerJoinDescList, boolean allowIndexInit) {
+        this.optionalFilterEval = optionalFilterEval;
         this.streamTypes = streamTypes;
         this.exprEvaluatorContext = exprEvaluatorContext;
         this.polledViewNum = polledViewNum;
         this.streamViewNum = streamViewNum;
         isOuterJoin = outerJoin;
-        this.outerJoinEqualsNode = outerJoinEqualsNode;
+        this.outerJoinEqualsEval = outerJoinEqualsEval;
         this.indexStrategies = indexStrategies;
         isAllHistoricalNoSubordinate = allHistoricalNoSubordinate;
         this.outerJoinDescList = outerJoinDescList;
@@ -59,8 +54,7 @@ public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetCom
         QueryStrategy[] queryStrategies = new QueryStrategy[streamTypes.length];
 
         HistoricalEventViewable viewable = (HistoricalEventViewable) streamViews[polledViewNum];
-        ExprEvaluator outerJoinEqualsNodeEval = outerJoinEqualsNode == null ? null : outerJoinEqualsNode.getExprEvaluator();
-        queryStrategies[streamViewNum] = new HistoricalDataQueryStrategy(streamViewNum, polledViewNum, viewable, isOuterJoin, outerJoinEqualsNodeEval,
+        queryStrategies[streamViewNum] = new HistoricalDataQueryStrategy(streamViewNum, polledViewNum, viewable, isOuterJoin, outerJoinEqualsEval,
                 indexStrategies.getFirst(), indexStrategies.getSecond());
 
         // for strictly historical joins, create a query strategy for the non-subordinate historical view
@@ -79,12 +73,11 @@ public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetCom
                 }
             }
             viewable = (HistoricalEventViewable) streamViews[streamViewNum];
-            queryStrategies[polledViewNum] = new HistoricalDataQueryStrategy(polledViewNum, streamViewNum, viewable, isOuterJoin, outerJoinEqualsNodeEval,
+            queryStrategies[polledViewNum] = new HistoricalDataQueryStrategy(polledViewNum, streamViewNum, viewable, isOuterJoin, outerJoinEqualsEval,
                     new HistoricalIndexLookupStrategyNoIndex(), new PollResultIndexingStrategyNoIndex());
         }
 
         JoinSetComposer composer = new JoinSetComposerHistoricalImpl(allowIndexInit, null, queryStrategies, streamViews, exprEvaluatorContext);
-        ExprEvaluator postJoinEval = optionalFilterNode == null ? null : optionalFilterNode.getExprEvaluator();
-        return new JoinSetComposerDesc(composer, postJoinEval);
+        return new JoinSetComposerDesc(composer, optionalFilterEval);
     }
 }

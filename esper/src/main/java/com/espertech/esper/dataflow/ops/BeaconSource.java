@@ -94,8 +94,8 @@ public class BeaconSource implements DataFlowSourceOperator {
                 if (providedProperty instanceof ExprNode) {
                     ExprNode exprNode = (ExprNode) providedProperty;
                     ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
-                    final ExprEvaluator exprEvaluator = validated.getExprEvaluator();
-                    final TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated), exprEvaluator.getType(),
+                    final ExprEvaluator exprEvaluator = ExprNodeCompiler.allocateEvaluator(validated.getForge(), context.getServicesContext().getEngineImportService(), BeaconSource.class, false, context.getStatementContext().getStatementName());
+                    final TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated), validated.getForge().getEvaluationType(),
                             writeable.getType(), writeable.getPropertyName(), false, typeWidenerCustomizer, context.getStatementContext().getStatementName(), context.getEngine().getURI());
                     if (widener != null) {
                         evaluators[index] = new ExprEvaluator() {
@@ -104,9 +104,6 @@ public class BeaconSource implements DataFlowSourceOperator {
                                 return widener.widen(value);
                             }
 
-                            public Class getType() {
-                                return null;
-                            }
                         };
                     } else {
                         evaluators[index] = exprEvaluator;
@@ -117,9 +114,6 @@ public class BeaconSource implements DataFlowSourceOperator {
                             return null;
                         }
 
-                        public Class getType() {
-                            return null;
-                        }
                     };
                 } else {
                     evaluators[index] = new ExprEvaluator() {
@@ -127,9 +121,6 @@ public class BeaconSource implements DataFlowSourceOperator {
                             return providedProperty;
                         }
 
-                        public Class getType() {
-                            return providedProperty.getClass();
-                        }
                     };
                 }
                 index++;
@@ -149,7 +140,7 @@ public class BeaconSource implements DataFlowSourceOperator {
         for (String propertyName : props) {
             ExprNode exprNode = (ExprNode) allProperties.get(propertyName);
             ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
-            final Object value = validated.getExprEvaluator().evaluate(null, true, context.getAgentInstanceContext());
+            final Object value = validated.getForge().getExprEvaluator().evaluate(null, true, context.getAgentInstanceContext());
             if (value == null) {
                 types.put(propertyName, null);
             } else {
@@ -160,9 +151,6 @@ public class BeaconSource implements DataFlowSourceOperator {
                     return value;
                 }
 
-                public Class getType() {
-                    return null;
-                }
             };
             count++;
         }

@@ -36,7 +36,7 @@ public class IndexedTableLookupStrategySingleExpr implements JoinExecTableLookup
         this.streamNum = streamNum;
         this.strategyDesc = strategyDesc;
         this.eventsPerStream = new EventBean[streamNum + 1];
-        exprEvaluator = exprNode.getExprEvaluator();
+        exprEvaluator = exprNode.getForge().getExprEvaluator();
     }
 
     /**

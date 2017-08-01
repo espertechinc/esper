@@ -16,6 +16,7 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.view.*;
@@ -39,6 +40,8 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
      * List of criteria expressions.
      */
     protected ExprNode[] criteriaExpressions;
+
+    protected ExprEvaluator[] criteriaExpressionEvals;
 
     private EventType eventType;
 
@@ -92,6 +95,7 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
         }
 
         this.eventType = parentEventType;
+        this.criteriaExpressionEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteriaExpressions, statementContext.getEngineImportService(), GroupByViewFactory.class, false, statementContext.getStatementName());
     }
 
     /**
@@ -105,9 +109,9 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         if (isReclaimAged) {
-            return new GroupByViewReclaimAged(agentInstanceViewFactoryContext, criteriaExpressions, ExprNodeUtility.getEvaluators(criteriaExpressions), reclaimMaxAge, reclaimFrequency);
+            return new GroupByViewReclaimAged(agentInstanceViewFactoryContext, criteriaExpressions, criteriaExpressionEvals, reclaimMaxAge, reclaimFrequency);
         }
-        return new GroupByViewImpl(agentInstanceViewFactoryContext, criteriaExpressions, ExprNodeUtility.getEvaluators(criteriaExpressions));
+        return new GroupByViewImpl(agentInstanceViewFactoryContext, criteriaExpressions, criteriaExpressionEvals);
     }
 
     public EventType getEventType() {
@@ -145,5 +149,9 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
 
     public String getViewName() {
         return "Group-By";
+    }
+
+    public ExprEvaluator[] getCriteriaExpressionEvals() {
+        return criteriaExpressionEvals;
     }
 }

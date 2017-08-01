@@ -82,7 +82,7 @@ public class AvroRecastFactory {
             }
             Schema.Field resultTypeField = resultType.getSchemaAvro().getField(writable.getPropertyName());
 
-            TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getExprEvaluator().getType(),
+            TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
                     writable.getType(), columnName, false, typeWidenerCustomizer, statementName, engineURI);
             items.add(new Item(resultTypeField.pos(), -1, evaluator, widener));
             written.add(writable);

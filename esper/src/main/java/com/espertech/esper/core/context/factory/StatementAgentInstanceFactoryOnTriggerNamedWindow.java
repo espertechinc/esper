@@ -65,7 +65,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
         queryPlan = SubordinateQueryPlanner.planOnExpression(
                 validatedJoin, activatorResultEventType, indexHint, processor.isEnableSubqueryIndexShare(), -1, excludePlanHint,
                 processor.isVirtualDataWindow(), processor.getEventTableIndexMetadataRepo(), processor.getNamedWindowType(),
-                processor.getOptionalUniqueKeyProps(), false, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations());
+                processor.getOptionalUniqueKeyProps(), false, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getEngineImportService());
         if (queryPlan.getIndexDescs() != null) {
             SubordinateQueryPlannerUtil.addIndexMetaAndRef(queryPlan.getIndexDescs(), processor.getEventTableIndexMetadataRepo(), statementContext.getStatementName());
             stopCallbacks.add(new StopCallback() {

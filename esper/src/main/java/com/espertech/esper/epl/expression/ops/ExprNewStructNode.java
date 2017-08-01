@@ -12,39 +12,46 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Represents the "new {...}" operator in an expression tree.
  */
-public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypableReturn {
+public class ExprNewStructNode extends ExprNodeBase {
 
     private static final long serialVersionUID = -210293632565665600L;
 
     private final String[] columnNames;
-    private transient LinkedHashMap<String, Object> eventType;
-    private transient ExprEvaluator[] evaluators;
-    private boolean isAllConstants;
+
+    private transient ExprNewStructNodeForge forge;
 
     public ExprNewStructNode(String[] columnNames) {
         this.columnNames = columnNames;
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
+    }
+
+    public Class getEvaluationType() {
+        return Map.class;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        eventType = new LinkedHashMap<String, Object>();
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
+        LinkedHashMap eventType = new LinkedHashMap<String, Object>();
 
+        boolean isAllConstants = false;
         for (int i = 0; i < columnNames.length; i++) {
             isAllConstants = isAllConstants && this.getChildNodes()[i].isConstantResult();
             if (eventType.containsKey(columnNames[i])) {
@@ -52,16 +59,17 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
             }
 
             Map<String, Object> eventTypeResult = null;
-            if (evaluators[i] instanceof ExprEvaluatorTypableReturn) {
-                eventTypeResult = ((ExprEvaluatorTypableReturn) evaluators[i]).getRowProperties();
+            if (getChildNodes()[i].getForge() instanceof ExprTypableReturnForge) {
+                eventTypeResult = ((ExprTypableReturnForge) getChildNodes()[i].getForge()).getRowProperties();
             }
             if (eventTypeResult != null) {
                 eventType.put(columnNames[i], eventTypeResult);
             } else {
-                Class classResult = JavaClassHelper.getBoxedType(evaluators[i].getType());
+                Class classResult = JavaClassHelper.getBoxedType(getChildNodes()[i].getForge().getEvaluationType());
                 eventType.put(columnNames[i], classResult);
             }
         }
+        forge = new ExprNewStructNodeForge(this, isAllConstants, eventType);
         return null;
     }
 
@@ -70,41 +78,8 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
     }
 
     public boolean isConstantResult() {
-        return isAllConstants;
-    }
-
-    public Class getType() {
-        return Map.class;
-    }
-
-    public LinkedHashMap<String, Object> getRowProperties() throws ExprValidationException {
-        return eventType;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprNew(this);
-        }
-        Map<String, Object> props = new HashMap<String, Object>();
-        for (int i = 0; i < evaluators.length; i++) {
-            props.put(columnNames[i], evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext));
-        }
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprNew(props);
-        }
-        return props;
-    }
-
-    public Boolean isMultirow() {
-        return false;   // New itself can only return a single row
-    }
-
-    public Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Object[] rows = new Object[columnNames.length];
-        for (int i = 0; i < columnNames.length; i++) {
-            rows[i] = evaluators[i].evaluate(eventsPerStream, isNewData, context);
-        }
-        return rows;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.isAllConstants();
     }
 
     public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

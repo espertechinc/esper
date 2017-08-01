@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 /**
  * Interface for casting.
  */
@@ -30,4 +33,6 @@ public interface SimpleTypeCaster {
      * @return true for numeric cast
      */
     public boolean isNumericCast();
+
+    CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context);
 }

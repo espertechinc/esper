@@ -33,7 +33,7 @@ public class TestObjectArrayEventType extends TestCase {
 
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.OBJECTARR, "typename", true, true, true, false, false);
         String[] names = {"myInt", "myIntBoxed", "myString", "mySupportBean", "myComplexBean", "myNullType"};
-        Object[] types = {int.class, Integer.class, String.class, SupportBean.class, SupportBeanComplexProps.class, null};
+        Object[] types = {Integer.class, Integer.class, String.class, SupportBean.class, SupportBeanComplexProps.class, null};
 
         Map<String, Object> namesAndTypes = new LinkedHashMap<String, Object>();
         for (int i = 0; i < names.length; i++) {
@@ -49,14 +49,14 @@ public class TestObjectArrayEventType extends TestCase {
     }
 
     public void testGetPropertyType() {
-        assertEquals(int.class, eventType.getPropertyType("myInt"));
+        assertEquals(Integer.class, eventType.getPropertyType("myInt"));
         assertEquals(Integer.class, eventType.getPropertyType("myIntBoxed"));
         assertEquals(String.class, eventType.getPropertyType("myString"));
         assertEquals(SupportBean.class, eventType.getPropertyType("mySupportBean"));
         assertEquals(SupportBeanComplexProps.class, eventType.getPropertyType("myComplexBean"));
-        assertEquals(int.class, eventType.getPropertyType("mySupportBean.intPrimitive"));
+        assertEquals(Integer.class, eventType.getPropertyType("mySupportBean.intPrimitive"));
         assertEquals(String.class, eventType.getPropertyType("myComplexBean.nested.nestedValue"));
-        assertEquals(int.class, eventType.getPropertyType("myComplexBean.indexed[1]"));
+        assertEquals(Integer.class, eventType.getPropertyType("myComplexBean.indexed[1]"));
         assertEquals(String.class, eventType.getPropertyType("myComplexBean.mapped('a')"));
         assertEquals(null, eventType.getPropertyType("myNullType"));
 

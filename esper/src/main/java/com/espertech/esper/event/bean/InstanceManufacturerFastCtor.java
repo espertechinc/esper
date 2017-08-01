@@ -12,36 +12,63 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import net.sf.cglib.reflect.FastConstructor;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class InstanceManufacturerFastCtor implements InstanceManufacturer {
-    private final Class targetClass;
-    private final FastConstructor ctor;
-    private final ExprEvaluator[] expr;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
-    public InstanceManufacturerFastCtor(Class targetClass, FastConstructor ctor, ExprEvaluator[] expr) {
-        this.targetClass = targetClass;
-        this.ctor = ctor;
-        this.expr = expr;
+public class InstanceManufacturerFastCtor implements InstanceManufacturer {
+    private final InstanceManufacturerFactoryFastCtor factory;
+    private final ExprEvaluator[] evaluators;
+
+    public InstanceManufacturerFastCtor(InstanceManufacturerFactoryFastCtor factory, ExprEvaluator[] evaluators) {
+        this.factory = factory;
+        this.evaluators = evaluators;
     }
 
     public Object make(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object[] row = new Object[expr.length];
+        Object[] row = new Object[evaluators.length];
         for (int i = 0; i < row.length; i++) {
-            row[i] = expr[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+            row[i] = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         }
-        return makeUnderlyingFromFastCtor(row, ctor, targetClass);
+        return makeUnderlyingFromFastCtor(row, factory.getCtor(), factory.getTargetClass());
     }
 
     public static Object makeUnderlyingFromFastCtor(Object[] properties, FastConstructor ctor, Class target) {
         try {
             return ctor.newInstance(properties);
         } catch (InvocationTargetException e) {
-            throw new EPException("InvocationTargetException received invoking constructor for type '" + target.getName() + "': " + e.getTargetException().getMessage(), e.getTargetException());
+            throw getTargetExceptionAsEPException(target.getName(), e.getTargetException());
         }
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param targetClassName name
+     * @param targetException ex
+     */
+    public static EPException getTargetExceptionAsEPException(String targetClassName, Throwable targetException) {
+        return new EPException("InvocationTargetException received invoking constructor for type '" + targetClassName + "': " + targetException.getMessage(), targetException);
+    }
+
+    public static CodegenExpression codegen(CodegenContext context, Class targetClass, ExprForge[] forges, CodegenParamSetExprPremade premades) {
+        CodegenExpression[] params = new CodegenExpression[forges.length];
+        for (int i = 0; i < forges.length; i++) {
+            params[i] = forges[i].evaluateCodegen(premades, context);
+        }
+        String method = context.addMethod(targetClass, InstanceManufacturerFastCtor.class).add(premades).begin()
+                .tryCatch()
+                    .tryReturn(newInstance(targetClass, params))
+                .addCatch(Throwable.class, "t")
+                    .blockThrow(staticMethod(InstanceManufacturerFastCtor.class, "getTargetExceptionAsEPException", constant(targetClass.getName()), ref("t")))
+                .methodEnd();
+        return localMethodBuild(method).passAll(premades).call();
     }
 }

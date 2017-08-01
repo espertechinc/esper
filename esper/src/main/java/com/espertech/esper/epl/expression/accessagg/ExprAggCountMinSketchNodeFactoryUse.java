@@ -18,15 +18,19 @@ import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.approx.*;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNodeFactoryBase {
     private final ExprEvaluator addOrFrequencyEvaluator;
+    private final Class addOrFrequencyEvaluatorReturnType;
 
-    public ExprAggCountMinSketchNodeFactoryUse(ExprAggCountMinSketchNode parent, ExprEvaluator addOrFrequencyEvaluator) {
+    public ExprAggCountMinSketchNodeFactoryUse(ExprAggCountMinSketchNode parent, ExprEvaluator addOrFrequencyEvaluator, Class addOrFrequencyEvaluatorReturnType) {
         super(parent);
         this.addOrFrequencyEvaluator = addOrFrequencyEvaluator;
+        this.addOrFrequencyEvaluatorReturnType = addOrFrequencyEvaluatorReturnType;
     }
 
     public Class getResultType() {
@@ -61,12 +65,12 @@ public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNo
         throw new IllegalStateException("Aggregation accessor not available for this function '" + parent.getAggregationFunctionName() + "'");
     }
 
-    public AggregationAgent getAggregationStateAgent() {
+    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         if (parent.getAggType() == CountMinSketchAggType.ADD) {
             if (parent.getOptionalFilter() == null) {
                 return new CountMinSketchAggAgentAdd(addOrFrequencyEvaluator);
             }
-            return new CountMinSketchAggAgentAddFilter(addOrFrequencyEvaluator, parent.getOptionalFilter().getExprEvaluator());
+            return new CountMinSketchAggAgentAddFilter(addOrFrequencyEvaluator, ExprNodeCompiler.allocateEvaluator(parent.getOptionalFilter().getForge(), engineImportService, this.getClass(), false, statementName));
         }
         throw new IllegalStateException("Aggregation agent not available for this function '" + parent.getAggregationFunctionName() + "'");
     }
@@ -75,8 +79,8 @@ public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNo
         throw new IllegalStateException("Aggregation not compatible");
     }
 
-    public ExprEvaluator getAddOrFrequencyEvaluator() {
-        return addOrFrequencyEvaluator;
+    public Class getAddOrFrequencyEvaluatorReturnType() {
+        return addOrFrequencyEvaluatorReturnType;
     }
 
     public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {

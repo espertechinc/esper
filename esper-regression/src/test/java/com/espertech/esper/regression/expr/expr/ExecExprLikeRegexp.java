@@ -11,11 +11,13 @@
 package com.espertech.esper.regression.expr.expr;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.SerializableObjectCopier;
 
 import static junit.framework.TestCase.*;
@@ -24,23 +26,79 @@ import static org.junit.Assert.assertEquals;
 public class ExecExprLikeRegexp implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
 
-        runAssertionRegexpFilterWithDanglingMetaCharacter(epService);
+        runAssertionLikeWConstants(epService);
+        runAssertionLikeWExprs(epService);
+        runAssertionRegexpWConstants(epService);
+        runAssertionRegexpWExprs(epService);
+        runAssertionLikeRegexStringAndNull(epService);
+        runAssertionInvalidLikeRegEx(epService);
         runAssertionLikeRegexStringAndNull(epService);
         runAssertionLikeRegexEscapedChar(epService);
         runAssertionLikeRegexStringAndNull_OM(epService);
         runAssertionLikeRegexStringAndNull_Compile(epService);
-        runAssertionInvalidLikeRegEx(epService);
         runAssertionLikeRegexNumericAndNull(epService);
     }
 
-    private void runAssertionRegexpFilterWithDanglingMetaCharacter(EPServiceProvider epService) {
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean where theString regexp \"*any*\"");
+    private void runAssertionRegexpWExprs(EPServiceProvider epService) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select p00 regexp p01 as c0, id regexp p02 as c1 from SupportBean_S0");
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(new SupportBean());
-        assertFalse(listener.isInvoked());
+        sendS0Event(epService, 413, "XXAXX", ".*A.*", ".*1.*", null);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {true, true});
+
+        sendS0Event(epService, 413, "XXaXX", ".*B.*", ".*2.*", null);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {false, false});
+
+        sendS0Event(epService, 413, "XXCXX", ".*C.*", ".*3.*", null);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {true, true});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionRegexpWConstants(EPServiceProvider epService) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString regexp '.*Jack.*' as c0, intPrimitive regexp '.*1.*' as c1 from SupportBean");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("Joe", 0));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {false, false});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("TheJackWhite", 100));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {true, true});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionLikeWConstants(EPServiceProvider epService) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString like 'A%' as c0, intPrimitive like '1%' as c1 from SupportBean");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("Bxx", 0));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {false, false});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("Ayyy", 100));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {true, true});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionLikeWExprs(EPServiceProvider epService) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select p00 like p01 as c0, id like p02 as c1 from SupportBean_S0");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        sendS0Event(epService, 413, "%XXaXX", "%a%", "%1%", null);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {true, true});
+
+        sendS0Event(epService, 413, "%XXcXX", "%b%", "%2%", null);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {false, false});
+
+        sendS0Event(epService, 413, "%XXcXX", "%c%", "%3%", null);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {true, true});
 
         stmt.destroy();
     }
@@ -49,7 +107,7 @@ public class ExecExprLikeRegexp implements RegressionExecution {
         String caseExpr = "select p00 like p01 as r1, " +
                 " p00 like p01 escape \"!\" as r2," +
                 " p02 regexp p03 as r3 " +
-                " from " + SupportBean_S0.class.getName();
+                " from SupportBean_S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(caseExpr);
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -61,7 +119,7 @@ public class ExecExprLikeRegexp implements RegressionExecution {
     }
 
     private void runAssertionLikeRegexEscapedChar(EPServiceProvider epService) {
-        String caseExpr = "select p00 regexp '\\\\w*-ABC' as result from " + SupportBean_S0.class.getName();
+        String caseExpr = "select p00 regexp '\\\\w*-ABC' as result from SupportBean_S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(caseExpr);
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -80,7 +138,7 @@ public class ExecExprLikeRegexp implements RegressionExecution {
         String stmtText = "select p00 like p01 as r1, " +
                 "p00 like p01 escape \"!\" as r2, " +
                 "p02 regexp p03 as r3 " +
-                "from " + SupportBean_S0.class.getName();
+                "from SupportBean_S0";
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create()
@@ -88,7 +146,7 @@ public class ExecExprLikeRegexp implements RegressionExecution {
                 .add(Expressions.like(Expressions.property("p00"), Expressions.property("p01"), Expressions.constant("!")), "r2")
                 .add(Expressions.regexp(Expressions.property("p02"), Expressions.property("p03")), "r3")
         );
-        model.setFromClause(FromClause.create(FilterStream.create(SupportBean_S0.class.getName())));
+        model.setFromClause(FromClause.create(FilterStream.create("SupportBean_S0")));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         assertEquals(stmtText, model.toEPL());
 
@@ -117,7 +175,7 @@ public class ExecExprLikeRegexp implements RegressionExecution {
         String stmtText = "select p00 like p01 as r1, " +
                 "p00 like p01 escape \"!\" as r2, " +
                 "p02 regexp p03 as r3 " +
-                "from " + SupportBean_S0.class.getName();
+                "from SupportBean_S0";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
@@ -133,28 +191,28 @@ public class ExecExprLikeRegexp implements RegressionExecution {
     }
 
     private void runLikeRegexStringAndNull(EPServiceProvider epService, SupportUpdateListener listener) {
-        sendS0Event(epService, "a", "b", "c", "d");
+        sendS0Event(epService, -1, "a", "b", "c", "d");
         assertReceived(listener, new Object[][]{{"r1", false}, {"r2", false}, {"r3", false}});
 
-        sendS0Event(epService, null, "b", null, "d");
+        sendS0Event(epService, -1, null, "b", null, "d");
         assertReceived(listener, new Object[][]{{"r1", null}, {"r2", null}, {"r3", null}});
 
-        sendS0Event(epService, "a", null, "c", null);
+        sendS0Event(epService, -1, "a", null, "c", null);
         assertReceived(listener, new Object[][]{{"r1", null}, {"r2", null}, {"r3", null}});
 
-        sendS0Event(epService, null, null, null, null);
+        sendS0Event(epService, -1, null, null, null, null);
         assertReceived(listener, new Object[][]{{"r1", null}, {"r2", null}, {"r3", null}});
 
-        sendS0Event(epService, "abcdef", "%de_", "a", "[a-c]");
+        sendS0Event(epService, -1, "abcdef", "%de_", "a", "[a-c]");
         assertReceived(listener, new Object[][]{{"r1", true}, {"r2", true}, {"r3", true}});
 
-        sendS0Event(epService, "abcdef", "b%de_", "d", "[a-c]");
+        sendS0Event(epService, -1, "abcdef", "b%de_", "d", "[a-c]");
         assertReceived(listener, new Object[][]{{"r1", false}, {"r2", false}, {"r3", false}});
 
-        sendS0Event(epService, "!adex", "!%de_", "", ".");
+        sendS0Event(epService, -1, "!adex", "!%de_", "", ".");
         assertReceived(listener, new Object[][]{{"r1", true}, {"r2", false}, {"r3", false}});
 
-        sendS0Event(epService, "%dex", "!%de_", "a", ".");
+        sendS0Event(epService, -1, "%dex", "!%de_", "a", ".");
         assertReceived(listener, new Object[][]{{"r1", false}, {"r2", true}, {"r3", true}});
     }
 
@@ -168,6 +226,9 @@ public class ExecExprLikeRegexp implements RegressionExecution {
         tryInvalid(epService, "intPrimitive regexp boolPrimitive");
         tryInvalid(epService, "boolPrimitive regexp string");
         tryInvalid(epService, "string regexp intPrimitive");
+
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from SupportBean where theString regexp \"*any*\"",
+                "Failed to validate filter expression 'theString regexp \"*any*\"': Error compiling regex pattern '*any*': Dangling meta character '*' near index 0");
     }
 
     private void runAssertionLikeRegexNumericAndNull(EPServiceProvider epService) {
@@ -208,8 +269,8 @@ public class ExecExprLikeRegexp implements RegressionExecution {
         }
     }
 
-    private void sendS0Event(EPServiceProvider epService, String p00, String p01, String p02, String p03) {
-        SupportBean_S0 bean = new SupportBean_S0(-1, p00, p01, p02, p03);
+    private void sendS0Event(EPServiceProvider epService, int id, String p00, String p01, String p02, String p03) {
+        SupportBean_S0 bean = new SupportBean_S0(id, p00, p01, p02, p03);
         epService.getEPRuntime().sendEvent(bean);
     }
 

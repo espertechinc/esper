@@ -43,7 +43,7 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
         sizeEvaluator = ViewFactorySupport.validateSizeParam(getViewName(), viewFactoryContext.getStatementContext(), validated[1], 1);
 
         if (validated.length > 2) {
-            Object keywords = ViewFactorySupport.evaluate(validated[2].getExprEvaluator(), 2, getViewName(), viewFactoryContext.getStatementContext());
+            Object keywords = ViewFactorySupport.evaluate(validated[2].getForge().getExprEvaluator(), 2, getViewName(), viewFactoryContext.getStatementContext());
             processKeywords(keywords, errorMessage);
         }
     }

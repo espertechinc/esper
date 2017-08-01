@@ -40,7 +40,7 @@ public class CycleDetectorAggregationHandler implements PlugInAggregationMultiFu
     }
 
     public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
-        return new CycleDetectorAggregationStateFactory(factory.getFromExpression(), factory.getToExpression());
+        return new CycleDetectorAggregationStateFactory(factory.getFromExpression().getExprEvaluator(), factory.getToExpression().getExprEvaluator());
     }
 
     public AggregationAccessor getAccessor() {
@@ -52,7 +52,7 @@ public class CycleDetectorAggregationHandler implements PlugInAggregationMultiFu
 
     public EPType getReturnType() {
         if (validationContext.getFunctionName().toLowerCase(Locale.ENGLISH).equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
-            return EPTypeHelper.collectionOfSingleValue(factory.getFromExpression().getType());
+            return EPTypeHelper.collectionOfSingleValue(factory.getFromExpression().getEvaluationType());
         }
         return EPTypeHelper.singleValue(Boolean.class);
     }

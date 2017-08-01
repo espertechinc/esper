@@ -47,7 +47,7 @@ public class OnSetVariableViewFactory {
         this.variableService = variableService;
         this.statementResultService = statementResultService;
 
-        variableReadWritePackage = new VariableReadWritePackage(desc.getAssignments(), variableService, eventAdapterService);
+        variableReadWritePackage = new VariableReadWritePackage(desc.getAssignments(), variableService, eventAdapterService, statementResultService.getStatementName());
         String outputEventTypeName = statementId + "_outsetvar";
         eventType = eventAdapterService.createAnonymousMapType(outputEventTypeName, variableReadWritePackage.getVariableTypes(), true);
     }

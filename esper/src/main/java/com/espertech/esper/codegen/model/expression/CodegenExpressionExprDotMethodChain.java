@@ -27,17 +27,12 @@ public class CodegenExpressionExprDotMethodChain implements CodegenExpression {
         expression.render(builder, imports);
         for (CodegenChainElement element : chain) {
             builder.append(".");
-            element.render(builder);
+            element.render(builder, imports);
         }
     }
 
-    public CodegenExpressionExprDotMethodChain addNoParam(String method) {
-        chain.add(new CodegenChainElement(method, null));
-        return this;
-    }
-
-    public CodegenExpression addWConst(String method, Object ... constants) {
-        chain.add(new CodegenChainElement(method, constants));
+    public CodegenExpressionExprDotMethodChain add(String method, CodegenExpression... params) {
+        chain.add(new CodegenChainElement(method, params));
         return this;
     }
 

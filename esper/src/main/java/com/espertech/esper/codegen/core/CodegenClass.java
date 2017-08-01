@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.codegen.core;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +23,16 @@ public class CodegenClass {
     private final List<CodegenMethod> publicMethods;
     private final List<CodegenMethod> privateMethods;
 
-    public CodegenClass(String packageName, String className, Class interfaceImplemented, List<CodegenMember> members, List<CodegenMethod> publicMethods, List<CodegenMethod> privateMethods) {
+    public CodegenClass(Class interfaceClass, CodegenContext codegenContext, String engineURI, CodegenMethod... methods) {
+        this("com.espertech.esper.generated.uri_" + engineURI,
+                interfaceClass.getSimpleName() + "_" + CodeGenerationIDGenerator.generateClass(),
+                interfaceClass,
+                codegenContext.getMembers(),
+                Arrays.asList(methods),
+                codegenContext.getMethods());
+    }
+
+    private CodegenClass(String packageName, String className, Class interfaceImplemented, List<CodegenMember> members, List<CodegenMethod> publicMethods, List<CodegenMethod> privateMethods) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceImplemented = interfaceImplemented;

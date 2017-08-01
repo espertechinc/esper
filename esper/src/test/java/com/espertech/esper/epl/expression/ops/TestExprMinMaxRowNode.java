@@ -29,11 +29,11 @@ public class TestExprMinMaxRowNode extends TestCase {
         minMaxNode.addChildNode(new SupportExprNode(Double.class));
         minMaxNode.addChildNode(new SupportExprNode(Integer.class));
         minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Double.class, minMaxNode.getType());
+        assertEquals(Double.class, minMaxNode.getForge().getEvaluationType());
 
         minMaxNode.addChildNode(new SupportExprNode(Double.class));
         minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Double.class, minMaxNode.getType());
+        assertEquals(Double.class, minMaxNode.getForge().getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {
@@ -67,32 +67,32 @@ public class TestExprMinMaxRowNode extends TestCase {
     public void testEvaluate() throws Exception {
         minMaxNode = new ExprMinMaxRowNode(MinMaxTypeEnum.MAX);
         setupNode(minMaxNode, 10, 1.5, null);
-        assertEquals(10d, minMaxNode.evaluate(null, false, null));
+        assertEquals(10d, minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         minMaxNode = new ExprMinMaxRowNode(MinMaxTypeEnum.MAX);
         setupNode(minMaxNode, 1, 1.5, null);
-        assertEquals(1.5d, minMaxNode.evaluate(null, false, null));
+        assertEquals(1.5d, minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         minMaxNode = new ExprMinMaxRowNode(MinMaxTypeEnum.MIN);
         setupNode(minMaxNode, 1, 1.5, null);
-        assertEquals(1d, minMaxNode.evaluate(null, false, null));
+        assertEquals(1d, minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         minMaxNode = new ExprMinMaxRowNode(MinMaxTypeEnum.MAX);
         setupNode(minMaxNode, 1, 1.5, 2.0f);
-        assertEquals(2.0d, minMaxNode.evaluate(null, false, null));
+        assertEquals(2.0d, minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         minMaxNode = new ExprMinMaxRowNode(MinMaxTypeEnum.MIN);
         setupNode(minMaxNode, 6, 3.5, 2.0f);
-        assertEquals(2.0d, minMaxNode.evaluate(null, false, null));
+        assertEquals(2.0d, minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         minMaxNode = makeNode(null, Integer.class, 5, Integer.class, 6, Integer.class);
-        assertNull(minMaxNode.evaluate(null, false, null));
+        assertNull(minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
         minMaxNode = makeNode(7, Integer.class, null, Integer.class, 6, Integer.class);
-        assertNull(minMaxNode.evaluate(null, false, null));
+        assertNull(minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
         minMaxNode = makeNode(3, Integer.class, 5, Integer.class, null, Integer.class);
-        assertNull(minMaxNode.evaluate(null, false, null));
+        assertNull(minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
         minMaxNode = makeNode(null, Integer.class, null, Integer.class, null, Integer.class);
-        assertNull(minMaxNode.evaluate(null, false, null));
+        assertNull(minMaxNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEqualsNode() throws Exception {
@@ -120,5 +120,4 @@ public class TestExprMinMaxRowNode extends TestCase {
         maxNode.validate(SupportExprValidationContextFactory.makeEmpty());
         return maxNode;
     }
-
 }

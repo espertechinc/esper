@@ -167,7 +167,7 @@ public class ExecEPLStreamExpr implements RegressionExecution {
         assertEquals(3, type.getPropertyNames().length);
         assertEquals(Long.class, type.getPropertyType("volume"));
         assertEquals(String.class, type.getPropertyType("symbol"));
-        assertEquals(double.class, type.getPropertyType("pvf"));
+        assertEquals(Double.class, type.getPropertyType("pvf"));
 
         SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 99L, null);
         epService.getEPRuntime().sendEvent(eventA);
@@ -187,7 +187,7 @@ public class ExecEPLStreamExpr implements RegressionExecution {
         EventType type = stmtOne.getEventType();
         assertEquals(2, type.getPropertyNames().length);
         assertEquals(Long.class, type.getPropertyType("s0.getVolume()"));
-        assertEquals(double.class, type.getPropertyType("s0.getPriceTimesVolume(3)"));
+        assertEquals(Double.class, type.getPropertyType("s0.getPriceTimesVolume(3)"));
 
         SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 2L, null);
         epService.getEPRuntime().sendEvent(eventA);

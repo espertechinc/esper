@@ -59,12 +59,12 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
     }
 
     private String getObjectArrayCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .ifInstanceOf("value", EventBean.class)
-                    .blockReturn(entryGetter.codegenEventBeanGet(castRef(EventBean.class, "value"), context))
-                .methodReturn(entryGetter.codegenUnderlyingGet(cast(entryGetter.getTargetType(), ref("value")), context));
+                    .blockReturn(entryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), context))
+                .methodReturn(entryGetter.underlyingGetCodegen(cast(entryGetter.getTargetType(), ref("value")), context));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -96,27 +96,27 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
     }
 
     private String isExistsPropertyCodegen(CodegenContext context) {
-        return context.addMethod(boolean.class, Object[].class, "array", this.getClass())
+        return context.addMethod(boolean.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
                 .ifInstanceOf("value", EventBean.class)
-                .blockReturn(entryGetter.codegenEventBeanExists(castRef(EventBean.class, "value"), context))
-                .methodReturn(entryGetter.codegenUnderlyingExists(cast(entryGetter.getTargetType(), ref("value")), context));
+                .blockReturn(entryGetter.eventBeanExistsCodegen(castRef(EventBean.class, "value"), context))
+                .methodReturn(entryGetter.underlyingExistsCodegen(cast(entryGetter.getTargetType(), ref("value")), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getObjectArrayCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
     }
 

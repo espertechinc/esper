@@ -33,8 +33,10 @@ public class TestWeightedAverageView extends TestCase {
         EventType type = WeightedAverageView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         WeightedAverageViewFactory factory = new WeightedAverageViewFactory();
         factory.setFieldNameX(SupportExprNodeFactory.makeIdentNodeMD("price"));
+        factory.fieldNameXEvaluator = factory.fieldNameX.getForge().getExprEvaluator();
         factory.setEventType(type);
         factory.setFieldNameWeight(SupportExprNodeFactory.makeIdentNodeMD("volume"));
+        factory.fieldNameWeightEvaluator = factory.fieldNameWeight.getForge().getExprEvaluator();
         myView = new WeightedAverageView(factory, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
 
         childView = new SupportBeanClassView(SupportMarketDataBean.class);

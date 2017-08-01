@@ -12,18 +12,25 @@ package com.espertech.esper.supportregression.client;
 
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 
 public class SupportAggMFStateArrayCollScalarFactory implements PlugInAggregationMultiFunctionStateFactory {
+    private final ExprForge forge;
     private final ExprEvaluator evaluator;
 
-    public SupportAggMFStateArrayCollScalarFactory(ExprEvaluator evaluator) {
-        this.evaluator = evaluator;
+    public SupportAggMFStateArrayCollScalarFactory(ExprForge forge) {
+        this.forge = forge;
+        this.evaluator = forge.getExprEvaluator();
     }
 
     public AggregationState makeAggregationState(PlugInAggregationMultiFunctionStateContext stateContext) {
         return new SupportAggMFStateArrayCollScalar(this);
+    }
+
+    public ExprForge getForge() {
+        return forge;
     }
 
     public ExprEvaluator getEvaluator() {

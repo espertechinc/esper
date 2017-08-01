@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.view.CloneableView;
@@ -31,12 +32,12 @@ import java.util.Map;
  * the usage of the correlation bean and the appropriate schema.
  */
 public class CorrelationView extends BaseBivariateStatisticsView implements CloneableView {
-    public CorrelationView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xExpression, ExprNode yExpression, EventType eventType, StatViewAdditionalProps additionalProps) {
-        super(viewFactory, agentInstanceContext, xExpression, yExpression, eventType, additionalProps);
+    public CorrelationView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xExpression, ExprEvaluator xExpressionEval, ExprNode yExpression, ExprEvaluator yExpressionEval, EventType eventType, StatViewAdditionalProps additionalProps) {
+        super(viewFactory, agentInstanceContext, xExpression, xExpressionEval, yExpression, yExpressionEval, eventType, additionalProps);
     }
 
     public View cloneView() {
-        return new CorrelationView(viewFactory, agentInstanceContext, this.getExpressionX(), this.getExpressionY(), eventType, additionalProps);
+        return new CorrelationView(viewFactory, agentInstanceContext, this.getExpressionX(), this.getExpressionXEval(), this.getExpressionY(), this.getExpressionYEval(), eventType, additionalProps);
     }
 
     public EventBean populateMap(BaseStatisticsBean baseStatisticsBean,

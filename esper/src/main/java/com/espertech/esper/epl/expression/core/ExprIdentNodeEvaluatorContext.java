@@ -11,15 +11,21 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.event.EventPropertyGetterSPI;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
 
     private final int streamNum;
     private final Class resultType;
-    private final EventPropertyGetter getter;
+    private final EventPropertyGetterSPI getter;
 
-    public ExprIdentNodeEvaluatorContext(int streamNum, Class resultType, EventPropertyGetter getter) {
+    public ExprIdentNodeEvaluatorContext(int streamNum, Class resultType, EventPropertyGetterSPI getter) {
         this.streamNum = streamNum;
         this.resultType = resultType;
         this.getter = getter;
@@ -40,15 +46,24 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
         return null;
     }
 
-    public Class getType() {
+    public CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        String method = context.addMethod(resultType, this.getClass()).add(params).begin()
+                .ifCondition(notEqualsNull(params.passEvalCtx()))
+                .blockReturn(CodegenLegoCast.castSafeFromObjectType(resultType, getter.eventBeanGetCodegen(exprDotMethod(params.passEvalCtx(), "getContextProperties"), context)))
+                .methodReturn(constantNull());
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public Class getEvaluationType() {
         return resultType;
     }
 
-    public EventPropertyGetter getGetter() {
+    public EventPropertyGetterSPI getGetter() {
         return getter;
     }
 
     public boolean isContextEvaluated() {
         return true;
     }
+
 }

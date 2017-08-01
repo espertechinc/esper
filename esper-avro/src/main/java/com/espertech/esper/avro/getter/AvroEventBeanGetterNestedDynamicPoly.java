@@ -45,9 +45,9 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
     }
 
     private String getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(fieldTop))))
-                .methodReturn(conditional(equalsNull(ref("inner")), constantNull(), getter.codegenUnderlyingGet(ref("inner"), context)));
+                .methodReturn(conditional(equalsNull(ref("inner")), constantNull(), getter.underlyingGetCodegen(ref("inner"), context)));
     }
 
     private boolean isExistsProperty(GenericData.Record record) {
@@ -63,39 +63,39 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
     }
 
     private String isExistsPropertyCodegen(CodegenContext context) {
-        return context.addMethod(boolean.class, GenericData.Record.class, "record", this.getClass())
-                .declareVar(Schema.Field.class, "field", exprDotMethodChain(ref("record")).addNoParam("getSchema").addWConst("getField", fieldTop))
+        return context.addMethod(boolean.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+                .declareVar(Schema.Field.class, "field", exprDotMethodChain(ref("record")).add("getSchema").add("getField", constant(fieldTop)))
                 .ifRefNullReturnFalse("field")
                 .declareVar(Object.class, "inner", exprDotMethod(ref("record"), "get", constant(fieldTop)))
                 .ifRefNotTypeReturnConst("inner", GenericData.Record.class, false)
-                .methodReturn(getter.codegenUnderlyingExists(cast(GenericData.Record.class, ref("inner")), context));
+                .methodReturn(getter.underlyingExistsCodegen(cast(GenericData.Record.class, ref("inner")), context));
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
     }
 }

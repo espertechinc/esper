@@ -214,8 +214,8 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         CodegenMember msvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mtype = context.makeAddMember(BeanEventType.class, fragmentEventType);
 
-        CodegenBlock block = context.addMethod(Object.class, getTargetType(), "underlying", this.getClass())
-                .declareVar(getBeanPropType(), "object", codegenUnderlyingGet(ref("underlying"), context))
+        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(getTargetType(), "underlying").begin()
+                .declareVar(getBeanPropType(), "object", underlyingGetCodegen(ref("underlying"), context))
                 .ifRefNullReturnNull("object");
 
         if (isArray) {
@@ -227,15 +227,15 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         return block.methodReturn(exprDotMethod(ref(msvc.getMemberName()), "adapterForTypedBean", ref("object"), ref(mtype.getMemberName())));
     }
 
-    public final CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public final CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         determineFragmentable();
         if (!isFragmentable) {
             return constantNull();
         }
-        return codegenUnderlyingFragment(castUnderlying(getTargetType(), beanExpression), context);
+        return underlyingFragmentCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public final CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public final CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         determineFragmentable();
         if (!isFragmentable) {
             return constantNull();

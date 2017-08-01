@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.view.*;
@@ -36,6 +37,7 @@ public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowView
      * Property name to evaluate unique values.
      */
     protected ExprNode[] criteriaExpressions;
+    protected ExprEvaluator[] criteriaExpressionEvals;
 
     private EventType eventType;
 
@@ -52,6 +54,7 @@ public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowView
         }
 
         this.eventType = parentEventType;
+        this.criteriaExpressionEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteriaExpressions, statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
@@ -81,5 +84,13 @@ public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowView
 
     public String getViewName() {
         return NAME;
+    }
+
+    public ExprNode[] getCriteriaExpressions() {
+        return criteriaExpressions;
+    }
+
+    public ExprEvaluator[] getCriteriaExpressionEvals() {
+        return criteriaExpressionEvals;
     }
 }

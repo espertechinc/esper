@@ -17,7 +17,5 @@ import java.util.Collection;
 
 public interface EnumEval {
 
-    public int getStreamNumSize();
-
-    public Object evaluateEnumMethod(EventBean[] eventsLambda, Collection target, boolean isNewData, ExprEvaluatorContext context);
+    public Object evaluateEnumMethod(EventBean[] eventsLambda, Collection enumcoll, boolean isNewData, ExprEvaluatorContext context);
 }

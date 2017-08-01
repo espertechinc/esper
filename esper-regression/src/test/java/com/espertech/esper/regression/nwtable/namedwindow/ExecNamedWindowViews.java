@@ -19,6 +19,8 @@ import com.espertech.esper.client.hook.TypeRepresentationMapperContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
@@ -283,7 +285,7 @@ public class ExecNamedWindowViews implements RegressionExecution {
         stmtCreate.addListener(listenerWindow);
 
         assertEquals(String.class, stmtCreate.getEventType().getPropertyType("key"));
-        assertEquals(long.class, stmtCreate.getEventType().getPropertyType("value"));
+        assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("value"));
 
         String stmtTextInsert = "insert into MyWindow select theString as key, longBoxed as value from " + SupportBean.class.getName();
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL(stmtTextInsert);
@@ -2044,7 +2046,7 @@ public class ExecNamedWindowViews implements RegressionExecution {
         stmtCreate.addListener(listenerWindow);
 
         assertEquals(String.class, stmtCreate.getEventType().getPropertyType("key"));
-        assertEquals(long.class, stmtCreate.getEventType().getPropertyType("value"));
+        assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("value"));
 
         String stmtTextInsert = "insert into MyWindowPS select theString as key, longBoxed as value from " + SupportBean.class.getName();
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL(stmtTextInsert);
@@ -2094,7 +2096,7 @@ public class ExecNamedWindowViews implements RegressionExecution {
         stmtCreate.addListener(listenerWindow);
 
         assertEquals(String.class, stmtCreate.getEventType().getPropertyType("key"));
-        assertEquals(long.class, stmtCreate.getEventType().getPropertyType("value"));
+        assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("value"));
 
         String stmtTextInsert = "insert into MyWindowLCL select theString as key, longBoxed as value from " + SupportBean.class.getName();
         epService.getEPAdministrator().createEPL(stmtTextInsert);
@@ -2149,7 +2151,7 @@ public class ExecNamedWindowViews implements RegressionExecution {
         stmtCreate.addListener(listenerWindow);
 
         assertEquals(String.class, stmtCreate.getEventType().getPropertyType("key"));
-        assertEquals(long.class, stmtCreate.getEventType().getPropertyType("value"));
+        assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("value"));
 
         String stmtTextInsert = "insert into MyWindowLCJ select theString as key, longBoxed as value from " + SupportBean.class.getName();
         epService.getEPAdministrator().createEPL(stmtTextInsert);
@@ -2320,10 +2322,16 @@ public class ExecNamedWindowViews implements RegressionExecution {
     public static class MyAvroTypeWidenerFactory implements ObjectValueTypeWidenerFactory {
         public TypeWidener make(ObjectValueTypeWidenerFactoryContext context) {
             if (context.getClazz() == SupportBean_S0.class) {
-                return (val) -> {
-                    GenericData.Record row = new GenericData.Record(getSupportBeanS0Schema());
-                    row.put("p00", ((SupportBean_S0) val).getP00());
-                    return row;
+                return new TypeWidener() {
+                    public Object widen(Object val) {
+                        GenericData.Record row = new GenericData.Record(getSupportBeanS0Schema());
+                        row.put("p00", ((SupportBean_S0) val).getP00());
+                        return row;
+                    }
+
+                    public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+                        throw new UnsupportedOperationException("not yet implemented");
+                    }
                 };
             }
             return null;

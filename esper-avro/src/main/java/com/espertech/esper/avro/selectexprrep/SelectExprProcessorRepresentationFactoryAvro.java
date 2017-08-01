@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.core.eval.SelectExprContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -22,8 +23,8 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 
 public class SelectExprProcessorRepresentationFactoryAvro implements SelectExprProcessorRepresentationFactory {
-    public SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException {
-        return new EvalSelectNoWildcardAvro(selectExprContext, resultEventType, statementName, engineURI);
+    public SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, ExprForge[] exprForges, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException {
+        return new EvalSelectNoWildcardAvro(selectExprContext, exprForges, resultEventType, statementName, engineURI);
     }
 
     public SelectExprProcessor makeRecast(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, String statementName, String engineURI) throws ExprValidationException {

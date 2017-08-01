@@ -46,11 +46,19 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         this.parameters = parameters;
     }
 
+    public ExprForge getForge() {
+        return evaluator;
+    }
+
     public List<ExprNode> getAdditionalNodes() {
         return parameters;
     }
 
     public ExprNodeScriptEvaluator getExprEvaluator() {
+        return evaluator;
+    }
+
+    public ExprNodeScriptEvaluator getScriptExprEvaluator() {
         return evaluator;
     }
 
@@ -107,16 +115,16 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
 
         // set up map of input parameter names and evaluators
         String[] inputParamNames = new String[script.getParameterNames().size()];
-        ExprEvaluator[] evaluators = new ExprEvaluator[script.getParameterNames().size()];
+        ExprForge[] forges = new ExprForge[script.getParameterNames().size()];
 
         for (int i = 0; i < script.getParameterNames().size(); i++) {
             inputParamNames[i] = script.getParameterNames().get(i);
-            evaluators[i] = validatedParameters.get(i).getExprEvaluator();
+            forges[i] = validatedParameters.get(i).getForge();
         }
 
         // Compile script
         if (script.getCompiled() == null) {
-            compileScript(evaluators, validationContext.getEngineImportService());
+            compileScript(forges, validationContext.getEngineImportService());
         }
 
         // Determine declared return type
@@ -156,11 +164,11 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         }
 
         // Prepare evaluator - this sets the evaluator
-        prepareEvaluator(validationContext.getStatementName(), inputParamNames, evaluators, returnType, eventTypeCollection);
+        prepareEvaluator(validationContext.getStatementName(), inputParamNames, forges, returnType, eventTypeCollection);
         return null;
     }
 
-    private void compileScript(ExprEvaluator[] evaluators, EngineImportService engineImportService)
+    private void compileScript(ExprForge[] forges, EngineImportService engineImportService)
             throws ExprValidationException {
         String dialect = script.getOptionalDialect() == null ? defaultDialect : script.getOptionalDialect();
 
@@ -169,7 +177,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
             Map<String, Class> mvelInputParamTypes = new HashMap<String, Class>();
             for (int i = 0; i < script.getParameterNames().size(); i++) {
                 String mvelParamName = script.getParameterNames().get(i);
-                mvelInputParamTypes.put(mvelParamName, evaluators[i].getType());
+                mvelInputParamTypes.put(mvelParamName, forges[i].getEvaluationType());
             }
             mvelInputParamTypes.put(CONTEXT_BINDING_NAME, EPLScriptContext.class);
             compiled = MVELHelper.compile(script.getName(), script.getExpression(), mvelInputParamTypes, engineImportService);
@@ -180,13 +188,13 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         script.setCompiled(compiled);
     }
 
-    private void prepareEvaluator(String statementName, String[] inputParamNames, ExprEvaluator[] evaluators, Class returnType, EventType eventTypeCollection) {
+    private void prepareEvaluator(String statementName, String[] inputParamNames, ExprForge[] evaluators, Class returnType, EventType eventTypeCollection) {
         if (script.getCompiled() instanceof ExpressionScriptCompiledMVEL) {
             ExpressionScriptCompiledMVEL mvel = (ExpressionScriptCompiledMVEL) script.getCompiled();
-            evaluator = new ExprNodeScriptEvalMVEL(script.getName(), statementName, inputParamNames, evaluators, returnType, eventTypeCollection, mvel.getCompiled());
+            evaluator = new ExprNodeScriptEvalMVEL(this, statementName, inputParamNames, evaluators, returnType, eventTypeCollection, mvel.getCompiled());
         } else {
             ExpressionScriptCompiledJSR223 jsr223 = (ExpressionScriptCompiledJSR223) script.getCompiled();
-            evaluator = new ExprNodeScriptEvalJSR223(script.getName(), statementName, inputParamNames, evaluators, returnType, eventTypeCollection, jsr223.getCompiled());
+            evaluator = new ExprNodeScriptEvalJSR223(this, statementName, inputParamNames, evaluators, returnType, eventTypeCollection, jsr223.getCompiled());
         }
     }
 

@@ -28,7 +28,7 @@ public class TestAggregationServiceGroupAllImpl extends TestCase {
             aggregators[i] = new SupportAggregator();
         }
 
-        ExprEvaluator[] evaluators = new ExprEvaluator[]{new SupportExprNode(5).getExprEvaluator(), new SupportExprNode(2).getExprEvaluator()};
+        ExprEvaluator[] evaluators = new ExprEvaluator[]{new SupportExprNode(5).getForge().getExprEvaluator(), new SupportExprNode(2).getForge().getExprEvaluator()};
 
         service = new AggSvcGroupAllNoAccessImpl(evaluators, aggregators, new AggregationMethodFactory[]{
                 new SupportAggregatorFactory(), new SupportAggregatorFactory()

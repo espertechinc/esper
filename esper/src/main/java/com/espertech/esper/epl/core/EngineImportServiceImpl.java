@@ -15,7 +15,10 @@ import com.espertech.esper.client.annotation.BuiltinAnnotation;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.client.util.ClassLoaderProvider;
+import com.espertech.esper.codegen.compile.CodegenCompiler;
+import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.compile.CodegenEventPropertyGetter;
+import com.espertech.esper.codegen.compile.CodegenMessageUtil;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
@@ -30,6 +33,8 @@ import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderMXCIFQuadTree;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderPointRegionQuadTree;
 import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
+import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
+import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
@@ -38,11 +43,13 @@ import com.espertech.esper.util.TransientConfigurationResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.MathContext;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Implementation for engine-level imports.
@@ -67,10 +74,12 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     private final Map<String, Object> transientConfiguration;
     private final AggregationFactoryFactory aggregationFactoryFactory;
     private final LinkedHashMap<String, AdvancedIndexFactoryProvider> advancedIndexProviders = new LinkedHashMap<>(8);
-    private final boolean isCodegenEventPropertyGetters;
+    private final ConfigurationEngineDefaults.CodeGeneration codeGeneration;
+    private final CodegenCompiler codegenCompiler;
+
     private final String engineURI;
 
-    public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory, boolean isCodegenEventPropertyGetters, String engineURI) {
+    public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory, ConfigurationEngineDefaults.CodeGeneration codeGeneration, String engineURI, CodegenCompiler codegenCompiler) {
         imports = new ArrayList<String>();
         annotationImports = new ArrayList<String>(2);
         aggregationFunctions = new HashMap<String, ConfigurationPlugInAggregationFunction>();
@@ -89,8 +98,9 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
         this.aggregationFactoryFactory = aggregationFactoryFactory;
         this.advancedIndexProviders.put("pointregionquadtree", new AdvancedIndexFactoryProviderPointRegionQuadTree());
         this.advancedIndexProviders.put("mxcifquadtree", new AdvancedIndexFactoryProviderMXCIFQuadTree());
-        this.isCodegenEventPropertyGetters = isCodegenEventPropertyGetters;
+        this.codeGeneration = codeGeneration;
         this.engineURI = engineURI;
+        this.codegenCompiler = codegenCompiler;
     }
 
     public boolean isUdfCache() {
@@ -509,11 +519,61 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     }
 
     public boolean isCodegenEventPropertyGetters() {
-        return isCodegenEventPropertyGetters;
+        return codeGeneration.isEnablePropertyGetter();
     }
 
-    public EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String propertyExpression) {
-        return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, propertyExpression);
+    public ConfigurationEngineDefaults.CodeGeneration getCodeGeneration() {
+        return codeGeneration;
+    }
+
+    public EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String eventTypeName, String propertyExpression) {
+        Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
+        try {
+            return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+        }
+        catch (Throwable t) {
+            logCodegenGetter(t, debugInfo);
+            if (codeGeneration.isEnableFallback()) {
+                return getterSPI;
+            }
+            throw makeCodegenGetterException(t, debugInfo);
+        }
+    }
+
+    public EventPropertyGetterIndexed codegenGetter(EventPropertyGetterIndexedSPI getterSPI, String eventTypeName, String propertyExpression) {
+        Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
+        try {
+            return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+        }
+        catch (Throwable t) {
+            logCodegenGetter(t, debugInfo);
+            if (codeGeneration.isEnableFallback()) {
+                return getterSPI;
+            }
+            throw makeCodegenGetterException(t, debugInfo);
+        }
+    }
+
+    public EventPropertyGetterMapped codegenGetter(EventPropertyGetterMappedSPI getterSPI, String eventTypeName, String propertyExpression) {
+        Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
+        try {
+            return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+        }
+        catch (Throwable t) {
+            logCodegenGetter(t, debugInfo);
+            if (codeGeneration.isEnableFallback()) {
+                return getterSPI;
+            }
+            throw makeCodegenGetterException(t, debugInfo);
+        }
+    }
+
+    public String getEngineURI() {
+        return engineURI;
+    }
+
+    public CodegenCompiler getCodegenCompiler() {
+        return codegenCompiler;
     }
 
     /**
@@ -667,6 +727,36 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
         }
 
         imports.add(importName);
+    }
+
+    private void logCodegenGetter(Throwable t, Supplier<String> debugInfo) {
+        if (t instanceof CodegenCompilerException) {
+            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode((CodegenCompilerException) t, debugInfo, codeGeneration.isEnableFallback());
+            if (codeGeneration.isEnableFallback()) {
+                log.warn(message, t);
+            }
+            else {
+                log.error(message, t);
+            }
+        }
+    }
+
+    private EPException makeCodegenGetterException(Throwable t, Supplier<String> debugInfo) {
+        return new EPException("Fatal exception generating event property getter for " + debugInfo.get() + " (see error log for details): " + t.getMessage(), t);
+    }
+
+    private static Supplier<String> getCodegenDebugInfo(String eventTypeName, String propertyExpression) {
+        return new Supplier<String>() {
+            public String get() {
+                StringWriter writer = new StringWriter();
+                writer.append("event-type '");
+                writer.append(eventTypeName);
+                writer.append("' property '");
+                writer.append(propertyExpression);
+                writer.append("'");
+                return writer.toString();
+            }
+        };
     }
 
     private enum MethodModifiers {

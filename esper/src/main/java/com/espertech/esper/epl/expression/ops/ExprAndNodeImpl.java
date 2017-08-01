@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -20,20 +21,40 @@ import java.io.StringWriter;
 /**
  * Represents an And-condition.
  */
-public class ExprAndNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprAndNode {
+public class ExprAndNodeImpl extends ExprNodeBase implements ExprForge, ExprAndNode {
     private static final long serialVersionUID = 8105121208330622813L;
-
-    private transient ExprEvaluator[] evaluators;
 
     public ExprAndNodeImpl() {
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
+    public Class getEvaluationType() {
+        return Boolean.class;
+    }
 
+    public ExprEvaluator getExprEvaluator() {
+        return new ExprAndNodeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(this.getChildNodes()));
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return ExprAndNodeEval.codegen(this, context, params);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.INTER;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Sub-nodes must be returning boolean
-        for (ExprEvaluator child : evaluators) {
-            Class childType = child.getType();
+        for (ExprNode child : getChildNodes()) {
+            Class childType = child.getForge().getEvaluationType();
             if (!JavaClassHelper.isBoolean(childType)) {
                 throw new ExprValidationException("Incorrect use of AND clause, sub-expressions do not return boolean");
             }
@@ -45,40 +66,8 @@ public class ExprAndNodeImpl extends ExprNodeBase implements ExprEvaluator, Expr
         return null;
     }
 
-    public ExprEvaluator getExprEvaluator() {
-        return this;
-    }
-
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return Boolean.class;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprAnd(this);
-        }
-        Boolean result = true;
-        for (ExprEvaluator child : evaluators) {
-            Boolean evaluated = (Boolean) child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (evaluated == null) {
-                result = null;
-            } else {
-                if (!evaluated) {
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aExprAnd(false);
-                    }
-                    return false;
-                }
-            }
-        }
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprAnd(result);
-        }
-        return result;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

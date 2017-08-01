@@ -18,6 +18,7 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -77,7 +78,7 @@ public class ExprAggMultiFunctionLinearAccessNodeFactoryAccess implements Aggreg
         AggregationValidationUtil.validateEventType(this.containedEventType, other.getContainedEventType());
     }
 
-    public AggregationAgent getAggregationStateAgent() {
+    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         return optionalAgent;
     }
 

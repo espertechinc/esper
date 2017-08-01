@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.db.PollExecStrategy;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.ExprNodeScript;
@@ -29,8 +28,8 @@ public class MethodPollingExecStrategyScript implements PollExecStrategy {
 
     private final ExprNodeScriptEvaluator eval;
 
-    public MethodPollingExecStrategyScript(ExprNodeScript scriptExpression, EventType eventTypeEventBeanArray) {
-        eval = scriptExpression.getExprEvaluator();
+    public MethodPollingExecStrategyScript(ExprNodeScript scriptExpression) {
+        eval = scriptExpression.getScriptExprEvaluator();
     }
 
     public void start() {

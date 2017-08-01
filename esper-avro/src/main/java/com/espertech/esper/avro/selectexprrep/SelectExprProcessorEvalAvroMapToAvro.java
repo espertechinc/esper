@@ -43,7 +43,4 @@ public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator {
         return record;
     }
 
-    public Class getType() {
-        return GenericData.Record.class;
-    }
 }

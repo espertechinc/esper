@@ -16,7 +16,6 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
@@ -35,14 +34,12 @@ import java.util.Map;
  */
 public class FirstUniqueByPropertyView extends ViewSupport implements CloneableView, DataWindowView {
     private final FirstUniqueByPropertyViewFactory viewFactory;
-    protected final ExprEvaluator[] uniqueCriteriaEval;
     private EventBean[] eventsPerStream = new EventBean[1];
     protected final Map<Object, EventBean> firstEvents = new HashMap<Object, EventBean>();
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
 
     public FirstUniqueByPropertyView(FirstUniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.viewFactory = viewFactory;
-        this.uniqueCriteriaEval = ExprNodeUtility.getEvaluators(viewFactory.criteriaExpressions);
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
     }
 
@@ -151,6 +148,7 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
 
     protected Object getUniqueKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
+        ExprEvaluator[] uniqueCriteriaEval = viewFactory.criteriaExpressionEvals;
         if (uniqueCriteriaEval.length == 1) {
             return uniqueCriteriaEval[0].evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }

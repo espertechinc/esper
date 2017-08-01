@@ -16,24 +16,26 @@ import java.util.Map;
 import java.util.Set;
 
 public class CodegenStatementAssignArrayElement extends CodegenStatementBase {
-    private final String name;
+    private final CodegenExpression array;
     private final CodegenExpression index;
     private final CodegenExpression expression;
 
-    public CodegenStatementAssignArrayElement(String name, CodegenExpression index, CodegenExpression expression) {
-        this.name = name;
+    public CodegenStatementAssignArrayElement(CodegenExpression array, CodegenExpression index, CodegenExpression expression) {
+        this.array = array;
         this.index = index;
         this.expression = expression;
     }
 
     public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
-        builder.append(name).append("[");
+        array.render(builder, imports);
+        builder.append("[");
         index.render(builder, imports);
         builder.append("]=");
         expression.render(builder, imports);
     }
 
     public void mergeClasses(Set<Class> classes) {
+        array.mergeClasses(classes);
         index.mergeClasses(classes);
         expression.mergeClasses(classes);
     }

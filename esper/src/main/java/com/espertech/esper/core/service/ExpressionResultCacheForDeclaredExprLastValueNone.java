@@ -18,7 +18,7 @@ public class ExpressionResultCacheForDeclaredExprLastValueNone implements Expres
         return false;
     }
 
-    public ExpressionResultCacheEntry<EventBean[], Object> getDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream) {
+    public ExpressionResultCacheEntryEventBeanArrayAndObj getDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream) {
         return null;
     }
 

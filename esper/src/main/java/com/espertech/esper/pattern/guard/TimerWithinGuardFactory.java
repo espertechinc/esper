@@ -42,7 +42,7 @@ public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Seria
             throw new GuardParameterException(errorMessage);
         }
 
-        if (!JavaClassHelper.isNumeric(parameters.get(0).getExprEvaluator().getType())) {
+        if (!JavaClassHelper.isNumeric(parameters.get(0).getForge().getEvaluationType())) {
             throw new GuardParameterException(errorMessage);
         }
 

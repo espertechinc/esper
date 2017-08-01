@@ -37,11 +37,27 @@ public class ExecExprArrayExpression implements RegressionExecution {
     private static Object[] callbackObjects;
 
     public void run(EPServiceProvider epService) throws Exception {
+        runAssertionArraySimple(epService);
         runAssertionArrayMapResult(epService);
         runAssertionArrayAvroResult(epService);
         runAssertionArrayExpressions_Compile(epService);
         runAssertionArrayExpressions_OM(epService);
         runAssertionComplexTypes(epService);
+    }
+
+    private void runAssertionArraySimple(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        String stmtText = "select {1, 2} as c0 from SupportBean";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        Object result = listener.assertOneGetNewAndReset().get("c0");
+        assertEquals(Integer[].class, result.getClass());
+        EPAssertionUtil.assertEqualsExactOrder(new Object[] {1, 2}, (Integer[]) result);
+
+        stmt.destroy();
     }
 
     private void runAssertionComplexTypes(EPServiceProvider epService) {

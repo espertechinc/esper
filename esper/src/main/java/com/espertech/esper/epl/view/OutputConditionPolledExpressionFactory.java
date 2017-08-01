@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
@@ -41,7 +42,7 @@ public class OutputConditionPolledExpressionFactory implements OutputConditionPo
      */
     public OutputConditionPolledExpressionFactory(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, StatementContext statementContext)
             throws ExprValidationException {
-        this.whenExpressionNode = whenExpressionNode.getExprEvaluator();
+        this.whenExpressionNode = ExprNodeCompiler.allocateEvaluator(whenExpressionNode.getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
 
         // determine if using properties
         boolean containsBuiltinProperties = false;
@@ -64,7 +65,7 @@ public class OutputConditionPolledExpressionFactory implements OutputConditionPo
         }
 
         if (assignments != null) {
-            variableReadWritePackage = new VariableReadWritePackage(assignments, statementContext.getVariableService(), statementContext.getEventAdapterService());
+            variableReadWritePackage = new VariableReadWritePackage(assignments, statementContext.getVariableService(), statementContext.getEventAdapterService(), statementContext.getStatementName());
         } else {
             variableReadWritePackage = null;
         }

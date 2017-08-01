@@ -53,7 +53,7 @@ public class VariableReadWritePackage {
      * @param eventAdapterService event adapters
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when variables cannot be found
      */
-    public VariableReadWritePackage(List<OnTriggerSetAssignment> assignments, VariableService variableService, EventAdapterService eventAdapterService)
+    public VariableReadWritePackage(List<OnTriggerSetAssignment> assignments, VariableService variableService, EventAdapterService eventAdapterService, String statementName)
             throws ExprValidationException {
         this.metaData = new VariableMetaData[assignments.size()];
         this.readersForGlobalVars = new VariableReader[assignments.size()];
@@ -73,7 +73,8 @@ public class VariableReadWritePackage {
             if (possibleVariableAssignment == null) {
                 throw new ExprValidationException("Missing variable assignment expression in assignment number " + count);
             }
-            assignmentList.add(new VariableTriggerSetDesc(possibleVariableAssignment.getFirst(), possibleVariableAssignment.getSecond().getExprEvaluator()));
+            ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(possibleVariableAssignment.getSecond().getForge(), eventAdapterService.getEngineImportService(), this.getClass(), false, statementName);
+            assignmentList.add(new VariableTriggerSetDesc(possibleVariableAssignment.getFirst(), evaluator));
 
             String fullVariableName = possibleVariableAssignment.getFirst();
             String variableName = fullVariableName;
@@ -124,7 +125,7 @@ public class VariableReadWritePackage {
             } else {
 
                 // determine types
-                Class expressionType = possibleVariableAssignment.getSecond().getExprEvaluator().getType();
+                Class expressionType = possibleVariableAssignment.getSecond().getForge().getEvaluationType();
 
                 if (variableMetadata.getEventType() != null) {
                     if ((expressionType != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(expressionType, variableMetadata.getEventType().getUnderlyingType()))) {

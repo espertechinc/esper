@@ -46,7 +46,7 @@ public class SupportAggMFStateArrayCollScalar implements AggregationState {
     }
 
     public Object getValueAsArray() {
-        Object array = Array.newInstance(factory.getEvaluator().getType(), values.size());
+        Object array = Array.newInstance(factory.getForge().getEvaluationType(), values.size());
         Iterator<Object> it = values.iterator();
         int count = 0;
         for (; it.hasNext(); ) {

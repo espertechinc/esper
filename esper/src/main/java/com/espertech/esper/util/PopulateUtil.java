@@ -282,7 +282,7 @@ public class PopulateUtil {
                 ExprNode exprNode = (ExprNode) value;
                 ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, exprNode, exprValidationContext);
                 exprValidationContext.getVariableService().setLocalVersion();
-                ExprEvaluator evaluator = validated.getExprEvaluator();
+                ExprEvaluator evaluator = validated.getForge().getExprEvaluator();
                 if (evaluator == null) {
                     throw new ExprValidationException("Failed to evaluate expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "'");
                 }

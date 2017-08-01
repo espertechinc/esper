@@ -10,8 +10,16 @@
  */
 package com.espertech.esper.epl.datetime.eval;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.time.LocalDateTime;
 import java.util.TimeZone;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethodChain;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class DatetimeLongCoercerLocalDateTime implements DatetimeLongCoercer {
     private final TimeZone timeZone;
@@ -21,10 +29,24 @@ public class DatetimeLongCoercerLocalDateTime implements DatetimeLongCoercer {
     }
 
     public long coerce(Object date) {
-        return coerce((LocalDateTime) date, timeZone);
+        return coerceLDTToMilliWTimezone((LocalDateTime) date, timeZone);
     }
 
-    public static long coerce(LocalDateTime ldt, TimeZone timeZone) {
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param ldt ldt
+     * @param timeZone tz
+     * @return millis
+     */
+    public static long coerceLDTToMilliWTimezone(LocalDateTime ldt, TimeZone timeZone) {
         return ldt.atZone(timeZone.toZoneId()).toInstant().toEpochMilli();
+    }
+
+    public CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenContext context) {
+        if (valueType != LocalDateTime.class) {
+            throw new IllegalStateException("Expected a LocalDateTime type");
+        }
+        CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
+        return exprDotMethodChain(value).add("atZone", exprDotMethod(ref(tz.getMemberName()), "toZoneId")).add("toInstant").add("toEpochMilli");
     }
 }

@@ -20,9 +20,7 @@ import org.apache.avro.generic.GenericData;
 
 import java.util.Map;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.castUnderlying;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethodTakingExprAndConst;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter {
     private final String propertyName;
@@ -92,27 +90,27 @@ public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getAvroFieldValue", underlyingExpression, propertyName, key);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getAvroFieldValue", underlyingExpression, constant(propertyName), constant(key));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "isAvroFieldExists", underlyingExpression, propertyName);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "isAvroFieldExists", underlyingExpression, constant(propertyName));
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
     }
 }

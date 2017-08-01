@@ -130,6 +130,6 @@ public class ExecInsertIntoEmptyPropType implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private static class MyBeanWithoutProps {
+    public static class MyBeanWithoutProps {
     }
 }

@@ -46,7 +46,7 @@ public class SubordTableLookupStrategyVirtualDW implements SubordTableLookupStra
 
         int count = 0;
         for (SubordPropHashKey hashKey : hashKeys) {
-            ExprEvaluator evaluator = hashKey.getHashKey().getKeyExpr().getExprEvaluator();
+            ExprEvaluator evaluator = hashKey.getHashKey().getKeyExpr().getForge().getExprEvaluator();
             evaluators[count] = new ExternalEvaluatorHashRelOp(evaluator, hashKeyCoercionTypes.getCoercionTypes()[count]);
             count++;
         }
@@ -54,12 +54,12 @@ public class SubordTableLookupStrategyVirtualDW implements SubordTableLookupStra
             SubordPropRangeKey rangeKey = rangeKeys.get(i);
             if (rangeKey.getRangeInfo().getType().isRange()) {
                 QueryGraphValueEntryRangeIn range = (QueryGraphValueEntryRangeIn) rangeKey.getRangeInfo();
-                ExprEvaluator evaluatorStart = range.getExprStart().getExprEvaluator();
-                ExprEvaluator evaluatorEnd = range.getExprEnd().getExprEvaluator();
+                ExprEvaluator evaluatorStart = range.getExprStart().getForge().getExprEvaluator();
+                ExprEvaluator evaluatorEnd = range.getExprEnd().getForge().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorBtreeRange(evaluatorStart, evaluatorEnd, rangeKeyCoercionTypes.getCoercionTypes()[i]);
             } else {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeKey.getRangeInfo();
-                ExprEvaluator evaluator = relOp.getExpression().getExprEvaluator();
+                ExprEvaluator evaluator = relOp.getExpression().getForge().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorHashRelOp(evaluator, rangeKeyCoercionTypes.getCoercionTypes()[i]);
             }
             count++;

@@ -11,6 +11,9 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 
 import java.io.StringWriter;
 
@@ -18,7 +21,7 @@ import java.io.StringWriter;
  * A placeholder expression for view/pattern object parameters that allow
  * sorting expression values ascending or descending.
  */
-public class ExprOrderedExpr extends ExprNodeBase implements ExprEvaluator {
+public class ExprOrderedExpr extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private final boolean isDescending;
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -3140402807682771591L;
@@ -47,6 +50,18 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprEvaluator {
         return this;
     }
 
+    public Class getEvaluationType() {
+        return getChildNodes()[0].getForge().getEvaluationType();
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
     public boolean isConstantResult() {
         return getChildNodes()[0].isConstantResult();
     }
@@ -60,17 +75,21 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        evaluator = getChildNodes()[0].getExprEvaluator();
+        evaluator = getChildNodes()[0].getForge().getExprEvaluator();
         // always valid
         return null;
     }
 
-    public Class getType() {
-        return getChildNodes()[0].getExprEvaluator().getType();
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return getChildNodes()[0].getForge().evaluateCodegen(params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return getChildNodes()[0].getForge().getComplexity();
     }
 
     /**

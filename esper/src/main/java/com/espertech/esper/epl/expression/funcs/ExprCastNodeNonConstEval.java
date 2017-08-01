@@ -42,7 +42,4 @@ public class ExprCastNodeNonConstEval implements ExprEvaluator {
         return result;
     }
 
-    public Class getType() {
-        return parent.getTargetType();
-    }
 }

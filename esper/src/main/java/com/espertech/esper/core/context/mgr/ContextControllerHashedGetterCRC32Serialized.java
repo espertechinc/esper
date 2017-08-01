@@ -13,8 +13,11 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.util.Serializer;
 import com.espertech.esper.util.SerializerFactory;
 import org.slf4j.Logger;
@@ -32,13 +35,14 @@ public class ContextControllerHashedGetterCRC32Serialized implements EventProper
     private final Serializer[] serializers;
     private final int granularity;
 
-    public ContextControllerHashedGetterCRC32Serialized(String statementName, List<ExprNode> nodes, int granularity) {
+    public ContextControllerHashedGetterCRC32Serialized(String statementName, List<ExprNode> nodes, int granularity, EngineImportService engineImportService) {
         this.statementName = statementName;
         evaluators = new ExprEvaluator[nodes.size()];
         Class[] returnTypes = new Class[nodes.size()];
         for (int i = 0; i < nodes.size(); i++) {
-            evaluators[i] = nodes.get(i).getExprEvaluator();
-            returnTypes[i] = evaluators[i].getType();
+            ExprForge forge = nodes.get(i).getForge();
+            evaluators[i] = ExprNodeCompiler.allocateEvaluator(forge, engineImportService, ContextControllerHashedGetterCRC32Serialized.class, false, statementName);
+            returnTypes[i] = forge.getEvaluationType();
         }
         serializers = SerializerFactory.getSerializers(returnTypes);
         this.granularity = granularity;

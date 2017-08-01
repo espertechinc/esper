@@ -75,6 +75,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
                          EventAdapterService eventAdapterService,
                          ConfigurationEventTypeLegacy optionalLegacyDef
     ) {
+        EventTypeUtility.validateEventBeanClassVisibility(clazz);
         this.metadata = metadata;
         this.clazz = clazz;
         this.eventAdapterService = eventAdapterService;
@@ -206,21 +207,43 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
             return null;
         }
 
-        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, metadata.getPublicName(), propertyName);
         propertyGetterCodegeneratedCache.put(propertyName, getterCode);
         return getterCode;
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedPropertyName) {
-        EventPropertyDescriptor desc = this.propertyDescriptorMap.get(mappedPropertyName);
+        EventPropertyGetterMappedSPI getter = getGetterMappedSPI(mappedPropertyName);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), mappedPropertyName);
+    }
+
+    public EventPropertyGetterMappedSPI getGetterMappedSPI(String propertyName) {
+        EventPropertyDescriptor desc = this.propertyDescriptorMap.get(propertyName);
         if (desc == null || !desc.isMapped()) {
             return null;
         }
-        MappedProperty mappedProperty = new MappedProperty(mappedPropertyName);
+        MappedProperty mappedProperty = new MappedProperty(propertyName);
         return mappedProperty.getGetter(this, eventAdapterService);
     }
 
     public EventPropertyGetterIndexed getGetterIndexed(String indexedPropertyName) {
+        EventPropertyGetterIndexedSPI getter = getGetterIndexedSPI(indexedPropertyName);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), indexedPropertyName);
+    }
+
+    public EventPropertyGetterIndexedSPI getGetterIndexedSPI(String indexedPropertyName) {
         EventPropertyDescriptor desc = this.propertyDescriptorMap.get(indexedPropertyName);
         if (desc == null || !desc.isIndexed()) {
             return null;

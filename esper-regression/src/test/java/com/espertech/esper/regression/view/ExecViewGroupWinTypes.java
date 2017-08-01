@@ -23,7 +23,7 @@ public class ExecViewGroupWinTypes implements RegressionExecution {
                 "#groupwin(intPrimitive)#length(4)#groupwin(longBoxed)#uni(doubleBoxed)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewStmt);
 
-        assertEquals(int.class, stmt.getEventType().getPropertyType("intPrimitive"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("intPrimitive"));
         assertEquals(Long.class, stmt.getEventType().getPropertyType("longBoxed"));
         assertEquals(Double.class, stmt.getEventType().getPropertyType("stddev"));
         assertEquals(8, stmt.getEventType().getPropertyNames().length);

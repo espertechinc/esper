@@ -14,6 +14,7 @@ import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.annotation.Hook;
 import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.util.ClassForNameProvider;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
@@ -34,6 +35,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Helper for questions about Java classes such as
@@ -366,6 +369,81 @@ public class JavaClassHelper {
         throw new IllegalArgumentException("Cannot coerce to number subtype " + resultBoxedType.getName());
     }
 
+    public static CodegenExpression coerceNumberBoxedToBoxedCodegen(CodegenExpression exprReturningBoxed, Class fromTypeBoxed, Class targetTypeBoxed) {
+        if (fromTypeBoxed == targetTypeBoxed) {
+            return exprReturningBoxed;
+        }
+        if (targetTypeBoxed == Double.class) {
+            return exprDotMethod(exprReturningBoxed, "doubleValue");
+        }
+        if (targetTypeBoxed == Long.class) {
+            return exprDotMethod(exprReturningBoxed, "longValue");
+        }
+        if (targetTypeBoxed == BigInteger.class) {
+            return staticMethod(BigInteger.class, "valueOf", exprDotMethod(exprReturningBoxed, "longValue"));
+        }
+        if (targetTypeBoxed == BigDecimal.class) {
+            if (JavaClassHelper.isFloatingPointClass(fromTypeBoxed)) {
+                return newInstance(BigDecimal.class, exprDotMethod(exprReturningBoxed, "doubleValue"));
+            }
+            return newInstance(BigDecimal.class, exprDotMethod(exprReturningBoxed, "longValue"));
+        }
+        if (targetTypeBoxed == Float.class) {
+            return exprDotMethod(exprReturningBoxed, "floatValue");
+        }
+        if (targetTypeBoxed == Integer.class) {
+            return exprDotMethod(exprReturningBoxed, "intValue");
+        }
+        if (targetTypeBoxed == Short.class) {
+            return exprDotMethod(exprReturningBoxed, "shortValue");
+        }
+        if (targetTypeBoxed == Byte.class) {
+            return exprDotMethod(exprReturningBoxed, "byteValue");
+        }
+        throw new IllegalArgumentException("Cannot coerce to number subtype " + fromTypeBoxed.getName());
+    }
+
+    public static CodegenExpression coerceNumberToBoxedCodegen(CodegenExpression expr, Class fromType, Class targetTypeBoxed) {
+        if (!fromType.isPrimitive()) {
+            return coerceNumberBoxedToBoxedCodegen(expr, fromType, targetTypeBoxed);
+        }
+        if (targetTypeBoxed == Double.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Double.class, double.class);
+        }
+        if (targetTypeBoxed == Long.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Long.class, long.class);
+        }
+        if (targetTypeBoxed == BigInteger.class) {
+            return staticMethod(BigInteger.class, "valueOf", coerceAnyToBoxedCodegenValueOf(expr, fromType, Long.class, long.class));
+        }
+        if (targetTypeBoxed == BigDecimal.class) {
+            if (JavaClassHelper.isFloatingPointClass(fromType)) {
+                return newInstance(BigDecimal.class, exprDotMethod(coerceAnyToBoxedCodegenValueOf(expr, fromType, Double.class, double.class), "doubleValue"));
+            }
+            return newInstance(BigDecimal.class, exprDotMethod(coerceAnyToBoxedCodegenValueOf(expr, fromType, Long.class, long.class), "longValue"));
+        }
+        if (targetTypeBoxed == Float.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Byte.class, byte.class);
+        }
+        if (targetTypeBoxed == Integer.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Integer.class, int.class);
+        }
+        if (targetTypeBoxed == Short.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Short.class, short.class);
+        }
+        if (targetTypeBoxed == Byte.class) {
+            return coerceAnyToBoxedCodegenValueOf(expr, fromType, Byte.class, byte.class);
+        }
+        throw new IllegalArgumentException("Cannot coerce to number subtype " + targetTypeBoxed);
+    }
+
+    private static CodegenExpression coerceAnyToBoxedCodegenValueOf(CodegenExpression expr, Class from, Class boxed, Class cast) {
+        if (from == cast) {
+            return staticMethod(boxed, "valueOf", expr);
+        }
+        return staticMethod(boxed, "valueOf", cast(cast, expr));
+    }
+
     /**
      * Returns true if the Number instance is a floating point number.
      *
@@ -557,6 +635,9 @@ public class JavaClassHelper {
     public static boolean isJavaBuiltinDataType(Class clazz) {
         if (clazz == null) {
             return true;
+        }
+        if (clazz.isArray()) {
+            return isJavaBuiltinDataType(clazz.getComponentType());
         }
         Class clazzBoxed = getBoxedType(clazz);
         if (isNumeric(clazzBoxed)) {
@@ -1463,7 +1544,7 @@ public class JavaClassHelper {
         }
     }
 
-    public static String getMessageInvocationTarget(String statementName, Method method, String classOrPropertyName, Object[] args, InvocationTargetException e) {
+    public static String getMessageInvocationTarget(String statementName, Method method, String classOrPropertyName, Object[] args, Throwable targetException) {
 
         String parameters = args == null ? "null" : Arrays.toString(args);
         if (args != null) {
@@ -1483,7 +1564,7 @@ public class JavaClassHelper {
         return "Invocation exception when invoking method '" + method.getName() +
                 "' of class '" + classOrPropertyName +
                 "' passing parameters " + parameters +
-                " for statement '" + statementName + "': " + e.getTargetException().getClass().getSimpleName() + " : " + e.getTargetException().getMessage();
+                " for statement '" + statementName + "': " + targetException.getClass().getSimpleName() + " : " + targetException.getMessage();
     }
 
     public static boolean isDatetimeClass(Class inputType) {

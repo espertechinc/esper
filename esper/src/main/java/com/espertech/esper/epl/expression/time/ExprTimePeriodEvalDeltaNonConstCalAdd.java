@@ -11,6 +11,11 @@
 package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -18,19 +23,25 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEvalDeltaNonConst {
     private final Calendar cal;
-    private final ExprTimePeriodImpl parent;
+    private final ExprTimePeriodForge forge;
     private final int indexMicroseconds;
 
-    public ExprTimePeriodEvalDeltaNonConstCalAdd(TimeZone timeZone, ExprTimePeriodImpl parent) {
-        this.parent = parent;
+    public ExprTimePeriodEvalDeltaNonConstCalAdd(TimeZone timeZone, ExprTimePeriodForge forge) {
+        this.forge = forge;
         this.cal = Calendar.getInstance(timeZone);
-        this.indexMicroseconds = ExprTimePeriodUtil.findIndexMicroseconds(parent.getAdders());
+        this.indexMicroseconds = ExprTimePeriodUtil.findIndexMicroseconds(forge.getAdders());
     }
 
     public synchronized long deltaAdd(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return addSubtract(currentTime, 1, eventsPerStream, isNewData, context);
+    }
+
+    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
+        return addSubtractCodegen(reference, constant(1), params, context);
     }
 
     public synchronized long deltaSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -61,10 +72,10 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
     }
 
     private long addSubtract(long currentTime, int factor, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
-        long remainder = parent.getTimeAbacus().calendarSet(currentTime, cal);
+        long remainder = forge.getTimeAbacus().calendarSet(currentTime, cal);
 
-        ExprTimePeriodImpl.TimePeriodAdder[] adders = parent.getAdders();
-        ExprEvaluator[] evaluators = parent.getEvaluators();
+        ExprTimePeriodAdder.TimePeriodAdder[] adders = forge.getAdders();
+        ExprEvaluator[] evaluators = forge.getEvaluators();
         int usec = 0;
         for (int i = 0; i < adders.length; i++) {
             int value = ((Number) evaluators[i].evaluate(eventsPerStream, newData, context)).intValue();
@@ -75,10 +86,34 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
             }
         }
 
-        long result = parent.getTimeAbacus().calendarGet(cal, remainder);
+        long result = forge.getTimeAbacus().calendarGet(cal, remainder);
         if (indexMicroseconds != -1) {
             result += factor * usec;
         }
         return result - currentTime;
+    }
+
+    private CodegenExpression addSubtractCodegen(CodegenExpression reference, CodegenExpression constant, CodegenParamSetExprPremade params, CodegenContext context) {
+        CodegenMember calMember = context.makeAddMember(Calendar.class, cal);
+        CodegenBlock block = context.addMethod(long.class, ExprTimePeriodEvalDeltaNonConstCalAdd.class).add(long.class, "currentTime").add(int.class, "factor").add(params).begin()
+                .declareVarNoInit(long.class, "result")
+                .synchronizedOn(ref(calMember.getMemberName()))
+                .declareVar(long.class, "remainder", forge.getTimeAbacus().calendarSetCodegen(ref("currentTime"), ref(calMember.getMemberName()), context))
+                .declareVar(int.class, "usec", constant(0));
+        for (int i = 0; i < forge.getAdders().length; i++) {
+            String refname = "v" + i;
+            block.declareVar(int.class, refname, forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(params, context));
+            if (i == indexMicroseconds) {
+                block.assignRef("usec", ref(refname));
+            } else {
+                block.expression(forge.getAdders()[i].addCodegen(ref(calMember.getMemberName()), op(ref("factor"), "*", ref(refname))));
+            }
+        }
+        block.assignRef("result", forge.getTimeAbacus().calendarGetCodegen(ref(calMember.getMemberName()), ref("remainder"), context));
+        if (indexMicroseconds != -1) {
+            block.assignRef("result", op(ref("result"), "+", op(ref("factor"), "*", ref("usec"))));
+        }
+        String method = block.blockEnd().methodReturn(op(ref("result"), "-", ref("currentTime")));
+        return localMethodBuild(method).pass(reference).pass(constant).passAll(params).call();
     }
 }

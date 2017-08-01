@@ -73,5 +73,7 @@ public interface EventTypeSPI extends EventType {
 
     public boolean equalsCompareType(EventType eventType);
 
-    public EventPropertyGetterSPI getGetterSPI(String propertyExpression);
+    EventPropertyGetterSPI getGetterSPI(String propertyExpression);
+    EventPropertyGetterMappedSPI getGetterMappedSPI(String propertyName);
+    EventPropertyGetterIndexedSPI getGetterIndexedSPI(String propertyName);
 }

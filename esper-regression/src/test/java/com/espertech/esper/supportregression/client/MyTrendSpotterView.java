@@ -75,7 +75,7 @@ public class MyTrendSpotterView extends ViewSupport {
         if (newData != null) {
             for (EventBean aNewData : newData) {
                 eventsPerStream[0] = aNewData;
-                double dataPoint = ((Number) expression.getExprEvaluator().evaluate(eventsPerStream, true, null)).doubleValue();
+                double dataPoint = ((Number) expression.getForge().getExprEvaluator().evaluate(eventsPerStream, true, null)).doubleValue();
 
                 if (lastDataPoint == null) {
                     trendcount = 1L;

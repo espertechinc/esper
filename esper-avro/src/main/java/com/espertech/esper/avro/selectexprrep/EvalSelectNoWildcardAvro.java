@@ -18,6 +18,7 @@ import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.core.eval.SelectExprContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
@@ -32,20 +33,21 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
     private final AvroEventType resultEventType;
     private final ExprEvaluator[] evaluator;
 
-    public EvalSelectNoWildcardAvro(SelectExprContext selectExprContext, EventType resultEventType, String statementName, String engineURI) throws ExprValidationException {
+    public EvalSelectNoWildcardAvro(SelectExprContext selectExprContext, ExprForge[] exprForges, EventType resultEventType, String statementName, String engineURI) throws ExprValidationException {
         this.selectExprContext = selectExprContext;
         this.resultEventType = (AvroEventType) resultEventType;
 
         this.evaluator = new ExprEvaluator[selectExprContext.getExpressionNodes().length];
         TypeWidenerCustomizer typeWidenerCustomizer = selectExprContext.getEventAdapterService().getTypeWidenerCustomizer(resultEventType);
         for (int i = 0; i < evaluator.length; i++) {
-            ExprEvaluator eval = selectExprContext.getExpressionNodes()[i];
-            evaluator[i] = eval;
+            evaluator[i] = selectExprContext.getExpressionNodes()[i];
+            ExprForge forge = exprForges[i];
+            Class forgeEvaluationType = forge.getEvaluationType();
 
-            if (eval instanceof SelectExprProcessorEvalByGetterFragment) {
-                evaluator[i] = handleFragment((SelectExprProcessorEvalByGetterFragment) eval);
-            } else if (eval instanceof SelectExprProcessorEvalStreamInsertUnd) {
-                SelectExprProcessorEvalStreamInsertUnd und = (SelectExprProcessorEvalStreamInsertUnd) eval;
+            if (forge instanceof SelectExprProcessorEvalByGetterFragment) {
+                evaluator[i] = handleFragment((SelectExprProcessorEvalByGetterFragment) forge);
+            } else if (forge instanceof SelectExprProcessorEvalStreamInsertUnd) {
+                SelectExprProcessorEvalStreamInsertUnd und = (SelectExprProcessorEvalStreamInsertUnd) forge;
                 evaluator[i] = new ExprEvaluator() {
                     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                         EventBean event = eventsPerStream[und.getStreamNum()];
@@ -55,15 +57,12 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
                         return event.getUnderlying();
                     }
 
-                    public Class getType() {
-                        return GenericData.Record.class;
-                    }
                 };
-            } else if (eval instanceof SelectExprProcessorEvalTypableMap) {
-                SelectExprProcessorEvalTypableMap typableMap = (SelectExprProcessorEvalTypableMap) eval;
-                evaluator[i] = new SelectExprProcessorEvalAvroMapToAvro(typableMap.getInnerEvaluator(), ((AvroEventType) resultEventType).getSchemaAvro(), selectExprContext.getColumnNames()[i]);
-            } else if (eval instanceof SelectExprProcessorEvalStreamInsertNamedWindow) {
-                SelectExprProcessorEvalStreamInsertNamedWindow nw = (SelectExprProcessorEvalStreamInsertNamedWindow) eval;
+            } else if (forge instanceof SelectExprProcessorTypableMapForge) {
+                SelectExprProcessorTypableMapForge typableMap = (SelectExprProcessorTypableMapForge) forge;
+                evaluator[i] = new SelectExprProcessorEvalAvroMapToAvro(typableMap.getInnerForge().getExprEvaluator(), ((AvroEventType) resultEventType).getSchemaAvro(), selectExprContext.getColumnNames()[i]);
+            } else if (forge instanceof SelectExprProcessorEvalStreamInsertNamedWindow) {
+                SelectExprProcessorEvalStreamInsertNamedWindow nw = (SelectExprProcessorEvalStreamInsertNamedWindow) forge;
                 evaluator[i] = new ExprEvaluator() {
                     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                         EventBean event = eventsPerStream[nw.getStreamNum()];
@@ -73,23 +72,20 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
                         return event.getUnderlying();
                     }
 
-                    public Class getType() {
-                        return GenericData.Record.class;
-                    }
                 };
 
-            } else if (eval.getType() != null && eval.getType().isArray()) {
-                TypeWidener widener = TypeWidenerFactory.getArrayToCollectionCoercer(eval.getType().getComponentType());
-                if (eval.getType() == byte[].class) {
+            } else if (forgeEvaluationType != null && forgeEvaluationType.isArray()) {
+                TypeWidener widener = TypeWidenerFactory.getArrayToCollectionCoercer(forgeEvaluationType.getComponentType());
+                if (forgeEvaluationType == byte[].class) {
                     widener = TypeWidenerFactory.BYTE_ARRAY_TO_BYTE_BUFFER_COERCER;
                 }
-                evaluator[i] = new SelectExprProcessorEvalAvroArrayCoercer(eval, widener);
+                evaluator[i] = new SelectExprProcessorEvalAvroArrayCoercer(forge, widener);
             } else {
                 String propertyName = selectExprContext.getColumnNames()[i];
                 Class propertyType = resultEventType.getPropertyType(propertyName);
-                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(propertyName, eval.getType(), propertyType, propertyName, true, typeWidenerCustomizer, statementName, engineURI);
+                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(propertyName, forgeEvaluationType, propertyType, propertyName, true, typeWidenerCustomizer, statementName, engineURI);
                 if (widener != null) {
-                    evaluator[i] = new SelectExprProcessorEvalAvroArrayCoercer(eval, widener);
+                    evaluator[i] = new SelectExprProcessorEvalAvroArrayCoercer(forge, widener);
                 }
             }
         }
@@ -114,12 +110,12 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
     }
 
     private ExprEvaluator handleFragment(SelectExprProcessorEvalByGetterFragment eval) {
-        if (eval.getType() == GenericData.Record[].class) {
+        if (eval.getEvaluationType() == GenericData.Record[].class) {
             return new SelectExprProcessorEvalByGetterFragmentAvroArray(eval.getStreamNum(), eval.getGetter(), Collection.class);
         }
-        if (eval.getType() == GenericData.Record.class) {
+        if (eval.getEvaluationType() == GenericData.Record.class) {
             return new SelectExprProcessorEvalByGetterFragmentAvro(eval.getStreamNum(), eval.getGetter(), GenericData.Record.class);
         }
-        throw new EPException("Unrecognized return type " + eval.getType() + " for use with Avro");
+        throw new EPException("Unrecognized return type " + eval.getEvaluationType() + " for use with Avro");
     }
 }

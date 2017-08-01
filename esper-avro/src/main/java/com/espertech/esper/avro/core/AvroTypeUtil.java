@@ -34,15 +34,15 @@ public class AvroTypeUtil {
         for (int ord = 0; ord < Schema.Type.values().length; ord++) {
             Schema.Type type = Schema.Type.values()[ord];
             if (type == Schema.Type.INT) {
-                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(int.class);
+                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(Integer.class);
             } else if (type == Schema.Type.LONG) {
-                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(long.class);
+                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(Long.class);
             } else if (type == Schema.Type.DOUBLE) {
-                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(double.class);
+                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(Double.class);
             } else if (type == Schema.Type.FLOAT) {
-                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(float.class);
+                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(Float.class);
             } else if (type == Schema.Type.BOOLEAN) {
-                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(boolean.class);
+                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(Boolean.class);
             } else if (type == Schema.Type.BYTES) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(ByteBuffer.class);
             } else if (type == Schema.Type.NULL) {

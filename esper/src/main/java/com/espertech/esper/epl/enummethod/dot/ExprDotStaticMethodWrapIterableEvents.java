@@ -11,6 +11,9 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
@@ -20,6 +23,8 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprDotStaticMethodWrapIterableEvents implements ExprDotStaticMethodWrap {
     private EventAdapterService eventAdapterService;
@@ -34,22 +39,25 @@ public class ExprDotStaticMethodWrapIterableEvents implements ExprDotStaticMetho
         return EPTypeHelper.collectionOfEvents(type);
     }
 
-    public Collection convert(Object result) {
-        if (result == null) {
-            return null;
-        }
-
+    public Collection convertNonNull(Object result) {
         // there is a need to read the iterator to the cache since if it's iterated twice, the iterator is already exhausted
         return new WrappingCollection(eventAdapterService, type, ((Iterable) result).iterator());
     }
 
-    private static class WrappingCollection implements Collection<EventBean> {
+
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
+        CodegenMember eventSvcMember = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember typeMember = context.makeAddMember(BeanEventType.class, type);
+        return newInstance(WrappingCollection.class, ref(eventSvcMember.getMemberName()), ref(typeMember.getMemberName()), exprDotMethod(result, "iterator"));
+    }
+
+    public static class WrappingCollection implements Collection<EventBean> {
         private EventAdapterService eventAdapterService;
         private BeanEventType type;
         private Iterator inner;
         private Object[] cache = null;
 
-        private WrappingCollection(EventAdapterService eventAdapterService, BeanEventType type, Iterator inner) {
+        public WrappingCollection(EventAdapterService eventAdapterService, BeanEventType type, Iterator inner) {
             this.eventAdapterService = eventAdapterService;
             this.type = type;
             this.inner = inner;

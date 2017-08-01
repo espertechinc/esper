@@ -37,5 +37,4 @@ public class TestSuiteSpatial extends TestCase {
     public void testExecSpatialPointRegionQuadTreeInvalid() {
         RegressionRunner.run(new ExecSpatialPointRegionQuadTreeInvalid());
     }
-
 }

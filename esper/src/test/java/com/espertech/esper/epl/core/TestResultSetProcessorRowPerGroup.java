@@ -45,8 +45,8 @@ public class TestResultSetProcessorRowPerGroup extends TestCase {
         supportAggregationService = new SupportAggregationService();
 
         ExprEvaluator[] groupKeyNodes = new ExprEvaluator[2];
-        groupKeyNodes[0] = SupportExprNodeFactory.makeIdentNode("intPrimitive", "s0").getExprEvaluator();
-        groupKeyNodes[1] = SupportExprNodeFactory.makeIdentNode("intBoxed", "s0").getExprEvaluator();
+        groupKeyNodes[0] = SupportExprNodeFactory.makeIdentNode("intPrimitive", "s0").getForge().getExprEvaluator();
+        groupKeyNodes[1] = SupportExprNodeFactory.makeIdentNode("intBoxed", "s0").getForge().getExprEvaluator();
 
         ResultSetProcessorRowPerGroupFactory prototype = new ResultSetProcessorRowPerGroupFactory(selectProcessor, null, groupKeyNodes, null, true, false, null, false, false, false, false, null, false, 1, null);
         processor = (ResultSetProcessorRowPerGroup) prototype.instantiate(null, supportAggregationService, agentInstanceContext);

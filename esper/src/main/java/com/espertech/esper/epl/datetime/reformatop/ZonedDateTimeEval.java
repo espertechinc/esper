@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.epl.datetime.reformatop;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.time.ZonedDateTime;
 
 public interface ZonedDateTimeEval {
-    public Object evaluateInternal(ZonedDateTime ldt);
+    Object evaluateInternal(ZonedDateTime ldt);
+    CodegenExpression codegen(CodegenExpression inner);
 }

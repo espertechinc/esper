@@ -12,12 +12,14 @@ package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.pattern.observer.TimerScheduleISO8601Parser;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -33,17 +35,17 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Represents the CAST(expression, type) function is an expression tree.
  */
 public class ExprCastNode extends ExprNodeBase {
-    private static Logger log = LoggerFactory.getLogger(ExprCastNode.class);
+    private static final long serialVersionUID = 7448449031028156455L;
 
     private final String classIdentifier;
-    private Class targetType;
-    private boolean isConstant;
-    private transient ExprEvaluator exprEvaluator;
-    private static final long serialVersionUID = 7448449031028156455L;
+
+    private transient ExprCastNodeForge forge;
 
     /**
      * Ctor.
@@ -55,7 +57,13 @@ public class ExprCastNode extends ExprNodeBase {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return exprEvaluator;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     /**
@@ -72,8 +80,7 @@ public class ExprCastNode extends ExprNodeBase {
             throw new ExprValidationException("Cast function node must have one or two child expressions");
         }
 
-        ExprEvaluator valueEvaluator = this.getChildNodes()[0].getExprEvaluator();
-        Class fromType = valueEvaluator.getType();
+        Class fromType = this.getChildNodes()[0].getForge().getEvaluationType();
 
         // determine date format parameter
         Map<String, ExprNamedParameterNode> namedParams = ExprNodeUtility.getNamedExpressionsHandleDups(Arrays.asList(this.getChildNodes()));
@@ -86,9 +93,9 @@ public class ExprCastNode extends ExprNodeBase {
         // identify target type
         // try the primitive names including "string"
         SimpleTypeCaster caster;
-        targetType = JavaClassHelper.getBoxedType(JavaClassHelper.getPrimitiveClassForName(classIdentifier.trim()));
+        Class targetType = JavaClassHelper.getBoxedType(JavaClassHelper.getPrimitiveClassForName(classIdentifier.trim()));
         boolean numeric;
-        CasterParserComputer casterParserComputer = null;
+        CasterParserComputerForge casterParserComputerForge = null;
         if (dateFormatParameter != null) {
             if (fromType != String.class) {
                 throw new ExprValidationException("Use of the '" + dateFormatParameter.getParameterName() + "' named parameter requires a string-type input");
@@ -108,71 +115,71 @@ public class ExprCastNode extends ExprNodeBase {
                 targetType = Date.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, false);
                 if (desc.isIso8601Format()) {
-                    casterParserComputer = new StringToDateWStaticISOFormatComputer();
+                    casterParserComputerForge = new StringToDateWStaticISOFormatComputer();
                 } else if (desc.getDateFormat() != null) {
-                    casterParserComputer = new StringToDateWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat());
+                    casterParserComputerForge = new StringToDateWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat());
                 } else {
-                    casterParserComputer = new StringToDateWDynamicFormatComputer(desc.getDynamicDateFormat());
+                    casterParserComputerForge = new StringToDateWDynamicFormatComputerForge(desc.getDynamicDateFormat());
                 }
             } else if (targetType == Calendar.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("calendar")) {
                 targetType = Calendar.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, false);
                 if (desc.isIso8601Format()) {
-                    casterParserComputer = new StringToCalendarWStaticISOFormatComputer();
+                    casterParserComputerForge = new StringToCalendarWStaticISOFormatComputer();
                 } else if (desc.getDateFormat() != null) {
-                    casterParserComputer = new StringToCalendarWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat(), validationContext.getEngineImportService().getTimeZone());
+                    casterParserComputerForge = new StringToCalendarWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat(), validationContext.getEngineImportService().getTimeZone());
                 } else {
-                    casterParserComputer = new StringToCalendarWDynamicFormatComputer(desc.getDynamicDateFormat(), validationContext.getEngineImportService().getTimeZone());
+                    casterParserComputerForge = new StringToCalendarWDynamicFormatComputer(desc.getDynamicDateFormat(), validationContext.getEngineImportService().getTimeZone());
                 }
             } else if (targetType == Long.class) {
                 targetType = Long.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, false);
                 if (desc.isIso8601Format()) {
-                    casterParserComputer = new StringToLongWStaticISOFormatComputer();
+                    casterParserComputerForge = new StringToLongWStaticISOFormatComputer();
                 } else if (desc.getDateFormat() != null) {
-                    casterParserComputer = new StringToLongWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat());
+                    casterParserComputerForge = new StringToLongWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat());
                 } else {
-                    casterParserComputer = new StringToLongWDynamicFormatComputer(desc.getDynamicDateFormat());
+                    casterParserComputerForge = new StringToLongWDynamicFormatComputerForge(desc.getDynamicDateFormat());
                 }
             } else if (targetType == LocalDateTime.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("localdatetime")) {
                 targetType = LocalDateTime.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
                 if (desc.isIso8601Format()) {
-                    casterParserComputer = new StringToLocalDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_DATE_TIME);
+                    casterParserComputerForge = new StringToLocalDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_DATE_TIME);
                 } else if (desc.getDateTimeFormatter() != null) {
-                    casterParserComputer = new StringToLocalDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
+                    casterParserComputerForge = new StringToLocalDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
-                    casterParserComputer = new StringToLocalDateTimeWDynamicFormatComputer(desc.getDynamicDateFormat());
+                    casterParserComputerForge = new StringToLocalDateTimeWDynamicFormatComputerForge(desc.getDynamicDateFormat());
                 }
             } else if (targetType == LocalDate.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("localdate")) {
                 targetType = LocalDate.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
                 if (desc.isIso8601Format()) {
-                    casterParserComputer = new StringToLocalDateWStaticFormatComputer(DateTimeFormatter.ISO_DATE);
+                    casterParserComputerForge = new StringToLocalDateWStaticFormatComputer(DateTimeFormatter.ISO_DATE);
                 } else if (desc.getDateTimeFormatter() != null) {
-                    casterParserComputer = new StringToLocalDateWStaticFormatComputer(desc.getDateTimeFormatter());
+                    casterParserComputerForge = new StringToLocalDateWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
-                    casterParserComputer = new StringToLocalDateWDynamicFormatComputer(desc.getDynamicDateFormat());
+                    casterParserComputerForge = new StringToLocalDateWDynamicFormatComputerForge(desc.getDynamicDateFormat());
                 }
             } else if (targetType == LocalTime.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("localtime")) {
                 targetType = LocalTime.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
                 if (desc.isIso8601Format()) {
-                    casterParserComputer = new StringToLocalTimeWStaticFormatComputer(DateTimeFormatter.ISO_TIME);
+                    casterParserComputerForge = new StringToLocalTimeWStaticFormatComputer(DateTimeFormatter.ISO_TIME);
                 } else if (desc.getDateTimeFormatter() != null) {
-                    casterParserComputer = new StringToLocalTimeWStaticFormatComputer(desc.getDateTimeFormatter());
+                    casterParserComputerForge = new StringToLocalTimeWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
-                    casterParserComputer = new StringToLocalTimeWDynamicFormatComputer(desc.getDynamicDateFormat());
+                    casterParserComputerForge = new StringToLocalTimeWDynamicFormatComputerForge(desc.getDynamicDateFormat());
                 }
             } else if (targetType == ZonedDateTime.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("zoneddatetime")) {
                 targetType = ZonedDateTime.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
                 if (desc.isIso8601Format()) {
-                    casterParserComputer = new StringToZonedDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                    casterParserComputerForge = new StringToZonedDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_ZONED_DATE_TIME);
                 } else if (desc.getDateTimeFormatter() != null) {
-                    casterParserComputer = new StringToZonedDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
+                    casterParserComputerForge = new StringToZonedDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
-                    casterParserComputer = new StringToZonedDateTimeWDynamicFormatComputer(desc.getDynamicDateFormat());
+                    casterParserComputerForge = new StringToZonedDateTimeWDynamicFormatComputerForge(desc.getDynamicDateFormat());
                 }
             } else {
                 throw new ExprValidationException("Use of the '" + dateFormatParameter.getParameterName() + "' named parameter requires a target type of calendar, date, long, localdatetime, localdate, localtime or zoneddatetime");
@@ -204,48 +211,46 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         // assign a computer unless already assigned
-        if (casterParserComputer == null) {
+        if (casterParserComputerForge == null) {
             // to-string
             if (targetType == String.class) {
-                casterParserComputer = new StringXFormComputer();
-            } else if (fromType == String.class) {
+                casterParserComputerForge = new StringXFormComputer();
+            } else if (fromType == String.class && targetType != Character.class) {
                 // parse
                 SimpleTypeParser parser = SimpleTypeParserFactory.getParser(JavaClassHelper.getBoxedType(targetType));
-                casterParserComputer = new StringParserComputer(parser);
+                casterParserComputerForge = new StringParserComputer(parser);
             } else if (numeric) {
                 // numeric cast with check
-                casterParserComputer = new NumberCasterComputer(caster);
+                casterParserComputerForge = new NumberCasterComputer(caster);
             } else {
                 // non-numeric cast
-                casterParserComputer = new NonnumericCasterComputer(caster);
+                casterParserComputerForge = new NonnumericCasterComputer(caster);
             }
         }
 
         // determine constant or not
         Object theConstant = null;
+        boolean isConstant = false;
         if (this.getChildNodes()[0].isConstantResult()) {
-            isConstant = casterParserComputer.isConstantForConstInput();
+            isConstant = casterParserComputerForge.isConstantForConstInput();
             if (isConstant) {
-                Object in = valueEvaluator.evaluate(null, true, validationContext.getExprEvaluatorContext());
-                theConstant = in == null ? null : casterParserComputer.compute(in, null, true, validationContext.getExprEvaluatorContext());
+                Object in = this.getChildNodes()[0].getForge().getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
+                theConstant = in == null ? null : casterParserComputerForge.getEvaluatorComputer().compute(in, null, true, validationContext.getExprEvaluatorContext());
             }
         }
 
-        // determine evaluator
-        if (isConstant) {
-            exprEvaluator = new ExprCastNodeConstEval(this, theConstant);
-        } else {
-            exprEvaluator = new ExprCastNodeNonConstEval(this, valueEvaluator, casterParserComputer);
-        }
+        forge = new ExprCastNodeForge(this, casterParserComputerForge, targetType, isConstant, theConstant);
         return null;
     }
 
     public boolean isConstantResult() {
-        return isConstant;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.isConstant();
     }
 
     public Class getTargetType() {
-        return targetType;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getEvaluationType();
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -275,6 +280,17 @@ public class ExprCastNode extends ExprNodeBase {
     /**
      * Casting and parsing computer.
      */
+    public interface CasterParserComputerForge {
+        public boolean isConstantForConstInput();
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params);
+
+        public CasterParserComputer getEvaluatorComputer();
+    }
+
+    /**
+     * Casting and parsing computer.
+     */
     public interface CasterParserComputer {
         /**
          * Compute an result performing casting and parsing.
@@ -286,14 +302,12 @@ public class ExprCastNode extends ExprNodeBase {
          * @return cast or parse result
          */
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext);
-
-        public boolean isConstantForConstInput();
     }
 
     /**
      * Casting and parsing computer.
      */
-    public static class StringXFormComputer implements CasterParserComputer {
+    public static class StringXFormComputer implements CasterParserComputerForge, CasterParserComputer {
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
             return input.toString();
         }
@@ -301,12 +315,20 @@ public class ExprCastNode extends ExprNodeBase {
         public boolean isConstantForConstInput() {
             return true;
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return exprDotMethod(input, "toString");
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
+        }
     }
 
     /**
      * Casting and parsing computer.
      */
-    public static class NumberCasterComputer implements CasterParserComputer {
+    public static class NumberCasterComputer implements CasterParserComputerForge, CasterParserComputer {
         private final SimpleTypeCaster numericTypeCaster;
 
         public NumberCasterComputer(SimpleTypeCaster numericTypeCaster) {
@@ -323,12 +345,27 @@ public class ExprCastNode extends ExprNodeBase {
         public boolean isConstantForConstInput() {
             return true;
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return numericTypeCaster.codegen(input, inputType, context);
+            }
+            String method = context.addMethod(evaluationType, NumberCasterComputer.class).add(inputType, "input").add(params).begin()
+                    .ifInstanceOf("input", Number.class)
+                    .blockReturn(numericTypeCaster.codegen(ref("input"), inputType, context))
+                    .methodReturn(constantNull());
+            return localMethodBuild(method).pass(input).passAll(params).call();
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
+        }
     }
 
     /**
      * Casting and parsing computer.
      */
-    public static class StringParserComputer implements CasterParserComputer {
+    public static class StringParserComputer implements CasterParserComputer, CasterParserComputerForge {
         private final SimpleTypeParser parser;
 
         public StringParserComputer(SimpleTypeParser parser) {
@@ -342,12 +379,20 @@ public class ExprCastNode extends ExprNodeBase {
         public boolean isConstantForConstInput() {
             return true;
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return parser.codegen(input);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
+        }
     }
 
     /**
      * Casting and parsing computer.
      */
-    public static class NonnumericCasterComputer implements CasterParserComputer {
+    public static class NonnumericCasterComputer implements CasterParserComputerForge, CasterParserComputer {
         private final SimpleTypeCaster caster;
 
         public NonnumericCasterComputer(SimpleTypeCaster numericTypeCaster) {
@@ -361,6 +406,14 @@ public class ExprCastNode extends ExprNodeBase {
         public boolean isConstantForConstInput() {
             return true;
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return caster.codegen(input, inputType, context);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
+        }
     }
 
     public static EPException handleParseException(String formatString, String date, Exception ex) {
@@ -371,7 +424,7 @@ public class ExprCastNode extends ExprNodeBase {
         return new EPException("Exception parsing iso8601 date '" + date + "': " + ex.getMessage(), ex);
     }
 
-    public static abstract class StringToDateLongWStaticFormat implements CasterParserComputer {
+    public static abstract class StringToDateLongWStaticFormat implements CasterParserComputerForge, CasterParserComputer {
         protected final String dateFormatString;
         protected final DateFormat dateFormat;
 
@@ -386,40 +439,40 @@ public class ExprCastNode extends ExprNodeBase {
             this.dateFormat = dateFormat;
         }
 
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
+        }
+
         public boolean isConstantForConstInput() {
             return true;
         }
-    }
 
-    public static abstract class StringToDateLongWDynamicFormat implements CasterParserComputer {
-        private final ExprEvaluator dateFormatEval;
-
-        protected StringToDateLongWDynamicFormat(ExprEvaluator dateFormatEval) {
-            this.dateFormatEval = dateFormatEval;
+        protected CodegenExpression codegenAddFormat(CodegenContext context) {
+            return ref(context.makeAddMember(DateFormat.class, dateFormat).getMemberName());
         }
 
-        protected abstract Object computeFromFormat(String dateFormat, SimpleDateFormat format, Object input) throws ParseException;
+        protected CodegenExpression codegenAddFormatString(CodegenContext context) {
+            return ref(context.makeAddMember(String.class, dateFormatString).getMemberName());
+        }
+    }
+
+    public static abstract class StringToDateLongWDynamicFormatForge implements CasterParserComputerForge {
+        protected final ExprForge dateFormatForge;
+
+        protected StringToDateLongWDynamicFormatForge(ExprForge dateFormatForge) {
+            this.dateFormatForge = dateFormatForge;
+        }
 
         public boolean isConstantForConstInput() {
             return false;
         }
+    }
 
-        public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
-            if (format == null) {
-                throw new EPException("Null date format returned by 'dateformat' expression");
-            }
-            SimpleDateFormat dateFormat;
-            try {
-                dateFormat = new SimpleDateFormat(format.toString());
-            } catch (RuntimeException ex) {
-                throw new EPException("Invalid date format '" + format.toString() + "': " + ex.getMessage(), ex);
-            }
-            try {
-                return computeFromFormat(format.toString(), dateFormat, input);
-            } catch (ParseException ex) {
-                throw handleParseException(format.toString(), input.toString(), ex);
-            }
+    public static abstract class StringToDateLongWDynamicFormatEval implements CasterParserComputer {
+        protected final ExprEvaluator dateFormatEval;
+
+        public StringToDateLongWDynamicFormatEval(ExprEvaluator dateFormatEval) {
+            this.dateFormatEval = dateFormatEval;
         }
     }
 
@@ -429,19 +482,31 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            return parseSafe(dateFormatString, formats.get(), input);
+            return stringToDateWStaticFormatParseSafe(dateFormatString, formats.get(), input);
         }
 
-        protected static Object parseSafe(String formatString, DateFormat format, Object input) {
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param formatString format text
+         * @param format       format
+         * @param input        input
+         * @return date
+         */
+        public static Date stringToDateWStaticFormatParseSafe(String formatString, DateFormat format, Object input) {
             try {
                 return format.parse(input.toString());
             } catch (ParseException e) {
                 throw handleParseException(formatString, input.toString(), e);
             }
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToDateWStaticFormatComputer.class, "stringToDateWStaticFormatParseSafe", codegenAddFormatString(context), codegenAddFormat(context), input);
+        }
     }
 
-    public abstract static class StringToJava8WStaticFormatComputer implements CasterParserComputer {
+    public abstract static class StringToJava8WStaticFormatComputer implements CasterParserComputerForge, CasterParserComputer {
         protected final DateTimeFormatter formatter;
 
         public StringToJava8WStaticFormatComputer(DateTimeFormatter formatter) {
@@ -455,11 +520,15 @@ public class ExprCastNode extends ExprNodeBase {
         public abstract Object parse(String input);
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            try {
-                return parse(input.toString());
-            } catch (DateTimeParseException e) {
-                throw handleParseException(formatter.toString(), input.toString(), e);
-            }
+            return parse(input.toString());
+        }
+
+        protected CodegenExpression codegenFormatter(CodegenContext context) {
+            return ref(context.makeAddMember(DateTimeFormatter.class, formatter).getMemberName());
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
         }
     }
 
@@ -468,8 +537,27 @@ public class ExprCastNode extends ExprNodeBase {
             super(formatter);
         }
 
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param input     string
+         * @param formatter formatter
+         * @return ldt
+         */
+        public static LocalDateTime stringToLocalDateTimeWStaticFormatParse(String input, DateTimeFormatter formatter) {
+            try {
+                return LocalDateTime.parse(input, formatter);
+            } catch (DateTimeParseException e) {
+                throw handleParseException(formatter.toString(), input, e);
+            }
+        }
+
         public Object parse(String input) {
-            return LocalDateTime.parse(input, formatter);
+            return stringToLocalDateTimeWStaticFormatParse(input, formatter);
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToLocalDateTimeWStaticFormatComputer.class, "stringToLocalDateTimeWStaticFormatParse", input, codegenFormatter(context));
         }
     }
 
@@ -478,8 +566,27 @@ public class ExprCastNode extends ExprNodeBase {
             super(formatter);
         }
 
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param input     string
+         * @param formatter formatter
+         * @return ld
+         */
+        public static LocalDate stringToLocalDateWStaticFormatParse(String input, DateTimeFormatter formatter) {
+            try {
+                return LocalDate.parse(input, formatter);
+            } catch (DateTimeParseException e) {
+                throw handleParseException(formatter.toString(), input, e);
+            }
+        }
+
         public Object parse(String input) {
-            return LocalDate.parse(input, formatter);
+            return stringToLocalDateWStaticFormatParse(input, formatter);
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToLocalDateWStaticFormatComputer.class, "stringToLocalDateWStaticFormatParse", input, codegenFormatter(context));
         }
     }
 
@@ -488,8 +595,27 @@ public class ExprCastNode extends ExprNodeBase {
             super(formatter);
         }
 
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param input     string
+         * @param formatter formatter
+         * @return lt
+         */
+        public static LocalTime stringToLocalTimeWStaticFormatParse(String input, DateTimeFormatter formatter) {
+            try {
+                return LocalTime.parse(input, formatter);
+            } catch (DateTimeParseException e) {
+                throw handleParseException(formatter.toString(), input, e);
+            }
+        }
+
         public Object parse(String input) {
-            return LocalTime.parse(input, formatter);
+            return stringToLocalTimeWStaticFormatParse(input, formatter);
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToLocalTimeWStaticFormatComputer.class, "stringToLocalTimeWStaticFormatParse", input, codegenFormatter(context));
         }
     }
 
@@ -498,95 +624,212 @@ public class ExprCastNode extends ExprNodeBase {
             super(formatter);
         }
 
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param input     string
+         * @param formatter formatter
+         * @return lt
+         */
+        public static ZonedDateTime stringZonedDateTimeWStaticFormatParse(String input, DateTimeFormatter formatter) {
+            try {
+                return ZonedDateTime.parse(input, formatter);
+            } catch (DateTimeParseException e) {
+                throw handleParseException(formatter.toString(), input, e);
+            }
+        }
+
         public Object parse(String input) {
-            return ZonedDateTime.parse(input, formatter);
+            return stringZonedDateTimeWStaticFormatParse(input, formatter);
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToZonedDateTimeWStaticFormatComputer.class, "stringZonedDateTimeWStaticFormatParse", input, codegenFormatter(context));
         }
     }
 
-    public abstract static class StringToJava8WDynamicFormatComputer implements CasterParserComputer {
-        private final ExprEvaluator dateFormatEval;
+    public abstract static class StringToJava8WDynamicFormatComputerForge implements CasterParserComputerForge {
+        protected final ExprForge dateFormatForge;
 
-        public StringToJava8WDynamicFormatComputer(ExprEvaluator dateFormatEval) {
-            this.dateFormatEval = dateFormatEval;
+        public StringToJava8WDynamicFormatComputerForge(ExprForge dateFormatForge) {
+            this.dateFormatForge = dateFormatForge;
         }
 
         public boolean isConstantForConstInput() {
             return false;
         }
+    }
 
-        public abstract Object parse(String input, DateTimeFormatter formatter);
+    public abstract static class StringToJava8WDynamicFormatComputerEval implements CasterParserComputer {
+        protected final ExprEvaluator dateFormatEval;
+
+        public StringToJava8WDynamicFormatComputerEval(ExprEvaluator dateFormatEval) {
+            this.dateFormatEval = dateFormatEval;
+        }
+    }
+
+    public static class StringToLocalDateTimeWDynamicFormatComputerForge extends StringToJava8WDynamicFormatComputerForge {
+        public StringToLocalDateTimeWDynamicFormatComputerForge(ExprForge dateFormatForge) {
+            super(dateFormatForge);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return new StringToLocalDateTimeWDynamicFormatComputerEval(dateFormatForge.getExprEvaluator());
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return StringToLocalDateTimeWDynamicFormatComputerEval.codegen(input, dateFormatForge.evaluateCodegen(params, context), context, params);
+        }
+    }
+
+    public static class StringToLocalDateTimeWDynamicFormatComputerEval extends StringToJava8WDynamicFormatComputerEval {
+        public StringToLocalDateTimeWDynamicFormatComputerEval(ExprEvaluator dateFormatEval) {
+            super(dateFormatEval);
+        }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
             Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
-            if (format == null) {
-                throw new EPException("Null date format returned by 'dateformat' expression");
-            }
-            DateTimeFormatter dateFormat;
+            DateTimeFormatter formatter = stringToDateTimeFormatterSafe(format);
+            return StringToLocalDateTimeWStaticFormatComputer.stringToLocalDateTimeWStaticFormatParse(input.toString(), formatter);
+        }
+
+        public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
+            String method = context.addMethod(LocalDateTime.class, StringToLocalDateTimeWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
+                    .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
+                    .methodReturn(staticMethod(StringToLocalDateTimeWStaticFormatComputer.class, "stringToLocalDateTimeWStaticFormatParse", ref("input"), ref("formatter")));
+            return localMethodBuild(method).pass(input).passAll(params).call();
+        }
+    }
+
+    public static class StringToLocalDateWDynamicFormatComputerForge extends StringToJava8WDynamicFormatComputerForge {
+        public StringToLocalDateWDynamicFormatComputerForge(ExprForge dateFormatForge) {
+            super(dateFormatForge);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return new StringToLocalDateWDynamicFormatComputerEval(dateFormatForge.getExprEvaluator());
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return StringToLocalDateWDynamicFormatComputerEval.codegen(input, dateFormatForge.evaluateCodegen(params, context), context, params);
+        }
+    }
+
+    public static class StringToLocalDateWDynamicFormatComputerEval extends StringToJava8WDynamicFormatComputerEval {
+        public StringToLocalDateWDynamicFormatComputerEval(ExprEvaluator dateFormatEval) {
+            super(dateFormatEval);
+        }
+
+        public LocalDate compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+            Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
+            DateTimeFormatter formatter = stringToDateTimeFormatterSafe(format);
+            return StringToLocalDateWStaticFormatComputer.stringToLocalDateWStaticFormatParse(input.toString(), formatter);
+        }
+
+        public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
+            String method = context.addMethod(LocalDate.class, StringToLocalDateWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
+                    .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
+                    .methodReturn(staticMethod(StringToLocalDateWStaticFormatComputer.class, "stringToLocalDateWStaticFormatParse", ref("input"), ref("formatter")));
+            return localMethodBuild(method).pass(input).passAll(params).call();
+        }
+    }
+
+    public static class StringToLocalTimeWDynamicFormatComputerForge extends StringToJava8WDynamicFormatComputerForge {
+        public StringToLocalTimeWDynamicFormatComputerForge(ExprForge dateFormatForge) {
+            super(dateFormatForge);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return new StringToLocalTimeWDynamicFormatComputerEval(dateFormatForge.getExprEvaluator());
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return StringToLocalTimeWDynamicFormatComputerEval.codegen(input, dateFormatForge.evaluateCodegen(params, context), context, params);
+        }
+    }
+
+    public static class StringToLocalTimeWDynamicFormatComputerEval extends StringToJava8WDynamicFormatComputerEval {
+        public StringToLocalTimeWDynamicFormatComputerEval(ExprEvaluator dateFormatEval) {
+            super(dateFormatEval);
+        }
+
+        public LocalTime compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+            Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
+            DateTimeFormatter formatter = stringToDateTimeFormatterSafe(format);
+            return StringToLocalTimeWStaticFormatComputer.stringToLocalTimeWStaticFormatParse(input.toString(), formatter);
+        }
+
+        public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
+            String method = context.addMethod(LocalTime.class, StringToLocalTimeWDynamicFormatComputerForge.class).add(String.class, "input").add(params).begin()
+                    .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
+                    .methodReturn(staticMethod(StringToLocalTimeWStaticFormatComputer.class, "stringToLocalTimeWStaticFormatParse", ref("input"), ref("formatter")));
+            return localMethodBuild(method).pass(input).passAll(params).call();
+        }
+    }
+
+    public static class StringToZonedDateTimeWDynamicFormatComputerForge extends StringToJava8WDynamicFormatComputerForge {
+        public StringToZonedDateTimeWDynamicFormatComputerForge(ExprForge dateFormatForge) {
+            super(dateFormatForge);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return new StringToZonedDateTimeWDynamicFormatComputerEval(dateFormatForge.getExprEvaluator());
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return StringToZonedDateTimeWDynamicFormatComputerEval.codegen(input, dateFormatForge.evaluateCodegen(params, context), context, params);
+        }
+    }
+
+    public static class StringToZonedDateTimeWDynamicFormatComputerEval extends StringToJava8WDynamicFormatComputerEval {
+        public StringToZonedDateTimeWDynamicFormatComputerEval(ExprEvaluator dateFormatEval) {
+            super(dateFormatEval);
+        }
+
+        public ZonedDateTime compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+            Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
+            DateTimeFormatter formatter = stringToDateTimeFormatterSafe(format);
+            return StringToZonedDateTimeWStaticFormatComputer.stringZonedDateTimeWStaticFormatParse(input.toString(), formatter);
+        }
+
+        public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
+            String method = context.addMethod(ZonedDateTime.class, StringToZonedDateTimeWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
+                    .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
+                    .methodReturn(staticMethod(StringToZonedDateTimeWStaticFormatComputer.class, "stringZonedDateTimeWStaticFormatParse", ref("input"), ref("formatter")));
+            return localMethodBuild(method).pass(input).passAll(params).call();
+        }
+    }
+
+    public static class StringToDateWStaticISOFormatComputer implements CasterParserComputerForge, CasterParserComputer {
+
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param input input
+         * @return date
+         */
+        public static Date stringToDateWStaticISOParse(String input) {
             try {
-                dateFormat = DateTimeFormatter.ofPattern(format.toString());
-            } catch (RuntimeException ex) {
-                throw new EPException("Invalid date format '" + format.toString() + "': " + ex.getMessage(), ex);
-            }
-            try {
-                return parse(input.toString(), dateFormat);
-            } catch (DateTimeParseException e) {
-                throw handleParseException(dateFormat.toString(), input.toString(), e);
+                return TimerScheduleISO8601Parser.parseDate(input).getTime();
+            } catch (ScheduleParameterException e) {
+                throw handleParseISOException(input, e);
             }
         }
-    }
-
-    public static class StringToLocalDateTimeWDynamicFormatComputer extends StringToJava8WDynamicFormatComputer {
-        public StringToLocalDateTimeWDynamicFormatComputer(ExprEvaluator dateFormatEval) {
-            super(dateFormatEval);
-        }
-
-        public Object parse(String input, DateTimeFormatter formatter) {
-            return LocalDateTime.parse(input, formatter);
-        }
-    }
-
-    public static class StringToLocalDateWDynamicFormatComputer extends StringToJava8WDynamicFormatComputer {
-        public StringToLocalDateWDynamicFormatComputer(ExprEvaluator dateFormatEval) {
-            super(dateFormatEval);
-        }
-
-        public Object parse(String input, DateTimeFormatter formatter) {
-            return LocalDate.parse(input, formatter);
-        }
-    }
-
-    public static class StringToLocalTimeWDynamicFormatComputer extends StringToJava8WDynamicFormatComputer {
-        public StringToLocalTimeWDynamicFormatComputer(ExprEvaluator dateFormatEval) {
-            super(dateFormatEval);
-        }
-
-        public Object parse(String input, DateTimeFormatter formatter) {
-            return LocalTime.parse(input, formatter);
-        }
-    }
-
-    public static class StringToZonedDateTimeWDynamicFormatComputer extends StringToJava8WDynamicFormatComputer {
-        public StringToZonedDateTimeWDynamicFormatComputer(ExprEvaluator dateFormatEval) {
-            super(dateFormatEval);
-        }
-
-        public Object parse(String input, DateTimeFormatter formatter) {
-            return ZonedDateTime.parse(input, formatter);
-        }
-    }
-
-    public static class StringToDateWStaticISOFormatComputer implements CasterParserComputer {
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            try {
-                return TimerScheduleISO8601Parser.parseDate(input.toString()).getTime();
-            } catch (ScheduleParameterException e) {
-                throw handleParseISOException(input.toString(), e);
-            }
+            return stringToDateWStaticISOParse(input.toString());
         }
 
         public boolean isConstantForConstInput() {
             return true;
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToDateWStaticISOFormatComputer.class, "stringToDateWStaticISOParse", input);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
         }
     }
 
@@ -596,29 +839,60 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            return parseSafe(dateFormatString, formats.get(), input);
+            return stringToLongWStaticFormatParseSafe(dateFormatString, formats.get(), input);
         }
 
-        protected static Object parseSafe(String dateFormatString, DateFormat format, Object input) {
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param dateFormatString format text
+         * @param format           format
+         * @param input            input
+         * @return msec
+         */
+        public static long stringToLongWStaticFormatParseSafe(String dateFormatString, DateFormat format, Object input) {
             try {
                 return format.parse(input.toString()).getTime();
             } catch (ParseException e) {
                 throw handleParseException(dateFormatString, input.toString(), e);
             }
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToLongWStaticFormatComputer.class, "stringToLongWStaticFormatParseSafe", codegenAddFormatString(context), codegenAddFormat(context), input);
+        }
     }
 
-    public static class StringToLongWStaticISOFormatComputer implements CasterParserComputer {
-        public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+    public static class StringToLongWStaticISOFormatComputer implements CasterParserComputerForge, CasterParserComputer {
+
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param input input
+         * @return msec
+         */
+        public static long stringToLongWStaticISOParse(String input) {
             try {
-                return TimerScheduleISO8601Parser.parseDate(input.toString()).getTimeInMillis();
+                return TimerScheduleISO8601Parser.parseDate(input).getTimeInMillis();
             } catch (ScheduleParameterException ex) {
-                throw handleParseISOException(input.toString(), ex);
+                throw handleParseISOException(input, ex);
             }
+        }
+
+        public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+            return stringToLongWStaticISOParse(input.toString());
         }
 
         public boolean isConstantForConstInput() {
             return true;
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToLongWStaticISOFormatComputer.class, "stringToLongWStaticISOParse", input);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
         }
     }
 
@@ -632,10 +906,19 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            return parse(dateFormatString, formats.get(), input, timeZone);
+            return stringToCalendarWStaticFormatParse(dateFormatString, formats.get(), input, timeZone);
         }
 
-        protected static Object parse(String formatString, DateFormat format, Object input, TimeZone timeZone) {
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param formatString format string
+         * @param format       format
+         * @param input        input
+         * @param timeZone     time zone
+         * @return cal
+         */
+        public static Calendar stringToCalendarWStaticFormatParse(String formatString, DateFormat format, Object input, TimeZone timeZone) {
             try {
                 Calendar cal = Calendar.getInstance(timeZone);
                 Date date = format.parse(input.toString());
@@ -645,73 +928,175 @@ public class ExprCastNode extends ExprNodeBase {
                 throw handleParseException(formatString, input.toString(), ex);
             }
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
+            return staticMethod(StringToCalendarWStaticFormatComputer.class, "stringToCalendarWStaticFormatParse", codegenAddFormatString(context), codegenAddFormat(context), input, ref(tz.getMemberName()));
+        }
     }
 
-    public static class StringToCalendarWStaticISOFormatComputer implements CasterParserComputer {
+    public static class StringToCalendarWStaticISOFormatComputer implements CasterParserComputerForge, CasterParserComputer {
+
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         *
+         * @param input input
+         * @return cal
+         */
+        public static Calendar stringToCalendarWStaticISOParse(String input) {
+            try {
+                return TimerScheduleISO8601Parser.parseDate(input);
+            } catch (ScheduleParameterException ex) {
+                throw handleParseISOException(input, ex);
+            }
+        }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            try {
-                return TimerScheduleISO8601Parser.parseDate(input.toString());
-            } catch (ScheduleParameterException ex) {
-                throw handleParseISOException(input.toString(), ex);
-            }
+            return stringToCalendarWStaticISOParse(input.toString());
         }
 
         public boolean isConstantForConstInput() {
             return true;
         }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return staticMethod(StringToCalendarWStaticISOFormatComputer.class, "stringToCalendarWStaticISOParse", input);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return this;
+        }
     }
 
-    public static class StringToDateWDynamicFormatComputer extends StringToDateLongWDynamicFormat {
-        public StringToDateWDynamicFormatComputer(ExprEvaluator dateFormatEval) {
+    public static class StringToDateWDynamicFormatComputerForge extends StringToDateLongWDynamicFormatForge {
+        public StringToDateWDynamicFormatComputerForge(ExprForge dateFormatForge) {
+            super(dateFormatForge);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return new StringToDateWDynamicFormatComputerEval(dateFormatForge.getExprEvaluator());
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return StringToDateWDynamicFormatComputerEval.codegen(input, dateFormatForge.evaluateCodegen(params, context), context, params);
+        }
+    }
+
+    public static class StringToDateWDynamicFormatComputerEval extends StringToDateLongWDynamicFormatEval {
+        public StringToDateWDynamicFormatComputerEval(ExprEvaluator dateFormatEval) {
             super(dateFormatEval);
         }
 
-        protected Object computeFromFormat(String formatString, SimpleDateFormat format, Object input) {
-            return StringToDateWStaticFormatComputer.parseSafe(formatString, format, input);
+        public Date compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+            Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
+            SimpleDateFormat dateFormat = stringToSimpleDateFormatSafe(format);
+            return StringToDateWStaticFormatComputer.stringToDateWStaticFormatParseSafe(format.toString(), dateFormat, input);
+        }
+
+        public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
+            String method = context.addMethod(Date.class, StringToDateWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
+                    .declareVar(String.class, "format", format)
+                    .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
+                    .methodReturn(staticMethod(StringToDateWStaticFormatComputer.class, "stringToDateWStaticFormatParseSafe", ref("format"), ref("dateFormat"), ref("input")));
+            return localMethodBuild(method).pass(input).passAll(params).call();
         }
     }
 
-    public static class StringToLongWDynamicFormatComputer extends StringToDateLongWDynamicFormat {
-        public StringToLongWDynamicFormatComputer(ExprEvaluator dateFormatEval) {
+    public static class StringToLongWDynamicFormatComputerForge extends StringToDateLongWDynamicFormatForge {
+
+        public StringToLongWDynamicFormatComputerForge(ExprForge dateFormatForge) {
+            super(dateFormatForge);
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return new StringToLongWDynamicFormatComputerEval(dateFormatForge.getExprEvaluator());
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return StringToLongWDynamicFormatComputerEval.codegen(input, dateFormatForge.evaluateCodegen(params, context), context, params);
+        }
+    }
+
+    public static class StringToLongWDynamicFormatComputerEval extends StringToDateLongWDynamicFormatEval {
+
+        public StringToLongWDynamicFormatComputerEval(ExprEvaluator dateFormatEval) {
             super(dateFormatEval);
         }
 
-        protected Object computeFromFormat(String dateFormat, SimpleDateFormat format, Object input) {
-            return StringToLongWStaticFormatComputer.parseSafe(dateFormat, format, input);
+        public Long compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+            Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
+            SimpleDateFormat dateFormat = stringToSimpleDateFormatSafe(format);
+            return StringToLongWStaticFormatComputer.stringToLongWStaticFormatParseSafe(format.toString(), dateFormat, input);
+        }
+
+        public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
+            String method = context.addMethod(Long.class, StringToLongWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
+                    .declareVar(String.class, "format", format)
+                    .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
+                    .methodReturn(staticMethod(StringToLongWStaticFormatComputer.class, "stringToLongWStaticFormatParseSafe", ref("format"), ref("dateFormat"), ref("input")));
+            return localMethodBuild(method).pass(input).passAll(params).call();
         }
     }
 
-    public static class StringToCalendarWDynamicFormatComputer extends StringToDateLongWDynamicFormat {
+    public static class StringToCalendarWDynamicFormatComputer extends StringToDateLongWDynamicFormatForge {
 
         private final TimeZone timeZone;
 
-        public StringToCalendarWDynamicFormatComputer(ExprEvaluator dateFormatEval, TimeZone timeZone) {
+        public StringToCalendarWDynamicFormatComputer(ExprForge dateFormatForge, TimeZone timeZone) {
+            super(dateFormatForge);
+            this.timeZone = timeZone;
+        }
+
+        public CasterParserComputer getEvaluatorComputer() {
+            return new StringToCalendarWDynamicFormatComputerEval(dateFormatForge.getExprEvaluator(), timeZone);
+        }
+
+        public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
+            return StringToCalendarWDynamicFormatComputerEval.codegen(input, dateFormatForge.evaluateCodegen(params, context), context, params, timeZone);
+        }
+    }
+
+    public static class StringToCalendarWDynamicFormatComputerEval extends StringToDateLongWDynamicFormatEval {
+
+        private final TimeZone timeZone;
+
+        public StringToCalendarWDynamicFormatComputerEval(ExprEvaluator dateFormatEval, TimeZone timeZone) {
             super(dateFormatEval);
             this.timeZone = timeZone;
         }
 
-        protected Object computeFromFormat(String formatString, SimpleDateFormat format, Object input) {
-            return StringToCalendarWStaticFormatComputer.parse(formatString, format, input, timeZone);
+        public Calendar compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+            Object format = dateFormatEval.evaluate(eventsPerStream, newData, exprEvaluatorContext);
+            SimpleDateFormat dateFormat = stringToSimpleDateFormatSafe(format);
+            return StringToCalendarWStaticFormatComputer.stringToCalendarWStaticFormatParse(format.toString(), dateFormat, input, timeZone);
+        }
+
+        public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params, TimeZone timeZone) {
+            CodegenMember timezone = context.makeAddMember(TimeZone.class, timeZone);
+            String method = context.addMethod(Calendar.class, StringToLongWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
+                    .declareVar(String.class, "format", format)
+                    .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
+                    .methodReturn(staticMethod(StringToCalendarWStaticFormatComputer.class, "stringToCalendarWStaticFormatParse", ref("format"), ref("dateFormat"), ref("input"), ref(timezone.getMemberName())));
+            return localMethodBuild(method).pass(input).passAll(params).call();
         }
     }
 
     private ExprCastNodeDateDesc validateDateFormat(ExprNamedParameterNode dateFormatParameter, ExprValidationContext validationContext, boolean java8Formatter) throws ExprValidationException {
         String staticFormatString = null;
         DateFormat dateFormat = null;
-        ExprEvaluator dynamicDateFormat = null;
+        ExprForge dynamicDateFormat = null;
         boolean iso8601Format = false;
         DateTimeFormatter dateTimeFormatter = null;
 
         ExprNode formatExpr = dateFormatParameter.getChildNodes()[0];
-        ExprEvaluator formatEval = formatExpr.getExprEvaluator();
-        Class formatReturnType = formatExpr.getExprEvaluator().getType();
+        ExprForge formatForge = formatExpr.getForge();
+        Class formatReturnType = formatExpr.getForge().getEvaluationType();
 
         if (formatReturnType == String.class) {
             if (!formatExpr.isConstantResult()) {
-                dynamicDateFormat = formatEval;
+                dynamicDateFormat = formatForge;
             } else {
-                staticFormatString = (String) formatEval.evaluate(null, true, validationContext.getExprEvaluatorContext());
+                staticFormatString = (String) formatForge.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
                 if (staticFormatString.toLowerCase(Locale.ENGLISH).trim().equals("iso")) {
                     iso8601Format = true;
                 } else {
@@ -731,7 +1116,7 @@ public class ExprCastNode extends ExprNodeBase {
                 }
             }
         } else {
-            Object dateFormatObject = ExprNodeUtility.evaluateValidationTimeNoStreams(formatEval, validationContext.getExprEvaluatorContext(), "date format");
+            Object dateFormatObject = ExprNodeUtility.evaluateValidationTimeNoStreams(formatForge.getExprEvaluator(), validationContext.getExprEvaluatorContext(), "date format");
             if (!java8Formatter) {
                 if (!(dateFormatObject instanceof DateFormat)) {
                     throw getFailedExpected(DateFormat.class, dateFormatObject);
@@ -746,6 +1131,34 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         return new ExprCastNodeDateDesc(iso8601Format, dynamicDateFormat, staticFormatString, dateFormat, dateTimeFormatter);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param format format
+     * @return date format
+     */
+    public static SimpleDateFormat stringToSimpleDateFormatSafe(Object format) {
+        if (format == null) {
+            throw new EPException("Null date format returned by 'dateformat' expression");
+        }
+        try {
+            return new SimpleDateFormat(format.toString());
+        } catch (RuntimeException ex) {
+            throw new EPException("Invalid date format '" + format.toString() + "': " + ex.getMessage(), ex);
+        }
+    }
+
+    public static DateTimeFormatter stringToDateTimeFormatterSafe(Object format) {
+        if (format == null) {
+            throw new EPException("Null date format returned by 'dateformat' expression");
+        }
+        try {
+            return DateTimeFormatter.ofPattern(format.toString());
+        } catch (RuntimeException ex) {
+            throw new EPException("Invalid date format '" + format.toString() + "': " + ex.getMessage(), ex);
+        }
     }
 
     private ExprValidationException getFailedExpected(Class expected, Object received) {

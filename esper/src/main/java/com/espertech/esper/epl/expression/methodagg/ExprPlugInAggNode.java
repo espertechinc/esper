@@ -56,9 +56,9 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
         for (ExprNode child : positionalParams) {
             if (child.isConstantResult()) {
                 isConstant[count] = true;
-                constant[count] = child.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
+                constant[count] = child.getForge().getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
             }
-            parameterTypes[count] = child.getExprEvaluator().getType();
+            parameterTypes[count] = child.getForge().getEvaluationType();
             expressions[count] = child;
 
             if (!ExprNodeUtility.hasRemoveStreamForAggregations(child, validationContext.getStreamTypeService(), validationContext.isResettingAggregations())) {
@@ -96,10 +96,8 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
 
         Class childType = null;
         if (positionalParams.length > 0) {
-            childType = positionalParams[0].getExprEvaluator().getType();
+            childType = positionalParams[0].getForge().getEvaluationType();
         }
-
-
 
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makePlugInMethod(validationContext.getStatementExtensionSvcContext(), this, aggregationFunctionFactory, childType);
     }

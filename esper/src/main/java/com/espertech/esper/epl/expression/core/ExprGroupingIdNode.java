@@ -11,10 +11,15 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 
 import java.io.StringWriter;
 
-public class ExprGroupingIdNode extends ExprNodeBase implements ExprEvaluator {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
+
+public class ExprGroupingIdNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
 
     private static final long serialVersionUID = -8044246020091631492L;
     private Integer id;
@@ -31,6 +36,18 @@ public class ExprGroupingIdNode extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return Integer.class;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public ExprForge getForge() {
         return this;
     }
 
@@ -54,8 +71,12 @@ public class ExprGroupingIdNode extends ExprNodeBase implements ExprEvaluator {
         return id;
     }
 
-    public Class getType() {
-        return Integer.class;
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constant(id);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
     }
 
     public static ExprValidationException makeException(String functionName) {

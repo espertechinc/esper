@@ -33,8 +33,8 @@ public class ExcludePlanHintExprUtil {
 
     static {
         LinkedHashMap<String, Object> properties = new LinkedHashMap<String, Object>();
-        properties.put("from_streamnum", int.class);
-        properties.put("to_streamnum", int.class);
+        properties.put("from_streamnum", Integer.class);
+        properties.put("to_streamnum", Integer.class);
         properties.put("from_streamname", String.class);
         properties.put("to_streamname", String.class);
         properties.put("opname", String.class);
@@ -57,7 +57,7 @@ public class ExcludePlanHintExprUtil {
         return new ObjectArrayEventBean(event, OAEXPRESSIONTYPE);
     }
 
-    public static ExprEvaluator toExpression(String hint, StatementContext statementContext) throws ExprValidationException {
+    public static ExprForge toExpression(String hint, StatementContext statementContext) throws ExprValidationException {
         String toCompile = "select * from java.lang.Object#time(" + hint + ")";
         StatementSpecRaw raw = EPAdministratorHelper.compileEPL(toCompile, hint, false, null,
                 SelectClauseStreamSelectorEnum.ISTREAM_ONLY, statementContext.getEngineImportService(),
@@ -67,6 +67,6 @@ public class ExcludePlanHintExprUtil {
                 new ExprDeclaredServiceImpl(), new TableServiceImpl());
         ExprNode expr = raw.getStreamSpecs().get(0).getViewSpecs()[0].getObjectParameters().get(0);
         ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.HINT, expr, statementContext, OAEXPRESSIONTYPE, false);
-        return validated.getExprEvaluator();
+        return validated.getForge();
     }
 }

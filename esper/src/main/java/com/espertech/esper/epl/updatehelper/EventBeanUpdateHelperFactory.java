@@ -37,7 +37,8 @@ public class EventBeanUpdateHelperFactory {
                                              boolean isCopyOnWrite,
                                              String statementName,
                                              String engineURI,
-                                             EventAdapterService eventAdapterService)
+                                             EventAdapterService eventAdapterService,
+                                             boolean isFireAndForget)
             throws ExprValidationException {
         List<EventBeanUpdateItem> updateItems = new ArrayList<EventBeanUpdateItem>();
         List<String> properties = new ArrayList<String>();
@@ -63,12 +64,12 @@ public class EventBeanUpdateHelperFactory {
                     writableProperty = nameWriteablePair.getSecond();
                 }
 
-                ExprEvaluator evaluator = possibleAssignment.getSecond().getExprEvaluator();
+                ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(possibleAssignment.getSecond().getForge(), eventAdapterService.getEngineImportService(), EventBeanUpdateHelperFactory.class, isFireAndForget, statementName);
                 EventPropertyWriter writers = eventTypeSPI.getWriter(propertyName);
                 boolean notNullableField = writableProperty.getPropertyType().isPrimitive();
 
                 properties.add(propertyName);
-                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getExprEvaluator().getType(),
+                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getForge().getEvaluationType(),
                         writableProperty.getPropertyType(), propertyName, false, typeWidenerCustomizer, statementName, engineURI);
 
                 // check event type assignment
@@ -86,7 +87,7 @@ public class EventBeanUpdateHelperFactory {
                 updateItem = new EventBeanUpdateItem(evaluator, propertyName, writers, notNullableField, widener);
             } else {
                 // handle non-assignment, i.e. UDF or other expression
-                ExprEvaluator evaluator = assignment.getExpression().getExprEvaluator();
+                ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(assignment.getExpression().getForge(), eventAdapterService.getEngineImportService(), EventBeanUpdateHelperFactory.class, isFireAndForget, statementName);
                 updateItem = new EventBeanUpdateItem(evaluator, null, null, false, null);
             }
 

@@ -10,36 +10,33 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.espertech.esper.util.CollectionUtil;
 
 import java.util.Collection;
 
 public class ExprDotStaticMethodWrapArrayScalar implements ExprDotStaticMethodWrap {
-    private static final Logger log = LoggerFactory.getLogger(ExprDotStaticMethodWrapArrayScalar.class);
 
     private final String methodName;
-    private final Class componentType;
+    private final Class arrayType;
 
-    public ExprDotStaticMethodWrapArrayScalar(String methodName, Class componentType) {
+    public ExprDotStaticMethodWrapArrayScalar(String methodName, Class arrayType) {
         this.methodName = methodName;
-        this.componentType = componentType;
+        this.arrayType = arrayType;
     }
 
     public EPType getTypeInfo() {
-        return EPTypeHelper.collectionOfSingleValue(componentType);
+        return EPTypeHelper.collectionOfSingleValue(arrayType.getComponentType());
     }
 
-    public Collection convert(Object result) {
-        if (result == null) {
-            return null;
-        }
-        if (!result.getClass().isArray()) {
-            log.warn("Expected array-type input from method '" + methodName + "' but received " + result.getClass());
-            return null;
-        }
-        return new ArrayWrappingCollection(result);
+    public Collection convertNonNull(Object result) {
+        return CollectionUtil.arrayToCollectionAllowNull(result);
+    }
+
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
+        return CollectionUtil.arrayToCollectionAllowNullCodegen(arrayType, result, context);
     }
 }

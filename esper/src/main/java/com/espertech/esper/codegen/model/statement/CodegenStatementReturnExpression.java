@@ -19,6 +19,9 @@ public class CodegenStatementReturnExpression extends CodegenStatementBase imple
     private final CodegenExpression expression;
 
     public CodegenStatementReturnExpression(CodegenExpression expression) {
+        if (expression == null) {
+            throw new IllegalArgumentException("No expression provided");
+        }
         this.expression = expression;
     }
 

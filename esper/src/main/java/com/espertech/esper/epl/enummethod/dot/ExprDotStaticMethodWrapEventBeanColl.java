@@ -11,6 +11,8 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 
@@ -27,7 +29,11 @@ public class ExprDotStaticMethodWrapEventBeanColl implements ExprDotStaticMethod
         return EPTypeHelper.collectionOfEvents(type);
     }
 
-    public Collection convert(Object result) {
+    public Collection convertNonNull(Object result) {
         return (Collection) result;
+    }
+
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
+        return result;
     }
 }

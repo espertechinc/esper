@@ -39,7 +39,7 @@ public class TestGroupByView extends TestCase {
         agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceViewFactoryContext();
 
         ExprNode[] expressions = SupportExprNodeFactory.makeIdentNodesMD("symbol");
-        myGroupByView = new GroupByViewImpl(agentInstanceContext, expressions, ExprNodeUtility.getEvaluators(expressions));
+        myGroupByView = new GroupByViewImpl(agentInstanceContext, expressions, ExprNodeUtility.getEvaluatorsNoCompile(expressions));
 
         SupportBeanClassView childView = new SupportBeanClassView(SupportMarketDataBean.class);
 
@@ -121,7 +121,7 @@ public class TestGroupByView extends TestCase {
     public void testMakeSubviews() throws Exception {
         EventStream eventStream = new SupportStreamImpl(SupportMarketDataBean.class, 4);
         ExprNode[] expressions = SupportExprNodeFactory.makeIdentNodesMD("symbol");
-        GroupByView groupView = new GroupByViewImpl(agentInstanceContext, expressions, ExprNodeUtility.getEvaluators(expressions));
+        GroupByView groupView = new GroupByViewImpl(agentInstanceContext, expressions, ExprNodeUtility.getEvaluatorsNoCompile(expressions));
         eventStream.addView(groupView);
 
         Object[] groupByValue = new Object[]{"IBM"};
@@ -145,7 +145,7 @@ public class TestGroupByView extends TestCase {
         }
 
         // Add a size view parent of merge view
-        groupView = new GroupByViewImpl(agentInstanceContext, expressions, ExprNodeUtility.getEvaluators(expressions));
+        groupView = new GroupByViewImpl(agentInstanceContext, expressions, ExprNodeUtility.getEvaluatorsNoCompile(expressions));
 
         FirstElementView firstElementView_1 = new FirstElementView(null);
 

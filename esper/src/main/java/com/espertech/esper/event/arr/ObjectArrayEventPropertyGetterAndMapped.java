@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.event.arr;
 
-import com.espertech.esper.client.EventPropertyGetterMapped;
+import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 
 /**
  * Property getter for Map-underlying events.
  */
-public interface ObjectArrayEventPropertyGetterAndMapped extends ObjectArrayEventPropertyGetter, EventPropertyGetterMapped {
+public interface ObjectArrayEventPropertyGetterAndMapped extends ObjectArrayEventPropertyGetter, EventPropertyGetterMappedSPI {
 }

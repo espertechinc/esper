@@ -32,7 +32,4 @@ public class ExprCastNodeConstEval implements ExprEvaluator {
         return theConstant;
     }
 
-    public Class getType() {
-        return parent.getTargetType();
-    }
 }

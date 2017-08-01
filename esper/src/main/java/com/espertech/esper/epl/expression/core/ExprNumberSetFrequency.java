@@ -11,23 +11,42 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.type.FrequencyParameter;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.SimpleNumberCoercerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Expression for use within crontab to specify a frequency.
  */
-public class ExprNumberSetFrequency extends ExprNodeBase implements ExprEvaluator {
+public class ExprNumberSetFrequency extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetFrequency.class);
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -5389069399403078192L;
 
     @Override
     public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return FrequencyParameter.class;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
         return this;
     }
 
@@ -52,26 +71,47 @@ public class ExprNumberSetFrequency extends ExprNodeBase implements ExprEvaluato
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        evaluator = this.getChildNodes()[0].getExprEvaluator();
-        Class type = evaluator.getType();
-        if (!(JavaClassHelper.isNumericNonFP(type))) {
+        ExprForge forge = this.getChildNodes()[0].getForge();
+        if (!(JavaClassHelper.isNumericNonFP(forge.getEvaluationType()))) {
             throw new ExprValidationException("Frequency operator requires an integer-type parameter");
         }
+        evaluator = forge.getExprEvaluator();
         return null;
-    }
-
-    public Class getType() {
-        return FrequencyParameter.class;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Object value = evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         if (value == null) {
-            log.warn("Null value returned for frequency parameter");
-            return new FrequencyParameter(Integer.MAX_VALUE);
+            return handleNumberSetFreqNullValue();
         } else {
             int intValue = ((Number) value).intValue();
             return new FrequencyParameter(intValue);
         }
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        ExprForge forge = this.getChildNodes()[0].getForge();
+        Class evaluationType = forge.getEvaluationType();
+        CodegenBlock block = context.addMethod(FrequencyParameter.class, ExprNumberSetFrequency.class).add(params).begin()
+                .declareVar(evaluationType, "value", forge.evaluateCodegen(params, context));
+        if (!evaluationType.isPrimitive()) {
+            block.ifRefNull("value")
+                .blockReturn(staticMethod(ExprNumberSetFrequency.class, "handleNumberSetFreqNullValue"));
+        }
+        String method = block.methodReturn(newInstance(FrequencyParameter.class, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return isConstantResult() ? ExprForgeComplexityEnum.NONE : ExprForgeComplexityEnum.INTER;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @return frequence params
+     */
+    public static FrequencyParameter handleNumberSetFreqNullValue() {
+        log.warn("Null value returned for frequency parameter");
+        return new FrequencyParameter(Integer.MAX_VALUE);
     }
 }

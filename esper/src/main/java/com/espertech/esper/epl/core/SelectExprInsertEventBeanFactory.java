@@ -13,10 +13,11 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
@@ -31,11 +32,14 @@ import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerFactory;
 import net.sf.cglib.reflect.FastConstructor;
 
+import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class SelectExprInsertEventBeanFactory {
     public static SelectExprProcessor getInsertUnderlyingNonJoin(EventAdapterService eventAdapterService,
@@ -43,6 +47,7 @@ public class SelectExprInsertEventBeanFactory {
                                                                  boolean isUsingWildcard,
                                                                  StreamTypeService typeService,
                                                                  ExprEvaluator[] expressionNodes,
+                                                                 ExprForge[] forges,
                                                                  String[] columnNames,
                                                                  Object[] expressionReturnTypes,
                                                                  EngineImportService engineImportService,
@@ -101,7 +106,7 @@ public class SelectExprInsertEventBeanFactory {
             }
             // Try constructor injection
             try {
-                return initializeCtorInjection((BeanEventType) eventType, expressionNodes, expressionReturnTypes, engineImportService, eventAdapterService);
+                return initializeCtorInjection((BeanEventType) eventType, forges, expressionReturnTypes, engineImportService, eventAdapterService, statementName);
             } catch (ExprValidationException ctorEx) {
                 if (writableProps.isEmpty()) {
                     throw ctorEx;
@@ -128,14 +133,13 @@ public class SelectExprInsertEventBeanFactory {
             }
             // Try constructor injection
             try {
-                ExprEvaluator[] evaluators = new ExprEvaluator[streamTypes.length];
+                ExprForge[] forges = new ExprForge[streamTypes.length];
                 Object[] resultTypes = new Object[streamTypes.length];
                 for (int i = 0; i < streamTypes.length; i++) {
-                    evaluators[i] = new ExprEvaluatorJoinWildcard(i, streamTypes[i].getUnderlyingType());
-                    resultTypes[i] = evaluators[i].getType();
+                    forges[i] = new ExprForgeJoinWildcard(i, streamTypes[i].getUnderlyingType());
+                    resultTypes[i] = forges[i].getEvaluationType();
                 }
-
-                return initializeCtorInjection((BeanEventType) eventType, evaluators, resultTypes, engineImportService, eventAdapterService);
+                return initializeCtorInjection((BeanEventType) eventType, forges, resultTypes, engineImportService, eventAdapterService, statementName);
             } catch (ExprValidationException ctorEx) {
                 if (writableProps.isEmpty()) {
                     throw ctorEx;
@@ -198,6 +202,14 @@ public class SelectExprInsertEventBeanFactory {
                                 }
                                 return input;
                             }
+
+                            public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+                                String method = context.addMethod(Object.class, TypeWidener.class).add(Object.class, "input").begin()
+                                        .ifCondition(instanceOf(ref("input"), EventBean.class))
+                                        .blockReturn(exprDotMethod(cast(EventBean.class, ref("input")), "getUnderlying"))
+                                        .methodReturn(ref("input"));
+                                return localMethodBuild(method).pass(expression).call();
+                            }
                         };
                         continue;
                     }
@@ -218,10 +230,6 @@ public class SelectExprInsertEventBeanFactory {
                                 return theEvent.getUnderlying();
                             }
                             return null;
-                        }
-
-                        public Class getType() {
-                            return returnType;
                         }
 
                     };
@@ -246,10 +254,6 @@ public class SelectExprInsertEventBeanFactory {
                                 Array.set(values, i, events[i].getUnderlying());
                             }
                             return values;
-                        }
-
-                        public Class getType() {
-                            return componentReturnType;
                         }
 
                     };
@@ -312,9 +316,6 @@ public class SelectExprInsertEventBeanFactory {
                             return null;
                         }
 
-                        public Class getType() {
-                            return propertyType;
-                        }
                     };
                     break;
                 }
@@ -346,12 +347,13 @@ public class SelectExprInsertEventBeanFactory {
         return new SelectExprInsertNativeWidening(eventType, eventManufacturer, exprEvaluators, wideners);
     }
 
-    private static SelectExprProcessor initializeCtorInjection(BeanEventType beanEventType, ExprEvaluator[] exprEvaluators, Object[] expressionReturnTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService)
+    private static SelectExprProcessor initializeCtorInjection(BeanEventType beanEventType, ExprForge[] forges, Object[] expressionReturnTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName)
             throws ExprValidationException {
 
-        Pair<FastConstructor, ExprEvaluator[]> pair = InstanceManufacturerUtil.getManufacturer(beanEventType.getUnderlyingType(), engineImportService, exprEvaluators, expressionReturnTypes);
+        Pair<FastConstructor, ExprForge[]> pair = InstanceManufacturerUtil.getManufacturer(beanEventType.getUnderlyingType(), engineImportService, forges, expressionReturnTypes);
         EventBeanManufacturerCtor eventManufacturer = new EventBeanManufacturerCtor(pair.getFirst(), beanEventType, eventAdapterService);
-        return new SelectExprInsertNativeNoWiden(beanEventType, eventManufacturer, pair.getSecond());
+        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsMayCompile(pair.getSecond(), engineImportService, SelectExprInsertEventBeanFactory.class, false, statementName);
+        return new SelectExprInsertNativeNoWiden(beanEventType, eventManufacturer, evaluators);
     }
 
     private static SelectExprProcessor initializeJoinWildcardInternal(EventType eventType, Set<WriteablePropertyDescriptor> writables, String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName, String engineURI)
@@ -391,10 +393,6 @@ public class SelectExprInsertEventBeanFactory {
                         return theEvent.getUnderlying();
                     }
                     return null;
-                }
-
-                public Class getType() {
-                    return returnType;
                 }
 
             };
@@ -572,11 +570,11 @@ public class SelectExprInsertEventBeanFactory {
         }
     }
 
-    public static class ExprEvaluatorJoinWildcard implements ExprEvaluator {
+    public static class ExprForgeJoinWildcard implements ExprForge, ExprEvaluator, ExprNodeRenderable {
         private final int streamNum;
         private final Class returnType;
 
-        public ExprEvaluatorJoinWildcard(int streamNum, Class returnType) {
+        public ExprForgeJoinWildcard(int streamNum, Class returnType) {
             this.streamNum = streamNum;
             this.returnType = returnType;
         }
@@ -589,9 +587,32 @@ public class SelectExprInsertEventBeanFactory {
             return bean.getUnderlying();
         }
 
-        public Class getType() {
+        public ExprForgeComplexityEnum getComplexity() {
+            return ExprForgeComplexityEnum.SINGLE;
+        }
+
+        public ExprEvaluator getExprEvaluator() {
+            return this;
+        }
+
+        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+            String method = context.addMethod(returnType, ExprForgeJoinWildcard.class).add(params).begin()
+                    .declareVar(EventBean.class, "bean", arrayAtIndex(params.passEPS(), constant(streamNum)))
+                    .ifRefNullReturnNull("bean")
+                    .methodReturn(cast(returnType, exprDotUnderlying(ref("bean"))));
+            return localMethodBuild(method).passAll(params).call();
+        }
+
+        public Class getEvaluationType() {
             return returnType;
         }
 
+        public ExprNodeRenderable getForgeRenderable() {
+            return this;
+        }
+
+        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+            writer.append(this.getClass().getSimpleName());
+        }
     }
 }

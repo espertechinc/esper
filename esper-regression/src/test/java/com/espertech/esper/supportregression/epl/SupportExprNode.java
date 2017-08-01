@@ -11,11 +11,16 @@
 package com.espertech.esper.supportregression.epl;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
 
-public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
+
+public class SupportExprNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static int validateCount;
 
     private Class type;
@@ -56,16 +61,28 @@ public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
         return false;
     }
 
-    public Class getType() {
-        return type;
-    }
-
     public int getValidateCountSnapshot() {
         return validateCountSnapshot;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return value;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constant(value);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
+    }
+
+    public Class getEvaluationType() {
+        return type;
+    }
+
+    public ExprForge getForge() {
+        return this;
     }
 
     public void setValue(Object value) {
@@ -86,6 +103,10 @@ public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
 
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {

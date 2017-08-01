@@ -10,36 +10,29 @@
  */
 package com.espertech.esper.codegen.core;
 
-import java.util.List;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSet;
+
 import java.util.Map;
 import java.util.Set;
 
 import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenMethod {
-    private final Class returnType;
-    private final String methodName;
-    private final List<CodegenNamedParam> params;
-    private final String optionalComment;
+    private final CodegenMethodFootprint footprint;
     private CodegenBlock block;
 
-    public CodegenMethod(Class returnType, String methodName, List<CodegenNamedParam> params, String optionalComment) {
-        this.returnType = returnType;
-        this.methodName = methodName;
-        this.params = params;
-        this.optionalComment = optionalComment;
+    public CodegenMethod(CodegenMethodFootprint footprint) {
+        this.footprint = footprint;
     }
 
-    public Class getReturnType() {
-        return returnType;
+    public CodegenMethod(CodegenMethodFootprint footprint, CodegenExpression expression) {
+        this.footprint = footprint;
+        statements().methodReturn(expression);
     }
 
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public List<CodegenNamedParam> getParams() {
-        return params;
+    public CodegenMethodFootprint getFootprint() {
+        return footprint;
     }
 
     public CodegenBlock statements() {
@@ -48,27 +41,34 @@ public class CodegenMethod {
     }
 
     public void mergeClasses(Set<Class> classes) {
+        footprint.mergeClasses(classes);
         allocateBlock();
-        classes.add(returnType);
         block.mergeClasses(classes);
-        for (CodegenNamedParam param : params) {
-            param.mergeClasses(classes);
-        }
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, boolean isPublic) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isPublic, CodegenIndent indent) {
         allocateBlock();
-        if (optionalComment != null) {
-            builder.append("// ").append(optionalComment).append("\n");
+
+        if (footprint.getOptionalComment() != null) {
+            indent.indent(builder, 1);
+            builder.append("// ").append(footprint.getOptionalComment()).append("\n");
         }
+
+        indent.indent(builder, 1);
         if (isPublic) {
             builder.append("public ");
         }
-        appendClassName(builder, returnType, null, imports);
-        builder.append(" ").append(methodName).append("(");
-        CodegenNamedParam.render(builder, params, imports);
+        appendClassName(builder, footprint.getReturnType(), null, imports);
+        builder.append(" ").append(footprint.getMethodName()).append("(");
+        String delimiter = "";
+        for (CodegenParamSet param : footprint.getParams()) {
+            builder.append(delimiter);
+            param.render(builder, imports, indent, footprint.getOptionalComment());
+            delimiter = ",";
+        }
         builder.append("){\n");
-        block.render(builder, imports);
+        block.render(builder, imports, 2, indent);
+        indent.indent(builder, 1);
         builder.append("}\n");
     }
 

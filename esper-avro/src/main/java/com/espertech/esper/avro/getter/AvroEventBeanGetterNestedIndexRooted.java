@@ -59,10 +59,10 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
     }
 
     private String getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
-                .declareVar(GenericData.Record.class, "inner", staticMethodTakingExprAndConst(this.getClass(), "getAtIndex", ref("record"), posTop, index))
+        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+                .declareVar(GenericData.Record.class, "inner", staticMethod(this.getClass(), "getAtIndex", ref("record"), constant(posTop), constant(index)))
                 .ifRefNullReturnNull("inner")
-                .methodReturn(nested.codegenUnderlyingGet(ref("inner"), context));
+                .methodReturn(nested.underlyingGetCodegen(ref("inner"), context));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -80,35 +80,35 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
     }
 
     private String getFragmentCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(Collection.class, "values", cast(Collection.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .declareVar(Object.class, "value", staticMethod(AvroEventBeanGetterIndexed.class, "getAvroIndexedValue", ref("values"), constant(index)))
                 .ifRefNullReturnNull("value")
                 .ifRefNotTypeReturnConst("value", GenericData.Record.class, null)
-                .methodReturn(nested.codegenUnderlyingFragment(cast(GenericData.Record.class, ref("value")), context));
+                .methodReturn(nested.underlyingFragmentCodegen(cast(GenericData.Record.class, ref("value")), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 }

@@ -11,6 +11,9 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -19,7 +22,7 @@ import java.io.StringWriter;
 /**
  * Represents the RSTREAM() function in an expression tree.
  */
-public class ExprIStreamNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprIStreamNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final long serialVersionUID = -6911351346095189882L;
 
     /**
@@ -29,6 +32,18 @@ public class ExprIStreamNode extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return Boolean.class;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
         return this;
     }
 
@@ -43,15 +58,19 @@ public class ExprIStreamNode extends ExprNodeBase implements ExprEvaluator {
         return false;
     }
 
-    public Class getType() {
-        return Boolean.class;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qaExprIStream(this, isNewData);
         }
         return isNewData;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return params.passIsNewData();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

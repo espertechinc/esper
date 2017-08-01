@@ -40,6 +40,8 @@ import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -48,8 +50,11 @@ import java.util.*;
  * View factory for match-recognize view.
  */
 public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
+    private static final Logger log = LoggerFactory.getLogger(EventRowRegexNFAViewFactory.class);
+
     protected final MatchRecognizeSpec matchRecognizeSpec;
     protected final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
+    protected final HashMap<String, Pair<ExprNode, ExprEvaluator>> variableDefinitions;
     protected final Map<Integer, String> streamVariables;
     protected final Set<String> variablesSingle;
     protected final ObjectArrayEventType compositeEventType;
@@ -65,6 +70,17 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
     protected final boolean[] isExprRequiresMultimatchState;
     protected final RowRegexExprNode expandedPatternNode;
     protected final ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig;
+    protected final ExprEvaluator[] columnEvaluators;
+    protected final String[] columnNames;
+    protected final ExprEvaluator[] partitionByEvals;
+    protected final RegexNFAState[] startStates;
+    protected final RegexNFAState[] allStates;
+    protected final String[] multimatchVariablesArray;
+    protected final int[] multimatchStreamNumToVariable;
+    protected final int[] multimatchVariableToStreamNum;
+    protected final int numEventsEventsPerStreamDefine;
+    protected final boolean isOrTerminated;
+    protected final boolean isTrackMaxStates;
 
     /**
      * Ctor.
@@ -267,7 +283,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
                 aggNodesForStream.add(aggregateNode);
             }
 
-            AggregationServiceMatchRecognizeFactoryDesc factoryDesc = AggregationServiceFactoryFactory.getServiceMatchRecognize(streamVariables.size(), measureExprAggNodesPerStream, typeServiceAggregateMeasure.getEventTypes());
+            AggregationServiceMatchRecognizeFactoryDesc factoryDesc = AggregationServiceFactoryFactory.getServiceMatchRecognize(streamVariables.size(), measureExprAggNodesPerStream, typeServiceAggregateMeasure.getEventTypes(), agentInstanceContext.getStatementContext().getEngineImportService(), agentInstanceContext.getStatementName());
             aggregationService = factoryDesc.getAggregationServiceFactory().makeService(agentInstanceContext);
             aggregationExpressions = factoryDesc.getExpressions();
         } else {
@@ -284,7 +300,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
             }
             ExprNode validated = validateMeasureClause(measureItem.getExpr(), typeServiceMeasure, variablesMultiple, variablesSingle, statementContext);
             measureItem.setExpr(validated);
-            rowTypeDef.put(measureItem.getName(), validated.getExprEvaluator().getType());
+            rowTypeDef.put(measureItem.getName(), validated.getForge().getEvaluationType());
             validated.accept(streamRefVisitor);
         }
 
@@ -325,6 +341,9 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
                 validated.add(ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGPARTITION, partitionExpr, validationContext));
             }
             matchRecognizeSpec.setPartitionByExpressions(validated);
+            partitionByEvals = ExprNodeUtility.getEvaluatorsMayCompile(validated, statementContext.getEngineImportService(), EventRowRegexNFAViewFactory.class, false, statementContext.getStatementName());
+        } else {
+            partitionByEvals = null;
         }
 
         // validate interval if present
@@ -332,6 +351,65 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
             ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
             matchRecognizeSpec.getInterval().validate(validationContext);
         }
+
+        // compile variable definition expressions
+        variableDefinitions = new HashMap<>();
+        for (MatchRecognizeDefineItem defineItem : matchRecognizeSpec.getDefines()) {
+            ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(defineItem.getExpression().getForge(), agentInstanceContext.getStatementContext().getEngineImportService(), EventRowRegexNFAViewFactory.class, false, statementContext.getStatementName());
+            variableDefinitions.put(defineItem.getIdentifier(), new Pair<>(defineItem.getExpression(), evaluator));
+        }
+
+        // create evaluators
+        columnNames = new String[matchRecognizeSpec.getMeasures().size()];
+        columnEvaluators = new ExprEvaluator[matchRecognizeSpec.getMeasures().size()];
+        int count = 0;
+        for (MatchRecognizeMeasureItem measureItem : matchRecognizeSpec.getMeasures()) {
+            columnNames[count] = measureItem.getName();
+            columnEvaluators[count] = ExprNodeCompiler.allocateEvaluator(measureItem.getExpr().getForge(), agentInstanceContext.getStatementContext().getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
+            count++;
+        }
+
+        // build states
+        RegexNFAStrandResult strand = EventRowRegexHelper.recursiveBuildStartStates(expandedPatternNode, variableDefinitions, variableStreams, isExprRequiresMultimatchState);
+        startStates = strand.getStartStates().toArray(new RegexNFAState[strand.getStartStates().size()]);
+        allStates = strand.getAllStates().toArray(new RegexNFAState[strand.getAllStates().size()]);
+
+        if (log.isInfoEnabled()) {
+            log.info("NFA tree:\n" + EventRowRegexNFAViewUtil.print(startStates));
+        }
+
+        // determine names of multimatching variables
+        if (variablesSingle.size() == variableStreams.size()) {
+            multimatchVariablesArray = new String[0];
+            multimatchStreamNumToVariable = new int[0];
+            multimatchVariableToStreamNum = new int[0];
+        } else {
+            multimatchVariablesArray = new String[variableStreams.size() - variablesSingle.size()];
+            multimatchVariableToStreamNum = new int[multimatchVariablesArray.length];
+            multimatchStreamNumToVariable = new int[variableStreams.size()];
+            Arrays.fill(multimatchStreamNumToVariable, -1);
+            count = 0;
+            for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet()) {
+                if (entry.getValue().getSecond()) {
+                    int index = count;
+                    multimatchVariablesArray[index] = entry.getKey();
+                    multimatchVariableToStreamNum[index] = entry.getValue().getFirst();
+                    multimatchStreamNumToVariable[entry.getValue().getFirst()] = index;
+                    count++;
+                }
+            }
+        }
+        this.numEventsEventsPerStreamDefine = isDefineAsksMultimatches ? variableStreams.size() + 1 : variableStreams.size();
+
+        // determine interval-or-terminated
+        if (matchRecognizeSpec.getInterval() != null) {
+            isOrTerminated = matchRecognizeSpec.getInterval().isOrTerminated();
+        } else {
+            isOrTerminated = false;
+        }
+
+        // flag to track max states
+        this.isTrackMaxStates = matchRecognizeConfig != null && matchRecognizeConfig.getMaxStates() != null;
     }
 
     private ExprNode validateMeasureClause(ExprNode measureNode, StreamTypeService typeServiceMeasure, Set<String> variablesMultiple, Set<String> variablesSingle, StatementContext statementContext)
@@ -416,23 +494,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
         }
 
         EventRowRegexNFAView view = new EventRowRegexNFAView(this,
-                compositeEventType,
-                rowEventType,
-                matchRecognizeSpec,
-                variableStreams,
-                streamVariables,
-                variablesSingle,
                 agentInstanceViewFactoryContext.getAgentInstanceContext(),
-                callbacksPerIndex,
-                aggregationService,
-                isDefineAsksMultimatches,
-                defineMultimatchEventBean,
-                isExprRequiresMultimatchState,
-                isUnbound,
-                isIterateOnly,
-                isCollectMultimatches,
-                expandedPatternNode,
-                matchRecognizeConfig,
                 scheduler
         );
 
@@ -470,5 +532,13 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
 
     public String getViewName() {
         return "Match-recognize";
+    }
+
+    public RegexNFAState[] getAllStates() {
+        return allStates;
+    }
+
+    public int getNumEventsEventsPerStreamDefine() {
+        return numEventsEventsPerStreamDefine;
     }
 }

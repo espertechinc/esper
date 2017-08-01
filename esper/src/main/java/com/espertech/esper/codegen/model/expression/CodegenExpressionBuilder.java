@@ -10,12 +10,26 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
+import com.espertech.esper.codegen.model.method.CodegenLocalCallBuilder;
+
 import java.util.Map;
 import java.util.Set;
 
 public class CodegenExpressionBuilder {
-    public static CodegenExpression ref(String ref) {
+    public static CodegenExpressionRef ref(String ref) {
         return new CodegenExpressionRef(ref);
+    }
+
+    public static CodegenExpression op(CodegenExpression left, String expressionText, CodegenExpression right) {
+        return new CodegenExpressionOp(left, expressionText, right);
+    }
+
+    public static CodegenExpression and(CodegenExpression first, CodegenExpression second, CodegenExpression... more) {
+        return new CodegenExpressionAndOr(true, first, second, more);
+    }
+
+    public static CodegenExpression or(CodegenExpression first, CodegenExpression second, CodegenExpression... more) {
+        return new CodegenExpressionAndOr(false, first, second, more);
     }
 
     public static CodegenExpressionExprDotName exprDotName(CodegenExpression left, String name) {
@@ -26,6 +40,10 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionExprDotMethod(expression, method, params);
     }
 
+    public static CodegenExpression enumValue(Class enumType, String enumValue) {
+        return new CodegenExpressionEnumValue(enumType, enumValue);
+    }
+
     public static CodegenExpressionExprDotMethodChain exprDotMethodChain(CodegenExpression expression) {
         return new CodegenExpressionExprDotMethodChain(expression);
     }
@@ -34,16 +52,12 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionExprDotUnderlying(expression);
     }
 
-    public static CodegenExpression beanUndCastDotMethodConst(Class clazz, CodegenExpression beanExpression, String method, String constant) {
-        return new CodegenExpressionBeanUndCastDotMethodConst(clazz, beanExpression, method, constant);
+    public static CodegenExpression localMethod(String methodName, CodegenExpression... expressions) {
+        return new CodegenExpressionLocalMethod(methodName, expressions);
     }
 
-    public static CodegenExpression beanUndCastArrayAtIndex(Class clazz, CodegenExpression beanExpression, int index) {
-        return new CodegenExpressionBeanUndCastArrayAtIndex(clazz, beanExpression, index);
-    }
-
-    public static CodegenExpression localMethod(String methodName, CodegenExpression expression) {
-        return new CodegenExpressionLocalMethod(methodName, expression);
+    public static CodegenLocalCallBuilder localMethodBuild(String methodName) {
+        return new CodegenLocalCallBuilder(methodName);
     }
 
     public static CodegenExpression constantTrue() {
@@ -62,6 +76,10 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionConstant(constant);
     }
 
+    public static CodegenExpression noop() {
+        return CodegenExpressionNoOp.INSTANCE;
+    }
+
     public static CodegenExpression castUnderlying(Class clazz, CodegenExpression expression) {
         return new CodegenExpressionCastUnderlying(clazz, expression);
     }
@@ -78,12 +96,24 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionCastRef(clazz, ref);
     }
 
+    public static CodegenExpression increment(String ref) {
+        return new CodegenExpressionIncrementDecrement(ref, true);
+    }
+
+    public static CodegenExpression decrement(String ref) {
+        return new CodegenExpressionIncrementDecrement(ref, false);
+    }
+
     public static CodegenExpression conditional(CodegenExpression condition, CodegenExpression expressionTrue, CodegenExpression expressionFalse) {
         return new CodegenExpressionConditional(condition, expressionTrue, expressionFalse);
     }
 
     public static CodegenExpression not(CodegenExpression expression) {
-        return new CodegenExpressionNot(expression);
+        return new CodegenExpressionNot(true, expression);
+    }
+
+    public static CodegenExpression notOptional(boolean isNot, CodegenExpression expression) {
+        return new CodegenExpressionNot(isNot, expression);
     }
 
     public static CodegenExpression cast(Class clazz, CodegenExpression expression) {
@@ -98,16 +128,16 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionEqualsNull(lhs, false);
     }
 
-    public static CodegenExpression staticMethod(Class clazz, String method, String... refs) {
-        return new CodegenExpressionStaticMethodTakingRefs(clazz, method, refs);
+    public static CodegenExpression equalsIdentity(CodegenExpression lhs, CodegenExpression rhs) {
+        return new CodegenExpressionEqualsReference(lhs, rhs, false);
     }
 
     public static CodegenExpression staticMethod(Class clazz, String method, CodegenExpression... params) {
         return new CodegenExpressionStaticMethodTakingAny(clazz, method, params);
     }
 
-    public static CodegenExpression staticMethodTakingExprAndConst(Class clazz, String method, CodegenExpression expression, Object... consts) {
-        return new CodegenExpressionStaticMethodTakingExprAndConst(clazz, method, expression, consts);
+    public static CodegenExpression clazz(Class clazz) {
+        return new CodegenExpressionClass(clazz);
     }
 
     public static CodegenExpression arrayAtIndex(CodegenExpression expression, CodegenExpression index) {

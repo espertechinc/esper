@@ -17,6 +17,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.util.DateTime;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportDateTime;
 import com.espertech.esper.supportregression.bean.SupportTimeStartEndA;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
@@ -25,13 +26,47 @@ import com.espertech.esper.supportregression.execution.RegressionExecution;
 public class ExecDTBetween implements RegressionExecution {
 
     public void configure(Configuration configuration) throws Exception {
-        configuration.addEventType("SupportDateTime", SupportDateTime.class);
-        configuration.addEventType("SupportTimeStartEndA", SupportTimeStartEndA.class);
+        configuration.addEventType(SupportDateTime.class);
+        configuration.addEventType(SupportTimeStartEndA.class);
+        configuration.addEventType(SupportBean.class);
     }
 
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionIncludeEndpoints(epService);
         runAssertionExcludeEndpoints(epService);
+        runAssertionTypes(epService);
+    }
+
+    private void runAssertionTypes(EPServiceProvider epService) {
+        String[] fields = "c0,c1,c2,c3,c4".split(",");
+        String eplCurrentTS = "select " +
+                "longdate.between(longPrimitive, longBoxed) as c0, " +
+                "utildate.between(longPrimitive, longBoxed) as c1, " +
+                "caldate.between(longPrimitive, longBoxed) as c2," +
+                "localdate.between(longPrimitive, longBoxed) as c3," +
+                "zoneddate.between(longPrimitive, longBoxed) as c4 " +
+                " from SupportDateTime unidirectional, SupportBean#lastevent";
+        EPStatement stmtCurrentTs = epService.getEPAdministrator().createEPL(eplCurrentTS);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmtCurrentTs.addListener(listener);
+
+        SupportBean bean = new SupportBean();
+        bean.setLongPrimitive(10);
+        bean.setLongBoxed(20L);
+        epService.getEPRuntime().sendEvent(bean);
+
+        epService.getEPRuntime().sendEvent(SupportDateTime.make("2002-05-30T09:01:02.003"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {false, false, false, false, false});
+
+        bean = new SupportBean();
+        bean.setLongPrimitive(0);
+        bean.setLongBoxed(Long.MAX_VALUE);
+        epService.getEPRuntime().sendEvent(bean);
+
+        epService.getEPRuntime().sendEvent(SupportDateTime.make("2002-05-30T09:01:02.003"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true, true, true, true, true});
+
+        stmtCurrentTs.destroy();
     }
 
     private void runAssertionIncludeEndpoints(EPServiceProvider epService) {

@@ -71,9 +71,9 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
     }
 
     private String getMapInternalCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Map.class, "map", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").add(int.class, "index").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
-                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), constant(index)));
+                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), ref("index")));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -88,32 +88,36 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
     private String getFragmentCodegen(CodegenContext context) {
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentType);
-        return context.addMethod(Object.class, Map.class, "map", this.getClass())
-                .declareVar(Object.class, "value", codegenUnderlyingGet(ref("map"), context))
+        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
+                .declareVar(Object.class, "value", underlyingGetCodegen(ref("map"), context))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNFragmentNonPojo", ref("value"), ref(mType.getMemberName()), ref(mSvc.getMemberName())));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getMapInternalCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getMapInternalCodegen(context), underlyingExpression, constant(index));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getMapInternalCodegen(context), castUnderlying(Map.class, beanExpression), key);
     }
 }

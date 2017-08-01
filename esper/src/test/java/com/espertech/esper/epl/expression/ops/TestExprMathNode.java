@@ -30,7 +30,7 @@ public class TestExprMathNode extends TestCase {
         arithNode.addChildNode(new SupportExprNode(Double.class));
         arithNode.addChildNode(new SupportExprNode(Integer.class));
         arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Double.class, arithNode.getType());
+        assertEquals(Double.class, arithNode.getForge().getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {
@@ -70,16 +70,16 @@ public class TestExprMathNode extends TestCase {
         arithNode.addChildNode(new SupportExprNode(new Integer(10)));
         arithNode.addChildNode(new SupportExprNode(new Double(1.5)));
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, arithNode, SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(11.5d, arithNode.evaluate(null, false, null));
+        assertEquals(11.5d, arithNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         arithNode = makeNode(null, Integer.class, 5d, Double.class);
-        assertNull(arithNode.evaluate(null, false, null));
+        assertNull(arithNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         arithNode = makeNode(5, Integer.class, null, Double.class);
-        assertNull(arithNode.evaluate(null, false, null));
+        assertNull(arithNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         arithNode = makeNode(null, Integer.class, null, Double.class);
-        assertNull(arithNode.evaluate(null, false, null));
+        assertNull(arithNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEqualsNode() throws Exception {

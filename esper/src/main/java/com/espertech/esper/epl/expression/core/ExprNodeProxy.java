@@ -12,11 +12,22 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.util.JavaClassHelper;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class ExprNodeProxy implements java.lang.reflect.InvocationHandler {
 
-    private static Method target = JavaClassHelper.getMethodByName(ExprNode.class, "getExprEvaluator");
+    private static final Method TARGET_GETFORGE;
+    private static final Method TARGET_EQUALSNODE;
+
+    static {
+        TARGET_GETFORGE = JavaClassHelper.getMethodByName(ExprNode.class, "getForge");
+        TARGET_EQUALSNODE = JavaClassHelper.getMethodByName(ExprNode.class, "equalsNode");
+        if (TARGET_GETFORGE == null || TARGET_EQUALSNODE == null) {
+            throw new RuntimeException("Failed to find required methods");
+        }
+    }
 
     private String engineURI;
     private String statementName;
@@ -38,10 +49,36 @@ public class ExprNodeProxy implements java.lang.reflect.InvocationHandler {
     public Object invoke(Object proxy, Method m, Object[] args)
             throws Throwable {
 
-        if (!m.equals(target)) {
-            return m.invoke(exprNode, args);
-        }
+        try {
+            if (m.equals(TARGET_GETFORGE)) {
+                return handleGetForge(m, args);
+            }
 
+            if (m.equals(TARGET_EQUALSNODE)) {
+                return handleEqualsNode(m, args);
+            }
+
+            return m.invoke(exprNode, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    public ExprNode getOriginalObject() {
+        return exprNode;
+    }
+
+    private Object handleEqualsNode(Method m, Object[] args) {
+        ExprNode otherNode;
+        try {
+            otherNode = ((ExprNodeProxy) Proxy.getInvocationHandler(args[0])).getOriginalObject();
+        } catch (IllegalArgumentException ex) {
+            otherNode = (ExprNode) args[0];
+        }
+        return exprNode.equalsNode(otherNode, (boolean) args[1]);
+    }
+
+    private Object handleGetForge(Method m, Object[] args) throws Exception {
         String expressionToString = "undefined";
         try {
             expressionToString = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode);
@@ -49,8 +86,8 @@ public class ExprNodeProxy implements java.lang.reflect.InvocationHandler {
             // no action
         }
 
-        ExprEvaluator evaluator = (ExprEvaluator) m.invoke(exprNode, args);
-        return ExprEvaluatorProxy.newInstance(engineURI, statementName, expressionToString, evaluator);
+        ExprForge forge = (ExprForge) m.invoke(exprNode, args);
+        return ExprForgeProxy.newInstance(engineURI, statementName, expressionToString, forge);
     }
 }
 

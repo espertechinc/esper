@@ -10,28 +10,21 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.SimpleNumberBigDecimalCoercer;
-import com.espertech.esper.util.SimpleNumberBigIntegerCoercer;
-import com.espertech.esper.util.SimpleNumberCoercerFactory;
 
 import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Represents the MAX(a,b) and MIN(a,b) functions is an expression tree.
  */
-public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator {
-    private MinMaxTypeEnum minMaxTypeEnum;
-    private Class resultType;
-    private transient MinMaxTypeEnum.Computer computer;
-    private transient ExprEvaluator[] evaluators;
+public class ExprMinMaxRowNode extends ExprNodeBase {
     private static final long serialVersionUID = -5244192656164983580L;
+
+    private final MinMaxTypeEnum minMaxTypeEnum;
+
+    private transient ExprMinMaxRowNodeForge forge;
 
     /**
      * Ctor.
@@ -43,7 +36,13 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     /**
@@ -59,10 +58,9 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator {
         if (this.getChildNodes().length < 2) {
             throw new ExprValidationException("MinMax node must have at least 2 parameters");
         }
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
-        for (ExprEvaluator child : evaluators) {
-            Class childType = child.getType();
+        for (ExprNode child : getChildNodes()) {
+            Class childType = child.getForge().getEvaluationType();
             if (!JavaClassHelper.isNumeric(childType)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
                         childType.getSimpleName() +
@@ -71,64 +69,20 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator {
         }
 
         // Determine result type, set up compute function
-        Class childTypeOne = evaluators[0].getType();
-        Class childTypeTwo = evaluators[1].getType();
-        resultType = JavaClassHelper.getArithmaticCoercionType(childTypeOne, childTypeTwo);
+        Class childTypeOne = getChildNodes()[0].getForge().getEvaluationType();
+        Class childTypeTwo = getChildNodes()[1].getForge().getEvaluationType();
+        Class resultType = JavaClassHelper.getArithmaticCoercionType(childTypeOne, childTypeTwo);
 
         for (int i = 2; i < this.getChildNodes().length; i++) {
-            resultType = JavaClassHelper.getArithmaticCoercionType(resultType, evaluators[i].getType());
+            resultType = JavaClassHelper.getArithmaticCoercionType(resultType, getChildNodes()[i].getForge().getEvaluationType());
         }
+        forge = new ExprMinMaxRowNodeForge(this, resultType);
 
-        ExprNode[] childNodes = this.getChildNodes();
-        if (resultType == BigInteger.class) {
-            SimpleNumberBigIntegerCoercer[] convertors = new SimpleNumberBigIntegerCoercer[childNodes.length];
-            for (int i = 0; i < childNodes.length; i++) {
-                convertors[i] = SimpleNumberCoercerFactory.getCoercerBigInteger(evaluators[i].getType());
-            }
-            computer = new MinMaxTypeEnum.ComputerBigIntCoerce(evaluators, convertors, minMaxTypeEnum == MinMaxTypeEnum.MAX);
-        } else if (resultType == BigDecimal.class) {
-            SimpleNumberBigDecimalCoercer[] convertors = new SimpleNumberBigDecimalCoercer[childNodes.length];
-            for (int i = 0; i < childNodes.length; i++) {
-                convertors[i] = SimpleNumberCoercerFactory.getCoercerBigDecimal(evaluators[i].getType());
-            }
-            computer = new MinMaxTypeEnum.ComputerBigDecCoerce(evaluators, convertors, minMaxTypeEnum == MinMaxTypeEnum.MAX);
-        } else {
-            if (minMaxTypeEnum == MinMaxTypeEnum.MAX) {
-                computer = new MinMaxTypeEnum.MaxComputerDoubleCoerce(evaluators);
-            } else {
-                computer = new MinMaxTypeEnum.MinComputerDoubleCoerce(evaluators);
-            }
-        }
         return null;
-    }
-
-    public Class getType() {
-        return resultType;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprMinMaxRow(this);
-        }
-        Number result = computer.execute(eventsPerStream, isNewData, exprEvaluatorContext);
-
-        if (InstrumentationHelper.ENABLED) {
-            Number minmax = null;
-            if (result != null) {
-                minmax = JavaClassHelper.coerceBoxed(result, resultType);
-            }
-            InstrumentationHelper.get().aExprMinMaxRow(minmax);
-            return minmax;
-        }
-
-        if (result == null) {
-            return null;
-        }
-        return JavaClassHelper.coerceBoxed(result, resultType);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

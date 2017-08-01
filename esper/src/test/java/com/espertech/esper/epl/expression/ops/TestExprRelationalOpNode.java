@@ -28,7 +28,8 @@ public class TestExprRelationalOpNode extends TestCase {
     public void testGetType() throws Exception {
         opNode.addChildNode(new SupportExprNode(Long.class));
         opNode.addChildNode(new SupportExprNode(int.class));
-        assertEquals(Boolean.class, opNode.getType());
+        opNode.validate(SupportExprValidationContextFactory.makeEmpty());
+        assertEquals(Boolean.class, opNode.getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {
@@ -75,20 +76,20 @@ public class TestExprRelationalOpNode extends TestCase {
         opNode.addChildNode(childTwo);
         opNode.validate(SupportExprValidationContextFactory.makeEmpty());       // Type initialization
 
-        assertEquals(true, opNode.evaluate(null, false, null));
+        assertEquals(true, opNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         childOne.setValue("c");
-        assertEquals(true, opNode.evaluate(null, false, null));
+        assertEquals(true, opNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         childOne.setValue("b");
-        assertEquals(false, opNode.evaluate(null, false, null));
+        assertEquals(false, opNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         opNode = makeNode(null, Integer.class, 2, Integer.class);
-        assertEquals(null, opNode.evaluate(null, false, null));
+        assertEquals(null, opNode.getForge().getExprEvaluator().evaluate(null, false, null));
         opNode = makeNode(1, Integer.class, null, Integer.class);
-        assertEquals(null, opNode.evaluate(null, false, null));
+        assertEquals(null, opNode.getForge().getExprEvaluator().evaluate(null, false, null));
         opNode = makeNode(null, Integer.class, null, Integer.class);
-        assertEquals(null, opNode.evaluate(null, false, null));
+        assertEquals(null, opNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testToExpressionString() throws Exception {

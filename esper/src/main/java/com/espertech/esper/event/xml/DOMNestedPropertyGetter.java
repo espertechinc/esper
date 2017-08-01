@@ -57,7 +57,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
 
     private String getValueAsFragmentCodegen(CodegenContext context) {
         CodegenMember mType = context.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return context.addMethod(Object.class, Node.class, "node", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), context))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(ref(mType.getMemberName()), "getEvent", ref("result")));
@@ -74,7 +74,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private String getValueAsNodeArrayCodegen(CodegenContext codegenContext) {
-        CodegenBlock block = codegenContext.addMethod(Node[].class, Node.class, "node", this.getClass());
+        CodegenBlock block = codegenContext.addMethod(Node[].class, this.getClass()).add(Node.class, "node").begin();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenContext));
             block.ifRefNullReturnNull("node");
@@ -93,7 +93,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private String getValueAsNodeCodegen(CodegenContext codegenContext) {
-        CodegenBlock block = codegenContext.addMethod(Node.class, Node.class, "node", this.getClass());
+        CodegenBlock block = codegenContext.addMethod(Node.class, this.getClass()).add(Node.class, "node").begin();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenContext));
             block.ifRefNullReturnNull("node");
@@ -132,7 +132,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private String isExistsPropertyCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(boolean.class, Node.class, "value", this.getClass());
+        CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Node.class, "value").begin();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), context));
             block.ifRefNullReturnFalse("value");
@@ -161,35 +161,35 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private String getFragmentCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object.class, Node.class, "value", this.getClass());
+        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Node.class, "value").begin();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), context));
             block.ifRefNullReturnNull("value");
         }
-        return block.methodReturn(domGetterChain[domGetterChain.length - 1].codegenUnderlyingFragment(ref("value"), context));
+        return block.methodReturn(domGetterChain[domGetterChain.length - 1].underlyingFragmentCodegen(ref("value"), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getValueAsNodeCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 

@@ -11,6 +11,10 @@
 package com.espertech.esper.epl.expression.prev;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.rowregex.RegexExprPreviousEvalStrategy;
 import com.espertech.esper.rowregex.RegexPartitionStateRandomAccess;
@@ -21,7 +25,7 @@ import java.io.StringWriter;
 /**
  * Represents the 'prev' previous event function in match-recognize "define" item.
  */
-public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final long serialVersionUID = 0L;
 
     private Class resultType;
@@ -41,12 +45,12 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
             throw new ExprValidationException("Match-Recognize Previous expression requires an property identifier as the first parameter");
         }
 
-        if (!this.getChildNodes()[1].isConstantResult() || (!JavaClassHelper.isNumericNonFP(this.getChildNodes()[1].getExprEvaluator().getType()))) {
+        if (!this.getChildNodes()[1].isConstantResult() || (!JavaClassHelper.isNumericNonFP(this.getChildNodes()[1].getForge().getEvaluationType()))) {
             throw new ExprValidationException("Match-Recognize Previous expression requires an integer index parameter or expression as the second parameter");
         }
 
         ExprNode constantNode = this.getChildNodes()[1];
-        Object value = constantNode.getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
+        Object value = constantNode.getForge().getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
         if (!(value instanceof Number)) {
             throw new ExprValidationException("Match-Recognize Previous expression requires an integer index parameter or expression as the second parameter");
         }
@@ -55,9 +59,22 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         // Determine stream number
         ExprIdentNode identNode = (ExprIdentNode) this.getChildNodes()[0];
         streamNumber = identNode.getStreamId();
-        evaluator = this.getChildNodes()[0].getExprEvaluator();
-        resultType = evaluator.getType();
+        ExprForge forge = this.getChildNodes()[0].getForge();
+        evaluator = forge.getExprEvaluator();
+        resultType = forge.getEvaluationType();
         return null;
+    }
+
+    public Class getEvaluationType() {
+        return resultType;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -72,14 +89,10 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
     public Integer getConstantIndexNumber() {
         if (constantIndexNumber == null) {
             ExprNode constantNode = this.getChildNodes()[1];
-            Object value = constantNode.getExprEvaluator().evaluate(null, false, null);
+            Object value = constantNode.getForge().getExprEvaluator().evaluate(null, false, null);
             constantIndexNumber = ((Number) value).intValue();
         }
         return constantIndexNumber;
-    }
-
-    public Class getType() {
-        return resultType;
     }
 
     public boolean isConstantResult() {
@@ -101,6 +114,14 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         eventsPerStream[streamNumber] = originalEvent;
 
         return evalResult;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

@@ -10,8 +10,12 @@
  */
 package com.espertech.esper.epl.datetime.reformatop;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.time.LocalDateTime;
 
 public interface LocalDateTimeEval {
-    public Object evaluateInternal(LocalDateTime ldt);
+    Object evaluateInternal(LocalDateTime ldt);
+
+    CodegenExpression codegen(CodegenExpression inner);
 }

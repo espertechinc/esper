@@ -543,8 +543,8 @@ public class ExecClientVirtualDataWindow implements RegressionExecution, IndexBa
         // run assertion
         assertion.run();
 
-        epService.getEPAdministrator().destroyAllStatements();
         destroyStmtsRemoveTypes(epService);
+        SupportVirtualDWFactory.setUniqueKeys(null);
     }
 
     private static enum CaseEnum {

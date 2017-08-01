@@ -107,7 +107,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase {
         InternalRoutePreprocessView onExprView = new InternalRoutePreprocessView(streamEventType, statementContext.getStatementResultService());
 
         // validation
-        InternalEventRouterDesc routerDesc = services.getInternalEventRouter().getValidatePreprocessing(onExprView.getEventType(), updateSpec, statementContext.getAnnotations());
+        InternalEventRouterDesc routerDesc = services.getInternalEventRouter().getValidatePreprocessing(onExprView.getEventType(), updateSpec, statementContext.getAnnotations(), statementContext.getStatementName());
 
         // create context factory
         StatementAgentInstanceFactoryUpdate contextFactory = new StatementAgentInstanceFactoryUpdate(statementContext, services, streamEventType, updateSpec, onExprView, routerDesc, subSelectStrategyCollection);

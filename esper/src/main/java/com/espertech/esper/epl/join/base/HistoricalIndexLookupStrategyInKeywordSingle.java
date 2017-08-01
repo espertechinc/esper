@@ -32,7 +32,7 @@ public class HistoricalIndexLookupStrategyInKeywordSingle implements HistoricalI
 
     public HistoricalIndexLookupStrategyInKeywordSingle(int lookupStream, ExprNode[] expressions) {
         this.eventsPerStream = new EventBean[lookupStream + 1];
-        this.evaluators = ExprNodeUtility.getEvaluators(expressions);
+        this.evaluators = ExprNodeUtility.getEvaluatorsNoCompile(expressions);
         this.lookupStream = lookupStream;
     }
 

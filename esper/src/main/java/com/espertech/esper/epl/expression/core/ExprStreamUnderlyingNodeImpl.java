@@ -12,14 +12,19 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Represents an stream selector that returns the streams underlying event, or null if undefined.
  */
-public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprStreamUnderlyingNode {
+public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprForge, ExprEvaluator, ExprStreamUnderlyingNode {
     private final String streamName;
     private final boolean isWildcard;
     private int streamNum = -1;
@@ -35,8 +40,22 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         this.isWildcard = isWildcard;
     }
 
-    @Override
+    public Class getEvaluationType() {
+        if (streamNum == -1) {
+            throw new IllegalStateException("Stream underlying node has not been validated");
+        }
+        return type;
+    }
+
     public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
         return this;
     }
 
@@ -76,13 +95,6 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         return null;
     }
 
-    public Class getType() {
-        if (streamNum == -1) {
-            throw new IllegalStateException("Stream underlying node has not been validated");
-        }
-        return type;
-    }
-
     public boolean isConstantResult() {
         return false;
     }
@@ -108,17 +120,29 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qExprStreamUnd(this);
         }
-        EventBean theEvent = eventsPerStream[streamNum];
-        if (theEvent == null) {
+        EventBean event = eventsPerStream[streamNum];
+        if (event == null) {
             if (InstrumentationHelper.ENABLED) {
                 InstrumentationHelper.get().aExprStreamUnd(null);
             }
             return null;
         }
         if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprStreamUnd(theEvent.getUnderlying());
+            InstrumentationHelper.get().aExprStreamUnd(event.getUnderlying());
         }
-        return theEvent.getUnderlying();
+        return event.getUnderlying();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SINGLE;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        String method = context.addMethod(eventType.getUnderlyingType(), ExprStreamUnderlyingNodeImpl.class).add(params).begin()
+                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
+                .ifRefNullReturnNull("event")
+                .methodReturn(cast(eventType.getUnderlyingType(), exprDotMethod(ref("event"), "getUnderlying")));
+        return localMethodBuild(method).passAll(params).call();
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

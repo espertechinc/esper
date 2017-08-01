@@ -243,8 +243,8 @@ public class ExecEPLSelectExprStreamSelector implements RegressionExecution {
         EventType type = stmt.getEventType();
         assertEquals(4, type.getPropertyNames().length);
         assertEquals(Map.class, type.getUnderlyingType());
-        assertEquals(int.class, type.getPropertyType("a"));
-        assertEquals(int.class, type.getPropertyType("b"));
+        assertEquals(Integer.class, type.getPropertyType("a"));
+        assertEquals(Integer.class, type.getPropertyType("b"));
         assertEquals(SupportBean.class, type.getPropertyType("s0"));
         assertEquals(SupportBean.class, type.getPropertyType("s1"));
 
@@ -264,7 +264,7 @@ public class ExecEPLSelectExprStreamSelector implements RegressionExecution {
 
         EventType type = stmt.getEventType();
         assertEquals(5, type.getPropertyNames().length);
-        assertEquals(int.class, type.getPropertyType("intPrimitive"));
+        assertEquals(Integer.class, type.getPropertyType("intPrimitive"));
         assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1stream"));
         assertEquals(SupportBean.class, type.getPropertyType("s0stream"));
         assertEquals(String.class, type.getPropertyType("sym"));
@@ -291,10 +291,10 @@ public class ExecEPLSelectExprStreamSelector implements RegressionExecution {
         stmt.addListener(testListener);
 
         EventType type = stmt.getEventType();
-        assertEquals(22, type.getPropertyNames().length);
+        assertEquals(23, type.getPropertyNames().length);
         assertEquals(Pair.class, type.getUnderlyingType());
-        assertEquals(int.class, type.getPropertyType("a"));
-        assertEquals(int.class, type.getPropertyType("b"));
+        assertEquals(Integer.class, type.getPropertyType("a"));
+        assertEquals(Integer.class, type.getPropertyType("b"));
         assertEquals(String.class, type.getPropertyType("theString"));
 
         sendBeanEvent(epService, "E1", 10);
@@ -313,7 +313,7 @@ public class ExecEPLSelectExprStreamSelector implements RegressionExecution {
 
         EventType type = stmt.getEventType();
         assertEquals(7, type.getPropertyNames().length);
-        assertEquals(int.class, type.getPropertyType("intPrimitive"));
+        assertEquals(Integer.class, type.getPropertyType("intPrimitive"));
         assertEquals(Pair.class, type.getUnderlyingType());
 
         sendBeanEvent(epService, "E1", 11);

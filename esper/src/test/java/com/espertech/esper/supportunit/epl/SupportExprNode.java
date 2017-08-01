@@ -11,11 +11,16 @@
 package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
 
-public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
+
+public class SupportExprNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static int validateCount;
 
     private Class type;
@@ -45,6 +50,22 @@ public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
         return this;
     }
 
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constantNull();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
+    }
+
+    public Class getEvaluationType() {
+        return type;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Keep a count for if and when this was validated
         validateCount++;
@@ -54,10 +75,6 @@ public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return type;
     }
 
     public int getValidateCountSnapshot() {
@@ -82,6 +99,10 @@ public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
                 writer.append(value.toString());
             }
         }
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
     }
 
     public ExprPrecedenceEnum getPrecedence() {

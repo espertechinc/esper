@@ -17,6 +17,8 @@ import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactoryContext;
 import com.espertech.esper.client.hook.TypeRepresentationMapper;
 import com.espertech.esper.client.hook.TypeRepresentationMapperContext;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
@@ -194,6 +196,10 @@ public class ExecEventAvroHook implements RegressionExecution {
             LocalDateTime ldt = (LocalDateTime) input;
             return DateTimeFormatter.ISO_DATE_TIME.format(ldt);
         }
+
+        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
     }
 
     public static class MySupportBeanWidener implements TypeWidener {
@@ -206,6 +212,10 @@ public class ExecEventAvroHook implements RegressionExecution {
             record.put("theString", sb.getTheString());
             record.put("intPrimitive", sb.getIntPrimitive());
             return record;
+        }
+
+        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+            throw new UnsupportedOperationException("not yet implemented");
         }
     }
 

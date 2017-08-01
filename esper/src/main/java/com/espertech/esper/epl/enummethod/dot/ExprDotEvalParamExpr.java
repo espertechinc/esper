@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 public class ExprDotEvalParamExpr extends ExprDotEvalParam {
 
-    public ExprDotEvalParamExpr(int parameterNum, ExprNode body, ExprEvaluator bodyEvaluator) {
-        super(parameterNum, body, bodyEvaluator);
+    public ExprDotEvalParamExpr(int parameterNum, ExprNode body, ExprForge bodyForge) {
+        super(parameterNum, body, bodyForge);
     }
 }

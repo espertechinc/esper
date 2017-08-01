@@ -11,9 +11,11 @@
 package com.espertech.esper.epl.table.merge;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.onaction.TableOnMergeViewChangeHandler;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -24,8 +26,8 @@ public class TableOnMergeMatch {
     private ExprEvaluator optionalCond;
     private List<TableOnMergeAction> actions;
 
-    public TableOnMergeMatch(ExprNode optionalCond, List<TableOnMergeAction> actions) {
-        this.optionalCond = optionalCond != null ? optionalCond.getExprEvaluator() : null;
+    public TableOnMergeMatch(ExprNode optionalCond, List<TableOnMergeAction> actions, EngineImportService engineImportService, String statementName) {
+        this.optionalCond = optionalCond != null ? ExprNodeCompiler.allocateEvaluator(optionalCond.getForge(), engineImportService, this.getClass(), false, statementName) : null;
         this.actions = actions;
     }
 

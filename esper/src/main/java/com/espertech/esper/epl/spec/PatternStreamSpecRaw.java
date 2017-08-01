@@ -328,11 +328,11 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                     timeDeltaComputation = timePeriodExpr.constEvaluator(new ExprEvaluatorContextStatement(context, false));
                 } else if (expr.isConstantResult()) {
                     if (count == last) {
-                        Object value = expr.getExprEvaluator().evaluate(null, true, evaluatorContext);
+                        Object value = expr.getForge().getExprEvaluator().evaluate(null, true, evaluatorContext);
                         if (!(value instanceof Number)) {
                             throw new ExprValidationException("Invalid parameter for every-distinct, expected number of seconds constant (constant not considered for distinct)");
                         }
-                        Number secondsExpire = (Number) expr.getExprEvaluator().evaluate(null, true, evaluatorContext);
+                        Number secondsExpire = (Number) expr.getForge().getExprEvaluator().evaluate(null, true, evaluatorContext);
                         Long timeExpire = secondsExpire == null ? null : context.getTimeAbacus().deltaForSecondsNumber(secondsExpire);
                         if (timeExpire != null && timeExpire > 0) {
                             timeDeltaComputation = new ExprTimePeriodEvalDeltaConstGivenDelta(timeExpire);
@@ -350,7 +350,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
             if (distinctExpressions.isEmpty()) {
                 throw new ExprValidationException("Every-distinct node requires one or more distinct-value expressions that each return non-constant result values");
             }
-            distinctNode.setDistinctExpressions(distinctExpressions, timeDeltaComputation, expiryTimeExp);
+            distinctNode.setDistinctExpressions(distinctExpressions, timeDeltaComputation, expiryTimeExp, context.getEngineImportService(), context.getStatementName());
         } else if (evalNode instanceof EvalMatchUntilFactoryNode) {
             EvalMatchUntilFactoryNode matchUntilNode = (EvalMatchUntilFactoryNode) evalNode;
 
@@ -414,7 +414,8 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
 
                         ExprNode validatedExpr = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FOLLOWEDBYMAX, maxExpr, validationContext);
                         validated.add(validatedExpr);
-                        if ((validatedExpr.getExprEvaluator().getType() == null) || (!JavaClassHelper.isNumeric(validatedExpr.getExprEvaluator().getType()))) {
+                        Class returnType = validatedExpr.getForge().getEvaluationType();
+                        if ((returnType == null) || (!JavaClassHelper.isNumeric(returnType))) {
                             String message = "Invalid maximum expression in followed-by, the expression must return an integer value";
                             throw new ExprValidationException(message);
                         }
@@ -436,7 +437,8 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
         String message = "Match-until bounds value expressions must return a numeric value";
         if (bounds != null) {
             ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.PATTERNMATCHUNTILBOUNDS, bounds, validationContext);
-            if ((validated.getExprEvaluator().getType() == null) || (!JavaClassHelper.isNumeric(validated.getExprEvaluator().getType()))) {
+            Class returnType = validated.getForge().getEvaluationType();
+            if ((returnType == null) || (!JavaClassHelper.isNumeric(returnType))) {
                 throw new ExprValidationException(message);
             }
             return validated;

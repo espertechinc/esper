@@ -23,7 +23,10 @@ import com.espertech.esper.supportregression.timer.SupportDateTimeUtil;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
 import com.espertech.esper.util.SerializableObjectCopier;
+import org.junit.Assert;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,6 +40,8 @@ import static org.junit.Assert.assertNull;
 
 public class ExecExprCast implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+
         runAssertionCaseDates(epService);
         runAssertionCastSimple(epService);
         runAssertionCastAsParse(epService);
@@ -44,12 +49,36 @@ public class ExecExprCast implements RegressionExecution {
         runAssertionCastStringAndNull_Compile(epService);
         runAssertionCastInterface(epService);
         runAssertionCastBoolean(epService);
+        runAssertionCastSimpleMoreTypes(epService);
+    }
+
+    private void runAssertionCastSimpleMoreTypes(EPServiceProvider epService) {
+        String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7,c8".split(",");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
+                "cast(intPrimitive, float) as c0," +
+                "cast(intPrimitive, short) as c1," +
+                "cast(intPrimitive, byte) as c2," +
+                "cast(theString, char) as c3," +
+                "cast(theString, boolean) as c4," +
+                "cast(intPrimitive, BigInteger) as c5," +
+                "cast(intPrimitive, BigDecimal) as c6," +
+                "cast(doublePrimitive, BigDecimal) as c7," +
+                "cast(theString, char) as c8" +
+                " from SupportBean");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        assertTypes(stmt, fields, Float.class, Short.class, Byte.class, Character.class, Boolean.class, BigInteger.class, BigDecimal.class, BigDecimal.class, Character.class);
+
+        SupportBean bean = new SupportBean("true", 1);
+        bean.setDoublePrimitive(1);
+        epService.getEPRuntime().sendEvent(bean);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {1.0f, (short) 1, (byte) 1, 't', true, BigInteger.valueOf(1), BigDecimal.valueOf(1), new BigDecimal(1d), 't'});
     }
 
     private void runAssertionCaseDates(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().createEPL("create map schema MyType(yyyymmdd string, yyyymmddhhmmss string, hhmmss string, yyyymmddhhmmssvv string)");
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_StringAlphabetic.class);
-        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
 
         runAssertionDatetimeBaseTypes(epService, true);
         runAssertionDatetimeBaseTypes(epService, false);
@@ -567,6 +596,12 @@ public class ExecExprCast implements RegressionExecution {
     private void assertResults(EventBean theEvent, Object[] result) {
         for (int i = 0; i < result.length; i++) {
             assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
+        }
+    }
+
+    private void assertTypes(EPStatement stmt, String[] fields, Class... types) {
+        for (int i = 0; i < fields.length; i++) {
+            Assert.assertEquals("failed for " + i, types[i], stmt.getEventType().getPropertyType(fields[i]));
         }
     }
 }

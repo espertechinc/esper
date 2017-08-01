@@ -18,11 +18,11 @@ import java.util.Collection;
  * On the level of indexed event properties: Properties that are contained in EventBean instances, such as for Enumeration Methods, get wrapped only once for the same event.
  * The cache is keyed by property-name and EventBean reference and maintains a Collection&lt;EventBean&gt;.
  * <p>
- * NOTE: ExpressionResultCacheEntry should not be held onto since the instance returned can be reused.
+ * NOTE: ExpressionResultCacheForPropUnwrap should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForPropUnwrap {
 
-    ExpressionResultCacheEntry<EventBean, Collection<EventBean>> getPropertyColl(String propertyNameFullyQualified, EventBean reference);
+    ExpressionResultCacheEntryBeanAndCollBean getPropertyColl(String propertyNameFullyQualified, EventBean reference);
 
     void savePropertyColl(String propertyNameFullyQualified, EventBean reference, Collection<EventBean> events);
 }

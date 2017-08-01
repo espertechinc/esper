@@ -19,6 +19,7 @@ import com.espertech.esper.supportregression.execution.RegressionExecution;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ExecSubselectMultirow implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
@@ -44,7 +45,7 @@ public class ExecSubselectMultirow implements RegressionExecution {
 
         Object[][] rows = new Object[][]{
                 {"p00", String.class},
-                {"val", int[].class}
+                {"val", Integer[].class}
         };
         for (int i = 0; i < rows.length; i++) {
             String message = "Failed assertion for " + rows[i][0];
@@ -58,7 +59,9 @@ public class ExecSubselectMultirow implements RegressionExecution {
         epService.getEPRuntime().sendEvent(new SupportBean("T3", 15));
         epService.getEPRuntime().sendEvent(new SupportBean("T1", 6));
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{null, new int[]{5, 10, 15, 6}});
+        EventBean event = listener.assertOneGetNewAndReset();
+        assertTrue(event.get("val") instanceof Integer[]);
+        EPAssertionUtil.assertProps(event, fields, new Object[]{null, new Integer[]{5, 10, 15, 6}});
 
         // test named window and late start
         stmt.destroy();

@@ -29,8 +29,8 @@ public class SortedAccessStrategyFactory {
 
         if (rangeKeyPair.getType().isRange()) {
             QueryGraphValueEntryRangeIn rangeIn = (QueryGraphValueEntryRangeIn) rangeKeyPair;
-            ExprEvaluator startExpr = rangeIn.getExprStart().getExprEvaluator();
-            ExprEvaluator endExpr = rangeIn.getExprEnd().getExprEvaluator();
+            ExprEvaluator startExpr = rangeIn.getExprStart().getForge().getExprEvaluator();
+            ExprEvaluator endExpr = rangeIn.getExprEnd().getForge().getExprEvaluator();
             boolean includeStart = rangeKeyPair.getType().isIncludeStart();
 
             boolean includeEnd = rangeKeyPair.getType().isIncludeEnd();
@@ -41,7 +41,7 @@ public class SortedAccessStrategyFactory {
             }
         } else {
             QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeKeyPair;
-            ExprEvaluator keyExpr = relOp.getExpression().getExprEvaluator();
+            ExprEvaluator keyExpr = relOp.getExpression().getForge().getExprEvaluator();
             if (rangeKeyPair.getType() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
                 return new SortedAccessStrategyGE(isNWOnTrigger, lookupStream, numStreams, keyExpr);
             } else if (rangeKeyPair.getType() == QueryGraphRangeEnum.GREATER) {

@@ -11,24 +11,29 @@
 package com.espertech.esper.epl.named;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 
-import java.util.List;
-
 public class NamedWindowConsumerDesc {
-    private final List<ExprNode> filterList;
+    private final ExprNode[] filterExpressions;
+    private final ExprEvaluator[] filterEvaluators;
     private final PropertyEvaluator optPropertyEvaluator;
     private final AgentInstanceContext agentInstanceContext;
 
-    public NamedWindowConsumerDesc(List<ExprNode> filterList, PropertyEvaluator optPropertyEvaluator, AgentInstanceContext agentInstanceContext) {
-        this.filterList = filterList;
+    public NamedWindowConsumerDesc(ExprNode[] filterExpressions, ExprEvaluator[] filterEvaluators, PropertyEvaluator optPropertyEvaluator, AgentInstanceContext agentInstanceContext) {
+        this.filterExpressions = filterExpressions;
+        this.filterEvaluators = filterEvaluators;
         this.optPropertyEvaluator = optPropertyEvaluator;
         this.agentInstanceContext = agentInstanceContext;
     }
 
-    public List<ExprNode> getFilterList() {
-        return filterList;
+    public ExprNode[] getFilterExpressions() {
+        return filterExpressions;
+    }
+
+    public ExprEvaluator[] getFilterEvaluators() {
+        return filterEvaluators;
     }
 
     public PropertyEvaluator getOptPropertyEvaluator() {

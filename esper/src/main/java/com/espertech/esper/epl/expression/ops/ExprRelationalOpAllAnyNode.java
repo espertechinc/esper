@@ -10,15 +10,12 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.CoercionException;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,15 +24,13 @@ import java.util.Map;
 /**
  * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
-public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprRelationalOpAllAnyNode extends ExprNodeBase {
+    private static final long serialVersionUID = -9212002972361997109L;
+
     private final RelationalOpEnum relationalOpEnum;
     private final boolean isAll;
-    private boolean hasCollectionOrArray;
 
-    private transient RelationalOpEnum.Computer computer;
-    private transient ExprEvaluator[] evaluators;
-
-    private static final long serialVersionUID = -9212002972361997109L;
+    private transient ExprRelationalOpAllAnyNodeForge forge;
 
     /**
      * Ctor.
@@ -49,7 +44,12 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        return forge;
     }
 
     public boolean isConstantResult() {
@@ -79,9 +79,7 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
         if (this.getChildNodes().length < 1) {
             throw new IllegalStateException("Group relational op node must have 1 or more parameters");
         }
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-
-        Class typeOne = JavaClassHelper.getBoxedType(evaluators[0].getType());
+        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
 
         // collections, array or map not supported
         if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
@@ -90,9 +88,9 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
 
         List<Class> comparedTypes = new ArrayList<Class>();
         comparedTypes.add(typeOne);
-        hasCollectionOrArray = false;
+        boolean hasCollectionOrArray = false;
         for (int i = 0; i < this.getChildNodes().length - 1; i++) {
-            Class propType = evaluators[i + 1].getType();
+            Class propType = getChildNodes()[i + 1].getForge().getEvaluationType();
             if (propType.isArray()) {
                 hasCollectionOrArray = true;
                 if (propType.getComponentType() != Object.class) {
@@ -124,194 +122,9 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
             }
         }
 
-        computer = relationalOpEnum.getComputer(coercionType, coercionType, coercionType);
+        RelationalOpEnum.Computer computer = relationalOpEnum.getComputer(coercionType, coercionType, coercionType);
+        forge = new ExprRelationalOpAllAnyNodeForge(this, computer, hasCollectionOrArray);
         return null;
-    }
-
-    public Class getType() {
-        return Boolean.class;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprRelOpAnyOrAll(this, relationalOpEnum.getExpressionText());
-        }
-        Boolean result = evaluateInternal(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprRelOpAnyOrAll(result);
-        }
-        return result;
-    }
-
-    private Boolean evaluateInternal(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (this.getChildNodes().length == 1) {
-            return false;
-        }
-
-        Object valueLeft = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        int len = this.getChildNodes().length - 1;
-
-        if (hasCollectionOrArray) {
-            boolean hasNonNullRow = false;
-            boolean hasRows = false;
-            for (int i = 1; i <= len; i++) {
-                Object valueRight = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (valueRight == null) {
-                    continue;
-                }
-
-                if (valueRight instanceof Collection) {
-                    Collection coll = (Collection) valueRight;
-                    hasRows = true;
-                    for (Object item : coll) {
-                        if (!(item instanceof Number)) {
-                            if (isAll && item == null) {
-                                return null;
-                            }
-                            continue;
-                        }
-                        hasNonNullRow = true;
-                        if (valueLeft != null) {
-                            if (isAll) {
-                                if (!computer.compare(valueLeft, item)) {
-                                    return false;
-                                }
-                            } else {
-                                if (computer.compare(valueLeft, item)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                } else if (valueRight instanceof Map) {
-                    Map coll = (Map) valueRight;
-                    hasRows = true;
-                    for (Object item : coll.keySet()) {
-                        if (!(item instanceof Number)) {
-                            if (isAll && item == null) {
-                                return null;
-                            }
-                            continue;
-                        }
-                        hasNonNullRow = true;
-                        if (valueLeft != null) {
-                            if (isAll) {
-                                if (!computer.compare(valueLeft, item)) {
-                                    return false;
-                                }
-                            } else {
-                                if (computer.compare(valueLeft, item)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                } else if (valueRight.getClass().isArray()) {
-                    hasRows = true;
-                    int arrayLength = Array.getLength(valueRight);
-                    for (int index = 0; index < arrayLength; index++) {
-                        Object item = Array.get(valueRight, index);
-                        if (item == null) {
-                            if (isAll) {
-                                return null;
-                            }
-                            continue;
-                        }
-                        hasNonNullRow = true;
-                        if (valueLeft != null) {
-                            if (isAll) {
-                                if (!computer.compare(valueLeft, item)) {
-                                    return false;
-                                }
-                            } else {
-                                if (computer.compare(valueLeft, item)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                } else if (!(valueRight instanceof Number)) {
-                    if (isAll) {
-                        return null;
-                    }
-                } else {
-                    hasNonNullRow = true;
-                    if (isAll) {
-                        if (!computer.compare(valueLeft, valueRight)) {
-                            return false;
-                        }
-                    } else {
-                        if (computer.compare(valueLeft, valueRight)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            if (isAll) {
-                if (!hasRows) {
-                    return true;
-                }
-                if ((!hasNonNullRow) || (valueLeft == null)) {
-                    return null;
-                }
-                return true;
-            } else {
-                if (!hasRows) {
-                    return false;
-                }
-                if ((!hasNonNullRow) || (valueLeft == null)) {
-                    return null;
-                }
-                return false;
-            }
-        } else {
-            boolean hasNonNullRow = false;
-            boolean hasRows = false;
-            for (int i = 1; i <= len; i++) {
-                Object valueRight = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                hasRows = true;
-
-                if (valueRight != null) {
-                    hasNonNullRow = true;
-                } else {
-                    if (isAll) {
-                        return null;
-                    }
-                }
-
-                if ((valueRight != null) && (valueLeft != null)) {
-                    if (isAll) {
-                        if (!computer.compare(valueLeft, valueRight)) {
-                            return false;
-                        }
-                    } else {
-                        if (computer.compare(valueLeft, valueRight)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            if (isAll) {
-                if (!hasRows) {
-                    return true;
-                }
-                if ((!hasNonNullRow) || (valueLeft == null)) {
-                    return null;
-                }
-                return true;
-            } else {
-                if (!hasRows) {
-                    return false;
-                }
-                if ((!hasNonNullRow) || (valueLeft == null)) {
-                    return null;
-                }
-                return false;
-            }
-        }
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

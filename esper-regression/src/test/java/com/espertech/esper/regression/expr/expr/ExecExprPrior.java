@@ -116,7 +116,7 @@ public class ExecExprPrior implements RegressionExecution {
 
         // assert select result type
         assertEquals(String.class, stmt.getEventType().getPropertyType("priorSymbol"));
-        assertEquals(double.class, stmt.getEventType().getPropertyType("priorPrice"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("priorPrice"));
 
         sendTimer(epService, 0);
         assertFalse(listener.isInvoked());
@@ -201,7 +201,7 @@ public class ExecExprPrior implements RegressionExecution {
 
         // assert select result type
         assertEquals(String.class, stmt.getEventType().getPropertyType("priorSymbol"));
-        assertEquals(double.class, stmt.getEventType().getPropertyType("priorPrice"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("priorPrice"));
 
         sendMarketEvent(epService, "D1", 1, 0);
         assertNewEvents(listener, "D1", null, null);
@@ -261,7 +261,7 @@ public class ExecExprPrior implements RegressionExecution {
 
         // assert select result type
         assertEquals(String.class, stmt.getEventType().getPropertyType("priorSymbol"));
-        assertEquals(double.class, stmt.getEventType().getPropertyType("priorPrice"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("priorPrice"));
 
         sendTimer(epService, 0);
         assertFalse(listener.isInvoked());
@@ -315,7 +315,7 @@ public class ExecExprPrior implements RegressionExecution {
 
         // assert select result type
         assertEquals(String.class, stmt.getEventType().getPropertyType("priorSymbol"));
-        assertEquals(double.class, stmt.getEventType().getPropertyType("priorPrice"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("priorPrice"));
 
         sendMarketEvent(epService, "A", 1);
         assertNewEvents(listener, "A", null, null);
@@ -467,7 +467,7 @@ public class ExecExprPrior implements RegressionExecution {
 
         // assert select result type
         assertEquals(String.class, stmt.getEventType().getPropertyType("prior0Symbol"));
-        assertEquals(double.class, stmt.getEventType().getPropertyType("prior0Price"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("prior0Price"));
 
         sendMarketEvent(epService, "A", 1);
         assertNewEvents(listener, "A", "A", 1d, null, null, null, null, null, null);
@@ -565,7 +565,7 @@ public class ExecExprPrior implements RegressionExecution {
 
         // assert select result type
         assertEquals(String.class, stmt.getEventType().getPropertyType("priorSymbol"));
-        assertEquals(double.class, stmt.getEventType().getPropertyType("priorPrice"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("priorPrice"));
 
         sendTimer(epService, 0);
         assertFalse(listener.isInvoked());

@@ -20,7 +20,7 @@ import java.util.IdentityHashMap;
 public class ExpressionResultCacheForDeclaredExprLastValueMulti implements ExpressionResultCacheForDeclaredExprLastValue {
 
     private final int cacheSize;
-    private final ExpressionResultCacheEntry<EventBean[], Object> resultCacheEntry = new ExpressionResultCacheEntry<EventBean[], Object>(null, null);
+    private final ExpressionResultCacheEntryEventBeanArrayAndObj resultCacheEntry = new ExpressionResultCacheEntryEventBeanArrayAndObj(null, null);
     private final IdentityHashMap<Object, SoftReference<RollingTwoValueBuffer<EventBean[], Object>>> cache
             = new IdentityHashMap<Object, SoftReference<RollingTwoValueBuffer<EventBean[], Object>>>();
 
@@ -32,7 +32,7 @@ public class ExpressionResultCacheForDeclaredExprLastValueMulti implements Expre
         return true;
     }
 
-    public ExpressionResultCacheEntry<EventBean[], Object> getDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream) {
+    public ExpressionResultCacheEntryEventBeanArrayAndObj getDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream) {
         SoftReference<RollingTwoValueBuffer<EventBean[], Object>> cacheRef = cache.get(node);
         if (cacheRef == null) {
             return null;

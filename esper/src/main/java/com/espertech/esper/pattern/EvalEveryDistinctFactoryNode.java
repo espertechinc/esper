@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.pattern;
 
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
@@ -42,9 +43,6 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase {
     }
 
     public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
-        if (distinctExpressionsArray == null) {
-            distinctExpressionsArray = ExprNodeUtility.getEvaluators(distinctExpressions);
-        }
         EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalEveryDistinctNode(this, child, agentInstanceContext);
     }
@@ -88,10 +86,11 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase {
         this.convertor = convertor;
     }
 
-    public void setDistinctExpressions(List<ExprNode> distinctExpressions, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ExprNode expiryTimeExp) {
+    public void setDistinctExpressions(List<ExprNode> distinctExpressions, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ExprNode expiryTimeExp, EngineImportService engineImportService, String statementName) {
         this.distinctExpressions = distinctExpressions;
         this.timeDeltaComputation = timeDeltaComputation;
         this.expiryTimeExp = expiryTimeExp;
+        this.distinctExpressionsArray = ExprNodeUtility.getEvaluatorsMayCompile(distinctExpressions, engineImportService, this.getClass(), false, statementName);
     }
 
     public boolean isFilterChildNonQuitting() {

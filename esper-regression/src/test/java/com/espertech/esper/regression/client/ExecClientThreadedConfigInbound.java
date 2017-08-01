@@ -70,10 +70,9 @@ public class ExecClientThreadedConfigInbound implements RegressionExecution {
             if (count++ < 100) {
                 Thread.sleep(100);
             }
-        }
-
-        if (count >= 100) {
-            fail();
+            if (count >= 100) {
+                fail();
+            }
         }
     }
 

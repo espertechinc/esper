@@ -33,11 +33,39 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class EventTypeUtility {
 
     private static final Logger log = LoggerFactory.getLogger(EventTypeUtility.class);
+
+    public static Map<String, Object> getPropertyTypesNonPrimitive(Map<String, Object> propertyTypesMayPrimitive) {
+        boolean hasPrimitive = false;
+        for (Map.Entry<String, Object> entry : propertyTypesMayPrimitive.entrySet()) {
+            if (entry.getValue() instanceof Class && ((Class) entry.getValue()).isPrimitive()) {
+                hasPrimitive = true;
+                break;
+            }
+        }
+
+        if (!hasPrimitive) {
+            return propertyTypesMayPrimitive;
+        }
+
+        LinkedHashMap<String, Object> props = new LinkedHashMap<>(propertyTypesMayPrimitive);
+        for (Map.Entry<String, Object> entry : propertyTypesMayPrimitive.entrySet()) {
+            if (!(entry.getValue() instanceof Class)) {
+                continue;
+            }
+            Class clazz = (Class) entry.getValue();
+            if (!clazz.isPrimitive()) {
+                continue;
+            }
+            props.put(entry.getKey(), JavaClassHelper.getBoxedType(clazz));
+        }
+        return props;
+    }
 
     public static EventType requireEventType(String aspectCamel, String aspectName, EventAdapterService eventAdapterService, String optionalEventTypeName) throws ExprValidationException {
         if (optionalEventTypeName == null) {
@@ -309,6 +337,12 @@ public class EventTypeUtility {
         for (Map.Entry<String, Object> specifiedEntry : typing.entrySet()) {
             Object typeSpec = specifiedEntry.getValue();
             String nameSpec = specifiedEntry.getKey();
+
+            if (typeSpec instanceof Class) {
+                compiled.put(nameSpec, JavaClassHelper.getBoxedType((Class) typeSpec));
+                continue;
+            }
+
             if (!(typeSpec instanceof String)) {
                 continue;
             }
@@ -473,8 +507,8 @@ public class EventTypeUtility {
 
             if (entry.getValue() instanceof EventType) {
                 // Add EventType itself as a property
-                EventPropertyGetterSPI getter = factory.getGetterEventBean(name);
                 EventType eventType = (EventType) entry.getValue();
+                EventPropertyGetterSPI getter = factory.getGetterEventBean(name, eventType.getUnderlyingType());
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, eventType.getUnderlyingType(), null, false, false, false, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, eventType.getUnderlyingType(), getter, fragmentEventType);
@@ -680,11 +714,11 @@ public class EventTypeUtility {
         // If there is a map value in the map, return the Object value if this is a dynamic property
         if (nestedType == Map.class) {
             Property prop = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
-            return isRootedDynamic ? Object.class : prop.getPropertyTypeMap(null, eventAdapterService);   // we don't have a definition of the nested props
+            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(prop.getPropertyTypeMap(null, eventAdapterService));   // we don't have a definition of the nested props
         } else if (nestedType instanceof Map) {
             Property prop = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
             Map nestedTypes = (Map) nestedType;
-            return isRootedDynamic ? Object.class : prop.getPropertyTypeMap(nestedTypes, eventAdapterService);
+            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(prop.getPropertyTypeMap(nestedTypes, eventAdapterService));
         } else if (nestedType instanceof Class) {
             Class simpleClass = (Class) nestedType;
             if (JavaClassHelper.isJavaBuiltinDataType(simpleClass)) {
@@ -695,10 +729,10 @@ public class EventTypeUtility {
                 return null;
             }
             EventType nestedEventType = eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
-            return isRootedDynamic ? Object.class : nestedEventType.getPropertyType(propertyNested);
+            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(nestedEventType.getPropertyType(propertyNested));
         } else if (nestedType instanceof EventType) {
             EventType innerType = (EventType) nestedType;
-            return isRootedDynamic ? Object.class : innerType.getPropertyType(propertyNested);
+            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(innerType.getPropertyType(propertyNested));
         } else if (nestedType instanceof EventType[]) {
             return null;    // requires indexed property
         } else if (nestedType instanceof String) {
@@ -711,7 +745,7 @@ public class EventTypeUtility {
             if (!(innerType instanceof BaseNestableEventType)) {
                 return null;
             }
-            return isRootedDynamic ? Object.class : innerType.getPropertyType(propertyNested);
+            return isRootedDynamic ? Object.class : JavaClassHelper.getBoxedType(innerType.getPropertyType(propertyNested));
         } else {
             String message = "Nestable map type configuration encountered an unexpected value type of '"
                     + nestedType.getClass() + " for property '" + propertyName + "', expected Class, Map.class or Map<String, Object> as value type";
@@ -1160,6 +1194,12 @@ public class EventTypeUtility {
 
     public static String disallowedAtTypeMessage() {
         return "The @type annotation is only allowed when the invocation target returns EventBean instances";
+    }
+
+    public static void validateEventBeanClassVisibility(Class clazz) {
+        if (!Modifier.isPublic(clazz.getModifiers())) {
+            throw new EventAdapterException("Event class '" + clazz.getName() + "' does not have public visibility");
+        }
     }
 
     public static class TimestampPropertyDesc {

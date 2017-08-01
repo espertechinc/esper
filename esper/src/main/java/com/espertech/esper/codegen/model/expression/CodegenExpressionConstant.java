@@ -24,7 +24,7 @@ public class CodegenExpressionConstant implements CodegenExpression {
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
-        renderConstant(builder, constant);
+        renderConstant(builder, constant, imports);
     }
 
     public void mergeClasses(Set<Class> classes) {

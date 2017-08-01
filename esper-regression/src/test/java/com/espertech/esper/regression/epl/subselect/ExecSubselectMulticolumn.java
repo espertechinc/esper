@@ -92,7 +92,7 @@ public class ExecSubselectMulticolumn implements RegressionExecution {
         assertFalse(fragmentType.isNative());
         Object[][] rows = new Object[][]{
                 {"v1", String.class},
-                {"v2", int.class},
+                {"v2", Integer.class},
         };
         for (int i = 0; i < rows.length; i++) {
             String message = "Failed assertion for " + rows[i][0];
@@ -148,7 +148,7 @@ public class ExecSubselectMulticolumn implements RegressionExecution {
         rows = new Object[][]{
                 {"v1", Integer.class},
                 {"v2", Integer.class},
-                {"v3", int[].class},
+                {"v3", Integer[].class},
                 {"v4", SupportBean[].class},
         };
         for (int i = 0; i < rows.length; i++) {
@@ -171,7 +171,7 @@ public class ExecSubselectMulticolumn implements RegressionExecution {
         epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "T1"));
         row = listener.assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", 10, 11});
-        EPAssertionUtil.assertEqualsAnyOrder((int[]) row.get("subrow.v3"), new int[]{10});
+        EPAssertionUtil.assertEqualsAnyOrder((Integer[]) row.get("subrow.v3"), new Integer[]{10});
         EPAssertionUtil.assertEqualsAnyOrder((Object[]) row.get("subrow.v4"), new Object[]{sb1});
 
         SupportBean sb2 = new SupportBean("T1", 20);
@@ -179,7 +179,7 @@ public class ExecSubselectMulticolumn implements RegressionExecution {
         epService.getEPRuntime().sendEvent(new SupportBean_S0(3, "T1"));
         row = listener.assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", 30, 32});
-        EPAssertionUtil.assertEqualsAnyOrder((int[]) row.get("subrow.v3"), new int[]{10, 20});
+        EPAssertionUtil.assertEqualsAnyOrder((Integer[]) row.get("subrow.v3"), new Integer[]{10, 20});
         EPAssertionUtil.assertEqualsAnyOrder((Object[]) row.get("subrow.v4"), new Object[]{sb1, sb2});
 
         stmt.destroy();

@@ -156,7 +156,7 @@ public class ExecFromClauseMethodVariable implements RegressionExecution {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{expected});
     }
 
-    private static class MyConstantServiceVariable {
+    public static class MyConstantServiceVariable {
         public SupportBean_A fetchABean(int intPrimitive) {
             return new SupportBean_A("_" + intPrimitive + "_");
         }

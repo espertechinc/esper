@@ -11,16 +11,17 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumeration;
+import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
+import com.espertech.esper.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 
-public interface ExprAggregateAccessMultiValueNode extends ExprEvaluatorEnumeration {
+public interface ExprAggregateAccessMultiValueNode extends ExprEnumerationForge, ExprEnumerationEval {
 
     public void validatePositionals()
             throws ExprValidationException;
 
-    public abstract AggregationMethodFactory validateAggregationParamsWBinding(ExprValidationContext context, TableMetadataColumnAggregation tableAccessColumn)
+    public AggregationMethodFactory validateAggregationParamsWBinding(ExprValidationContext context, TableMetadataColumnAggregation tableAccessColumn)
             throws ExprValidationException;
 }

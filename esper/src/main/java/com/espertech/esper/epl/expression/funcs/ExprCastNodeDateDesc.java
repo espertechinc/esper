@@ -10,19 +10,19 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 
 import java.text.DateFormat;
 import java.time.format.DateTimeFormatter;
 
 public class ExprCastNodeDateDesc {
     private final boolean iso8601Format;
-    private final ExprEvaluator dynamicDateFormat;
+    private final ExprForge dynamicDateFormat;
     private final String staticDateFormatString;
     private final DateFormat dateFormat;
     private final DateTimeFormatter dateTimeFormatter;
 
-    public ExprCastNodeDateDesc(boolean iso8601Format, ExprEvaluator dynamicDateFormat, String staticDateFormatString, DateFormat dateFormat, DateTimeFormatter dateTimeFormatter) {
+    public ExprCastNodeDateDesc(boolean iso8601Format, ExprForge dynamicDateFormat, String staticDateFormatString, DateFormat dateFormat, DateTimeFormatter dateTimeFormatter) {
         this.iso8601Format = iso8601Format;
         this.dynamicDateFormat = dynamicDateFormat;
         this.staticDateFormatString = staticDateFormatString;
@@ -34,7 +34,7 @@ public class ExprCastNodeDateDesc {
         return iso8601Format;
     }
 
-    public ExprEvaluator getDynamicDateFormat() {
+    public ExprForge getDynamicDateFormat() {
         return dynamicDateFormat;
     }
 

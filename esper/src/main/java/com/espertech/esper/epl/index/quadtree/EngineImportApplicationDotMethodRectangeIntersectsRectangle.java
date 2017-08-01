@@ -11,36 +11,44 @@
 package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.util.EPLExpressionParamType;
 import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.spatial.quadtree.core.BoundingBox;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends EngineImportApplicationDotMethodBase {
     protected final static String LOOKUP_OPERATION_NAME = "rectangle.intersects(rectangle)";
     public final static String INDEXTYPE_NAME = "mxcifquadtree";
 
-    public EngineImportApplicationDotMethodRectangeIntersectsRectangle(String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs, ExprNode[] indexNamedParameter) {
-        super(lhsName, lhs, dotMethodName, rhsName, rhs, indexNamedParameter);
+    public EngineImportApplicationDotMethodRectangeIntersectsRectangle(ExprDotNodeImpl parent, String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs, ExprNode[] indexNamedParameter) {
+        super(parent, lhsName, lhs, dotMethodName, rhsName, rhs, indexNamedParameter);
     }
 
-    protected ExprEvaluator validateAll(String lhsName, ExprNode[] lhs, String rhsName, ExprNode[] rhs, ExprValidationContext validationContext) throws ExprValidationException {
+    protected ExprForge validateAll(String lhsName, ExprNode[] lhs, String rhsName, ExprNode[] rhs, ExprValidationContext validationContext) throws ExprValidationException {
         EPLValidationUtil.validateParameterNumber(lhsName, LHS_VALIDATION_NAME, false, 4, lhs.length);
         EPLValidationUtil.validateParametersTypePredefined(lhs, lhsName, LHS_VALIDATION_NAME, EPLExpressionParamType.NUMERIC);
 
         EPLValidationUtil.validateParameterNumber(rhsName, RHS_VALIDATION_NAME, true, 4, rhs.length);
         EPLValidationUtil.validateParametersTypePredefined(rhs, rhsName, RHS_VALIDATION_NAME, EPLExpressionParamType.NUMERIC);
 
-        ExprEvaluator meXEval = lhs[0].getExprEvaluator();
-        ExprEvaluator meYEval = lhs[1].getExprEvaluator();
-        ExprEvaluator meWidthEval = lhs[2].getExprEvaluator();
-        ExprEvaluator meHeightEval = lhs[3].getExprEvaluator();
+        ExprForge meXEval = lhs[0].getForge();
+        ExprForge meYEval = lhs[1].getForge();
+        ExprForge meWidthEval = lhs[2].getForge();
+        ExprForge meHeightEval = lhs[3].getForge();
 
-        ExprEvaluator otherXEval = rhs[0].getExprEvaluator();
-        ExprEvaluator otherYEval = rhs[1].getExprEvaluator();
-        ExprEvaluator otherWidthEval = rhs[2].getExprEvaluator();
-        ExprEvaluator otherHeightEval = rhs[3].getExprEvaluator();
-        return new RectangleIntersectsRectangleEvaluator(meXEval, meYEval, meWidthEval, meHeightEval, otherXEval, otherYEval, otherWidthEval, otherHeightEval);
+        ExprForge otherXEval = rhs[0].getForge();
+        ExprForge otherYEval = rhs[1].getForge();
+        ExprForge otherWidthEval = rhs[2].getForge();
+        ExprForge otherHeightEval = rhs[3].getForge();
+        return new RectangleIntersectsRectangleForge(parent, meXEval, meYEval, meWidthEval, meHeightEval, otherXEval, otherYEval, otherWidthEval, otherHeightEval);
     }
 
     protected String operationName() {
@@ -49,6 +57,52 @@ public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends
 
     protected String indexTypeName() {
         return INDEXTYPE_NAME;
+    }
+
+    public final static class RectangleIntersectsRectangleForge implements ExprForge {
+
+        private final ExprDotNodeImpl parent;
+        protected final ExprForge meXEval;
+        protected final ExprForge meYEval;
+        protected final ExprForge meWidthEval;
+        protected final ExprForge meHeightEval;
+        protected final ExprForge otherXEval;
+        protected final ExprForge otherYEval;
+        protected final ExprForge otherWidthEval;
+        protected final ExprForge otherHeightEval;
+
+        public RectangleIntersectsRectangleForge(ExprDotNodeImpl parent, ExprForge meXEval, ExprForge meYEval, ExprForge meWidthEval, ExprForge meHeightEval, ExprForge otherXEval, ExprForge otherYEval, ExprForge otherWidthEval, ExprForge otherHeightEval) {
+            this.parent = parent;
+            this.meXEval = meXEval;
+            this.meYEval = meYEval;
+            this.meWidthEval = meWidthEval;
+            this.meHeightEval = meHeightEval;
+            this.otherXEval = otherXEval;
+            this.otherYEval = otherYEval;
+            this.otherWidthEval = otherWidthEval;
+            this.otherHeightEval = otherHeightEval;
+        }
+
+        public ExprEvaluator getExprEvaluator() {
+            return new RectangleIntersectsRectangleEvaluator(meXEval.getExprEvaluator(), meYEval.getExprEvaluator(), meWidthEval.getExprEvaluator(), meHeightEval.getExprEvaluator(),
+                    otherXEval.getExprEvaluator(), otherYEval.getExprEvaluator(), otherWidthEval.getExprEvaluator(), otherHeightEval.getExprEvaluator());
+        }
+
+        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+            return RectangleIntersectsRectangleEvaluator.codegen(this, params, context);
+        }
+
+        public ExprForgeComplexityEnum getComplexity() {
+            return ExprForgeComplexityEnum.INTER;
+        }
+
+        public Class getEvaluationType() {
+            return Boolean.class;
+        }
+
+        public ExprNodeRenderable getForgeRenderable() {
+            return parent;
+        }
     }
 
     public final static class RectangleIntersectsRectangleEvaluator implements ExprEvaluator {
@@ -114,8 +168,20 @@ public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends
             return BoundingBox.intersectsBoxIncludingEnd(x, y, x + width, y + height, otherX.doubleValue(), otherY.doubleValue(), otherWidth.doubleValue(), otherHeight.doubleValue());
         }
 
-        public Class getType() {
-            return Boolean.class;
+        public static CodegenExpression codegen(RectangleIntersectsRectangleForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
+            CodegenBlock block = context.addMethod(Boolean.class, RectangleIntersectsRectangleEvaluator.class).add(params).begin();
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meX", forge.meXEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meY", forge.meYEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meWidth", forge.meWidthEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meHeight", forge.meHeightEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherX", forge.otherXEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherY", forge.otherYEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherWidth", forge.otherWidthEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherHeight", forge.otherHeightEval, params, context);
+            String method = block.methodReturn(staticMethod(BoundingBox.class, "intersectsBoxIncludingEnd", ref("meX"), ref("meY"), op(ref("meX"), "+", ref("meWidth")), op(ref("meY"), "+", ref("meHeight")),
+                    ref("otherX"), ref("otherY"), ref("otherWidth"), ref("otherHeight")));
+            return localMethodBuild(method).passAll(params).call();
         }
+
     }
 }

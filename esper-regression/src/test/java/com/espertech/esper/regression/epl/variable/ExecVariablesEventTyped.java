@@ -60,7 +60,7 @@ public class ExecVariablesEventTyped implements RegressionExecution {
                 "Error starting statement: Error in variable assignment: Variable 'vars1_A' of declared event type '" + SupportBean_S1.class.getName() + "' underlying type '" + SupportBean_S1.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S0.class.getName() + "'");
 
         tryInvalid(epService, "on TypeS0 arrival set vars0_A = 1",
-                "Error starting statement: Error in variable assignment: Variable 'vars0_A' of declared event type 'TypeS0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type 'java.lang.Integer'");
+                "Error starting statement: Error in variable assignment: Variable 'vars0_A' of declared event type 'TypeS0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type 'int'");
     }
 
     private void runAssertionConfig(EPServiceProvider epService) {

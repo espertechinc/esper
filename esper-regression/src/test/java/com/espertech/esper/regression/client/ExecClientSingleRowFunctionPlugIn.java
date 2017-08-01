@@ -38,26 +38,14 @@ public class ExecClientSingleRowFunctionPlugIn implements RegressionExecution {
         configuration.addPlugInSingleRowFunction("singlerow", MySingleRowFunctionTwo.class.getName(), "testSingleRow");
         configuration.addPlugInSingleRowFunction("power3", MySingleRowFunction.class.getName(), "computePower3");
         configuration.addPlugInSingleRowFunction("chainTop", MySingleRowFunction.class.getName(), "getChainTop");
-        configuration.addPlugInSingleRowFunction("surroundx", MySingleRowFunction.class.getName(), "surroundx");
         configuration.addPlugInSingleRowFunction("throwExceptionLogMe", MySingleRowFunction.class.getName(), "throwexception", ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED, ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED, false);
         configuration.addPlugInSingleRowFunction("throwExceptionRethrow", MySingleRowFunction.class.getName(), "throwexception", ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED, ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED, true);
         configuration.addPlugInSingleRowFunction("power3Rethrow", MySingleRowFunction.class.getName(), "computePower3", ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED, ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED, true);
         configuration.addPlugInSingleRowFunction("power3Context", MySingleRowFunction.class.getName(), "computePower3WithContext", ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED, ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED, true);
-        configuration.addPlugInSingleRowFunction("isNullValue", MySingleRowFunction.class.getName(), "isNullValue");
-        configuration.addPlugInSingleRowFunction("getValueAsString", MySingleRowFunction.class.getName(), "getValueAsString");
-        configuration.addPlugInSingleRowFunction("eventsCheckStrings", MySingleRowFunction.class.getName(), "eventsCheckStrings");
-        configuration.addPlugInSingleRowFunction("varargsOnlyInt", MySingleRowFunction.class.getName(), "varargsOnlyInt");
-        configuration.addPlugInSingleRowFunction("varargsOnlyString", MySingleRowFunction.class.getName(), "varargsOnlyString");
-        configuration.addPlugInSingleRowFunction("varargsOnlyObject", MySingleRowFunction.class.getName(), "varargsOnlyObject");
-        configuration.addPlugInSingleRowFunction("varargsOnlyNumber", MySingleRowFunction.class.getName(), "varargsOnlyNumber");
-        configuration.addPlugInSingleRowFunction("varargsOnlyISupportBaseAB", MySingleRowFunction.class.getName(), "varargsOnlyISupportBaseAB");
-        configuration.addPlugInSingleRowFunction("varargsW1Param", MySingleRowFunction.class.getName(), "varargsW1Param");
-        configuration.addPlugInSingleRowFunction("varargsW2Param", MySingleRowFunction.class.getName(), "varargsW2Param");
-        configuration.addPlugInSingleRowFunction("varargsOnlyWCtx", MySingleRowFunction.class.getName(), "varargsOnlyWCtx");
-        configuration.addPlugInSingleRowFunction("varargsW1ParamWCtx", MySingleRowFunction.class.getName(), "varargsW1ParamWCtx");
-        configuration.addPlugInSingleRowFunction("varargsW2ParamWCtx", MySingleRowFunction.class.getName(), "varargsW2ParamWCtx");
-        configuration.addPlugInSingleRowFunction("varargsObjectsWCtx", MySingleRowFunction.class.getName(), "varargsObjectsWCtx");
-        configuration.addPlugInSingleRowFunction("varargsW1ParamObjectsWCtx", MySingleRowFunction.class.getName(), "varargsW1ParamObjectsWCtx");
+        for (String method : ("surroundx,isNullValue,getValueAsString,eventsCheckStrings,varargsOnlyInt,varargsOnlyString,varargsOnlyObject,varargsOnlyNumber,varargsOnlyISupportBaseAB,varargsW1Param,varargsW2Param," +
+                "varargsOnlyWCtx,varargsW1ParamWCtx,varargsW2ParamWCtx,varargsObjectsWCtx,varargsW1ParamObjectsWCtx,varargsOnlyBoxedFloat,varargsOnlyBoxedShort,varargsOnlyBoxedByte").split(",")) {
+            configuration.addPlugInSingleRowFunction(method, MySingleRowFunction.class.getName(), method);
+        }
         configuration.addEventType(SupportBean.class);
     }
 
@@ -188,6 +176,11 @@ public class ExecClientSingleRowFunctionPlugIn implements RegressionExecution {
 
         // try Arrays.asList
         tryAssertionArraysAsList(epService);
+
+        SupportMessageAssertUtil.tryInvalid(epService, "select varargsOnlyInt(1, null) from SupportBean", "Error starting statement: Failed to validate select-clause expression 'varargsOnlyInt(1,null)': Could not find static method");
+        runVarargAssertion(epService, makePair("varargsOnlyBoxedFloat(cast(1, byte), cast(2, short), null, 3)", "1.0,2.0,null,3.0"));
+        runVarargAssertion(epService, makePair("varargsOnlyBoxedShort(null, cast(1, byte))", "null,1"));
+        runVarargAssertion(epService, makePair("varargsOnlyBoxedByte(null, cast(1, byte))", "null,1"));
     }
 
     private void runAssertionEventBeanFootprint(EPServiceProvider epService) {

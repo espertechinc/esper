@@ -47,14 +47,9 @@
 			The engine can process <literal>java.util.Map</literal> events via the <literal>sendEvent(Map map, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Entries in the Map represent event properties. Keys must be of type <literal>java.util.String</literal> for the engine to be able to look up event property names specified by pattern or EPL statements. 
 		</para>
 		
-		<note>
-			<para>
-				The engine does not validate the actual Map events that your application provides to the engine in terms of their map keys matching event property names or map values matching type definition. Your application should ensure that objects passed in as event properties match the <literal>create schema</literal> property names and types, or the configured event type information when using runtime or static configuration.
-			</para>
-			<para>
-				The behavior is undefined in the case that value types do not match defined property types.
-			</para>
-		</note>
+		<para>
+			The engine does not validate Map event property names or values. Your application should ensure that objects passed in as event properties match the <literal>create schema</literal> property names and types, or the configured event type information when using runtime or static configuration.
+		</para>
 	</sect1>
 			
 	<sect1 xml:id="appendix_eventrepmap_properties">

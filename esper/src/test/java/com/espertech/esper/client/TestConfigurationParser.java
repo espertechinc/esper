@@ -81,6 +81,7 @@ public class TestConfigurationParser extends TestCase {
         assertFalse(config.getEngineDefaults().getLogging().isEnableQueryPlan());
         assertFalse(config.getEngineDefaults().getLogging().isEnableJDBC());
         assertNull(config.getEngineDefaults().getLogging().getAuditPattern());
+        assertFalse(config.getEngineDefaults().getLogging().isEnableCode());
         assertEquals(15000, config.getEngineDefaults().getVariables().getMsecVersionRelease());
         assertEquals(null, config.getEngineDefaults().getPatterns().getMaxSubexpressions());
         assertEquals(true, config.getEngineDefaults().getPatterns().isMaxSubexpressionPreventStart());
@@ -95,6 +96,12 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY, config.getEngineDefaults().getExecution().getFilterServiceProfile());
         assertEquals(16, config.getEngineDefaults().getExecution().getFilterServiceMaxFilterWidth());
         assertEquals(1, config.getEngineDefaults().getExecution().getDeclaredExprValueCacheSize());
+        ConfigurationEngineDefaults.CodeGeneration codegen = config.getEngineDefaults().getCodeGeneration();
+        assertEquals(true, codegen.isEnableExpression());
+        assertEquals(false, codegen.isEnablePropertyGetter());
+        assertEquals(false, codegen.isIncludeComments());
+        assertEquals(false, codegen.isIncludeDebugSymbols());
+        assertEquals(true, codegen.isEnableFallback());
 
         assertEquals(StreamSelector.ISTREAM_ONLY, config.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
         assertFalse(config.getEngineDefaults().getLanguage().isSortUsingCollator());
@@ -426,6 +433,7 @@ public class TestConfigurationParser extends TestCase {
         assertFalse(config.getEngineDefaults().getLogging().isEnableTimerDebug());
         assertTrue(config.getEngineDefaults().getLogging().isEnableQueryPlan());
         assertTrue(config.getEngineDefaults().getLogging().isEnableJDBC());
+        assertTrue(config.getEngineDefaults().getLogging().isEnableCode());
         assertEquals("[%u] %m", config.getEngineDefaults().getLogging().getAuditPattern());
         assertEquals(30000, config.getEngineDefaults().getVariables().getMsecVersionRelease());
         assertEquals(3L, (long) config.getEngineDefaults().getPatterns().getMaxSubexpressions());
@@ -433,6 +441,12 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(3L, (long) config.getEngineDefaults().getMatchRecognize().getMaxStates());
         assertEquals(false, config.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, config.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
+        ConfigurationEngineDefaults.CodeGeneration codegen = config.getEngineDefaults().getCodeGeneration();
+        assertEquals(false, codegen.isEnableExpression());
+        assertEquals(true, codegen.isEnablePropertyGetter());
+        assertEquals(true, codegen.isIncludeComments());
+        assertEquals(true, codegen.isIncludeDebugSymbols());
+        assertEquals(false, codegen.isEnableFallback());
 
         assertEquals(ConfigurationEngineDefaults.TimeSourceType.NANO, config.getEngineDefaults().getTimeSource().getTimeSourceType());
         assertEquals(TimeUnit.MICROSECONDS, config.getEngineDefaults().getTimeSource().getTimeUnit());

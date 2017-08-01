@@ -551,7 +551,7 @@ public class NStreamQueryPlanBuilder {
         SubordPropRangeKey[] keys = new SubordPropRangeKey[funcs.size()];
         for (int i = 0; i < funcs.size(); i++) {
             QueryGraphValueEntryRange func = funcs.get(i);
-            keys[i] = new SubordPropRangeKey(func, func.getExpressions()[0].getExprEvaluator().getType());
+            keys[i] = new SubordPropRangeKey(func, func.getExpressions()[0].getForge().getEvaluationType());
         }
         return keys;
     }

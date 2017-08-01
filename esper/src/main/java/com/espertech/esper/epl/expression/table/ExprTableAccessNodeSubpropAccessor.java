@@ -12,6 +12,10 @@ package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.accessagg.ExprAggregateAccessMultiValueNode;
@@ -25,7 +29,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import java.io.StringWriter;
 import java.util.Collection;
 
-public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode implements ExprEvaluator, ExprEvaluatorEnumeration {
+public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval, ExprForge {
     private static final long serialVersionUID = 3355957760722481622L;
 
     private final String subpropName;
@@ -46,7 +50,19 @@ public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode impl
         return this;
     }
 
-    public Class getType() {
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
         return accessorFactory.getResultType();
     }
 
@@ -54,10 +70,26 @@ public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode impl
         return accessorFactory.getAccessor();
     }
 
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
+    }
+
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
+    }
+
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
+    }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
+    }
+
     protected void validateBindingInternal(ExprValidationContext validationContext, TableMetadata tableMetadata) throws ExprValidationException {
 
         // validate group keys
-        validateGroupKeys(tableMetadata);
+        validateGroupKeys(tableMetadata, validationContext);
         TableMetadataColumnAggregation column = (TableMetadataColumnAggregation) validateSubpropertyGetCol(tableMetadata, subpropName);
 
         // validate accessor factory i.e. the parameters types and the match to the required state

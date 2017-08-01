@@ -13,6 +13,8 @@ package com.espertech.esper.regression.expr.expr;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
@@ -29,6 +31,24 @@ public class ExecExprBigNumberSupportMathContext implements RegressionExecution 
     public void run(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         runAssertionMathContextDivide(epService);
+        runAssertionMathContextBigDecConvDivide(epService);
+    }
+
+    private void runAssertionMathContextBigDecConvDivide(EPServiceProvider epService) {
+        String epl = "select " +
+                "10/BigDecimal.valueOf(5,0) as c0" +
+                " from SupportBean";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        String[] fields = "c0".split(",");
+        assertEquals(BigDecimal.class, stmt.getEventType().getPropertyType("c0"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {BigDecimal.valueOf(2,0)});
+
+        stmt.destroy();
     }
 
     private void runAssertionMathContextDivide(EPServiceProvider epService) {

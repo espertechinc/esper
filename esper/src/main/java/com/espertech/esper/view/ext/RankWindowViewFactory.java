@@ -15,9 +15,11 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.*;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -56,6 +58,8 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
     private EventType eventType;
 
     protected boolean useCollatorSort;
+
+    protected Comparator<Object> comparator;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParams) throws ViewParameterException {
         this.viewParameters = viewParams;
@@ -120,18 +124,20 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
             count++;
         }
 
-        this.uniqueEvals = ExprNodeUtility.getEvaluators(uniqueCriteriaExpressions);
-        this.sortEvals = ExprNodeUtility.getEvaluators(sortCriteriaExpressions);
+        this.uniqueEvals = ExprNodeUtility.getEvaluatorsMayCompile(uniqueCriteriaExpressions, statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
+        this.sortEvals = ExprNodeUtility.getEvaluatorsMayCompile(sortCriteriaExpressions, statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
 
         if (statementContext.getConfigSnapshot() != null) {
             useCollatorSort = statementContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
         }
+
+        comparator = CollectionUtil.getComparator(sortCriteriaExpressions, sortEvals, useCollatorSort, isDescendingValues);
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         int sortWindowSize = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         IStreamSortRankRandomAccess rankedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
-        return new RankWindowView(this, uniqueCriteriaExpressions, uniqueEvals, sortCriteriaExpressions, sortEvals, isDescendingValues, sortWindowSize, rankedRandomAccess, useCollatorSort, agentInstanceViewFactoryContext);
+        return new RankWindowView(this, sortWindowSize, rankedRandomAccess, agentInstanceViewFactoryContext);
     }
 
     public Object makePreviousGetter() {
@@ -190,5 +196,21 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public boolean isUseCollatorSort() {
         return useCollatorSort;
+    }
+
+    public ExprNode[] getUniqueCriteriaExpressions() {
+        return uniqueCriteriaExpressions;
+    }
+
+    public ExprNode[] getSortCriteriaExpressions() {
+        return sortCriteriaExpressions;
+    }
+
+    public ExprEvaluator getSizeEvaluator() {
+        return sizeEvaluator;
+    }
+
+    public Comparator<Object> getComparator() {
+        return comparator;
     }
 }

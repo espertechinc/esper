@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.epl.expression.time;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
 public class ExprTimePeriodEvalDeltaConstZero implements ExprTimePeriodEvalDeltaConst {
@@ -28,6 +30,10 @@ public class ExprTimePeriodEvalDeltaConstZero implements ExprTimePeriodEvalDelta
 
     public long deltaAdd(long fromTime) {
         return 0;
+    }
+
+    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenContext context) {
+        throw new UnsupportedOperationException();
     }
 
     public long deltaSubtract(long fromTime) {

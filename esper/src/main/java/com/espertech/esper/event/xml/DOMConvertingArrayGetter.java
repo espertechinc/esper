@@ -61,7 +61,7 @@ public class DOMConvertingArrayGetter implements EventPropertyGetterSPI {
     private String getCodegen(CodegenContext context) {
         CodegenMember mComponentType = context.makeAddMember(Class.class, componentType);
         CodegenMember mParser = context.makeAddMember(SimpleTypeParser.class, parser);
-        return context.addMethod(Object.class, Node.class, "node", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node[].class, "result", getter.getValueAsNodeArrayCodegen(ref("node"), context))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(this.getClass(), "getDOMArrayFromNodes", ref("result"), ref(mComponentType.getMemberName()), ref(mParser.getMemberName())));
@@ -97,27 +97,27 @@ public class DOMConvertingArrayGetter implements EventPropertyGetterSPI {
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
     }
 }

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.TestExprAggregateNodeAdapter;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprWildcardImpl;
 import com.espertech.esper.epl.expression.methodagg.ExprCountNode;
@@ -30,8 +29,8 @@ public class TestExprCountNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(Long.class, validatedNodeToTest.getType());
-        assertEquals(Long.class, wildcardCount.getType());
+        assertEquals(Long.class, validatedNodeToTest.getEvaluationType());
+        assertEquals(Long.class, wildcardCount.getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {

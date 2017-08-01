@@ -17,13 +17,15 @@ import java.util.Comparator;
 public class AggregationStateSortedSpec {
     private final int streamId;
     private final ExprEvaluator[] criteria;
+    private final Class[] criteriaTypes;
     private final Comparator<Object> comparator;
     private Object criteriaKeyBinding;
     private final ExprEvaluator optionalFilter;
 
-    public AggregationStateSortedSpec(int streamId, ExprEvaluator[] criteria, Comparator<Object> comparator, Object criteriaKeyBinding, ExprEvaluator optionalFilter) {
+    public AggregationStateSortedSpec(int streamId, ExprEvaluator[] criteria, Class[] criteriaTypes, Comparator<Object> comparator, Object criteriaKeyBinding, ExprEvaluator optionalFilter) {
         this.streamId = streamId;
         this.criteria = criteria;
+        this.criteriaTypes = criteriaTypes;
         this.comparator = comparator;
         this.criteriaKeyBinding = criteriaKeyBinding;
         this.optionalFilter = optionalFilter;
@@ -51,5 +53,9 @@ public class AggregationStateSortedSpec {
 
     public ExprEvaluator getOptionalFilter() {
         return optionalFilter;
+    }
+
+    public Class[] getCriteriaTypes() {
+        return criteriaTypes;
     }
 }

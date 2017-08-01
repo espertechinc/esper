@@ -200,7 +200,7 @@ public class EPStatementStartMethodSelectUtil {
                 TableMetadata metadata = services.getTableService().getTableMetadata(tableStreamSpec.getTableName());
                 ExprEvaluator[] tableFilterEvals = null;
                 if (tableStreamSpec.getFilterExpressions().size() > 0) {
-                    tableFilterEvals = ExprNodeUtility.getEvaluators(tableStreamSpec.getFilterExpressions());
+                    tableFilterEvals = ExprNodeUtility.getEvaluatorsMayCompile(tableStreamSpec.getFilterExpressions(), statementContext.getEngineImportService(), EPStatementStartMethodSelectUtil.class, false, statementContext.getStatementName());
                 }
                 EPLValidationUtil.validateContextName(true, metadata.getTableName(), metadata.getContextName(), statementSpec.getOptionalContextName(), false);
                 eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createTable(metadata, tableFilterEvals);
@@ -296,13 +296,13 @@ public class EPStatementStartMethodSelectUtil {
             throw new ExprValidationException("Into-table does not allow unidirectional joins");
         }
 
+        // Validate where-clause filter tree, outer join clause and output limit expression
+        EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, viewResourceDelegateUnverified);
+
         // Construct a processor for results posted by views and joins, which takes care of aggregation if required.
         // May return null if we don't need to post-process results posted by views or joins.
         ResultSetProcessorFactoryDesc resultSetProcessorPrototypeDesc = ResultSetProcessorFactoryFactory.getProcessorPrototype(
                 statementSpec, statementContext, typeService, viewResourceDelegateUnverified, joinAnalysisResult.getUnidirectionalInd(), true, contextPropertyRegistry, selectExprProcessorDeliveryCallback, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, false);
-
-        // Validate where-clause filter tree, outer join clause and output limit expression
-        EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, viewResourceDelegateUnverified);
 
         // Handle 'prior' function nodes in terms of view requirements
         ViewResourceDelegateVerified viewResourceDelegateVerified = EPStatementStartMethodHelperViewResources.verifyPreviousAndPriorRequirements(unmaterializedViewChain, viewResourceDelegateUnverified);

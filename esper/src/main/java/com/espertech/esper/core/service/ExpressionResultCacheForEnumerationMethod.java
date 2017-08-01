@@ -18,7 +18,7 @@ import java.util.Deque;
  *     for example "source.where(a => source.minBy(b => b.x))" the "source.minBy(b => b.x)" is not dependent on any other lambda so the result gets cached.
  *     The cache is keyed by the enumeration-method-node as an IdentityHashMap and verified by a context stack (Long[]) that is built in nested evaluation calls.
  *
- * NOTE: ExpressionResultCacheEntry should not be held onto since the instance returned can be reused.
+ * NOTE: ExpressionResultCacheForEnumerationMethod should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForEnumerationMethod {
 
@@ -28,7 +28,7 @@ public interface ExpressionResultCacheForEnumerationMethod {
 
     Deque<ExpressionResultCacheStackEntry> getStack();
 
-    ExpressionResultCacheEntry<Long[], Object> getEnumerationMethodLastValue(Object node);
+    ExpressionResultCacheEntryLongArrayAndObj getEnumerationMethodLastValue(Object node);
 
     void saveEnumerationMethodLastValue(Object node, Object result);
 

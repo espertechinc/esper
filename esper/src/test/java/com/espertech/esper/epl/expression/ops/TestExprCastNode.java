@@ -56,8 +56,8 @@ public class TestExprCastNode extends TestCase {
             castNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
-        assertEquals(10L, castNodes[0].getExprEvaluator().evaluate(null, false, null));
-        assertEquals(16, castNodes[1].getExprEvaluator().evaluate(null, false, null));
+        assertEquals(10L, castNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals(16, castNodes[1].getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEquals() throws Exception {

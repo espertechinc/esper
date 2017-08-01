@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.math.BigDecimal;
 
 /**
@@ -23,4 +25,6 @@ public interface SimpleNumberBigDecimalCoercer {
      * @return widened number
      */
     public BigDecimal coerceBoxedBigDec(Number numToCoerce);
+
+    CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, Class type);
 }

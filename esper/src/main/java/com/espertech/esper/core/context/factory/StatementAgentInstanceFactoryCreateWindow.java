@@ -24,6 +24,7 @@ import com.espertech.esper.core.start.EPStatementStartMethodHelperAssignExpr;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.named.NamedWindowTailViewInstance;
@@ -51,6 +52,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
     protected final ResultSetProcessorFactoryDesc resultSetProcessorPrototype;
     protected final OutputProcessViewFactory outputProcessViewFactory;
     protected final boolean isRecoveringStatement;
+    protected final ExprEvaluator createWindowInsertFilter;
 
     public StatementAgentInstanceFactoryCreateWindow(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, ViewFactoryChain unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, OutputProcessViewFactory outputProcessViewFactory, boolean recoveringStatement) {
         super(statementContext.getAnnotations());
@@ -62,6 +64,12 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
         this.resultSetProcessorPrototype = resultSetProcessorPrototype;
         this.outputProcessViewFactory = outputProcessViewFactory;
         isRecoveringStatement = recoveringStatement;
+
+        if (statementSpec.getCreateWindowDesc().getInsertFilter() != null) {
+            createWindowInsertFilter = ExprNodeCompiler.allocateEvaluator(statementSpec.getCreateWindowDesc().getInsertFilter().getForge(), statementContext.getEngineImportService(), StatementAgentInstanceFactoryCreateWindow.class, false, statementContext.getStatementName());
+        } else {
+            createWindowInsertFilter = null;
+        }
     }
 
     public StatementAgentInstanceFactoryCreateWindowResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
@@ -172,13 +180,12 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
                 NamedWindowProcessor namedWindowProcessor = services.getNamedWindowMgmtService().getProcessor(insertFromWindow);
                 NamedWindowProcessorInstance sourceWindowInstances = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
                 List<EventBean> events = new ArrayList<EventBean>();
-                if (statementSpec.getCreateWindowDesc().getInsertFilter() != null) {
+                if (createWindowInsertFilter != null) {
                     EventBean[] eventsPerStream = new EventBean[1];
-                    ExprEvaluator filter = statementSpec.getCreateWindowDesc().getInsertFilter().getExprEvaluator();
                     for (Iterator<EventBean> it = sourceWindowInstances.getTailViewInstance().iterator(); it.hasNext(); ) {
                         EventBean candidate = it.next();
                         eventsPerStream[0] = candidate;
-                        Boolean result = (Boolean) filter.evaluate(eventsPerStream, true, agentInstanceContext);
+                        Boolean result = (Boolean) createWindowInsertFilter.evaluate(eventsPerStream, true, agentInstanceContext);
                         if ((result == null) || (!result)) {
                             continue;
                         }

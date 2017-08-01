@@ -12,6 +12,8 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.*;
+import com.espertech.esper.codegen.compile.CodegenCompiler;
+import com.espertech.esper.codegen.compile.CodegenCompilerJanino;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.activator.ViewableActivatorFactoryDefault;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvcImpl;
@@ -180,7 +182,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
 
         ThreadingService threadingService = new ThreadingServiceImpl(configSnapshot.getEngineDefaults().getThreading());
 
-        InternalEventRouterImpl internalEventRouterImpl = new InternalEventRouterImpl(epServiceProvider.getURI());
+        InternalEventRouterImpl internalEventRouterImpl = new InternalEventRouterImpl(epServiceProvider.getURI(), engineImportService);
 
         StatementIsolationServiceImpl statementIsolationService = new StatementIsolationServiceImpl();
 
@@ -525,11 +527,13 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             throw new ConfigurationException("Invalid time-source time unit of " + timeUnit + ", expected millis or micros");
         }
 
-        boolean codegenGetters = configSnapshot.getEngineDefaults().getExecution().getCodeGeneration().isEnablePropertyGetter();
-        if (codegenGetters) {
+        boolean codegen = configSnapshot.getEngineDefaults().getCodeGeneration().isEnablePropertyGetter() || configSnapshot.getEngineDefaults().getCodeGeneration().isEnableExpression();
+        CodegenCompiler codegenCompiler = null;
+        if (codegen) {
             if (PackageName.check("uri_" + engineURI) == PackageName.INVALID) {
                 throw new ConfigurationException("Invalid engine URI '" + engineURI + "', code generation requires an engine URI that is a valid Java-language identifier and may not contain Java language keywords");
             }
+            codegenCompiler = new CodegenCompilerJanino(configSnapshot.getEngineDefaults().getLogging().isEnableCode(), configSnapshot.getEngineDefaults().getCodeGeneration().isIncludeDebugSymbols());
         }
 
         ConfigurationEngineDefaults.Expression expression = configSnapshot.getEngineDefaults().getExpression();
@@ -540,7 +544,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 configSnapshot.getEngineDefaults().getExpression().getTimeZone(), timeAbacus,
                 configSnapshot.getEngineDefaults().getExecution().getThreadingProfile(),
                 configSnapshot.getTransientConfiguration(),
-                aggregationFactoryFactory, codegenGetters, engineURI);
+                aggregationFactoryFactory, configSnapshot.getEngineDefaults().getCodeGeneration(), engineURI, codegenCompiler);
         engineImportService.addMethodRefs(configSnapshot.getMethodInvocationReferences());
 
         // Add auto-imports

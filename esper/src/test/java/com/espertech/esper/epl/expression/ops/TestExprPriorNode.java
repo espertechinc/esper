@@ -31,7 +31,7 @@ public class TestExprPriorNode extends TestCase {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(double.class, priorNode.getType());
+        assertEquals(Double.class, priorNode.getEvaluationType());
     }
 
     public void testValidate() throws Exception {

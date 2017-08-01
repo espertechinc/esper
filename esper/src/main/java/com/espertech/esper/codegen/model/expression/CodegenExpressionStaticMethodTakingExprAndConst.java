@@ -37,7 +37,7 @@ public class CodegenExpressionStaticMethodTakingExprAndConst implements CodegenE
         expression.render(builder, imports);
         for (Object constant : consts) {
             builder.append(",");
-            renderConstant(builder, constant);
+            renderConstant(builder, constant, imports);
         }
         builder.append(")");
     }

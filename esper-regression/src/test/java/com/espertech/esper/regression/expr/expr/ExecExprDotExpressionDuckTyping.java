@@ -47,7 +47,7 @@ public class ExecExprDotExpressionDuckTyping implements RegressionExecution {
                 {"intval", Object.class},
                 {"commonstrval", Object.class},
                 {"commonintval", Object.class},
-                {"commondoubleval", double.class}   // this one is strongly typed
+                {"commondoubleval", Double.class}   // this one is strongly typed
         };
         for (int i = 0; i < rows.length; i++) {
             EventPropertyDescriptor prop = stmt.getEventType().getPropertyDescriptors()[i];

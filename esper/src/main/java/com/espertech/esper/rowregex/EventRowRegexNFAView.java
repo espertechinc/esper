@@ -10,24 +10,17 @@
  */
 package com.espertech.esper.rowregex;
 
-import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationServiceMatchRecognize;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
-import com.espertech.esper.epl.spec.MatchRecognizeDefineItem;
-import com.espertech.esper.epl.spec.MatchRecognizeMeasureItem;
 import com.espertech.esper.epl.spec.MatchRecognizeSkipEnum;
-import com.espertech.esper.epl.spec.MatchRecognizeSpec;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
-import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.StopCallback;
@@ -46,34 +39,11 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     private static final Iterator<EventBean> NULL_ITERATOR = new SingleEventIterator(null);
 
     private final EventRowRegexNFAViewFactory factory;
-    private final MatchRecognizeSpec matchRecognizeSpec;
-    private final boolean isUnbound;
-    private final boolean isIterateOnly;
-    private final boolean isCollectMultimatches;
-    private final boolean isTrackMaxStates;
 
-    private final EventType rowEventType;
     private final AgentInstanceContext agentInstanceContext;
-    private final AggregationServiceMatchRecognize aggregationService;
 
     // for interval-handling
     protected final EventRowRegexNFAViewScheduler scheduler;
-    private final boolean isOrTerminated;
-
-    private final ExprEvaluator[] columnEvaluators;
-    private final String[] columnNames;
-
-    private final RegexNFAState[] startStates;
-    protected final RegexNFAState[] allStates;
-
-    private final String[] multimatchVariablesArray;
-    private final int[] multimatchStreamNumToVariable;
-    private final int[] multimatchVariableToStreamNum;
-    private final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
-    private final Map<Integer, String> streamsVariables;
-    protected final int numEventsEventsPerStreamDefine;
-    private final boolean isDefineAsksMultimatches;
-    private final ObjectArrayBackedEventBean defineMultimatchEventBean;
 
     private final RegexPartitionStateRandomAccessGetter prevGetter;
     private final ObjectArrayBackedEventBean compositeEventBean;
@@ -83,121 +53,39 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     private LinkedHashSet<EventBean> windowMatchedEventset; // this is NOT per partition - some optimizations are done for batch-processing (minus is out-of-sequence in partition) 
 
     public EventRowRegexNFAView(EventRowRegexNFAViewFactory factory,
-                                ObjectArrayEventType compositeEventType,
-                                EventType rowEventType,
-                                MatchRecognizeSpec matchRecognizeSpec,
-                                LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams,
-                                Map<Integer, String> streamsVariables,
-                                Set<String> variablesSingle,
                                 AgentInstanceContext agentInstanceContext,
-                                TreeMap<Integer, List<ExprPreviousMatchRecognizeNode>> callbacksPerIndex,
-                                AggregationServiceMatchRecognize aggregationService,
-                                boolean isDefineAsksMultimatches,
-                                ObjectArrayBackedEventBean defineMultimatchEventBean,
-                                boolean[] isExprRequiresMultimatchState,
-                                boolean isUnbound,
-                                boolean isIterateOnly,
-                                boolean isCollectMultimatches,
-                                RowRegexExprNode expandedPatternNode,
-                                ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig,
                                 EventRowRegexNFAViewScheduler scheduler) {
         this.factory = factory;
-        this.matchRecognizeSpec = matchRecognizeSpec;
-        this.isTrackMaxStates = matchRecognizeConfig != null && matchRecognizeConfig.getMaxStates() != null;
-        this.compositeEventBean = new ObjectArrayEventBean(new Object[variableStreams.size()], compositeEventType);
-        this.rowEventType = rowEventType;
-        this.variableStreams = variableStreams;
+        this.compositeEventBean = new ObjectArrayEventBean(new Object[factory.variableStreams.size()], factory.compositeEventType);
         this.scheduler = scheduler;
-
-        // determine names of multimatching variables
-        if (variablesSingle.size() == variableStreams.size()) {
-            multimatchVariablesArray = new String[0];
-            multimatchStreamNumToVariable = new int[0];
-            multimatchVariableToStreamNum = new int[0];
-        } else {
-            multimatchVariablesArray = new String[variableStreams.size() - variablesSingle.size()];
-            multimatchVariableToStreamNum = new int[multimatchVariablesArray.length];
-            multimatchStreamNumToVariable = new int[variableStreams.size()];
-            Arrays.fill(multimatchStreamNumToVariable, -1);
-            int count = 0;
-            for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet()) {
-                if (entry.getValue().getSecond()) {
-                    int index = count;
-                    multimatchVariablesArray[index] = entry.getKey();
-                    multimatchVariableToStreamNum[index] = entry.getValue().getFirst();
-                    multimatchStreamNumToVariable[entry.getValue().getFirst()] = index;
-                    count++;
-                }
-            }
-        }
-
-        this.streamsVariables = streamsVariables;
-        this.aggregationService = aggregationService;
-        this.isDefineAsksMultimatches = isDefineAsksMultimatches;
-        this.defineMultimatchEventBean = defineMultimatchEventBean;
-        this.numEventsEventsPerStreamDefine = isDefineAsksMultimatches ? variableStreams.size() + 1 : variableStreams.size();
-        this.isUnbound = isUnbound;
-        this.isIterateOnly = isIterateOnly;
         this.agentInstanceContext = agentInstanceContext;
-        this.isCollectMultimatches = isCollectMultimatches;
-
-        if (matchRecognizeSpec.getInterval() != null) {
-            agentInstanceContext.addTerminationCallback(this);
-            isOrTerminated = matchRecognizeSpec.getInterval().isOrTerminated();
-        } else {
-            isOrTerminated = false;
-        }
 
         this.windowMatchedEventset = new LinkedHashSet<EventBean>();
 
         // handle "previous" function nodes (performance-optimized for direct index access)
-        if (!callbacksPerIndex.isEmpty()) {
+        if (!factory.callbacksPerIndex.isEmpty()) {
             // Build an array of indexes
-            int[] randomAccessIndexesRequested = new int[callbacksPerIndex.size()];
+            int[] randomAccessIndexesRequested = new int[factory.callbacksPerIndex.size()];
             int count = 0;
-            for (Map.Entry<Integer, List<ExprPreviousMatchRecognizeNode>> entry : callbacksPerIndex.entrySet()) {
+            for (Map.Entry<Integer, List<ExprPreviousMatchRecognizeNode>> entry : factory.callbacksPerIndex.entrySet()) {
                 randomAccessIndexesRequested[count] = entry.getKey();
                 count++;
             }
-            prevGetter = new RegexPartitionStateRandomAccessGetter(randomAccessIndexesRequested, isUnbound);
+            prevGetter = new RegexPartitionStateRandomAccessGetter(randomAccessIndexesRequested, factory.isUnbound);
         } else {
             prevGetter = null;
         }
 
-        Map<String, ExprNode> variableDefinitions = new LinkedHashMap<String, ExprNode>();
-        for (MatchRecognizeDefineItem defineItem : matchRecognizeSpec.getDefines()) {
-            variableDefinitions.put(defineItem.getIdentifier(), defineItem.getExpression());
-        }
-
-        // build states
-        RegexNFAStrandResult strand = EventRowRegexHelper.recursiveBuildStartStates(expandedPatternNode, variableDefinitions, variableStreams, isExprRequiresMultimatchState);
-        startStates = strand.getStartStates().toArray(new RegexNFAState[strand.getStartStates().size()]);
-        allStates = strand.getAllStates().toArray(new RegexNFAState[strand.getAllStates().size()]);
-
-        if (log.isDebugEnabled() || IS_DEBUG) {
-            log.info("NFA tree:\n" + EventRowRegexNFAViewUtil.print(startStates));
-        }
-
-        // create evaluators
-        columnNames = new String[matchRecognizeSpec.getMeasures().size()];
-        columnEvaluators = new ExprEvaluator[matchRecognizeSpec.getMeasures().size()];
-        int count = 0;
-        for (MatchRecognizeMeasureItem measureItem : matchRecognizeSpec.getMeasures()) {
-            columnNames[count] = measureItem.getName();
-            columnEvaluators[count] = measureItem.getExpr().getExprEvaluator();
-            count++;
-        }
-
         // create state repository
         RegexHandlerFactory repoFactory = agentInstanceContext.getStatementContext().getRegexPartitionStateRepoFactory();
-        RegexPartitionTerminationStateComparator terminationStateCompare = new RegexPartitionTerminationStateComparator(multimatchStreamNumToVariable, variableStreams);
-        if (this.matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
-            regexPartitionStateRepo = repoFactory.makeSingle(prevGetter, agentInstanceContext, this, matchRecognizeSpec.getInterval() != null, terminationStateCompare);
+        RegexPartitionTerminationStateComparator terminationStateCompare = new RegexPartitionTerminationStateComparator(factory.multimatchStreamNumToVariable, factory.variableStreams);
+        if (this.factory.matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
+            regexPartitionStateRepo = repoFactory.makeSingle(prevGetter, agentInstanceContext, this, factory.matchRecognizeSpec.getInterval() != null, terminationStateCompare);
         } else {
-            RegexPartitionStateRepoGroupMeta stateRepoGroupMeta = new RegexPartitionStateRepoGroupMeta(matchRecognizeSpec.getInterval() != null,
-                    ExprNodeUtility.toArray(matchRecognizeSpec.getPartitionByExpressions()),
-                    ExprNodeUtility.getEvaluators(matchRecognizeSpec.getPartitionByExpressions()), agentInstanceContext);
-            regexPartitionStateRepo = repoFactory.makePartitioned(prevGetter, stateRepoGroupMeta, agentInstanceContext, this, matchRecognizeSpec.getInterval() != null, terminationStateCompare);
+            RegexPartitionStateRepoGroupMeta stateRepoGroupMeta = new RegexPartitionStateRepoGroupMeta(factory.matchRecognizeSpec.getInterval() != null,
+                    ExprNodeUtility.toArray(factory.matchRecognizeSpec.getPartitionByExpressions()),
+                    factory.partitionByEvals, agentInstanceContext);
+            regexPartitionStateRepo = repoFactory.makePartitioned(prevGetter, stateRepoGroupMeta, agentInstanceContext, this, factory.matchRecognizeSpec.getInterval() != null, terminationStateCompare);
         }
     }
 
@@ -205,7 +93,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         if (scheduler != null) {
             scheduler.removeSchedule();
         }
-        if (isTrackMaxStates) {
+        if (factory.isTrackMaxStates) {
             int size = regexPartitionStateRepo.getStateCount();
             MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
             poolSvc.getEngineSvc().decreaseCount(agentInstanceContext, size);
@@ -223,7 +111,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     }
 
     private void updateInternal(EventBean[] newData, EventBean[] oldData, boolean postOutput) {
-        if (isIterateOnly) {
+        if (factory.isIterateOnly) {
             if (oldData != null) {
                 regexPartitionStateRepo.removeOld(oldData, false, new boolean[oldData.length]);
             }
@@ -266,7 +154,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
             // reset, rebuilding state
             if (isOutOfSequenceRemove) {
-                if (isTrackMaxStates) {
+                if (factory.isTrackMaxStates) {
                     int size = regexPartitionStateRepo.getStateCount();
                     MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
                     poolSvc.getEngineSvc().decreaseCount(agentInstanceContext, size);
@@ -281,7 +169,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 // remove old events from repository - and let the repository know there are no interesting events left
                 int numRemoved = regexPartitionStateRepo.removeOld(oldData, windowMatchedEventset.isEmpty(), found);
 
-                if (isTrackMaxStates) {
+                if (factory.isTrackMaxStates) {
                     MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
                     poolSvc.getEngineSvc().decreaseCount(agentInstanceContext, numRemoved);
                     poolSvc.getStmtHandler().decreaseCount(numRemoved);
@@ -313,15 +201,15 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || IS_DEBUG) {
                 log.info("Evaluating event " + newEvent.getUnderlying() + "\n" +
-                        "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), streamsVariables, variableStreams, multimatchStreamNumToVariable));
+                        "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), factory.streamVariables, factory.variableStreams, factory.multimatchStreamNumToVariable));
             }
 
-            List<RegexNFAStateEntry> terminationStates = step(false, currentStatesIterator, newEvent, nextStates, endStates, !isUnbound, eventSequenceNumber, partitionState.getOptionalKeys());
+            List<RegexNFAStateEntry> terminationStates = step(false, currentStatesIterator, newEvent, nextStates, endStates, !factory.isUnbound, eventSequenceNumber, partitionState.getOptionalKeys());
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || IS_DEBUG) {
                 log.info("Evaluated event " + newEvent.getUnderlying() + "\n" +
-                        "next : " + EventRowRegexNFAViewUtil.printStates(nextStates, streamsVariables, variableStreams, multimatchStreamNumToVariable) + "\n" +
-                        "end : " + EventRowRegexNFAViewUtil.printStates(endStates, streamsVariables, variableStreams, multimatchStreamNumToVariable));
+                        "next : " + EventRowRegexNFAViewUtil.printStates(nextStates, factory.streamVariables, factory.variableStreams, factory.multimatchStreamNumToVariable) + "\n" +
+                        "end : " + EventRowRegexNFAViewUtil.printStates(endStates, factory.streamVariables, factory.variableStreams, factory.multimatchStreamNumToVariable));
             }
 
             // add termination states, for use with interval and "or terminated"
@@ -339,22 +227,22 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             }
         }
 
-        if (endStates.isEmpty() && (!isOrTerminated || terminationStatesAll == null)) {
+        if (endStates.isEmpty() && (!factory.isOrTerminated || terminationStatesAll == null)) {
             return;
         }
 
         // perform inter-ranking and elimination of duplicate matches
-        if (!matchRecognizeSpec.isAllMatches()) {
+        if (!factory.matchRecognizeSpec.isAllMatches()) {
             endStates = rankEndStatesMultiPartition(endStates);
         }
 
         // handle interval for the set of matches
-        if (matchRecognizeSpec.getInterval() != null) {
+        if (factory.matchRecognizeSpec.getInterval() != null) {
             Iterator<RegexNFAStateEntry> it = endStates.iterator();
             for (; it.hasNext(); ) {
                 RegexNFAStateEntry endState = it.next();
                 if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qRegIntervalState(endState, variableStreams, multimatchStreamNumToVariable, agentInstanceContext.getStatementContext().getSchedulingService().getTime());
+                    InstrumentationHelper.get().qRegIntervalState(endState, factory.variableStreams, factory.multimatchStreamNumToVariable, agentInstanceContext.getStatementContext().getSchedulingService().getTime());
                 }
                 RegexPartitionState partitionState = regexPartitionStateRepo.getState(endState.getPartitionKey());
                 if (partitionState == null) {
@@ -367,7 +255,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
                 // determine whether to schedule
                 boolean scheduleDelivery;
-                if (!isOrTerminated) {
+                if (!factory.isOrTerminated) {
                     scheduleDelivery = true;
                 } else {
                     // determine whether there can be more matches
@@ -384,7 +272,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     long matchBeginTime = endState.getMatchBeginEventTime();
                     long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
                     long deltaFromStart = current - matchBeginTime;
-                    long deltaUntil = matchRecognizeSpec.getInterval().getScheduleForwardDelta(current, agentInstanceContext) - deltaFromStart;
+                    long deltaUntil = factory.matchRecognizeSpec.getInterval().getScheduleForwardDelta(current, agentInstanceContext) - deltaFromStart;
 
                     if (regexPartitionStateRepo.getScheduleState().containsKey(matchBeginTime)) {
                         scheduleCallback(deltaUntil, endState);
@@ -413,7 +301,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             }
 
             // handle termination states - those that terminated the pattern and remove the callback
-            if (isOrTerminated && terminationStatesAll != null) {
+            if (factory.isOrTerminated && terminationStatesAll != null) {
                 for (RegexNFAStateEntry terminationState : terminationStatesAll) {
                     RegexPartitionState partitionState = regexPartitionStateRepo.getState(terminationState.getPartitionKey());
                     if (partitionState == null) {
@@ -425,7 +313,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 }
 
                 // rank
-                if (!matchRecognizeSpec.isAllMatches()) {
+                if (!factory.matchRecognizeSpec.isAllMatches()) {
                     endStates = rankEndStatesMultiPartition(endStates);
                 }
             }
@@ -433,7 +321,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             if (endStates.isEmpty()) {
                 return;
             }
-        } else if (matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.PAST_LAST_ROW) {
+        } else if (factory.matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.PAST_LAST_ROW) {
             // handle skip for incremental mode
             Iterator<RegexNFAStateEntry> endStateIter = endStates.iterator();
             for (; endStateIter.hasNext(); ) {
@@ -452,7 +340,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     }
                 }
             }
-        } else if (matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.TO_NEXT_ROW) {
+        } else if (factory.matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.TO_NEXT_ROW) {
             Iterator<RegexNFAStateEntry> endStateIter = endStates.iterator();
             for (; endStateIter.hasNext(); ) {
                 RegexNFAStateEntry endState = endStateIter.next();
@@ -476,7 +364,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         int count = 0;
         for (RegexNFAStateEntry endState : endStates) {
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qRegMeasure(endState, variableStreams, multimatchStreamNumToVariable);
+                InstrumentationHelper.get().qRegMeasure(endState, factory.variableStreams, factory.multimatchStreamNumToVariable);
             }
             outBeans[count] = generateOutputRow(endState);
             if (InstrumentationHelper.ENABLED) {
@@ -549,7 +437,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     }
 
     private boolean compare(int[] current, int[] best) {
-        for (RegexNFAState state : allStates) {
+        for (RegexNFAState state : factory.allStates) {
             if (state.isGreedy() == null) {
                 continue;
             }
@@ -589,15 +477,15 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || IS_DEBUG) {
                 log.info("Evaluating event " + theEvent.getUnderlying() + "\n" +
-                        "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), streamsVariables, variableStreams, multimatchStreamNumToVariable));
+                        "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), factory.streamVariables, factory.variableStreams, factory.multimatchStreamNumToVariable));
             }
 
             step(!isOutOfSeqDelete, currentStates, theEvent, nextStates, endStates, false, eventSequenceNumber, partitionState.getOptionalKeys());
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || IS_DEBUG) {
                 log.info("Evaluating event " + theEvent.getUnderlying() + "\n" +
-                        "next : " + EventRowRegexNFAViewUtil.printStates(nextStates, streamsVariables, variableStreams, multimatchStreamNumToVariable) + "\n" +
-                        "end : " + EventRowRegexNFAViewUtil.printStates(endStates, streamsVariables, variableStreams, multimatchStreamNumToVariable));
+                        "next : " + EventRowRegexNFAViewUtil.printStates(nextStates, factory.streamVariables, factory.variableStreams, factory.multimatchStreamNumToVariable) + "\n" +
+                        "end : " + EventRowRegexNFAViewUtil.printStates(endStates, factory.streamVariables, factory.variableStreams, factory.multimatchStreamNumToVariable));
             }
 
             partitionState.setCurrentStates(nextStates);
@@ -607,11 +495,11 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     }
 
     public EventType getEventType() {
-        return rowEventType;
+        return factory.rowEventType;
     }
 
     public Iterator<EventBean> iterator() {
-        if (isUnbound) {
+        if (factory.isUnbound) {
             return NULL_ITERATOR;
         }
 
@@ -647,7 +535,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         }
 
         // unpartitioned case -
-        if (matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
+        if (factory.matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
             return rankEndStatesWithinPartitionByStart(endStates);
         }
 
@@ -707,7 +595,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
         if (endStatesPerBeginEvent.size() == 1) {
             List<RegexNFAStateEntry> endStatesUnranked = (List<RegexNFAStateEntry>) endStatesPerBeginEvent.values().iterator().next();
-            if (matchRecognizeSpec.isAllMatches()) {
+            if (factory.matchRecognizeSpec.isAllMatches()) {
                 return endStatesUnranked;
             }
             RegexNFAStateEntry chosen = rankEndStates(endStatesUnranked);
@@ -731,7 +619,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 }
                 entryTaken = rankEndStates(endStatesUnranked);
 
-                if (matchRecognizeSpec.isAllMatches()) {
+                if (factory.matchRecognizeSpec.isAllMatches()) {
                     endStatesRanked.addAll(endStatesUnranked);  // we take all matches and don't rank except to determine skip-past
                 } else {
                     endStatesRanked.add(entryTaken);
@@ -743,10 +631,10 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             // could be null as removals take place
 
             if (entryTaken != null) {
-                if (matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.PAST_LAST_ROW) {
+                if (factory.matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.PAST_LAST_ROW) {
                     int skipPastRow = entryTaken.getMatchEndEventSeqNo();
                     removeSkippedEndStates(endStatesPerBeginEvent, skipPastRow);
-                } else if (matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.TO_NEXT_ROW) {
+                } else if (factory.matchRecognizeSpec.getSkip().getSkip() == MatchRecognizeSkipEnum.TO_NEXT_ROW) {
                     int skipPastRow = entryTaken.getMatchBeginEventSeqNo();
                     removeSkippedEndStates(endStatesPerBeginEvent, skipPastRow);
                 }
@@ -792,10 +680,10 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         for (; currentStatesIterator.hasNext(); ) {
             RegexNFAStateEntry currentState = currentStatesIterator.next();
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qRegExState(currentState, variableStreams, multimatchStreamNumToVariable);
+                InstrumentationHelper.get().qRegExState(currentState, factory.variableStreams, factory.multimatchStreamNumToVariable);
             }
 
-            if (isTrackMaxStates && !skipTrackMaxState) {
+            if (factory.isTrackMaxStates && !skipTrackMaxState) {
                 MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
                 poolSvc.getEngineSvc().decreaseCount(agentInstanceContext);
                 poolSvc.getStmtHandler().decreaseCount();
@@ -804,8 +692,8 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             EventBean[] eventsPerStream = currentState.getEventsPerStream();
             int currentStateStreamNum = currentState.getState().getStreamNum();
             eventsPerStream[currentStateStreamNum] = theEvent;
-            if (isDefineAsksMultimatches) {
-                eventsPerStream[numEventsEventsPerStreamDefine - 1] = getMultimatchState(currentState);
+            if (factory.isDefineAsksMultimatches) {
+                eventsPerStream[factory.numEventsEventsPerStreamDefine - 1] = getMultimatchState(currentState);
             }
 
             if (currentState.getState().matches(eventsPerStream, agentInstanceContext)) {
@@ -829,12 +717,12 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                         System.arraycopy(greedyCounts, 0, greedyCountsCopy, 0, greedyCounts.length);
                         greedyCounts = greedyCountsCopy;
 
-                        if (isCollectMultimatches) {
+                        if (factory.isCollectMultimatches) {
                             multimatches = deepCopy(multimatches);
                         }
                     }
 
-                    if (isCollectMultimatches && (currentState.getState().isMultiple())) {
+                    if (factory.isCollectMultimatches && (currentState.getState().isMultiple())) {
                         multimatches = addTag(currentState.getState().getStreamNum(), theEvent, multimatches);
                         eventsForState[currentStateStreamNum] = null; // remove event from evaluation list
                     }
@@ -848,7 +736,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                         entry.setMatchEndEventSeqNo(currentEventSequenceNumber);
                         endStates.add(entry);
                     } else {
-                        if (isTrackMaxStates && !skipTrackMaxState) {
+                        if (factory.isTrackMaxStates && !skipTrackMaxState) {
                             MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
                             boolean allow = poolSvc.getEngineSvc().tryIncreaseCount(agentInstanceContext);
                             if (allow) {
@@ -863,16 +751,16 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     }
                 }
                 if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aRegExState(nextStates, variableStreams, multimatchStreamNumToVariable);
+                    InstrumentationHelper.get().aRegExState(nextStates, factory.variableStreams, factory.multimatchStreamNumToVariable);
                 }
             } else {
                 // when not-matches
                 if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aRegExState(Collections.<RegexNFAStateEntry>emptyList(), variableStreams, multimatchStreamNumToVariable);
+                    InstrumentationHelper.get().aRegExState(Collections.<RegexNFAStateEntry>emptyList(), factory.variableStreams, factory.multimatchStreamNumToVariable);
                 }
 
                 // determine interval and or-terminated
-                if (isOrTerminated) {
+                if (factory.isOrTerminated) {
                     eventsPerStream[currentStateStreamNum] = null;  // deassign
                     List<RegexNFAState> nextStatesFromHere = currentState.getState().getNextStates();
 
@@ -895,12 +783,12 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         }
 
         // handle start states for the event
-        for (RegexNFAState startState : startStates) {
+        for (RegexNFAState startState : factory.startStates) {
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qRegExStateStart(startState, variableStreams, multimatchStreamNumToVariable);
+                InstrumentationHelper.get().qRegExStateStart(startState, factory.variableStreams, factory.multimatchStreamNumToVariable);
             }
 
-            EventBean[] eventsPerStream = new EventBean[numEventsEventsPerStreamDefine];
+            EventBean[] eventsPerStream = new EventBean[factory.numEventsEventsPerStreamDefine];
             int currentStateStreamNum = startState.getStreamNum();
             eventsPerStream[currentStateStreamNum] = theEvent;
 
@@ -914,7 +802,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 boolean copy = nextStatesFromHere.size() > 1;
                 for (RegexNFAState next : nextStatesFromHere) {
 
-                    if (isTrackMaxStates && !skipTrackMaxState) {
+                    if (factory.isTrackMaxStates && !skipTrackMaxState) {
                         MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
                         boolean allow = poolSvc.getEngineSvc().tryIncreaseCount(agentInstanceContext);
                         if (!allow) {
@@ -924,8 +812,8 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     }
 
                     EventBean[] eventsForState = eventsPerStream;
-                    MultimatchState[] multimatches = isCollectMultimatches ? new MultimatchState[multimatchVariablesArray.length] : null;
-                    int[] greedyCounts = new int[allStates.length];
+                    MultimatchState[] multimatches = factory.isCollectMultimatches ? new MultimatchState[factory.multimatchVariablesArray.length] : null;
+                    int[] greedyCounts = new int[factory.allStates.length];
 
                     if (copy) {
                         eventsForState = new EventBean[eventsForState.length];
@@ -936,7 +824,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                         greedyCounts = greedyCountsCopy;
                     }
 
-                    if (isCollectMultimatches && (startState.isMultiple())) {
+                    if (factory.isCollectMultimatches && (startState.isMultiple())) {
                         multimatches = addTag(startState.getStreamNum(), theEvent, multimatches);
                         eventsForState[currentStateStreamNum] = null; // remove event from evaluation list
                     }
@@ -946,7 +834,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     }
 
                     long time = 0;
-                    if (matchRecognizeSpec.getInterval() != null) {
+                    if (factory.matchRecognizeSpec.getInterval() != null) {
                         time = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
                     }
 
@@ -962,7 +850,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             }
 
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aRegExStateStart(nextStates, variableStreams, multimatchStreamNumToVariable);
+                InstrumentationHelper.get().aRegExStateStart(nextStates, factory.variableStreams, factory.multimatchStreamNumToVariable);
             }
         }
 
@@ -973,7 +861,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         if (currentState.getOptionalMultiMatches() == null || !currentState.getState().isExprRequiresMultimatchState()) {
             return null;
         }
-        Object[] props = defineMultimatchEventBean.getProperties();
+        Object[] props = factory.defineMultimatchEventBean.getProperties();
         MultimatchState[] states = currentState.getOptionalMultiMatches();
         for (int i = 0; i < props.length; i++) {
             MultimatchState state = states[i];
@@ -983,7 +871,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 props[i] = state.getShrinkEventArray();
             }
         }
-        return defineMultimatchEventBean;
+        return factory.defineMultimatchEventBean;
     }
 
     private MultimatchState[] deepCopy(MultimatchState[] multimatchStates) {
@@ -1003,10 +891,10 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
     private MultimatchState[] addTag(int streamNum, EventBean theEvent, MultimatchState[] multimatches) {
         if (multimatches == null) {
-            multimatches = new MultimatchState[multimatchVariablesArray.length];
+            multimatches = new MultimatchState[factory.multimatchVariablesArray.length];
         }
 
-        int index = multimatchStreamNumToVariable[streamNum];
+        int index = factory.multimatchStreamNumToVariable[streamNum];
         MultimatchState state = multimatches[index];
         if (state == null) {
             multimatches[index] = new MultimatchState(theEvent);
@@ -1021,37 +909,37 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         Object[] rowDataRaw = compositeEventBean.getProperties();
 
         // we first generate a raw row of <String, Object> for each variable name.
-        for (Map.Entry<String, Pair<Integer, Boolean>> variableDef : variableStreams.entrySet()) {
+        for (Map.Entry<String, Pair<Integer, Boolean>> variableDef : factory.variableStreams.entrySet()) {
             if (!variableDef.getValue().getSecond()) {
                 int index = variableDef.getValue().getFirst();
                 rowDataRaw[index] = entry.getEventsPerStream()[index];
             }
         }
-        if (aggregationService != null) {
-            aggregationService.clearResults();
+        if (factory.aggregationService != null) {
+            factory.aggregationService.clearResults();
         }
         if (entry.getOptionalMultiMatches() != null) {
             MultimatchState[] multimatchState = entry.getOptionalMultiMatches();
             for (int i = 0; i < multimatchState.length; i++) {
                 if (multimatchState[i] == null) {
-                    rowDataRaw[multimatchVariableToStreamNum[i]] = null;
+                    rowDataRaw[factory.multimatchVariableToStreamNum[i]] = null;
                     continue;
                 }
                 EventBean[] multimatchEvents = multimatchState[i].getShrinkEventArray();
-                rowDataRaw[multimatchVariableToStreamNum[i]] = multimatchEvents;
+                rowDataRaw[factory.multimatchVariableToStreamNum[i]] = multimatchEvents;
 
-                if (aggregationService != null) {
+                if (factory.aggregationService != null) {
                     EventBean[] eventsPerStream = entry.getEventsPerStream();
-                    int streamNum = multimatchVariableToStreamNum[i];
+                    int streamNum = factory.multimatchVariableToStreamNum[i];
 
                     for (EventBean multimatchEvent : multimatchEvents) {
                         eventsPerStream[streamNum] = multimatchEvent;
-                        aggregationService.applyEnter(eventsPerStream, streamNum, agentInstanceContext);
+                        factory.aggregationService.applyEnter(eventsPerStream, streamNum, agentInstanceContext);
                     }
                 }
             }
         } else {
-            for (int index : multimatchVariableToStreamNum) {
+            for (int index : factory.multimatchVariableToStreamNum) {
                 rowDataRaw[index] = null;
             }
         }
@@ -1059,14 +947,14 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         Map<String, Object> row = new HashMap<String, Object>();
         int columnNum = 0;
         EventBean[] eventsPerStream = new EventBean[1];
-        for (ExprEvaluator expression : columnEvaluators) {
+        for (ExprEvaluator expression : factory.columnEvaluators) {
             eventsPerStream[0] = compositeEventBean;
             Object result = expression.evaluate(eventsPerStream, true, agentInstanceContext);
-            row.put(columnNames[columnNum], result);
+            row.put(factory.columnNames[columnNum], result);
             columnNum++;
         }
 
-        return agentInstanceContext.getStatementContext().getEventAdapterService().adapterForTypedMap(row, rowEventType);
+        return agentInstanceContext.getStatementContext().getEventAdapterService().adapterForTypedMap(row, factory.rowEventType);
     }
 
     private void scheduleCallback(long timeDelta, RegexNFAStateEntry endState) {
@@ -1095,7 +983,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
     public void triggered() {
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        long intervalMSec = this.matchRecognizeSpec.getInterval().getScheduleBackwardDelta(currentTime, agentInstanceContext);
+        long intervalMSec = this.factory.matchRecognizeSpec.getInterval().getScheduleBackwardDelta(currentTime, agentInstanceContext);
         if (regexPartitionStateRepo.getScheduleState().isEmpty()) {
             return;
         }
@@ -1121,7 +1009,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             scheduler.addSchedule(msecAfterCurrentTime);
         }
 
-        if (!matchRecognizeSpec.isAllMatches()) {
+        if (!factory.matchRecognizeSpec.isAllMatches()) {
             indicatables = rankEndStatesMultiPartition(indicatables);
         }
 
@@ -1129,7 +1017,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         int count = 0;
         for (RegexNFAStateEntry endState : indicatables) {
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qRegMeasure(endState, variableStreams, multimatchStreamNumToVariable);
+                InstrumentationHelper.get().qRegMeasure(endState, factory.variableStreams, factory.multimatchStreamNumToVariable);
             }
             outBeans[count] = generateOutputRow(endState);
             if (InstrumentationHelper.ENABLED) {

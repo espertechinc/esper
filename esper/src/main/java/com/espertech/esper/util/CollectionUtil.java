@@ -11,13 +11,19 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.NullIterator;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.*;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Utility for handling collection or array tasks.
@@ -49,14 +55,14 @@ public class CollectionUtil {
         };
     }
 
-    public static Comparator<Object> getComparator(ExprEvaluator[] sortCriteriaEvaluators, boolean isSortUsingCollator, boolean[] isDescendingValues) {
+    public static Comparator<Object> getComparator(ExprNode[] sortCriteria, ExprEvaluator[] sortCriteriaEvaluators, boolean isSortUsingCollator, boolean[] isDescendingValues) {
         // determine string-type sorting
         boolean hasStringTypes = false;
         boolean[] stringTypes = new boolean[sortCriteriaEvaluators.length];
 
         int count = 0;
-        for (ExprEvaluator node : sortCriteriaEvaluators) {
-            if (node.getType() == String.class) {
+        for (int i = 0; i < sortCriteria.length; i++) {
+            if (sortCriteria[i].getForge().getEvaluationType() == String.class) {
                 hasStringTypes = true;
                 stringTypes[count] = true;
             }
@@ -443,5 +449,62 @@ public class CollectionUtil {
         map.put(k1, v1);
         map.put(k2, v2);
         return map;
+    }
+
+    public static Collection arrayToCollectionAllowNull(Object array) {
+        if (array == null) {
+            return null;
+        }
+        if (array instanceof Object[]) {
+            return Arrays.asList((Object[]) array);
+        }
+        int len = Array.getLength(array);
+        if (len == 0) {
+            return Collections.emptyList();
+        }
+        if (len == 1) {
+            return Collections.singletonList(Array.get(array, 0));
+        }
+        Deque dq = new ArrayDeque(len);
+        for (int i = 0; i < len; i++) {
+            dq.add(Array.get(array, i));
+        }
+        return dq;
+    }
+
+    public static CodegenExpression arrayToCollectionAllowNullCodegen(Class arrayType, CodegenExpression array, CodegenContext context) {
+        if (!arrayType.isArray()) {
+            throw new IllegalArgumentException("Expected array type and received " + arrayType);
+        }
+        CodegenBlock block = context.addMethod(Collection.class, CollectionUtil.class).add(arrayType, "array").begin()
+                .ifRefNullReturnNull("array");
+        if (!arrayType.getComponentType().isPrimitive()) {
+            return localMethodBuild(block.methodReturn(staticMethod(Arrays.class, "asList", ref("array")))).pass(array).call();
+        }
+        String method = block.ifCondition(equalsIdentity(arrayLength(ref("array")), constant(0)))
+                .blockReturn(staticMethod(Collections.class, "emptyList"))
+                .ifCondition(equalsIdentity(arrayLength(ref("array")), constant(1)))
+                .blockReturn(staticMethod(Collections.class, "singletonList", arrayAtIndex(ref("array"), constant(0))))
+                .declareVar(ArrayDeque.class, "dq", newInstance(ArrayDeque.class, arrayLength(ref("array"))))
+                .forLoopIntSimple("i", arrayLength(ref("array")))
+                .expression(exprDotMethod(ref("dq"), "add", arrayAtIndex(ref("array"), ref("i"))))
+                .blockEnd()
+                .methodReturn(ref("dq"));
+        return localMethodBuild(method).pass(array).call();
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param iterable iterable
+     * @return collection
+     */
+    public static Collection iterableToCollection(Iterable iterable) {
+        ArrayList items = new ArrayList();
+        Iterator iterator = iterable.iterator();
+        for (; iterator.hasNext(); ) {
+            items.add(iterator.next());
+        }
+        return items;
     }
 }

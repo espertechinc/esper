@@ -41,7 +41,7 @@ public class ExprSubselectExistsNode extends ExprSubselectNode {
         super(statementSpec);
     }
 
-    public Class getType() {
+    public Class getEvaluationType() {
         return Boolean.class;
     }
 

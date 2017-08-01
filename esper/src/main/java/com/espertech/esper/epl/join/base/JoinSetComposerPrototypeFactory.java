@@ -14,10 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.epl.join.plan.*;
@@ -78,7 +75,7 @@ public class JoinSetComposerPrototypeFactory {
 
         // Handle a join with a database or other historical data source for 2 streams
         if ((historicalViewableDesc.isHasHistorical()) && (streamTypes.length == 2)) {
-            return makeComposerHistorical2Stream(outerJoinDescList, optionalFilterNode, streamTypes, historicalViewableDesc, queryPlanLogging, exprEvaluatorContext, statementContext, streamNames, allowIndexInit);
+            return makeComposerHistorical2Stream(outerJoinDescList, optionalFilterNode, streamTypes, historicalViewableDesc, queryPlanLogging, exprEvaluatorContext, statementContext, streamNames, allowIndexInit, isOnDemandQuery);
         }
 
         boolean isOuterJoins = !OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescList);
@@ -115,7 +112,7 @@ public class JoinSetComposerPrototypeFactory {
 
         QueryPlan queryPlan = QueryPlanBuilder.getPlan(streamTypes, outerJoinDescList, queryGraph, streamNames,
                 historicalViewableDesc, historicalDependencyGraph, historicalStreamIndexLists,
-                streamJoinAnalysisResult, queryPlanLogging, statementContext.getAnnotations(), exprEvaluatorContext);
+                streamJoinAnalysisResult, queryPlanLogging, statementContext.getAnnotations(), exprEvaluatorContext, statementContext.getEngineImportService(), isOnDemandQuery);
 
         // remove unused indexes - consider all streams or all unidirectional
         HashSet<TableLookupIndexReqKey> usedIndexes = new HashSet<TableLookupIndexReqKey>();
@@ -172,7 +169,10 @@ public class JoinSetComposerPrototypeFactory {
                 historicalStreamIndexLists,
                 joinRemoveStream,
                 isOuterJoins,
-                tableService, statementContext.getEventTableIndexService());
+                tableService,
+                statementContext.getEventTableIndexService(),
+                statementContext.getEngineImportService(),
+                isOnDemandQuery);
     }
 
     private static JoinSetComposerPrototype makeComposerHistorical2Stream(OuterJoinDesc[] outerJoinDescList,
@@ -183,7 +183,8 @@ public class JoinSetComposerPrototypeFactory {
                                                                           ExprEvaluatorContext exprEvaluatorContext,
                                                                           StatementContext statementContext,
                                                                           String[] streamNames,
-                                                                          boolean allowIndexInit)
+                                                                          boolean allowIndexInit,
+                                                                          boolean isOnDemandQuery)
             throws ExprValidationException {
         int polledViewNum = 0;
         int streamViewNum = 1;
@@ -262,14 +263,16 @@ public class JoinSetComposerPrototypeFactory {
             }
         }
 
+        ExprEvaluator outerJoinEqualsEval = outerJoinEqualsNode == null ? null : ExprNodeCompiler.allocateEvaluator(outerJoinEqualsNode.getForge(), statementContext.getEngineImportService(), JoinSetComposerPrototypeFactory.class, isOnDemandQuery, statementContext.getStatementName());
+        ExprEvaluator optionalFilterEval = optionalFilterNode == null ? null : ExprNodeCompiler.allocateEvaluator(optionalFilterNode.getForge(), statementContext.getEngineImportService(), JoinSetComposerPrototypeFactory.class, isOnDemandQuery, statementContext.getStatementName());
         return new JoinSetComposerPrototypeHistorical2StreamImpl(
-                optionalFilterNode,
+                optionalFilterEval,
                 streamTypes,
                 exprEvaluatorContext,
                 polledViewNum,
                 streamViewNum,
                 isOuterJoin,
-                outerJoinEqualsNode,
+                outerJoinEqualsEval,
                 indexStrategies,
                 isAllHistoricalNoSubordinate,
                 outerJoinDescList, allowIndexInit);

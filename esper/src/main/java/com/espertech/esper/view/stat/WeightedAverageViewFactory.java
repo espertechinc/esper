@@ -14,7 +14,9 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
@@ -30,14 +32,10 @@ public class WeightedAverageViewFactory implements ViewFactory {
     private List<ExprNode> viewParameters;
     private int streamNumber;
 
-    /**
-     * Expression of X field.
-     */
     protected ExprNode fieldNameX;
-    /**
-     * Expression of weight field.
-     */
     protected ExprNode fieldNameWeight;
+    protected ExprEvaluator fieldNameXEvaluator;
+    protected ExprEvaluator fieldNameWeightEvaluator;
 
     protected StatViewAdditionalProps additionalProps;
 
@@ -54,13 +52,15 @@ public class WeightedAverageViewFactory implements ViewFactory {
         if (validated.length < 2) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if ((!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) || (!JavaClassHelper.isNumeric(validated[1].getExprEvaluator().getType()))) {
+        if ((!JavaClassHelper.isNumeric(validated[0].getForge().getEvaluationType())) || (!JavaClassHelper.isNumeric(validated[1].getForge().getEvaluationType()))) {
             throw new ViewParameterException(getViewParamMessage());
         }
 
         fieldNameX = validated[0];
         fieldNameWeight = validated[1];
-        additionalProps = StatViewAdditionalProps.make(validated, 2, parentEventType);
+        fieldNameXEvaluator = ExprNodeCompiler.allocateEvaluator(fieldNameX.getForge(), statementContext.getEngineImportService(), WeightedAverageView.class, false, statementContext.getStatementName());
+        fieldNameWeightEvaluator = ExprNodeCompiler.allocateEvaluator(fieldNameWeight.getForge(), statementContext.getEngineImportService(), WeightedAverageView.class, false, statementContext.getStatementName());
+        additionalProps = StatViewAdditionalProps.make(validated, 2, parentEventType, statementContext.getEngineImportService(), statementContext.getStatementName());
         eventType = WeightedAverageView.createEventType(statementContext, additionalProps, streamNumber);
     }
 

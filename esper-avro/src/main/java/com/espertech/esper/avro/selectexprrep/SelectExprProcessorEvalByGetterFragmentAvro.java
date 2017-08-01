@@ -34,7 +34,4 @@ public class SelectExprProcessorEvalByGetterFragmentAvro implements ExprEvaluato
         return getter.get(streamEvent);
     }
 
-    public Class getType() {
-        return returnType;
-    }
 }

@@ -14,9 +14,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class CodegenExpressionNot implements CodegenExpression {
+    private final boolean isNot;
     private final CodegenExpression expression;
 
-    public CodegenExpressionNot(CodegenExpression expression) {
+    public CodegenExpressionNot(boolean isNot, CodegenExpression expression) {
+        this.isNot = isNot;
         this.expression = expression;
     }
 
@@ -25,9 +27,13 @@ public class CodegenExpressionNot implements CodegenExpression {
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
-        builder.append("!(");
-        expression.render(builder, imports);
-        builder.append(")");
+        if (isNot) {
+            builder.append("!(");
+            expression.render(builder, imports);
+            builder.append(")");
+        } else {
+            expression.render(builder, imports);
+        }
     }
 
     public void mergeClasses(Set<Class> classes) {

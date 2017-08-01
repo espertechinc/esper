@@ -30,7 +30,7 @@ public class TestAggregationServiceGroupByImpl extends TestCase {
         for (int i = 0; i < aggregators.length; i++) {
             aggregators[i] = new SupportAggregatorFactory();
         }
-        ExprEvaluator[] evaluators = new ExprEvaluator[]{new SupportExprNode(5).getExprEvaluator(), new SupportExprNode(2).getExprEvaluator()};
+        ExprEvaluator[] evaluators = new ExprEvaluator[]{new SupportExprNode(5).getForge().getExprEvaluator(), new SupportExprNode(2).getForge().getExprEvaluator()};
 
         service = new AggSvcGroupByNoAccessImpl(evaluators, aggregators);
 

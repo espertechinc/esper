@@ -30,7 +30,7 @@ public class MyFileExistsObserverFactory extends ObserverFactorySupport {
         if (expressionParameters.size() != 1) {
             throw new ObserverParameterException(message);
         }
-        if (!(expressionParameters.get(0).getExprEvaluator().getType() == String.class)) {
+        if (!(expressionParameters.get(0).getForge().getEvaluationType() == String.class)) {
             throw new ObserverParameterException(message);
         }
 

@@ -176,7 +176,7 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
                 return new ReferenceCountedMapFunctionHandler(SHARED_STATE_KEY);
             }
             if (validationContext.getFunctionName().equals("referenceCountLookup")) {
-                ExprEvaluator eval = validationContext.getParameterExpressions()[0].getExprEvaluator();
+                ExprEvaluator eval = validationContext.getParameterExpressions()[0].getForge().getExprEvaluator();
                 return new ReferenceCountLookupFunctionHandler(SHARED_STATE_KEY, eval);
             }
             throw new IllegalArgumentException("Unexpected function name '" + validationContext.getFunctionName());
@@ -232,7 +232,7 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
         }
 
         public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
-            return new RefCountedMapUpdateAgent(agentContext.getChildNodes()[0].getExprEvaluator());
+            return new RefCountedMapUpdateAgent(agentContext.getChildNodes()[0].getForge().getExprEvaluator());
         }
     }
 

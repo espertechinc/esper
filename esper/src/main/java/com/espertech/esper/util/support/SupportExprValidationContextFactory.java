@@ -25,7 +25,10 @@ public class SupportExprValidationContextFactory {
     }
 
     public static ExprValidationContext makeEmpty(ConfigurationEngineDefaults.ThreadingProfile threadingProfile) {
-        return new ExprValidationContext(null, new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE, threadingProfile, null, AggregationFactoryFactoryDefault.INSTANCE, false, "default"), null, null, null, null, null, new SupportExprEvaluatorContext(null), null, null, 1, null, null, false, false, false, false, null, false);
+        ConfigurationEngineDefaults.CodeGeneration codegenSettings = new ConfigurationEngineDefaults.CodeGeneration();
+        codegenSettings.setEnablePropertyGetter(false);
+        codegenSettings.setEnableExpression(false);
+        return new ExprValidationContext(null, new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE, threadingProfile, null, AggregationFactoryFactoryDefault.INSTANCE, codegenSettings, "default", null), null, null, null, null, null, new SupportExprEvaluatorContext(null), null, null, 1, null, null, false, false, false, false, null, false);
     }
 
     public static ExprValidationContext make(StreamTypeService streamTypeService) {

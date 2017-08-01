@@ -17,45 +17,45 @@ import java.util.Locale;
 
 public enum EnumMethodEnum {
 
-    AGGREGATE("aggregate", ExprDotEvalAggregate.class, EnumMethodEnumParams.AGGREGATE_FP),
+    AGGREGATE("aggregate", ExprDotForgeAggregate.class, EnumMethodEnumParams.AGGREGATE_FP),
 
-    ALLOF("allOf", ExprDotEvalAllOfAnyOf.class, EnumMethodEnumParams.ALLOF_ANYOF),
-    ANYOF("anyOf", ExprDotEvalAllOfAnyOf.class, EnumMethodEnumParams.ALLOF_ANYOF),
+    ALLOF("allOf", ExprDotForgeAllOfAnyOf.class, EnumMethodEnumParams.ALLOF_ANYOF),
+    ANYOF("anyOf", ExprDotForgeAllOfAnyOf.class, EnumMethodEnumParams.ALLOF_ANYOF),
 
-    TOMAP("toMap", ExprDotEvalToMap.class, EnumMethodEnumParams.MAP),
-    GROUPBY("groupBy", ExprDotEvalGroupBy.class, EnumMethodEnumParams.GROUP),
+    TOMAP("toMap", ExprDotForgeToMap.class, EnumMethodEnumParams.MAP),
+    GROUPBY("groupBy", ExprDotForgeGroupBy.class, EnumMethodEnumParams.GROUP),
 
-    COUNTOF("countOf", ExprDotEvalCountOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
-    MIN("min", ExprDotEvalMinMax.class, EnumMethodEnumParams.MIN_MAX),
-    MAX("max", ExprDotEvalMinMax.class, EnumMethodEnumParams.MIN_MAX),
-    AVERAGE("average", ExprDotEvalAverage.class, EnumMethodEnumParams.AVERAGE_SUMOF),
-    SUMOF("sumOf", ExprDotEvalSumOf.class, EnumMethodEnumParams.AVERAGE_SUMOF),
+    COUNTOF("countOf", ExprDotForgeCountOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
+    MIN("min", ExprDotForgeMinMax.class, EnumMethodEnumParams.MIN_MAX),
+    MAX("max", ExprDotForgeMinMax.class, EnumMethodEnumParams.MIN_MAX),
+    AVERAGE("average", ExprDotForgeAverage.class, EnumMethodEnumParams.AVERAGE_SUMOF),
+    SUMOF("sumOf", ExprDotForgeSumOf.class, EnumMethodEnumParams.AVERAGE_SUMOF),
 
-    MOSTFREQUENT("mostFrequent", ExprDotEvalMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
-    LEASTFREQUENT("leastFrequent", ExprDotEvalMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
+    MOSTFREQUENT("mostFrequent", ExprDotForgeMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
+    LEASTFREQUENT("leastFrequent", ExprDotForgeMostLeastFrequent.class, EnumMethodEnumParams.MOST_LEAST_FREQ),
 
-    SELECTFROM("selectFrom", ExprDotEvalSelectFrom.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
+    SELECTFROM("selectFrom", ExprDotForgeSelectFrom.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
 
-    FIRST("firstOf", ExprDotEvalFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
-    LAST("lastOf", ExprDotEvalFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
-    MINBY("minBy", ExprDotEvalMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
-    MAXBY("maxBy", ExprDotEvalMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
+    FIRST("firstOf", ExprDotForgeFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
+    LAST("lastOf", ExprDotForgeFirstLastOf.class, EnumMethodEnumParams.COUNTOF_FIRST_LAST),
+    MINBY("minBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
+    MAXBY("maxBy", ExprDotForgeMinByMaxBy.class, EnumMethodEnumParams.SELECTFROM_MINBY_MAXBY),
 
-    TAKE("take", ExprDotEvalTakeAndTakeLast.class, EnumMethodEnumParams.TAKE),
-    TAKELAST("takeLast", ExprDotEvalTakeAndTakeLast.class, EnumMethodEnumParams.TAKELAST),
-    TAKEWHILE("takeWhile", ExprDotEvalTakeWhileAndLast.class, EnumMethodEnumParams.WHERE_FP),
-    TAKEWHILELAST("takeWhileLast", ExprDotEvalTakeWhileAndLast.class, EnumMethodEnumParams.WHERE_FP),
-    ORDERBY("orderBy", ExprDotEvalOrderByAscDesc.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
-    ORDERBYDESC("orderByDesc", ExprDotEvalOrderByAscDesc.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
-    DISTINCT("distinctOf", ExprDotEvalDistinct.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
-    WHERE("where", ExprDotEvalWhere.class, EnumMethodEnumParams.WHERE_FP),
-    UNION("union", ExprDotEvalSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
-    EXCEPT("except", ExprDotEvalSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
-    INTERSECT("intersect", ExprDotEvalSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
-    REVERSE("reverse", ExprDotEvalReverse.class, EnumMethodEnumParams.NOOP_REVERSE),
-    NOOP("esperInternalNoop", ExprDotEvalNoOp.class, EnumMethodEnumParams.NOOP_REVERSE),
+    TAKE("take", ExprDotForgeTakeAndTakeLast.class, EnumMethodEnumParams.TAKE),
+    TAKELAST("takeLast", ExprDotForgeTakeAndTakeLast.class, EnumMethodEnumParams.TAKELAST),
+    TAKEWHILE("takeWhile", ExprDotForgeTakeWhileAndLast.class, EnumMethodEnumParams.WHERE_FP),
+    TAKEWHILELAST("takeWhileLast", ExprDotForgeTakeWhileAndLast.class, EnumMethodEnumParams.WHERE_FP),
+    ORDERBY("orderBy", ExprDotForgeOrderByAscDesc.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
+    ORDERBYDESC("orderByDesc", ExprDotForgeOrderByAscDesc.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
+    DISTINCT("distinctOf", ExprDotForgeDistinct.class, EnumMethodEnumParams.ORDERBY_DISTINCT),
+    WHERE("where", ExprDotForgeWhere.class, EnumMethodEnumParams.WHERE_FP),
+    UNION("union", ExprDotForgeSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
+    EXCEPT("except", ExprDotForgeSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
+    INTERSECT("intersect", ExprDotForgeSetExceptUnionIntersect.class, EnumMethodEnumParams.SET_LOGIC_FP),
+    REVERSE("reverse", ExprDotForgeReverse.class, EnumMethodEnumParams.NOOP_REVERSE),
+    NOOP("esperInternalNoop", ExprDotForgeNoOp.class, EnumMethodEnumParams.NOOP_REVERSE),
 
-    SEQUENCE_EQUAL("sequenceequal", ExprDotEvalSequenceEqual.class, EnumMethodEnumParams.SEQ_EQUALS_FP);
+    SEQUENCE_EQUAL("sequenceequal", ExprDotForgeSequenceEqual.class, EnumMethodEnumParams.SEQ_EQUALS_FP);
 
     private final String nameCamel;
     private final Class implementation;

@@ -131,7 +131,7 @@ public class RegexPatternExpandUtil {
         List<RowRegexExprNode> repeated = new ArrayList<RowRegexExprNode>();
         if (repeat.getSingle() != null) {
             validateExpression(repeat.getSingle());
-            int numRepeated = (Integer) repeat.getSingle().getExprEvaluator().evaluate(null, true, null);
+            int numRepeated = (Integer) repeat.getSingle().getForge().getExprEvaluator().evaluate(null, true, null);
             validateRange(numRepeated, 1, Integer.MAX_VALUE);
             for (int i = 0; i < numRepeated; i++) {
                 RowRegexExprNode copy = copier.copy(node, type);
@@ -145,11 +145,11 @@ public class RegexPatternExpandUtil {
         Integer upper = null;
         if (repeat.getLower() != null) {
             validateExpression(repeat.getLower());
-            lower = (Integer) repeat.getLower().getExprEvaluator().evaluate(null, true, null);
+            lower = (Integer) repeat.getLower().getForge().getExprEvaluator().evaluate(null, true, null);
         }
         if (repeat.getUpper() != null) {
             validateExpression(repeat.getUpper());
-            upper = (Integer) repeat.getUpper().getExprEvaluator().evaluate(null, true, null);
+            upper = (Integer) repeat.getUpper().getForge().getExprEvaluator().evaluate(null, true, null);
         }
 
         // handle range
@@ -243,7 +243,7 @@ public class RegexPatternExpandUtil {
         if (!repeat.isConstantResult()) {
             throw new ExprValidationException(getPatternQuantifierExpressionText(repeat) + " must return a constant value");
         }
-        if (JavaClassHelper.getBoxedType(repeat.getExprEvaluator().getType()) != Integer.class) {
+        if (JavaClassHelper.getBoxedType(repeat.getForge().getEvaluationType()) != Integer.class) {
             throw new ExprValidationException(getPatternQuantifierExpressionText(repeat) + " must return an integer-type value");
         }
     }

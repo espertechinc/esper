@@ -567,9 +567,9 @@ public class ExecOuterJoin2Stream implements RegressionExecution {
         EPStatement stmt = setupStatement(epService, listener, "left");
 
         assertEquals(String.class, stmt.getEventType().getPropertyType("s0.p00"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("s0.id"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("s0.id"));
         assertEquals(String.class, stmt.getEventType().getPropertyType("s1.p10"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("s1.id"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("s1.id"));
         assertEquals(4, stmt.getEventType().getPropertyNames().length);
     }
 

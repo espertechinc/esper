@@ -42,6 +42,11 @@ public class EventBeanUtility {
         return event.getUnderlying();
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param matchingEvents events
+     * @return event
+     */
     public static EventBean getNonemptyFirstEvent(Collection<EventBean> matchingEvents) {
         if (matchingEvents instanceof List) {
             return ((List<EventBean>) matchingEvents).get(0);

@@ -31,7 +31,7 @@ public class SubordIndexedTableLookupStrategyExprFactory implements SubordTableL
         evaluators = new ExprEvaluator[hashKeys.size()];
         String[] expressions = new String[evaluators.length];
         for (int i = 0; i < hashKeys.size(); i++) {
-            evaluators[i] = hashKeys.get(i).getHashKey().getKeyExpr().getExprEvaluator();
+            evaluators[i] = hashKeys.get(i).getHashKey().getKeyExpr().getForge().getExprEvaluator();
             expressions[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(hashKeys.get(i).getHashKey().getKeyExpr());
         }
         this.isNWOnTrigger = isNWOnTrigger;

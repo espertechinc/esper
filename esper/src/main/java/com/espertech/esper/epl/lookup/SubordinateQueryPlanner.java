@@ -12,7 +12,10 @@ package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.index.quadtree.SubordTableLookupStrategyFactoryQuadTree;
 import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
@@ -39,7 +42,8 @@ public class SubordinateQueryPlanner {
             boolean onlyUseExistingIndexes,
             String statementName,
             int statementId,
-            Annotation[] annotations) {
+            Annotation[] annotations,
+            EngineImportService engineImportService) {
         EventType[] allStreamsZeroIndexed = new EventType[]{eventTypeIndexed, filterEventType};
         EventType[] outerStreams = new EventType[]{filterEventType};
         SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(joinExpr, 1, allStreamsZeroIndexed, excludePlanHint);
@@ -51,9 +55,10 @@ public class SubordinateQueryPlanner {
 
         SubordinateQueryPlanDesc queryPlanDesc = planSubquery(outerStreams, joinedPropPlan, true, false, optionalIndexHint, isIndexShare, subqueryNumber,
                 isVirtualDataWindow, indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, statementName, statementId, annotations);
+        ExprEvaluator joinEvaluator = joinExpr == null ? null : ExprNodeCompiler.allocateEvaluator(joinExpr.getForge(), engineImportService, SubordinateQueryPlanner.class, false, statementName);
 
         if (queryPlanDesc == null) {
-            return new SubordinateWMatchExprQueryPlanResult(new SubordWMatchExprLookupStrategyFactoryAllFiltered(joinExpr.getExprEvaluator()), null);
+            return new SubordinateWMatchExprQueryPlanResult(new SubordWMatchExprLookupStrategyFactoryAllFiltered(joinEvaluator), null);
         }
 
         if (joinExpr == null) {   // it can be null when using virtual data window
@@ -61,7 +66,7 @@ public class SubordinateQueryPlanner {
                     new SubordWMatchExprLookupStrategyFactoryIndexedUnfiltered(queryPlanDesc.getLookupStrategyFactory()), queryPlanDesc.getIndexDescs());
         } else {
             return new SubordinateWMatchExprQueryPlanResult(
-                    new SubordWMatchExprLookupStrategyFactoryIndexedFiltered(joinExpr.getExprEvaluator(), queryPlanDesc.getLookupStrategyFactory()), queryPlanDesc.getIndexDescs());
+                    new SubordWMatchExprLookupStrategyFactoryIndexedFiltered(joinEvaluator, queryPlanDesc.getLookupStrategyFactory()), queryPlanDesc.getIndexDescs());
         }
     }
 

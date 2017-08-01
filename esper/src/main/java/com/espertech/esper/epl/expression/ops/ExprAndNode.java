@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 /**
  * Represents an And-condition.
  */
-public interface ExprAndNode extends ExprNode, ExprEvaluator {
+public interface ExprAndNode extends ExprNode {
 }

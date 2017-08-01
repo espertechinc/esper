@@ -15,6 +15,7 @@ import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.supportregression.bean.ISupportBaseAB;
 
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -120,6 +121,22 @@ public class MySingleRowFunction {
 
     public static String varargsObjectsWCtx(EPLMethodInvocationContext ctx, Object... values) {
         return "CTX+" + toCSV(values);
+    }
+
+    public static String varargsOnlyBoxedFloat(Float... values) {
+        return toCSV(values);
+    }
+
+    public static String varargsOnlyBoxedShort(Short... values) {
+        return toCSV(values);
+    }
+
+    public static String varargsOnlyBoxedByte(Byte... values) {
+        return toCSV(values);
+    }
+
+    public static String varargsOnlyBigInt(BigInteger... values) {
+        return toCSV(values);
     }
 
     public static String varargsW1ParamObjectsWCtx(int param, EPLMethodInvocationContext ctx, Object... values) {

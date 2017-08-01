@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 /**
  * Parser of a String input to an object.
  */
@@ -21,4 +23,6 @@ public interface SimpleTypeParser {
      * @return object value
      */
     public Object parse(String text);
+
+    CodegenExpression codegen(CodegenExpression input);
 }

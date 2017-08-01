@@ -47,16 +47,16 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
         return getMapInternal(map, index);
     }
 
-    private String getMapCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Map.class, "map", this.getClass())
-                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
-                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), constant(index)));
-    }
-
     private Object getMapInternal(Map<String, Object> map, int index) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = map.get(propertyMap);
         return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
+    }
+
+    private String getMapInternalCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").add(int.class, "index").begin()
+                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), ref("index")));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -77,20 +77,24 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
         return map.containsKey(propertyMap);
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getMapCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getMapInternalCodegen(context), underlyingExpression, constant(index));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return exprDotMethod(underlyingExpression, "containsKey", constant(propertyMap));
+    }
+
+    public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getMapInternalCodegen(context), castUnderlying(Map.class, beanExpression), key);
     }
 
     public Class getTargetType() {

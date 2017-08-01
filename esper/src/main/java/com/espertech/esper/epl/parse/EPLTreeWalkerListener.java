@@ -1390,7 +1390,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                 }
                 ASTExprHelper.addVariableReference(statementSpec, variableMetaData.getVariableName());
             } else if (contextDescriptor != null && contextDescriptor.getContextPropertyRegistry().isContextPropertyPrefix(streamOrNestedPropertyName)) {
-                exprNode = new ExprContextPropertyNode(propertyName);
+                exprNode = new ExprContextPropertyNodeImpl(propertyName);
             } else {
                 exprNode = new ExprIdentNodeImpl(propertyName, streamOrNestedPropertyName);
             }

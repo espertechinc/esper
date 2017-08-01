@@ -10,8 +10,15 @@
  */
 package com.espertech.esper.epl.enummethod.eval;
 
-public interface ExprDotEvalSumMethodFactory {
-    public ExprDotEvalSumMethod getSumAggregator();
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
-    public Class getValueType();
+public interface ExprDotEvalSumMethodFactory {
+    ExprDotEvalSumMethod getSumAggregator();
+    Class getValueType();
+
+    void codegenDeclare(CodegenBlock block);
+    void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value);
+    void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value);
+    String codegenReturn(CodegenBlock block);
 }

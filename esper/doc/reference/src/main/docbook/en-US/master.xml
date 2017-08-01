@@ -137,11 +137,7 @@
 
     <xi:include href="modules/datetimereference.xml" />
 
-    <xi:include href="modules/spatial.xml" />
-
     <xi:include href="modules/viewreference.xml" />
-
-    <xi:include href="modules/dataflow.xml" />
 
     <xi:include href="modules/api.xml" />
 
@@ -153,7 +149,13 @@
 
     <xi:include href="modules/script.xml" />
 
+    <xi:include href="modules/spatial.xml" />
+
+    <xi:include href="modules/dataflow.xml" />
+
     <xi:include href="modules/examples.xml" />
+
+    <xi:include href="modules/codegen.xml" />
 
     <xi:include href="modules/performance.xml" />
     
@@ -172,6 +174,7 @@
     <xi:include href="modules/appendix_eventrepavro.xml" />
 
     <xi:include href="modules/appendix_eventrepxml.xml" />
+    
     <xi:include href="modules/appendix_dotnet.xml" />
 
     <index/>

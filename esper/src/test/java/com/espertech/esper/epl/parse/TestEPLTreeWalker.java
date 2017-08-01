@@ -494,38 +494,38 @@ public class TestEPLTreeWalker extends TestCase {
         assertNull(spec.getUpperBounds());
 
         spec = getMatchUntilSpec("[1:10] A until (B or C)");
-        assertEquals(1, spec.getLowerBounds().getExprEvaluator().evaluate(null, true, null));
-        assertEquals(10, spec.getUpperBounds().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(1, spec.getLowerBounds().getForge().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(10, spec.getUpperBounds().getForge().getExprEvaluator().evaluate(null, true, null));
 
         spec = getMatchUntilSpec("[1 : 10] A until (B or C)");
-        assertEquals(1, spec.getLowerBounds().getExprEvaluator().evaluate(null, true, null));
-        assertEquals(10, spec.getUpperBounds().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(1, spec.getLowerBounds().getForge().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(10, spec.getUpperBounds().getForge().getExprEvaluator().evaluate(null, true, null));
 
         spec = getMatchUntilSpec("[1:10] A until (B or C)");
-        assertEquals(1, spec.getLowerBounds().getExprEvaluator().evaluate(null, true, null));
-        assertEquals(10, spec.getUpperBounds().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(1, spec.getLowerBounds().getForge().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(10, spec.getUpperBounds().getForge().getExprEvaluator().evaluate(null, true, null));
 
         spec = getMatchUntilSpec("[1:] A until (B or C)");
-        assertEquals(1, spec.getLowerBounds().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(1, spec.getLowerBounds().getForge().getExprEvaluator().evaluate(null, true, null));
         assertEquals(null, spec.getUpperBounds());
 
         spec = getMatchUntilSpec("[1 :] A until (B or C)");
-        assertEquals(1, spec.getLowerBounds().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(1, spec.getLowerBounds().getForge().getExprEvaluator().evaluate(null, true, null));
         assertEquals(null, spec.getUpperBounds());
         assertEquals(null, spec.getSingleBound());
 
         spec = getMatchUntilSpec("[:2] A until (B or C)");
         assertEquals(null, spec.getLowerBounds());
         assertEquals(null, spec.getSingleBound());
-        assertEquals(2, spec.getUpperBounds().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(2, spec.getUpperBounds().getForge().getExprEvaluator().evaluate(null, true, null));
 
         spec = getMatchUntilSpec("[: 2] A until (B or C)");
         assertEquals(null, spec.getLowerBounds());
         assertEquals(null, spec.getSingleBound());
-        assertEquals(2, spec.getUpperBounds().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(2, spec.getUpperBounds().getForge().getExprEvaluator().evaluate(null, true, null));
 
         spec = getMatchUntilSpec("[2] A until (B or C)");
-        assertEquals(2, spec.getSingleBound().getExprEvaluator().evaluate(null, true, null));
+        assertEquals(2, spec.getSingleBound().getForge().getExprEvaluator().evaluate(null, true, null));
     }
 
     private EvalMatchUntilFactoryNode getMatchUntilSpec(String text) throws Exception {
@@ -773,7 +773,7 @@ public class TestEPLTreeWalker extends TestCase {
         ViewSpec[] viewSpecs = walker.getStatementSpec().getStreamSpecs().get(0).getViewSpecs();
         ExprNode node = viewSpecs[0].getObjectParameters().get(0);
         node.validate(SupportExprValidationContextFactory.makeEmpty());
-        Object[] intParams = (Object[]) ((ExprArrayNode) node).evaluate(null, true, null);
+        Object[] intParams = (Object[]) ((ExprArrayNode) node).getForge().getExprEvaluator().evaluate(null, true, null);
         assertEquals(10, intParams[0]);
         assertEquals(11, intParams[1]);
         assertEquals(12, intParams[2]);
@@ -784,7 +784,7 @@ public class TestEPLTreeWalker extends TestCase {
         viewSpecs = walker.getStatementSpec().getStreamSpecs().get(0).getViewSpecs();
         ExprNode param = viewSpecs[0].getObjectParameters().get(0);
         param.validate(SupportExprValidationContextFactory.makeEmpty());
-        Object[] objParams = (Object[]) ((ExprArrayNode) param).evaluate(null, true, null);
+        Object[] objParams = (Object[]) ((ExprArrayNode) param).getForge().getExprEvaluator().evaluate(null, true, null);
         assertEquals(false, objParams[0]);
         assertEquals(11.2, objParams[1]);
         assertEquals("s", objParams[2]);
@@ -1205,7 +1205,7 @@ public class TestEPLTreeWalker extends TestCase {
         }
 
         tryIntervalInvalid("1.5 month",
-                "Time period expressions with month or year component require integer values, received a Double value");
+                "Time period expressions with month or year component require integer values, received a double value");
     }
 
     public void testWalkInAndBetween() throws Exception {
@@ -1335,7 +1335,7 @@ public class TestEPLTreeWalker extends TestCase {
         ExprNode exprNode = walker.getStatementSpec().getFilterRootNode().getChildNodes()[0];
         ExprBitWiseNode bitWiseNode = (ExprBitWiseNode) (exprNode);
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
-        return bitWiseNode.evaluate(null, false, null);
+        return bitWiseNode.getForge().getExprEvaluator().evaluate(null, false, null);
     }
 
     private Object tryExpression(String equation) throws Exception {
@@ -1344,7 +1344,7 @@ public class TestEPLTreeWalker extends TestCase {
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode exprNode = (walker.getStatementSpec().getFilterRootNode().getChildNodes()[0]);
         exprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprNode, SupportExprValidationContextFactory.makeEmpty());
-        return exprNode.getExprEvaluator().evaluate(null, false, null);
+        return exprNode.getForge().getExprEvaluator().evaluate(null, false, null);
     }
 
     private Object tryRelationalOp(String subExpr) throws Exception {
@@ -1353,7 +1353,7 @@ public class TestEPLTreeWalker extends TestCase {
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode filterExprNode = walker.getStatementSpec().getFilterRootNode();
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, filterExprNode, SupportExprValidationContextFactory.makeEmpty());
-        return filterExprNode.getExprEvaluator().evaluate(null, false, null);
+        return filterExprNode.getForge().getExprEvaluator().evaluate(null, false, null);
     }
 
     private SelectClauseExprRawSpec getSelectExprSpec(StatementSpecRaw statementSpec, int index) {

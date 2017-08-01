@@ -19,23 +19,33 @@ import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassN
 
 public class CodegenStatementDeclareVar extends CodegenStatementBase {
     private final Class clazz;
+    private final Class optionalTypeVariable;
     private final String var;
-    private final CodegenExpression initializer;
+    private final CodegenExpression optionalInitializer;
 
-    public CodegenStatementDeclareVar(Class clazz, String var, CodegenExpression initializer) {
+    public CodegenStatementDeclareVar(Class clazz, Class optionalTypeVariable, String var, CodegenExpression optionalInitializer) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("Class cannot be null");
+        }
         this.clazz = clazz;
+        this.optionalTypeVariable = optionalTypeVariable;
         this.var = var;
-        this.initializer = initializer;
+        this.optionalInitializer = optionalInitializer;
     }
 
     public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
-        appendClassName(builder, clazz, null, imports);
-        builder.append(" ").append(var).append("=");
-        initializer.render(builder, imports);
+        appendClassName(builder, clazz, optionalTypeVariable, imports);
+        builder.append(" ").append(var);
+        if (optionalInitializer != null) {
+            builder.append("=");
+            optionalInitializer.render(builder, imports);
+        }
     }
 
     public void mergeClasses(Set<Class> classes) {
         classes.add(clazz);
-        initializer.mergeClasses(classes);
+        if (optionalInitializer != null) {
+            optionalInitializer.mergeClasses(classes);
+        }
     }
 }

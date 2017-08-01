@@ -50,7 +50,4 @@ public class ExprConcatNodeEvalWNew implements ExprEvaluator {
         return result;
     }
 
-    public Class getType() {
-        return String.class;
-    }
 }

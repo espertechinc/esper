@@ -17,7 +17,6 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.event.EventAdapterService;
 import org.apache.avro.generic.GenericData;
 
@@ -29,6 +28,7 @@ public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter {
     private final int propertyIndex;
     private final EventType fragmentType;
     private final EventAdapterService eventAdapterService;
+    private final Class propertyType;
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
@@ -56,10 +56,11 @@ public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter {
         return null;
     }
 
-    public AvroEventBeanGetterSimple(int propertyIndex, EventType fragmentType, EventAdapterService eventAdapterService) {
+    public AvroEventBeanGetterSimple(int propertyIndex, EventType fragmentType, EventAdapterService eventAdapterService, Class propertyType) {
         this.propertyIndex = propertyIndex;
         this.fragmentType = fragmentType;
         this.eventAdapterService = eventAdapterService;
+        this.propertyType = propertyType;
     }
 
     public Object getAvroFieldValue(GenericData.Record record) throws PropertyAccessException {
@@ -91,32 +92,32 @@ public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter {
     private String getAvroFragmentCodegen(CodegenContext context) {
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentType);
-        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
-                .declareVar(Object.class, "value", codegenUnderlyingGet(ref("record"), context))
+        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+                .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), context))
                 .methodReturn(staticMethod(this.getClass(), "getFragmentAvro", ref("value"), ref(mSvc.getMemberName()), ref(mType.getMemberName())));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return CodegenExpressionBuilder.exprDotMethod(underlyingExpression, "get", constant(propertyIndex));
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return cast(propertyType, exprDotMethod(underlyingExpression, "get", constant(propertyIndex)));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         if (fragmentType == null) {
             return constantNull();
         }

@@ -17,10 +17,7 @@ import com.espertech.esper.client.context.ContextPartitionIdentifierHash;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.stmt.*;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailHash;
 import com.espertech.esper.epl.spec.ContextDetailHashItem;
@@ -165,19 +162,19 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
 
             // get first parameter
             ExprNode paramExpr = item.getFunction().getParameters().get(0);
-            ExprEvaluator eval = paramExpr.getExprEvaluator();
-            Class paramType = eval.getType();
+            ExprEvaluator eval = ExprNodeCompiler.allocateEvaluator(paramExpr.getForge(), factoryContext.getServicesContext().getEngineImportService(), ContextControllerHashFactoryBase.class, false, factoryContext.getAgentInstanceContextCreate().getStatementName());
+            Class paramType = paramExpr.getForge().getEvaluationType();
             EventPropertyGetter getter;
 
             if (hashFunction == HashFunctionEnum.CONSISTENT_HASH_CRC32) {
                 if (item.getFunction().getParameters().size() > 1 || paramType != String.class) {
-                    getter = new ContextControllerHashedGetterCRC32Serialized(factoryContext.getAgentInstanceContextCreate().getStatementContext().getStatementName(), item.getFunction().getParameters(), hashedSpec.getGranularity());
+                    getter = new ContextControllerHashedGetterCRC32Serialized(factoryContext.getAgentInstanceContextCreate().getStatementContext().getStatementName(), item.getFunction().getParameters(), hashedSpec.getGranularity(), factoryContext.getServicesContext().getEngineImportService());
                 } else {
                     getter = new ContextControllerHashedGetterCRC32Single(eval, hashedSpec.getGranularity());
                 }
             } else if (hashFunction == HashFunctionEnum.HASH_CODE) {
                 if (item.getFunction().getParameters().size() > 1) {
-                    getter = new ContextControllerHashedGetterHashMultiple(item.getFunction().getParameters(), hashedSpec.getGranularity());
+                    getter = new ContextControllerHashedGetterHashMultiple(item.getFunction().getParameters(), hashedSpec.getGranularity(), factoryContext.getServicesContext().getEngineImportService(), factoryContext.getAgentInstanceContextCreate().getStatementName());
                 } else {
                     getter = new ContextControllerHashedGetterHashSingle(eval, hashedSpec.getGranularity());
                 }

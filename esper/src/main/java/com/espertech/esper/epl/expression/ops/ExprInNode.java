@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 /**
  * Represents the in-clause (set check) function in an expression tree.
  */
-public interface ExprInNode extends ExprNode, ExprEvaluator {
+public interface ExprInNode extends ExprNode {
     public boolean isNotIn();
 
     public void validateWithoutContext() throws ExprValidationException;

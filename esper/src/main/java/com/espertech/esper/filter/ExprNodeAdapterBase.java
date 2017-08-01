@@ -10,13 +10,14 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.annotation.Annotation;
 
 public class ExprNodeAdapterBase {
     private static final Logger log = LoggerFactory.getLogger(ExprNodeAdapterBase.class);
@@ -27,11 +28,11 @@ public class ExprNodeAdapterBase {
     protected final ExprEvaluator exprNodeEval;
     protected final ExprEvaluatorContext evaluatorContext;
 
-    public ExprNodeAdapterBase(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext) {
+    public ExprNodeAdapterBase(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, EngineImportService engineImportService, Annotation[] annotations) {
         this.filterSpecId = filterSpecId;
         this.filterSpecParamPathNum = filterSpecParamPathNum;
         this.exprNode = exprNode;
-        this.exprNodeEval = exprNode.getExprEvaluator();
+        this.exprNodeEval = ExprNodeCompiler.allocateEvaluator(exprNode.getForge(), engineImportService, this.getClass(), false, evaluatorContext.getStatementName());
         this.evaluatorContext = evaluatorContext;
     }
 
@@ -53,8 +54,9 @@ public class ExprNodeAdapterBase {
             }
             return result;
         } catch (RuntimeException ex) {
-            log.error("Error evaluating expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "' statement '" + getStatementName() + "': " + ex.getMessage(), ex);
-            return false;
+            String message = "Error evaluating expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "' statement '" + getStatementName() + "': " + ex.getMessage();
+            log.error(message, ex);
+            throw new EPException(message, ex);
         }
     }
 

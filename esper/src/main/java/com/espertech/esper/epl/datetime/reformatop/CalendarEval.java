@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.epl.datetime.reformatop;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.util.Calendar;
 
 public interface CalendarEval {
-    public Object evaluateInternal(Calendar cal);
+    Object evaluateInternal(Calendar cal);
+    CodegenExpression codegen(CodegenExpression cal);
 }

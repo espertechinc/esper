@@ -10,24 +10,29 @@
  */
 package com.espertech.esper.epl.expression.table;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.table.strategy.ExprTableExprEvaluatorBase;
 
 import java.io.StringWriter;
 
-public class ExprTableIdentNode extends ExprNodeBase {
+public class ExprTableIdentNode extends ExprNodeBase implements ExprForge {
 
     private static final long serialVersionUID = -7470838423411921276L;
 
     private final String streamOrPropertyName;
     private final String unresolvedPropertyName;
-    private transient ExprEvaluator eval;
+    private transient ExprTableExprEvaluatorBase eval;
 
     public ExprTableIdentNode(String streamOrPropertyName, String unresolvedPropertyName) {
         this.streamOrPropertyName = streamOrPropertyName;
         this.unresolvedPropertyName = unresolvedPropertyName;
     }
 
-    public void setEval(ExprEvaluator eval) {
+    public void setEval(ExprTableExprEvaluatorBase eval) {
         this.eval = eval;
     }
 
@@ -53,5 +58,25 @@ public class ExprTableIdentNode extends ExprNodeBase {
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         return null;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(eval, eval.getReturnType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
+    public Class getEvaluationType() {
+        return eval.getReturnType();
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
     }
 }

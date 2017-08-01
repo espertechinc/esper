@@ -10,18 +10,18 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 public abstract class ExprDotEvalParam {
     private int parameterNum;
     private ExprNode body;
-    private ExprEvaluator bodyEvaluator;
+    private ExprForge bodyForge;
 
-    protected ExprDotEvalParam(int parameterNum, ExprNode body, ExprEvaluator bodyEvaluator) {
+    protected ExprDotEvalParam(int parameterNum, ExprNode body, ExprForge bodyForge) {
         this.parameterNum = parameterNum;
         this.body = body;
-        this.bodyEvaluator = bodyEvaluator;
+        this.bodyForge = bodyForge;
     }
 
     public int getParameterNum() {
@@ -32,7 +32,7 @@ public abstract class ExprDotEvalParam {
         return body;
     }
 
-    public ExprEvaluator getBodyEvaluator() {
-        return bodyEvaluator;
+    public ExprForge getBodyForge() {
+        return bodyForge;
     }
 }

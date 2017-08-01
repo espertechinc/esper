@@ -47,9 +47,9 @@ public class ExecEventMapProperties implements RegressionExecution {
         epService.getEPRuntime().sendEvent(theEvent, "MyArrayMap");
 
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "a,b,c,d,e".split(","), new Object[]{1, 2, 5, beans[1], p0});
-        assertEquals(int.class, stmt.getEventType().getPropertyType("a"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("b"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("c"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("a"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("b"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c"));
         assertEquals(SupportBean.class, stmt.getEventType().getPropertyType("d"));
         assertEquals(int[].class, stmt.getEventType().getPropertyType("e"));
         stmt.destroy();
@@ -65,9 +65,9 @@ public class ExecEventMapProperties implements RegressionExecution {
         epService.getEPRuntime().sendEvent(eventOuter, "MyArrayMapOuter");
 
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "a,b,c,d".split(","), new Object[]{1, 2, 5, beans[1]});
-        assertEquals(int.class, stmt.getEventType().getPropertyType("a"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("b"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("c"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("a"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("b"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c"));
         assertEquals(SupportBean.class, stmt.getEventType().getPropertyType("d"));
         assertEquals(int[].class, stmt.getEventType().getPropertyType("e"));
 
@@ -147,9 +147,9 @@ public class ExecEventMapProperties implements RegressionExecution {
         epService.getEPRuntime().sendEvent(eventOuter, "MyArrayMapTwo");
 
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0_1, n0_2});
-        assertEquals(int.class, stmt.getEventType().getPropertyType("a"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("b"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("c"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("a"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("b"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c"));
         assertEquals(Map.class, stmt.getEventType().getPropertyType("d"));
         assertEquals(Map[].class, stmt.getEventType().getPropertyType("e"));
 
@@ -159,7 +159,7 @@ public class ExecEventMapProperties implements RegressionExecution {
         epService.getEPRuntime().sendEvent(eventOuter, "MyArrayMapTwo");
 
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0_1, n0_2});
-        assertEquals(int.class, stmt.getEventType().getPropertyType("a"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("a"));
 
         stmt.destroy();
     }
@@ -190,9 +190,9 @@ public class ExecEventMapProperties implements RegressionExecution {
         assertEquals(valueE[0], n0_2[0]);
         assertEquals(valueE[1], n0_2[1]);
 
-        assertEquals(int.class, stmt.getEventType().getPropertyType("a"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("b"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("c"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("a"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("b"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c"));
         assertEquals(Map.class, stmt.getEventType().getPropertyType("d"));
         assertEquals(Map[].class, stmt.getEventType().getPropertyType("e"));
     }

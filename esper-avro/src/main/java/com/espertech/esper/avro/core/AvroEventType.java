@@ -120,7 +120,7 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
             return null;
         }
 
-        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, metadata.getPublicName(), propertyName);
         propertyGetterCodegeneratedCache.put(propertyName, getterCode);
         return getterCode;
     }
@@ -158,6 +158,17 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedPropertyName) {
+        EventPropertyGetterMappedSPI getter = getGetterMappedSPI(mappedPropertyName);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), mappedPropertyName);
+    }
+
+    public EventPropertyGetterMappedSPI getGetterMappedSPI(String mappedPropertyName) {
         PropertySetDescriptorItem desc = propertyItems.get(mappedPropertyName);
         if (desc == null || !desc.getPropertyDescriptor().isMapped()) {
             return null;
@@ -167,6 +178,17 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
     }
 
     public EventPropertyGetterIndexed getGetterIndexed(String indexedPropertyName) {
+        EventPropertyGetterIndexedSPI getter = getGetterIndexedSPI(indexedPropertyName);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), indexedPropertyName);
+    }
+
+    public EventPropertyGetterIndexedSPI getGetterIndexedSPI(String indexedPropertyName) {
         PropertySetDescriptorItem desc = propertyItems.get(indexedPropertyName);
         if (desc == null || !desc.getPropertyDescriptor().isIndexed()) {
             return null;
@@ -323,7 +345,7 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
             } else {
                 fragmentEventType = getFragmentEventTypeForField(field.schema(), eventAdapterService);
             }
-            AvroEventBeanGetterSimple getter = new AvroEventBeanGetterSimple(field.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventAdapterService);
+            AvroEventBeanGetterSimple getter = new AvroEventBeanGetterSimple(field.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventAdapterService, propertyType);
 
             EventPropertyDescriptor descriptor = new EventPropertyDescriptor(field.name(), propertyType, componentType, false, false, indexed, mapped, fragmentEventType != null);
             PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, propertyType, getter, fragmentEventType);

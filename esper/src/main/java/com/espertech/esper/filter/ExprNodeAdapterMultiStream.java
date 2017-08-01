@@ -11,9 +11,12 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.variable.VariableService;
+
+import java.lang.annotation.Annotation;
 
 /**
  * Adapter for use by {@link FilterParamIndexBooleanExpr} to evaluate boolean expressions, providing
@@ -24,8 +27,8 @@ public class ExprNodeAdapterMultiStream extends ExprNodeAdapterBaseVariables {
     protected final EventBean[] prototypeArray;
     private final ThreadLocal<EventBean[]> arrayPerThread;
 
-    public ExprNodeAdapterMultiStream(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
-        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, variableService);
+    public ExprNodeAdapterMultiStream(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EngineImportService engineImportService, EventBean[] prototype, Annotation[] annotations) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, variableService, engineImportService, annotations);
         this.prototypeArray = prototype;
 
         arrayPerThread = new ThreadLocal<EventBean[]>() {

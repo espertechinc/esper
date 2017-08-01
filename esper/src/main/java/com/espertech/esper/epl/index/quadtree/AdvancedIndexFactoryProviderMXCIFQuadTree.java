@@ -32,12 +32,12 @@ public class AdvancedIndexFactoryProviderMXCIFQuadTree extends AdvancedIndexFact
         validateParameters(indexTypeName, parameters);
 
         AdvancedIndexDesc indexDesc = new AdvancedIndexDesc(indexTypeName, columns);
-        ExprEvaluator xEval = indexDesc.getIndexedExpressions()[0].getExprEvaluator();
-        ExprEvaluator yEval = indexDesc.getIndexedExpressions()[1].getExprEvaluator();
-        ExprEvaluator widthEval = indexDesc.getIndexedExpressions()[2].getExprEvaluator();
-        ExprEvaluator heightEval = indexDesc.getIndexedExpressions()[3].getExprEvaluator();
+        ExprEvaluator xEval = indexDesc.getIndexedExpressions()[0].getForge().getExprEvaluator();
+        ExprEvaluator yEval = indexDesc.getIndexedExpressions()[1].getForge().getExprEvaluator();
+        ExprEvaluator widthEval = indexDesc.getIndexedExpressions()[2].getForge().getExprEvaluator();
+        ExprEvaluator heightEval = indexDesc.getIndexedExpressions()[3].getForge().getExprEvaluator();
         AdvancedIndexConfigStatementMXCIFQuadtree indexStatementConfigs = new AdvancedIndexConfigStatementMXCIFQuadtree(xEval, yEval, widthEval, heightEval);
 
-        return new EventAdvancedIndexProvisionDesc(indexDesc, ExprNodeUtility.getEvaluators(parameters), EventAdvancedIndexFactoryQuadTreeMXCIF.INSTANCE, indexStatementConfigs);
+        return new EventAdvancedIndexProvisionDesc(indexDesc, ExprNodeUtility.getEvaluatorsNoCompile(parameters), EventAdvancedIndexFactoryQuadTreeMXCIF.INSTANCE, indexStatementConfigs);
     }
 }

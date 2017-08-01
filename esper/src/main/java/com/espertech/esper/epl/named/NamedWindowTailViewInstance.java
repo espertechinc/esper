@@ -96,13 +96,13 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
 
         // Construct consumer view, allow a callback to this view to remove the consumer
         boolean audit = AuditEnum.STREAM.getAudit(consumerDesc.getAgentInstanceContext().getStatementContext().getAnnotations()) != null;
-        NamedWindowConsumerView consumerView = new NamedWindowConsumerView(ExprNodeUtility.getEvaluators(consumerDesc.getFilterList()), consumerDesc.getOptPropertyEvaluator(), tailView.getEventType(), consumerCallback, consumerDesc.getAgentInstanceContext(), audit);
+        NamedWindowConsumerView consumerView = new NamedWindowConsumerView(consumerDesc.getFilterEvaluators(), consumerDesc.getOptPropertyEvaluator(), tailView.getEventType(), consumerCallback, consumerDesc.getAgentInstanceContext(), audit);
 
         // indicate to virtual data window that a consumer was added
         VirtualDWView virtualDWView = rootViewInstance.getVirtualDataWindow();
         if (virtualDWView != null) {
             virtualDWView.getVirtualDataWindow().handleEvent(
-                    new VirtualDataWindowEventConsumerAdd(tailView.getEventType().getName(), consumerView, consumerDesc.getAgentInstanceContext().getStatementName(), consumerDesc.getAgentInstanceContext().getAgentInstanceId(), ExprNodeUtility.toArray(consumerDesc.getFilterList()), agentInstanceContext));
+                    new VirtualDataWindowEventConsumerAdd(tailView.getEventType().getName(), consumerView, consumerDesc.getAgentInstanceContext().getStatementName(), consumerDesc.getAgentInstanceContext().getAgentInstanceId(), consumerDesc.getFilterExpressions(), agentInstanceContext));
         }
 
         // Keep a list of consumer views per statement to accommodate joins and subqueries
@@ -279,7 +279,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
                 return indexedResult;
             }
             ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(Math.min(indexedResult.size(), 16));
-            ExprNodeUtility.applyFilterExpressionIterable(indexedResult.iterator(), filterExpr.getExprEvaluator(), exprEvaluatorContext, deque);
+            ExprNodeUtility.applyFilterExpressionIterable(indexedResult.iterator(), filterExpr.getForge().getExprEvaluator(), exprEvaluatorContext, deque);
             return deque;
         }
 
@@ -290,7 +290,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         }
         ArrayDeque<EventBean> list = new ArrayDeque<EventBean>();
         if (filterExpr != null) {
-            ExprNodeUtility.applyFilterExpressionIterable(it, filterExpr.getExprEvaluator(), agentInstanceContext, list);
+            ExprNodeUtility.applyFilterExpressionIterable(it, filterExpr.getForge().getExprEvaluator(), agentInstanceContext, list);
         } else {
             while (it.hasNext()) {
                 list.add(it.next());

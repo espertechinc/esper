@@ -74,12 +74,12 @@ public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase {
                 continue;
             }
             if (optionalMaxExpression.isConstantResult()) {
-                Number result = (Number) optionalMaxExpression.getExprEvaluator().evaluate(null, true, null);
+                Number result = (Number) optionalMaxExpression.getForge().getExprEvaluator().evaluate(null, true, null);
                 if (result != null) {
                     cachedMaxPerChild[i] = result.intValue();
                 }
             } else {
-                cachedMaxEvaluatorPerChild[i] = optionalMaxExpressions.get(i).getExprEvaluator();
+                cachedMaxEvaluatorPerChild[i] = optionalMaxExpressions.get(i).getForge().getExprEvaluator();
             }
         }
 

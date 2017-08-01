@@ -30,8 +30,8 @@ public class TestExprInNode extends TestCase {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(Boolean.class, inNodeNormal.getExprEvaluator().getType());
-        assertEquals(Boolean.class, inNodeNotIn.getExprEvaluator().getType());
+        assertEquals(Boolean.class, inNodeNormal.getForge().getEvaluationType());
+        assertEquals(Boolean.class, inNodeNotIn.getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {
@@ -54,15 +54,15 @@ public class TestExprInNode extends TestCase {
     }
 
     public void testEvaluate() throws Exception {
-        assertFalse((Boolean) inNodeNormal.evaluate(makeEvent(0), false, null));
-        assertTrue((Boolean) inNodeNormal.evaluate(makeEvent(1), false, null));
-        assertTrue((Boolean) inNodeNormal.evaluate(makeEvent(2), false, null));
-        assertFalse((Boolean) inNodeNormal.evaluate(makeEvent(3), false, null));
+        assertFalse((Boolean) inNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent(0), false, null));
+        assertTrue((Boolean) inNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent(1), false, null));
+        assertTrue((Boolean) inNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent(2), false, null));
+        assertFalse((Boolean) inNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent(3), false, null));
 
-        assertTrue((Boolean) inNodeNotIn.evaluate(makeEvent(0), false, null));
-        assertFalse((Boolean) inNodeNotIn.evaluate(makeEvent(1), false, null));
-        assertFalse((Boolean) inNodeNotIn.evaluate(makeEvent(2), false, null));
-        assertTrue((Boolean) inNodeNotIn.evaluate(makeEvent(3), false, null));
+        assertTrue((Boolean) inNodeNotIn.getForge().getExprEvaluator().evaluate(makeEvent(0), false, null));
+        assertFalse((Boolean) inNodeNotIn.getForge().getExprEvaluator().evaluate(makeEvent(1), false, null));
+        assertFalse((Boolean) inNodeNotIn.getForge().getExprEvaluator().evaluate(makeEvent(2), false, null));
+        assertTrue((Boolean) inNodeNotIn.getForge().getExprEvaluator().evaluate(makeEvent(3), false, null));
     }
 
     public void testEquals() throws Exception {

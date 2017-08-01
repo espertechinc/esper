@@ -91,7 +91,7 @@ public class ExecFilterExpressionsOptimizable implements RegressionExecution {
         tryInArrayContextProvided(epService);
 
         SupportMessageAssertUtil.tryInvalid(epService, "select * from pattern[every a=MyEventInKeywordValue -> SupportBean(intPrimitive in (a.longs))]",
-                "Implicit conversion from datatype 'long' to 'int' for property 'intPrimitive' is not allowed (strict filter type coercion)");
+                "Implicit conversion from datatype 'long' to 'Integer' for property 'intPrimitive' is not allowed (strict filter type coercion)");
     }
 
     private void runAssertionOptimizablePerf(EPServiceProvider epService) throws Exception {

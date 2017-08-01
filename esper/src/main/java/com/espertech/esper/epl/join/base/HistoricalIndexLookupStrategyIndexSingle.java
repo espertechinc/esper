@@ -30,7 +30,7 @@ public class HistoricalIndexLookupStrategyIndexSingle implements HistoricalIndex
 
     public HistoricalIndexLookupStrategyIndexSingle(int lookupStream, QueryGraphValueEntryHashKeyed hashKey) {
         this.eventsPerStream = new EventBean[lookupStream + 1];
-        this.evaluator = hashKey.getKeyExpr().getExprEvaluator();
+        this.evaluator = hashKey.getKeyExpr().getForge().getExprEvaluator();
         this.lookupStream = lookupStream;
     }
 

@@ -17,6 +17,7 @@ import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContex
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
@@ -54,11 +55,11 @@ public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, 
             throw new ViewParameterException(getViewParamMessage());
         }
 
-        if (!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) {
+        if (!JavaClassHelper.isNumeric(validated[0].getForge().getEvaluationType())) {
             throw new ViewParameterException(getViewParamMessage());
         }
         timestampExpression = validated[0];
-        timestampExpressionEval = timestampExpression.getExprEvaluator();
+        timestampExpressionEval = ExprNodeCompiler.allocateEvaluator(timestampExpression.getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
         ViewFactorySupport.assertReturnsNonConstant(getViewName(), validated[0], 0);
 
         timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), statementContext, viewParameters.get(1), getViewParamMessage(), 1);

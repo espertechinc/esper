@@ -14,6 +14,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.regression.client.ExecClientAudit;
 import com.espertech.esper.supportregression.bean.SupportBeanSimple;
 import com.espertech.esper.supportregression.event.SupportXML;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
@@ -24,6 +25,8 @@ import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -38,6 +41,8 @@ import static com.espertech.esper.supportregression.event.SupportEventInfra.*;
 import static org.junit.Assert.*;
 
 public class ExecEventInfraPropertyUnderlyingSimple implements RegressionExecution {
+
+    private static final Logger log = LoggerFactory.getLogger(ExecEventInfraPropertyUnderlyingSimple.class);
 
     public void configure(Configuration configuration) {
         addMapEventType(configuration);
@@ -57,9 +62,10 @@ public class ExecEventInfraPropertyUnderlyingSimple implements RegressionExecuti
         };
 
         for (Pair<String, FunctionSendEventIntString> pair : pairs) {
+            log.info("Asserting type " + pair.getFirst());
             runAssertionPassUnderlying(epService, pair.getFirst(), pair.getSecond());
             runAssertionPropertiesWGetter(epService, pair.getFirst(), pair.getSecond());
-            runAssertionTypeValidProp(epService, pair.getFirst(), pair.getSecond() == FMAP || pair.getSecond() == FXML || pair.getSecond() == FOA);
+            runAssertionTypeValidProp(epService, pair.getFirst(), pair.getSecond() == FMAP || pair.getSecond() == FXML || pair.getSecond() == FOA || pair.getSecond() == FAVRO);
             runAssertionTypeInvalidProp(epService, pair.getFirst(), pair.getSecond() == FXML);
         }
     }

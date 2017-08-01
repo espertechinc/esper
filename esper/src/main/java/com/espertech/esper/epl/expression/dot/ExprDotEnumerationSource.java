@@ -10,21 +10,21 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumeration;
+import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
 import com.espertech.esper.epl.rettype.EPType;
 
 public class ExprDotEnumerationSource {
     private final EPType returnType;
     private final Integer streamOfProviderIfApplicable;
-    private final ExprEvaluatorEnumeration enumeration;
+    private final ExprEnumerationEval enumeration;
 
-    public ExprDotEnumerationSource(EPType returnType, Integer streamOfProviderIfApplicable, ExprEvaluatorEnumeration enumeration) {
+    public ExprDotEnumerationSource(EPType returnType, Integer streamOfProviderIfApplicable, ExprEnumerationEval enumeration) {
         this.returnType = returnType;
         this.streamOfProviderIfApplicable = streamOfProviderIfApplicable;
         this.enumeration = enumeration;
     }
 
-    public ExprEvaluatorEnumeration getEnumeration() {
+    public ExprEnumerationEval getEnumeration() {
         return enumeration;
     }
 

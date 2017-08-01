@@ -28,9 +28,7 @@ import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.core.*;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
@@ -85,6 +83,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
     protected final SubSelectStrategyCollection subSelectStrategyCollection;
     protected final ViewResourceDelegateVerified viewResourceDelegate;
     protected final OutputProcessViewFactory outputProcessViewFactory;
+    protected final ExprEvaluator filterRootNodeEvaluator;
 
     public StatementAgentInstanceFactorySelect(int numStreams, ViewableActivator[] eventStreamParentViewableActivators, StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, StreamTypeService typeService, ViewFactoryChain[] unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorFactoryDesc, StreamJoinAnalysisResult joinAnalysisResult, boolean recoveringResilient, JoinSetComposerPrototype joinSetComposerPrototype, SubSelectStrategyCollection subSelectStrategyCollection, ViewResourceDelegateVerified viewResourceDelegate, OutputProcessViewFactory outputProcessViewFactory) {
         super(statementSpec.getAnnotations());
@@ -101,6 +100,12 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         this.subSelectStrategyCollection = subSelectStrategyCollection;
         this.viewResourceDelegate = viewResourceDelegate;
         this.outputProcessViewFactory = outputProcessViewFactory;
+
+        if (statementSpec.getFilterRootNode() != null) {
+            filterRootNodeEvaluator = ExprNodeCompiler.allocateEvaluator(statementSpec.getFilterRootNode().getForge(), statementContext.getEngineImportService(), StatementAgentInstanceFactorySelect.class, false, statementContext.getStatementName());
+        } else {
+            filterRootNodeEvaluator = null;
+        }
     }
 
     public ViewResourceDelegateVerified getViewResourceDelegate() {
@@ -445,8 +450,8 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         Viewable finalView = view;
 
         // Add filter view that evaluates the filter expression
-        if (statementSpec.getFilterRootNode() != null) {
-            FilterExprView filterView = new FilterExprView(statementSpec.getFilterRootNode(), statementSpec.getFilterRootNode().getExprEvaluator(), agentInstanceContext);
+        if (filterRootNodeEvaluator != null) {
+            FilterExprView filterView = new FilterExprView(statementSpec.getFilterRootNode(), filterRootNodeEvaluator, agentInstanceContext);
             finalView.addView(filterView);
             finalView = filterView;
         }

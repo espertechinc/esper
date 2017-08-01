@@ -35,7 +35,4 @@ public class ExprNodeUtilUnderlyingEvaluatorTable implements ExprEvaluator {
         return tableMetadata.getEventToPublic().convertToUnd(event, eventsPerStream, isNewData, context);
     }
 
-    public Class getType() {
-        return resultType;
-    }
 }

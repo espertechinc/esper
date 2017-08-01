@@ -33,11 +33,11 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
 
         if (rangeProp.getType().isRange()) {
             QueryGraphValueEntryRangeIn rangeIn = (QueryGraphValueEntryRangeIn) rangeProp;
-            ExprEvaluator start = rangeIn.getExprStart().getExprEvaluator();
+            ExprEvaluator start = rangeIn.getExprStart().getForge().getExprEvaluator();
             expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(rangeIn.getExprStart()));
             boolean includeStart = rangeProp.getType().isIncludeStart();
 
-            ExprEvaluator end = rangeIn.getExprEnd().getExprEvaluator();
+            ExprEvaluator end = rangeIn.getExprEnd().getForge().getExprEvaluator();
             expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(rangeIn.getExprEnd()));
             boolean includeEnd = rangeProp.getType().isIncludeEnd();
 
@@ -48,7 +48,7 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
             }
         } else {
             QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeProp;
-            ExprEvaluator key = relOp.getExpression().getExprEvaluator();
+            ExprEvaluator key = relOp.getExpression().getForge().getExprEvaluator();
             expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(relOp.getExpression()));
             if (rangeProp.getType() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
                 strategy = new CompositeAccessStrategyGE(isNWOnTrigger, lookupStream, numStreams, key, coercionType);

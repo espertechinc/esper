@@ -25,7 +25,7 @@ public class ExprMethodAggUtil {
                 evaluator = getWildcardEvaluator(typesPerStream, join);
             } else {
                 // Use the evaluation node under the aggregation node to obtain the aggregation value
-                evaluator = childNodes[0].getExprEvaluator();
+                evaluator = childNodes[0].getForge().getExprEvaluator();
             }
         } else {
             // For aggregation that doesn't evaluate any particular sub-expression, return null on evaluation
@@ -34,9 +34,6 @@ public class ExprMethodAggUtil {
                     return null;
                 }
 
-                public Class getType() {
-                    return null;
-                }
             };
         }
         return evaluator;
@@ -51,7 +48,7 @@ public class ExprMethodAggUtil {
             if (node instanceof ExprWildcard) {
                 evaluators[count] = getWildcardEvaluator(typesPerStream, join);
             } else {
-                evaluators[count] = node.getExprEvaluator();
+                evaluators[count] = node.getForge().getExprEvaluator();
             }
             count++;
         }
@@ -65,9 +62,6 @@ public class ExprMethodAggUtil {
                 return values;
             }
 
-            public Class getType() {
-                return Object[].class;
-            }
         };
     }
 
@@ -85,9 +79,6 @@ public class ExprMethodAggUtil {
                 return event.getUnderlying();
             }
 
-            public Class getType() {
-                return returnType;
-            }
         };
     }
 }

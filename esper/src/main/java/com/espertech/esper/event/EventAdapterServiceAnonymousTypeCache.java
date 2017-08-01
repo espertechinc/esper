@@ -27,7 +27,7 @@ public class EventAdapterServiceAnonymousTypeCache {
 
     public synchronized EventType addReturnExistingAnonymousType(EventType requiredType) {
         // only EventTypeSPI compliant implementations considered
-        if (!(requiredType instanceof EventTypeSPI)) {
+        if (!(requiredType instanceof EventTypeSPI) || requiredType instanceof WrapperEventType) {
             return requiredType;
         }
 

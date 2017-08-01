@@ -97,12 +97,13 @@ public class StatementSelectionUtil {
             return true;
         }
 
-        ExprEvaluator evaluator = expression.getExprEvaluator();
-        if (JavaClassHelper.getBoxedType(evaluator.getType()) != Boolean.class) {
+        Class returnType = expression.getForge().getEvaluationType();
+        if (JavaClassHelper.getBoxedType(returnType) != Boolean.class) {
             throw new EPException("Invalid expression, expected a boolean return type for expression and received '" +
-                    JavaClassHelper.getClassNameFullyQualPretty(evaluator.getType()) +
+                    JavaClassHelper.getClassNameFullyQualPretty(returnType) +
                     "' for expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expression) + "'");
         }
+        ExprEvaluator evaluator = expression.getForge().getExprEvaluator();
 
         try {
             StatementRow row = getRow(stmt);

@@ -16,6 +16,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.util.TimePeriod;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
@@ -63,6 +67,8 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprNodeUtility {
 
@@ -228,7 +234,7 @@ public class ExprNodeUtility {
     }
 
     public static void applyFilterExpressionsIterable(Iterable<EventBean> iterable, List<ExprNode> filterExpressions, ExprEvaluatorContext exprEvaluatorContext, Collection<EventBean> eventsInWindow) {
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluators(filterExpressions);
+        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsNoCompile(filterExpressions);
         EventBean[] events = new EventBean[1];
         for (EventBean theEvent : iterable) {
             events[0] = theEvent;
@@ -660,18 +666,10 @@ public class ExprNodeUtility {
         return new ExprIdentNodeImpl(typesPerStream[streamId], property, streamId);
     }
 
-    public static Class[] getExprResultTypes(ExprEvaluator[] evaluators) {
-        Class[] returnTypes = new Class[evaluators.length];
-        for (int i = 0; i < evaluators.length; i++) {
-            returnTypes[i] = evaluators[i].getType();
-        }
-        return returnTypes;
-    }
-
     public static Class[] getExprResultTypes(List<ExprNode> expressions) {
         Class[] returnTypes = new Class[expressions.size()];
         for (int i = 0; i < expressions.size(); i++) {
-            returnTypes[i] = expressions.get(i).getExprEvaluator().getType();
+            returnTypes[i] = expressions.get(i).getForge().getEvaluationType();
         }
         return returnTypes;
     }
@@ -690,11 +688,11 @@ public class ExprNodeUtility {
                                                                              TableService tableService,
                                                                              String engineURI) throws ExprValidationException {
         Class[] paramTypes = new Class[parameters.size()];
-        ExprEvaluator[] childEvals = new ExprEvaluator[parameters.size()];
+        ExprForge[] childForges = new ExprForge[parameters.size()];
         int count = 0;
         boolean[] allowEventBeanType = new boolean[parameters.size()];
         boolean[] allowEventBeanCollType = new boolean[parameters.size()];
-        ExprEvaluator[] childEvalsEventBeanReturnTypes = new ExprEvaluator[parameters.size()];
+        ExprForge[] childEvalsEventBeanReturnTypesForges = new ExprForge[parameters.size()];
         boolean allConstants = true;
         for (ExprNode childNode : parameters) {
             if (!EnumMethodEnum.isEnumerationMethod(methodName) && childNode instanceof ExprLambdaGoesNode) {
@@ -704,8 +702,8 @@ public class ExprNodeUtility {
                 if (wildcardType == null || !allowWildcard) {
                     throw new ExprValidationException("Failed to resolve wildcard parameter to a given event type");
                 }
-                childEvals[count] = new ExprNodeUtilExprEvalStreamNumUnd(0, wildcardType.getUnderlyingType());
-                childEvalsEventBeanReturnTypes[count] = new ExprNodeUtilExprEvalStreamNumEvent(0);
+                childForges[count] = new ExprNodeUtilExprStreamNumUnd(0, wildcardType.getUnderlyingType());
+                childEvalsEventBeanReturnTypesForges[count] = new ExprNodeUtilExprStreamNumEvent(0);
                 paramTypes[count] = wildcardType.getUnderlyingType();
                 allowEventBeanType[count] = true;
                 allConstants = false;
@@ -716,41 +714,41 @@ public class ExprNodeUtility {
                 ExprStreamUnderlyingNode und = (ExprStreamUnderlyingNode) childNode;
                 TableMetadata tableMetadata = tableService.getTableMetadataFromEventType(und.getEventType());
                 if (tableMetadata == null) {
-                    childEvals[count] = childNode.getExprEvaluator();
-                    childEvalsEventBeanReturnTypes[count] = new ExprNodeUtilExprEvalStreamNumEvent(und.getStreamId());
+                    childForges[count] = childNode.getForge();
+                    childEvalsEventBeanReturnTypesForges[count] = new ExprNodeUtilExprStreamNumEvent(und.getStreamId());
                 } else {
-                    childEvals[count] = new BindProcessorEvaluatorStreamTable(und.getStreamId(), und.getEventType().getUnderlyingType(), tableMetadata);
-                    childEvalsEventBeanReturnTypes[count] = new ExprNodeUtilExprEvalStreamNumEventTable(und.getStreamId(), tableMetadata);
+                    childForges[count] = new BindProcessorEvaluatorStreamTable(und.getStreamId(), und.getEventType().getUnderlyingType(), tableMetadata);
+                    childEvalsEventBeanReturnTypesForges[count] = new ExprNodeUtilExprStreamNumEventTable(und.getStreamId(), tableMetadata);
                 }
-                paramTypes[count] = childEvals[count].getType();
+                paramTypes[count] = childForges[count].getEvaluationType();
                 allowEventBeanType[count] = true;
                 allConstants = false;
                 count++;
                 continue;
             }
-            if (childNode instanceof ExprEvaluatorEnumeration) {
-                ExprEvaluatorEnumeration enumeration = (ExprEvaluatorEnumeration) childNode;
+            if (childNode.getForge() instanceof ExprEnumerationForge) {
+                ExprEnumerationForge enumeration = (ExprEnumerationForge) childNode.getForge();
                 EventType eventType = enumeration.getEventTypeSingle(eventAdapterService, statementId);
-                childEvals[count] = childNode.getExprEvaluator();
-                paramTypes[count] = childEvals[count].getType();
+                childForges[count] = childNode.getForge();
+                paramTypes[count] = childForges[count].getEvaluationType();
                 allConstants = false;
                 if (eventType != null) {
-                    childEvalsEventBeanReturnTypes[count] = new ExprNodeUtilExprEvalStreamNumEnumSingle(enumeration);
+                    childEvalsEventBeanReturnTypesForges[count] = new ExprNodeUtilExprStreamNumEnumSingleForge(enumeration);
                     allowEventBeanType[count] = true;
                     count++;
                     continue;
                 }
                 EventType eventTypeColl = enumeration.getEventTypeCollection(eventAdapterService, statementId);
                 if (eventTypeColl != null) {
-                    childEvalsEventBeanReturnTypes[count] = new ExprNodeUtilExprEvalStreamNumEnumColl(enumeration);
+                    childEvalsEventBeanReturnTypesForges[count] = new ExprNodeUtilExprStreamNumEnumCollForge(enumeration);
                     allowEventBeanCollType[count] = true;
                     count++;
                     continue;
                 }
             }
-            ExprEvaluator eval = childNode.getExprEvaluator();
-            childEvals[count] = eval;
-            paramTypes[count] = eval.getType();
+
+            paramTypes[count] = childNode.getForge().getEvaluationType();
+            childForges[count] = childNode.getForge();
             count++;
             if (!(childNode.isConstantResult())) {
                 allConstants = false;
@@ -776,7 +774,7 @@ public class ExprNodeUtility {
         if (CollectionUtil.isAnySet(allowEventBeanType)) {
             for (int i = 0; i < parameters.size(); i++) {
                 if (allowEventBeanType[i] && method.getParameterTypes()[i] == EventBean.class) {
-                    childEvals[i] = childEvalsEventBeanReturnTypes[i];
+                    childForges[i] = childEvalsEventBeanReturnTypesForges[i];
                 }
             }
         }
@@ -785,7 +783,7 @@ public class ExprNodeUtility {
         if (CollectionUtil.isAnySet(allowEventBeanCollType)) {
             for (int i = 0; i < parameters.size(); i++) {
                 if (allowEventBeanCollType[i] && method.getParameterTypes()[i] == Collection.class) {
-                    childEvals[i] = childEvalsEventBeanReturnTypes[i];
+                    childForges[i] = childEvalsEventBeanReturnTypesForges[i];
                 }
             }
         }
@@ -793,7 +791,8 @@ public class ExprNodeUtility {
         // add an evaluator if the method expects a context object
         if (!method.isVarArgs() && method.getParameterTypes().length > 0 &&
                 method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
-            childEvals = (ExprEvaluator[]) CollectionUtil.arrayExpandAddSingle(childEvals, new ExprNodeUtilExprEvalMethodContext(engineURI, functionName, eventAdapterService));
+            ExprNodeUtilExprMethodContext node = new ExprNodeUtilExprMethodContext(engineURI, functionName, eventAdapterService);
+            childForges = (ExprForge[]) CollectionUtil.arrayExpandAddSingle(childForges, node);
         }
 
         // handle varargs
@@ -801,17 +800,19 @@ public class ExprNodeUtility {
             // handle context parameter
             int numMethodParams = method.getParameterTypes().length;
             if (numMethodParams > 1 && method.getParameterTypes()[numMethodParams - 2] == EPLMethodInvocationContext.class) {
-                ExprEvaluator[] rewritten = new ExprEvaluator[childEvals.length + 1];
-                System.arraycopy(childEvals, 0, rewritten, 0, numMethodParams - 2);
-                rewritten[numMethodParams - 2] = new ExprNodeUtilExprEvalMethodContext(engineURI, functionName, eventAdapterService);
-                System.arraycopy(childEvals, numMethodParams - 2, rewritten, numMethodParams - 1, childEvals.length - (numMethodParams - 2));
-                childEvals = rewritten;
+                ExprForge[] rewrittenForges = new ExprForge[childForges.length + 1];
+                System.arraycopy(childForges, 0, rewrittenForges, 0, numMethodParams - 2);
+                ExprNodeUtilExprMethodContext node = new ExprNodeUtilExprMethodContext(engineURI, functionName, eventAdapterService);
+                rewrittenForges[numMethodParams - 2] = node;
+                System.arraycopy(childForges, numMethodParams - 2, rewrittenForges, numMethodParams - 1, childForges.length - (numMethodParams - 2));
+                childForges = rewrittenForges;
             }
 
-            childEvals = makeVarargArrayEval(method, childEvals);
+            Pair<ExprForge[], ExprEvaluator[]> pair = makeVarargArrayEval(method, childForges);
+            childForges = pair.getFirst();
         }
 
-        return new ExprNodeUtilMethodDesc(allConstants, paramTypes, childEvals, method, staticMethod, null);
+        return new ExprNodeUtilMethodDesc(allConstants, childForges, method, staticMethod);
     }
 
     public static void validatePlainExpression(ExprNodeOrigin origin, ExprNode expression) throws ExprValidationException {
@@ -923,10 +924,10 @@ public class ExprNodeUtility {
         return propertyNames;
     }
 
-    public static Class[] getExprResultTypes(ExprNode[] groupByNodes) {
-        Class[] types = new Class[groupByNodes.length];
+    public static Class[] getExprResultTypes(ExprNode[] nodes) {
+        Class[] types = new Class[nodes.length];
         for (int i = 0; i < types.length; i++) {
-            types[i] = groupByNodes[i].getExprEvaluator().getType();
+            types[i] = nodes[i].getForge().getEvaluationType();
         }
         return types;
     }
@@ -1022,7 +1023,7 @@ public class ExprNodeUtility {
         }
 
         ExprNode childNode = namedParameterNode.getChildNodes()[0];
-        Class returnType = JavaClassHelper.getBoxedType(childNode.getExprEvaluator().getType());
+        Class returnType = JavaClassHelper.getBoxedType(childNode.getForge().getEvaluationType());
 
         boolean found = false;
         for (Class expectedType : expectedTypes) {
@@ -1090,6 +1091,16 @@ public class ExprNodeUtility {
         } catch (Exception ex) {
             log.warn("Unexpected exception analyzing filterable expression '" + toExpressionStringMinPrecedenceSafe(filterExpression) + "': " + ex.getMessage(), ex);
         }
+    }
+
+    public static void checkValidated(ExprForge forge) {
+        if (forge == null) {
+            throw checkValidatedException();
+        }
+    }
+
+    public static IllegalStateException checkValidatedException() {
+        return new IllegalStateException("Expression has not been validated");
     }
 
     /**
@@ -1239,7 +1250,7 @@ public class ExprNodeUtility {
         return propertiesAggregated;
     }
 
-    public static ExprEvaluator[] getEvaluators(ExprNode[] exprNodes) {
+    public static ExprEvaluator[] getEvaluatorsMayCompile(ExprNode[] exprNodes, EngineImportService engineImportService, Class requestor, boolean isFireAndForget, String statementName) {
         if (exprNodes == null) {
             return null;
         }
@@ -1247,16 +1258,85 @@ public class ExprNodeUtility {
         for (int i = 0; i < exprNodes.length; i++) {
             ExprNode node = exprNodes[i];
             if (node != null) {
-                eval[i] = node.getExprEvaluator();
+                eval[i] = ExprNodeCompiler.allocateEvaluator(node.getForge(), engineImportService, requestor, isFireAndForget, statementName);
             }
         }
         return eval;
     }
 
-    public static ExprEvaluator[] getEvaluators(List<ExprNode> childNodes) {
+    public static ExprEvaluator[] getEvaluatorsMayCompile(List<ExprNode> exprNodes, EngineImportService engineImportService, Class requestor, boolean isFireAndForget, String statementName) {
+        if (exprNodes == null) {
+            return null;
+        }
+        ExprEvaluator[] eval = new ExprEvaluator[exprNodes.size()];
+        for (int i = 0; i < exprNodes.size(); i++) {
+            ExprNode node = exprNodes.get(i);
+            if (node != null) {
+                eval[i] = ExprNodeCompiler.allocateEvaluator(node.getForge(), engineImportService, requestor, isFireAndForget, statementName);
+            }
+        }
+        return eval;
+    }
+
+    public static ExprEvaluator[] getEvaluatorsMayCompile(ExprForge[] forges, EngineImportService engineImportService, Class requestor, boolean isFireAndForget, String statementName) {
+        if (forges == null) {
+            return null;
+        }
+        ExprEvaluator[] eval = new ExprEvaluator[forges.length];
+        for (int i = 0; i < forges.length; i++) {
+            if (forges[i] != null) {
+                eval[i] = ExprNodeCompiler.allocateEvaluator(forges[i], engineImportService, requestor, isFireAndForget, statementName);
+            }
+        }
+        return eval;
+    }
+
+    public static ExprEvaluator[] getEvaluatorsNoCompile(ExprNode[] exprNodes) {
+        if (exprNodes == null) {
+            return null;
+        }
+        ExprEvaluator[] eval = new ExprEvaluator[exprNodes.length];
+        for (int i = 0; i < exprNodes.length; i++) {
+            ExprNode node = exprNodes[i];
+            if (node != null) {
+                eval[i] = node.getForge().getExprEvaluator();
+            }
+        }
+        return eval;
+    }
+
+    public static ExprForge[] getForges(ExprNode[] exprNodes) {
+        if (exprNodes == null) {
+            return null;
+        }
+        ExprForge[] forge = new ExprForge[exprNodes.length];
+        for (int i = 0; i < exprNodes.length; i++) {
+            ExprNode node = exprNodes[i];
+            if (node != null) {
+                forge[i] = node.getForge();
+            }
+        }
+        return forge;
+    }
+
+    public static ExprEvaluator[] getEvaluatorsNoCompile(ExprForge[] forges) {
+        if (forges == null) {
+            return null;
+        }
+        ExprEvaluator[] eval = new ExprEvaluator[forges.length];
+        for (int i = 0; i < forges.length; i++) {
+            ExprForge forge = forges[i];
+            if (forge != null) {
+                eval[i] = forge.getExprEvaluator();
+            }
+        }
+        return eval;
+    }
+
+    public static ExprEvaluator[] getEvaluatorsNoCompile(List<ExprNode> childNodes) {
         ExprEvaluator[] eval = new ExprEvaluator[childNodes.size()];
         for (int i = 0; i < childNodes.size(); i++) {
-            eval[i] = childNodes.get(i).getExprEvaluator();
+            eval[i] = childNodes.get(i).getForge().getExprEvaluator();
         }
         return eval;
     }
@@ -1555,7 +1635,7 @@ public class ExprNodeUtility {
         for (ExprNode parameters : scheduleSpecExpressionList) {
             ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(context.getEngineURI(), false), context.getEngineImportService(), context.getStatementExtensionServicesContext(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContextStmt, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, allowBindingConsumption, false, null, false);
             ExprNode node = ExprNodeUtility.getValidatedSubtree(origin, parameters, validationContext);
-            expressions[count++] = node.getExprEvaluator();
+            expressions[count++] = ExprNodeCompiler.allocateEvaluator(node.getForge(), context.getEngineImportService(), ExprNodeUtility.class, false, context.getStatementName());
         }
 
         if (expressions.length <= 4 || expressions.length >= 8) {
@@ -1627,33 +1707,38 @@ public class ExprNodeUtility {
         return propertiesGroupBy;
     }
 
-    private static ExprEvaluator[] makeVarargArrayEval(Method method, final ExprEvaluator[] childEvals) {
+    private static Pair<ExprForge[], ExprEvaluator[]> makeVarargArrayEval(Method method, final ExprForge[] childForges) {
         ExprEvaluator[] evals = new ExprEvaluator[method.getParameterTypes().length];
+        ExprForge[] forges = new ExprForge[method.getParameterTypes().length];
         Class varargClass = method.getParameterTypes()[method.getParameterTypes().length - 1].getComponentType();
         Class varargClassBoxed = JavaClassHelper.getBoxedType(varargClass);
         if (method.getParameterTypes().length > 1) {
-            System.arraycopy(childEvals, 0, evals, 0, evals.length - 1);
+            System.arraycopy(childForges, 0, forges, 0, forges.length - 1);
         }
-        final int varargArrayLength = childEvals.length - method.getParameterTypes().length + 1;
+        final int varargArrayLength = childForges.length - method.getParameterTypes().length + 1;
 
         // handle passing array along
         if (varargArrayLength == 1) {
-            ExprEvaluator last = childEvals[method.getParameterTypes().length - 1];
-            Class lastReturns = last.getType();
+            ExprForge lastForge = childForges[method.getParameterTypes().length - 1];
+            Class lastReturns = lastForge.getEvaluationType();
             if (lastReturns != null && lastReturns.isArray()) {
-                evals[method.getParameterTypes().length - 1] = last;
-                return evals;
+                forges[method.getParameterTypes().length - 1] = lastForge;
+                return new Pair<>(forges, evals);
             }
         }
 
         // handle parameter conversion to vararg parameter
-        ExprEvaluator[] varargEvals = new ExprEvaluator[varargArrayLength];
-        SimpleNumberCoercer[] coercers = new SimpleNumberCoercer[varargEvals.length];
+        ExprForge[] varargForges = new ExprForge[varargArrayLength];
+        SimpleNumberCoercer[] coercers = new SimpleNumberCoercer[varargForges.length];
         boolean needCoercion = false;
         for (int i = 0; i < varargArrayLength; i++) {
-            int childEvalIndex = i + method.getParameterTypes().length - 1;
-            Class resultType = childEvals[childEvalIndex].getType();
-            varargEvals[i] = childEvals[childEvalIndex];
+            int childIndex = i + method.getParameterTypes().length - 1;
+            Class resultType = childForges[childIndex].getEvaluationType();
+            varargForges[i] = childForges[childIndex];
+
+            if (resultType == null && !varargClass.isPrimitive()) {
+                continue;
+            }
 
             if (JavaClassHelper.isSubclassOrImplementsInterface(resultType, varargClass)) {
                 // no need to coerce
@@ -1666,27 +1751,80 @@ public class ExprNodeUtility {
             }
         }
 
-        ExprEvaluator varargEval;
-        if (!needCoercion) {
-            varargEval = new VarargOnlyArrayEvalNoCoerce(varargEvals, varargClass);
-        } else {
-            varargEval = new VarargOnlyArrayEvalWithCoerce(varargEvals, varargClass, coercers);
+        ExprForge varargForge = new VarargOnlyArrayForge(varargForges, varargClass, needCoercion ? coercers : null);
+        forges[method.getParameterTypes().length - 1] = varargForge;
+        evals[method.getParameterTypes().length - 1] = varargForge.getExprEvaluator();
+        return new Pair<>(forges, evals);
+    }
+
+    private static class VarargOnlyArrayForge implements ExprForge, ExprNodeRenderable {
+        private final ExprForge[] forges;
+        protected final Class varargClass;
+        protected final SimpleNumberCoercer[] optionalCoercers;
+
+        public VarargOnlyArrayForge(ExprForge[] forges, Class varargClass, SimpleNumberCoercer[] optionalCoercers) {
+            this.forges = forges;
+            this.varargClass = varargClass;
+            this.optionalCoercers = optionalCoercers;
         }
-        evals[method.getParameterTypes().length - 1] = varargEval;
-        return evals;
+
+        public ExprEvaluator getExprEvaluator() {
+            if (optionalCoercers == null) {
+                return new VarargOnlyArrayEvalNoCoerce(this, ExprNodeUtility.getEvaluatorsNoCompile(forges));
+            }
+            return new VarargOnlyArrayForgeWithCoerce(this, ExprNodeUtility.getEvaluatorsNoCompile(forges));
+        }
+
+        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+            Class arrayType = JavaClassHelper.getArrayType(varargClass);
+            CodegenBlock block = context.addMethod(arrayType, VarargOnlyArrayForge.class).add(params).begin()
+                    .declareVar(arrayType, "array", newArray(varargClass, constant(forges.length)));
+            for (int i = 0; i < forges.length; i++) {
+                CodegenExpression expression = forges[i].evaluateCodegen(params, context);
+                CodegenExpression assignment;
+                if (optionalCoercers == null || optionalCoercers[i] == null) {
+                    assignment = expression;
+                } else {
+                    Class evalType = forges[i].getEvaluationType();
+                    if (evalType.isPrimitive()) {
+                        assignment = optionalCoercers[i].coerceCodegen(expression, evalType);
+                    } else {
+                        assignment = optionalCoercers[i].coerceCodegenMayNullBoxed(expression, evalType, context);
+                    }
+                }
+                block.assignArrayElement("array", constant(i), assignment);
+            }
+            return localMethodBuild(block.methodReturn(ref("array"))).passAll(params).call();
+        }
+
+        public ExprForgeComplexityEnum getComplexity() {
+            return ExprForgeComplexityEnum.INTER;
+        }
+
+        public Class getEvaluationType() {
+            return JavaClassHelper.getArrayType(varargClass);
+        }
+
+        public ExprNodeRenderable getForgeRenderable() {
+            return this;
+        }
+
+        public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+            writer.append(this.getClass().getSimpleName());
+        }
     }
 
     private static class VarargOnlyArrayEvalNoCoerce implements ExprEvaluator {
+        private final VarargOnlyArrayForge forge;
         private final ExprEvaluator[] evals;
-        private final Class varargClass;
 
-        public VarargOnlyArrayEvalNoCoerce(ExprEvaluator[] evals, Class varargClass) {
+        public VarargOnlyArrayEvalNoCoerce(VarargOnlyArrayForge forge, ExprEvaluator[] evals) {
+            this.forge = forge;
             this.evals = evals;
-            this.varargClass = varargClass;
         }
 
         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-            Object array = Array.newInstance(varargClass, evals.length);
+            Object array = Array.newInstance(forge.varargClass, evals.length);
             for (int i = 0; i < evals.length; i++) {
                 Object value = evals[i].evaluate(eventsPerStream, isNewData, context);
                 Array.set(array, i, value);
@@ -1694,36 +1832,28 @@ public class ExprNodeUtility {
             return array;
         }
 
-        public Class getType() {
-            return JavaClassHelper.getArrayType(varargClass);
-        }
     }
 
-    private static class VarargOnlyArrayEvalWithCoerce implements ExprEvaluator {
+    private static class VarargOnlyArrayForgeWithCoerce implements ExprEvaluator {
+        private final VarargOnlyArrayForge forge;
         private final ExprEvaluator[] evals;
-        private final Class varargClass;
-        private final SimpleNumberCoercer[] coercers;
 
-        public VarargOnlyArrayEvalWithCoerce(ExprEvaluator[] evals, Class varargClass, SimpleNumberCoercer[] coercers) {
+        public VarargOnlyArrayForgeWithCoerce(VarargOnlyArrayForge forge, ExprEvaluator[] evals) {
+            this.forge = forge;
             this.evals = evals;
-            this.varargClass = varargClass;
-            this.coercers = coercers;
         }
 
         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-            Object array = Array.newInstance(varargClass, evals.length);
+            Object array = Array.newInstance(forge.varargClass, evals.length);
             for (int i = 0; i < evals.length; i++) {
                 Object value = evals[i].evaluate(eventsPerStream, isNewData, context);
-                if (coercers[i] != null) {
-                    value = coercers[i].coerceBoxed((Number) value);
+                if (forge.optionalCoercers[i] != null) {
+                    value = forge.optionalCoercers[i].coerceBoxed((Number) value);
                 }
                 Array.set(array, i, value);
             }
             return array;
         }
 
-        public Class getType() {
-            return JavaClassHelper.getArrayType(varargClass);
-        }
     }
 }

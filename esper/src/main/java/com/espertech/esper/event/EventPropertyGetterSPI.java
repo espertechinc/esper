@@ -15,10 +15,10 @@ import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 public interface EventPropertyGetterSPI extends EventPropertyGetter {
-    CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context);
-    CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context);
-    CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context);
-    CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context);
-    CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context);
-    CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context);
+    CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context);
+    CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context);
+    CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context);
+    CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context);
+    CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context);
+    CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context);
 }

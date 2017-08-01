@@ -12,6 +12,10 @@ package com.espertech.esper.epl.table.strategy;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.*;
@@ -21,7 +25,9 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Collection;
 
-public class ExprTableExprEvaluatorAccess extends ExprTableExprEvaluatorBase implements ExprEvaluator, ExprEvaluatorEnumeration {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
+
+public class ExprTableExprEvaluatorAccess extends ExprTableExprEvaluatorBase implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval {
 
     private final AggregationAccessorSlotPair accessAccessorSlotPair;
     private final EventType eventTypeColl;
@@ -47,8 +53,8 @@ public class ExprTableExprEvaluatorAccess extends ExprTableExprEvaluatorBase imp
         return result;
     }
 
-    public Class getType() {
-        return returnType;
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
     }
 
     public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
@@ -61,6 +67,10 @@ public class ExprTableExprEvaluatorAccess extends ExprTableExprEvaluatorBase imp
         return accessAccessorSlotPair.getAccessor().getEnumerableEvents(row.getStates()[accessAccessorSlotPair.getSlot()], eventsPerStream, isNewData, context);
     }
 
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
+    }
+
     public Class getComponentTypeCollection() throws ExprValidationException {
         return null;
     }
@@ -69,11 +79,23 @@ public class ExprTableExprEvaluatorAccess extends ExprTableExprEvaluatorBase imp
         return null;
     }
 
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constantNull();
+    }
+
     public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return null;
+    }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constantNull();
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return exprNode;
     }
 }

@@ -10,23 +10,19 @@
  */
 package com.espertech.esper.codegen.core;
 
-import com.espertech.esper.codegen.compile.CodegenCompiler;
+import com.espertech.esper.codegen.model.method.CodegenLocalMethodBuilder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class CodegenContext {
 
+    private final boolean debug;
     private final List<CodegenMember> members = new ArrayList<>();
     private final List<CodegenMethod> methods = new ArrayList<>();
 
-    public void addMember(String memberName, Class clazz, Object object) {
-        members.add(new CodegenMember(memberName, clazz, object));
-    }
-
-    public void addMember(String memberName, Class clazz, Class optionalTypeParam, Object object) {
-        members.add(new CodegenMember(memberName, clazz, optionalTypeParam, object));
+    public CodegenContext(boolean debug) {
+        this.debug = debug;
     }
 
     public void addMember(CodegenMember entry) {
@@ -38,7 +34,7 @@ public class CodegenContext {
         return new CodegenMember(memberName, clazz, object);
     }
 
-    public CodegenMember makeAddMember(Class clazz, Object object) {
+    public <T> CodegenMember makeAddMember(Class<? extends T> clazz, T object) {
         CodegenMember member = makeMember(clazz, object);
         members.add(member);
         return member;
@@ -49,18 +45,8 @@ public class CodegenContext {
         return new CodegenMember(memberName, clazz, optionalTypeParam, object);
     }
 
-    public CodegenBlock addMethod(Class returnType, Class paramType, String paramName, Class generator) {
-        String methodName = CodeGenerationIDGenerator.generateMethod();
-        CodegenMethod method = new CodegenMethod(returnType, methodName, Collections.singletonList(new CodegenNamedParam(paramType, paramName)), getGeneratorDetail(generator));
-        methods.add(method);
-        return method.statements();
-    }
-
-    public CodegenBlock addMethod(Class returnType, Class generator) {
-        String methodName = CodeGenerationIDGenerator.generateMethod();
-        CodegenMethod method = new CodegenMethod(returnType, methodName, Collections.<CodegenNamedParam>emptyList(), getGeneratorDetail(generator));
-        methods.add(method);
-        return method.statements();
+    public CodegenLocalMethodBuilder addMethod(Class returnType, Class generator) {
+        return new CodegenLocalMethodBuilder(returnType, getGeneratorDetail(generator, debug), this);
     }
 
     public List<CodegenMember> getMembers() {
@@ -71,8 +57,8 @@ public class CodegenContext {
         return methods;
     }
 
-    private String getGeneratorDetail(Class generator) {
-        if (!CodegenCompiler.DEBUG) {
+    private String getGeneratorDetail(Class generator, boolean debug) {
+        if (!debug) {
             return generator.getSimpleName();
         }
         String fullClassName = Thread.currentThread().getStackTrace()[3].getClassName();

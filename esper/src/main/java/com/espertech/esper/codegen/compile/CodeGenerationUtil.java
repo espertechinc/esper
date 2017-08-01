@@ -25,7 +25,7 @@ public class CodeGenerationUtil {
 
     static void importsdecl(StringBuilder builder, Collection<Class> imports) {
         for (Class importClass : imports) {
-            if (importClass.getPackage().getName().equals("java.lang")) {
+            if (importClass.getPackage() != null && importClass.getPackage().getName().equals("java.lang")) {
                 continue;
             }
             importdecl(builder, importClass);

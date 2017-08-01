@@ -595,7 +595,7 @@ public class EPStatementStartMethodHelperSubselect {
         List<ExprAggregateNode> aggExpressionNodesHaving = Collections.emptyList();
         if (statementSpec.getHavingExprRootNode() != null) {
             ExprNode validatedHavingClause = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.HAVING, statementSpec.getHavingExprRootNode(), validationContext);
-            if (JavaClassHelper.getBoxedType(validatedHavingClause.getExprEvaluator().getType()) != Boolean.class) {
+            if (JavaClassHelper.getBoxedType(validatedHavingClause.getForge().getEvaluationType()) != Boolean.class) {
                 throw new ExprValidationException("Subselect having-clause expression must return a boolean value");
             }
             aggExpressionNodesHaving = new ArrayList<>();
@@ -612,7 +612,8 @@ public class EPStatementStartMethodHelperSubselect {
                 }
                 statementSpec.setHavingExprRootNode(null);
             } else {
-                subselect.setHavingExpr(validatedHavingClause.getExprEvaluator());
+                ExprEvaluator havingEvaluator = ExprNodeCompiler.allocateEvaluator(validatedHavingClause.getForge(), statementContext.getEngineImportService(), EPStatementStartMethodHelperSubselect.class, false, statementContext.getStatementName());
+                subselect.setHavingExpr(havingEvaluator);
                 ExprNodePropOrStreamSet nonAggregatedPropsHaving = ExprNodeUtility.getNonAggregatedProps(validationContext.getStreamTypeService().getEventTypes(), Collections.singletonList(validatedHavingClause), contextPropertyRegistry);
                 for (ExprNodePropOrStreamPropDesc prop : nonAggregatedPropsHaving.getProperties()) {
                     if (prop.getStreamNum() == 0) {
@@ -638,7 +639,7 @@ public class EPStatementStartMethodHelperSubselect {
                     aggExprNodesSelect.size() > 0 && hasNonAggregatedProperties) {
                 throw new ExprValidationException("Subquery with multi-column select requires that either all or none of the selected columns are under aggregation, unless a group-by clause is also specified");
             }
-            subselect.setSelectClause(selectExpressions.toArray(new ExprNode[selectExpressions.size()]));
+            subselect.setSelectClause(selectExpressions.toArray(new ExprNode[selectExpressions.size()]), statementContext.getEngineImportService(), statementContext.getStatementName());
             subselect.setSelectAsNames(assignedNames.toArray(new String[assignedNames.size()]));
         }
 
@@ -657,7 +658,7 @@ public class EPStatementStartMethodHelperSubselect {
                 // validate group-by
                 for (int i = 0; i < groupByNodes.length; i++) {
                     groupByNodes[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.GROUPBY, groupByNodes[i], validationContext);
-                    groupByEvaluators[i] = groupByNodes[i].getExprEvaluator();
+                    groupByEvaluators[i] = ExprNodeCompiler.allocateEvaluator(groupByNodes[i].getForge(), statementContext.getEngineImportService(), EPStatementStartMethodHelperSubselect.class, false, statementContext.getStatementName());
                     String minimal = ExprNodeUtility.isMinimalExpression(groupByNodes[i]);
                     if (minimal != null) {
                         throw new ExprValidationException("Group-by expressions in a subselect may not have " + minimal);
@@ -695,7 +696,7 @@ public class EPStatementStartMethodHelperSubselect {
                     for (int j = 0; j < groupByExpressions.length; j++) {
                         List<Pair<ExprNode, ExprNode>> foundPairs = ExprNodeUtility.findExpression(selectExpression, groupByExpressions[j]);
                         for (Pair<ExprNode, ExprNode> pair : foundPairs) {
-                            ExprAggregateNodeGroupKey replacement = new ExprAggregateNodeGroupKey(j, groupByEvaluators[j].getType());
+                            ExprAggregateNodeGroupKey replacement = new ExprAggregateNodeGroupKey(j, groupByExpressions[j].getForge().getEvaluationType());
                             if (pair.getFirst() == null) {
                                 selectExpressions.set(i, replacement);
                             } else {
@@ -717,11 +718,11 @@ public class EPStatementStartMethodHelperSubselect {
                 }   // end of for loop
             }
 
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, aggExpressionNodesHaving, Collections.<ExprAggregateNode>emptyList(), groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService());
+            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, aggExpressionNodesHaving, Collections.<ExprAggregateNode>emptyList(), groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService(), statementContext.getStatementName());
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {
-                subselect.setSelectClause(selectExpressions.toArray(new ExprNode[selectExpressions.size()]));
+                subselect.setSelectClause(selectExpressions.toArray(new ExprNode[selectExpressions.size()]), statementContext.getEngineImportService(), statementContext.getStatementName());
                 subselect.setSelectAsNames(assignedNames.toArray(new String[assignedNames.size()]));
             }
         }
@@ -748,7 +749,7 @@ public class EPStatementStartMethodHelperSubselect {
         boolean correlatedSubquery = false;
         if (filterExpr != null) {
             filterExpr = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, filterExpr, validationContext);
-            if (JavaClassHelper.getBoxedType(filterExpr.getExprEvaluator().getType()) != Boolean.class) {
+            if (JavaClassHelper.getBoxedType(filterExpr.getForge().getEvaluationType()) != Boolean.class) {
                 throw new ExprValidationException("Subselect filter expression must return a boolean value");
             }
 
@@ -777,7 +778,7 @@ public class EPStatementStartMethodHelperSubselect {
         }
 
         // Set the filter.
-        ExprEvaluator filterExprEval = (filterExpr == null) ? null : filterExpr.getExprEvaluator();
+        ExprEvaluator filterExprEval = (filterExpr == null) ? null : ExprNodeCompiler.allocateEvaluator(filterExpr.getForge(), statementContext.getEngineImportService(), EPStatementStartMethodHelperSubselect.class, false, statementContext.getStatementName());
         ExprEvaluator assignedFilterExpr = aggregationServiceFactoryDesc != null ? null : filterExprEval;
         subselect.setFilterExpr(assignedFilterExpr);
 

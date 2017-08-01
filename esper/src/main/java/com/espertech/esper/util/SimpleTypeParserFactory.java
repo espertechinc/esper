@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.type.*;
 
 import java.util.Locale;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * A factory for creating an instance of a parser that parses a String and returns a target type.
@@ -32,12 +35,20 @@ public class SimpleTypeParserFactory {
                 public Object parse(String value) {
                     return value;
                 }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return input;
+                }
             };
         }
         if (classBoxed == Character.class) {
             return new SimpleTypeParser() {
                 public Object parse(String value) {
                     return value.charAt(0);
+                }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return exprDotMethod(input, "charAt", constant(0));
                 }
             };
         }
@@ -46,19 +57,31 @@ public class SimpleTypeParserFactory {
                 public Object parse(String text) {
                     return BoolValue.parseString(text.toLowerCase(Locale.ENGLISH).trim());
                 }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return staticMethod(BoolValue.class, "parseString", exprDotMethodChain(input).add("toLowerCase", enumValue(Locale.class, "ENGLISH")).add("trim"));
+                }
             };
         }
         if (classBoxed == Byte.class) {
             return new SimpleTypeParser() {
                 public Object parse(String text) {
-                    return ByteValue.parseString(text.trim());
+                    return Byte.decode(text.trim());
+                }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return staticMethod(Byte.class, "decode", exprDotMethod(input, "trim"));
                 }
             };
         }
         if (classBoxed == Short.class) {
             return new SimpleTypeParser() {
                 public Object parse(String text) {
-                    return ShortValue.parseString(text.trim());
+                    return Short.parseShort(text.trim());
+                }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return staticMethod(Short.class, "parseShort", exprDotMethod(input, "trim"));
                 }
             };
         }
@@ -67,26 +90,42 @@ public class SimpleTypeParserFactory {
                 public Object parse(String text) {
                     return LongValue.parseString(text.trim());
                 }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return staticMethod(LongValue.class, "parseString", exprDotMethod(input, "trim"));
+                }
             };
         }
         if (classBoxed == Float.class) {
             return new SimpleTypeParser() {
                 public Object parse(String text) {
-                    return FloatValue.parseString(text.trim());
+                    return Float.parseFloat(text.trim());
+                }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return staticMethod(Float.class, "parseFloat", exprDotMethod(input, "trim"));
                 }
             };
         }
         if (classBoxed == Double.class) {
             return new SimpleTypeParser() {
                 public Object parse(String text) {
-                    return DoubleValue.parseString(text.trim());
+                    return Double.parseDouble(text.trim());
+                }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return staticMethod(Double.class, "parseDouble", exprDotMethod(input, "trim"));
                 }
             };
         }
         if (classBoxed == Integer.class) {
             return new SimpleTypeParser() {
                 public Object parse(String text) {
-                    return IntValue.parseString(text.trim());
+                    return Integer.parseInt(text.trim());
+                }
+
+                public CodegenExpression codegen(CodegenExpression input) {
+                    return staticMethod(Integer.class, "parseInt", exprDotMethod(input, "trim"));
                 }
             };
         }

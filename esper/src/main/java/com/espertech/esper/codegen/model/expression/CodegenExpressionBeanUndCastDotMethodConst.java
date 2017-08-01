@@ -36,7 +36,7 @@ public class CodegenExpressionBeanUndCastDotMethodConst implements CodegenExpres
         expression.render(builder, imports);
         builder.append(".getUnderlying()).");
         builder.append(method).append("(");
-        renderConstant(builder, constant);
+        renderConstant(builder, constant, imports);
         builder.append(")");
     }
 

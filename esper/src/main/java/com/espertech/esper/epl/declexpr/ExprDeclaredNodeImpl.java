@@ -14,8 +14,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.client.annotation.Audit;
 import com.espertech.esper.client.annotation.AuditEnum;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -36,6 +38,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.espertech.esper.epl.expression.core.ExprNodeUtility.checkValidated;
+
 /**
  * Expression instance as declared elsewhere.
  */
@@ -44,7 +48,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
 
     private final ExpressionDeclItem prototype;
     private List<ExprNode> chainParameters;
-    private transient ExprEvaluator exprEvaluator;
+    private transient ExprForge forge;
     private ExprNode expressionBodyCopy;
 
     public ExprDeclaredNodeImpl(ExpressionDeclItem prototype, List<ExprNode> chainParameters, ContextDescriptor contextDescriptor) {
@@ -67,7 +71,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         for (Pair<ExprNode, ExprIdentNode> pair : visitorWParent.getIdentNodes()) {
             String streamOrProp = pair.getSecond().getStreamOrPropertyName();
             if (streamOrProp != null && contextDescriptor.getContextPropertyRegistry().isContextPropertyPrefix(streamOrProp)) {
-                ExprContextPropertyNode context = new ExprContextPropertyNode(pair.getSecond().getUnresolvedPropertyName());
+                ExprContextPropertyNodeImpl context = new ExprContextPropertyNodeImpl(pair.getSecond().getUnresolvedPropertyName());
                 if (pair.getFirst() == null) {
                     expressionBodyCopy = context;
                 } else {
@@ -75,6 +79,15 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
                 }
             }
         }
+    }
+
+    public CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return expressionBodyCopy.getForge().evaluateCodegen(params, context);
+    }
+
+    public ExprForge getForge() {
+        checkValidated(forge);
+        return forge;
     }
 
     public ExprNode getBody() {
@@ -86,15 +99,16 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public boolean validated() {
-        return exprEvaluator != null;
+        return forge != null;
     }
 
     public Class getConstantType() {
-        return exprEvaluator.getType();
+        checkValidated(forge);
+        return forge.getEvaluationType();
     }
 
     public Object getConstantValue(ExprEvaluatorContext context) {
-        return exprEvaluator.evaluate(null, true, context);
+        return forge.getExprEvaluator().evaluate(null, true, context);
     }
 
     public boolean isConstantValue() {
@@ -130,11 +144,11 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
                 throw new ExprValidationException(message, ex);
             }
 
-            exprEvaluator = expressionBodyCopy.getExprEvaluator();
+            forge = expressionBodyCopy.getForge();
             return null;
         }
 
-        if (exprEvaluator != null) {
+        if (forge != null) {
             return null; // already evaluated
         }
 
@@ -204,19 +218,17 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         isCache &= validationContext.getExprEvaluatorContext().getExpressionResultCacheService().isDeclaredExprCacheEnabled();
 
         // determine a suitable evaluation
+        boolean audit = AuditEnum.EXPRDEF.getAudit(validationContext.getAnnotations()) != null;
+        String engineURI = validationContext.getStreamTypeService().getEngineURIQualifier();
+        String statementName = validationContext.getStatementName();
         if (expressionBodyCopy.isConstantResult()) {
             // pre-evaluated
-            exprEvaluator = new ExprDeclaredEvalConstant(expressionBodyCopy.getExprEvaluator().getType(), prototype, expressionBodyCopy.getExprEvaluator().evaluate(null, true, null));
+            forge = new ExprDeclaredForgeConstant(this, expressionBodyCopy.getForge().getEvaluationType(), prototype, expressionBodyCopy.getForge().getExprEvaluator().evaluate(null, true, null), audit, engineURI, statementName);
         } else if (prototype.getParametersNames().isEmpty() ||
                 (allStreamIdsMatch && prototype.getParametersNames().size() == streamTypeService.getEventTypes().length)) {
-            exprEvaluator = new ExprDeclaredEvalNoRewrite(expressionBodyCopy.getExprEvaluator(), prototype, isCache);
+            forge = new ExprDeclaredForgeNoRewrite(this, expressionBodyCopy.getForge(), isCache, audit, engineURI, statementName);
         } else {
-            exprEvaluator = new ExprDeclaredEvalRewrite(expressionBodyCopy.getExprEvaluator(), prototype, isCache, streamsIdsPerStream);
-        }
-
-        Audit audit = AuditEnum.EXPRDEF.getAudit(validationContext.getAnnotations());
-        if (audit != null) {
-            exprEvaluator = (ExprEvaluator) ExprEvaluatorProxy.newInstance(validationContext.getStreamTypeService().getEngineURIQualifier(), validationContext.getStatementName(), prototype.getName(), exprEvaluator);
+            forge = new ExprDeclaredForgeRewrite(this, expressionBodyCopy.getForge(), isCache, streamsIdsPerStream, audit, engineURI, statementName);
         }
         return null;
     }
@@ -226,8 +238,12 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public FilterSpecLookupable getFilterLookupable() {
-
-        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(exprEvaluator), exprEvaluator.getType(), true);
+        if (!(forge instanceof ExprDeclaredForgeBase)) {
+            return null;
+        }
+        ExprDeclaredForgeBase declaredForge = (ExprDeclaredForgeBase) forge;
+        ExprEvaluator evaluator = declaredForge.getInnerForge().getExprEvaluator();
+        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(evaluator), forge.getEvaluationType(), true);
     }
 
     public boolean isConstantResult() {
@@ -277,7 +293,8 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return exprEvaluator;
+        checkValidated(forge);
+        return forge.getExprEvaluator();
     }
 
     private void checkParameterCount() throws ExprValidationException {
@@ -312,7 +329,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         private final ExprEvaluator exprEvaluator;
 
         private DeclaredNodeEventPropertyGetter(ExprEvaluator exprEvaluator) {
-            this.exprEvaluator = ((ExprDeclaredEvalBase) exprEvaluator).getInnerEvaluator();
+            this.exprEvaluator = exprEvaluator;
         }
 
         public Object get(EventBean eventBean) throws PropertyAccessException {

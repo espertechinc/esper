@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 /**
  * Interface for a type widener.
  */
@@ -21,4 +24,6 @@ public interface TypeWidener {
      * @return widened object.
      */
     public Object widen(Object input);
+
+    CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context);
 }

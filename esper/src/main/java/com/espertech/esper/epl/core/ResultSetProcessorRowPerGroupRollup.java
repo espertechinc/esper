@@ -95,7 +95,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         if (prototype.getOutputLimitSpec() != null && prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.FIRST) {
             outputFirstHelpers = new ResultSetProcessorGroupedOutputFirstHelper[levelCount];
             for (int i = 0; i < levelCount; i++) {
-                outputFirstHelpers[i] = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory(), prototype.getGroupByRollupDesc(), i);
+                outputFirstHelpers[i] = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getGroupKeyNodeExpressions(), prototype.getOptionalOutputFirstConditionFactory(), prototype.getGroupByRollupDesc(), i);
             }
         } else {
             outputFirstHelpers = null;

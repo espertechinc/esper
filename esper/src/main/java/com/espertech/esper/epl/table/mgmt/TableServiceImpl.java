@@ -19,7 +19,6 @@ import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.table.ExprTableIdentNode;
@@ -161,7 +160,7 @@ public class TableServiceImpl implements TableService {
             }
 
             ExprTableIdentNode node = new ExprTableIdentNode(null, unresolvedPropertyName);
-            ExprEvaluator eval = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(node, pair.getTableMetadata().getTableName(), pair.getStreamNum(), agg);
+            ExprTableExprEvaluatorBase eval = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(node, pair.getTableMetadata().getTableName(), pair.getStreamNum(), agg);
             node.setEval(eval);
             chainSpec.remove(0);
             return new Pair<ExprNode, List<ExprChainedSpec>>(node, chainSpec);
@@ -183,7 +182,7 @@ public class TableServiceImpl implements TableService {
         if (pair.getColumn() instanceof TableMetadataColumnAggregation) {
             TableMetadataColumnAggregation agg = (TableMetadataColumnAggregation) pair.getColumn();
             ExprTableIdentNode node = new ExprTableIdentNode(streamOrPropertyName, unresolvedPropertyName);
-            ExprEvaluator eval = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(node, pair.getTableMetadata().getTableName(), pair.getStreamNum(), agg);
+            ExprTableExprEvaluatorBase eval = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(node, pair.getTableMetadata().getTableName(), pair.getStreamNum(), agg);
             node.setEval(eval);
             return node;
         }

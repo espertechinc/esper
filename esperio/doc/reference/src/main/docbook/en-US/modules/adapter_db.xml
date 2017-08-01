@@ -51,7 +51,7 @@
 		</para>
         
 		<para>
-			A sample adapter configuration file is provided in <literal>esperio-db-sample-config.xml</literal> in the <literal>etc</literal> folder of the distribution. A configuration file must be valid according to schema <literal>esperio-db-configuration-6-0.xsd</literal>.
+			A sample adapter configuration file is provided in <literal>esperio-db-sample-config.xml</literal> in the <literal>etc</literal> folder of the distribution. A configuration file must be valid according to schema <literal>esperio-db-configuration-7-0.xsd</literal>.
 		</para>
 
 		<sect2 xml:id="adapterdb-gettingstarted-pluginloader">

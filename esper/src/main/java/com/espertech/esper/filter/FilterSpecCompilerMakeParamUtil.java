@@ -230,7 +230,7 @@ public final class FilterSpecCompilerMakeParamUtil {
     }
 
     private static FilterSpecParam handlePlugInSingleRow(ExprPlugInSingleRowNode constituent) {
-        if (JavaClassHelper.getBoxedType(constituent.getExprEvaluator().getType()) != Boolean.class) {
+        if (JavaClassHelper.getBoxedType(constituent.getForge().getEvaluationType()) != Boolean.class) {
             return null;
         }
         if (!constituent.getFilterLookupEligible()) {
@@ -341,7 +341,7 @@ public final class FilterSpecCompilerMakeParamUtil {
                     checkArrayCoercion(returnType, lookupable.getReturnType(), lookupable.getExpression());
                     coercer = null;
                 } else {
-                    coercer = getNumberCoercer(left.getExprEvaluator().getType(), contextPropertyNode.getType(), lookupable.getExpression());
+                    coercer = getNumberCoercer(left.getForge().getEvaluationType(), contextPropertyNode.getType(), lookupable.getExpression());
                 }
                 Class finalReturnType = coercer != null ? coercer.getReturnType() : returnType;
                 listofValues.add(new FilterForEvalContextPropMayCoerce(contextPropertyNode.getPropertyName(), contextPropertyNode.getGetter(), coercer, finalReturnType));
@@ -354,7 +354,7 @@ public final class FilterSpecCompilerMakeParamUtil {
 
                 boolean isMustCoerce = false;
                 Class coerceToType = JavaClassHelper.getBoxedType(lookupable.getReturnType());
-                Class identReturnType = identNodeInner.getExprEvaluator().getType();
+                Class identReturnType = identNodeInner.getForge().getEvaluationType();
 
                 if (JavaClassHelper.isCollectionMapOrArray(identReturnType)) {
                     checkArrayCoercion(identReturnType, lookupable.getReturnType(), lookupable.getExpression());
@@ -517,8 +517,8 @@ public final class FilterSpecCompilerMakeParamUtil {
             throws ExprValidationException {
         String propertyName = identNodeLeft.getResolvedPropertyName();
 
-        Class leftType = identNodeLeft.getExprEvaluator().getType();
-        Class rightType = identNodeRight.getExprEvaluator().getType();
+        Class leftType = identNodeLeft.getForge().getEvaluationType();
+        Class rightType = identNodeRight.getForge().getEvaluationType();
 
         SimpleNumberCoercer numberCoercer = getNumberCoercer(leftType, rightType, propertyName);
         boolean isMustCoerce = numberCoercer != null;

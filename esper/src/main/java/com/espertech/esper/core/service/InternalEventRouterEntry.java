@@ -43,11 +43,11 @@ public class InternalEventRouterEntry {
      * @param agentInstanceLock   agent instance lock
      * @param hasSubselect        indicator whether there are subselects
      */
-    public InternalEventRouterEntry(int priority, boolean drop, ExprNode optionalWhereClause, ExprNode[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect) {
+    public InternalEventRouterEntry(int priority, boolean drop, ExprEvaluator optionalWhereClause, ExprNode[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect) {
         this.priority = priority;
         this.isDrop = drop;
-        this.optionalWhereClause = optionalWhereClause == null ? null : optionalWhereClause.getExprEvaluator();
-        this.assignments = ExprNodeUtility.getEvaluators(assignments);
+        this.optionalWhereClause = optionalWhereClause;
+        this.assignments = ExprNodeUtility.getEvaluatorsNoCompile(assignments);
         this.writer = writer;
         this.wideners = wideners;
         this.outputView = outputView;

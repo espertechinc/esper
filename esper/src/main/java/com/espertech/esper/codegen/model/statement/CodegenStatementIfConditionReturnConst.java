@@ -31,7 +31,7 @@ public class CodegenStatementIfConditionReturnConst extends CodegenStatementBase
         builder.append("if (");
         condition.render(builder, imports);
         builder.append(") return ");
-        renderConstant(builder, constant);
+        renderConstant(builder, constant, imports);
     }
 
     public void mergeClasses(Set<Class> classes) {

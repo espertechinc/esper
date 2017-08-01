@@ -65,8 +65,8 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
     }
 
     private String getCodegen(CodegenContext context) throws PropertyAccessException {
-        return context.addMethod(Object.class, Node.class, "node", this.getClass())
-                .declareVar(Object.class, "value", getter.codegenUnderlyingGet(ref("node"), context))
+        return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
+                .declareVar(Object.class, "value", getter.underlyingGetCodegen(ref("node"), context))
                 .methodReturn(staticMethod(this.getClass(), "getXPathNodeListWCheck", ref("value"), constant(index)));
     }
 
@@ -83,8 +83,8 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
 
     private String getFragmentCodegen(CodegenContext context) {
         CodegenMember member = context.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return context.addMethod(Object.class, Node.class, "node", this.getClass())
-                .declareVar(Node.class, "result", cast(Node.class, codegenUnderlyingGet(ref("node"), context)))
+        return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
+                .declareVar(Node.class, "result", cast(Node.class, underlyingGetCodegen(ref("node"), context)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(ref(member.getMemberName()), "getEvent", ref("result")));
     }
@@ -93,30 +93,30 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
         return true;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         if (fragmentFactory == null) {
             return constantNull();
         }
-        return codegenUnderlyingFragment(castUnderlying(Node.class, beanExpression), context);
+        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         if (fragmentFactory == null) {
             return constantNull();
         }

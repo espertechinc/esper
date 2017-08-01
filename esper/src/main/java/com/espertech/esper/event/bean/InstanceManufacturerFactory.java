@@ -10,24 +10,12 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import net.sf.cglib.reflect.FastConstructor;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.ops.ExprNewInstanceNodeForge;
 
-public class InstanceManufacturerFactory {
-    public static InstanceManufacturer getManufacturer(Class targetClass, EngineImportService engineImportService, ExprNode[] childNodes)
-            throws ExprValidationException {
-        ExprEvaluator[] evalsUnmodified = ExprNodeUtility.getEvaluators(childNodes);
-        Object[] returnTypes = new Object[evalsUnmodified.length];
-        for (int i = 0; i < evalsUnmodified.length; i++) {
-            returnTypes[i] = evalsUnmodified[i].getType();
-        }
-
-        Pair<FastConstructor, ExprEvaluator[]> ctor = InstanceManufacturerUtil.getManufacturer(targetClass, engineImportService, evalsUnmodified, returnTypes);
-        return new InstanceManufacturerFastCtor(targetClass, ctor.getFirst(), ctor.getSecond());
-    }
+public interface InstanceManufacturerFactory {
+    InstanceManufacturer makeEvaluator();
+    CodegenExpression codegen(ExprNewInstanceNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params);
 }

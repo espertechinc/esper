@@ -45,14 +45,14 @@ public class ExprNthAggNode extends ExprAggregateNodeBase {
             throw new ExprValidationException(message);
         }
 
-        Number num = (Number) second.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
+        Number num = (Number) second.getForge().getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
         int size = num.intValue();
 
         if (optionalFilter != null) {
             this.positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
         }
 
-        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeNth(validationContext.getStatementExtensionSvcContext(), this, first.getExprEvaluator().getType(), size);
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeNth(validationContext.getStatementExtensionSvcContext(), this, first.getForge().getEvaluationType(), size);
     }
 
     public String getAggregationFunctionName() {

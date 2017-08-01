@@ -41,7 +41,7 @@ public class ExecTableInvalid implements RegressionExecution {
     private void runAssertionInvalidAggMatchSingleFunc(EPServiceProvider epService) {
         // sum
         tryInvalidAggMatch(epService, "var1", "sum(double)", false, "sum(intPrimitive)",
-                "Error starting statement: Incompatible aggregation function for table 'var1' column 'value', expecting 'sum(double)' and received 'sum(intPrimitive)': The required parameter type is java.lang.Double and provided is int [");
+                "Error starting statement: Incompatible aggregation function for table 'var1' column 'value', expecting 'sum(double)' and received 'sum(intPrimitive)': The required parameter type is java.lang.Double and provided is java.lang.Integer [");
         tryInvalidAggMatch(epService, "var1", "sum(double)", false, "count(*)",
                 "Error starting statement: Incompatible aggregation function for table 'var1' column 'value', expecting 'sum(double)' and received 'count(*)': Not a 'sum' aggregation [");
         tryInvalidAggMatch(epService, "var1", "sum(double)", false, "sum(doublePrimitive, theString='a')",

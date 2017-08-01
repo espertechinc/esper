@@ -55,7 +55,7 @@ public class IndexedTableLookupPlanMulti extends TableLookupPlan {
         boolean isStrictlyProps = true;
         for (int i = 0; i < keyProps.length; i++) {
             isStrictlyProps = isStrictlyProps && keyProperties.get(i) instanceof QueryGraphValueEntryHashKeyedProp;
-            evaluators[i] = keyProperties.get(i).getKeyExpr().getExprEvaluator();
+            evaluators[i] = keyProperties.get(i).getKeyExpr().getForge().getExprEvaluator();
             expressions[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyProperties.get(i).getKeyExpr());
 
             if (keyProperties.get(i) instanceof QueryGraphValueEntryHashKeyedProp) {

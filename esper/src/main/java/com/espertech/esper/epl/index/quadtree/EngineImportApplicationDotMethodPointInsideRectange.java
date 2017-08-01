@@ -11,33 +11,41 @@
 package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.util.EPLExpressionParamType;
 import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.spatial.quadtree.core.BoundingBox;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class EngineImportApplicationDotMethodPointInsideRectange extends EngineImportApplicationDotMethodBase {
     protected final static String LOOKUP_OPERATION_NAME = "point.inside(rectangle)";
     public final static String INDEXTYPE_NAME = "pointregionquadtree";
 
-    public EngineImportApplicationDotMethodPointInsideRectange(String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs, ExprNode[] indexNamedParameter) {
-        super(lhsName, lhs, dotMethodName, rhsName, rhs, indexNamedParameter);
+    public EngineImportApplicationDotMethodPointInsideRectange(ExprDotNodeImpl parent, String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs, ExprNode[] indexNamedParameter) {
+        super(parent, lhsName, lhs, dotMethodName, rhsName, rhs, indexNamedParameter);
     }
 
-    protected ExprEvaluator validateAll(String lhsName, ExprNode[] lhs, String rhsName, ExprNode[] rhs, ExprValidationContext validationContext) throws ExprValidationException {
+    protected ExprForge validateAll(String lhsName, ExprNode[] lhs, String rhsName, ExprNode[] rhs, ExprValidationContext validationContext) throws ExprValidationException {
         EPLValidationUtil.validateParameterNumber(lhsName, LHS_VALIDATION_NAME, false, 2, lhs.length);
         EPLValidationUtil.validateParametersTypePredefined(lhs, lhsName, LHS_VALIDATION_NAME, EPLExpressionParamType.NUMERIC);
 
         EPLValidationUtil.validateParameterNumber(rhsName, RHS_VALIDATION_NAME, true, 4, rhs.length);
         EPLValidationUtil.validateParametersTypePredefined(rhs, rhsName, RHS_VALIDATION_NAME, EPLExpressionParamType.NUMERIC);
 
-        ExprEvaluator pxEval = lhs[0].getExprEvaluator();
-        ExprEvaluator pyEval = lhs[1].getExprEvaluator();
-        ExprEvaluator xEval = rhs[0].getExprEvaluator();
-        ExprEvaluator yEval = rhs[1].getExprEvaluator();
-        ExprEvaluator widthEval = rhs[2].getExprEvaluator();
-        ExprEvaluator heightEval = rhs[3].getExprEvaluator();
-        return new PointIntersectsRectangleEvaluator(pxEval, pyEval, xEval, yEval, widthEval, heightEval);
+        ExprForge pxEval = lhs[0].getForge();
+        ExprForge pyEval = lhs[1].getForge();
+        ExprForge xEval = rhs[0].getForge();
+        ExprForge yEval = rhs[1].getForge();
+        ExprForge widthEval = rhs[2].getForge();
+        ExprForge heightEval = rhs[3].getForge();
+        return new PointIntersectsRectangleForge(parent, pxEval, pyEval, xEval, yEval, widthEval, heightEval);
     }
 
     protected String operationName() {
@@ -46,6 +54,47 @@ public class EngineImportApplicationDotMethodPointInsideRectange extends EngineI
 
     protected String indexTypeName() {
         return INDEXTYPE_NAME;
+    }
+
+    public final static class PointIntersectsRectangleForge implements ExprForge {
+
+        private final ExprDotNodeImpl parent;
+        protected final ExprForge pxEval;
+        protected final ExprForge pyEval;
+        protected final ExprForge xEval;
+        protected final ExprForge yEval;
+        protected final ExprForge widthEval;
+        protected final ExprForge heightEval;
+
+        public PointIntersectsRectangleForge(ExprDotNodeImpl parent, ExprForge pxEval, ExprForge pyEval, ExprForge xEval, ExprForge yEval, ExprForge widthEval, ExprForge heightEval) {
+            this.parent = parent;
+            this.pxEval = pxEval;
+            this.pyEval = pyEval;
+            this.xEval = xEval;
+            this.yEval = yEval;
+            this.widthEval = widthEval;
+            this.heightEval = heightEval;
+        }
+
+        public ExprEvaluator getExprEvaluator() {
+            return new PointIntersectsRectangleEvaluator(pxEval.getExprEvaluator(), pyEval.getExprEvaluator(), xEval.getExprEvaluator(), yEval.getExprEvaluator(), widthEval.getExprEvaluator(), heightEval.getExprEvaluator());
+        }
+
+        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+            return PointIntersectsRectangleEvaluator.codegen(this, params, context);
+        }
+
+        public ExprForgeComplexityEnum getComplexity() {
+            return ExprForgeComplexityEnum.INTER;
+        }
+
+        public Class getEvaluationType() {
+            return Boolean.class;
+        }
+
+        public ExprNodeRenderable getForgeRenderable() {
+            return parent;
+        }
     }
 
     public final static class PointIntersectsRectangleEvaluator implements ExprEvaluator {
@@ -93,8 +142,17 @@ public class EngineImportApplicationDotMethodPointInsideRectange extends EngineI
             return BoundingBox.containsPoint(x.doubleValue(), y.doubleValue(), width.doubleValue(), height.doubleValue(), px.doubleValue(), py.doubleValue());
         }
 
-        public Class getType() {
-            return Boolean.class;
+        public static CodegenExpression codegen(PointIntersectsRectangleForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
+            CodegenBlock block = context.addMethod(Boolean.class, EngineImportApplicationDotMethodRectangeIntersectsRectangle.RectangleIntersectsRectangleEvaluator.class).add(params).begin();
+            CodegenLegoCast.asDoubleNullReturnNull(block, "px", forge.pxEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "py", forge.pyEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "x", forge.xEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "y", forge.yEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "width", forge.widthEval, params, context);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "height", forge.heightEval, params, context);
+            String method = block.methodReturn(staticMethod(BoundingBox.class, "containsPoint", ref("x"), ref("y"), ref("width"), ref("height"), ref("px"), ref("py")));
+            return localMethodBuild(method).passAll(params).call();
         }
+
     }
 }

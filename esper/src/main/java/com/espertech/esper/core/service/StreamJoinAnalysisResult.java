@@ -31,7 +31,6 @@ public class StreamJoinAnalysisResult {
     private VirtualDWViewProviderForAgentInstance[] viewExternal;
     private String[][][] uniqueKeys;
     private TableMetadata[] tablesPerStream;
-    private boolean unidirectionalAll;
 
     /**
      * Ctor.

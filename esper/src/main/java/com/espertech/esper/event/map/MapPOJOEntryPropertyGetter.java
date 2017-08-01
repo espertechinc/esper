@@ -59,12 +59,12 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
     }
 
     private String getMapCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Map.class, "map", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")
                 .ifInstanceOf("value", EventBean.class)
-                    .blockReturn(mapEntryGetter.codegenEventBeanGet(castRef(EventBean.class, "value"), context))
-                .methodReturn(mapEntryGetter.codegenUnderlyingGet(castRef(mapEntryGetter.getTargetType(), "value"), context));
+                    .blockReturn(mapEntryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), context))
+                .methodReturn(mapEntryGetter.underlyingGetCodegen(castRef(mapEntryGetter.getTargetType(), "value"), context));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -79,19 +79,19 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getMapCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 

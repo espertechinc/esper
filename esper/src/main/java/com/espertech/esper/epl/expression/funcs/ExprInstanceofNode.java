@@ -10,29 +10,23 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Represents the INSTANCEOF(a,b,...) function is an expression tree.
  */
-public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprInstanceofNode extends ExprNodeBase {
+    private static final long serialVersionUID = 3358616797009364727L;
     private final String[] classIdentifiers;
 
-    private Class[] classes;
-    private CopyOnWriteArrayList<Pair<Class, Boolean>> resultCache = new CopyOnWriteArrayList<Pair<Class, Boolean>>();
-    private transient ExprEvaluator evaluator;
-    private static final long serialVersionUID = 3358616797009364727L;
+    private transient ExprInstanceofNodeForge forge;
 
     /**
      * Ctor.
@@ -44,7 +38,13 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -55,76 +55,17 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator {
             throw new ExprValidationException("Instanceof node must have 1 or more class identifiers to verify type against");
         }
 
-        evaluator = this.getChildNodes()[0].getExprEvaluator();
         Set<Class> classList = getClassSet(classIdentifiers, validationContext.getEngineImportService());
+        Class[] classes;
         synchronized (this) {
             classes = classList.toArray(new Class[classList.size()]);
         }
+        forge = new ExprInstanceofNodeForge(this, classes);
         return null;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return Boolean.class;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprInstanceof(this);
-        }
-        Object result = evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (result == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprInstanceof(false);
-            }
-            return false;
-        }
-
-        // return cached value
-        for (Pair<Class, Boolean> pair : resultCache) {
-            if (pair.getFirst() == result.getClass()) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aExprInstanceof(pair.getSecond());
-                }
-                return pair.getSecond();
-            }
-        }
-
-        Boolean out = checkAddType(result.getClass());
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprInstanceof(out);
-        }
-        return out;
-    }
-
-    // Checks type and adds to cache
-    private synchronized Boolean checkAddType(Class type) {
-        // check again in synchronized block
-        for (Pair<Class, Boolean> pair : resultCache) {
-            if (pair.getFirst() == type) {
-                return pair.getSecond();
-            }
-        }
-
-        // get the types superclasses and interfaces, and their superclasses and interfaces
-        Set<Class> classesToCheck = new HashSet<Class>();
-        JavaClassHelper.getSuper(type, classesToCheck);
-        classesToCheck.add(type);
-
-        // check type against each class
-        boolean fits = false;
-        for (Class clazz : classes) {
-            if (classesToCheck.contains(clazz)) {
-                fits = true;
-                break;
-            }
-        }
-
-        resultCache.add(new Pair<Class, Boolean>(type, fits));
-        return fits;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

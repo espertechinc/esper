@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.TestExprAggregateNodeAdapter;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.methodagg.ExprStddevNode;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
@@ -23,7 +22,7 @@ public class TestExprStddevNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(Double.class, validatedNodeToTest.getType());
+        assertEquals(Double.class, validatedNodeToTest.getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {

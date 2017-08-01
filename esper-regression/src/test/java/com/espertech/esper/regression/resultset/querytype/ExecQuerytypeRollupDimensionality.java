@@ -995,19 +995,19 @@ public class ExecQuerytypeRollupDimensionality implements RegressionExecution {
     private void runAssertionNonBoxedTypeWithRollup(EPServiceProvider epService) {
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
                 "from SupportBean group by intPrimitive, rollup(doublePrimitive, longPrimitive)");
-        assertTypesC0C1C2(stmtOne, int.class, Double.class, Long.class);
+        assertTypesC0C1C2(stmtOne, Integer.class, Double.class, Long.class);
 
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
                 "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive))");
-        assertTypesC0C1C2(stmtTwo, int.class, double.class, long.class);
+        assertTypesC0C1C2(stmtTwo, Integer.class, Double.class, Long.class);
 
         EPStatement stmtThree = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
                 "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive), (intPrimitive, doublePrimitive))");
-        assertTypesC0C1C2(stmtThree, int.class, double.class, Long.class);
+        assertTypesC0C1C2(stmtThree, Integer.class, Double.class, Long.class);
 
         EPStatement stmtFour = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
                 "from SupportBean group by grouping sets ((doublePrimitive, intPrimitive), (longPrimitive, intPrimitive))");
-        assertTypesC0C1C2(stmtFour, int.class, Double.class, Long.class);
+        assertTypesC0C1C2(stmtFour, Integer.class, Double.class, Long.class);
     }
 
     private void runAssertionInvalid(EPServiceProvider epService) {

@@ -103,11 +103,11 @@ public class ExecEnumInvalid implements RegressionExecution {
 
         // invalid incompatible params
         epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.allOf()': Error validating enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received java.lang.Integer [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.allOf()': Error validating enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.allOf()': Error validating enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received java.lang.Integer [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.allOf()': Error validating enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int [select contained.allOf(x => 1) from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select contained.aggregate(0, (result, item) => result || ',') from SupportBean_ST0_Container";

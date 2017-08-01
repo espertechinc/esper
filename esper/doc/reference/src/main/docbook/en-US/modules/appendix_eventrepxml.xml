@@ -94,16 +94,6 @@
     </xs:complexType>
   </xs:element>
 </xs:schema>]]></programlisting>
-
-		<note>
-			<para>
-				The engine does not validate the actual XML document events that your application provides to the engine. Your application should ensure that XML schema and/or XPath definitions matches the provided documents. 
-			</para>
-			<para>
-				The behavior is undefined in the case that value types do not match defined property types.
-			</para>
-		</note>
-
 	</sect1>
 
 	<sect1 xml:id="appendix_eventrepxml_schema">

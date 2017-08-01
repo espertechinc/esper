@@ -10,10 +10,15 @@
  */
 package com.espertech.esper.epl.expression.time;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Calendar;
 import java.util.Date;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class TimeAbacusMilliseconds implements TimeAbacus {
     public final static TimeAbacusMilliseconds INSTANCE = new TimeAbacusMilliseconds();
@@ -24,6 +29,10 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
 
     public long deltaForSecondsDouble(double seconds) {
         return Math.round(1000d * seconds);
+    }
+
+    public CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenContext context) {
+        return staticMethod(Math.class, "round", op(constant(1000d), "*", sec));
     }
 
     public long deltaForSecondsNumber(Number timeInSeconds) {
@@ -38,6 +47,12 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
         return 0;
     }
 
+    public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenContext context) {
+        return localMethodBuild(context.addMethod(long.class, TimeAbacusMilliseconds.class).add(long.class, "fromTime").add(Calendar.class, "cal").begin()
+                .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("fromTime")))
+                .methodReturn(constant(0))).pass(startLong).pass(cal).call();
+    }
+
     public long calendarGet(Calendar cal, long remainder) {
         return cal.getTimeInMillis();
     }
@@ -48,5 +63,13 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
 
     public Date toDate(long ts) {
         return new Date(ts);
+    }
+
+    public CodegenExpression toDateCodegen(CodegenExpression ts) {
+        return newInstance(Date.class, ts);
+    }
+
+    public CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenContext context) {
+        return exprDotMethod(cal, "getTimeInMillis");
     }
 }

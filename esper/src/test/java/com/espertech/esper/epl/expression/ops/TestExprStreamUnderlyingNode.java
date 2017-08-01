@@ -41,7 +41,7 @@ public class TestExprStreamUnderlyingNode extends TestCase {
         }
 
         try {
-            node.getExprEvaluator().getType();
+            node.getForge().getEvaluationType();
             fail();
         } catch (IllegalStateException ex) {
             // expected
@@ -51,7 +51,7 @@ public class TestExprStreamUnderlyingNode extends TestCase {
     public void testValidate() throws Exception {
         node.validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(0, node.getStreamId());
-        assertEquals(SupportBean.class, node.getType());
+        assertEquals(SupportBean.class, node.getEvaluationType());
 
         tryInvalidValidate(new ExprStreamUnderlyingNodeImpl("", false));
         tryInvalidValidate(new ExprStreamUnderlyingNodeImpl("dummy", false));

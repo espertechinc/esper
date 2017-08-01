@@ -11,16 +11,19 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableService;
+
+import java.lang.annotation.Annotation;
 
 public class ExprNodeAdapterBaseWTableAccess extends ExprNodeAdapterBase {
     private final ExprNodeAdapterBase evalBase;
     private final TableService tableService;
 
-    public ExprNodeAdapterBaseWTableAccess(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, ExprNodeAdapterBase evalBase, TableService tableService) {
-        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext);
+    public ExprNodeAdapterBaseWTableAccess(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, ExprNodeAdapterBase evalBase, TableService tableService, EngineImportService engineImportService, Annotation[] annotations) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, engineImportService, annotations);
         this.evalBase = evalBase;
         this.tableService = tableService;
     }

@@ -20,16 +20,26 @@ import java.io.StringWriter;
  */
 public class ExprConcatNode extends ExprNodeBase {
     private static final long serialVersionUID = 5811427566733004327L;
-    private ExprEvaluator evaluator;
+
+    private transient ExprConcatNodeForge forge;
+
+    public ExprEvaluator getExprEvaluator() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
+    }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length < 2) {
             throw new ExprValidationException("Concat node must have at least 2 parameters");
         }
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
-        for (int i = 0; i < evaluators.length; i++) {
-            Class childType = evaluators[i].getType();
+        for (int i = 0; i < getChildNodes().length; i++) {
+            Class childType = getChildNodes()[i].getForge().getEvaluationType();
             String childTypeName = childType == null ? "null" : childType.getSimpleName();
             if (childType != String.class) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
@@ -39,17 +49,8 @@ public class ExprConcatNode extends ExprNodeBase {
         }
 
         ConfigurationEngineDefaults.ThreadingProfile threadingProfile = validationContext.getEngineImportService().getThreadingProfile();
-        if (threadingProfile == ConfigurationEngineDefaults.ThreadingProfile.LARGE) {
-            this.evaluator = new ExprConcatNodeEvalWNew(this, evaluators);
-        } else {
-            this.evaluator = new ExprConcatNodeEvalThreadLocal(this, evaluators);
-        }
-
+        forge = new ExprConcatNodeForge(this, threadingProfile);
         return null;
-    }
-
-    public ExprEvaluator getExprEvaluator() {
-        return evaluator;
     }
 
     public boolean isConstantResult() {

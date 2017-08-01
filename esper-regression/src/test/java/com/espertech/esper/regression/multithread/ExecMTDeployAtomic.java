@@ -76,6 +76,8 @@ public class ExecMTDeployAtomic implements RegressionExecution {
             assertSame(reference.getFirst(), other.getFirst());
             assertSame(reference.getSecond(), other.getSecond());
         }
+
+        epService.removeAllStatementStateListeners();
     }
 
     private final static class MyKeepFirstPerStmtListener implements StatementAwareUpdateListener {

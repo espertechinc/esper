@@ -11,15 +11,20 @@
 package com.espertech.esper.epl.expression.prior;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
 /**
  * Represents the 'prior' prior event function in an expression node tree.
  */
-public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator, ExprForge {
     private Class resultType;
     private int streamNumber;
     private int constantIndexNumber;
@@ -48,6 +53,14 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator {
         return innerEvaluator;
     }
 
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return resultType;
+    }
+
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("Prior node must have 2 parameters");
@@ -56,24 +69,26 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator {
             throw new ExprValidationException("Prior function requires a constant-value integer-typed index expression as the first parameter");
         }
         ExprNode constantNode = this.getChildNodes()[0];
-        if (constantNode.getExprEvaluator().getType() != Integer.class) {
+        Class constantNodeType = constantNode.getForge().getEvaluationType();
+        if (constantNodeType != Integer.class && constantNodeType != int.class) {
             throw new ExprValidationException("Prior function requires an integer index parameter");
         }
 
-        Object value = constantNode.getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
+        Object value = constantNode.getForge().getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
         constantIndexNumber = ((Number) value).intValue();
-        innerEvaluator = this.getChildNodes()[1].getExprEvaluator();
+        ExprForge innerForge = this.getChildNodes()[1].getForge();
+        innerEvaluator = innerForge.getExprEvaluator();
 
         // Determine stream number
         // Determine stream number
         if (this.getChildNodes()[1] instanceof ExprIdentNode) {
             ExprIdentNode identNode = (ExprIdentNode) this.getChildNodes()[1];
             streamNumber = identNode.getStreamId();
-            resultType = innerEvaluator.getType();
+            resultType = JavaClassHelper.getBoxedType(innerForge.getEvaluationType());
         } else if (this.getChildNodes()[1] instanceof ExprStreamUnderlyingNode) {
             ExprStreamUnderlyingNode streamNode = (ExprStreamUnderlyingNode) this.getChildNodes()[1];
             streamNumber = streamNode.getStreamId();
-            resultType = innerEvaluator.getType();
+            resultType = JavaClassHelper.getBoxedType(innerForge.getEvaluationType());
         } else {
             throw new ExprValidationException("Previous function requires an event property as parameter");
         }
@@ -84,10 +99,6 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator {
         }
         validationContext.getViewResourceDelegate().addPriorNodeRequest(this);
         return null;
-    }
-
-    public Class getType() {
-        return resultType;
     }
 
     public boolean isConstantResult() {
@@ -104,6 +115,14 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator {
         return priorStrategy.evaluate(eventsPerStream, isNewData, exprEvaluatorContext, streamNumber, innerEvaluator, constantIndexNumber);
     }
 
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append("prior(");
         this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
@@ -114,6 +133,10 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator {
 
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {

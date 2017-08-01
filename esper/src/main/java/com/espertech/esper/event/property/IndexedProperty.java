@@ -18,6 +18,7 @@ import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.arr.ObjectArrayArrayPOJOEntryIndexedPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayArrayPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetterAndIndexed;
+import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.bean.*;
 import com.espertech.esper.event.map.MapArrayPOJOEntryIndexedPropertyGetter;
 import com.espertech.esper.event.map.MapArrayPropertyGetter;
@@ -352,7 +353,7 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
                 nestedName = EventTypeUtility.getPropertyRemoveArray(nestedName);
             }
             EventType innerType = eventAdapterService.getExistsTypeByName(nestedName);
-            if (!(innerType instanceof MapEventType)) {
+            if (!(innerType instanceof ObjectArrayEventType)) {
                 return null;
             }
             if (!isArray) {

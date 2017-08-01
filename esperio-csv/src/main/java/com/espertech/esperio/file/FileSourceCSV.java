@@ -16,6 +16,7 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.client.dataflow.EPDataFlowSignalFinalMarker;
 import com.espertech.esper.client.dataflow.EPDataFlowSignalWindowMarker;
 import com.espertech.esper.client.util.DateTime;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.dataflow.annotations.DataFlowOpProvideSignal;
@@ -35,6 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
 import java.util.*;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 @DataFlowOperator
 @DataFlowOpProvideSignal
@@ -181,11 +185,19 @@ public class FileSourceCSV implements DataFlowSourceOperator {
                         public Object parse(String text) {
                             return DateTime.toDate(text, df);
                         }
+
+                        public CodegenExpression codegen(CodegenExpression input) {
+                            return staticMethod(DateTime.class, "toDate", input, constant(df));
+                        }
                     };
                 } else {
                     parser = new SimpleTypeParser() {
                         public Object parse(String text) {
                             return DateTime.toCalendar(text, df);
+                        }
+
+                        public CodegenExpression codegen(CodegenExpression input) {
+                            return staticMethod(DateTime.class, "toCalendar", input, constant(df));
                         }
                     };
                 }

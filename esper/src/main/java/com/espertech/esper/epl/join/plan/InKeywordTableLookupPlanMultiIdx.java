@@ -43,7 +43,7 @@ public class InKeywordTableLookupPlanMultiIdx extends TableLookupPlan {
     }
 
     public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
-        ExprEvaluator evaluator = keyExpr.getExprEvaluator();
+        ExprEvaluator evaluator = keyExpr.getForge().getExprEvaluator();
         PropertyIndexedEventTableSingle[] singles = new PropertyIndexedEventTableSingle[eventTable.length];
         for (int i = 0; i < eventTable.length; i++) {
             singles[i] = (PropertyIndexedEventTableSingle) eventTable[i];

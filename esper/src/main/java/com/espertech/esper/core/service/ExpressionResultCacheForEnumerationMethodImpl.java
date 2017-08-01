@@ -18,8 +18,8 @@ import java.util.Iterator;
 
 public class ExpressionResultCacheForEnumerationMethodImpl implements ExpressionResultCacheForEnumerationMethod {
 
-    private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<Long[], Object>>> enumMethodCache
-            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<Long[], Object>>>();
+    private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntryLongArrayAndObj>> enumMethodCache
+            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntryLongArrayAndObj>>();
 
     private Deque<ExpressionResultCacheStackEntry> callStack;
     private Deque<Long> lastValueCacheStack;
@@ -41,12 +41,12 @@ public class ExpressionResultCacheForEnumerationMethodImpl implements Expression
         return callStack;
     }
 
-    public ExpressionResultCacheEntry<Long[], Object> getEnumerationMethodLastValue(Object node) {
-        SoftReference<ExpressionResultCacheEntry<Long[], Object>> cacheRef = enumMethodCache.get(node);
+    public ExpressionResultCacheEntryLongArrayAndObj getEnumerationMethodLastValue(Object node) {
+        SoftReference<ExpressionResultCacheEntryLongArrayAndObj> cacheRef = enumMethodCache.get(node);
         if (cacheRef == null) {
             return null;
         }
-        ExpressionResultCacheEntry<Long[], Object> entry = cacheRef.get();
+        ExpressionResultCacheEntryLongArrayAndObj entry = cacheRef.get();
         if (entry == null) {
             return null;
         }
@@ -65,8 +65,8 @@ public class ExpressionResultCacheForEnumerationMethodImpl implements Expression
 
     public void saveEnumerationMethodLastValue(Object node, Object result) {
         Long[] snapshot = lastValueCacheStack.toArray(new Long[lastValueCacheStack.size()]);
-        ExpressionResultCacheEntry<Long[], Object> entry = new ExpressionResultCacheEntry<Long[], Object>(snapshot, result);
-        enumMethodCache.put(node, new SoftReference<ExpressionResultCacheEntry<Long[], Object>>(entry));
+        ExpressionResultCacheEntryLongArrayAndObj entry = new ExpressionResultCacheEntryLongArrayAndObj(snapshot, result);
+        enumMethodCache.put(node, new SoftReference<ExpressionResultCacheEntryLongArrayAndObj>(entry));
     }
 
     public void pushContext(long contextNumber) {

@@ -36,7 +36,4 @@ public class ExprConcatNodeEvalThreadLocal implements ExprEvaluator {
         return ExprConcatNodeEvalWNew.evaluate(eventsPerStream, isNewData, context, buffer, evaluators, parent);
     }
 
-    public Class getType() {
-        return String.class;
-    }
 }

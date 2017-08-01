@@ -67,7 +67,7 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
         queryPlanResult = SubordinateQueryPlanner.planOnExpression(
                 validatedJoin, activatorResultEventType, indexHint, true, -1, excludePlanHint,
                 false, tableMetadata.getEventTableIndexMetadataRepo(), tableMetadata.getInternalEventType(),
-                tableMetadata.getUniqueKeyProps(), true, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations());
+                tableMetadata.getUniqueKeyProps(), true, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getEngineImportService());
         if (queryPlanResult.getIndexDescs() != null) {
             for (int i = 0; i < queryPlanResult.getIndexDescs().length; i++) {
                 tableMetadata.addIndexReference(queryPlanResult.getIndexDescs()[i].getIndexName(), statementContext.getStatementName());

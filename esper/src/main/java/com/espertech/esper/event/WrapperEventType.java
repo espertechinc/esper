@@ -11,12 +11,19 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.event.map.MapEventType;
+import com.espertech.esper.event.wrap.WrapperGetterIndexed;
+import com.espertech.esper.event.wrap.WrapperGetterMapped;
 import com.espertech.esper.event.wrap.WrapperMapPropertyGetter;
 import com.espertech.esper.event.wrap.WrapperUnderlyingPropertyGetter;
 
 import java.util.*;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * An event type that adds zero or more fields to an existing event type.
@@ -186,71 +193,93 @@ public class WrapperEventType implements EventTypeSPI {
             return null;
         }
 
-        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, metadata.getPublicName(), propertyName);
         propertyGetterCodegeneratedCache.put(propertyName, getterCode);
         return getterCode;
     }
 
-    public EventPropertyGetterMapped getGetterMapped(String mappedProperty) {
-        final EventPropertyGetterMapped undMapped = underlyingEventType.getGetterMapped(mappedProperty);
+    public EventPropertyGetterMappedSPI getGetterMappedSPI(String mappedProperty) {
+        final EventPropertyGetterMappedSPI undMapped = ((EventTypeSPI) underlyingEventType).getGetterMappedSPI(mappedProperty);
         if (undMapped != null) {
-            return new EventPropertyGetterMapped() {
-                public Object get(EventBean theEvent, String mapKey) throws PropertyAccessException {
-                    if (!(theEvent instanceof DecoratingEventBean)) {
-                        throw new PropertyAccessException("Mismatched property getter to EventBean type");
-                    }
-                    DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
-                    EventBean wrappedEvent = wrapperEvent.getUnderlyingEvent();
-                    if (wrappedEvent == null) {
-                        return null;
-                    }
-                    return undMapped.get(wrappedEvent, mapKey);
-                }
-            };
+            return new WrapperGetterMapped(undMapped);
         }
-        final EventPropertyGetterMapped decoMapped = underlyingMapType.getGetterMapped(mappedProperty);
+        final EventPropertyGetterMappedSPI decoMapped = underlyingMapType.getGetterMappedSPI(mappedProperty);
         if (decoMapped != null) {
-            return new EventPropertyGetterMapped() {
+            return new EventPropertyGetterMappedSPI() {
                 public Object get(EventBean theEvent, String mapKey) throws PropertyAccessException {
                     if (!(theEvent instanceof DecoratingEventBean)) {
                         throw new PropertyAccessException("Mismatched property getter to EventBean type");
                     }
                     DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
                     Map map = wrapperEvent.getDecoratingProperties();
-                    return decoMapped.get(eventAdapterService.adapterForTypedMap(map, underlyingMapType), mapKey);
+                    EventBean wrapped = eventAdapterService.adapterForTypedMap(map, underlyingMapType);
+                    return decoMapped.get(wrapped, mapKey);
+                }
+
+                public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+                    CodegenMember eventSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+                    CodegenMember mapType = context.makeAddMember(MapEventType.class, underlyingMapType);
+                    String method = context.addMethod(Object.class, WrapperEventType.class).add(EventBean.class, "theEvent").add(String.class, "mapKey").begin()
+                            .declareVar(DecoratingEventBean.class, "wrapperEvent", cast(DecoratingEventBean.class, ref("theEvent")))
+                            .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
+                            .declareVar(EventBean.class, "wrapped", exprDotMethod(ref(eventSvc.getMemberName()), "adapterForTypedMap", ref("map"), ref(mapType.getMemberName())))
+                            .methodReturn(decoMapped.eventBeanGetMappedCodegen(context, ref("wrapped"), ref("mapKey")));
+                    return localMethodBuild(method).pass(beanExpression).pass(key).call();
                 }
             };
         }
         return null;
     }
 
-    public EventPropertyGetterIndexed getGetterIndexed(String indexedProperty) {
-        final EventPropertyGetterIndexed undIndexed = underlyingEventType.getGetterIndexed(indexedProperty);
-        if (undIndexed != null) {
-            return new EventPropertyGetterIndexed() {
-                public Object get(EventBean theEvent, int index) throws PropertyAccessException {
-                    if (!(theEvent instanceof DecoratingEventBean)) {
-                        throw new PropertyAccessException("Mismatched property getter to EventBean type");
-                    }
-                    DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
-                    EventBean wrappedEvent = wrapperEvent.getUnderlyingEvent();
-                    if (wrappedEvent == null) {
-                        return null;
-                    }
-                    return undIndexed.get(wrappedEvent, index);
-                }
-            };
+    public EventPropertyGetterMapped getGetterMapped(String mappedProperty) {
+        EventPropertyGetterMappedSPI getter = getGetterMappedSPI(mappedProperty);
+        if (getter == null) {
+            return null;
         }
-        final EventPropertyGetterIndexed decoIndexed = underlyingMapType.getGetterIndexed(indexedProperty);
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), mappedProperty);
+    }
+
+    public EventPropertyGetterIndexed getGetterIndexed(String indexedPropertyName) {
+        EventPropertyGetterIndexedSPI getter = getGetterIndexedSPI(indexedPropertyName);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), indexedPropertyName);
+    }
+
+    public EventPropertyGetterIndexedSPI getGetterIndexedSPI(String indexedProperty) {
+        final EventPropertyGetterIndexedSPI undIndexed = ((EventTypeSPI) underlyingEventType).getGetterIndexedSPI(indexedProperty);
+        if (undIndexed != null) {
+            return new WrapperGetterIndexed(undIndexed);
+        }
+        final EventPropertyGetterIndexedSPI decoIndexed = underlyingMapType.getGetterIndexedSPI(indexedProperty);
         if (decoIndexed != null) {
-            return new EventPropertyGetterIndexed() {
+            return new EventPropertyGetterIndexedSPI() {
                 public Object get(EventBean theEvent, int index) throws PropertyAccessException {
                     if (!(theEvent instanceof DecoratingEventBean)) {
                         throw new PropertyAccessException("Mismatched property getter to EventBean type");
                     }
                     DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
                     Map map = wrapperEvent.getDecoratingProperties();
-                    return decoIndexed.get(eventAdapterService.adapterForTypedMap(map, underlyingMapType), index);
+                    EventBean wrapped = eventAdapterService.adapterForTypedMap(map, underlyingMapType);
+                    return decoIndexed.get(wrapped, index);
+                }
+
+                public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+                    CodegenMember eventSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+                    CodegenMember mapType = context.makeAddMember(MapEventType.class, underlyingMapType);
+                    String method = context.addMethod(Object.class, WrapperEventType.class).add(EventBean.class, "theEvent").add(int.class, "index").begin()
+                            .declareVar(DecoratingEventBean.class, "wrapperEvent", cast(DecoratingEventBean.class, ref("theEvent")))
+                            .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
+                            .declareVar(EventBean.class, "wrapped", exprDotMethod(ref(eventSvc.getMemberName()), "adapterForTypedMap", ref("map"), ref(mapType.getMemberName())))
+                            .methodReturn(decoIndexed.eventBeanGetIndexedCodegen(context, ref("wrapped"), ref("index")));
+                    return localMethodBuild(method).pass(beanExpression).pass(key).call();
                 }
             };
         }

@@ -21,6 +21,7 @@ import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.util.SerializableObjectCopier;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,6 @@ public class ExecEPLStaticFunctions implements RegressionExecution {
     }
 
     public void run(EPServiceProvider epService) throws Exception {
-
         runAssertionNullPrimitive(epService);
         runAssertionChainedInstance(epService);
         runAssertionChainedStatic(epService);
@@ -68,6 +68,24 @@ public class ExecEPLStaticFunctions implements RegressionExecution {
         runAssertionOtherClauses(epService);
         runAssertionNestedFunction(epService);
         runAssertionPassthru(epService);
+        runAssertionPrimitiveConversion(epService);
+    }
+
+    private void runAssertionPrimitiveConversion(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addImport(PrimitiveConversionLib.class);
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
+                "PrimitiveConversionLib.passIntAsObject(intPrimitive) as c0," +
+                "PrimitiveConversionLib.passIntAsNumber(intPrimitive) as c1," +
+                "PrimitiveConversionLib.passIntAsComparable(intPrimitive) as c2," +
+                "PrimitiveConversionLib.passIntAsSerializable(intPrimitive) as c3" +
+                " from SupportBean");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[] {10, 10, 10, 10});
+
+        stmt.destroy();
     }
 
     private void runAssertionNullPrimitive(EPServiceProvider epService) {
@@ -561,6 +579,24 @@ public class ExecEPLStaticFunctions implements RegressionExecution {
 
         public static Integer getValue(int input) {
             return input + 10;
+        }
+    }
+
+    public static class PrimitiveConversionLib {
+        public static int passIntAsObject(Object o) {
+            return (Integer) o;
+        }
+
+        public static int passIntAsNumber(Number n) {
+            return n.intValue();
+        }
+
+        public static int passIntAsComparable(Comparable c) {
+            return (Integer) c;
+        }
+
+        public static int passIntAsSerializable(Serializable s) {
+            return (Integer) s;
         }
     }
 }

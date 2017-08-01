@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.regression.pattern;
 
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.*;
 import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBeanConstants;
@@ -29,6 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ExecPatternUseResult implements RegressionExecution, SupportBeanConstants {
+
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionNumeric(epService);
         runAssertionObjectId(epService);
@@ -55,8 +53,8 @@ public class ExecPatternUseResult implements RegressionExecution, SupportBeanCon
         epService.getEPRuntime().sendEvent(new Object[] {"GE", 10}, "TypeOne");
         assertTrue(listenerOut2.getIsInvokedAndReset());
 
-        epService.getEPRuntime().sendEvent(new Object[] {"GE", 10, 5}, "TypeTwo");
-        epService.getEPRuntime().sendEvent(new Object[] {"GE", 10, 5}, "TypeTwo");
+        epService.getEPRuntime().sendEvent(new Object[] {"GE", "m1", 5}, "TypeTwo");
+        epService.getEPRuntime().sendEvent(new Object[] {"GE", "m2", 5}, "TypeTwo");
         assertTrue(listenerOut3.getIsInvokedAndReset());
 
         epService.getEPAdministrator().getDeploymentAdmin().undeployRemove(result.getDeploymentId());

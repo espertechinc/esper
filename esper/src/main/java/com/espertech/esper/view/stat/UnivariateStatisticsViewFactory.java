@@ -14,7 +14,9 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
@@ -34,6 +36,7 @@ public class UnivariateStatisticsViewFactory implements ViewFactory {
      * Property name of data field.
      */
     protected ExprNode fieldExpression;
+    protected ExprEvaluator fieldExpressionEvaluator;
     protected StatViewAdditionalProps additionalProps;
 
     protected EventType eventType;
@@ -48,12 +51,13 @@ public class UnivariateStatisticsViewFactory implements ViewFactory {
         if (validated.length < 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if (!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) {
+        if (!JavaClassHelper.isNumeric(validated[0].getForge().getEvaluationType())) {
             throw new ViewParameterException(getViewParamMessage());
         }
         fieldExpression = validated[0];
+        fieldExpressionEvaluator = ExprNodeCompiler.allocateEvaluator(fieldExpression.getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
 
-        additionalProps = StatViewAdditionalProps.make(validated, 1, parentEventType);
+        additionalProps = StatViewAdditionalProps.make(validated, 1, parentEventType, statementContext.getEngineImportService(), statementContext.getStatementName());
         eventType = UnivariateStatisticsView.createEventType(statementContext, additionalProps, streamNumber);
     }
 

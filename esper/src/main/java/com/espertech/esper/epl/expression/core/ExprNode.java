@@ -15,14 +15,9 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.util.Collection;
 
-public interface ExprNode extends ExprValidator, MetaDefItem, Serializable {
-
-    public ExprEvaluator getExprEvaluator();
-
-    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence);
+public interface ExprNode extends ExprNodeRenderable, ExprValidator, MetaDefItem, Serializable {
 
     /**
      * Returns precedence.
@@ -45,7 +40,7 @@ public interface ExprNode extends ExprValidator, MetaDefItem, Serializable {
      * <p>Concrete implementations should compare the type and any additional information
      * that impact the evaluation of a node.
      *
-     * @param node to compare to
+     * @param node               to compare to
      * @param ignoreStreamPrefix when the equals-comparison can ignore prefix of event properties
      * @return true if semantically equal, or false if not equals
      */
@@ -101,4 +96,6 @@ public interface ExprNode extends ExprValidator, MetaDefItem, Serializable {
     public void setChildNode(int index, ExprNode newNode);
 
     public void setChildNodes(ExprNode... nodes);
+
+    ExprForge getForge();
 }

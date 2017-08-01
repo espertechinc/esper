@@ -656,8 +656,8 @@ public class ExecEventBeanPropertyResolutionFragment implements RegressionExecut
         assertEquals(10, ((EventBean) assertEvent.getFragment("p1simple")).get("p2id"));
 
         assertEquals("JimTypeLev1", eventType.getFragmentType("p0array.p1simple").getFragmentType().getName());
-        assertEquals(int.class, eventType.getFragmentType("p0array.p1simple").getFragmentType().getPropertyType("p2id"));
-        assertEquals(int.class, eventType.getFragmentType("p0array[0].p1array[0]").getFragmentType().getPropertyDescriptor("p2id").getPropertyType());
+        assertEquals(Integer.class, eventType.getFragmentType("p0array.p1simple").getFragmentType().getPropertyType("p2id"));
+        assertEquals(Integer.class, eventType.getFragmentType("p0array[0].p1array[0]").getFragmentType().getPropertyDescriptor("p2id").getPropertyType());
         assertFalse(eventType.getFragmentType("p0simple.p1simple").isIndexed());
         assertTrue(eventType.getFragmentType("p0simple.p1array").isIndexed());
 
@@ -706,8 +706,8 @@ public class ExecEventBeanPropertyResolutionFragment implements RegressionExecut
         assertEquals(10, ((EventBean) assertEvent.getFragment("p1simple")).get("p2id"));
 
         assertEquals("JackTypeLev1", eventType.getFragmentType("p0array.p1simple").getFragmentType().getName());
-        assertEquals(int.class, eventType.getFragmentType("p0array.p1simple").getFragmentType().getPropertyType("p2id"));
-        assertEquals(int.class, eventType.getFragmentType("p0array[0].p1array[0]").getFragmentType().getPropertyDescriptor("p2id").getPropertyType());
+        assertEquals(Integer.class, eventType.getFragmentType("p0array.p1simple").getFragmentType().getPropertyType("p2id"));
+        assertEquals(Integer.class, eventType.getFragmentType("p0array[0].p1array[0]").getFragmentType().getPropertyDescriptor("p2id").getPropertyType());
         assertFalse(eventType.getFragmentType("p0simple.p1simple").isIndexed());
         assertTrue(eventType.getFragmentType("p0simple.p1array").isIndexed());
 
@@ -760,7 +760,7 @@ public class ExecEventBeanPropertyResolutionFragment implements RegressionExecut
 
         // Fragment-to-simple
         assertTrue(eventType.getPropertyDescriptor("p0simple").isFragment());
-        assertEquals(int.class, eventType.getFragmentType("p0simple").getFragmentType().getPropertyDescriptor("p1innerId").getPropertyType());
+        assertEquals(Integer.class, eventType.getFragmentType("p0simple").getFragmentType().getPropertyDescriptor("p1innerId").getPropertyType());
         EventBean p0simpleEvent = (EventBean) eventBean.getFragment("p0simple");
         assertEquals(50, p0simpleEvent.get("p1innerId"));
         p0simpleEvent = (EventBean) eventBean.getFragment("p0array[0]");

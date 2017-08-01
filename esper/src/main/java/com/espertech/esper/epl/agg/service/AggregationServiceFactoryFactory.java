@@ -60,7 +60,9 @@ public class AggregationServiceFactoryFactory {
      */
     public static AggregationServiceMatchRecognizeFactoryDesc getServiceMatchRecognize(int numStreams,
                                                                                        Map<Integer, List<ExprAggregateNode>> measureExprNodesPerStream,
-                                                                                       EventType[] typesPerStream)
+                                                                                       EventType[] typesPerStream,
+                                                                                       EngineImportService engineImportService,
+                                                                                       String statementName)
             throws ExprValidationException {
         Map<Integer, List<AggregationServiceAggExpressionDesc>> equivalencyListPerStream = new TreeMap<Integer, List<AggregationServiceAggExpressionDesc>>();
 
@@ -91,7 +93,7 @@ public class AggregationServiceFactoryFactory {
                     evaluators[index] = ExprMethodAggUtil.getMultiNodeEvaluator(aggregateNode.getChildNodes(), typesPerStream.length > 1, typesPerStream);
                 } else if (aggregateNode.getChildNodes().length > 0) {
                     // Use the evaluation node under the aggregation node to obtain the aggregation value
-                    evaluators[index] = aggregateNode.getChildNodes()[0].getExprEvaluator();
+                    evaluators[index] = ExprNodeCompiler.allocateEvaluator(aggregateNode.getChildNodes()[0].getForge(), engineImportService, AggregationServiceFactoryFactory.class, false, statementName);
                 } else {
                     // For aggregation that doesn't evaluate any particular sub-expression, return null on evaluation
                     evaluators[index] = new ExprEvaluator() {
@@ -99,9 +101,6 @@ public class AggregationServiceFactoryFactory {
                             return null;
                         }
 
-                        public Class getType() {
-                            return null;
-                        }
                     };
                 }
 
@@ -147,7 +146,8 @@ public class AggregationServiceFactoryFactory {
                                                            boolean isUnidirectional,
                                                            boolean isFireAndForget,
                                                            boolean isOnSelect,
-                                                           EngineImportService engineImportService)
+                                                           EngineImportService engineImportService,
+                                                           String statementName)
             throws ExprValidationException {
         // No aggregates used, we do not need this service
         if ((selectAggregateExprNodes.isEmpty()) && (havingAggregateExprNodes.isEmpty())) {
@@ -218,7 +218,7 @@ public class AggregationServiceFactoryFactory {
                     metadata.getKeyTypes(), "group-by");
 
             // determine how this binds to existing aggregations, assign column numbers
-            BindingMatchResult bindingMatchResult = matchBindingsAssignColumnNumbers(intoTableSpec, metadata, aggregations, selectClauseNamedNodes, methodAggEvaluatorsList, declaredExpressions);
+            BindingMatchResult bindingMatchResult = matchBindingsAssignColumnNumbers(intoTableSpec, metadata, aggregations, selectClauseNamedNodes, methodAggEvaluatorsList, declaredExpressions, engineImportService, statementName);
 
             // return factory
             AggregationServiceFactory serviceFactory;
@@ -265,7 +265,7 @@ public class AggregationServiceFactoryFactory {
         // analyze local group by
         AggregationLocalGroupByPlan localGroupByPlan = null;
         if (localGroupDesc != null) {
-            localGroupByPlan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggEvaluators, methodAggFactories, accessAggregations, localGroupDesc, groupByNodes, accessorPairs);
+            localGroupByPlan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggEvaluators, methodAggFactories, accessAggregations, localGroupDesc, groupByNodes, accessorPairs, engineImportService, isFireAndForget, statementName);
             try {
                 AggregationLocalLevelHook hook = (AggregationLocalLevelHook) JavaClassHelper.getAnnotationHook(annotations, HookType.INTERNAL_AGGLOCALLEVEL, AggregationLocalLevelHook.class, engineImportService);
                 if (hook != null) {
@@ -378,7 +378,10 @@ public class AggregationServiceFactoryFactory {
                                                                        TableMetadata metadata,
                                                                        List<AggregationServiceAggExpressionDesc> aggregations,
                                                                        Map<ExprNode, String> selectClauseNamedNodes,
-                                                                       List<ExprEvaluator> methodAggEvaluatorsList, List<ExprDeclaredNode> declaredExpressions)
+                                                                       List<ExprEvaluator> methodAggEvaluatorsList,
+                                                                       List<ExprDeclaredNode> declaredExpressions,
+                                                                       EngineImportService engineImportService,
+                                                                       String statementName)
             throws ExprValidationException {
         Map<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation> methodAggs = new LinkedHashMap<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation>();
         Map<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation> accessAggs = new LinkedHashMap<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation>();
@@ -429,7 +432,7 @@ public class AggregationServiceFactoryFactory {
             accessSlots.put(slot, accessEntry.getKey().getAggregationNode());
             accessReadPairs.add(new AggregationAccessorSlotPair(slot, accessor));
             accessEntry.getKey().setColumnNum(metadata.getNumberMethodAggregations() + accessIndex);
-            agents.add(aggregationMethodFactory.getAggregationStateAgent());
+            agents.add(aggregationMethodFactory.getAggregationStateAgent(engineImportService, statementName));
         }
         AggregationAgent[] agentArr = agents.toArray(new AggregationAgent[agents.size()]);
         AggregationAccessorSlotPair[] accessReads = accessReadPairs.toArray(new AggregationAccessorSlotPair[accessReadPairs.size()]);

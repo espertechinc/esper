@@ -13,11 +13,15 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.util.ClassForNameProvider;
+import com.espertech.esper.client.util.ClassLoaderProvider;
+import com.espertech.esper.codegen.compile.CodegenCompiler;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
+import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
+import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
 import java.lang.reflect.Constructor;
@@ -28,7 +32,7 @@ import java.util.TimeZone;
 /**
  * Service for engine-level resolution of static methods and aggregation methods.
  */
-public interface EngineImportService {
+public interface EngineImportService extends ClassLoaderProvider {
     public final static String EXT_SINGLEROW_FUNCTION_TRANSPOSE = "transpose";
 
     /**
@@ -67,12 +71,12 @@ public interface EngineImportService {
     /**
      * Add an single-row function.
      *
-     * @param functionName       is the name of the function to make known.
-     * @param singleRowFuncClass is the class that provides the single row function
-     * @param methodName         is the name of the public static method provided by the class that provides the single row function
-     * @param valueCache         setting to control value cache behavior which may cache a result value when constant parameters are passed
-     * @param filterOptimizable  filter behavior setting
-     * @param rethrowExceptions  for whether to rethrow
+     * @param functionName          is the name of the function to make known.
+     * @param singleRowFuncClass    is the class that provides the single row function
+     * @param methodName            is the name of the public static method provided by the class that provides the single row function
+     * @param valueCache            setting to control value cache behavior which may cache a result value when constant parameters are passed
+     * @param filterOptimizable     filter behavior setting
+     * @param rethrowExceptions     for whether to rethrow
      * @param optionalEventTypeName event type name when provided
      * @throws EngineImportException throw if format or information is invalid
      */
@@ -117,14 +121,14 @@ public interface EngineImportService {
 
     public Method resolveMethodOverloadChecked(Class clazz, String methodName) throws EngineImportException;
 
-        /**
-         * Resolves a constructor matching list of parameter types.
-         *
-         * @param clazz      is the class to use
-         * @param paramTypes is parameter types match expression sub-nodes
-         * @return method this resolves to
-         * @throws EngineImportException if the ctor cannot be resolved
-         */
+    /**
+     * Resolves a constructor matching list of parameter types.
+     *
+     * @param clazz      is the class to use
+     * @param paramTypes is parameter types match expression sub-nodes
+     * @return method this resolves to
+     * @throws EngineImportException if the ctor cannot be resolved
+     */
     public Constructor resolveCtor(Class clazz, Class[] paramTypes) throws EngineImportException;
 
     /**
@@ -228,5 +232,15 @@ public interface EngineImportService {
 
     public boolean isCodegenEventPropertyGetters();
 
-    EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String propertyExpression);
+    public ConfigurationEngineDefaults.CodeGeneration getCodeGeneration();
+
+    public CodegenCompiler getCodegenCompiler();
+
+    EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String eventTypeName, String propertyExpression);
+
+    EventPropertyGetterIndexed codegenGetter(EventPropertyGetterIndexedSPI getterSPI, String eventTypeName, String propertyExpression);
+
+    EventPropertyGetterMapped codegenGetter(EventPropertyGetterMappedSPI getterSPI, String eventTypeName, String propertyExpression);
+
+    public String getEngineURI();
 }

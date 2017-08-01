@@ -31,12 +31,13 @@ public class ExecExprInBetweenLike implements RegressionExecution {
         runAssertionInCollection(epService);
         runAssertionInStringExprOM(epService);
         runAssertionInStringExpr(epService);
-        runAssertionBetweenStringExpr(epService);
         runAssertionInNumericExpr(epService);
-        runAssertionBetweenNumericExpr(epService);
         runAssertionInBoolExpr(epService);
         runAssertionInNumericCoercionLong(epService);
         runAssertionInNumericCoercionDouble(epService);
+        runAssertionBetweenStringExpr(epService);
+        runAssertionBetweenBigIntBigDecExpr(epService);
+        runAssertionBetweenNumericExpr(epService);
         runAssertionBetweenNumericCoercionLong(epService);
         runAssertionInRange(epService);
         runAssertionBetweenNumericCoercionDouble(epService);
@@ -83,9 +84,12 @@ public class ExecExprInBetweenLike implements RegressionExecution {
     }
 
     private void runAssertionInCollection(EPServiceProvider epService) {
-        String stmtText = "select 10 in (arrayProperty) as result from " + SupportBeanComplexProps.class.getName();
-        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         SupportUpdateListener listener = new SupportUpdateListener();
+        String stmtText;
+        EPStatement stmt;
+
+        stmtText = "select 10 in (arrayProperty) as result from " + SupportBeanComplexProps.class.getName();
+        stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         assertEquals(Boolean.class, stmt.getEventType().getPropertyType("result"));
 
@@ -248,6 +252,33 @@ public class ExecExprInBetweenLike implements RegressionExecution {
         tryString(epService, "theString not in (null)",
                 new String[]{"0", null, "b"},
                 new Boolean[]{null, null, null});
+    }
+
+    private void runAssertionBetweenBigIntBigDecExpr(EPServiceProvider epService) {
+        String[] fields = "c0,c1,c2,c3".split(",");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
+                "intPrimitive between BigInteger.valueOf(1) and BigInteger.valueOf(3) as c0," +
+                "intPrimitive between BigDecimal.valueOf(1) and BigDecimal.valueOf(3) as c1," +
+                "intPrimitive in (BigInteger.valueOf(1):BigInteger.valueOf(3)) as c2," +
+                "intPrimitive in (BigDecimal.valueOf(1):BigDecimal.valueOf(3)) as c3" +
+                " from SupportBean");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E0", 0));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {false, false, false, false});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true, true, false, false});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true, true, true, true});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true, true, false, false});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {false, false, false, false});
     }
 
     private void runAssertionBetweenStringExpr(EPServiceProvider epService) {

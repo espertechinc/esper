@@ -10,30 +10,25 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
+import java.util.Map;
 import java.util.Set;
 
 public class CodegenChainElement {
     private final String method;
-    private final Object[] consts;
+    private final CodegenExpression[] optionalParams;
 
-    public CodegenChainElement(String method, Object[] consts) {
+    public CodegenChainElement(String method, CodegenExpression[] optionalParams) {
         this.method = method;
-        this.consts = consts;
+        this.optionalParams = optionalParams;
     }
 
-    public void render(StringBuilder builder) {
+    public void render(StringBuilder builder, Map<Class, String> imports) {
         builder.append(method).append("(");
-        if (consts != null) {
+        if (optionalParams != null) {
             String delimiter = "";
-            for (Object constant : consts) {
+            for (CodegenExpression param : optionalParams) {
                 builder.append(delimiter);
-                if (constant instanceof CharSequence) {
-                    builder.append("\"");
-                    builder.append(constant);
-                    builder.append("\"");
-                } else {
-                    builder.append(constant);
-                }
+                param.render(builder, imports);
                 delimiter = ",";
             }
         }
@@ -41,5 +36,10 @@ public class CodegenChainElement {
     }
 
     public void mergeClasses(Set<Class> classes) {
+        if (optionalParams != null) {
+            for (CodegenExpression param : optionalParams) {
+                param.mergeClasses(classes);
+            }
+        }
     }
 }

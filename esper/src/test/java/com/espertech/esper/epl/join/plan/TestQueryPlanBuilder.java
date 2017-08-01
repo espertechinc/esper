@@ -12,7 +12,9 @@ package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.supportunit.bean.SupportBean_S0;
@@ -25,7 +27,6 @@ import junit.framework.TestCase;
 
 public class TestQueryPlanBuilder extends TestCase {
     private EventType[] typesPerStream;
-    private boolean[] isHistorical;
     private DependencyGraph dependencyGraph;
 
     public void setUp() {
@@ -34,7 +35,6 @@ public class TestQueryPlanBuilder extends TestCase {
                 SupportEventAdapterService.getService().addBeanType(SupportBean_S1.class.getName(), SupportBean_S1.class, true, true, true)
         };
         dependencyGraph = new DependencyGraph(2, false);
-        isHistorical = new boolean[2];
     }
 
     public void testGetPlan() throws Exception {
@@ -43,17 +43,18 @@ public class TestQueryPlanBuilder extends TestCase {
         };
 
         QueryGraph queryGraph = new QueryGraph(2, null, false);
-        QueryPlan plan = QueryPlanBuilder.getPlan(typesPerStream, new OuterJoinDesc[0], queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null);
+        EngineImportService engineImportService = SupportEngineImportServiceFactory.make();
+        QueryPlan plan = QueryPlanBuilder.getPlan(typesPerStream, new OuterJoinDesc[0], queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null, engineImportService, false);
         assertPlan(plan);
 
-        plan = QueryPlanBuilder.getPlan(typesPerStream, descList, queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null);
+        plan = QueryPlanBuilder.getPlan(typesPerStream, descList, queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null, engineImportService, false);
         assertPlan(plan);
 
         FilterExprAnalyzer.analyze(SupportExprNodeFactory.makeEqualsNode(), queryGraph, false);
-        plan = QueryPlanBuilder.getPlan(typesPerStream, descList, queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null);
+        plan = QueryPlanBuilder.getPlan(typesPerStream, descList, queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null, engineImportService, false);
         assertPlan(plan);
 
-        plan = QueryPlanBuilder.getPlan(typesPerStream, new OuterJoinDesc[0], queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null);
+        plan = QueryPlanBuilder.getPlan(typesPerStream, new OuterJoinDesc[0], queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResult(2), true, null, null, engineImportService, false);
         assertPlan(plan);
     }
 

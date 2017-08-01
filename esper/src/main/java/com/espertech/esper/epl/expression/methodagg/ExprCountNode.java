@@ -46,17 +46,17 @@ public class ExprCountNode extends ExprAggregateNodeBase {
             validateNotDistinct();
             // defaults
         } else if (positionalParams.length == 1) {
-            childType = positionalParams[0].getExprEvaluator().getType();
+            childType = positionalParams[0].getForge().getEvaluationType();
             ignoreNulls = true;
         } else if (positionalParams.length == 2) {
             hasFilter = true;
             if (!(positionalParams[0] instanceof ExprWildcard)) {
-                childType = positionalParams[0].getExprEvaluator().getType();
+                childType = positionalParams[0].getForge().getEvaluationType();
                 ignoreNulls = true;
             } else {
                 validateNotDistinct();
             }
-            super.validateFilter(positionalParams[1].getExprEvaluator());
+            super.validateFilter(positionalParams[1].getForge());
         }
 
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeCount(validationContext.getStatementExtensionSvcContext(), this, ignoreNulls, childType);

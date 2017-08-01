@@ -16,7 +16,6 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
 
@@ -31,14 +30,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter {
     private final EventPropertyGetterSPI[] getterChain;
 
-    /**
-     * Ctor.
-     *
-     * @param getterChain        is the chain of getters to retrieve each nested property
-     * @param eventAdaperService is a factory for POJO bean event types
-     */
-    public MapNestedPropertyGetterMixedType(List<EventPropertyGetterSPI> getterChain,
-                                            EventAdapterService eventAdaperService) {
+    public MapNestedPropertyGetterMixedType(List<EventPropertyGetterSPI> getterChain) {
         this.getterChain = getterChain.toArray(new EventPropertyGetterSPI[getterChain.size()]);
     }
 
@@ -48,8 +40,8 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private String getMapCodegen(CodegenContext context) throws PropertyAccessException {
-        return context.addMethod(Object.class, Map.class, "map", this.getClass())
-                .declareVar(Object.class, "result", getterChain[0].codegenUnderlyingGet(ref("map"), context))
+        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
+                .declareVar(Object.class, "result", getterChain[0].underlyingGetCodegen(ref("map"), context))
                 .methodReturn(localMethod(handleGetterTrailingChainCodegen(context), ref("result")));
     }
 
@@ -62,9 +54,9 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private String isMapExistsPropertyCodegen(CodegenContext context) throws PropertyAccessException {
-        return context.addMethod(boolean.class, Map.class, "map", this.getClass())
-                .ifConditionReturnConst(getterChain[0].codegenUnderlyingExists(ref("map"), context), false)
-                .declareVar(Object.class, "result", getterChain[0].codegenUnderlyingGet(ref("map"), context))
+        return context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
+                .ifConditionReturnConst(getterChain[0].underlyingExistsCodegen(ref("map"), context), false)
+                .declareVar(Object.class, "result", getterChain[0].underlyingGetCodegen(ref("map"), context))
                 .methodReturn(localMethod(handleIsExistsTrailingChainCodegen(context), ref("result")));
     }
 
@@ -81,27 +73,27 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
         return handleIsExistsTrailingChain(result);
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getMapCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(isMapExistsPropertyCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
     }
 
@@ -139,37 +131,37 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private String handleIsExistsTrailingChainCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(boolean.class, Object.class, "result", this.getClass());
+        CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Object.class, "result").begin();
         for (int i = 1; i < getterChain.length - 1; i++) {
             block.ifRefNullReturnFalse("result");
             EventPropertyGetterSPI getter = getterChain[i];
             CodegenBlock blockBean = block.ifInstanceOf("result", EventBean.class);
-            blockBean.assignRef("result", getter.codegenEventBeanGet(cast(EventBean.class, ref("result")), context));
+            blockBean.assignRef("result", getter.eventBeanGetCodegen(cast(EventBean.class, ref("result")), context));
 
             if (getter instanceof BeanEventPropertyGetter) {
                 Class type = ((BeanEventPropertyGetter) getter).getTargetType();
-                blockBean.blockElse()
-                        .assignRef("result", getter.codegenUnderlyingGet(cast(type, ref("result")), context))
+                blockBean.ifElse()
+                        .assignRef("result", getter.underlyingGetCodegen(cast(type, ref("result")), context))
                         .blockEnd();
             } else if (getter instanceof MapEventPropertyGetter) {
-                blockBean.blockElse()
+                blockBean.ifElse()
                         .ifRefNotTypeReturnConst("result", Map.class, false)
-                        .assignRef("result", getter.codegenUnderlyingGet(cast(Map.class, ref("result")), context))
+                        .assignRef("result", getter.underlyingGetCodegen(cast(Map.class, ref("result")), context))
                         .blockEnd();
             } else {
-                blockBean.blockElse().blockReturn(constantFalse());
+                blockBean.ifElse().blockReturn(constantFalse());
             }
         }
 
         EventPropertyGetterSPI getter = getterChain[getterChain.length - 1];
         if (getter instanceof BeanEventPropertyGetter) {
             BeanEventPropertyGetter beanGetter = (BeanEventPropertyGetter) getter;
-            return block.methodReturn(getter.codegenUnderlyingExists(cast(beanGetter.getTargetType(), ref("result")), context));
+            return block.methodReturn(getter.underlyingExistsCodegen(cast(beanGetter.getTargetType(), ref("result")), context));
         } else if (getter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(getter.codegenUnderlyingExists(cast(Map.class, ref("result")), context));
+            return block.methodReturn(getter.underlyingExistsCodegen(cast(Map.class, ref("result")), context));
         } else {
             block.ifInstanceOf("result", EventBean.class)
-                    .blockReturn(getter.codegenEventBeanExists(cast(EventBean.class, ref("result")), context));
+                    .blockReturn(getter.eventBeanExistsCodegen(cast(EventBean.class, ref("result")), context));
             return block.methodReturn(constantFalse());
         }
     }
@@ -199,24 +191,24 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private String handleGetterTrailingChainCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object.class, Object.class, "result", this.getClass());
+        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Object.class, "result").begin();
         for (int i = 1; i < getterChain.length; i++) {
             block.ifRefNullReturnNull("result");
             EventPropertyGetterSPI getter = getterChain[i];
             CodegenBlock blockBean = block.ifInstanceOf("result", EventBean.class);
-            blockBean.assignRef("result", getter.codegenEventBeanGet(cast(EventBean.class, ref("result")), context));
+            blockBean.assignRef("result", getter.eventBeanGetCodegen(cast(EventBean.class, ref("result")), context));
             if (getter instanceof BeanEventPropertyGetter) {
                 Class type = ((BeanEventPropertyGetter) getter).getTargetType();
-                blockBean.blockElse()
-                        .assignRef("result", getter.codegenUnderlyingGet(cast(type, ref("result")), context))
+                blockBean.ifElse()
+                        .assignRef("result", getter.underlyingGetCodegen(cast(type, ref("result")), context))
                         .blockEnd();
             } else if (getter instanceof MapEventPropertyGetter) {
-                blockBean.blockElse()
+                blockBean.ifElse()
                         .ifRefNotTypeReturnConst("result", Map.class, null)
-                        .assignRef("result", getter.codegenUnderlyingGet(cast(Map.class, ref("result")), context))
+                        .assignRef("result", getter.underlyingGetCodegen(cast(Map.class, ref("result")), context))
                         .blockEnd();
             } else {
-                blockBean.blockElse().blockReturn(constantNull());
+                blockBean.ifElse().blockReturn(constantNull());
             }
         }
         return block.methodReturn(ref("result"));

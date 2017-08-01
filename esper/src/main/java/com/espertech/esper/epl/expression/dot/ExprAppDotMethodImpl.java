@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.epl.core.EngineImportApplicationDotMethod;
-import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffectorProvider;
 import com.espertech.esper.filter.FilterSpecCompilerAdvIndexDesc;
 
@@ -35,16 +35,24 @@ public class ExprAppDotMethodImpl extends ExprNodeBase implements FilterSpecComp
         return desc;
     }
 
-    public ExprEvaluator getExprEvaluator() {
-        return desc.getExprEvaluator();
-    }
-
     public FilterSpecCompilerAdvIndexDesc getFilterSpecDesc() {
         return desc.getFilterSpecCompilerAdvIndexDesc();
     }
 
     public FilterExprAnalyzerAffector getAffector(boolean isOuterJoin) {
         return isOuterJoin ? null : desc.getFilterExprAnalyzerAffector();
+    }
+
+    public ExprForge getForge() {
+        return desc.getForge();
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        return desc.getForge().getExprEvaluator();
+    }
+
+    public Class getEvaluationType() {
+        return desc.getForge().getEvaluationType();
     }
 
     public ExprPrecedenceEnum getPrecedence() {

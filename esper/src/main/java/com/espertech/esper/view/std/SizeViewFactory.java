@@ -40,7 +40,7 @@ public class SizeViewFactory implements ViewFactory {
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
-        additionalProps = StatViewAdditionalProps.make(validated, 0, parentEventType);
+        additionalProps = StatViewAdditionalProps.make(validated, 0, parentEventType, statementContext.getEngineImportService(), statementContext.getStatementName());
         eventType = SizeView.createEventType(statementContext, additionalProps, streamNumber);
     }
 

@@ -10,14 +10,18 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
+import com.espertech.esper.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.cast;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class ExprDotStaticMethodWrapIterableScalar implements ExprDotStaticMethodWrap {
 
@@ -35,19 +39,15 @@ public class ExprDotStaticMethodWrapIterableScalar implements ExprDotStaticMetho
         return EPTypeHelper.collectionOfSingleValue(componentType);
     }
 
-    public Collection convert(Object result) {
-        if (result == null) {
-            return null;
-        }
+    public Collection convertNonNull(Object result) {
         if (!(result instanceof Iterable)) {
             log.warn("Expected iterable-type input from method '" + methodName + "' but received " + result.getClass());
             return null;
         }
-        ArrayList items = new ArrayList();
-        Iterator iterator = ((Iterable) result).iterator();
-        for (; iterator.hasNext(); ) {
-            items.add(iterator.next());
-        }
-        return items;
+        return CollectionUtil.iterableToCollection((Iterable) result);
+    }
+
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
+        return staticMethod(CollectionUtil.class, "iterableToCollection", cast(Iterable.class, result));
     }
 }

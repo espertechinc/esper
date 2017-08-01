@@ -43,7 +43,7 @@ public class TestExprInstanceOfNode extends TestCase {
     public void testGetType() throws Exception {
         for (int i = 0; i < instanceofNodes.length; i++) {
             instanceofNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
-            assertEquals(Boolean.class, instanceofNodes[i].getType());
+            assertEquals(Boolean.class, instanceofNodes[i].getForge().getEvaluationType());
         }
     }
 
@@ -74,11 +74,11 @@ public class TestExprInstanceOfNode extends TestCase {
             instanceofNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
-        assertEquals(true, instanceofNodes[0].evaluate(null, false, null));
-        assertEquals(true, instanceofNodes[1].evaluate(null, false, null));
-        assertEquals(false, instanceofNodes[2].evaluate(null, false, null));
-        assertEquals(false, instanceofNodes[3].evaluate(null, false, null));
-        assertEquals(true, instanceofNodes[4].evaluate(null, false, null));
+        assertEquals(true, instanceofNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals(true, instanceofNodes[1].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals(false, instanceofNodes[2].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals(false, instanceofNodes[3].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals(true, instanceofNodes[4].getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEquals() throws Exception {

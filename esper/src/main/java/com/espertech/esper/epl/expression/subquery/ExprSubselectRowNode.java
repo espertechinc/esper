@@ -45,14 +45,14 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
         super(statementSpec);
     }
 
-    public Class getType() {
+    public Class getEvaluationType() {
         if (selectClause == null) {   // wildcards allowed
             return rawEventType.getUnderlyingType();
         }
         if (selectClause.length == 1) {
-            return JavaClassHelper.getBoxedType(selectClause[0].getExprEvaluator().getType());
+            return JavaClassHelper.getBoxedType(selectClause[0].getForge().getEvaluationType());
         }
-        return null;
+        return Map.class;
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
@@ -205,7 +205,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
         if (selectClauseEvaluator.length > 1) {
             return null;
         }
-        return selectClauseEvaluator[0].getType();
+        return selectClause[0].getForge().getEvaluationType();
     }
 
     public boolean isAllowMultiColumnSelect() {
@@ -222,7 +222,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
                 assignedName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(selectClause[i]);
             }
             if (uniqueNames.add(assignedName)) {
-                type.put(assignedName, selectClause[i].getExprEvaluator().getType());
+                type.put(assignedName, selectClause[i].getForge().getEvaluationType());
             } else {
                 throw new ExprValidationException("Column " + i + " in subquery does not have a unique column name assigned");
             }

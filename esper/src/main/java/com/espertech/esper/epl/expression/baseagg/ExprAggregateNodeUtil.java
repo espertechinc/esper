@@ -34,7 +34,7 @@ public class ExprAggregateNodeUtil {
                 if (paramNameLower.equals("group_by")) {
                     optionalLocalGroupBy = new ExprAggregateLocalGroupByDesc(namedParameterNode.getChildNodes());
                 } else if (paramNameLower.equals("filter")) {
-                    if (namedParameterNode.getChildNodes().length != 1 | JavaClassHelper.getBoxedType(namedParameterNode.getChildNodes()[0].getExprEvaluator().getType()) != Boolean.class) {
+                    if (namedParameterNode.getChildNodes().length != 1 | JavaClassHelper.getBoxedType(namedParameterNode.getChildNodes()[0].getForge().getEvaluationType()) != Boolean.class) {
                         throw new ExprValidationException("Filter named parameter requires a single expression returning a boolean-typed value");
                     }
                     optionalFilter = namedParameterNode.getChildNodes()[0];

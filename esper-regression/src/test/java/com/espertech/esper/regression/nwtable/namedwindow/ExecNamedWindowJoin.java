@@ -495,7 +495,7 @@ public class ExecNamedWindowJoin implements RegressionExecution, IndexBackingTab
         EPAssertionUtil.assertEqualsAnyOrder(stmtSelectOne.getEventType().getPropertyNames(), new String[]{"symbol", "a", "b"});
         assertEquals(String.class, stmtSelectOne.getEventType().getPropertyType("symbol"));
         assertEquals(String.class, stmtSelectOne.getEventType().getPropertyType("a"));
-        assertEquals(int.class, stmtSelectOne.getEventType().getPropertyType("b"));
+        assertEquals(Integer.class, stmtSelectOne.getEventType().getPropertyType("b"));
 
         sendMarketBean(epService, "S1");
         assertFalse(listener.isInvoked());

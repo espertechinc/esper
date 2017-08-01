@@ -46,7 +46,12 @@ public class TestExprIdentNode extends TestCase {
             // expected
         }
 
-        assertNull(identNodes[0].getExprEvaluator());
+        try {
+            assertNull(identNodes[0].getForge().getExprEvaluator());
+            fail();
+        } catch (IllegalStateException ex) {
+            // expected
+        }
 
         try {
             identNodes[0].getResolvedStreamName();
@@ -66,22 +71,22 @@ public class TestExprIdentNode extends TestCase {
     public void testValidate() throws Exception {
         identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[0].getStreamId());
-        assertEquals(String.class, identNodes[0].getExprEvaluator().getType());
+        assertEquals(String.class, identNodes[0].getForge().getEvaluationType());
         assertEquals("mapped('a')", identNodes[0].getResolvedPropertyName());
 
         identNodes[1].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[1].getStreamId());
-        assertEquals(String.class, identNodes[1].getExprEvaluator().getType());
+        assertEquals(String.class, identNodes[1].getForge().getEvaluationType());
         assertEquals("nested.nestedValue", identNodes[1].getResolvedPropertyName());
 
         identNodes[2].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[2].getStreamId());
-        assertEquals(int.class, identNodes[2].getExprEvaluator().getType());
+        assertEquals(Integer.class, identNodes[2].getForge().getEvaluationType());
         assertEquals("indexed[1]", identNodes[2].getResolvedPropertyName());
 
         identNodes[3].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(0, identNodes[3].getStreamId());
-        assertEquals(int.class, identNodes[3].getExprEvaluator().getType());
+        assertEquals(Integer.class, identNodes[3].getForge().getEvaluationType());
         assertEquals("intPrimitive", identNodes[3].getResolvedPropertyName());
 
         tryInvalidValidate(new ExprIdentNodeImpl(""));
@@ -95,15 +100,15 @@ public class TestExprIdentNode extends TestCase {
     public void testGetType() throws Exception {
         // test success
         identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
-        assertEquals(String.class, identNodes[0].getExprEvaluator().getType());
+        assertEquals(String.class, identNodes[0].getForge().getEvaluationType());
     }
 
     public void testEvaluate() throws Exception {
         EventBean[] events = new EventBean[]{makeEvent(10)};
 
         identNodes[3].validate(SupportExprValidationContextFactory.make(streamTypeService));
-        assertEquals(10, identNodes[3].getExprEvaluator().evaluate(events, false, null));
-        assertNull(identNodes[3].getExprEvaluator().evaluate(new EventBean[2], false, null));
+        assertEquals(10, identNodes[3].getForge().getExprEvaluator().evaluate(events, false, null));
+        assertNull(identNodes[3].getForge().getExprEvaluator().evaluate(new EventBean[2], false, null));
     }
 
     public void testEvaluatePerformance() throws Exception {
@@ -115,7 +120,7 @@ public class TestExprIdentNode extends TestCase {
 
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 100000; i++) {
-            identNodes[2].getExprEvaluator().evaluate(events, false, null);
+            identNodes[2].getForge().getExprEvaluator().evaluate(events, false, null);
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;

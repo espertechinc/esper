@@ -19,7 +19,7 @@ public class ExprTimePeriodUtil {
         return validateMsgName + " " + validateMsgValue + " requires a size of at least 1 msec but received " + timeInSeconds;
     }
 
-    static int findIndexMicroseconds(ExprTimePeriodImpl.TimePeriodAdder[] adders) {
+    static int findIndexMicroseconds(ExprTimePeriodAdder.TimePeriodAdder[] adders) {
         int indexMicros = -1;
         for (int i = 0; i < adders.length; i++) {
             if (adders[i].isMicroseconds()) {

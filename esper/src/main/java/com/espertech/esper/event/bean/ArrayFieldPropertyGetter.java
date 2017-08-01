@@ -69,10 +69,10 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
     }
 
     private String getBeanPropInternalCodegen(CodegenContext context) {
-        return context.addMethod(getBeanPropType(), getTargetType(), "object", this.getClass())
+        return context.addMethod(getBeanPropType(), this.getClass()).add(getTargetType(), "object").add(int.class, "index").begin()
                 .declareVar(Object.class, "value", exprDotName(ref("object"), field.getName()))
-                .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, constant(index)), null)
-                .methodReturn(cast(getBeanPropType(), staticMethod(Array.class, "get", ref("value"), constant(index))));
+                .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, ref("index")), null)
+                .methodReturn(cast(getBeanPropType(), staticMethod(Array.class, "get", ref("value"), ref("index"))));
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -105,19 +105,23 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
         return field.getDeclaringClass();
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropInternalCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCodegen(context), underlyingExpression, constant(index));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
+    }
+
+    public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getBeanPropInternalCodegen(context), castUnderlying(getTargetType(), beanExpression), key);
     }
 }

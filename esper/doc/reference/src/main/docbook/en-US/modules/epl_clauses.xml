@@ -6161,7 +6161,7 @@ can be used to assign a stream name. Patterns and named windows can also be spec
 	|  <emphasis>enum_class</emphasis>
 	|  <emphasis>class_name</emphasis>
 	|  <emphasis>event_type_name</emphasis></synopsis>
-				
+								
 			<para>
 				Variable types can accept null values. The <literal>object</literal> type is for an untyped variable that can be assigned any value. You can provide a class name (use imports) or a fully-qualified class name to declare a variable of that Java class type including an enumeration class. You can also supply the name of an event type to declare a variable that holds an event of that type.
 			</para>
@@ -6177,6 +6177,12 @@ can be used to assign a stream name. Patterns and named windows can also be spec
 			<para>				
 				The <literal>assignment_expression</literal> is optional. Without an assignment expression the initial value for the variable is <literal>null</literal>. If present, it supplies the initial value for the variable.
 			</para>
+
+			<note>
+				<para>
+					When specifying a <emphasis>class_name</emphasis> or <emphasis>enum_class</emphasis> class name the class must have <literal>public</literal> visibility.
+				</para>
+			</note>
 
 			<para>
 				The <literal>EPStatement</literal> object of the <literal>create variable</literal> statement provides access to variable values. 

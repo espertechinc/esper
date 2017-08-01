@@ -47,6 +47,18 @@ public class BoundingBox {
         return intersectsBoxIncludingEnd(minX, minY, maxX, maxY, x, y, width, height);
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param minX min-x
+     * @param minY min-y
+     * @param maxX max-x
+     * @param maxY max-y
+     * @param otherX x
+     * @param otherY y
+     * @param otherWidth w
+     * @param otherHeight h
+     * @return flag
+     */
     public static boolean intersectsBoxIncludingEnd(double minX, double minY, double maxX, double maxY, double otherX, double otherY, double otherWidth, double otherHeight) {
         double otherMaxX = otherX + otherWidth;
         double otherMaxY = otherY + otherHeight;

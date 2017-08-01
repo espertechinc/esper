@@ -10,6 +10,11 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.cast;
+
 /**
  * Widerner that coerces to a widened boxed number.
  */
@@ -27,5 +32,9 @@ public class TypeWidenerBoxedNumeric implements TypeWidener {
 
     public Object widen(Object input) {
         return coercer.coerceBoxed((Number) input);
+    }
+
+    public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+        return coercer.coerceCodegen(cast(Number.class, expression), Number.class);
     }
 }

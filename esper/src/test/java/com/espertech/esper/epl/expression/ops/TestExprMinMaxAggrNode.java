@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.TestExprAggregateNodeAdapter;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
@@ -36,16 +35,16 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter {
     public void testGetType() throws Exception {
         maxNode.addChildNode(new SupportExprNode(Integer.class));
         SupportExprNodeFactory.validate3Stream(maxNode);
-        assertEquals(Integer.class, maxNode.getType());
+        assertEquals(Integer.class, maxNode.getEvaluationType());
 
         minNode.addChildNode(new SupportExprNode(Float.class));
         SupportExprNodeFactory.validate3Stream(minNode);
-        assertEquals(Float.class, minNode.getType());
+        assertEquals(Float.class, minNode.getEvaluationType());
 
         maxNode = new ExprMinMaxAggrNode(false, MinMaxTypeEnum.MAX, false, false);
         maxNode.addChildNode(new SupportExprNode(Short.class));
         SupportExprNodeFactory.validate3Stream(maxNode);
-        assertEquals(Short.class, maxNode.getType());
+        assertEquals(Short.class, maxNode.getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {

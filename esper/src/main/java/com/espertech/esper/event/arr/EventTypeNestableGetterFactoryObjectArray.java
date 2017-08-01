@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.event.arr;
 
-import com.espertech.esper.client.*;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.EventPropertyGetterSPI;
-import com.espertech.esper.event.EventTypeNestableGetterFactory;
+import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.*;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
@@ -46,9 +46,9 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return new ObjectArrayEntryPropertyGetter(index, nativeFragmentType, eventAdapterService);
     }
 
-    public EventPropertyGetterSPI getGetterEventBean(String name) {
+    public EventPropertyGetterSPI getGetterEventBean(String name, Class underlyingType) {
         int index = getAssertIndex(name);
-        return new ObjectArrayEventBeanPropertyGetter(index);
+        return new ObjectArrayEventBeanPropertyGetter(index, underlyingType);
     }
 
     public EventPropertyGetterSPI getGetterEventBeanArray(String name, EventType eventType) {
@@ -138,11 +138,11 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return index;
     }
 
-    public EventPropertyGetterMapped getPropertyProvidedGetterMap(Map<String, Object> nestableTypes, String mappedPropertyName, MappedProperty mappedProperty, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterMappedSPI getPropertyProvidedGetterMap(Map<String, Object> nestableTypes, String mappedPropertyName, MappedProperty mappedProperty, EventAdapterService eventAdapterService) {
         return mappedProperty.getGetterObjectArray(propertiesIndex, nestableTypes, eventAdapterService);
     }
 
-    public EventPropertyGetterIndexed getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterIndexedSPI getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService) {
         return indexedProperty.getGetterObjectArray(propertiesIndex, nestableTypes, eventAdapterService);
     }
 

@@ -20,6 +20,7 @@ import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -104,7 +105,7 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
         }
     }
 
-    public AggregationAgent getAggregationStateAgent() {
+    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         PlugInAggregationMultiFunctionAgentContext ctx = new PlugInAggregationMultiFunctionAgentContext(parent.getChildNodes(), parent.getOptionalFilter());
         return handlerPlugin.getAggregationAgent(ctx);
     }

@@ -52,6 +52,10 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
     }
 
     public Object getBeanProp(Object object) throws PropertyAccessException {
+        return getBeanProp(object, index);
+    }
+
+    public Object getBeanProp(Object object, int index) throws PropertyAccessException {
         try {
             Object value = fastMethod.invoke(object, null);
             return getBeanEventIterableValue(value, index);
@@ -62,9 +66,8 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
         }
     }
 
-
     public Object get(EventBean eventBean, int index) throws PropertyAccessException {
-        return getBeanEventIterableValue(eventBean.getUnderlying(), index);
+        return getBeanProp(eventBean.getUnderlying(), index);
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -94,19 +97,23 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
         return fastMethod.getDeclaringClass();
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(context, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod(), index), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(context, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod()), underlyingExpression, constant(index));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
+    }
+
+    public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(context, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod()), castUnderlying(getTargetType(), beanExpression), key);
     }
 }

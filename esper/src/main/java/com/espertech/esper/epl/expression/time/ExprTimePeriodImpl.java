@@ -10,18 +10,16 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.util.TimePeriod;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayDeque;
-import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
@@ -29,7 +27,9 @@ import java.util.TimeZone;
  * <p>
  * Child nodes to this expression carry the actual parts and must return a numeric value.
  */
-public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, ExprEvaluator {
+public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod {
+    private static final long serialVersionUID = -7229827032500659319L;
+
     private final TimeZone timeZone;
     private final boolean hasYear;
     private final boolean hasMonth;
@@ -40,11 +40,9 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     private final boolean hasSecond;
     private final boolean hasMillisecond;
     private final boolean hasMicrosecond;
-    private boolean hasVariable;
-    private transient ExprEvaluator[] evaluators;
-    private transient TimePeriodAdder[] adders;
     private final TimeAbacus timeAbacus;
-    private static final long serialVersionUID = -7229827032500659319L;
+
+    private transient ExprTimePeriodForge forge;
 
     public ExprTimePeriodImpl(TimeZone timeZone, boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond, boolean hasMicrosecond, TimeAbacus timeAbacus) {
         this.timeZone = timeZone;
@@ -60,46 +58,62 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         this.timeAbacus = timeAbacus;
     }
 
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
     public ExprTimePeriodEvalDeltaConst constEvaluator(ExprEvaluatorContext context) {
-        if (!hasMonth && !hasYear) {
-            double seconds = evaluateAsSeconds(null, true, context);
-            long msec = timeAbacus.deltaForSecondsDouble(seconds);
-            return new ExprTimePeriodEvalDeltaConstGivenDelta(msec);
-        } else {
-            int[] values = new int[adders.length];
-            for (int i = 0; i < values.length; i++) {
-                values[i] = ((Number) evaluators[i].evaluate(null, true, context)).intValue();
-            }
-            return new ExprTimePeriodEvalDeltaConstGivenCalAdd(adders, values, timeZone, timeAbacus);
-        }
+        ExprNodeUtility.checkValidated(forge);
+        return forge.constEvaluator(context);
     }
 
     public ExprTimePeriodEvalDeltaNonConst nonconstEvaluator() {
-        if (!hasMonth && !hasYear) {
-            return new ExprTimePeriodEvalDeltaNonConstMsec(this);
-        } else {
-            return new ExprTimePeriodEvalDeltaNonConstCalAdd(timeZone, this);
-        }
+        ExprNodeUtility.checkValidated(forge);
+        return forge.nonconstEvaluator();
+    }
+
+    public CodegenExpression evaluateGetTimePeriodCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.evaluateGetTimePeriodCodegen(params, context);
+    }
+
+    public CodegenExpression evaluateAsSecondsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.evaluateAsSecondsCodegen(params, context);
+    }
+
+    /**
+     * Indicator whether the time period has a variable in any of the child expressions.
+     *
+     * @return true for variable present, false for not present
+     */
+    public boolean hasVariable() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.isHasVariable();
+    }
+
+    public TimePeriod evaluateGetTimePeriod(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.evaluateGetTimePeriod(eventsPerStream, newData, context);
+    }
+
+    public double evaluateAsSeconds(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.evaluateAsSeconds(eventsPerStream, newData, context);
     }
 
     public TimeAbacus getTimeAbacus() {
         return timeAbacus;
     }
 
-    public ExprEvaluator getExprEvaluator() {
-        return this;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        throw new IllegalStateException("Time-Period expression must be evaluated via any of " + ExprTimePeriod.class.getSimpleName() + " interface methods");
-    }
-
-    protected TimePeriodAdder[] getAdders() {
-        return adders;
-    }
-
-    public ExprEvaluator[] getEvaluators() {
-        return evaluators;
+    public TimeZone getTimeZone() {
+        return timeZone;
     }
 
     /**
@@ -178,309 +192,43 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         return hasWeek;
     }
 
-    /**
-     * Indicator whether the time period has a variable in any of the child expressions.
-     *
-     * @return true for variable present, false for not present
-     */
-    public boolean hasVariable() {
-        return hasVariable;
-    }
-
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
+        boolean hasVariables = false;
         for (ExprNode childNode : this.getChildNodes()) {
-            validate(childNode);
+            hasVariables |= validate(childNode);
         }
 
-        ArrayDeque<TimePeriodAdder> list = new ArrayDeque<TimePeriodAdder>();
+        ArrayDeque<ExprTimePeriodAdder.TimePeriodAdder> list = new ArrayDeque<ExprTimePeriodAdder.TimePeriodAdder>();
         if (hasYear) {
-            list.add(new TimePeriodAdderYear());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderYear());
         }
         if (hasMonth) {
-            list.add(new TimePeriodAdderMonth());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderMonth());
         }
         if (hasWeek) {
-            list.add(new TimePeriodAdderWeek());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderWeek());
         }
         if (hasDay) {
-            list.add(new TimePeriodAdderDay());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderDay());
         }
         if (hasHour) {
-            list.add(new TimePeriodAdderHour());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderHour());
         }
         if (hasMinute) {
-            list.add(new TimePeriodAdderMinute());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderMinute());
         }
         if (hasSecond) {
-            list.add(new TimePeriodAdderSecond());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderSecond());
         }
         if (hasMillisecond) {
-            list.add(new TimePeriodAdderMSec());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderMSec());
         }
         if (hasMicrosecond) {
-            list.add(new TimePeriodAdderUSec());
+            list.add(new ExprTimePeriodAdder.TimePeriodAdderUSec());
         }
-        adders = list.toArray(new TimePeriodAdder[list.size()]);
+        ExprTimePeriodAdder.TimePeriodAdder[] adders = list.toArray(new ExprTimePeriodAdder.TimePeriodAdder[list.size()]);
+        forge = new ExprTimePeriodForge(this, hasVariables, adders);
         return null;
-    }
-
-    private void validate(ExprNode expression) throws ExprValidationException {
-        if (expression == null) {
-            return;
-        }
-        Class returnType = expression.getExprEvaluator().getType();
-        if (!JavaClassHelper.isNumeric(returnType)) {
-            throw new ExprValidationException("Time period expression requires a numeric parameter type");
-        }
-        if ((hasMonth || hasYear) && (JavaClassHelper.getBoxedType(returnType) != Integer.class)) {
-            throw new ExprValidationException("Time period expressions with month or year component require integer values, received a " + returnType.getSimpleName() + " value");
-        }
-        if (expression instanceof ExprVariableNode) {
-            hasVariable = true;
-        }
-    }
-
-    public double evaluateAsSeconds(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprTimePeriod(this);
-        }
-        double seconds = 0;
-        for (int i = 0; i < adders.length; i++) {
-            Double result = eval(evaluators[i], eventsPerStream, newData, context);
-            if (result == null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aExprTimePeriod(null);
-                }
-                throw new EPException("Failed to evaluate time period, received a null value for '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this) + "'");
-            }
-            seconds += adders[i].compute(result);
-        }
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprTimePeriod(seconds);
-        }
-        return seconds;
-    }
-
-    private Double eval(ExprEvaluator expr, EventBean[] events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object value = expr.evaluate(events, isNewData, exprEvaluatorContext);
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof BigDecimal) {
-            return ((Number) value).doubleValue();
-        }
-        if (value instanceof BigInteger) {
-            return ((Number) value).doubleValue();
-        }
-        return ((Number) value).doubleValue();
-    }
-
-    public TimePeriod evaluateGetTimePeriod(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
-        int exprCtr = 0;
-
-        Integer year = null;
-        if (hasYear) {
-            year = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer month = null;
-        if (hasMonth) {
-            month = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer week = null;
-        if (hasWeek) {
-            week = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer day = null;
-        if (hasDay) {
-            day = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer hours = null;
-        if (hasHour) {
-            hours = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer minutes = null;
-        if (hasMinute) {
-            minutes = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer seconds = null;
-        if (hasSecond) {
-            seconds = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer milliseconds = null;
-        if (hasMillisecond) {
-            milliseconds = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
-        }
-
-        Integer microseconds = null;
-        if (hasMicrosecond) {
-            microseconds = getInt(evaluators[exprCtr].evaluate(eventsPerStream, newData, context));
-        }
-        return new TimePeriod(year, month, week, day, hours, minutes, seconds, milliseconds, microseconds);
-    }
-
-    private Integer getInt(Object evaluated) {
-        if (evaluated == null) {
-            return null;
-        }
-        return ((Number) evaluated).intValue();
-    }
-
-    public static interface TimePeriodAdder {
-        public double compute(Double value);
-
-        public void add(Calendar cal, int value);
-
-        boolean isMicroseconds();
-    }
-
-    public static class TimePeriodAdderYear implements TimePeriodAdder {
-        private static final double MULTIPLIER = 365 * 24 * 60 * 60;
-
-        public double compute(Double value) {
-            return value * MULTIPLIER;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.YEAR, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderMonth implements TimePeriodAdder {
-        private static final double MULTIPLIER = 30 * 24 * 60 * 60;
-
-        public double compute(Double value) {
-            return value * MULTIPLIER;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.MONTH, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderWeek implements TimePeriodAdder {
-        private static final double MULTIPLIER = 7 * 24 * 60 * 60;
-
-        public double compute(Double value) {
-            return value * MULTIPLIER;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.WEEK_OF_YEAR, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderDay implements TimePeriodAdder {
-        private static final double MULTIPLIER = 24 * 60 * 60;
-
-        public double compute(Double value) {
-            return value * MULTIPLIER;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.DAY_OF_MONTH, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderHour implements TimePeriodAdder {
-        private static final double MULTIPLIER = 60 * 60;
-
-        public double compute(Double value) {
-            return value * MULTIPLIER;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.HOUR_OF_DAY, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderMinute implements TimePeriodAdder {
-        private static final double MULTIPLIER = 60;
-
-        public double compute(Double value) {
-            return value * MULTIPLIER;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.MINUTE, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderSecond implements TimePeriodAdder {
-        public double compute(Double value) {
-            return value;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.SECOND, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderMSec implements TimePeriodAdder {
-        public double compute(Double value) {
-            return value / 1000d;
-        }
-
-        public void add(Calendar cal, int value) {
-            cal.add(Calendar.MILLISECOND, value);
-        }
-
-        public boolean isMicroseconds() {
-            return false;
-        }
-    }
-
-    public static class TimePeriodAdderUSec implements TimePeriodAdder {
-        public double compute(Double value) {
-            return value / 1000000d;
-        }
-
-        public void add(Calendar cal, int value) {
-            // no action : calendar does not add microseconds
-        }
-
-        public boolean isMicroseconds() {
-            return true;
-        }
-    }
-
-    public Class getType() {
-        return Double.class;
     }
 
     public boolean isConstantResult() {
@@ -584,5 +332,19 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
             return false;
         }
         return hasMicrosecond == other.hasMicrosecond;
+    }
+
+    private boolean validate(ExprNode expression) throws ExprValidationException {
+        if (expression == null) {
+            return false;
+        }
+        Class returnType = expression.getForge().getEvaluationType();
+        if (!JavaClassHelper.isNumeric(returnType)) {
+            throw new ExprValidationException("Time period expression requires a numeric parameter type");
+        }
+        if ((hasMonth || hasYear) && (JavaClassHelper.getBoxedType(returnType) != Integer.class)) {
+            throw new ExprValidationException("Time period expressions with month or year component require integer values, received a " + returnType.getSimpleName() + " value");
+        }
+        return expression instanceof ExprVariableNode;
     }
 }

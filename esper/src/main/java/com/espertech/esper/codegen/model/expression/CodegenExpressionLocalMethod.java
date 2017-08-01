@@ -13,22 +13,26 @@ package com.espertech.esper.codegen.model.expression;
 import java.util.Map;
 import java.util.Set;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.renderExpressions;
+
 public class CodegenExpressionLocalMethod implements CodegenExpression {
     private final String method;
-    private final CodegenExpression expression;
+    private final CodegenExpression[] expressions;
 
-    public CodegenExpressionLocalMethod(String method, CodegenExpression expression) {
+    public CodegenExpressionLocalMethod(String method, CodegenExpression[] expressions) {
         this.method = method;
-        this.expression = expression;
+        this.expressions = expressions;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
         builder.append(method).append("(");
-        expression.render(builder, imports);
+        renderExpressions(builder, expressions, imports);
         builder.append(")");
     }
 
     public void mergeClasses(Set<Class> classes) {
-        expression.mergeClasses(classes);
+        for (CodegenExpression expression : expressions) {
+            expression.mergeClasses(classes);
+        }
     }
 }

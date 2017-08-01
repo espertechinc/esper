@@ -41,5 +41,4 @@ public class TestSuiteOrderBy extends TestCase {
     public void testExecOrderBySimple() {
         RegressionRunner.run(new ExecOrderBySimple());
     }
-
 }

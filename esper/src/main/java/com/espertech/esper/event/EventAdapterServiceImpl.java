@@ -444,11 +444,12 @@ public class EventAdapterServiceImpl implements EventAdapterService {
         return eventType;
     }
 
-    public synchronized EventType addNestableMapType(String eventTypeName, Map<String, Object> propertyTypes, ConfigurationEventTypeMap optionalConfig, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean namedWindow, boolean insertInto) throws EventAdapterException {
+    public synchronized EventType addNestableMapType(String eventTypeName, Map<String, Object> propertyTypesMayHavePrimitive, ConfigurationEventTypeMap optionalConfig, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean namedWindow, boolean insertInto) throws EventAdapterException {
         Pair<EventType[], Set<EventType>> mapSuperTypes = EventTypeUtility.getSuperTypesDepthFirst(optionalConfig, EventUnderlyingType.MAP, nameToTypeMap);
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.MAP, eventTypeName, isPreconfiguredStatic, isPreconfigured, isConfigured, namedWindow, insertInto);
 
         int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
+        Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayHavePrimitive);
         MapEventType newEventType = new MapEventType(metadata, eventTypeName, typeId, this, propertyTypes, mapSuperTypes.getFirst(), mapSuperTypes.getSecond(), optionalConfig);
 
         EventType existingType = nameToTypeMap.get(eventTypeName);
@@ -469,7 +470,7 @@ public class EventAdapterServiceImpl implements EventAdapterService {
         return newEventType;
     }
 
-    public synchronized EventType addNestableObjectArrayType(String eventTypeName, Map<String, Object> propertyTypes, ConfigurationEventTypeObjectArray optionalConfig, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean namedWindow, boolean insertInto, boolean table, String tableName) throws EventAdapterException {
+    public synchronized EventType addNestableObjectArrayType(String eventTypeName, Map<String, Object> propertyTypesMayHavePrimitive, ConfigurationEventTypeObjectArray optionalConfig, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean namedWindow, boolean insertInto, boolean table, String tableName) throws EventAdapterException {
         if (optionalConfig != null && optionalConfig.getSuperTypes().size() > 1) {
             throw new EventAdapterException(ConfigurationEventTypeObjectArray.SINGLE_SUPERTYPE_MSG);
         }
@@ -482,6 +483,7 @@ public class EventAdapterServiceImpl implements EventAdapterService {
         }
 
         int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
+        Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayHavePrimitive);
         ObjectArrayEventType newEventType = new ObjectArrayEventType(metadata, eventTypeName, typeId, this, propertyTypes, optionalConfig, mapSuperTypes.getFirst(), mapSuperTypes.getSecond());
 
         EventType existingType = nameToTypeMap.get(eventTypeName);
@@ -621,7 +623,7 @@ public class EventAdapterServiceImpl implements EventAdapterService {
         return new ObjectArrayEventBean(properties, eventType);
     }
 
-    public synchronized EventType addWrapperType(String eventTypeName, EventType underlyingEventType, Map<String, Object> propertyTypes, boolean isNamedWindow, boolean isInsertInto) throws EventAdapterException {
+    public synchronized EventType addWrapperType(String eventTypeName, EventType underlyingEventType, Map<String, Object> propertyTypesMayPrimitive, boolean isNamedWindow, boolean isInsertInto) throws EventAdapterException {
         // If we are wrapping an underlying type that is itself a wrapper, then this is a special case
         if (underlyingEventType instanceof WrapperEventType) {
             WrapperEventType underlyingWrapperType = (WrapperEventType) underlyingEventType;
@@ -631,8 +633,8 @@ public class EventAdapterServiceImpl implements EventAdapterService {
             underlyingEventType = underlyingWrapperType.getUnderlyingEventType();
             Map<String, Object> propertiesSuperset = new HashMap<String, Object>();
             propertiesSuperset.putAll(underlyingWrapperType.getUnderlyingMapType().getTypes());
-            propertiesSuperset.putAll(propertyTypes);
-            propertyTypes = propertiesSuperset;
+            propertiesSuperset.putAll(propertyTypesMayPrimitive);
+            propertyTypesMayPrimitive = propertiesSuperset;
         }
 
         boolean isPropertyAgnostic = false;
@@ -642,6 +644,7 @@ public class EventAdapterServiceImpl implements EventAdapterService {
 
         EventTypeMetadata metadata = EventTypeMetadata.createWrapper(eventTypeName, isNamedWindow, isInsertInto, isPropertyAgnostic);
         int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
+        Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayPrimitive);
         WrapperEventType newEventType = new WrapperEventType(metadata, eventTypeName, typeId, underlyingEventType, propertyTypes, this);
 
         EventType existingType = nameToTypeMap.get(eventTypeName);
@@ -701,16 +704,18 @@ public class EventAdapterServiceImpl implements EventAdapterService {
         return "Type '" + existingType.getName() + "' is not compatible";
     }
 
-    public final EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypes, boolean isTransient) throws EventAdapterException {
+    public final EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypesMayHavePrimitive, boolean isTransient) throws EventAdapterException {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
         EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.MAP);
+        Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayHavePrimitive);
         MapEventType mapEventType = new MapEventType(metadata, assignedTypeName, eventTypeIdGenerator.getTypeId(assignedTypeName), this, propertyTypes, null, null, null);
         return anonymousTypeCache.addReturnExistingAnonymousType(mapEventType);
     }
 
-    public final EventType createAnonymousObjectArrayType(String typeName, Map<String, Object> propertyTypes) throws EventAdapterException {
+    public final EventType createAnonymousObjectArrayType(String typeName, Map<String, Object> propertyTypesMayHavePrimitive) throws EventAdapterException {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
         EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.OBJECTARR);
+        Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayHavePrimitive);
         ObjectArrayEventType oaEventType = new ObjectArrayEventType(metadata, assignedTypeName, eventTypeIdGenerator.getTypeId(assignedTypeName), this, propertyTypes, null, null, null);
         return anonymousTypeCache.addReturnExistingAnonymousType(oaEventType);
     }
@@ -734,7 +739,7 @@ public class EventAdapterServiceImpl implements EventAdapterService {
         return createAnonymousMapType(typeName, mapProperties, true);
     }
 
-    public final EventType createAnonymousWrapperType(String typeName, EventType underlyingEventType, Map<String, Object> propertyTypes) throws EventAdapterException {
+    public final EventType createAnonymousWrapperType(String typeName, EventType underlyingEventType, Map<String, Object> propertyTypesMayPrimitive) throws EventAdapterException {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
         EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.WRAPPER);
 
@@ -747,10 +752,11 @@ public class EventAdapterServiceImpl implements EventAdapterService {
             underlyingEventType = underlyingWrapperType.getUnderlyingEventType();
             Map<String, Object> propertiesSuperset = new HashMap<String, Object>();
             propertiesSuperset.putAll(underlyingWrapperType.getUnderlyingMapType().getTypes());
-            propertiesSuperset.putAll(propertyTypes);
-            propertyTypes = propertiesSuperset;
+            propertiesSuperset.putAll(propertyTypesMayPrimitive);
+            propertyTypesMayPrimitive = propertiesSuperset;
         }
 
+        Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayPrimitive);
         WrapperEventType wrapperEventType = new WrapperEventType(metadata, assignedTypeName, eventTypeIdGenerator.getTypeId(assignedTypeName), underlyingEventType, propertyTypes, this);
         return anonymousTypeCache.addReturnExistingAnonymousType(wrapperEventType);
     }

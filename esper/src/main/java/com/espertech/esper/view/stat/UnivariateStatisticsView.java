@@ -15,7 +15,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -32,7 +31,6 @@ import java.util.Map;
 public class UnivariateStatisticsView extends ViewSupport implements CloneableView, DerivedValueView {
     private final UnivariateStatisticsViewFactory viewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
-    private final ExprEvaluator fieldExpressionEvaluator;
     protected final BaseStatisticsBean baseStatisticsBean = new BaseStatisticsBean();
 
     private EventBean lastNewEvent;
@@ -42,7 +40,6 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
     public UnivariateStatisticsView(UnivariateStatisticsViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext) {
         this.viewFactory = viewFactory;
         this.agentInstanceContext = agentInstanceContext;
-        this.fieldExpressionEvaluator = viewFactory.fieldExpression.getExprEvaluator();
     }
 
     public View cloneView() {
@@ -75,7 +72,7 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
         if (newData != null) {
             for (int i = 0; i < newData.length; i++) {
                 eventsPerStream[0] = newData[i];
-                Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
+                Number pointnum = (Number) viewFactory.fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (pointnum != null) {
                     double point = pointnum.doubleValue();
                     baseStatisticsBean.addPoint(point, 0);
@@ -84,10 +81,10 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
 
             if ((viewFactory.additionalProps != null) && (newData.length != 0)) {
                 if (lastValuesEventNew == null) {
-                    lastValuesEventNew = new Object[viewFactory.additionalProps.getAdditionalExpr().length];
+                    lastValuesEventNew = new Object[viewFactory.additionalProps.getAdditionalEvals().length];
                 }
-                for (int val = 0; val < viewFactory.additionalProps.getAdditionalExpr().length; val++) {
-                    lastValuesEventNew[val] = viewFactory.additionalProps.getAdditionalExpr()[val].evaluate(eventsPerStream, true, agentInstanceContext);
+                for (int val = 0; val < viewFactory.additionalProps.getAdditionalEvals().length; val++) {
+                    lastValuesEventNew[val] = viewFactory.additionalProps.getAdditionalEvals()[val].evaluate(eventsPerStream, true, agentInstanceContext);
                 }
             }
         }
@@ -96,7 +93,7 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
         if (oldData != null) {
             for (int i = 0; i < oldData.length; i++) {
                 eventsPerStream[0] = oldData[i];
-                Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
+                Number pointnum = (Number) viewFactory.fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (pointnum != null) {
                     double point = pointnum.doubleValue();
                     baseStatisticsBean.removePoint(point, 0);

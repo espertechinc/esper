@@ -12,6 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class SupportBean implements Serializable {
     private String theString;
@@ -34,6 +35,7 @@ public class SupportBean implements Serializable {
     private Float floatBoxed;
     private Double doubleBoxed;
     private BigDecimal bigDecimal;
+    private BigInteger bigInteger;
 
     private SupportEnum enumValue;
 
@@ -203,6 +205,14 @@ public class SupportBean implements Serializable {
 
     public void setBigDecimal(BigDecimal bigDecimal) {
         this.bigDecimal = bigDecimal;
+    }
+
+    public BigInteger getBigInteger() {
+        return bigInteger;
+    }
+
+    public void setBigInteger(BigInteger bigInteger) {
+        this.bigInteger = bigInteger;
     }
 
     public static SupportBean[] getBeansPerIndex(SupportBean[] beans, int[] indexes) {

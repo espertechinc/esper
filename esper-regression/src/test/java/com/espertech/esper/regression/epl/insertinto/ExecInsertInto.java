@@ -60,6 +60,25 @@ public class ExecInsertInto implements RegressionExecution {
         runAssertionInsertFromPattern(epService);
         runAssertionInsertIntoPlusPattern(epService);
         runAssertionNullType(epService);
+        runAssertionSingleBeanToMulti(epService);
+    }
+
+    private void runAssertionSingleBeanToMulti(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().createEPL("create schema EventOne(sbarr SupportBean[])");
+        epService.getEPAdministrator().createEPL("insert into EventOne select maxby(intPrimitive) as sbarr from SupportBean as sb");
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from EventOne");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        SupportBean bean = new SupportBean("E1", 1);
+        epService.getEPRuntime().sendEvent(bean);
+        EventBean[] events = (EventBean[]) listener.assertOneGetNewAndReset().get("sbarr");
+        assertEquals(1, events.length);
+        assertSame(bean, events[0].getUnderlying());
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void runAssertionAssertionWildcardRecast(EPServiceProvider epService) {
@@ -190,9 +209,9 @@ public class ExecInsertInto implements RegressionExecution {
         assertFalse(spi.getStatementEventTypeRef().isInUse("Event_1W"));
 
         // test insert wildcard to wildcard
-        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         SupportUpdateListener listener = new SupportUpdateListener();
 
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         String stmtSelectText = "insert into ABCStream select * from SupportBean";
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL(stmtSelectText, "resilient i0");
         stmtSelect.addListener(listener);
@@ -256,14 +275,14 @@ public class ExecInsertInto implements RegressionExecution {
         assertEquals(1, listenerOne.getLastNewData().length);
         assertEquals(10, listenerOne.getLastNewData()[0].get("intPrimitive"));
         assertEquals(11, listenerOne.getLastNewData()[0].get("intBoxed"));
-        assertEquals(20, listenerOne.getLastNewData()[0].getEventType().getPropertyNames().length);
+        assertEquals(21, listenerOne.getLastNewData()[0].getEventType().getPropertyNames().length);
         assertSame(theEvent, listenerOne.getLastNewData()[0].getUnderlying());
 
         assertTrue(listenerTwo.getAndClearIsInvoked());
         assertEquals(1, listenerTwo.getLastNewData().length);
         assertEquals(10, listenerTwo.getLastNewData()[0].get("intPrimitive"));
         assertEquals(11, listenerTwo.getLastNewData()[0].get("intBoxed"));
-        assertEquals(20, listenerTwo.getLastNewData()[0].getEventType().getPropertyNames().length);
+        assertEquals(21, listenerTwo.getLastNewData()[0].getEventType().getPropertyNames().length);
         assertSame(theEvent, listenerTwo.getLastNewData()[0].getUnderlying());
 
         // assert statement-type reference

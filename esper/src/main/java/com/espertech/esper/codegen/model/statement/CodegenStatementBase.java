@@ -10,13 +10,15 @@
  */
 package com.espertech.esper.codegen.model.statement;
 
+import com.espertech.esper.codegen.core.CodegenIndent;
+
 import java.util.Map;
 
 public abstract class CodegenStatementBase implements CodegenStatement {
 
     public abstract void renderStatement(StringBuilder builder, Map<Class, String> imports);
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
         renderStatement(builder, imports);
         builder.append(";\n");
     }

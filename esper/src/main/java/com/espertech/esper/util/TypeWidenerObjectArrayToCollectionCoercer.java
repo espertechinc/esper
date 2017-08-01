@@ -10,7 +10,12 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.util.Arrays;
+
+import static com.espertech.esper.util.TypeWidenerFactory.codegenWidenArrayAsListMayNull;
 
 /**
  * Type widner that coerces from String to char if required.
@@ -18,5 +23,9 @@ import java.util.Arrays;
 public class TypeWidenerObjectArrayToCollectionCoercer implements TypeWidener {
     public Object widen(Object input) {
         return input == null ? null : Arrays.asList((Object[]) input);
+    }
+
+    public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+        return codegenWidenArrayAsListMayNull(expression, Object[].class, context, TypeWidenerObjectArrayToCollectionCoercer.class);
     }
 }

@@ -11,13 +11,17 @@
 package com.espertech.esper.epl.expression.baseagg;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.agg.service.AggregationResultFuture;
 import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
 
-public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprEvaluator {
+public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final long serialVersionUID = 154204964713946760L;
     private final int groupKeyIndex;
     private final Class returnType;
@@ -41,8 +45,24 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprEvalu
         return groupKey;
     }
 
-    public Class getType() {
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, returnType, params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
+    public Class getEvaluationType() {
         return returnType;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
     }
 
     public ExprEvaluator getExprEvaluator() {

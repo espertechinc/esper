@@ -13,21 +13,21 @@ package com.espertech.esper.epl.expression.dot;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 
 public class ExprDotNodeRealizedChain {
-    private final ExprDotEval[] chain;
-    private final ExprDotEval[] chainWithUnpack;
+    private final ExprDotForge[] chain;
+    private final ExprDotForge[] chainWithUnpack;
     private final FilterExprAnalyzerAffector filterAnalyzerDesc;
 
-    public ExprDotNodeRealizedChain(ExprDotEval[] chain, ExprDotEval[] chainWithUnpack, FilterExprAnalyzerAffector filterAnalyzerDesc) {
+    public ExprDotNodeRealizedChain(ExprDotForge[] chain, ExprDotForge[] chainWithUnpack, FilterExprAnalyzerAffector filterAnalyzerDesc) {
         this.chain = chain;
         this.chainWithUnpack = chainWithUnpack;
         this.filterAnalyzerDesc = filterAnalyzerDesc;
     }
 
-    public ExprDotEval[] getChain() {
+    public ExprDotForge[] getChain() {
         return chain;
     }
 
-    public ExprDotEval[] getChainWithUnpack() {
+    public ExprDotForge[] getChainWithUnpack() {
         return chainWithUnpack;
     }
 

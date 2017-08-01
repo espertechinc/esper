@@ -82,7 +82,7 @@ public class EPStatementStartMethodHelperValidate {
             try {
                 ExprValidationContext validationContext = new ExprValidationContext(typeService, engineImportService, statementContext.getStatementExtensionServicesContext(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, intoTableName, false);
                 optionalFilterNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, optionalFilterNode, validationContext);
-                if (optionalFilterNode.getExprEvaluator().getType() != boolean.class && optionalFilterNode.getExprEvaluator().getType() != Boolean.class) {
+                if (optionalFilterNode.getForge().getEvaluationType() != boolean.class && optionalFilterNode.getForge().getEvaluationType() != Boolean.class) {
                     throw new ExprValidationException("The where-clause filter expression must return a boolean value");
                 }
                 statementSpec.setFilterExprRootNode(optionalFilterNode);
@@ -111,7 +111,7 @@ public class EPStatementStartMethodHelperValidate {
                     outputLimitWhenNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitWhenNode, validationContext);
                     statementSpec.getOutputLimitSpec().setWhenExpressionNode(outputLimitWhenNode);
 
-                    if (JavaClassHelper.getBoxedType(outputLimitWhenNode.getExprEvaluator().getType()) != Boolean.class) {
+                    if (JavaClassHelper.getBoxedType(outputLimitWhenNode.getForge().getEvaluationType()) != Boolean.class) {
                         throw new ExprValidationException("The when-trigger expression in the OUTPUT WHEN clause must return a boolean-type value");
                     }
                     EPStatementStartMethodHelperValidate.validateNoAggregations(outputLimitWhenNode, "An aggregate function may not appear in a OUTPUT LIMIT clause");
@@ -125,7 +125,7 @@ public class EPStatementStartMethodHelperValidate {
                     ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr(), validationContext);
                     statementSpec.getOutputLimitSpec().setAndAfterTerminateExpr(validated);
 
-                    if (JavaClassHelper.getBoxedType(validated.getExprEvaluator().getType()) != Boolean.class) {
+                    if (JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType()) != Boolean.class) {
                         throw new ExprValidationException("The terminated-and expression must return a boolean-type value");
                     }
                     EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "An aggregate function may not appear in a terminated-and clause");

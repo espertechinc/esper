@@ -61,17 +61,17 @@ public class TestAvroEventType extends TestCase {
 
         EventType eventType = makeAvroSupportEventType(schema);
 
-        assertPropertyType(int.class, null, eventType, "myInt");
+        assertPropertyType(Integer.class, null, eventType, "myInt");
         assertPropertyType(Integer.class, null, eventType, "myIntBoxed");
         assertPropertyType(String.class, null, eventType, "myString");
         assertPropertyType(null, null, eventType, "myNullValue");
         assertPropertyType(GenericData.Record.class, null, eventType, "lvl1");
-        assertPropertyType(int.class, null, eventType, "lvl1.intPrimitive");
+        assertPropertyType(Integer.class, null, eventType, "lvl1.intPrimitive");
         assertPropertyType(String.class, null, eventType, "lvl1.lvl2.nestedValue");
-        assertPropertyType(int.class, null, eventType, "lvl1.indexed[1]");
+        assertPropertyType(Integer.class, null, eventType, "lvl1.indexed[1]");
         assertPropertyType(String.class, null, eventType, "lvl1.mapped('a')");
         assertPropertyType(String.class, null, eventType, "lvl1.lvl2.nestedMapped('a')");
-        assertPropertyType(int.class, null, eventType, "lvl1.lvl2.nestedIndexed[1]");
+        assertPropertyType(Integer.class, null, eventType, "lvl1.lvl2.nestedIndexed[1]");
 
         assertNotAProperty(eventType, "dummy");
         assertNotAProperty(eventType, "lvl1.dfgdg");
@@ -131,14 +131,14 @@ public class TestAvroEventType extends TestCase {
         assertEquals(GenericData.Record.class, eventType.getUnderlyingType());
         assertNull(eventType.getSuperTypes());
 
-        assertPropertyType(int.class, null, eventType, "myInt");
+        assertPropertyType(Integer.class, null, eventType, "myInt");
         assertPropertyType(CharSequence.class, null, eventType, "myCharSeq");
         assertPropertyType(String.class, null, eventType, "myString");
-        assertPropertyType(boolean.class, null, eventType, "myBoolean");
+        assertPropertyType(Boolean.class, null, eventType, "myBoolean");
         assertPropertyType(ByteBuffer.class, null, eventType, "myBytes");
-        assertPropertyType(double.class, null, eventType, "myDouble");
-        assertPropertyType(float.class, null, eventType, "myFloat");
-        assertPropertyType(long.class, null, eventType, "myLong");
+        assertPropertyType(Double.class, null, eventType, "myDouble");
+        assertPropertyType(Float.class, null, eventType, "myFloat");
+        assertPropertyType(Long.class, null, eventType, "myLong");
 
         for (String propName : propNames) {
             assertTrue(eventType.isProperty(propName));
@@ -223,7 +223,7 @@ public class TestAvroEventType extends TestCase {
                 .endRecord();
         EventType eventType = makeAvroSupportEventType(schema);
 
-        assertPropertyType(Collection.class, int.class, eventType, "intArray");
+        assertPropertyType(Collection.class, Integer.class, eventType, "intArray");
 
         Consumer<EventBean> asserter = eventBean -> {
             assertEquals(1, eventBean.get("intArray[0]"));

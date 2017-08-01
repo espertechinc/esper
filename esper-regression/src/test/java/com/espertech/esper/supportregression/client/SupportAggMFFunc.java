@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -77,16 +78,16 @@ public enum SupportAggMFFunc {
 
     public EPType getReturnType(EventType eventType, ExprNode[] parameters) {
         if (this == SCALAR) {
-            return EPTypeHelper.singleValue(parameters[0].getExprEvaluator().getType());
+            return EPTypeHelper.singleValue(parameters[0].getForge().getEvaluationType());
         }
         if (this == ENUM_EVENT) {
             return EPTypeHelper.collectionOfEvents(eventType);
         }
         if (this == COLL_SCALAR) {
-            return EPTypeHelper.collectionOfSingleValue(parameters[0].getExprEvaluator().getType());
+            return EPTypeHelper.collectionOfSingleValue(parameters[0].getForge().getEvaluationType());
         }
         if (this == ARR_SCALAR) {
-            return EPTypeHelper.array(parameters[0].getExprEvaluator().getType());
+            return EPTypeHelper.array(parameters[0].getForge().getEvaluationType());
         }
         if (this == SINGLE_EVENT_1 || this == SINGLE_EVENT_2) {
             return EPTypeHelper.singleEvent(eventType);
@@ -99,15 +100,15 @@ public enum SupportAggMFFunc {
             if (validationContext.getParameterExpressions().length != 1) {
                 throw new IllegalArgumentException("Function '" + validationContext.getFunctionName() + "' requires 1 parameter");
             }
-            ExprEvaluator evaluator = validationContext.getParameterExpressions()[0].getExprEvaluator();
+            ExprEvaluator evaluator = validationContext.getParameterExpressions()[0].getForge().getExprEvaluator();
             return new SupportAggMFStatePlainScalarFactory(evaluator);
         }
         if (this == ARR_SCALAR || this == COLL_SCALAR) {
             if (validationContext.getParameterExpressions().length != 1) {
                 throw new IllegalArgumentException("Function '" + validationContext.getFunctionName() + "' requires 1 parameter");
             }
-            ExprEvaluator evaluator = validationContext.getParameterExpressions()[0].getExprEvaluator();
-            return new SupportAggMFStateArrayCollScalarFactory(evaluator);
+            ExprForge forge = validationContext.getParameterExpressions()[0].getForge();
+            return new SupportAggMFStateArrayCollScalarFactory(forge);
         }
         if (this == ENUM_EVENT) {
             return new PlugInAggregationMultiFunctionStateFactory() {

@@ -46,7 +46,7 @@ public class ExprCountEverNode extends ExprAggregateNodeBase {
         } else {
             ignoreNulls = !(positionalParams[0] instanceof ExprWildcard);
             if (positionalParams.length == 2) {
-                super.validateFilter(positionalParams[1].getExprEvaluator());
+                super.validateFilter(positionalParams[1].getForge());
             }
         }
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeCountEver(validationContext.getStatementExtensionSvcContext(), this, ignoreNulls);

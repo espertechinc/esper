@@ -868,13 +868,13 @@ public class ExecVariables implements RegressionExecution {
                 "Error starting statement: Variable by name 'dummy' has not been created or configured");
 
         tryInvalidSet(epService, "on " + SupportBean.class.getName() + " set var1IS = 1",
-                "Error starting statement: Variable 'var1IS' of declared type java.lang.String cannot be assigned a value of type java.lang.Integer");
+                "Error starting statement: Variable 'var1IS' of declared type java.lang.String cannot be assigned a value of type int");
 
         tryInvalidSet(epService, "on " + SupportBean.class.getName() + " set var3IS = 'abc'",
                 "Error starting statement: Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.String");
 
         tryInvalidSet(epService, "on " + SupportBean.class.getName() + " set var3IS = doublePrimitive",
-                "Error starting statement: Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type double");
+                "Error starting statement: Variable 'var3IS' of declared type java.lang.Integer cannot be assigned a value of type java.lang.Double");
 
         tryInvalidSet(epService, "on " + SupportBean.class.getName() + " set var2IS = 'false'", null);
         tryInvalidSet(epService, "on " + SupportBean.class.getName() + " set var3IS = 1.1", null);

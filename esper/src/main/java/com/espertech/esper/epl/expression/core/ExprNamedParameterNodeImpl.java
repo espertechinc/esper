@@ -11,10 +11,15 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 
 import java.io.StringWriter;
 
-public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprNamedParameterNode, ExprEvaluator {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
+
+public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprNamedParameterNode, ExprForge, ExprEvaluator {
     private static final long serialVersionUID = -7566189525627783543L;
     private final String parameterName;
 
@@ -42,6 +47,18 @@ public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprName
         return this;
     }
 
+    public Class getEvaluationType() {
+        return null;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
+    }
+
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
     }
@@ -66,7 +83,11 @@ public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprName
         return null;
     }
 
-    public Class getType() {
-        return null;
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constantNull();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
     }
 }

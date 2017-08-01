@@ -285,7 +285,7 @@ public class ExecAggregateFiltered implements RegressionExecution {
 
     private void runAssertionInvalid(EPServiceProvider epService) {
         tryInvalid(epService, "select count(*, intPrimitive) from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'count(*,intPrimitive)': Invalid filter expression parameter to the aggregation function 'count' is expected to return a boolean value but returns int [select count(*, intPrimitive) from SupportBean]");
+                "Error starting statement: Failed to validate select-clause expression 'count(*,intPrimitive)': Invalid filter expression parameter to the aggregation function 'count' is expected to return a boolean value but returns java.lang.Integer [select count(*, intPrimitive) from SupportBean]");
 
         tryInvalid(epService, "select fmin(intPrimitive) from SupportBean",
                 "Error starting statement: Failed to validate select-clause expression 'min(intPrimitive)': MIN-filtered aggregation function must have a filter expression as a second parameter [select fmin(intPrimitive) from SupportBean]");

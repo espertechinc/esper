@@ -15,7 +15,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
@@ -33,8 +32,6 @@ import java.util.Map;
 public class WeightedAverageView extends ViewSupport implements CloneableView, DerivedValueView {
     private final WeightedAverageViewFactory viewFactory;
     private final AgentInstanceViewFactoryChainContext agentInstanceContext;
-    private final ExprEvaluator fieldNameXEvaluator;
-    private final ExprEvaluator fieldNameWeightEvaluator;
 
     private EventBean[] eventsPerStream = new EventBean[1];
 
@@ -47,8 +44,6 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
 
     public WeightedAverageView(WeightedAverageViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext) {
         this.viewFactory = viewFactory;
-        this.fieldNameXEvaluator = viewFactory.fieldNameX.getExprEvaluator();
-        this.fieldNameWeightEvaluator = viewFactory.fieldNameWeight.getExprEvaluator();
         this.agentInstanceContext = agentInstanceContext;
     }
 
@@ -96,8 +91,8 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
         if (newData != null) {
             for (int i = 0; i < newData.length; i++) {
                 eventsPerStream[0] = newData[i];
-                Number pointnum = (Number) fieldNameXEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
-                Number weightnum = (Number) fieldNameWeightEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
+                Number pointnum = (Number) viewFactory.fieldNameXEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
+                Number weightnum = (Number) viewFactory.fieldNameWeightEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (pointnum != null && weightnum != null) {
                     double point = pointnum.doubleValue();
                     double weight = weightnum.doubleValue();
@@ -114,10 +109,10 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
 
             if ((viewFactory.additionalProps != null) && (newData.length != 0)) {
                 if (lastValuesEventNew == null) {
-                    lastValuesEventNew = new Object[viewFactory.additionalProps.getAdditionalExpr().length];
+                    lastValuesEventNew = new Object[viewFactory.additionalProps.getAdditionalEvals().length];
                 }
-                for (int val = 0; val < viewFactory.additionalProps.getAdditionalExpr().length; val++) {
-                    lastValuesEventNew[val] = viewFactory.additionalProps.getAdditionalExpr()[val].evaluate(eventsPerStream, true, agentInstanceContext);
+                for (int val = 0; val < viewFactory.additionalProps.getAdditionalEvals().length; val++) {
+                    lastValuesEventNew[val] = viewFactory.additionalProps.getAdditionalEvals()[val].evaluate(eventsPerStream, true, agentInstanceContext);
                 }
             }
         }
@@ -126,8 +121,8 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
         if (oldData != null) {
             for (int i = 0; i < oldData.length; i++) {
                 eventsPerStream[0] = oldData[i];
-                Number pointnum = (Number) fieldNameXEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
-                Number weightnum = (Number) fieldNameWeightEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
+                Number pointnum = (Number) viewFactory.fieldNameXEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
+                Number weightnum = (Number) viewFactory.fieldNameWeightEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
 
                 if (pointnum != null && weightnum != null) {
                     double point = pointnum.doubleValue();

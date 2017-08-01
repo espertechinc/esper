@@ -20,6 +20,9 @@ public class CodegenExpressionCastExpression implements CodegenExpression {
     private final CodegenExpression expression;
 
     public CodegenExpressionCastExpression(Class clazz, CodegenExpression expression) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("Cast-to class is a null value");
+        }
         this.clazz = clazz;
         this.expression = expression;
     }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import org.slf4j.Logger;
@@ -32,14 +34,15 @@ public class ExprDotStaticMethodWrapCollection implements ExprDotStaticMethodWra
         return EPTypeHelper.collectionOfSingleValue(componentType);
     }
 
-    public Collection convert(Object result) {
-        if (result == null) {
-            return null;
-        }
+    public Collection convertNonNull(Object result) {
         if (!(result instanceof Collection)) {
             log.warn("Expected collection-type input from method '" + methodName + "' but received " + result.getClass());
             return null;
         }
         return (Collection) result;
+    }
+
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
+        return result;
     }
 }

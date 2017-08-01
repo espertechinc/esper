@@ -30,7 +30,7 @@ public class HistoricalIndexLookupStrategyInKeywordMulti implements HistoricalIn
 
     public HistoricalIndexLookupStrategyInKeywordMulti(int lookupStream, ExprNode expression) {
         this.eventsPerStream = new EventBean[lookupStream + 1];
-        this.evaluator = expression.getExprEvaluator();
+        this.evaluator = expression.getForge().getExprEvaluator();
         this.lookupStream = lookupStream;
     }
 

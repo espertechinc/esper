@@ -21,6 +21,10 @@ import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.supportregression.bean.SupportDateTime;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
+import java.io.StringWriter;
+import java.util.Calendar;
+
+import static java.time.DayOfWeek.THURSDAY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -31,6 +35,48 @@ public class ExecDTProperty implements RegressionExecution {
     }
 
     public void run(EPServiceProvider epService) throws Exception {
+        runAssertionFieldWValue(epService);
+        runAssertionStartEndTS(epService);
+        runAssertionAllCombinations(epService);
+    }
+
+    private void runAssertionAllCombinations(EPServiceProvider epService) {
+        String[] fields = "utildate,longdate,caldate,zoneddate,localdate".split(",");
+
+        for (String field : fields) {
+            runAssertionAllCombinations(epService, field);
+        }
+    }
+
+    private void runAssertionAllCombinations(EPServiceProvider epService, String field) {
+        String[] methods = "getMinuteOfHour,getMonthOfYear,getDayOfMonth,getDayOfWeek,getDayOfYear,getEra,gethourOfDay,getmillisOfSecond,getsecondOfMinute,getweekyear,getyear".split(",");
+        StringWriter epl = new StringWriter();
+        epl.append("select ");
+        int count = 0;
+        String delimiter = "";
+        for (String method : methods) {
+            epl.append(delimiter).append(field).append(".").append(method).append("() ").append("c").append(Integer.toString(count++));
+            delimiter = ",";
+        }
+        epl.append(" from SupportDateTime");
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl.toString());
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        SupportDateTime sdt = SupportDateTime.make("2002-05-30T09:01:02.003");
+        sdt.getCaldate().set(Calendar.MILLISECOND, 3);
+        epService.getEPRuntime().sendEvent(sdt);
+
+        boolean java8date = field.equals("zoneddate") || field.equals("localdate");
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10".split(","), new Object[]{
+                1, java8date ? 5 : 4, 30, java8date ? THURSDAY : 5, 150, 1, 9, 3, 2, 22, 2002
+        });
+
+        stmt.destroy();
+    }
+
+    private void runAssertionFieldWValue(EPServiceProvider epService) throws Exception {
         String startTime = "2002-05-30T09:01:02.003";   // use 2-digit hour, see https://bugs.openjdk.java.net/browse/JDK-8066806
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(startTime)));
 
@@ -62,8 +108,13 @@ public class ExecDTProperty implements RegressionExecution {
 
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{
-            1, 4, 30, 5, 150, 1, 9, 3, 2, 22, 2002, 9, 9, 9, 9, 9
+                1, 4, 30, 5, 150, 1, 9, 3, 2, 22, 2002, 9, 9, 9, 9, 9
         });
+
+        stmtFragment.destroy();
+    }
+
+    private void runAssertionStartEndTS(EPServiceProvider epService) {
 
         // test Map inheritance via create-schema
         epService.getEPAdministrator().createEPL("create schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS");

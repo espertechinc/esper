@@ -11,6 +11,10 @@
 package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
@@ -23,7 +27,7 @@ import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements ExprEvaluatorTypableReturn {
+public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements ExprTypableReturnForge, ExprTypableReturnEval, ExprForge {
     private static final long serialVersionUID = -5475434962878200767L;
 
     private transient LinkedHashMap<String, Object> eventType;
@@ -40,8 +44,16 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         return this;
     }
 
+    public ExprTypableReturnEval getTypableReturnEvaluator() {
+        return this;
+    }
+
+    public CodegenExpression evaluateTypableMultiCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
     protected void validateBindingInternal(ExprValidationContext validationContext, TableMetadata tableMetadata) throws ExprValidationException {
-        validateGroupKeys(tableMetadata);
+        validateGroupKeys(tableMetadata, validationContext);
         eventType = new LinkedHashMap<String, Object>();
         for (Map.Entry<String, TableMetadataColumn> entry : tableMetadata.getTableColumns().entrySet()) {
             Class classResult;
@@ -55,10 +67,6 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         }
     }
 
-    public Class getType() {
-        return Map.class;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qExprTableTop(this, tableName);
@@ -67,6 +75,22 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
             return result;
         }
         return strategy.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
+    public Class getEvaluationType() {
+        return Map.class;
+    }
+
+    public ExprForge getForge() {
+        return this;
     }
 
     public LinkedHashMap<String, Object> getRowProperties() throws ExprValidationException {
@@ -79,6 +103,10 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
 
     public Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return strategy.evaluateTypableSingle(eventsPerStream, isNewData, context);
+    }
+
+    public CodegenExpression evaluateTypableSingleCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfTypableSingle(this, params, context);
     }
 
     public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

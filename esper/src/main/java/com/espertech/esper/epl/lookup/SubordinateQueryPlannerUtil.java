@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.plan.CoercionDesc;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -137,8 +138,9 @@ public class SubordinateQueryPlannerUtil {
             }
             hashesDesc[i] = hashJoinedProps[index];
             hashPropCoercionTypes[i] = indexedKeyProps[i].getCoercionType();
-            ExprEvaluator evaluatorHashkey = hashesDesc[i].getHashKey().getKeyExpr().getExprEvaluator();
-            if (evaluatorHashkey != null && JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()) != JavaClassHelper.getBoxedType(evaluatorHashkey.getType())) {   // we allow null evaluator
+            ExprForge keyForge = hashesDesc[i].getHashKey().getKeyExpr().getForge();
+            ExprEvaluator evaluatorHashkey = keyForge.getExprEvaluator();
+            if (evaluatorHashkey != null && JavaClassHelper.getBoxedType(indexedKeyProps[i].getCoercionType()) != JavaClassHelper.getBoxedType(keyForge.getEvaluationType())) {   // we allow null evaluator
                 isCoerceHash = true;
             }
         }

@@ -209,10 +209,10 @@ public class ExecSpatialPointRegionQuadTreeEventIndex implements RegressionExecu
         epService.getEPRuntime().executeQuery("insert into MyTable values ('P3', 50, 30)");
         epService.getEPRuntime().executeQuery("insert into MyTable values ('P4', 49, 29)");
         epService.getEPAdministrator().createEPL("create index MyIdxWithExpr on MyTable( (tx*10, ty*10) pointregionquadtree(0, 0, 1000, 1000))");
+        SupportUpdateListener listener = new SupportUpdateListener();
 
         String eplOne = IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportSpatialAABB select tbl.id as c0 from MyTable as tbl where point(tx, ty).inside(rectangle(x, y, width, height))";
         EPStatement statementOne = epService.getEPAdministrator().createEPL(eplOne);
-        SupportUpdateListener listener = new SupportUpdateListener();
         statementOne.addListener(listener);
         SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
         assertRectanglesManyRow(epService, listener, BOXES, "P4", "P1,P2,P3", null, null, "P1,P2,P3,P4");

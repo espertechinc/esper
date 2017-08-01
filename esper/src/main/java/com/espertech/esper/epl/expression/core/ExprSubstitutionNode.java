@@ -81,6 +81,10 @@ public class ExprSubstitutionNode extends ExprNodeBase {
         throw new EPException(ERROR_MSG);
     }
 
+    public ExprForge getForge() {
+        throw new IllegalStateException(ERROR_MSG);
+    }
+
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append("?");
     }

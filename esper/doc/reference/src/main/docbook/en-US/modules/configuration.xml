@@ -77,7 +77,7 @@ configuration.configure("myengine.esper.cfg.xml");
 
         <para>
 			Here is an example configuration file.
-            The schema for the configuration file can be found in the <literal>etc</literal> folder and is named <literal>esper-configuration-6-0.xsd</literal>.
+            The schema for the configuration file can be found in the <literal>etc</literal> folder and is named <literal>esper-configuration-7-0.xsd</literal>.
             It is also available online at <literal>http://www.espertech.com/schema/esper/esper-configuration-</literal><emphasis>majorversion</emphasis><literal>-0.xsd</literal> so that IDE can fetch it automatically.
             The namespace used is <literal>http://www.espertech.com/schema/esper</literal>.
         </para>
@@ -86,7 +86,7 @@ configuration.configure("myengine.esper.cfg.xml");
     xmlns="http://www.espertech.com/schema/esper"
     xsi:schemaLocation="
 http://www.espertech.com/schema/esper
-http://www.espertech.com/schema/esper/esper-configuration-6-0.xsd">
+http://www.espertech.com/schema/esper/esper-configuration-7-0.xsd">
   <event-type name="StockTick" class="com.espertech.esper.example.stockticker.event.StockTick"/>
   <event-type name="PriceLimit" class="com.espertech.esper.example.stockticker.event.PriceLimit"/>
   <auto-import import-name="org.mycompany.mypackage.MyUtility"/>
@@ -1605,6 +1605,55 @@ class MyOwnDataSourceFactory {
 			</sect3>
 		</sect2>
 
+		<sect2 xml:id="config-engine-codegen" revision="1">
+			<title>Engine Settings related to Code Generation and Compilation</title>
+			
+			<para>
+			  The setting <literal>enable-expression</literal> is true by default and controls whether the engine generates code for interdependent expressions.
+			  By setting flag to false the engine does not depend on Janino.
+			</para>
+			
+			<para>
+			  The setting <literal>enable-fallback</literal> is true by default and controls whether the engine, upon encountering any exception generating any code, 
+			  falls back to regular evaluation. When this flag is false the engine rethrows any exception encountered for code generation.
+			</para>
+
+			<para>
+			  The setting <literal>enable-propertygetter</literal> is false by default. It controls whether the engine generates code for event property getters when using the 
+			  <literal>getGetter</literal> method on <literal>EventType</literal>. This setting does not affect code generation for event properties that are part of an expression.
+			</para>
+
+			<para>
+			  The setting <literal>include-debugsymbols</literal> is false by default. It controls whether the engine instructs the compiler to generate debug symbols as part of the binary class.
+			</para>
+
+			<para>
+			  The setting <literal>include-comments</literal> is false by default. It controls whether the engine generates code that contains additional information to help
+			  tracing back generated code to the code that generated it.
+			</para>
+			
+			<para>
+				The sample code below sets the same values as the default values:
+			</para>
+			<programlisting><![CDATA[Configuration configuration = new Configuration();
+ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
+codegen.setEnableExpression(true);
+codegen.setEnableFallback(true);
+codegen.setEnablePropertyGetter(false);
+codegen.setIncludeDebugSymbols(false);
+codegen.setIncludeComments(false);]]></programlisting>
+				
+			<para>
+				The sample XML configuration below also sets default values:
+			</para>
+			<programlisting><![CDATA[<engine-settings>
+  <defaults>
+    <codegen enable-expression="true" enable-fallback="true" enable-propertygetter="false" include-comments="false" include-debugsymbols="false"/>
+  </defaults>
+</engine-settings>]]></programlisting>
+			
+		</sect2>
+
 		<sect2 xml:id="config-engine-threading" revision="1">
 			<title>Engine Settings related to Concurrency and Threading</title>
 			
@@ -2207,6 +2256,33 @@ config.getEngineDefaults().getLogging().setAuditPattern("[%u] [%s] %m");]]></pro
     <defaults>
       <logging>
         <audit pattern="[%u] [%s]%m"/>
+    </logging>
+    </defaults>
+  </engine-settings>
+</esper-configuration>]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="config-engine-logging-code" revision="1">
+				<title>Code Generation Logging</title>
+
+				<para>
+				   By enabling this setting the engine logs code generation information at INFO level. This setting is disabled by default.
+				</para>
+
+				<para>
+					The API to use to enable logging for generated code is shown here:
+				</para>
+				<programlisting><![CDATA[Configuration config = new Configuration();
+config.getEngineDefaults().getLogging().setEnableCode(true);]]></programlisting>
+
+				<para>
+					The XML snippet is:
+				</para>
+				<programlisting><![CDATA[<esper-configuration>
+  <engine-settings>
+    <defaults>
+      <logging>
+        <code enabled="true"/>
     </logging>
     </defaults>
   </engine-settings>

@@ -42,7 +42,4 @@ public class ExprTableExprEvaluatorMethod extends ExprTableExprEvaluatorBase imp
         return result;
     }
 
-    public Class getType() {
-        return returnType;
-    }
 }

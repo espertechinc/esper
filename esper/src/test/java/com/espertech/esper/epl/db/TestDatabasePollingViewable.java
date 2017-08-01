@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
@@ -49,7 +50,7 @@ public class TestDatabasePollingViewable extends TestCase {
 
         Map<Integer, List<ExprNode>> sqlParameters = new HashMap<Integer, List<ExprNode>>();
         sqlParameters.put(1, Collections.singletonList((ExprNode) new ExprIdentNodeImpl("intPrimitive", "s0")));
-        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, sqlParameters, null, SupportStatementContextFactory.makeContext());
+        pollingViewable.validate(SupportEngineImportServiceFactory.make(), new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, sqlParameters, null, SupportStatementContextFactory.makeContext());
 
         indexingStrategy = new PollResultIndexingStrategy() {
             public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext) {

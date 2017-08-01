@@ -73,11 +73,11 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         }
     }
 
-    static String getBeanPropInternalCodegen(CodegenContext context, Class beanPropType, Class targetType, Method method, Object key) throws PropertyAccessException {
-        return context.addMethod(beanPropType, targetType, "object", KeyedMapMethodPropertyGetter.class)
+    static String getBeanPropInternalCodegen(CodegenContext context, Class beanPropType, Class targetType, Method method) throws PropertyAccessException {
+        return context.addMethod(beanPropType, KeyedMapMethodPropertyGetter.class).add(targetType, "object").add(Object.class, "key").begin()
                 .declareVar(method.getReturnType(), "result", exprDotMethod(ref("object"), method.getName()))
                 .ifRefNotTypeReturnConst("result", Map.class, null)
-                .methodReturn(cast(beanPropType, exprDotMethod(cast(Map.class, ref("result")), "get", constant(key))));
+                .methodReturn(cast(beanPropType, exprDotMethod(cast(Map.class, ref("result")), "get", ref("key"))));
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -107,19 +107,23 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         return method.getDeclaringClass();
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropInternalCodegen(context, getBeanPropType(), getTargetType(), method, key), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCodegen(context, getBeanPropType(), getTargetType(), method), underlyingExpression, constant(key));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
+    }
+
+    public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getBeanPropInternalCodegen(context, getBeanPropType(), getTargetType(), method), castUnderlying(getTargetType(), beanExpression), key);
     }
 }

@@ -11,9 +11,7 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.rettype.EPType;
 
 import java.util.Collection;
 
@@ -25,12 +23,4 @@ public interface ExprDotEvalRootChildInnerEval {
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
-
-    public EventType getEventTypeCollection();
-
-    public EventType getEventTypeSingle();
-
-    public Class getComponentTypeCollection();
-
-    public EPType getTypeInfo();
 }

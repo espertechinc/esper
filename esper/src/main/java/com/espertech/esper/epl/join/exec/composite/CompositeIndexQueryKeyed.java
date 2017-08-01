@@ -36,7 +36,7 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         this.lookupStream = lookupStream;
 
         for (int i = 0; i < evaluators.length; i++) {
-            evaluators[i] = hashKeys.get(i).getKeyExpr().getExprEvaluator();
+            evaluators[i] = hashKeys.get(i).getKeyExpr().getForge().getExprEvaluator();
         }
         if (lookupStream != -1) {
             events = new EventBean[lookupStream + 1];

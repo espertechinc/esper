@@ -12,6 +12,10 @@ package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
@@ -34,7 +38,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
 
-public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode {
+public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase implements ExprEnumerationForge, ExprEnumerationEval, ExprAggregateAccessMultiValueNode {
     private static final long serialVersionUID = -6088874732989061687L;
 
     private final AggregationStateType stateType;
@@ -52,6 +56,18 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
     public AggregationMethodFactory validateAggregationParamsWBinding(ExprValidationContext validationContext, TableMetadataColumnAggregation tableAccessColumn) throws ExprValidationException {
         return validateAggregationInternal(validationContext, tableAccessColumn);
+    }
+
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
+    }
+
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
+    }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
     }
 
     private AggregationMethodFactory validateAggregationInternal(ExprValidationContext validationContext, TableMetadataColumnAggregation optionalBinding) throws ExprValidationException {
@@ -126,8 +142,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             if ((stateType == AggregationStateType.WINDOW) && istreamOnly && !streamTypeService.isOnDemandStreams()) {
                 throw makeUnboundValidationEx(stateType);
             }
-            resultType = childNodes[0].getExprEvaluator().getType();
-            evaluator = childNodes[0].getExprEvaluator();
+            resultType = childNodes[0].getForge().getEvaluationType();
+            evaluator = ExprNodeCompiler.allocateEvaluator(childNodes[0].getForge(), validationContext.getEngineImportService(), this.getClass(), streamTypeService.isOnDemandStreams(), validationContext.getStatementName());
             if (streamNum >= streamTypeService.getEventTypes().length) {
                 containedType = streamTypeService.getEventTypes()[0];
             } else {
@@ -141,7 +157,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
                 throw new ExprValidationException(getErrorPrefix(stateType) + " does not accept an index expression; Use 'first' or 'last' instead");
             }
             evaluatorIndex = childNodes[1];
-            if (evaluatorIndex.getExprEvaluator().getType() != Integer.class) {
+            Class indexResultType = evaluatorIndex.getForge().getEvaluationType();
+            if (indexResultType != Integer.class && indexResultType != int.class) {
                 throw new ExprValidationException(getErrorPrefix(stateType) + " requires an index expression that returns an integer value");
             }
         }
@@ -151,10 +168,14 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         if (evaluatorIndex != null) {
             boolean isFirst = stateType == AggregationStateType.FIRST;
             int constant = -1;
+            ExprEvaluator evalIndex;
             if (evaluatorIndex.isConstantResult()) {
-                constant = (Integer) evaluatorIndex.getExprEvaluator().evaluate(null, true, null);
+                constant = (Integer) evaluatorIndex.getForge().getExprEvaluator().evaluate(null, true, null);
+                evalIndex = null;
+            } else {
+                evalIndex = ExprNodeCompiler.allocateEvaluator(evaluatorIndex.getForge(), validationContext.getEngineImportService(), this.getClass(), streamTypeService.isOnDemandStreams(), validationContext.getStatementName());
             }
-            accessor = new AggregationAccessorFirstLastIndexWEval(streamNum, evaluator, evaluatorIndex.getExprEvaluator(), constant, isFirst);
+            accessor = new AggregationAccessorFirstLastIndexWEval(streamNum, evaluator, evalIndex, constant, isFirst);
         } else {
             if (stateType == AggregationStateType.FIRST) {
                 accessor = new AggregationAccessorFirstWEval(streamNum, evaluator);
@@ -185,7 +206,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
         AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, AggregationStateTypeWStream.DATAWINDOWACCESS_LINEAR, new ExprNode[0], optionalFilter);
 
-        ExprEvaluator optionalFilterEval = optionalFilter == null ? null : optionalFilter.getExprEvaluator();
+        ExprEvaluator optionalFilterEval = optionalFilter == null ? null : ExprNodeCompiler.allocateEvaluator(optionalFilter.getForge(), validationContext.getEngineImportService(), this.getClass(), streamTypeService.isOnDemandStreams(), validationContext.getStatementName());
         AggregationStateFactory stateFactory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinear(validationContext.getStatementExtensionSvcContext(), this, streamNum, optionalFilterEval);
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, accessorResultType, containedType,
                 stateKey, stateFactory, AggregationAgentDefault.INSTANCE);
@@ -238,7 +259,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
         Class componentType = containedType.getUnderlyingType();
         AggregationAccessor accessor = new AggregationAccessorWindowNoEval(componentType);
-        AggregationAgent agent = ExprAggAggregationAgentFactory.make(streamNum, optionalFilter);
+        AggregationAgent agent = ExprAggAggregationAgentFactory.make(streamNum, optionalFilter, validationContext.getEngineImportService(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, JavaClassHelper.getArrayType(componentType), containedType, null, null, agent);
         return new LinearAggregationFactoryDesc(factory, factory.getContainedEventType(), null);
     }
@@ -276,26 +297,31 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             StreamTypeServiceImpl streams = TableServiceUtil.streamTypeFromTableColumn(tableAccess, validationContext.getStreamTypeService().getEngineURIQualifier());
             ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
             paramNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
-            ExprEvaluator paramNodeEval = paramNode.getExprEvaluator();
+            ExprEvaluator paramNodeEval = ExprNodeCompiler.allocateEvaluator(paramNode.getForge(), validationContext.getEngineImportService(), this.getClass(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
             AggregationAccessor accessor;
             if (stateType == AggregationStateType.FIRST) {
                 accessor = new AggregationAccessorFirstWEval(0, paramNodeEval);
             } else {
                 accessor = new AggregationAccessorLastWEval(0, paramNodeEval);
             }
-            ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, paramNodeEval.getType(), original.getContainedEventType(), null, null, null);
+            ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, paramNode.getForge().getEvaluationType(), original.getContainedEventType(), null, null, null);
             return new LinearAggregationFactoryDesc(factory, factory.getContainedEventType(), null);
         }
         if (childNodes.length == 2) {
             boolean isFirst = stateType == AggregationStateType.FIRST;
             int constant = -1;
             ExprNode indexEvalNode = childNodes[1];
-            if (indexEvalNode.isConstantResult()) {
-                constant = (Integer) indexEvalNode.getExprEvaluator().evaluate(null, true, null);
-            }
-            ExprEvaluator evaluatorIndex = indexEvalNode.getExprEvaluator();
-            if (evaluatorIndex.getType() != Integer.class) {
+            Class indexEvalType = indexEvalNode.getForge().getEvaluationType();
+            if (indexEvalType != Integer.class && indexEvalType != int.class) {
                 throw new ExprValidationException(getErrorPrefix(stateType) + " requires a constant index expression that returns an integer value");
+            }
+
+            ExprEvaluator evaluatorIndex;
+            if (indexEvalNode.isConstantResult()) {
+                constant = (Integer) indexEvalNode.getForge().getExprEvaluator().evaluate(null, true, null);
+                evaluatorIndex = null;
+            } else {
+                evaluatorIndex = ExprNodeCompiler.allocateEvaluator(indexEvalNode.getForge(), validationContext.getEngineImportService(), this.getClass(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
             }
             AggregationAccessor accessor = new AggregationAccessorFirstLastIndexNoEval(evaluatorIndex, constant, isFirst);
             ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, resultType, original.getContainedEventType(), null, null, null);
@@ -320,10 +346,11 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             StreamTypeServiceImpl streams = TableServiceUtil.streamTypeFromTableColumn(tableAccess, validationContext.getStreamTypeService().getEngineURIQualifier());
             ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
             paramNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
-            ExprEvaluator paramNodeEval = paramNode.getExprEvaluator();
+            Class paramNodeType = paramNode.getForge().getEvaluationType();
+            ExprEvaluator paramNodeEval = ExprNodeCompiler.allocateEvaluator(paramNode.getForge(), validationContext.getEngineImportService(), this.getClass(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
             ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this,
-                    new AggregationAccessorWindowWEval(0, paramNodeEval, paramNodeEval.getType()), JavaClassHelper.getArrayType(paramNodeEval.getType()), original.getContainedEventType(), null, null, null);
-            return new LinearAggregationFactoryDesc(factory, null, paramNodeEval.getType());
+                    new AggregationAccessorWindowWEval(0, paramNodeEval, paramNodeType), JavaClassHelper.getArrayType(paramNodeType), original.getContainedEventType(), null, null, null);
+            return new LinearAggregationFactoryDesc(factory, null, paramNodeType);
         }
         throw new ExprValidationException("Invalid number of parameters");
     }
@@ -352,6 +379,10 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return super.aggregationResultFuture.getCollectionOfEvents(column, eventsPerStream, isNewData, context);
+    }
+
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

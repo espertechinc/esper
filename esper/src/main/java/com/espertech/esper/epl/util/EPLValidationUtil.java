@@ -98,7 +98,7 @@ public class EPLValidationUtil {
 
     public static void validateParametersTypePredefined(ExprNode[] expressions, String invocableName, String invocableCategory, EPLExpressionParamType type) throws ExprValidationException {
         for (int i = 0; i < expressions.length; i++) {
-            EPLValidationUtil.validateParameterType(invocableName, invocableCategory, true, type, null, expressions[i].getExprEvaluator().getType(), i, expressions[i]);
+            EPLValidationUtil.validateParameterType(invocableName, invocableCategory, true, type, null, expressions[i].getForge().getEvaluationType(), i, expressions[i]);
         }
     }
 }

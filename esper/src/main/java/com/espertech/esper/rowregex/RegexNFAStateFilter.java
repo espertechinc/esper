@@ -11,6 +11,7 @@
 package com.espertech.esper.rowregex;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -20,8 +21,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
  * NFA state for a single match that applies a filter.
  */
 public class RegexNFAStateFilter extends RegexNFAStateBase implements RegexNFAState {
-    private final ExprEvaluator exprNode;
-    private final ExprNode expression;
+    private final ExprNode exprNode;
+    private final ExprEvaluator expression;
     private final boolean exprRequiresMultimatchState;
 
     /**
@@ -31,21 +32,21 @@ public class RegexNFAStateFilter extends RegexNFAStateBase implements RegexNFASt
      * @param variableName                variable name
      * @param streamNum                   stream number
      * @param multiple                    true for multiple matches
-     * @param exprNode                    filter expression
+     * @param expression                  filter expression
      * @param exprRequiresMultimatchState indicator for multi-match state required
      */
-    public RegexNFAStateFilter(String nodeNum, String variableName, int streamNum, boolean multiple, ExprNode exprNode, boolean exprRequiresMultimatchState) {
+    public RegexNFAStateFilter(String nodeNum, String variableName, int streamNum, boolean multiple, Pair<ExprNode, ExprEvaluator> expression, boolean exprRequiresMultimatchState) {
         super(nodeNum, variableName, streamNum, multiple, null);
-        this.exprNode = exprNode.getExprEvaluator();
-        this.expression = exprNode;
+        this.exprNode = expression.getFirst();
+        this.expression = expression.getSecond();
         this.exprRequiresMultimatchState = exprRequiresMultimatchState;
     }
 
     public boolean matches(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprBool(expression, eventsPerStream);
+            InstrumentationHelper.get().qExprBool(exprNode, eventsPerStream);
         }
-        Boolean result = (Boolean) exprNode.evaluate(eventsPerStream, true, exprEvaluatorContext);
+        Boolean result = (Boolean) expression.evaluate(eventsPerStream, true, exprEvaluatorContext);
         if (result != null) {
             if (InstrumentationHelper.ENABLED) {
                 InstrumentationHelper.get().aExprBool(result);

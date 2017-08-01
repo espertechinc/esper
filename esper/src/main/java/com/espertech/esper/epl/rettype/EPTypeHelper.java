@@ -10,8 +10,9 @@
  */
 package com.espertech.esper.epl.rettype;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumeration;
+import com.espertech.esper.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterService;
@@ -188,7 +189,7 @@ public class EPTypeHelper {
             Class componentType = method.getReturnType().getComponentType();
             return EPTypeHelper.array(componentType);
         }
-        return EPTypeHelper.singleValue(method.getReturnType());
+        return EPTypeHelper.singleValue(JavaClassHelper.getBoxedType(method.getReturnType()));
     }
 
     /**
@@ -244,12 +245,28 @@ public class EPTypeHelper {
         throw new IllegalArgumentException("Unrecognized type " + theType);
     }
 
-    public static EPType optionalFromEnumerationExpr(int statementId, EventAdapterService eventAdapterService, ExprNode exprNode)
-            throws ExprValidationException {
-        if (!(exprNode instanceof ExprEvaluatorEnumeration)) {
+    public static Class getCodegenReturnType(EPType theType) {
+        if (theType instanceof EventMultiValuedEPType) {
+            return Collection.class;
+        } else if (theType instanceof ClassMultiValuedEPType) {
+            return ((ClassMultiValuedEPType) theType).getContainer();
+        } else if (theType instanceof EventEPType) {
+            return EventBean.class;
+        } else if (theType instanceof ClassEPType) {
+            ClassEPType type = (ClassEPType) theType;
+            return type.getType();
+        } else if (theType instanceof NullEPType) {
             return null;
         }
-        ExprEvaluatorEnumeration enumInfo = (ExprEvaluatorEnumeration) exprNode;
+        throw new IllegalArgumentException("Unrecognized type " + theType);
+    }
+
+    public static EPType optionalFromEnumerationExpr(int statementId, EventAdapterService eventAdapterService, ExprNode exprNode)
+            throws ExprValidationException {
+        if (!(exprNode instanceof ExprEnumerationForge)) {
+            return null;
+        }
+        ExprEnumerationForge enumInfo = (ExprEnumerationForge) exprNode;
         if (enumInfo.getComponentTypeCollection() != null) {
             return EPTypeHelper.collectionOfSingleValue(enumInfo.getComponentTypeCollection());
         }

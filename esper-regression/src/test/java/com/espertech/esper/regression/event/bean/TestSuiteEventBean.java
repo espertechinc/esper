@@ -29,6 +29,10 @@ public class TestSuiteEventBean extends TestCase {
         RegressionRunner.run(new ExecEventBeanAddRemoveType());
     }
 
+    public void testExecEventBeanPrivateClass() {
+        RegressionRunner.run(new ExecEventBeanPrivateClass());
+    }
+
     public void testExecEventBeanPublicAccessors() {
         RegressionRunner.run(new ExecEventBeanPublicAccessors(true));
         RegressionRunner.run(new ExecEventBeanPublicAccessors(false));

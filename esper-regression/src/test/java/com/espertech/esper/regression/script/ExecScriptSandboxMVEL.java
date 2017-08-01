@@ -24,8 +24,7 @@ public class ExecScriptSandboxMVEL implements RegressionExecution {
             return;
         }
 
-        // comment-in
-        /*
+        /* Comment-me-in:
         String expression = "new MyImportedClass()";
 
         Map<String, Class> inputs = new HashMap<String, Class>();
@@ -57,7 +56,7 @@ public class ExecScriptSandboxMVEL implements RegressionExecution {
         long end = System.currentTimeMillis();
         long delta = end - start;
         System.out.println("delta=" + delta);
-        */
+         */
     }
 
     public static class MyEPLContext {

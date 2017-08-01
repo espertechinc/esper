@@ -63,7 +63,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     private String getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .methodReturn(handleNestedValueCodegen(ref("value"), context));
@@ -79,7 +79,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     private String isExistsPropertyCodegen(CodegenContext context) {
-        return context.addMethod(boolean.class, Object[].class, "array", this.getClass())
+        return context.addMethod(boolean.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
                 .methodReturn(handleNestedValueExistsCodegen(ref("value"), context));
@@ -95,33 +95,33 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     private String getFragmentCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
                 .methodReturn(handleNestedValueFragmentCodegen(ref("value"), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 

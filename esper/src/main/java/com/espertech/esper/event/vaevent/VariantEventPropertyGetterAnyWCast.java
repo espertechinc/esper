@@ -43,7 +43,7 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
     private String getCodegen(CodegenContext context) throws PropertyAccessException {
         CodegenMember mCache = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
         CodegenMember mCaster = context.makeAddMember(SimpleTypeCaster.class, caster);
-        return context.addMethod(Object.class, EventBean.class, "eventBean", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "eventBean").begin()
                 .declareVar(Object.class, "value", staticMethod(VariantEventPropertyGetterAny.class, "variantGet", ref("eventBean"), ref(mCache.getMemberName()), constant(assignedPropertyNumber)))
                 .methodReturn(exprDotMethod(ref(mCaster.getMemberName()), "cast", ref("value")));
     }
@@ -56,28 +56,28 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return localMethod(getCodegen(context), beanExpression);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         CodegenMember member = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
         return staticMethod(VariantEventPropertyGetterAny.class, "variantExists", beanExpression, ref(member.getMemberName()), constant(assignedPropertyNumber));
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw variantImplementationNotProvided();
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw variantImplementationNotProvided();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw variantImplementationNotProvided();
     }
 }

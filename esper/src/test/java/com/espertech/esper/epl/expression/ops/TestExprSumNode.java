@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.TestExprAggregateNodeAdapter;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
@@ -31,17 +30,17 @@ public class TestExprSumNode extends TestExprAggregateNodeAdapter {
     public void testGetType() throws Exception {
         sumNode.addChildNode(new SupportExprNode(Integer.class));
         SupportExprNodeFactory.validate3Stream(sumNode);
-        assertEquals(Integer.class, sumNode.getType());
+        assertEquals(Integer.class, sumNode.getEvaluationType());
 
         sumNode = new ExprSumNode(false);
         sumNode.addChildNode(new SupportExprNode(Float.class));
         SupportExprNodeFactory.validate3Stream(sumNode);
-        assertEquals(Float.class, sumNode.getType());
+        assertEquals(Float.class, sumNode.getEvaluationType());
 
         sumNode = new ExprSumNode(false);
         sumNode.addChildNode(new SupportExprNode(Short.class));
         SupportExprNodeFactory.validate3Stream(sumNode);
-        assertEquals(Integer.class, sumNode.getType());
+        assertEquals(Integer.class, sumNode.getEvaluationType());
     }
 
     public void testToExpressionString() throws Exception {

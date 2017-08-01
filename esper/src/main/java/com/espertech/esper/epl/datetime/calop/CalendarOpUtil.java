@@ -38,7 +38,7 @@ public class CalendarOpUtil {
             message += ", " + getValidFieldNamesMessage();
             throw new ExprValidationException(message);
         }
-        String fieldname = (String) exprNode.getExprEvaluator().evaluate(null, true, null);
+        String fieldname = (String) exprNode.getForge().getExprEvaluator().evaluate(null, true, null);
         CalendarFieldEnum fieldNum = CalendarFieldEnum.fromString(fieldname);
         if (fieldNum == null) {
             throw new ExprValidationException(getMessage(methodName) + " datetime-field name '" + fieldname + "' is not recognized, " + getValidFieldNamesMessage());
@@ -52,7 +52,7 @@ public class CalendarOpUtil {
         }
 
         ClassEPType input = (ClassEPType) inputType;
-        Object format = ExprNodeUtility.evaluateValidationTimeNoStreams(exprNode.getExprEvaluator(), exprEvaluatorContext, "date format");
+        Object format = ExprNodeUtility.evaluateValidationTimeNoStreams(exprNode.getForge().getExprEvaluator(), exprEvaluatorContext, "date format");
         if (format == null) {
             throw new ExprValidationException(getMessage(methodName) + " invalid null format object");
         }

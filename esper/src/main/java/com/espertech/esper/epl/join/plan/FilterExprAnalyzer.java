@@ -104,14 +104,14 @@ public class FilterExprAnalyzer {
         }
 
         ExprNode testExpr = inNode.getChildNodes()[0];
-        Class testExprType = JavaClassHelper.getBoxedType(testExpr.getExprEvaluator().getType());
+        Class testExprType = JavaClassHelper.getBoxedType(testExpr.getForge().getEvaluationType());
         if (perStreamExprs.size() > 1) {
             return;
         }
         Map.Entry<Integer, List<ExprNode>> entry = perStreamExprs.entrySet().iterator().next();
         ExprNode[] exprNodes = ExprNodeUtility.toArray(entry.getValue());
         for (ExprNode node : exprNodes) {
-            Class exprType = node.getExprEvaluator().getType();
+            Class exprType = node.getForge().getEvaluationType();
             if (JavaClassHelper.getBoxedType(exprType) != testExprType) {
                 return;
             }
@@ -148,7 +148,7 @@ public class FilterExprAnalyzer {
             return;
         }
         ExprIdentNode testIdent = (ExprIdentNode) inNode.getChildNodes()[0];
-        Class testIdentClass = JavaClassHelper.getBoxedType(testIdent.getExprEvaluator().getType());
+        Class testIdentClass = JavaClassHelper.getBoxedType(testIdent.getForge().getEvaluationType());
         int indexedStream = testIdent.getStreamId();
 
         ExprNode[] setExpressions = getInNodeSetExpressions(inNode);
@@ -159,7 +159,7 @@ public class FilterExprAnalyzer {
         Map<Integer, List<ExprNode>> perStreamExprs = new LinkedHashMap<Integer, List<ExprNode>>();
 
         for (ExprNode exprNodeSet : setExpressions) {
-            if (JavaClassHelper.getBoxedType(exprNodeSet.getExprEvaluator().getType()) != testIdentClass) {
+            if (JavaClassHelper.getBoxedType(exprNodeSet.getForge().getEvaluationType()) != testIdentClass) {
                 continue;
             }
             if (exprNodeSet instanceof ExprIdentNode) {

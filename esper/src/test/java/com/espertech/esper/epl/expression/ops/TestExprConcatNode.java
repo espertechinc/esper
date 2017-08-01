@@ -65,12 +65,12 @@ public class TestExprConcatNode extends TestCase {
         concatNode.addChildNode(new SupportExprNode("x"));
         concatNode.addChildNode(new SupportExprNode("y"));
         SupportExprNodeUtil.validate(concatNode);
-        assertEquals(String.class, concatNode.getExprEvaluator().getType());
-        assertEquals("xy", concatNode.getExprEvaluator().evaluate(null, false, null));
+        assertEquals(String.class, concatNode.getForge().getEvaluationType());
+        assertEquals("xy", concatNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         concatNode.addChildNode(new SupportExprNode("z"));
         SupportExprNodeUtil.validate(concatNode);
-        assertEquals("xyz", concatNode.getExprEvaluator().evaluate(null, false, null));
+        assertEquals("xyz", concatNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEqualsNode() throws Exception {
@@ -123,7 +123,7 @@ public class TestExprConcatNode extends TestCase {
         }
 
         public void run() {
-            ExprEvaluator eval = node.getExprEvaluator();
+            ExprEvaluator eval = node.getForge().getExprEvaluator();
             for (int i = 0; i < numLoop; i++) {
                 String result = (String) eval.evaluate(null, true, null);
                 if (!expectedResult.equals(result)) {

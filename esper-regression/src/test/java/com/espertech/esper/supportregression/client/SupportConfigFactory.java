@@ -51,6 +51,7 @@ public class SupportConfigFactory {
             config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
             config.getEngineDefaults().getExceptionHandling().addClass(SupportExceptionHandlerFactoryRethrow.class);
             config.getEngineDefaults().getExceptionHandling().setUndeployRethrowPolicy(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.RETHROW_FIRST);
+            config.getEngineDefaults().getCodeGeneration().setEnableFallback(false);
         }
         return config;
     }

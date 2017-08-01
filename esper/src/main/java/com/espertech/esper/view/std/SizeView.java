@@ -77,10 +77,10 @@ public class SizeView extends ViewSupport implements CloneableView {
 
             if ((additionalProps != null) && (newData.length != 0)) {
                 if (lastValuesEventNew == null) {
-                    lastValuesEventNew = new Object[additionalProps.getAdditionalExpr().length];
+                    lastValuesEventNew = new Object[additionalProps.getAdditionalEvals().length];
                 }
-                for (int val = 0; val < additionalProps.getAdditionalExpr().length; val++) {
-                    lastValuesEventNew[val] = additionalProps.getAdditionalExpr()[val].evaluate(new EventBean[]{newData[newData.length - 1]}, true, agentInstanceContext);
+                for (int val = 0; val < additionalProps.getAdditionalEvals().length; val++) {
+                    lastValuesEventNew[val] = additionalProps.getAdditionalEvals()[val].evaluate(new EventBean[]{newData[newData.length - 1]}, true, agentInstanceContext);
                 }
             }
         }

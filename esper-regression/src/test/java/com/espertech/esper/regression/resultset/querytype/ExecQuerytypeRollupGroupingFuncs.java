@@ -137,8 +137,8 @@ public class ExecQuerytypeRollupGroupingFuncs implements RegressionExecution {
         EPAssertionUtil.assertEqualsExactOrder(new Object[][]{
                 {"skoda", "france", 10000, 0, 0, 0, "c01", "|skoda|"},
                 {"skoda", null, 10000, 0, 1, 1, "c01", "|skoda|"},
-                {null, "france", 10000, 1, 0, 2, "c01", "|skoda|"},
-                {null, null, 10000, 1, 1, 3, "c01", "|skoda|"}}, GroupingSupportFunc.assertGetAndClear(4));
+                {null, "france", 10000, 1, 0, 2, "c01", null},
+                {null, null, 10000, 1, 1, 3, "c01", null}}, GroupingSupportFunc.assertGetAndClear(4));
         epService.getEPAdministrator().destroyAllStatements();
 
         // test "prev" and "prior"

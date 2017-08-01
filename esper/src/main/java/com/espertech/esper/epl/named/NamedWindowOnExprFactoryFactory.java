@@ -59,7 +59,7 @@ public class NamedWindowOnExprFactoryFactory {
                     statementContext.getEpStatementHandle(), eventBeanReader, isDistinct, statementContext.getStatementResultService(), statementContext.getInternalEventEngineRouteDest(), windowDesc.isDeleteAndSelect(), optionalStreamSelector, optionalInsertIntoTableName);
         } else if (onTriggerDesc.getOnTriggerType() == OnTriggerType.ON_UPDATE) {
             OnTriggerWindowUpdateDesc updateDesc = (OnTriggerWindowUpdateDesc) onTriggerDesc;
-            EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(namedWindowName, (EventTypeSPI) namedWindowEventType, updateDesc.getAssignments(), namedWindowAlias, filterEventType, true, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
+            EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(namedWindowName, (EventTypeSPI) namedWindowEventType, updateDesc.getAssignments(), namedWindowAlias, filterEventType, true, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService(), false);
             return new NamedWindowOnUpdateViewFactory(namedWindowEventType, statementContext.getStatementResultService(), updateHelper);
         } else if (onTriggerDesc.getOnTriggerType() == OnTriggerType.ON_MERGE) {
             OnTriggerMergeDesc onMergeTriggerDesc = (OnTriggerMergeDesc) onTriggerDesc;

@@ -368,8 +368,8 @@ public class MethodResolver {
                                                           Boolean optionalAllowEventBeanCollType,
                                                           Type genericParameterType,
                                                           AtomicInteger conversionCount) {
-        if ((invocationParameter == null) && !(declarationParameter.isPrimitive())) {
-            return true;
+        if (invocationParameter == null) {
+            return !declarationParameter.isPrimitive();
         }
         if (optionalAllowEventBeanType != null && declarationParameter == EventBean.class && optionalAllowEventBeanType) {
             return true;
@@ -382,7 +382,7 @@ public class MethodResolver {
         }
         if (!isIdentityConversion(declarationParameter, invocationParameter)) {
             conversionCount.incrementAndGet();
-            if (!isWideningConversion(declarationParameter, invocationParameter)) {
+            if (!isWideningConversion(declarationParameter, invocationParameter) && declarationParameter != Object.class) {
                 return false;
             }
         }
@@ -397,6 +397,9 @@ public class MethodResolver {
         } else {
             if (invocationType == null) {
                 return !declarationType.isPrimitive();
+            }
+            if (invocationType.isPrimitive()) {
+                invocationType = JavaClassHelper.getBoxedType(invocationType);
             }
             return declarationType.isAssignableFrom(invocationType);
         }

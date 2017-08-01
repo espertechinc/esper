@@ -326,7 +326,7 @@ public class ExecAggregateFirstLastWindow implements RegressionExecution {
 
         Object[][] rows = new Object[][]{
                 {"first(sa.doublePrimitive+sa.intPrimitive)", Double.class},
-                {"first(sa.intPrimitive)", int.class},
+                {"first(sa.intPrimitive)", Integer.class},
                 {"window(sa.*)", SupportBean[].class},
                 {"last(*)", SupportBean.class},
         };

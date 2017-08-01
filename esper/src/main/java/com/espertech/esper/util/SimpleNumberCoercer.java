@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 /**
  * Interface for number coercion.
  */
@@ -24,4 +27,8 @@ public interface SimpleNumberCoercer {
     public Number coerceBoxed(Number numToCoerce);
 
     public Class getReturnType();
+
+    CodegenExpression coerceCodegen(CodegenExpression value, Class valueType);
+
+    CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context);
 }

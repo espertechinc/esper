@@ -112,31 +112,31 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
         return Object.class;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(exprDotUnderlying(beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(exprDotUnderlying(beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(exprDotUnderlying(beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(exprDotUnderlying(beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(exprDotUnderlying(beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(exprDotUnderlying(beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         codegenMembers(context);
         return staticMethod(this.getClass(), "cacheAndCall", ref(codegenCache.getMemberName()), ref(codegenThis.getMemberName()), underlyingExpression, ref(codegenEventAdapterService.getMemberName()));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         codegenMembers(context);
         return staticMethod(this.getClass(), "cacheAndExists", ref(codegenCache.getMemberName()), ref(codegenThis.getMemberName()), underlyingExpression, ref(codegenEventAdapterService.getMemberName()));
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         codegenMembers(context);
-        return staticMethod(BaseNativePropertyGetter.class, "getFragmentDynamic", codegenUnderlyingGet(underlyingExpression, context), ref(codegenEventAdapterService.getMemberName()));
+        return staticMethod(BaseNativePropertyGetter.class, "getFragmentDynamic", underlyingGetCodegen(underlyingExpression, context), ref(codegenEventAdapterService.getMemberName()));
     }
 
     public Object getFragment(EventBean eventBean) {

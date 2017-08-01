@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.view.ViewFieldEnum;
 
@@ -24,28 +25,35 @@ import java.util.Map;
 
 public class StatViewAdditionalProps {
     private final String[] additionalProps;
-    private final ExprEvaluator[] additionalExpr;
+    private final ExprEvaluator[] additionalEvals;
+    private final Class[] additionalTypes;
 
-    private StatViewAdditionalProps(String[] additionalProps, ExprEvaluator[] additionalExpr) {
+    private StatViewAdditionalProps(String[] additionalProps, ExprEvaluator[] additionalEvals, Class[] additionalTypes) {
         this.additionalProps = additionalProps;
-        this.additionalExpr = additionalExpr;
+        this.additionalEvals = additionalEvals;
+        this.additionalTypes = additionalTypes;
     }
 
     public String[] getAdditionalProps() {
         return additionalProps;
     }
 
-    public ExprEvaluator[] getAdditionalExpr() {
-        return additionalExpr;
+    public ExprEvaluator[] getAdditionalEvals() {
+        return additionalEvals;
     }
 
-    public static StatViewAdditionalProps make(ExprNode[] validated, int startIndex, EventType parentEventType) {
+    public Class[] getAdditionalTypes() {
+        return additionalTypes;
+    }
+
+    public static StatViewAdditionalProps make(ExprNode[] validated, int startIndex, EventType parentEventType, EngineImportService engineImportService, String statementName) {
         if (validated.length <= startIndex) {
             return null;
         }
 
         List<String> additionalProps = new ArrayList<String>();
-        List<ExprEvaluator> lastValueExpr = new ArrayList<ExprEvaluator>();
+        List<ExprEvaluator> lastValueEvals = new ArrayList<>();
+        List<Class> lastValueTypes = new ArrayList<>();
         boolean copyAllProperties = false;
 
         for (int i = startIndex; i < validated.length; i++) {
@@ -55,7 +63,9 @@ public class StatViewAdditionalProps {
             }
 
             additionalProps.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated[i]));
-            lastValueExpr.add(validated[i].getExprEvaluator());
+            lastValueTypes.add(validated[i].getForge().getEvaluationType());
+            ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(validated[i].getForge(), engineImportService, StatViewAdditionalProps.class, false, statementName);
+            lastValueEvals.add(evaluator);
         }
 
         if (copyAllProperties) {
@@ -70,19 +80,16 @@ public class StatViewAdditionalProps {
                     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                         return getter.get(eventsPerStream[0]);
                     }
-
-                    public Class getType() {
-                        return type;
-                    }
-
                 };
-                lastValueExpr.add(exprEvaluator);
+                lastValueEvals.add(exprEvaluator);
+                lastValueTypes.add(type);
             }
         }
 
         String[] addPropsArr = additionalProps.toArray(new String[additionalProps.size()]);
-        ExprEvaluator[] valueExprArr = lastValueExpr.toArray(new ExprEvaluator[lastValueExpr.size()]);
-        return new StatViewAdditionalProps(addPropsArr, valueExprArr);
+        ExprEvaluator[] valueExprArr = lastValueEvals.toArray(new ExprEvaluator[lastValueEvals.size()]);
+        Class[] typeArr = lastValueTypes.toArray(new Class[lastValueTypes.size()]);
+        return new StatViewAdditionalProps(addPropsArr, valueExprArr, typeArr);
     }
 
     public void addProperties(Map<String, Object> newDataMap, Object[] lastValuesEventNew) {
@@ -105,7 +112,7 @@ public class StatViewAdditionalProps {
                     throw new IllegalArgumentException("The property by name '" + name + "' overlaps the property name that the view provides");
                 }
             }
-            target.put(name, addProps.getAdditionalExpr()[i].getType());
+            target.put(name, addProps.additionalTypes[i]);
         }
     }
 }

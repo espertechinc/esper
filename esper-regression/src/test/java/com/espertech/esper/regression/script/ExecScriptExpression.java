@@ -223,7 +223,7 @@ public class ExecScriptExpression implements RegressionExecution {
             epService.getEPRuntime().sendEvent(new SupportBean());
             fail();
         } catch (Exception ex) {
-            assertTrue("Message is: " + ex.getMessage(), ex.getMessage().contains("Unexpected exception in statement 'ABC': Non-array value provided to collection"));
+            assertTrue("Message is: " + ex.getMessage(), ex.getMessage().contains("Unexpected exception in statement 'ABC': "));
         }
         epService.getEPAdministrator().destroyAllStatements();
     }
@@ -236,7 +236,7 @@ public class ExecScriptExpression implements RegressionExecution {
 
         // mvel return type check
         tryInvalidExact(epService, "expression java.lang.String mvel:abc[10] select * from SupportBean where abc()",
-                "Return type and declared type not compatible for script 'abc', known return type is java.lang.Integer versus declared return type java.lang.String [expression java.lang.String mvel:abc[10] select * from SupportBean where abc()]");
+                "Failed to validate filter expression 'abc()': Return type and declared type not compatible for script 'abc', known return type is java.lang.Integer versus declared return type java.lang.String [expression java.lang.String mvel:abc[10] select * from SupportBean where abc()]");
 
         // undeclared variable
         tryInvalidExact(epService, "expression mvel:abc[dummy;] select * from SupportBean",
@@ -244,11 +244,11 @@ public class ExecScriptExpression implements RegressionExecution {
 
         // invalid assignment
         tryInvalidContains(epService, "expression mvel:abc[dummy abc = 1;] select * from SupportBean",
-                "Line: 1, Column: 11");
+                "Exception compiling MVEL script 'abc'");
 
         // syntax problem
         tryInvalidContains(epService, "expression mvel:abc(aa) [return aa..bb(1);] select abc(1) from SupportBean",
-                "unable to resolve method using strict-mode: java.lang.Integer..bb");
+                "unable to resolve method using strict-mode");
 
         // empty brackets
         tryInvalidExact(epService, "expression mvel:abc[] select * from SupportBean",
@@ -307,7 +307,7 @@ public class ExecScriptExpression implements RegressionExecution {
         // test enumeration method
         // Not supported: tryEnumeration("expression int[] js:callIt() [ var myarr = new Array(2, 8, 5, 9); myarr; ]"); returns NativeArray which is a Rhino-specific array wrapper
         if (TEST_MVEL) {
-            tryEnumeration(epService, "expression int[] mvel:callIt() [ {2, 8, 5, 9} ]");
+            tryEnumeration(epService, "expression Integer[] mvel:callIt() [ Integer[] array = {2, 8, 5, 9}; return array; ]");
         }
 
         // test script props
@@ -465,7 +465,7 @@ public class ExecScriptExpression implements RegressionExecution {
                 {new SupportBean("E1", 5), 50},
                 {new SupportBean("E1", 6), 60}
         };
-        trySelect(epService, "expression mvel:abc(myint) [ myint * 10 ]", "abc(intPrimitive)", int.class, testData);
+        trySelect(epService, "expression mvel:abc(myint) [ myint * 10 ]", "abc(intPrimitive)", Integer.class, testData);
 
         expression = "if (theString.equals('E1')) " +
                 "  return myint * 10;" +
@@ -682,7 +682,7 @@ public class ExecScriptExpression implements RegressionExecution {
 
     private void tryEnumeration(EPServiceProvider epService, String expression) {
 
-        String epl = expression + " select (callIt()).countOf(v => v < 6) as val0 from SupportBean";
+        String epl = expression + " select callIt().countOf(v => v<6) as val0 from SupportBean";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);

@@ -13,16 +13,15 @@ package com.espertech.esper.avro.selectexprrep;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.util.TypeWidener;
-
-import java.util.Collection;
 
 public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator {
     private final ExprEvaluator eval;
     private final TypeWidener widener;
 
-    public SelectExprProcessorEvalAvroArrayCoercer(ExprEvaluator eval, TypeWidener widener) {
-        this.eval = eval;
+    public SelectExprProcessorEvalAvroArrayCoercer(ExprForge forge, TypeWidener widener) {
+        this.eval = forge.getExprEvaluator();
         this.widener = widener;
     }
 
@@ -31,7 +30,4 @@ public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator {
         return widener.widen(result);
     }
 
-    public Class getType() {
-        return Collection.class;
-    }
 }

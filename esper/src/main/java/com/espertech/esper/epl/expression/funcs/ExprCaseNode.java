@@ -10,35 +10,29 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.map.MapEventType;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CoercionException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
 
 import java.io.StringWriter;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents the case-when-then-else control flow function is an expression tree.
  */
-public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorTypableReturn {
+public class ExprCaseNode extends ExprNodeBase {
     private static final long serialVersionUID = 792538321520346459L;
 
     private final boolean isCase2;
-    private Class resultType;
-    private transient LinkedHashMap<String, Object> mapResultType;
-    private boolean isNumericResult;
-    private boolean mustCoerce;
 
-    private transient SimpleNumberCoercer coercer;
-    private transient List<UniformPair<ExprEvaluator>> whenThenNodeList;
-    private transient ExprEvaluator optionalCompareExprNode;
-    private transient ExprEvaluator optionalElseExprNode;
+    private transient ExprCaseNodeForge forge;
 
     /**
      * Ctor.
@@ -52,7 +46,13 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     /**
@@ -67,52 +67,72 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         CaseAnalysis analysis = analyzeCase();
 
-        whenThenNodeList = new ArrayList<UniformPair<ExprEvaluator>>();
         for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
             if (!isCase2) {
-                if (pair.getFirst().getExprEvaluator().getType() != Boolean.class) {
+                Class returnType = pair.getFirst().getForge().getEvaluationType();
+                if (returnType != boolean.class && returnType != Boolean.class) {
                     throw new ExprValidationException("Case node 'when' expressions must return a boolean value");
                 }
             }
-            whenThenNodeList.add(new UniformPair<ExprEvaluator>(pair.getFirst().getExprEvaluator(), pair.getSecond().getExprEvaluator()));
-        }
-        if (analysis.getOptionalCompareExprNode() != null) {
-            optionalCompareExprNode = analysis.getOptionalCompareExprNode().getExprEvaluator();
-        }
-        if (analysis.getOptionalElseExprNode() != null) {
-            optionalElseExprNode = analysis.getOptionalElseExprNode().getExprEvaluator();
         }
 
+        boolean mustCoerce = false;
+        SimpleNumberCoercer coercer = null;
         if (isCase2) {
-            validateCaseTwo();
+            // validate we can compare result types
+            List<Class> comparedTypes = new LinkedList<>();
+            comparedTypes.add(analysis.getOptionalCompareExprNode().getForge().getEvaluationType());
+            for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
+                comparedTypes.add(pair.getFirst().getForge().getEvaluationType());
+            }
+
+            // Determine common denominator type
+            try {
+                Class coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
+
+                // Determine if we need to coerce numbers when one type doesn't match any other type
+                if (JavaClassHelper.isNumeric(coercionType)) {
+                    mustCoerce = false;
+                    for (Class comparedType : comparedTypes) {
+                        if (comparedType != coercionType) {
+                            mustCoerce = true;
+                        }
+                    }
+                    if (mustCoerce) {
+                        coercer = SimpleNumberCoercerFactory.getCoercer(null, coercionType);
+                    }
+                }
+            } catch (CoercionException ex) {
+                throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
+            }
         }
 
         // Determine type of each result (then-node and else node) child node expression
-        List<Class> childTypes = new LinkedList<Class>();
-        List<LinkedHashMap<String, Object>> childMapTypes = new LinkedList<LinkedHashMap<String, Object>>();
-        for (UniformPair<ExprEvaluator> pair : whenThenNodeList) {
-            if (pair.getSecond() instanceof ExprEvaluatorTypableReturn) {
-                ExprEvaluatorTypableReturn typableReturn = (ExprEvaluatorTypableReturn) pair.getSecond();
+        List<Class> childTypes = new LinkedList<>();
+        List<LinkedHashMap<String, Object>> childMapTypes = new LinkedList<>();
+        for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
+            if (pair.getSecond().getForge() instanceof ExprTypableReturnForge) {
+                ExprTypableReturnForge typableReturn = (ExprTypableReturnForge) pair.getSecond().getForge();
                 LinkedHashMap<String, Object> rowProps = typableReturn.getRowProperties();
                 if (rowProps != null) {
                     childMapTypes.add(rowProps);
                     continue;
                 }
             }
-            childTypes.add(pair.getSecond().getType());
+            childTypes.add(pair.getSecond().getForge().getEvaluationType());
 
         }
-        if (optionalElseExprNode != null) {
-            if (optionalElseExprNode instanceof ExprEvaluatorTypableReturn) {
-                ExprEvaluatorTypableReturn typableReturn = (ExprEvaluatorTypableReturn) optionalElseExprNode;
+        if (analysis.getOptionalElseExprNode() != null) {
+            if (analysis.getOptionalElseExprNode().getForge() instanceof ExprTypableReturnForge) {
+                ExprTypableReturnForge typableReturn = (ExprTypableReturnForge) analysis.getOptionalElseExprNode().getForge();
                 LinkedHashMap<String, Object> rowProps = typableReturn.getRowProperties();
                 if (rowProps != null) {
                     childMapTypes.add(rowProps);
                 } else {
-                    childTypes.add(optionalElseExprNode.getType());
+                    childTypes.add(analysis.getOptionalElseExprNode().getForge().getEvaluationType());
                 }
             } else {
-                childTypes.add(optionalElseExprNode.getType());
+                childTypes.add(analysis.getOptionalElseExprNode().getForge().getEvaluationType());
             }
         }
 
@@ -120,15 +140,15 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
             String message = "Case node 'when' expressions require that all results either return a single value or a Map-type (new-operator) value";
             String check;
             int count = -1;
-            for (UniformPair<ExprEvaluator> pair : whenThenNodeList) {
+            for (UniformPair<ExprNode> pair : analysis.getWhenThenNodeList()) {
                 count++;
-                if (pair.getSecond().getType() != Map.class && pair.getSecond().getType() != null) {
+                if (pair.getSecond().getForge().getEvaluationType() != Map.class && pair.getSecond().getForge().getEvaluationType() != null) {
                     check = ", check when-condition number " + count;
                     throw new ExprValidationException(message + check);
                 }
             }
-            if (optionalElseExprNode != null) {
-                if (optionalElseExprNode.getType() != Map.class && optionalElseExprNode.getType() != null) {
+            if (analysis.getOptionalElseExprNode() != null) {
+                if (analysis.getOptionalElseExprNode().getForge().getEvaluationType() != Map.class && analysis.getOptionalElseExprNode().getForge().getEvaluationType() != null) {
                     check = ", check the else-condition";
                     throw new ExprValidationException(message + check);
                 }
@@ -136,6 +156,9 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
             throw new ExprValidationException(message);
         }
 
+        LinkedHashMap<String, Object> mapResultType = null;
+        Class resultType = null;
+        boolean isNumericResult = false;
         if (childMapTypes.isEmpty()) {
             // Determine common denominator type
             try {
@@ -147,6 +170,7 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
                 throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
             }
         } else {
+            resultType = Map.class;
             mapResultType = childMapTypes.get(0);
             for (int i = 1; i < childMapTypes.size(); i++) {
                 Map<String, Object> other = childMapTypes.get(i);
@@ -156,58 +180,13 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
                 }
             }
         }
+
+        forge = new ExprCaseNodeForge(this, resultType, mapResultType, isNumericResult, mustCoerce, coercer, analysis.whenThenNodeList, analysis.optionalCompareExprNode, analysis.optionalElseExprNode);
         return null;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return resultType;
-    }
-
-    public LinkedHashMap<String, Object> getRowProperties() throws ExprValidationException {
-        return mapResultType;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprCase(this);
-            Object result;
-            if (!isCase2) {
-                result = evaluateCaseSyntax1(eventsPerStream, isNewData, exprEvaluatorContext);
-            } else {
-                result = evaluateCaseSyntax2(eventsPerStream, isNewData, exprEvaluatorContext);
-            }
-            InstrumentationHelper.get().aExprCase(result);
-            return result;
-        }
-
-        if (!isCase2) {
-            return evaluateCaseSyntax1(eventsPerStream, isNewData, exprEvaluatorContext);
-        } else {
-            return evaluateCaseSyntax2(eventsPerStream, isNewData, exprEvaluatorContext);
-        }
-    }
-
-    public Boolean isMultirow() {
-        return mapResultType == null ? null : false;
-    }
-
-    public Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Map<String, Object> map = (Map<String, Object>) evaluate(eventsPerStream, isNewData, context);
-        Object[] row = new Object[map.size()];
-        int index = -1;
-        for (Map.Entry<String, Object> entry : mapResultType.entrySet()) {
-            index++;
-            row[index] = map.get(entry.getKey());
-        }
-        return row;
-    }
-
-    public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return null;    // always single-row
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
@@ -258,12 +237,12 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
             throw new ExprValidationException("Case node must have at least 2 parameters");
         }
 
-        List<UniformPair<ExprNode>> whenThenNodeList = new LinkedList<UniformPair<ExprNode>>();
+        List<UniformPair<ExprNode>> whenThenNodeList = new LinkedList<>();
         int numWhenThen = children.length >> 1;
         for (int i = 0; i < numWhenThen; i++) {
             ExprNode whenExpr = children[i << 1];
             ExprNode thenExpr = children[(i << 1) + 1];
-            whenThenNodeList.add(new UniformPair<ExprNode>(whenExpr, thenExpr));
+            whenThenNodeList.add(new UniformPair<>(whenExpr, thenExpr));
         }
         ExprNode optionalElseExprNode = null;
         if (children.length % 2 != 0) {
@@ -283,124 +262,16 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
 
         ExprNode optionalCompareExprNode = children[0];
 
-        List<UniformPair<ExprNode>> whenThenNodeList = new LinkedList<UniformPair<ExprNode>>();
+        List<UniformPair<ExprNode>> whenThenNodeList = new LinkedList<>();
         int numWhenThen = (children.length - 1) / 2;
         for (int i = 0; i < numWhenThen; i++) {
-            whenThenNodeList.add(new UniformPair<ExprNode>(children[i * 2 + 1], children[i * 2 + 2]));
+            whenThenNodeList.add(new UniformPair<>(children[i * 2 + 1], children[i * 2 + 2]));
         }
         ExprNode optionalElseExprNode = null;
         if (numWhenThen * 2 + 1 < children.length) {
             optionalElseExprNode = children[children.length - 1];
         }
         return new CaseAnalysis(whenThenNodeList, optionalCompareExprNode, optionalElseExprNode);
-    }
-
-    private void validateCaseTwo() throws ExprValidationException {
-        // validate we can compare result types
-        List<Class> comparedTypes = new LinkedList<Class>();
-        comparedTypes.add(optionalCompareExprNode.getType());
-        for (UniformPair<ExprEvaluator> pair : whenThenNodeList) {
-            comparedTypes.add(pair.getFirst().getType());
-        }
-
-        // Determine common denominator type
-        try {
-            Class coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
-
-            // Determine if we need to coerce numbers when one type doesn't match any other type
-            if (JavaClassHelper.isNumeric(coercionType)) {
-                mustCoerce = false;
-                for (Class comparedType : comparedTypes) {
-                    if (comparedType != coercionType) {
-                        mustCoerce = true;
-                    }
-                }
-                if (mustCoerce) {
-                    coercer = SimpleNumberCoercerFactory.getCoercer(null, coercionType);
-                }
-            }
-        } catch (CoercionException ex) {
-            throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
-        }
-    }
-
-    private Object evaluateCaseSyntax1(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        // Case 1 expression example:
-        //      case when a=b then x [when c=d then y...] [else y]
-
-        Object caseResult = null;
-        boolean matched = false;
-        for (UniformPair<ExprEvaluator> p : whenThenNodeList) {
-            Boolean whenResult = (Boolean) p.getFirst().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-            // If the 'when'-expression returns true
-            if ((whenResult != null) && whenResult) {
-                caseResult = p.getSecond().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                matched = true;
-                break;
-            }
-        }
-
-        if ((!matched) && (optionalElseExprNode != null)) {
-            caseResult = optionalElseExprNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        }
-
-        if (caseResult == null) {
-            return null;
-        }
-
-        if ((caseResult.getClass() != resultType) && isNumericResult) {
-            return JavaClassHelper.coerceBoxed((Number) caseResult, resultType);
-        }
-        return caseResult;
-    }
-
-    private Object evaluateCaseSyntax2(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        // Case 2 expression example:
-        //      case p when p1 then x [when p2 then y...] [else z]
-
-        Object checkResult = optionalCompareExprNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        Object caseResult = null;
-        boolean matched = false;
-        for (UniformPair<ExprEvaluator> p : whenThenNodeList) {
-            Object whenResult = p.getFirst().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-            if (compare(checkResult, whenResult)) {
-                caseResult = p.getSecond().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                matched = true;
-                break;
-            }
-        }
-
-        if ((!matched) && (optionalElseExprNode != null)) {
-            caseResult = optionalElseExprNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        }
-
-        if (caseResult == null) {
-            return null;
-        }
-
-        if ((caseResult.getClass() != resultType) && isNumericResult) {
-            return JavaClassHelper.coerceBoxed((Number) caseResult, resultType);
-        }
-        return caseResult;
-    }
-
-    private boolean compare(Object leftResult, Object rightResult) {
-        if (leftResult == null) {
-            return rightResult == null;
-        }
-        if (rightResult == null) {
-            return false;
-        }
-
-        if (!mustCoerce) {
-            return leftResult.equals(rightResult);
-        } else {
-            Number left = coercer.coerceBoxed((Number) leftResult);
-            Number right = coercer.coerceBoxed((Number) rightResult);
-            return left.equals(right);
-        }
     }
 
     private CaseAnalysis analyzeCase() throws ExprValidationException {

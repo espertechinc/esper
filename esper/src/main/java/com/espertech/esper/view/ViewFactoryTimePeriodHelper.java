@@ -33,8 +33,8 @@ public class ViewFactoryTimePeriodHelper {
             factory = validated.constEvaluator(new ExprEvaluatorContextStatement(statementContext, false));
         } else {
             ExprNode validated = ViewFactorySupport.validateExpr(viewName, statementContext, expression, streamTypeService, expressionNumber);
-            ExprEvaluator secondsEvaluator = validated.getExprEvaluator();
-            Class returnType = JavaClassHelper.getBoxedType(secondsEvaluator.getType());
+            ExprEvaluator secondsEvaluator = validated.getForge().getExprEvaluator();
+            Class returnType = JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType());
             if (!JavaClassHelper.isNumeric(returnType)) {
                 throw new ViewParameterException(expectedMessage);
             }

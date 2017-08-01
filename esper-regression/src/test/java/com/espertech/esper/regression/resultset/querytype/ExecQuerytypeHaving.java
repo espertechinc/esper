@@ -248,7 +248,7 @@ public class ExecQuerytypeHaving implements RegressionExecution {
     private void tryAssertion(EPServiceProvider epService, SupportUpdateListener listener, EPStatement stmt) {
         // assert select result type
         assertEquals(String.class, stmt.getEventType().getPropertyType("symbol"));
-        assertEquals(double.class, stmt.getEventType().getPropertyType("price"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("price"));
         assertEquals(Double.class, stmt.getEventType().getPropertyType("avgPrice"));
 
         sendEvent(epService, SYMBOL_DELL, 10);

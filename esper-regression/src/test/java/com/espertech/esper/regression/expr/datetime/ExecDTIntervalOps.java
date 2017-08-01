@@ -17,6 +17,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportDateTime;
 import com.espertech.esper.supportregression.bean.SupportTimeStartEndA;
 import com.espertech.esper.supportregression.bean.SupportTimeStartEndB;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
@@ -55,6 +56,75 @@ public class ExecDTIntervalOps implements RegressionExecution {
         runAssertionOverlappedByWhereClause(epService);
         runAssertionStartsWhereClause(epService);
         runAssertionStartedByWhereClause(epService);
+        runAssertionPointInTimeWCalendarOps(epService);
+        runAssertionBeforeWVariable(epService);
+        runAssertionTimePeriodWYearNonConst(epService);
+    }
+
+    private void runAssertionBeforeWVariable(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportDateTime.class);
+        epService.getEPAdministrator().createEPL("create variable int somenumber = 1");
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select longdate.before(longdate, somenumber) as c0 from SupportDateTime");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(SupportDateTime.make("2002-05-30T09:00:00.000"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0".split(","), new Object[] {false});
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionTimePeriodWYearNonConst(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportDateTime.class);
+        epService.getEPAdministrator().createEPL("create variable int somenumber = 1");
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
+                "longdate.before(longdate, somenumber years) as c0," +
+                "longdate.before(longdate, somenumber month) as c1, " +
+                "longdate.before(longdate, somenumber weeks) as c2, " +
+                "longdate.before(longdate, somenumber days) as c3, " +
+                "longdate.before(longdate, somenumber hours) as c4, " +
+                "longdate.before(longdate, somenumber minutes) as c5, " +
+                "longdate.before(longdate, somenumber seconds) as c6, " +
+                "longdate.before(longdate, somenumber milliseconds) as c7, " +
+                "longdate.before(longdate, somenumber microseconds) as c8 " +
+                " from SupportDateTime");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(SupportDateTime.make("2002-05-30T09:00:00.000"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0".split(","), new Object[] {false});
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionPointInTimeWCalendarOps(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportDateTime.class);
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+
+        String[] fields = "c0,c1,c2,c3,c4".split(",");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
+                "longdate.set('month', 1).before(longPrimitive) as c0, " +
+                "utildate.set('month', 1).before(longPrimitive) as c1," +
+                "caldate.set('month', 1).before(longPrimitive) as c2," +
+                "localdate.set('month', 1).before(longPrimitive) as c3," +
+                "zoneddate.set('month', 1).before(longPrimitive) as c4 " +
+                "from SupportDateTime unidirectional, SupportBean#lastevent");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        SupportBean bean = new SupportBean();
+        bean.setLongPrimitive(DateTime.parseDefaultMSec("2002-05-30T09:00:00.000"));
+        epService.getEPRuntime().sendEvent(bean);
+
+        epService.getEPRuntime().sendEvent(SupportDateTime.make("2002-05-30T09:00:00.000"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true, true, true, true, true});
+
+        epService.getEPRuntime().sendEvent(SupportDateTime.make("2003-05-30T08:00:00.000"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {false, false, false, false, false});
+
+        stmt.destroy();
     }
 
     private void runAssertionCalendarOps(EPServiceProvider epService) {
@@ -106,7 +176,7 @@ public class ExecDTIntervalOps implements RegressionExecution {
 
         // wrong 1st parameter - boolean
         tryInvalid(epService, "select a.before(true) from A#lastevent as a, SupportBean#lastevent as b",
-                "Error starting statement: Failed to validate select-clause expression 'a.before(true)': For date-time method 'before' the first parameter expression returns 'class java.lang.Boolean', however requires a Date, Calendar, Long-type return value or event (with timestamp) [select a.before(true) from A#lastevent as a, SupportBean#lastevent as b]");
+                "Error starting statement: Failed to validate select-clause expression 'a.before(true)': For date-time method 'before' the first parameter expression returns 'boolean', however requires a Date, Calendar, Long-type return value or event (with timestamp) [select a.before(true) from A#lastevent as a, SupportBean#lastevent as b]");
 
         // wrong zero parameters
         tryInvalid(epService, "select a.before() from A#lastevent as a, SupportBean#lastevent as b",

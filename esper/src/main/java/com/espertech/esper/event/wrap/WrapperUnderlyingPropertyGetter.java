@@ -39,11 +39,11 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private String getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, EventBean.class, "theEvent", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "theEvent").begin()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrappedEvent")
-                .methodReturn(underlyingGetter.codegenEventBeanGet(ref("wrappedEvent"), context));
+                .methodReturn(underlyingGetter.eventBeanGetCodegen(ref("wrappedEvent"), context));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -63,34 +63,34 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private String getFragmentCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, EventBean.class, "theEvent", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "theEvent").begin()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrappedEvent")
-                .methodReturn(underlyingGetter.codegenEventBeanFragment(ref("wrappedEvent"), context));
+                .methodReturn(underlyingGetter.eventBeanFragmentCodegen(ref("wrappedEvent"), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return localMethod(getCodegen(context), beanExpression);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), beanExpression);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw implementationNotProvided();
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw implementationNotProvided();
     }
 

@@ -700,7 +700,7 @@ public class ExecExpressionDef implements RegressionExecution {
         String[] props = stmt.getEventType().getPropertyNames();
         EPAssertionUtil.assertEqualsAnyOrder(props, fields);
         assertEquals(Integer.class, stmt.getEventType().getPropertyType(fields[0]));
-        assertEquals(int.class, stmt.getEventType().getPropertyType(fields[1]));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType(fields[1]));
         assertEquals(Integer.class, stmt.getEventType().getPropertyType(fields[2]));
         assertEquals(Integer.class, stmt.getEventType().getPropertyType(fields[3]));
         EventPropertyGetter getter = stmt.getEventType().getGetter(fields[3]);

@@ -27,7 +27,7 @@ public class SubordInKeywordMultiTableLookupStrategyFactory implements SubordTab
 
     public SubordInKeywordMultiTableLookupStrategyFactory(boolean isNWOnTrigger, int streamCountOuter, ExprNode exprNode) {
         this.streamCountOuter = streamCountOuter;
-        this.evaluator = exprNode.getExprEvaluator();
+        this.evaluator = exprNode.getForge().getExprEvaluator();
         this.isNWOnTrigger = isNWOnTrigger;
         this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.INKEYWORDMULTIIDX, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode)});
     }

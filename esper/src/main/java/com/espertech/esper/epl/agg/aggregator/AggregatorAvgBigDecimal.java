@@ -70,7 +70,7 @@ public class AggregatorAvgBigDecimal implements AggregationMethod {
         }
     }
 
-    public Object getValue() {
+    public BigDecimal getValue() {
         if (numDataPoints == 0) {
             return null;
         }
@@ -84,5 +84,4 @@ public class AggregatorAvgBigDecimal implements AggregationMethod {
             return new BigDecimal(0);
         }
     }
-
 }

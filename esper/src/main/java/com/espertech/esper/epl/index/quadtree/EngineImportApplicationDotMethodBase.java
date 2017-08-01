@@ -16,6 +16,7 @@ import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierAndStreamRefVisitor;
 import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
 import com.espertech.esper.epl.index.service.FilterExprAnalyzerAffectorIndexProvision;
@@ -30,6 +31,7 @@ public abstract class EngineImportApplicationDotMethodBase implements EngineImpo
     protected final static String LHS_VALIDATION_NAME = "left-hand-side";
     protected final static String RHS_VALIDATION_NAME = "right-hand-side";
 
+    protected final ExprDotNodeImpl parent;
     private final String lhsName;
     private final ExprNode[] lhs;
     private final String dotMethodName;
@@ -39,19 +41,24 @@ public abstract class EngineImportApplicationDotMethodBase implements EngineImpo
     private String optionalIndexName;
     private AdvancedIndexConfigContextPartition optionalIndexConfig;
 
-    private ExprEvaluator evaluator;
+    private transient ExprForge forge;
 
-    protected abstract ExprEvaluator validateAll(String lhsName, ExprNode[] lhs, String rhsName, ExprNode[] rhs, ExprValidationContext validationContext) throws ExprValidationException;
+    protected abstract ExprForge validateAll(String lhsName, ExprNode[] lhs, String rhsName, ExprNode[] rhs, ExprValidationContext validationContext) throws ExprValidationException;
     protected abstract String indexTypeName();
     protected abstract String operationName();
 
-    public EngineImportApplicationDotMethodBase(String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs, ExprNode[] indexNamedParameter) {
+    public EngineImportApplicationDotMethodBase(ExprDotNodeImpl parent, String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs, ExprNode[] indexNamedParameter) {
+        this.parent = parent;
         this.lhsName = lhsName;
         this.lhs = lhs;
         this.dotMethodName = dotMethodName;
         this.rhsName = rhsName;
         this.rhs = rhs;
         this.indexNamedParameter = indexNamedParameter;
+    }
+
+    public ExprForge getForge() {
+        return forge;
     }
 
     public String getLhsName() {
@@ -78,7 +85,7 @@ public abstract class EngineImportApplicationDotMethodBase implements EngineImpo
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DOTNODEPARAMETER, lhs, validationContext);
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DOTNODEPARAMETER, rhs, validationContext);
 
-        evaluator = validateAll(lhsName, lhs, rhsName, rhs, validationContext);
+        forge = validateAll(lhsName, lhs, rhsName, rhs, validationContext);
 
         if (indexNamedParameter != null) {
             validateIndexNamedParameter(validationContext);
@@ -86,9 +93,6 @@ public abstract class EngineImportApplicationDotMethodBase implements EngineImpo
         return null;
     }
 
-    public ExprEvaluator getExprEvaluator() {
-        return evaluator;
-    }
 
     public FilterExprAnalyzerAffector getFilterExprAnalyzerAffector() {
         ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(false);

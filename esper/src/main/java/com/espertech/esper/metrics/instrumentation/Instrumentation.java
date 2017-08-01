@@ -258,7 +258,7 @@ public interface Instrumentation {
 
     void aExprInstanceof(Boolean result);
 
-    void qExprContextProp(ExprContextPropertyNode exprContextPropertyNode);
+    void qExprContextProp(ExprContextPropertyNodeImpl exprContextPropertyNode);
 
     void aExprContextProp(Object result);
 

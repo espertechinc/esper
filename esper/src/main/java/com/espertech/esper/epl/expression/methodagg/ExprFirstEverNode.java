@@ -36,9 +36,9 @@ public class ExprFirstEverNode extends ExprAggregateNodeBase {
             throw makeExceptionExpectedParamNum(0, 2);
         }
         if (positionalParams.length == 2) {
-            super.validateFilter(positionalParams[1].getExprEvaluator());
+            super.validateFilter(positionalParams[1].getForge());
         }
-        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeFirstEver(validationContext.getStatementExtensionSvcContext(), this, positionalParams[0].getExprEvaluator().getType());
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeFirstEver(validationContext.getStatementExtensionSvcContext(), this, positionalParams[0].getForge().getEvaluationType());
     }
 
     public boolean hasFilter() {

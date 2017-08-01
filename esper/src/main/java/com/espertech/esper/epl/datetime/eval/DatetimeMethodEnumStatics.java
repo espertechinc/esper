@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.epl.datetime.eval;
 
-import com.espertech.esper.epl.datetime.calop.CalendarOpFactory;
-import com.espertech.esper.epl.datetime.interval.IntervalOpFactory;
-import com.espertech.esper.epl.datetime.reformatop.ReformatOpFactory;
+import com.espertech.esper.epl.datetime.calop.CalendarForgeFactory;
+import com.espertech.esper.epl.datetime.interval.IntervalForgeFactory;
+import com.espertech.esper.epl.datetime.reformatop.ReformatForgeFactory;
 
 public class DatetimeMethodEnumStatics {
 
-    public final static OpFactory CALENDAR_OP_FACTORY = new CalendarOpFactory();
-    public final static OpFactory REFORMAT_OP_FACTORY = new ReformatOpFactory();
-    public final static OpFactory INTERVAL_OP_FACTORY = new IntervalOpFactory();
+    public final static ForgeFactory CALENDAR_FORGE_FACTORY = new CalendarForgeFactory();
+    public final static ForgeFactory REFORMAT_FORGE_FACTORY = new ReformatForgeFactory();
+    public final static ForgeFactory INTERVAL_FORGE_FACTORY = new IntervalForgeFactory();
 }

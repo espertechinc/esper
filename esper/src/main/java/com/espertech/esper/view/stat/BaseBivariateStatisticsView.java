@@ -78,7 +78,9 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
      * Constructor requires the name of the two fields to use in the parent view to compute the statistics.
      *
      * @param expressionX          is the expression to get the X values from
+     * @param expressionXEval      is the expression to get the X values from
      * @param expressionY          is the expression to get the Y values from
+     * @param expressionYEval      is the expression to get the Y values from
      * @param agentInstanceContext contains required view services
      * @param eventType            type of event
      * @param additionalProps      additional props
@@ -87,16 +89,18 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
     public BaseBivariateStatisticsView(ViewFactory viewFactory,
                                        AgentInstanceContext agentInstanceContext,
                                        ExprNode expressionX,
+                                       ExprEvaluator expressionXEval,
                                        ExprNode expressionY,
+                                       ExprEvaluator expressionYEval,
                                        EventType eventType,
                                        StatViewAdditionalProps additionalProps
     ) {
         this.viewFactory = viewFactory;
         this.agentInstanceContext = agentInstanceContext;
         this.expressionX = expressionX;
-        this.expressionXEval = expressionX.getExprEvaluator();
+        this.expressionXEval = expressionXEval;
         this.expressionY = expressionY;
-        this.expressionYEval = expressionY.getExprEvaluator();
+        this.expressionYEval = expressionYEval;
         this.eventType = eventType;
         this.additionalProps = additionalProps;
     }
@@ -129,10 +133,10 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
 
             if ((additionalProps != null) && (newData.length != 0)) {
                 if (lastValuesEventNew == null) {
-                    lastValuesEventNew = new Object[additionalProps.getAdditionalExpr().length];
+                    lastValuesEventNew = new Object[additionalProps.getAdditionalEvals().length];
                 }
-                for (int val = 0; val < additionalProps.getAdditionalExpr().length; val++) {
-                    lastValuesEventNew[val] = additionalProps.getAdditionalExpr()[val].evaluate(eventsPerStream, true, agentInstanceContext);
+                for (int val = 0; val < additionalProps.getAdditionalEvals().length; val++) {
+                    lastValuesEventNew[val] = additionalProps.getAdditionalEvals()[val].evaluate(eventsPerStream, true, agentInstanceContext);
                 }
             }
         }
@@ -220,5 +224,13 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
 
     public ViewFactory getViewFactory() {
         return viewFactory;
+    }
+
+    public ExprEvaluator getExpressionXEval() {
+        return expressionXEval;
+    }
+
+    public ExprEvaluator getExpressionYEval() {
+        return expressionYEval;
     }
 }

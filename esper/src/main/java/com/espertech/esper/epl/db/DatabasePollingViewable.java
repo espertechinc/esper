@@ -123,7 +123,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable {
                 throw new ExprValidationException("Internal error find expression for historical stream parameter " + count + " stream " + myStreamNumber);
             }
             ExprNode evaluator = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DATABASEPOLL, raw, validationContext);
-            evaluators[count++] = evaluator.getExprEvaluator();
+            evaluators[count++] = ExprNodeCompiler.allocateEvaluator(evaluator.getForge(), engineImportService, this.getClass(), false, statementContext.getStatementName());
 
             ExprNodeIdentifierCollectVisitor visitor = new ExprNodeIdentifierCollectVisitor();
             visitor.visit(evaluator);

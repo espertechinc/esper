@@ -59,11 +59,11 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
             if (positionalParams.length < 2) {
                 throw new ExprValidationException(minMaxTypeEnum.toString() + "-filtered aggregation function must have a filter expression as a second parameter");
             }
-            super.validateFilter(positionalParams[1].getExprEvaluator());
+            super.validateFilter(positionalParams[1].getForge());
         }
 
         hasFilter = positionalParams.length == 2;
-        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeMinMax(validationContext.getStatementExtensionSvcContext(), this, child.getExprEvaluator().getType(), hasDataWindows);
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeMinMax(validationContext.getStatementExtensionSvcContext(), this, child.getForge().getEvaluationType(), hasDataWindows);
     }
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {

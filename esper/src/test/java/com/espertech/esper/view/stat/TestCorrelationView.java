@@ -13,6 +13,7 @@ package com.espertech.esper.view.stat;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
+import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
@@ -24,6 +25,8 @@ import junit.framework.TestCase;
 
 import java.util.Iterator;
 
+import static com.espertech.esper.supportunit.epl.SupportExprNodeFactory.makeIdentNodeMD;
+
 public class TestCorrelationView extends TestCase {
     CorrelationView myView;
     SupportBeanClassView childView;
@@ -32,8 +35,10 @@ public class TestCorrelationView extends TestCase {
         // Set up sum view and a test child view
         EventType type = CorrelationView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         CorrelationViewFactory factory = new CorrelationViewFactory();
+        ExprNode x = SupportExprNodeFactory.makeIdentNodeMD("price");
+        ExprNode y = SupportExprNodeFactory.makeIdentNodeMD("volume");
         myView = new CorrelationView(factory, SupportStatementContextFactory.makeAgentInstanceContext(),
-                SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null);
+                x, x.getForge().getExprEvaluator(), y, y.getForge().getExprEvaluator(), type, null);
 
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);

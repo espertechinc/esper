@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVariableVisitor;
@@ -40,8 +41,8 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory 
 
     public OutputConditionExpressionFactory(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, final StatementContext statementContext, ExprNode andWhenTerminatedExpr, List<OnTriggerSetAssignment> afterTerminateAssignments, boolean isStartConditionOnCreation)
             throws ExprValidationException {
-        this.whenExpressionNodeEval = whenExpressionNode.getExprEvaluator();
-        this.andWhenTerminatedExpressionNodeEval = andWhenTerminatedExpr != null ? andWhenTerminatedExpr.getExprEvaluator() : null;
+        this.whenExpressionNodeEval = ExprNodeCompiler.allocateEvaluator(whenExpressionNode.getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
+        this.andWhenTerminatedExpressionNodeEval = andWhenTerminatedExpr != null ? ExprNodeCompiler.allocateEvaluator(andWhenTerminatedExpr.getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName()) : null;
         this.isStartConditionOnCreation = isStartConditionOnCreation;
 
         // determine if using variables
@@ -74,13 +75,13 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory 
         }
 
         if (assignments != null) {
-            variableReadWritePackage = new VariableReadWritePackage(assignments, statementContext.getVariableService(), statementContext.getEventAdapterService());
+            variableReadWritePackage = new VariableReadWritePackage(assignments, statementContext.getVariableService(), statementContext.getEventAdapterService(), statementContext.getStatementName());
         } else {
             variableReadWritePackage = null;
         }
 
         if (afterTerminateAssignments != null) {
-            variableReadWritePackageAfterTerminated = new VariableReadWritePackage(afterTerminateAssignments, statementContext.getVariableService(), statementContext.getEventAdapterService());
+            variableReadWritePackageAfterTerminated = new VariableReadWritePackage(afterTerminateAssignments, statementContext.getVariableService(), statementContext.getEventAdapterService(), statementContext.getStatementName());
         } else {
             variableReadWritePackageAfterTerminated = null;
         }

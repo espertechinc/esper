@@ -12,11 +12,18 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 
-public class SelectExprProcessorEvalStreamInsertNamedWindow implements ExprEvaluator {
+import java.io.StringWriter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class SelectExprProcessorEvalStreamInsertNamedWindow implements ExprForge, ExprEvaluator, ExprNodeRenderable {
     private final int streamNum;
     private final EventType namedWindowAsType;
     private final Class returnType;
@@ -37,11 +44,37 @@ public class SelectExprProcessorEvalStreamInsertNamedWindow implements ExprEvalu
         return eventAdapterService.adapterForType(event.getUnderlying(), namedWindowAsType);
     }
 
-    public Class getType() {
-        return returnType;
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SINGLE;
     }
 
     public int getStreamNum() {
         return streamNum;
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        CodegenMember eventSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember namedWindowType = context.makeAddMember(EventType.class, namedWindowAsType);
+        String method = context.addMethod(EventBean.class, SelectExprProcessorEvalStreamInsertNamedWindow.class).add(params).begin()
+                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
+                .ifRefNullReturnNull("event")
+                .methodReturn(exprDotMethod(ref(eventSvc.getMemberName()), "adapterForType", exprDotUnderlying(ref("event")), ref(namedWindowType.getMemberName())));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public Class getEvaluationType() {
+        return returnType;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        writer.append(this.getClass().getSimpleName());
     }
 }

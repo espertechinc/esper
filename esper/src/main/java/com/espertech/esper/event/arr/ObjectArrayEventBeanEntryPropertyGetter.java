@@ -29,8 +29,7 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
 
     /**
      * Ctor.
-     *
-     * @param propertyIndex        the property to look at
+     *  @param propertyIndex        the property to look at
      * @param eventBeanEntryGetter the getter for the map entry
      */
     public ObjectArrayEventBeanEntryPropertyGetter(int propertyIndex, EventPropertyGetterSPI eventBeanEntryGetter) {
@@ -52,11 +51,11 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
     }
 
     private String getObjectArrayCodegen(CodegenContext context)  {
-        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .declareVarWCast(EventBean.class, "theEvent", "value")
-                .methodReturn(eventBeanEntryGetter.codegenEventBeanGet(ref("theEvent"), context));
+                .methodReturn(eventBeanEntryGetter.eventBeanGetCodegen(ref("theEvent"), context));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -85,34 +84,34 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
     }
 
     private String getFragmentCodegen(CodegenContext context)  {
-        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .declareVarWCast(EventBean.class, "theEvent", "value")
-                .methodReturn(eventBeanEntryGetter.codegenEventBeanFragment(ref("theEvent"), context));
+                .methodReturn(eventBeanEntryGetter.eventBeanFragmentCodegen(ref("theEvent"), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getObjectArrayCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 }

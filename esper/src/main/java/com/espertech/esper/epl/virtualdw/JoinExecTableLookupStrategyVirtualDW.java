@@ -44,19 +44,19 @@ public class JoinExecTableLookupStrategyVirtualDW implements JoinExecTableLookup
 
         int count = 0;
         for (QueryGraphValueEntryHashKeyed hashKey : keyDescriptor.getHashes()) {
-            ExprEvaluator evaluator = hashKey.getKeyExpr().getExprEvaluator();
+            ExprEvaluator evaluator = hashKey.getKeyExpr().getForge().getExprEvaluator();
             evaluators[count] = new ExternalEvaluatorHashRelOp(evaluator);
             count++;
         }
         for (QueryGraphValueEntryRange rangeKey : keyDescriptor.getRanges()) {
             if (rangeKey.getType().isRange()) {
                 QueryGraphValueEntryRangeIn range = (QueryGraphValueEntryRangeIn) rangeKey;
-                ExprEvaluator evaluatorStart = range.getExprStart().getExprEvaluator();
-                ExprEvaluator evaluatorEnd = range.getExprEnd().getExprEvaluator();
+                ExprEvaluator evaluatorStart = range.getExprStart().getForge().getExprEvaluator();
+                ExprEvaluator evaluatorEnd = range.getExprEnd().getForge().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorBtreeRange(evaluatorStart, evaluatorEnd);
             } else {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeKey;
-                ExprEvaluator evaluator = relOp.getExpression().getExprEvaluator();
+                ExprEvaluator evaluator = relOp.getExpression().getForge().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorHashRelOp(evaluator);
             }
             count++;

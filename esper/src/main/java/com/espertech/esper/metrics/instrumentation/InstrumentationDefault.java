@@ -458,7 +458,7 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qExprContextProp(ExprContextPropertyNode exprContextPropertyNode) {
+    public void qExprContextProp(ExprContextPropertyNodeImpl exprContextPropertyNode) {
 
     }
 

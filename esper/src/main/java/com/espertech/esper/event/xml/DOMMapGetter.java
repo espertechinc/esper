@@ -128,7 +128,7 @@ public class DOMMapGetter implements EventPropertyGetterSPI, DOMPropertyGetter {
 
     private String getValueAsFragmentCodegen(CodegenContext context) {
         CodegenMember mType = context.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return context.addMethod(Object.class, Node.class, "node", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), context))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(ref(mType.getMemberName()), "getEvent", ref("result")));
@@ -160,32 +160,32 @@ public class DOMMapGetter implements EventPropertyGetterSPI, DOMPropertyGetter {
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getNodeValue", underlyingExpression, propertyMap, mapKey);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getNodeValue", underlyingExpression, constant(propertyMap), constant(mapKey));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getNodeValueExists", underlyingExpression, propertyMap, mapKey);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getNodeValueExists", underlyingExpression, constant(propertyMap), constant(mapKey));
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
     }
 
     public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenContext context) {
-        return codegenUnderlyingGet(value, context);
+        return underlyingGetCodegen(value, context);
     }
 
     public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenContext context) {

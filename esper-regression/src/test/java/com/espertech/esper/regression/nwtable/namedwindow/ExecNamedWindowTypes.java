@@ -150,7 +150,7 @@ public class ExecNamedWindowTypes implements RegressionExecution {
         stmtCreate.addListener(listenerWindow);
         EPAssertionUtil.assertEqualsAnyOrder(stmtCreate.getEventType().getPropertyNames(), new String[]{"a", "b", "c"});
         assertEquals(String.class, stmtCreate.getEventType().getPropertyType("a"));
-        assertEquals(long.class, stmtCreate.getEventType().getPropertyType("b"));
+        assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("b"));
         assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("c"));
 
         // assert type metadata
@@ -182,7 +182,7 @@ public class ExecNamedWindowTypes implements RegressionExecution {
         stmtSelectOne.addListener(listenerStmtOne);
         EPAssertionUtil.assertEqualsAnyOrder(stmtSelectOne.getEventType().getPropertyNames(), new String[]{"a", "b", "c"});
         assertEquals(String.class, stmtCreate.getEventType().getPropertyType("a"));
-        assertEquals(long.class, stmtCreate.getEventType().getPropertyType("b"));
+        assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("b"));
         assertEquals(Long.class, stmtCreate.getEventType().getPropertyType("c"));
 
         // create delete stmt

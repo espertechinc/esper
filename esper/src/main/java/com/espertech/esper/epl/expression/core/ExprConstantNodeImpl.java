@@ -11,14 +11,21 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Represents a constant in an expressiun tree.
  */
-public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNode, ExprEvaluator {
+public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNode, ExprEvaluator, ExprForge {
     private Object value;
     private final Class clazz;
     private static final long serialVersionUID = 3154169410675962539L;
@@ -33,7 +40,7 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         if (value == null) {
             clazz = null;
         } else {
-            clazz = value.getClass();
+            clazz = JavaClassHelper.getPrimitiveType(value.getClass());
         }
     }
 
@@ -52,7 +59,7 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         if (value == null) {
             clazz = valueType;
         } else {
-            clazz = value.getClass();
+            clazz = JavaClassHelper.getPrimitiveType(value.getClass());
         }
     }
 
@@ -62,8 +69,42 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
      * @param clazz the type of the constant null.
      */
     public ExprConstantNodeImpl(Class clazz) {
-        this.clazz = clazz;
+        this.clazz = JavaClassHelper.getBoxedType(clazz);
         this.value = null;
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return clazz;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        if (value == null) {
+            return constantNull();
+        }
+        if (value.getClass().isEnum()) {
+            return enumValue(value.getClass(), value.toString());
+        }
+        if (!JavaClassHelper.isJavaBuiltinDataType(value.getClass())) {
+            CodegenMember constant = context.makeAddMember(value.getClass(), value);
+            return ref(constant.getMemberName());
+        }
+        return constant(value);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -96,19 +137,11 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         return clazz;
     }
 
-    public Class getType() {
-        return clazz;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qaExprConst(value);
         }
         return value;
-    }
-
-    public ExprEvaluator getExprEvaluator() {
-        return this;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

@@ -49,7 +49,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
             throw new ObserverParameterException(errorMessage);
         }
         if (!(parameters.get(0) instanceof ExprTimePeriod)) {
-            Class returnType = parameters.get(0).getExprEvaluator().getType();
+            Class returnType = parameters.get(0).getForge().getEvaluationType();
             if (!(JavaClassHelper.isNumeric(returnType))) {
                 throw new ObserverParameterException(errorMessage);
             }
@@ -64,7 +64,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
             ExprTimePeriod timePeriod = (ExprTimePeriod) parameter;
             return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
         } else {
-            Object result = parameter.getExprEvaluator().evaluate(convertor.convert(beginState), true, context.getAgentInstanceContext());
+            Object result = parameter.getForge().getExprEvaluator().evaluate(convertor.convert(beginState), true, context.getAgentInstanceContext());
             if (result == null) {
                 throw new EPException("Null value returned for guard expression");
             }

@@ -10,16 +10,13 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CoercionException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
 
 import java.io.StringWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,17 +25,13 @@ import java.util.Map;
 /**
  * Represents an equals-for-group (= ANY/ALL/SOME (expression list)) comparator in a expression tree.
  */
-public class ExprEqualsAllAnyNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprEqualsAllAnyNode extends ExprNodeBase {
+    private static final long serialVersionUID = -2410457251623137179L;
+
     private final boolean isNot;
     private final boolean isAll;
 
-    private boolean mustCoerce;
-    private transient SimpleNumberCoercer coercer;
-    private boolean hasCollectionOrArray;
-
-    private transient ExprEvaluator[] evaluators;
-
-    private static final long serialVersionUID = -2410457251623137179L;
+    private transient ExprEqualsAllAnyNodeForge forge;
 
     /**
      * Ctor.
@@ -52,8 +45,15 @@ public class ExprEqualsAllAnyNode extends ExprNodeBase implements ExprEvaluator 
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
     }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
+    }
+
 
     /**
      * Returns true if this is a NOT EQUALS node, false if this is a EQUALS node.
@@ -79,10 +79,8 @@ public class ExprEqualsAllAnyNode extends ExprNodeBase implements ExprEvaluator 
             throw new IllegalStateException("Equals group node does not have 1 or more parameters");
         }
 
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-
         // Must be the same boxed type returned by expressions under this
-        Class typeOne = JavaClassHelper.getBoxedType(evaluators[0].getType());
+        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
 
         // collections, array or map not supported
         if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
@@ -91,10 +89,12 @@ public class ExprEqualsAllAnyNode extends ExprNodeBase implements ExprEvaluator 
 
         List<Class> comparedTypes = new ArrayList<Class>();
         comparedTypes.add(typeOne);
-        hasCollectionOrArray = false;
+        boolean hasCollectionOrArray = false;
         for (int i = 0; i < this.getChildNodes().length - 1; i++) {
-            Class propType = evaluators[i + 1].getType();
-            if (propType.isArray()) {
+            Class propType = getChildNodes()[i + 1].getForge().getEvaluationType();
+            if (propType == null) {
+                // no action
+            } else if (propType.isArray()) {
                 hasCollectionOrArray = true;
                 if (propType.getComponentType() != Object.class) {
                     comparedTypes.add(propType.getComponentType());
@@ -109,533 +109,32 @@ public class ExprEqualsAllAnyNode extends ExprNodeBase implements ExprEvaluator 
         }
 
         // Determine common denominator type
-        Class coercionType;
+        Class coercionTypeBoxed;
         try {
-            coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
+            coercionTypeBoxed = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
         } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
         }
 
         // Check if we need to coerce
-        mustCoerce = false;
-        if (JavaClassHelper.isNumeric(coercionType)) {
+        boolean mustCoerce = false;
+        SimpleNumberCoercer coercer = null;
+        if (JavaClassHelper.isNumeric(coercionTypeBoxed)) {
             for (Class compareType : comparedTypes) {
-                if (coercionType != JavaClassHelper.getBoxedType(compareType)) {
+                if (coercionTypeBoxed != JavaClassHelper.getBoxedType(compareType)) {
                     mustCoerce = true;
                 }
             }
             if (mustCoerce) {
-                coercer = SimpleNumberCoercerFactory.getCoercer(null, JavaClassHelper.getBoxedType(coercionType));
+                coercer = SimpleNumberCoercerFactory.getCoercer(null, JavaClassHelper.getBoxedType(coercionTypeBoxed));
             }
         }
+        forge = new ExprEqualsAllAnyNodeForge(this, mustCoerce, coercer, coercionTypeBoxed, hasCollectionOrArray);
         return null;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return Boolean.class;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprEqualsAnyOrAll(this);
-        }
-        Object result = evaluateInternal(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprEqualsAnyOrAll((Boolean) result);
-        }
-        return result;
-    }
-
-    private Object evaluateInternal(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-
-        Object leftResult = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-        if (hasCollectionOrArray) {
-            if (isAll) {
-                return compareAllColl(leftResult, eventsPerStream, isNewData, exprEvaluatorContext);
-            } else {
-                return compareAnyColl(leftResult, eventsPerStream, isNewData, exprEvaluatorContext);
-            }
-        } else {
-            // coerce early if testing without collections
-            if (mustCoerce && (leftResult != null)) {
-                leftResult = coercer.coerceBoxed((Number) leftResult);
-            }
-
-            if (isAll) {
-                return compareAll(leftResult, eventsPerStream, isNewData, exprEvaluatorContext);
-            } else {
-                return compareAny(leftResult, eventsPerStream, isNewData, exprEvaluatorContext);
-            }
-        }
-    }
-
-    private Object compareAll(Object leftResult, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (isNot) {
-            int len = this.getChildNodes().length - 1;
-            if ((len > 0) && (leftResult == null)) {
-                return null;
-            }
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (rightResult != null) {
-                    hasNonNullRow = true;
-                    if (!mustCoerce) {
-                        if (leftResult.equals(rightResult)) {
-                            return false;
-                        }
-                    } else {
-                        Number right = coercer.coerceBoxed((Number) rightResult);
-                        if (leftResult.equals(right)) {
-                            return false;
-                        }
-                    }
-                } else {
-                    hasNullRow = true;
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return true;
-        } else {
-            int len = this.getChildNodes().length - 1;
-            if ((len > 0) && (leftResult == null)) {
-                return null;
-            }
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (rightResult != null) {
-                    hasNonNullRow = true;
-                    if (!mustCoerce) {
-                        if (!leftResult.equals(rightResult)) {
-                            return false;
-                        }
-                    } else {
-                        Number right = coercer.coerceBoxed((Number) rightResult);
-                        if (!leftResult.equals(right)) {
-                            return false;
-                        }
-                    }
-                } else {
-                    hasNullRow = true;
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return true;
-        }
-    }
-
-    private Object compareAllColl(Object leftResult, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (isNot) {
-            int len = this.getChildNodes().length - 1;
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (rightResult == null) {
-                    hasNullRow = true;
-                    continue;
-                }
-
-                if (rightResult instanceof Collection) {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    Collection coll = (Collection) rightResult;
-                    if (coll.contains(leftResult)) {
-                        return false;
-                    }
-                    hasNonNullRow = true;
-                } else if (rightResult instanceof Map) {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    Map coll = (Map) rightResult;
-                    if (coll.containsKey(leftResult)) {
-                        return false;
-                    }
-                    hasNonNullRow = true;
-                } else if (rightResult.getClass().isArray()) {
-                    int arrayLength = Array.getLength(rightResult);
-                    for (int index = 0; index < arrayLength; index++) {
-                        Object item = Array.get(rightResult, index);
-                        if (item == null) {
-                            hasNullRow = true;
-                            continue;
-                        }
-                        if (leftResult == null) {
-                            return null;
-                        }
-                        hasNonNullRow = true;
-                        if (!mustCoerce) {
-                            if (leftResult.equals(item)) {
-                                return false;
-                            }
-                        } else {
-                            if (!(item instanceof Number)) {
-                                continue;
-                            }
-                            Number left = coercer.coerceBoxed((Number) leftResult);
-                            Number right = coercer.coerceBoxed((Number) item);
-                            if (left.equals(right)) {
-                                return false;
-                            }
-                        }
-                    }
-                } else {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    if (!mustCoerce) {
-                        if (leftResult.equals(rightResult)) {
-                            return false;
-                        }
-                    } else {
-                        Number left = coercer.coerceBoxed((Number) leftResult);
-                        Number right = coercer.coerceBoxed((Number) rightResult);
-                        if (left.equals(right)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return true;
-        } else {
-            int len = this.getChildNodes().length - 1;
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (rightResult == null) {
-                    hasNullRow = true;
-                    continue;
-                }
-
-                if (rightResult instanceof Collection) {
-                    hasNonNullRow = true;
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    Collection coll = (Collection) rightResult;
-                    if (!coll.contains(leftResult)) {
-                        return false;
-                    }
-                } else if (rightResult instanceof Map) {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    Map coll = (Map) rightResult;
-                    if (!coll.containsKey(leftResult)) {
-                        return false;
-                    }
-                    hasNonNullRow = true;
-                } else if (rightResult.getClass().isArray()) {
-                    int arrayLength = Array.getLength(rightResult);
-                    for (int index = 0; index < arrayLength; index++) {
-                        Object item = Array.get(rightResult, index);
-                        if (item == null) {
-                            hasNullRow = true;
-                            continue;
-                        }
-                        if (leftResult == null) {
-                            return null;
-                        }
-                        hasNonNullRow = true;
-                        if (!mustCoerce) {
-                            if (!leftResult.equals(item)) {
-                                return false;
-                            }
-                        } else {
-                            if (!(item instanceof Number)) {
-                                continue;
-                            }
-                            Number left = coercer.coerceBoxed((Number) leftResult);
-                            Number right = coercer.coerceBoxed((Number) item);
-                            if (!left.equals(right)) {
-                                return false;
-                            }
-                        }
-                    }
-                } else {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    if (!mustCoerce) {
-                        if (!leftResult.equals(rightResult)) {
-                            return false;
-                        }
-                    } else {
-                        Number left = coercer.coerceBoxed((Number) leftResult);
-                        Number right = coercer.coerceBoxed((Number) rightResult);
-                        if (!left.equals(right)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return true;
-        }
-    }
-
-    private Object compareAny(Object leftResult, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        // Return true on the first not-equal.
-        if (isNot) {
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            int len = this.getChildNodes().length - 1;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (leftResult == null) {
-                    return null;
-                }
-                if (rightResult == null) {
-                    hasNullRow = true;
-                    continue;
-                }
-
-                hasNonNullRow = true;
-                if (!mustCoerce) {
-                    if (!leftResult.equals(rightResult)) {
-                        return true;
-                    }
-                } else {
-                    Number right = coercer.coerceBoxed((Number) rightResult);
-                    if (!leftResult.equals(right)) {
-                        return true;
-                    }
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return false;
-        } else {
-            // Return true on the first equal.
-            int len = this.getChildNodes().length - 1;
-            if ((len > 0) && (leftResult == null)) {
-                return null;
-            }
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (rightResult == null) {
-                    hasNullRow = true;
-                    continue;
-                }
-
-                hasNonNullRow = true;
-                if (!mustCoerce) {
-                    if (leftResult.equals(rightResult)) {
-                        return true;
-                    }
-                } else {
-                    Number right = coercer.coerceBoxed((Number) rightResult);
-                    if (leftResult.equals(right)) {
-                        return true;
-                    }
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return false;
-        }
-    }
-
-    private Object compareAnyColl(Object leftResult, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        // Return true on the first not-equal.
-        if (isNot) {
-            int len = this.getChildNodes().length - 1;
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (rightResult == null) {
-                    hasNullRow = true;
-                    continue;
-                }
-
-                if (rightResult instanceof Collection) {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    Collection coll = (Collection) rightResult;
-                    if (!coll.contains(leftResult)) {
-                        return true;
-                    }
-                    hasNonNullRow = true;
-                } else if (rightResult instanceof Map) {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    Map coll = (Map) rightResult;
-                    if (!coll.containsKey(leftResult)) {
-                        return true;
-                    }
-                    hasNonNullRow = true;
-                } else if (rightResult.getClass().isArray()) {
-                    int arrayLength = Array.getLength(rightResult);
-                    if ((arrayLength > 0) && (leftResult == null)) {
-                        return null;
-                    }
-
-                    for (int index = 0; index < arrayLength; index++) {
-                        Object item = Array.get(rightResult, index);
-                        if (item == null) {
-                            hasNullRow = true;
-                            continue;
-                        }
-                        hasNonNullRow = true;
-                        if (!mustCoerce) {
-                            if (!leftResult.equals(item)) {
-                                return true;
-                            }
-                        } else {
-                            if (!(item instanceof Number)) {
-                                continue;
-                            }
-                            Number left = coercer.coerceBoxed((Number) leftResult);
-                            Number right = coercer.coerceBoxed((Number) item);
-                            if (!left.equals(right)) {
-                                return true;
-                            }
-                        }
-                    }
-                } else {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    hasNonNullRow = true;
-                    if (!mustCoerce) {
-                        if (!leftResult.equals(rightResult)) {
-                            return true;
-                        }
-                    } else {
-                        Number left = coercer.coerceBoxed((Number) leftResult);
-                        Number right = coercer.coerceBoxed((Number) rightResult);
-                        if (!left.equals(right)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return false;
-        } else {
-            // Return true on the first equal.
-            int len = this.getChildNodes().length - 1;
-            boolean hasNonNullRow = false;
-            boolean hasNullRow = false;
-            for (int i = 1; i <= len; i++) {
-                Object rightResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-                if (rightResult == null) {
-                    hasNonNullRow = true;
-                    continue;
-                }
-                if (rightResult instanceof Collection) {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    hasNonNullRow = true;
-                    Collection coll = (Collection) rightResult;
-                    if (coll.contains(leftResult)) {
-                        return true;
-                    }
-                } else if (rightResult instanceof Map) {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    Map coll = (Map) rightResult;
-                    if (coll.containsKey(leftResult)) {
-                        return true;
-                    }
-                    hasNonNullRow = true;
-                } else if (rightResult.getClass().isArray()) {
-                    int arrayLength = Array.getLength(rightResult);
-                    if ((arrayLength > 0) && (leftResult == null)) {
-                        return null;
-                    }
-                    for (int index = 0; index < arrayLength; index++) {
-                        Object item = Array.get(rightResult, index);
-                        if (item == null) {
-                            hasNullRow = true;
-                            continue;
-                        }
-                        hasNonNullRow = true;
-                        if (!mustCoerce) {
-                            if (leftResult.equals(item)) {
-                                return true;
-                            }
-                        } else {
-                            if (!(item instanceof Number)) {
-                                continue;
-                            }
-                            Number left = coercer.coerceBoxed((Number) leftResult);
-                            Number right = coercer.coerceBoxed((Number) item);
-                            if (left.equals(right)) {
-                                return true;
-                            }
-                        }
-                    }
-                } else {
-                    if (leftResult == null) {
-                        return null;
-                    }
-                    hasNonNullRow = true;
-                    if (!mustCoerce) {
-                        if (leftResult.equals(rightResult)) {
-                            return true;
-                        }
-                    } else {
-                        Number left = coercer.coerceBoxed((Number) leftResult);
-                        Number right = coercer.coerceBoxed((Number) rightResult);
-                        if (left.equals(right)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            if ((!hasNonNullRow) || hasNullRow) {
-                return null;
-            }
-            return false;
-        }
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

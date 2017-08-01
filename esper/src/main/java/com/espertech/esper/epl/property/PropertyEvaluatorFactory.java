@@ -97,7 +97,7 @@ public class PropertyEvaluatorFactory {
                 StreamTypeService streamTypeService = new StreamTypeServiceImpl(availableTypes, availableStreamNames, isIStreamOnly, engineURI, false);
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, validateContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
                 ExprNode validatedExprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getSplitterExpression(), validationContext);
-                ExprEvaluator evaluator = validatedExprNode.getExprEvaluator();
+                ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(validatedExprNode.getForge(), engineImportService, PropertyEvaluatorFactory.class, false, statementName);
 
                 // determine result type
                 if (atom.getOptionalResultEventType() == null) {
@@ -108,7 +108,7 @@ public class PropertyEvaluatorFactory {
                 if (streamEventType == null) {
                     throw new ExprValidationException("Event type by name '" + atom.getOptionalResultEventType() + "' could not be found");
                 }
-                Class returnType = evaluator.getType();
+                Class returnType = validatedExprNode.getForge().getEvaluationType();
 
                 // when the expression returns an array, allow array values to become the column of the single-column event type
                 if (returnType.isArray() &&
@@ -160,7 +160,8 @@ public class PropertyEvaluatorFactory {
                 Arrays.fill(isIStreamOnly, true);
                 StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false);
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, validateContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
-                whereClauses[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getOptionalWhereClause(), validationContext).getExprEvaluator();
+                ExprNode whereClause = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getOptionalWhereClause(), validationContext);
+                whereClauses[i] = ExprNodeCompiler.allocateEvaluator(whereClause.getForge(), engineImportService, PropertyEvaluatorFactory.class, false, statementName);
             }
 
             // validate select clause

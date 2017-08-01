@@ -10,8 +10,13 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Factory for conversion/coercion and widening implementations for numbers.
@@ -97,6 +102,9 @@ public class SimpleNumberCoercerFactory {
             }
             return bigDecCoerceLong;
         }
+        if (resultBoxedType == Object.class || resultBoxedType == Number.class) {
+            return nullCoerce;
+        }
         throw new IllegalArgumentException("Cannot coerce to number subtype " + resultBoxedType.getName());
     }
 
@@ -108,9 +116,17 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Number.class;
         }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return value;
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            return value;
+        }
     }
 
-    private static class SimpleNumberCoercerDouble implements SimpleNumberCoercer {
+    public static class SimpleNumberCoercerDouble implements SimpleNumberCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.doubleValue();
         }
@@ -118,9 +134,28 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Double.class;
         }
+
+        public static CodegenExpression codegenDouble(CodegenExpression param, Class type) {
+            return codegenCoerceNonNull(double.class, Double.class, "doubleValue", param, type);
+        }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenDouble(value, valueType);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class type, CodegenContext context) {
+            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", param, type, context, SimpleNumberCoercerDouble.class);
+        }
+
+        public static CodegenExpression codegenDoubleMayNullBoxedIncludeBig(CodegenExpression value, Class valueType, CodegenContext context) {
+            if (valueType == BigInteger.class || valueType == BigDecimal.class) {
+                return exprDotMethod(value, "doubleValue");
+            }
+            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", value, valueType, context, SimpleNumberCoercerDouble.class);
+        }
     }
 
-    private static class SimpleNumberCoercerLong implements SimpleNumberCoercer {
+    public static class SimpleNumberCoercerLong implements SimpleNumberCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.longValue();
         }
@@ -128,9 +163,25 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Long.class;
         }
+
+        public static CodegenExpression codegenLong(CodegenExpression param, Class type) {
+            return codegenCoerceNonNull(long.class, Long.class, "longValue", param, type);
+        }
+
+        public static CodegenExpression codegenLongMayNullBox(CodegenExpression param, Class type, CodegenContext context) {
+            return codegenCoerceMayNull(long.class, Long.class, "longValue", param, type, context, SimpleNumberCoercerLong.class);
+        }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenLong(value, valueType);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class type, CodegenContext context) {
+            return codegenLongMayNullBox(param, type, context);
+        }
     }
 
-    private static class SimpleNumberCoercerInt implements SimpleNumberCoercer {
+    public static class SimpleNumberCoercerInt implements SimpleNumberCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.intValue();
         }
@@ -138,9 +189,25 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Integer.class;
         }
+
+        public static CodegenExpression codegenInt(CodegenExpression param, Class type) {
+            return codegenCoerceNonNull(int.class, Integer.class, "intValue", param, type);
+        }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenInt(value, valueType);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class type, CodegenContext context) {
+            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, type, context, SimpleNumberCoercerInt.class);
+        }
+
+        public static CodegenExpression coerceCodegenMayNull(CodegenExpression param, Class type, CodegenContext context) {
+            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, type, context, SimpleNumberCoercerInt.class);
+        }
     }
 
-    private static class SimpleNumberCoercerFloat implements SimpleNumberCoercer {
+    public static class SimpleNumberCoercerFloat implements SimpleNumberCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.floatValue();
         }
@@ -148,9 +215,21 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Float.class;
         }
+
+        public static CodegenExpression codegenFloat(CodegenExpression ref, Class type) {
+            return codegenCoerceNonNull(float.class, Float.class, "floatValue", ref, type);
+        }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenFloat(value, valueType);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            return codegenCoerceMayNull(float.class, Float.class, "floatValue", value, valueType, context, SimpleNumberCoercerFloat.class);
+        }
     }
 
-    private static class SimpleNumberCoercerShort implements SimpleNumberCoercer {
+    public static class SimpleNumberCoercerShort implements SimpleNumberCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.shortValue();
         }
@@ -158,9 +237,21 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Short.class;
         }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenShort(value, valueType);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            return codegenCoerceMayNull(short.class, Short.class, "shortValue", value, valueType, context, SimpleNumberCoercerShort.class);
+        }
+
+        public static CodegenExpression codegenShort(CodegenExpression input, Class inputType) {
+            return codegenCoerceNonNull(short.class, Short.class, "shortValue", input, inputType);
+        }
     }
 
-    private static class SimpleNumberCoercerByte implements SimpleNumberCoercer {
+    public static class SimpleNumberCoercerByte implements SimpleNumberCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.byteValue();
         }
@@ -168,9 +259,21 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Byte.class;
         }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenByte(value, valueType);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            return codegenCoerceMayNull(byte.class, Byte.class, "bteValue", value, valueType, context, SimpleNumberCoercerByte.class);
+        }
+
+        public static CodegenExpression codegenByte(CodegenExpression input, Class inputType) {
+            return codegenCoerceNonNull(byte.class, Byte.class, "byteValue", input, inputType);
+        }
     }
 
-    private static class SimpleNumberCoercerBigInt implements SimpleNumberCoercer, SimpleNumberBigIntegerCoercer {
+    public static class SimpleNumberCoercerBigInt implements SimpleNumberCoercer, SimpleNumberBigIntegerCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return BigInteger.valueOf(numToCoerce.longValue());
         }
@@ -182,9 +285,46 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Long.class;
         }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenBigInt(value, valueType);
+        }
+
+        public CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, Class type) {
+            return coerceCodegen(expr, type);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            if (valueType == null) {
+                return value;
+            }
+            if (valueType.isPrimitive()) {
+                return codegenBigInt(value, valueType);
+            }
+            if (valueType == BigInteger.class) {
+                return value;
+            }
+            String method = context.addMethod(BigInteger.class, SimpleNumberCoercerBigInt.class).add(valueType, "value").begin()
+                    .ifRefNullReturnNull("value")
+                    .methodReturn(codegenBigInt(ref("value"), valueType));
+            return localMethod(method, value);
+        }
+
+        public static CodegenExpression codegenBigInt(CodegenExpression value, Class valueType) {
+            if (valueType == BigInteger.class) {
+                return value;
+            }
+            if (valueType == long.class || valueType == Long.class) {
+                return staticMethod(BigInteger.class, "valueOf", value);
+            }
+            if (valueType.isPrimitive()) {
+                return staticMethod(BigInteger.class, "valueOf", cast(long.class, value));
+            }
+            return staticMethod(BigInteger.class, "valueOf", exprDotMethod(value, "longValue"));
+        }
     }
 
-    private static class SimpleNumberCoercerBigDecLong implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
+    public static class SimpleNumberCoercerBigDecLong implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return new BigDecimal(numToCoerce.longValue());
         }
@@ -196,9 +336,46 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Long.class;
         }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenBigDec(value, valueType);
+        }
+
+        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, Class type) {
+            return coerceCodegen(expr, type);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            if (valueType == null) {
+                return value;
+            }
+            if (valueType.isPrimitive()) {
+                return codegenBigDec(value, valueType);
+            }
+            if (valueType == BigDecimal.class) {
+                return value;
+            }
+            String method = context.addMethod(BigDecimal.class, SimpleNumberCoercerBigDecLong.class).add(valueType, "value").begin()
+                    .ifRefNullReturnNull("value")
+                    .methodReturn(codegenBigDec(ref("value"), valueType));
+            return localMethod(method, value);
+        }
+
+        public static CodegenExpression codegenBigDec(CodegenExpression value, Class valueType) {
+            if (valueType == BigDecimal.class) {
+                return value;
+            }
+            if (valueType == long.class || valueType == Long.class) {
+                return newInstance(BigDecimal.class, value);
+            }
+            if (valueType.isPrimitive()) {
+                return newInstance(BigDecimal.class, cast(long.class, value));
+            }
+            return newInstance(BigDecimal.class, exprDotMethod(value, "longValue"));
+        }
     }
 
-    private static class SimpleNumberCoercerBigDecDouble implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
+    public static class SimpleNumberCoercerBigDecDouble implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
         public Number coerceBoxed(Number numToCoerce) {
             return new BigDecimal(numToCoerce.doubleValue());
         }
@@ -209,6 +386,43 @@ public class SimpleNumberCoercerFactory {
 
         public Class getReturnType() {
             return Double.class;
+        }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return codegenBigDec(value, valueType);
+        }
+
+        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, Class type) {
+            return coerceCodegen(expr, type);
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            if (valueType == null) {
+                return value;
+            }
+            if (valueType.isPrimitive()) {
+                return codegenBigDec(value, valueType);
+            }
+            if (valueType == BigDecimal.class) {
+                return value;
+            }
+            String method = context.addMethod(BigDecimal.class, SimpleNumberCoercerBigDecDouble.class).add(valueType, "value").begin()
+                    .ifRefNullReturnNull("value")
+                    .methodReturn(codegenBigDec(ref("value"), valueType));
+            return localMethod(method, value);
+        }
+
+        public static CodegenExpression codegenBigDec(CodegenExpression value, Class valueType) {
+            if (valueType == BigDecimal.class) {
+                return value;
+            }
+            if (valueType == double.class || valueType == Double.class) {
+                return newInstance(BigDecimal.class, value);
+            }
+            if (valueType.isPrimitive()) {
+                return newInstance(BigDecimal.class, cast(double.class, value));
+            }
+            return newInstance(BigDecimal.class, exprDotMethod(value, "doubleValue"));
         }
     }
 
@@ -224,6 +438,18 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Number.class;
         }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return value;
+        }
+
+        public CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, Class type) {
+            return expr;
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            return value;
+        }
     }
 
     private static class SimpleNumberCoercerBigDecNull implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
@@ -238,5 +464,43 @@ public class SimpleNumberCoercerFactory {
         public Class getReturnType() {
             return Number.class;
         }
+
+        public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
+            return value;
+        }
+
+        public CodegenExpression coerceBoxedBigDecCodegen(CodegenExpression expr, Class type) {
+            return expr;
+        }
+
+        public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context) {
+            return value;
+        }
+    }
+
+    private static CodegenExpression codegenCoerceNonNull(Class primitive, Class boxed, String numberValueMethodName, CodegenExpression param, Class type) {
+        if (type == primitive || type == boxed) {
+            return param;
+        }
+        if (type.isPrimitive()) {
+            return cast(primitive, param);
+        }
+        return exprDotMethod(param, numberValueMethodName);
+    }
+
+    private static CodegenExpression codegenCoerceMayNull(Class primitive, Class boxed, String numberValueMethodName, CodegenExpression param, Class type, CodegenContext context, Class generator) {
+        if (type == primitive || type == boxed) {
+            return param;
+        }
+        if (type == null) {
+            return constantNull();
+        }
+        if (type.isPrimitive()) {
+            return cast(primitive, param);
+        }
+        String method = context.addMethod(boxed, generator).add(type, "value").begin()
+                .ifRefNullReturnNull("value")
+                .methodReturn(exprDotMethod(ref("value"), numberValueMethodName));
+        return localMethod(method, param);
     }
 }

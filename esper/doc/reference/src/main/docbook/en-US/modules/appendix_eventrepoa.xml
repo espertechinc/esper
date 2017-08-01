@@ -43,16 +43,8 @@
 		</para>
 		
 		<para>
+			The engine does not validate Object array length or value types. Your application must ensure that Object array values match the declaration of the event type: The type and position of property values must match property names and types in the same exact order and object array length must match the number of properties declared via <literal>create schema</literal> or the static or runtime configuration.
 		</para>
-		
-		<note>
-			<para>
-			The engine does not validate the actual Object array events that your application provides to the engine in terms of array length or value types. Your application must ensure that Object array values match the declaration of the event type: The type and position of property values must match property names and types in the same exact order and object array length must match the number of properties declared via <literal>create schema</literal> or the static or runtime configuration.
-			</para>
-			<para>
-				The behavior is undefined in the case that value types do not match defined property types or if actual array length is smaller than the defined number of properties.
-			</para>
-		</note>
 	</sect1>
 			
 	<sect1 xml:id="appendix_eventrepoa_properties">

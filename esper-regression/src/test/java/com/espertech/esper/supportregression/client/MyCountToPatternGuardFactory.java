@@ -34,7 +34,8 @@ public class MyCountToPatternGuardFactory extends GuardFactorySupport {
             throw new GuardParameterException(message);
         }
 
-        if (guardParameters.get(0).getExprEvaluator().getType() != Integer.class) {
+        Class paramType = guardParameters.get(0).getForge().getEvaluationType();
+        if (paramType != Integer.class && paramType != int.class) {
             throw new GuardParameterException(message);
         }
 

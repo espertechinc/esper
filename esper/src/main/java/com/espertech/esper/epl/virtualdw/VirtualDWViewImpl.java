@@ -117,7 +117,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         VirtualDWEventTable noopTable = (VirtualDWEventTable) eventTables[0];
         for (int i = 0; i < noopTable.getHashAccess().size(); i++) {
             QueryGraphValueEntryHashKeyed hashKey = keyDescriptor.getHashes().get(i);
-            noopTable.getHashAccess().get(i).setLookupValueType(hashKey.getKeyExpr().getExprEvaluator().getType());
+            noopTable.getHashAccess().get(i).setLookupValueType(hashKey.getKeyExpr().getForge().getEvaluationType());
         }
         for (int i = 0; i < noopTable.getBtreeAccess().size(); i++) {
             QueryGraphValueEntryRange range = keyDescriptor.getRanges().get(i);
@@ -125,9 +125,9 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
             VirtualDataWindowLookupFieldDesc rangeField = noopTable.getBtreeAccess().get(i);
             rangeField.setOperator(op);
             if (range instanceof QueryGraphValueEntryRangeRelOp) {
-                rangeField.setLookupValueType(((QueryGraphValueEntryRangeRelOp) range).getExpression().getExprEvaluator().getType());
+                rangeField.setLookupValueType(((QueryGraphValueEntryRangeRelOp) range).getExpression().getForge().getEvaluationType());
             } else {
-                rangeField.setLookupValueType(((QueryGraphValueEntryRangeIn) range).getExprStart().getExprEvaluator().getType());
+                rangeField.setLookupValueType(((QueryGraphValueEntryRangeIn) range).getExprStart().getForge().getEvaluationType());
             }
         }
 

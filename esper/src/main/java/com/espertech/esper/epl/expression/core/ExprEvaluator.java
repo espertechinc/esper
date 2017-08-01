@@ -25,12 +25,4 @@ public interface ExprEvaluator {
      * @return evaluation result, a boolean value for OR/AND-type evalution nodes.
      */
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
-
-    /**
-     * Returns the type that the node's evaluate method returns an instance of.
-     *
-     * @return type returned when evaluated
-     */
-    public Class getType();
-
 }

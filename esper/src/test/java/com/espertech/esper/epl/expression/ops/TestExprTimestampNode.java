@@ -30,7 +30,7 @@ public class TestExprTimestampNode extends TestCase {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(Long.class, node.getType());
+        assertEquals(Long.class, node.getEvaluationType());
     }
 
     public void testValidate() throws Exception {

@@ -35,7 +35,7 @@ public class TestExprPropertyExistsNode extends TestCase {
     public void testGetType() throws Exception {
         for (int i = 0; i < existsNodes.length; i++) {
             existsNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
-            assertEquals(Boolean.class, existsNodes[i].getType());
+            assertEquals(Boolean.class, existsNodes[i].getEvaluationType());
         }
     }
 

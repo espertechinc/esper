@@ -34,15 +34,15 @@ public class EvalMatchUntilStateBounds {
         Integer upperbounds = null;
         EventBean[] eventsPerStream = factoryNode.getConvertor().convert(beginState);
         if (factoryNode.getSingleBound() != null) {
-            Integer bounds = (Integer) factoryNode.getSingleBound().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
+            Integer bounds = (Integer) factoryNode.getSingleBound().getForge().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
             lowerbounds = bounds;
             upperbounds = bounds;
         } else {
             if (factoryNode.getLowerBounds() != null) {
-                lowerbounds = (Integer) factoryNode.getLowerBounds().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
+                lowerbounds = (Integer) factoryNode.getLowerBounds().getForge().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
             }
             if (factoryNode.getUpperBounds() != null) {
-                upperbounds = (Integer) factoryNode.getUpperBounds().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
+                upperbounds = (Integer) factoryNode.getUpperBounds().getForge().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
             }
             if (upperbounds != null && lowerbounds != null) {
                 if (upperbounds < lowerbounds) {

@@ -62,7 +62,7 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
         try {
             boolean copyOnWrite = !(processor instanceof FireAndForgetProcessorTable);
             updateHelper = EventBeanUpdateHelperFactory.make(processor.getNamedWindowOrTableName(),
-                    (EventTypeSPI) processor.getEventTypeResultSetProcessor(), updateSpec.getAssignments(), aliasName, null, copyOnWrite, statementContext.getStatementName(), services.getEngineURI(), services.getEventAdapterService());
+                    (EventTypeSPI) processor.getEventTypeResultSetProcessor(), updateSpec.getAssignments(), aliasName, null, copyOnWrite, statementContext.getStatementName(), services.getEngineURI(), services.getEventAdapterService(), true);
 
             if (processor instanceof FireAndForgetProcessorTable) {
                 FireAndForgetProcessorTable tableProcessor = (FireAndForgetProcessorTable) processor;

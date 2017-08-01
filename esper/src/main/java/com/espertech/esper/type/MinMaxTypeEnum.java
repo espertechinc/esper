@@ -11,13 +11,25 @@
 package com.espertech.esper.type;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberBigDecimalCoercer;
 import com.espertech.esper.util.SimpleNumberBigIntegerCoercer;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.type.RelationalOpEnum.GT;
+import static com.espertech.esper.type.RelationalOpEnum.LT;
 
 
 /**
@@ -68,7 +80,7 @@ public enum MinMaxTypeEnum {
      * Determines minimum using Number.doubleValue().
      */
     public static class MinComputerDoubleCoerce implements Computer {
-        private ExprEvaluator[] childNodes;
+        private final ExprEvaluator[] childNodes;
 
         /**
          * Ctor.
@@ -104,13 +116,17 @@ public enum MinMaxTypeEnum {
             }
             return result;
         }
+
+        public static CodegenExpression codegen(CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, Class returnType) {
+            return MinMaxTypeEnum.codegenMinMax(true, context, params, nodes, returnType);
+        }
     }
 
     /**
      * Determines maximum using Number.doubleValue().
      */
     public static class MaxComputerDoubleCoerce implements Computer {
-        private ExprEvaluator[] childNodes;
+        private final ExprEvaluator[] childNodes;
 
         /**
          * Ctor.
@@ -146,15 +162,19 @@ public enum MinMaxTypeEnum {
             }
             return result;
         }
+
+        public static CodegenExpression codegen(CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, Class returnType) {
+            return MinMaxTypeEnum.codegenMinMax(false, context, params, nodes, returnType);
+        }
     }
 
     /**
      * Determines minimum/maximum using BigInteger.compareTo.
      */
     public static class ComputerBigIntCoerce implements Computer {
-        private ExprEvaluator[] childNodes;
-        private SimpleNumberBigIntegerCoercer[] convertors;
-        private boolean isMax;
+        private final ExprEvaluator[] childNodes;
+        private final SimpleNumberBigIntegerCoercer[] convertors;
+        private final boolean isMax;
 
         /**
          * Ctor.
@@ -200,15 +220,58 @@ public enum MinMaxTypeEnum {
             }
             return result;
         }
+
+        public static CodegenExpression codegen(boolean max, CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, SimpleNumberBigIntegerCoercer[] convertors) {
+            Class r0Type = nodes[0].getForge().getEvaluationType();
+            Class r1Type = nodes[1].getForge().getEvaluationType();
+            if (r0Type == null || r1Type == null) {
+                return constantNull();
+            }
+            CodegenBlock block = context.addMethod(BigInteger.class, ComputerBigIntCoerce.class).add(params).begin();
+
+            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(params, context));
+            if (!r0Type.isPrimitive()) {
+                block.ifRefNullReturnNull("r0");
+            }
+            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(params, context));
+            if (!r1Type.isPrimitive()) {
+                block.ifRefNullReturnNull("r1");
+            }
+            block.declareVar(BigInteger.class, "bi0", convertors[0].coerceBoxedBigIntCodegen(ref("r0"), r0Type));
+            block.declareVar(BigInteger.class, "bi1", convertors[1].coerceBoxedBigIntCodegen(ref("r1"), r1Type));
+
+            block.declareVarNoInit(BigInteger.class, "result");
+            block.ifCondition(codegenCompareCompareTo(ref("bi0"), ref("bi1"), max))
+                    .assignRef("result", ref("bi0"))
+                    .ifElse()
+                    .assignRef("result", ref("bi1"))
+                    .blockEnd();
+
+            for (int i = 2; i < nodes.length; i++) {
+                Class nodeType = nodes[i].getForge().getEvaluationType();
+                String refnameNumber = "r" + i;
+                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(params, context));
+                if (!nodeType.isPrimitive()) {
+                    block.ifRefNullReturnNull(refnameNumber);
+                }
+                String refnameBigint = "bi" + i;
+                block.declareVar(BigInteger.class, refnameBigint, convertors[i].coerceBoxedBigIntCodegen(ref(refnameNumber), nodeType));
+                block.ifCondition(not(codegenCompareCompareTo(ref("result"), ref(refnameBigint), max)))
+                        .assignRef("result", ref(refnameBigint))
+                        .blockEnd();
+            }
+            String method = block.methodReturn(ref("result"));
+            return localMethodBuild(method).passAll(params).call();
+        }
     }
 
     /**
      * Determines minimum/maximum using BigDecimal.compareTo.
      */
     public static class ComputerBigDecCoerce implements Computer {
-        private ExprEvaluator[] childNodes;
-        private SimpleNumberBigDecimalCoercer[] convertors;
-        private boolean isMax;
+        private final ExprEvaluator[] childNodes;
+        private final SimpleNumberBigDecimalCoercer[] convertors;
+        private final boolean isMax;
 
         /**
          * Ctor.
@@ -254,5 +317,95 @@ public enum MinMaxTypeEnum {
             }
             return result;
         }
+
+        public static CodegenExpression codegen(boolean max, CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, SimpleNumberBigDecimalCoercer[] convertors) {
+            Class r0Type = nodes[0].getForge().getEvaluationType();
+            Class r1Type = nodes[1].getForge().getEvaluationType();
+            if (r0Type == null || r1Type == null) {
+                return constantNull();
+            }
+            CodegenBlock block = context.addMethod(BigDecimal.class, ComputerBigDecCoerce.class).add(params).begin();
+
+            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(params, context));
+            if (!r0Type.isPrimitive()) {
+                block.ifRefNullReturnNull("r0");
+            }
+            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(params, context));
+            if (!r1Type.isPrimitive()) {
+                block.ifRefNullReturnNull("r1");
+            }
+            block.declareVar(BigDecimal.class, "bi0", convertors[0].coerceBoxedBigDecCodegen(ref("r0"), r0Type));
+            block.declareVar(BigDecimal.class, "bi1", convertors[1].coerceBoxedBigDecCodegen(ref("r1"), r1Type));
+
+            block.declareVarNoInit(BigDecimal.class, "result");
+            block.ifCondition(codegenCompareCompareTo(ref("bi0"), ref("bi1"), max))
+                    .assignRef("result", ref("bi0"))
+                    .ifElse()
+                    .assignRef("result", ref("bi1"))
+                    .blockEnd();
+
+            for (int i = 2; i < nodes.length; i++) {
+                Class nodeType = nodes[i].getForge().getEvaluationType();
+                String refnameNumber = "r" + i;
+                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(params, context));
+                if (!nodeType.isPrimitive()) {
+                    block.ifRefNullReturnNull(refnameNumber);
+                }
+                String refnameBigint = "bi" + i;
+                block.declareVar(BigDecimal.class, refnameBigint, convertors[i].coerceBoxedBigDecCodegen(ref(refnameNumber), nodeType));
+                block.ifCondition(not(codegenCompareCompareTo(ref("result"), ref(refnameBigint), max)))
+                        .assignRef("result", ref(refnameBigint))
+                        .blockEnd();
+            }
+            String method = block.methodReturn(ref("result"));
+            return localMethodBuild(method).passAll(params).call();
+        }
+    }
+
+    private static CodegenExpression codegenMinMax(boolean min, CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, Class returnType) {
+        Class r0Type = nodes[0].getForge().getEvaluationType();
+        Class r1Type = nodes[1].getForge().getEvaluationType();
+        if (r0Type == null || r1Type == null) {
+            return constantNull();
+        }
+        CodegenBlock block = context.addMethod(returnType, MaxComputerDoubleCoerce.class).add(params).begin();
+
+        block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(params, context));
+        if (!r0Type.isPrimitive()) {
+            block.ifRefNullReturnNull("r0");
+        }
+        block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(params, context));
+        if (!r1Type.isPrimitive()) {
+            block.ifRefNullReturnNull("r1");
+        }
+
+        block.declareVarNoInit(returnType, "result");
+        block.ifCondition(codegenCompareRelop(returnType, min ? LT : GT, ref("r0"), r0Type, ref("r1"), r1Type))
+                .assignRef("result", JavaClassHelper.coerceNumberToBoxedCodegen(ref("r0"), r0Type, returnType))
+                .ifElse()
+                .assignRef("result", JavaClassHelper.coerceNumberToBoxedCodegen(ref("r1"), r1Type, returnType))
+                .blockEnd();
+
+        for (int i = 2; i < nodes.length; i++) {
+            Class nodeType = nodes[i].getForge().getEvaluationType();
+            String refname = "r" + i;
+            block.declareVar(nodeType, refname, nodes[i].getForge().evaluateCodegen(params, context));
+            if (!nodeType.isPrimitive()) {
+                block.ifRefNullReturnNull(refname);
+            }
+            block.ifCondition(not(codegenCompareRelop(returnType, min ? LT : GT, ref("result"), returnType, ref(refname), r1Type)))
+                    .assignRef("result", JavaClassHelper.coerceNumberToBoxedCodegen(ref(refname), nodeType, returnType))
+                    .blockEnd();
+        }
+        String method = block.methodReturn(ref("result"));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    private static CodegenExpression codegenCompareRelop(Class resultType, RelationalOpEnum op, CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+        return op(lhs, op.getExpressionText(), rhs);
+    }
+
+    private static CodegenExpression codegenCompareCompareTo(CodegenExpression lhs, CodegenExpression rhs, boolean max) {
+        return relational(exprDotMethod(lhs, "compareTo", rhs), max ? CodegenExpressionRelational.CodegenRelational.GT : CodegenExpressionRelational.CodegenRelational.LT, constant(0));
     }
 }

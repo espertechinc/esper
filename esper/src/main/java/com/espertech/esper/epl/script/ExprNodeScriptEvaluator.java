@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.epl.script;
 
+import com.espertech.esper.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 
-public interface ExprNodeScriptEvaluator extends ExprEvaluator {
+public interface ExprNodeScriptEvaluator extends ExprEvaluator, ExprForge, ExprEnumerationForge {
     Object evaluate(Object[] lookupValues, ExprEvaluatorContext exprEvaluatorContext);
 }

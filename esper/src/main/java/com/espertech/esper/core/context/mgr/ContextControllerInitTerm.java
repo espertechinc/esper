@@ -19,7 +19,6 @@ import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.ContextDetailCondition;
 import com.espertech.esper.epl.spec.ContextDetailConditionCrontab;
 import com.espertech.esper.event.EventAdapterService;
@@ -40,7 +39,6 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
     protected ContextControllerCondition startCondition;
     private Map<Object, EventBean> distinctContexts;
     private EventBean nonDistinctLastTrigger;
-    private ExprEvaluator[] distinctEvaluators;
     private EventBean[] eventsPerStream = new EventBean[1];
 
     protected Map<ContextControllerCondition, ContextControllerInitTermInstance> endConditions = new LinkedHashMap<ContextControllerCondition, ContextControllerInitTermInstance>();
@@ -53,7 +51,6 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
         this.factory = factory;
         if (factory.getContextDetail().getDistinctExpressions() != null && factory.getContextDetail().getDistinctExpressions().length > 0) {
             distinctContexts = new HashMap<Object, EventBean>();
-            distinctEvaluators = ExprNodeUtility.getEvaluators(factory.getContextDetail().getDistinctExpressions());
         }
     }
 
@@ -469,11 +466,12 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
 
     private Object getDistinctKey(EventBean optionalTriggeringEvent) {
         eventsPerStream[0] = optionalTriggeringEvent;
+        ExprEvaluator[] distinctEvaluators = factory.getDistinctEvaluators();
         if (distinctEvaluators.length == 1) {
             return distinctEvaluators[0].evaluate(eventsPerStream, true, factory.getFactoryContext().getAgentInstanceContextCreate());
         }
 
-        Object[] results = new Object[distinctEvaluators.length];
+        Object[] results = new Object[factory.getDistinctEvaluators().length];
         int count = 0;
         for (ExprEvaluator expr : distinctEvaluators) {
             results[count] = expr.evaluate(eventsPerStream, true, factory.getFactoryContext().getAgentInstanceContextCreate());

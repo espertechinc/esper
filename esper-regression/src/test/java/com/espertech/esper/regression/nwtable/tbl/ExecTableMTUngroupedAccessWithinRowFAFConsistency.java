@@ -77,6 +77,8 @@ public class ExecTableMTUngroupedAccessWithinRowFAFConsistency implements Regres
         assertTrue(writeRunnable.numEvents > 100);
         assertTrue(readRunnable.numQueries > 100);
         System.out.println("Send " + writeRunnable.numEvents + " and performed " + readRunnable.numQueries + " reads");
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     public static class WriteRunnable implements Runnable {

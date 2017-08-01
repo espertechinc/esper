@@ -11,6 +11,10 @@
 package com.espertech.esper.epl.expression.baseagg;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationResultFuture;
@@ -31,7 +35,7 @@ import java.io.StringWriter;
  * Concrete subclasses must supply an aggregation state prototype node {@link com.espertech.esper.epl.agg.aggregator.AggregationMethod} that reflects
  * each group's (there may be group-by critera) current aggregation state.
  */
-public abstract class ExprAggregateNodeBase extends ExprNodeBase implements ExprEvaluator, ExprAggregateNode {
+public abstract class ExprAggregateNodeBase extends ExprNodeBase implements ExprEvaluator, ExprAggregateNode, ExprForge {
     private static final long serialVersionUID = 4859196214837888423L;
 
     protected transient AggregationResultFuture aggregationResultFuture;
@@ -95,6 +99,10 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return false;
     }
 
+    public ExprNode getForgeRenderable() {
+        return this;
+    }
+
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         validatePositionals();
         aggregationMethodFactory = validateAggregationChild(validationContext);
@@ -126,13 +134,6 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     }
 
 
-    public Class getType() {
-        if (aggregationMethodFactory == null) {
-            throw new IllegalStateException("Aggregation method has not been set");
-        }
-        return aggregationMethodFactory.getResultType();
-    }
-
     /**
      * Returns the aggregation state factory for use in grouping aggregation states per group-by keys.
      *
@@ -163,6 +164,25 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
             return value;
         }
         return aggregationResultFuture.getValue(column, exprEvaluatorContext.getAgentInstanceId(), events, isNewData, exprEvaluatorContext);
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
+    public Class getEvaluationType() {
+        if (aggregationMethodFactory == null) {
+            throw new IllegalStateException("Aggregation method has not been set");
+        }
+        return aggregationMethodFactory.getResultType();
+    }
+
+    public ExprForge getForge() {
+        return this;
     }
 
     /**
@@ -206,10 +226,10 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         // validate child expression (filter expression is actually always the first expression)
         ExprNode child = positionalParams[0];
         if (hasFilter) {
-            validateFilter(positionalParams[1].getExprEvaluator());
+            validateFilter(positionalParams[1].getForge());
         }
 
-        Class childType = child.getExprEvaluator().getType();
+        Class childType = child.getForge().getEvaluationType();
         if (!JavaClassHelper.isNumeric(childType)) {
             throw new ExprValidationException("Implicit conversion from datatype '" +
                     (childType == null ? "null" : childType.getSimpleName()) +
@@ -261,11 +281,11 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return ExprPrecedenceEnum.MINIMUM;
     }
 
-    public void validateFilter(ExprEvaluator filterEvaluator) throws ExprValidationException {
-        if (JavaClassHelper.getBoxedType(filterEvaluator.getType()) != Boolean.class) {
+    public void validateFilter(ExprForge filterEvaluator) throws ExprValidationException {
+        if (JavaClassHelper.getBoxedType(filterEvaluator.getEvaluationType()) != Boolean.class) {
             throw new ExprValidationException("Invalid filter expression parameter to the aggregation function '" +
                     getAggregationFunctionName() +
-                    "' is expected to return a boolean value but returns " + JavaClassHelper.getClassNameFullyQualPretty(filterEvaluator.getType()));
+                    "' is expected to return a boolean value but returns " + JavaClassHelper.getClassNameFullyQualPretty(filterEvaluator.getEvaluationType()));
         }
     }
 

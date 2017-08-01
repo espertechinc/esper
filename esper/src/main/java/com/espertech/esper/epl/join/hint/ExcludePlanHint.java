@@ -14,10 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.JavaClassHelper;
@@ -54,11 +51,11 @@ public class ExcludePlanHint {
             if (hint.trim().isEmpty()) {
                 continue;
             }
-            ExprEvaluator evaluator = ExcludePlanHintExprUtil.toExpression(hint, statementContext);
-            if (JavaClassHelper.getBoxedType(evaluator.getType()) != Boolean.class) {
+            ExprForge forge = ExcludePlanHintExprUtil.toExpression(hint, statementContext);
+            if (JavaClassHelper.getBoxedType(forge.getEvaluationType()) != Boolean.class) {
                 throw new ExprValidationException("Expression provided for hint " + HintEnum.EXCLUDE_PLAN.getValue() + " must return a boolean value");
             }
-            filters.add(evaluator);
+            filters.add(forge.getExprEvaluator());
         }
         return new ExcludePlanHint(streamNames, filters, statementContext);
     }

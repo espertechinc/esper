@@ -146,12 +146,23 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
             return null;
         }
 
-        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, typeName, propertyName);
         propertyGetterCodegeneratedCache.put(propertyName, getterCode);
         return getterCode;
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedPropertyName) {
+        EventPropertyGetterMappedSPI getter = getGetterMappedSPI(mappedPropertyName);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, typeName, mappedPropertyName);
+    }
+
+    public EventPropertyGetterMappedSPI getGetterMappedSPI(String mappedPropertyName) {
         PropertySetDescriptorItem item = propertyItems.get(mappedPropertyName);
         if (item == null || !item.getPropertyDescriptor().isMapped()) {
             return null;
@@ -161,6 +172,17 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     }
 
     public EventPropertyGetterIndexed getGetterIndexed(String indexedPropertyName) {
+        EventPropertyGetterIndexedSPI getter = getGetterIndexedSPI(indexedPropertyName);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), indexedPropertyName);
+    }
+
+    public EventPropertyGetterIndexedSPI getGetterIndexedSPI(String indexedPropertyName) {
         PropertySetDescriptorItem item = propertyItems.get(indexedPropertyName);
         if (item == null || !item.getPropertyDescriptor().isIndexed()) {
             return null;

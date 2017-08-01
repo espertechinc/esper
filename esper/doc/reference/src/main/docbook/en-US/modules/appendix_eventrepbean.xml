@@ -38,6 +38,12 @@
 			Please see <xref linkend="configuration"/> on options for naming event types represented by Java object event classes.
 			Java classes that do not follow JavaBean conventions, such as legacy Java classes that expose public fields, or methods not following naming conventions, require additional configuration. Via configuration it is also possible to control case sensitivity in property name resolution. The relevant section in the chapter on configuration is <xref linkend="config-java-legacy"/>.
 		</para>
+		
+		<note>
+			<para>
+				  Event classes must have <literal>public</literal> visibility.
+			</para>
+		</note>
 	</sect1>
 
 	<sect1 xml:id="appendix_eventrepbean_properties">

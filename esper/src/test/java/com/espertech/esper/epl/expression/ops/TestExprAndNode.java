@@ -26,7 +26,7 @@ public class TestExprAndNode extends TestCase {
     }
 
     public void testGetType() {
-        assertEquals(Boolean.class, andNode.getType());
+        assertEquals(Boolean.class, andNode.getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {
@@ -59,13 +59,13 @@ public class TestExprAndNode extends TestCase {
         andNode.addChildNode(new SupportBoolExprNode(true));
         andNode.addChildNode(new SupportBoolExprNode(true));
         SupportExprNodeUtil.validate(andNode);
-        assertTrue((Boolean) andNode.evaluate(null, false, null));
+        assertTrue((Boolean) andNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         andNode = new ExprAndNodeImpl();
         andNode.addChildNode(new SupportBoolExprNode(true));
         andNode.addChildNode(new SupportBoolExprNode(false));
         SupportExprNodeUtil.validate(andNode);
-        assertFalse((Boolean) andNode.evaluate(null, false, null));
+        assertFalse((Boolean) andNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testToExpressionString() throws Exception {

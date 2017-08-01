@@ -47,7 +47,7 @@ public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory
     }
 
     public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec, StatementContext statementContext) {
-        return new ViewableActivatorNamedWindow(processor, streamSpec.getFilterExpressions(), streamSpec.getOptPropertyEvaluator());
+        return new ViewableActivatorNamedWindow(processor, streamSpec.getFilterExpressions(), streamSpec.getOptPropertyEvaluator(), statementContext.getEngineImportService(), statementContext.getStatementName());
     }
 
     public ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters) {

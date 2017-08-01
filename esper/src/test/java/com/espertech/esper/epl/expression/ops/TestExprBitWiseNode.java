@@ -64,7 +64,7 @@ public class TestExprBitWiseNode extends TestCase {
         _bitWiseNode.addChildNode(new SupportExprNode(Long.class));
         _bitWiseNode.addChildNode(new SupportExprNode(Long.class));
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, _bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(Long.class, _bitWiseNode.getType());
+        assertEquals(Long.class, _bitWiseNode.getForge().getEvaluationType());
     }
 
     public void testEvaluate() throws Exception {
@@ -72,7 +72,7 @@ public class TestExprBitWiseNode extends TestCase {
         _bitWiseNode.addChildNode(new SupportExprNode(new Integer(10)));
         _bitWiseNode.addChildNode(new SupportExprNode(new Integer(12)));
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, _bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
-        assertEquals(8, _bitWiseNode.evaluate(null, false, null));
+        assertEquals(8, _bitWiseNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEqualsNode() throws Exception {

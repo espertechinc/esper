@@ -192,7 +192,7 @@ public class HistoricalStreamIndexList {
     private Class[] getPropertyTypes(List<QueryGraphValueEntryHashKeyed> hashKeys) {
         Class[] types = new Class[hashKeys.size()];
         for (int i = 0; i < hashKeys.size(); i++) {
-            types[i] = JavaClassHelper.getBoxedType(hashKeys.get(i).getKeyExpr().getExprEvaluator().getType());
+            types[i] = JavaClassHelper.getBoxedType(hashKeys.get(i).getKeyExpr().getForge().getEvaluationType());
         }
         return types;
     }

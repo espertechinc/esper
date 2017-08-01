@@ -10,8 +10,14 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Factory for casters, which take an object and safely cast to a given type, performing coercion or dropping
@@ -68,6 +74,13 @@ public class SimpleTypeCasterFactory {
         public boolean isNumericCast() {
             return true;
         }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(input, inputType);
+            }
+            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "doubleValue");
+        }
     }
 
     /**
@@ -80,6 +93,13 @@ public class SimpleTypeCasterFactory {
 
         public boolean isNumericCast() {
             return true;
+        }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerFloat.codegenFloat(input, inputType);
+            }
+            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "floatValue");
         }
     }
 
@@ -94,6 +114,13 @@ public class SimpleTypeCasterFactory {
         public boolean isNumericCast() {
             return true;
         }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(input, inputType);
+            }
+            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "longValue");
+        }
     }
 
     /**
@@ -106,6 +133,13 @@ public class SimpleTypeCasterFactory {
 
         public boolean isNumericCast() {
             return true;
+        }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(input, inputType);
+            }
+            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "intValue");
         }
     }
 
@@ -120,6 +154,13 @@ public class SimpleTypeCasterFactory {
         public boolean isNumericCast() {
             return true;
         }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerShort.codegenShort(input, inputType);
+            }
+            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "shortValue");
+        }
     }
 
     /**
@@ -133,22 +174,46 @@ public class SimpleTypeCasterFactory {
         public boolean isNumericCast() {
             return true;
         }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerByte.codegenByte(input, inputType);
+            }
+            return exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "byteValue");
+        }
     }
 
     /**
      * Cast implementation for char values.
      */
-    private static class CharacterCaster implements SimpleTypeCaster {
+    public static class CharacterCaster implements SimpleTypeCaster, TypeWidener {
         public Object cast(Object object) {
             String value = object.toString();
-            if ((value == null) || (value.length() == 0)) {
+            if (value.length() == 0) {
                 return null;
             }
             return value.charAt(0);
         }
 
+        public Object widen(Object input) {
+            return cast(input);
+        }
+
         public boolean isNumericCast() {
             return false;
+        }
+
+        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+            return codegen(expression, Object.class, context);
+        }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            String method = context.addMethod(Character.class, CharacterCaster.class).add(Object.class, "object").begin()
+                    .declareVar(String.class, "value", exprDotMethod(ref("object"), "toString"))
+                    .ifCondition(equalsIdentity(exprDotMethod(ref("value"), "length"), constant(0)))
+                    .blockReturn(constantNull())
+                    .methodReturn(exprDotMethod(ref("value"), "charAt", constant(0)));
+            return localMethodBuild(method).pass(input).call();
         }
     }
 
@@ -164,6 +229,13 @@ public class SimpleTypeCasterFactory {
         public boolean isNumericCast() {
             return true;
         }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerBigInt.codegenBigInt(input, inputType);
+            }
+            return staticMethod(BigInteger.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "longValue"));
+        }
     }
 
     /**
@@ -177,6 +249,13 @@ public class SimpleTypeCasterFactory {
 
         public boolean isNumericCast() {
             return true;
+        }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerBigDecLong.codegenBigDec(input, inputType);
+            }
+            return staticMethod(BigDecimal.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "longValue"));
         }
     }
 
@@ -192,6 +271,13 @@ public class SimpleTypeCasterFactory {
         public boolean isNumericCast() {
             return true;
         }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
+                return SimpleNumberCoercerFactory.SimpleNumberCoercerBigDecDouble.codegenBigDec(input, inputType);
+            }
+            return staticMethod(BigDecimal.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(Number.class, input), "doubleValue"));
+        }
     }
 
     /**
@@ -204,6 +290,10 @@ public class SimpleTypeCasterFactory {
 
         public boolean isNumericCast() {
             return false;
+        }
+
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+            return input;
         }
     }
 }

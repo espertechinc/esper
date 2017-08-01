@@ -78,7 +78,7 @@ sender.sendEvent(omElement);]]></programlisting>
 		</para>
 
 		<para>
-			The configuration XML for the <literal>ConfigurationEventTypeAxiom</literal> class adheres to the schema <literal>esperio-axiom-configuration-6-0.xsd</literal> also in the <literal>etc</literal> folder of the EsperIO distribution.
+			The configuration XML for the <literal>ConfigurationEventTypeAxiom</literal> class adheres to the schema <literal>esperio-axiom-configuration-7-0.xsd</literal> also in the <literal>etc</literal> folder of the EsperIO distribution.
 		</para>
     </sect1>
     

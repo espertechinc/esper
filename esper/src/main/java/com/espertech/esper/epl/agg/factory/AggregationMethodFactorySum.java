@@ -18,6 +18,7 @@ import com.espertech.esper.epl.agg.aggregator.*;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -77,7 +78,7 @@ public class AggregationMethodFactorySum implements AggregationMethodFactory {
         AggregationValidationUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
     }
 
-    public AggregationAgent getAggregationStateAgent() {
+    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         return null;
     }
 

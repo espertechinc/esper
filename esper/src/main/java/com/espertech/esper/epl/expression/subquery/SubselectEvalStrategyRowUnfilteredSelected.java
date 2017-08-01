@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.subquery;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeEvaluator;
 import com.espertech.esper.event.EventBeanUtility;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class SubselectEvalStrategyRowUnfilteredSelected implements SubselectEval
         // when selecting a single property in the select clause that provides a fragment
         if (parent.subselectMultirowType == null) {
             Collection<EventBean> events = new ArrayDeque<EventBean>(matchingEvents.size());
-            ExprIdentNodeEvaluator eval = (ExprIdentNodeEvaluator) parent.selectClauseEvaluator[0];
+            ExprIdentNodeEvaluator eval = ((ExprIdentNode) parent.selectClause[0]).getExprEvaluatorIdent();
             EventPropertyGetter getter = eval.getGetter();
             for (EventBean subselectEvent : matchingEvents) {
                 Object fragment = getter.getFragment(subselectEvent);

@@ -14,7 +14,7 @@ public abstract class IntervalComputerConstantBase {
     protected final long start;
     protected final long end;
 
-    public IntervalComputerConstantBase(IntervalStartEndParameterPair pair, boolean allowSwitch) {
+    public IntervalComputerConstantBase(IntervalStartEndParameterPairForge pair, boolean allowSwitch) {
         long startVal = pair.getStart().getOptionalConstant();
         long endVal = pair.getEnd().getOptionalConstant();
 

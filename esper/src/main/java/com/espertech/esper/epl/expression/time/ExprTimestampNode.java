@@ -11,15 +11,20 @@
 package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethodChain;
+
 /**
  * Represents the CURRENT_TIMESTAMP() function or reserved keyword in an expression tree.
  */
-public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator, ExprForge {
     private static final long serialVersionUID = -6332243334897136751L;
 
     /**
@@ -30,6 +35,22 @@ public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator {
 
     public ExprEvaluator getExprEvaluator() {
         return this;
+    }
+
+    public Class getEvaluationType() {
+        return Long.class;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return exprDotMethodChain(params.passEvalCtx()).add("getTimeProvider").add("getTime");
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -43,10 +64,6 @@ public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator {
         return false;
     }
 
-    public Class getType() {
-        return Long.class;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             long value = exprEvaluatorContext.getTimeProvider().getTime();
@@ -54,6 +71,10 @@ public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator {
             return value;
         }
         return exprEvaluatorContext.getTimeProvider().getTime();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SINGLE;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

@@ -12,10 +12,7 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.SelectClauseElementCompiled;
 import com.espertech.esper.epl.spec.SelectClauseElementWildcard;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
@@ -23,6 +20,7 @@ import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 
 /**
@@ -46,7 +44,11 @@ public class BindProcessor {
     public BindProcessor(SelectClauseElementCompiled[] selectionList,
                          EventType[] typesPerStream,
                          String[] streamNames,
-                         TableService tableService)
+                         TableService tableService,
+                         EngineImportService engineImportService,
+                         boolean isFireAndForget,
+                         Annotation[] annotations,
+                         String statementName)
             throws ExprValidationException {
         ArrayList<ExprEvaluator> expressions = new ArrayList<ExprEvaluator>();
         ArrayList<Class> types = new ArrayList<Class>();
@@ -62,7 +64,7 @@ public class BindProcessor {
                     if (tableMetadata != null) {
                         evaluator = new BindProcessorEvaluatorStreamTable(i, returnType, tableMetadata);
                     } else {
-                        evaluator = new BindProcessorEvaluatorStream(i, returnType);
+                        evaluator = new BindProcessorStream(i, returnType);
                     }
                     expressions.add(evaluator);
                     types.add(returnType);
@@ -79,7 +81,7 @@ public class BindProcessor {
                 if (tableMetadata != null) {
                     evaluator = new BindProcessorEvaluatorStreamTable(streamSpec.getStreamNumber(), returnType, tableMetadata);
                 } else {
-                    evaluator = new BindProcessorEvaluatorStream(streamSpec.getStreamNumber(), returnType);
+                    evaluator = new BindProcessorStream(streamSpec.getStreamNumber(), returnType);
                 }
                 expressions.add(evaluator);
                 types.add(returnType);
@@ -87,9 +89,10 @@ public class BindProcessor {
             } else if (element instanceof SelectClauseExprCompiledSpec) {
                 // handle expressions
                 SelectClauseExprCompiledSpec expr = (SelectClauseExprCompiledSpec) element;
-                ExprEvaluator evaluator = expr.getSelectExpression().getExprEvaluator();
+                ExprForge forge = expr.getSelectExpression().getForge();
+                ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(forge, engineImportService, this.getClass(), isFireAndForget, statementName);
                 expressions.add(evaluator);
-                types.add(evaluator.getType());
+                types.add(forge.getEvaluationType());
                 if (expr.getAssignedName() != null) {
                     columnNames.add(expr.getAssignedName());
                 } else {

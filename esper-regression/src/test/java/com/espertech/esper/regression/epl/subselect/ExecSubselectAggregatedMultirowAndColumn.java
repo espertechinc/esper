@@ -126,6 +126,7 @@ public class ExecSubselectAggregatedMultirowAndColumn implements RegressionExecu
     }
 
     private void runAssertionMulticolumnGroupedUncorrelatedUnfiltered(EPServiceProvider epService) {
+        SupportUpdateListener listener = new SupportUpdateListener();
         String fieldName = "subq";
         String[] fields = "c0,c1".split(",");
         String eplNoDelete = "select " +
@@ -134,7 +135,6 @@ public class ExecSubselectAggregatedMultirowAndColumn implements RegressionExecu
                 "group by theString) as subq " +
                 "from S0 as s0";
         EPStatement stmtNoDelete = epService.getEPAdministrator().createEPL(eplNoDelete);
-        SupportUpdateListener listener = new SupportUpdateListener();
         stmtNoDelete.addListener(listener);
         runAssertionNoDelete(epService, listener, fieldName, fields);
         stmtNoDelete.destroy();

@@ -95,7 +95,7 @@ public class TestSizeView extends TestCase {
         SizeView view = new SizeView(SupportStatementContextFactory.makeAgentInstanceContext(), type, null);
 
         EventType eventType = view.getEventType();
-        assertEquals(long.class, eventType.getPropertyType(ViewFieldEnum.SIZE_VIEW__SIZE.getName()));
+        assertEquals(Long.class, eventType.getPropertyType(ViewFieldEnum.SIZE_VIEW__SIZE.getName()));
     }
 
     public void testCopyView() throws Exception {

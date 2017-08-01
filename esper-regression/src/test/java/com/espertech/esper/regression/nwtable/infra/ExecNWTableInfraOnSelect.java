@@ -471,20 +471,21 @@ public class ExecNWTableInfraOnSelect implements RegressionExecution, IndexBacki
         String[] fieldsOnSelect = new String[]{"a", "b", "id"};
 
         // create window
+        String infraName = "MyInfraSC" + (namedWindow ? "NW" : "Tbl");
         String stmtTextCreate = namedWindow ?
-                "create window MyInfraSC#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
-                "create table MyInfraSC (a string primary key, b int)";
+                "create window " + infraName + "#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create table " + infraName + " (a string primary key, b int)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create select stmt
-        String stmtTextSelect = "on " + SupportBean_A.class.getName() + " select mywin.*, id from MyInfraSC as mywin where MyInfraSC.b < 3 order by a asc";
+        String stmtTextSelect = "on " + SupportBean_A.class.getName() + " select mywin.*, id from " + infraName + " as mywin where " + infraName + ".b < 3 order by a asc";
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL(stmtTextSelect);
         SupportUpdateListener listenerSelect = new SupportUpdateListener();
         stmtSelect.addListener(listenerSelect);
         assertEquals(StatementType.ON_SELECT, ((EPStatementSPI) stmtSelect).getStatementMetadata().getStatementType());
 
         // create insert into
-        String stmtTextInsertOne = "insert into MyInfraSC select theString as a, intPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextInsertOne = "insert into " + infraName + " select theString as a, intPrimitive as b from " + SupportBean.class.getName();
         epService.getEPAdministrator().createEPL(stmtTextInsertOne);
 
         // send 3 event
@@ -497,7 +498,7 @@ public class ExecNWTableInfraOnSelect implements RegressionExecution, IndexBacki
         sendSupportBean_A(epService, "A1");
         assertEquals(2, listenerSelect.getLastNewData().length);
         EPAssertionUtil.assertProps(listenerSelect.getLastNewData()[0], fieldsCreate, new Object[]{"E1", 1});
-        EPAssertionUtil.assertProps(listenerSelect.getLastNewData()[1], fieldsCreate, new Object[]{"E2", 2});
+        EPAssertionUtil.assertProps(listenerSelect.getAndResetLastNewData()[1], fieldsCreate, new Object[]{"E2", 2});
         EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
         if (namedWindow) {
             EPAssertionUtil.assertPropsPerRow(stmtSelect.iterator(), fieldsOnSelect, new Object[][]{{"E1", 1, "A1"}, {"E2", 2, "A1"}});
@@ -510,7 +511,7 @@ public class ExecNWTableInfraOnSelect implements RegressionExecution, IndexBacki
         assertEquals(3, listenerSelect.getLastNewData().length);
         EPAssertionUtil.assertProps(listenerSelect.getLastNewData()[0], fieldsOnSelect, new Object[]{"E1", 1, "A2"});
         EPAssertionUtil.assertProps(listenerSelect.getLastNewData()[1], fieldsOnSelect, new Object[]{"E2", 2, "A2"});
-        EPAssertionUtil.assertProps(listenerSelect.getLastNewData()[2], fieldsOnSelect, new Object[]{"E4", 0, "A2"});
+        EPAssertionUtil.assertProps(listenerSelect.getAndResetLastNewData()[2], fieldsOnSelect, new Object[]{"E4", 0, "A2"});
         EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}, {"E4", 0}});
         if (namedWindow) {
             EPAssertionUtil.assertPropsPerRow(stmtSelect.iterator(), fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}, {"E4", 0}});
@@ -520,7 +521,7 @@ public class ExecNWTableInfraOnSelect implements RegressionExecution, IndexBacki
         stmtCreate.destroy();
         listenerSelect.reset();
         epService.getEPAdministrator().destroyAllStatements();
-        epService.getEPAdministrator().getConfiguration().removeEventType("MyInfraSC", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType(infraName, true);
     }
 
     private void runAssertionInvalid(EPServiceProvider epService, boolean namedWindow) {

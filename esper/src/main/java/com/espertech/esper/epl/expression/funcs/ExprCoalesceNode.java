@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CoercionException;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -21,31 +19,34 @@ import java.io.StringWriter;
 /**
  * Represents the COALESCE(a,b,...) function is an expression tree.
  */
-public class ExprCoalesceNode extends ExprNodeBase implements ExprEvaluator {
-    private Class resultType;
-    private boolean[] isNumericCoercion;
-
-    private transient ExprEvaluator[] evaluators;
-
+public class ExprCoalesceNode extends ExprNodeBase {
     private static final long serialVersionUID = -8276568753875819730L;
 
+    private transient ExprCoalesceNodeForge forge;
+
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length < 2) {
             throw new ExprValidationException("Coalesce node must have at least 2 parameters");
         }
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // get child expression types
         Class[] childTypes = new Class[getChildNodes().length];
-        for (int i = 0; i < evaluators.length; i++) {
-            childTypes[i] = evaluators[i].getType();
+        for (int i = 0; i < this.getChildNodes().length; i++) {
+            childTypes[i] = this.getChildNodes()[i].getForge().getEvaluationType();
         }
 
         // determine coercion type
+        Class resultType;
         try {
             resultType = JavaClassHelper.getCommonCoercionType(childTypes);
         } catch (CoercionException ex) {
@@ -53,55 +54,26 @@ public class ExprCoalesceNode extends ExprNodeBase implements ExprEvaluator {
         }
 
         // determine which child nodes need numeric coercion
-        isNumericCoercion = new boolean[getChildNodes().length];
-        for (int i = 0; i < evaluators.length; i++) {
-            if ((JavaClassHelper.getBoxedType(evaluators[i].getType()) != resultType) &&
-                    (evaluators[i].getType() != null) && (resultType != null)) {
+        boolean[] isNumericCoercion = new boolean[getChildNodes().length];
+        for (int i = 0; i < this.getChildNodes().length; i++) {
+            ExprNode node = this.getChildNodes()[i];
+            if ((JavaClassHelper.getBoxedType(node.getForge().getEvaluationType()) != resultType) &&
+                    (node.getForge().getEvaluationType() != null) && (resultType != null)) {
                 if (!JavaClassHelper.isNumeric(resultType)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
                             resultType.getSimpleName() +
-                            "' to " + evaluators[i].getType() + " is not allowed");
+                            "' to " + node.getForge().getEvaluationType() + " is not allowed");
                 }
                 isNumericCoercion[i] = true;
             }
         }
+
+        forge = new ExprCoalesceNodeForge(this, resultType, isNumericCoercion);
         return null;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return resultType;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprCoalesce(this);
-        }
-        Object value;
-
-        // Look for the first non-null return value
-        for (int i = 0; i < evaluators.length; i++) {
-            value = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-            if (value != null) {
-                // Check if we need to coerce
-                if (isNumericCoercion[i]) {
-                    value = JavaClassHelper.coerceBoxed((Number) value, resultType);
-                }
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aExprCoalesce(value);
-                }
-                return value;
-            }
-        }
-
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprCoalesce(null);
-        }
-        return null;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -116,7 +88,6 @@ public class ExprCoalesceNode extends ExprNodeBase implements ExprEvaluator {
         if (!(node instanceof ExprCoalesceNode)) {
             return false;
         }
-
         return true;
     }
 }

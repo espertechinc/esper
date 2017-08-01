@@ -284,6 +284,7 @@ public class ResultSetProcessorFactoryFactory {
         // Analyze rollup
         GroupByRollupInfo groupByRollupInfo = analyzeValidateGroupBy(statementSpec.getGroupByExpressions(), validationContext);
         ExprNode[] groupByNodesValidated = groupByRollupInfo == null ? new ExprNode[0] : groupByRollupInfo.getExprNodes();
+        ExprEvaluator[] groupByNodeEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupByNodesValidated, stmtContext.getEngineImportService(), ResultSetProcessorFactoryFactory.class, isFireAndForget, stmtContext.getStatementName());
         AggregationGroupByRollupDesc groupByRollupDesc = groupByRollupInfo == null ? null : groupByRollupInfo.getRollupDesc();
 
         // Construct the appropriate aggregation service
@@ -292,7 +293,7 @@ public class ResultSetProcessorFactoryFactory {
                 selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy, statementSpec.getAnnotations(), stmtContext.getVariableService(), typeService.getEventTypes().length > 1, false,
                 statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(),
                 stmtContext.getAggregationServiceFactoryService(), typeService.getEventTypes(), groupByRollupDesc,
-                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect, stmtContext.getEngineImportService());
+                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect, stmtContext.getEngineImportService(), stmtContext.getStatementName());
 
         // Compare local-aggregation versus group-by
         boolean localGroupByMatchesGroupBy = analyzeLocalGroupBy(groupByNodesValidated, selectAggregateExprNodes, havingAggregateExprNodes, orderByAggregateExprNodes);
@@ -304,7 +305,7 @@ public class ResultSetProcessorFactoryFactory {
 
         // Construct the processor for sorting output events
         OrderByProcessorFactory orderByProcessorFactory = OrderByProcessorFactoryFactory.getProcessor(namedSelectionList,
-                groupByNodesValidated, orderByList, statementSpec.getRowLimitSpec(), stmtContext.getVariableService(), useCollatorSort, statementSpec.getOptionalContextName());
+                groupByNodeEvals, orderByList, statementSpec.getRowLimitSpec(), stmtContext.getVariableService(), useCollatorSort, statementSpec.getOptionalContextName(), stmtContext.getEngineImportService(), isFireAndForget, stmtContext.getStatementName());
 
         // Construct the processor for evaluating the select clause
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry(stmtContext.getStatementName(), stmtContext.getStatementEventTypeRef());
@@ -332,7 +333,7 @@ public class ResultSetProcessorFactoryFactory {
             isSelectRStream = true;
         }
 
-        ExprEvaluator optionHavingEval = optionalHavingNode == null ? null : optionalHavingNode.getExprEvaluator();
+        ExprEvaluator optionalHavingEval = optionalHavingNode == null ? null : ExprNodeCompiler.allocateEvaluator(optionalHavingNode.getForge(), stmtContext.getEngineImportService(), ResultSetProcessorFactoryFactory.class, typeService.isOnDemandStreams(), stmtContext.getStatementName());
         boolean hasOutputLimitOptHint = HintEnum.ENABLE_OUTPUTLIMIT_OPT.getHint(statementSpec.getAnnotations()) != null;
 
         // Determine output-first condition factory
@@ -362,7 +363,7 @@ public class ResultSetProcessorFactoryFactory {
             // directly generating one row, and no need to update aggregate state since there is no aggregate function.
             // There might be some order-by expressions.
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionalHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -372,7 +373,7 @@ public class ResultSetProcessorFactoryFactory {
         boolean isFirst = statementSpec.getOutputLimitSpec() != null && statementSpec.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.FIRST;
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst) {
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionalHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -383,7 +384,7 @@ public class ResultSetProcessorFactoryFactory {
             boolean hasStreamSelect = ExprNodeUtility.hasStreamSelect(selectNodes);
             if ((nonAggregatedPropsSelect.isEmpty()) && !hasStreamSelect && !isUsingWildcard && !isUsingStreamSelect && localGroupByMatchesGroupBy && (viewResourceDelegate == null || viewResourceDelegate.getPreviousRequests().isEmpty())) {
                 log.debug(".getProcessor Using ResultSetProcessorRowForAll");
-                ResultSetProcessorRowForAllFactory factory = new ResultSetProcessorRowForAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, resultSetProcessorHelperFactory);
+                ResultSetProcessorRowForAllFactory factory = new ResultSetProcessorRowForAllFactory(selectExprProcessor, optionalHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, resultSetProcessorHelperFactory);
                 return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
             }
 
@@ -391,7 +392,7 @@ public class ResultSetProcessorFactoryFactory {
             // There is no group-by clause but there are aggregate functions with event properties in the select clause (aggregation case)
             // or having clause and not all event properties are aggregated (some properties are not under aggregation functions).
             log.debug(".getProcessor Using ResultSetProcessorAggregateAll");
-            ResultSetProcessorAggregateAllFactory factory = new ResultSetProcessorAggregateAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory);
+            ResultSetProcessorAggregateAllFactory factory = new ResultSetProcessorAggregateAllFactory(selectExprProcessor, optionalHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -435,7 +436,6 @@ public class ResultSetProcessorFactoryFactory {
         // There is a group-by clause, and all event properties in the select clause that are not under an aggregation
         // function are listed in the group-by clause, and if there is an order-by clause, all non-aggregated properties
         // referred to in the order-by clause also appear in the select (output one row per group, not one row per event)
-        ExprEvaluator[] groupByEval = ExprNodeUtility.getEvaluators(groupByNodesValidated);
         if (allInGroupBy && allInSelect && localGroupByMatchesGroupBy) {
             boolean noDataWindowSingleStream = typeService.getIStreamOnly()[0] && typeService.getEventTypes().length < 2;
             boolean iterableUnboundConfig = configurationInformation.getEngineDefaults().getViewResources().isIterableUnbound();
@@ -445,9 +445,9 @@ public class ResultSetProcessorFactoryFactory {
             ResultSetProcessorFactory factory;
             if (groupByRollupDesc != null) {
                 GroupByRollupPerLevelExpression perLevelExpression = getRollUpPerLevelExpressions(statementSpec, groupByNodesValidated, groupByRollupDesc, stmtContext, selectExprEventTypeRegistry, evaluatorContextStmt, insertIntoDesc, typeService, validationContext, groupByRollupInfo);
-                factory = new ResultSetProcessorRowPerGroupRollupFactory(perLevelExpression, groupByNodesValidated, groupByEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, optionalOutputFirstConditionFactory, resultSetProcessorHelperFactory, hasOutputLimitOptHint, numStreams);
+                factory = new ResultSetProcessorRowPerGroupRollupFactory(perLevelExpression, groupByNodesValidated, groupByNodeEvals, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, optionalOutputFirstConditionFactory, resultSetProcessorHelperFactory, hasOutputLimitOptHint, numStreams);
             } else {
-                factory = new ResultSetProcessorRowPerGroupFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, isHistoricalOnly, iterateUnbounded, resultSetProcessorHelperFactory, hasOutputLimitOptHint, numStreams, optionalOutputFirstConditionFactory);
+                factory = new ResultSetProcessorRowPerGroupFactory(selectExprProcessor, groupByNodesValidated, groupByNodeEvals, optionalHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, isHistoricalOnly, iterateUnbounded, resultSetProcessorHelperFactory, hasOutputLimitOptHint, numStreams, optionalOutputFirstConditionFactory);
             }
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
@@ -460,7 +460,7 @@ public class ResultSetProcessorFactoryFactory {
         // There is a group-by clause, and one or more event properties in the select clause that are not under an aggregation
         // function are not listed in the group-by clause (output one row per event, not one row per group)
         log.debug(".getProcessor Using ResultSetProcessorAggregateGrouped");
-        ResultSetProcessorAggregateGroupedFactory factory = new ResultSetProcessorAggregateGroupedFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, isHistoricalOnly, resultSetProcessorHelperFactory, optionalOutputFirstConditionFactory, hasOutputLimitOptHint, numStreams);
+        ResultSetProcessorAggregateGroupedFactory factory = new ResultSetProcessorAggregateGroupedFactory(selectExprProcessor, groupByNodesValidated, groupByNodeEvals, optionalHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, isHistoricalOnly, resultSetProcessorHelperFactory, optionalOutputFirstConditionFactory, hasOutputLimitOptHint, numStreams);
         return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
     }
 
@@ -570,7 +570,8 @@ public class ResultSetProcessorFactoryFactory {
                     stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), null, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo, stmtContext.getStatementExtensionServicesContext());
 
             if (havingClauses != null) {
-                havingClauses[i] = rewriteRollupValidateExpression(ExprNodeOrigin.HAVING, groupByExpressions.getOptHavingNodePerLevel()[i], validationContext, rolledupProps, groupByNodesValidated, level).getExprEvaluator();
+                ExprNode havingNode = rewriteRollupValidateExpression(ExprNodeOrigin.HAVING, groupByExpressions.getOptHavingNodePerLevel()[i], validationContext, rolledupProps, groupByNodesValidated, level);
+                havingClauses[i] = ExprNodeCompiler.allocateEvaluator(havingNode.getForge(), stmtContext.getEngineImportService(), ResultSetProcessorFactoryFactory.class, typeService.isOnDemandStreams(), stmtContext.getStatementName());
             }
 
             if (orderByElements != null) {
@@ -586,7 +587,8 @@ public class ResultSetProcessorFactoryFactory {
         OrderByElement[] elements = new OrderByElement[orderByList.length];
         for (int i = 0; i < orderByList.length; i++) {
             ExprNode validated = rewriteRollupValidateExpression(ExprNodeOrigin.ORDERBY, orderByList[i], validationContext, rolledupProps, groupByNodes, level);
-            elements[i] = new OrderByElement(validated, validated.getExprEvaluator(), items[i].isDescending());
+            ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(validated.getForge(), validationContext.getEngineImportService(), ResultSetProcessorFactoryFactory.class, validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
+            elements[i] = new OrderByElement(validated, evaluator, items[i].isDescending());
         }
         return elements;
     }
@@ -715,7 +717,7 @@ public class ResultSetProcessorFactoryFactory {
                 continue;
             }
 
-            ExprConstantNodeImpl constant = new ExprConstantNodeImpl(null, node.getSecond().getExprEvaluator().getType());
+            ExprConstantNodeImpl constant = new ExprConstantNodeImpl(null, node.getSecond().getForge().getEvaluationType());
             if (node.getFirst() != null) {
                 ExprNodeUtility.replaceChildNode(node.getFirst(), node.getSecond(), constant);
             } else {

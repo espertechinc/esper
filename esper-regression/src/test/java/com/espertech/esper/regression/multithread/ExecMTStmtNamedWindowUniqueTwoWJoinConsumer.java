@@ -23,6 +23,8 @@ import static org.junit.Assert.assertTrue;
 
 public class ExecMTStmtNamedWindowUniqueTwoWJoinConsumer implements RegressionExecution {
 
+    private int count;
+
     public void run(EPServiceProvider epService) throws Exception {
         runAssertion(1, true, null, null);
         runAssertion(2, false, true, ConfigurationEngineDefaults.Threading.Locking.SPIN);
@@ -37,7 +39,7 @@ public class ExecMTStmtNamedWindowUniqueTwoWJoinConsumer implements RegressionEx
             config.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchLocking(locking);
         }
 
-        EPServiceProvider epService = EPServiceProviderManager.getProvider(this.getClass().getSimpleName() + "_" + engineNum, config);
+        EPServiceProvider epService = EPServiceProviderManager.getProvider(this.getClass().getSimpleName() + "_" + engineNum + "_" + (count++), config);
         epService.initialize();
         epService.getEPAdministrator().getConfiguration().addEventType(EventOne.class);
         epService.getEPAdministrator().getConfiguration().addEventType(EventTwo.class);
@@ -90,10 +92,12 @@ public class ExecMTStmtNamedWindowUniqueTwoWJoinConsumer implements RegressionEx
         t1.start();
         t2.start();
         t3.start();
+        Thread.sleep(1000);
 
         t1.join();
         t2.join();
         t3.join();
+        Thread.sleep(200);
 
         List<EventBean[]> delivered = listener.getNewDataList();
 

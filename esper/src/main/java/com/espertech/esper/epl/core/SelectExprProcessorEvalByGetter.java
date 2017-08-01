@@ -11,30 +11,61 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
-public class SelectExprProcessorEvalByGetter implements ExprEvaluator {
+import java.io.StringWriter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class SelectExprProcessorEvalByGetter implements ExprForge, ExprEvaluator, ExprNodeRenderable {
     private final int streamNum;
-    private final EventPropertyGetter getter;
+    private final EventPropertyGetterSPI getter;
     private final Class returnType;
 
-    public SelectExprProcessorEvalByGetter(int streamNum, EventPropertyGetter getter, Class returnType) {
+    public SelectExprProcessorEvalByGetter(int streamNum, EventPropertyGetterSPI getter, Class returnType) {
         this.streamNum = streamNum;
         this.getter = getter;
         this.returnType = returnType;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        EventBean streamEvent = eventsPerStream[streamNum];
-        if (streamEvent == null) {
+        EventBean event = eventsPerStream[streamNum];
+        if (event == null) {
             return null;
         }
-        return getter.get(streamEvent);
+        return getter.get(event);
     }
 
-    public Class getType() {
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SINGLE;
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        String method = context.addMethod(returnType, SelectExprProcessorEvalByGetter.class).add(params).begin()
+                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
+                .ifRefNullReturnNull("event")
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("event"), context)));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public Class getEvaluationType() {
         return returnType;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        writer.append(this.getClass().getSimpleName());
     }
 }

@@ -85,20 +85,24 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
         return fastMethod.getDeclaringClass();
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropInternalCode(context, fastMethod.getJavaMethod(), index), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCode(context, fastMethod.getJavaMethod()), underlyingExpression, constant(index));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
+    }
+
+    public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getBeanPropInternalCode(context, fastMethod.getJavaMethod()), castUnderlying(getTargetType(), beanExpression), key);
     }
 
     private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
@@ -115,10 +119,10 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
-    protected static String getBeanPropInternalCode(CodegenContext context, Method method, int index) {
-        return context.addMethod(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), method.getDeclaringClass(), "obj", ArrayFastPropertyGetter.class)
+    protected static String getBeanPropInternalCode(CodegenContext context, Method method) {
+        return context.addMethod(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayFastPropertyGetter.class).add(method.getDeclaringClass(), "obj").add(int.class, "index").begin()
             .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
-            .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, constant(index)), null)
-            .methodReturn(arrayAtIndex(ref("array"), constant(index)));
+            .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), null)
+            .methodReturn(arrayAtIndex(ref("array"), ref("index")));
     }
 }

@@ -11,6 +11,10 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.type.*;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
@@ -22,15 +26,25 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Expression for use within crontab to specify a list of values.
  */
-public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator {
+public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetList.class);
     private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = 4941618470342360450L;
 
     public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return ListParameter.class;
+    }
+
+    public ExprForge getForge() {
         return this;
     }
 
@@ -68,9 +82,9 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator {
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // all nodes must either be int, frequency or range
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-        for (ExprEvaluator child : evaluators) {
-            Class type = child.getType();
+        evaluators = ExprNodeUtility.getEvaluatorsNoCompile(this.getChildNodes());
+        for (int i = 0; i < this.getChildNodes().length; i++) {
+            Class type = this.getChildNodes()[i].getForge().getEvaluationType();
             if ((type == FrequencyParameter.class) || (type == RangeParameter.class)) {
                 continue;
             }
@@ -81,30 +95,70 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator {
         return null;
     }
 
-    public Class getType() {
-        return ListParameter.class;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         List<NumberSetParameter> parameters = new ArrayList<NumberSetParameter>();
         for (ExprEvaluator child : evaluators) {
             Object value = child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (value == null) {
-                log.info("Null value returned for lower bounds value in list parameter, skipping parameter");
-                continue;
-            }
-            if ((value instanceof FrequencyParameter) || (value instanceof RangeParameter)) {
-                parameters.add((NumberSetParameter) value);
-                continue;
-            }
-
-            int intValue = ((Number) value).intValue();
-            parameters.add(new IntParameter(intValue));
+            handleExprNumberSetListAdd(value, parameters);
         }
+        handleExprNumberSetListEmpty(parameters);
+        return new ListParameter(parameters);
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        CodegenBlock block = context.addMethod(ListParameter.class, ExprNumberSetList.class).add(params).begin()
+                .declareVar(List.class, "parameters", newInstance(ArrayList.class));
+        int count = -1;
+        for (ExprNode node : getChildNodes()) {
+            count++;
+            ExprForge forge = node.getForge();
+            Class evaluationType = forge.getEvaluationType();
+            String refname = "value" + count;
+            block.declareVar(evaluationType, refname, forge.evaluateCodegen(params, context))
+                    .expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListAdd", ref(refname), ref("parameters")));
+        }
+        String method = block.expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListEmpty", ref("parameters")))
+                .methodReturn(newInstance(ListParameter.class, ref("parameters")));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return isConstantResult() ? ExprForgeComplexityEnum.NONE : ExprForgeComplexityEnum.INTER;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param parameters params
+     */
+    public static void handleExprNumberSetListEmpty(List<NumberSetParameter> parameters) {
         if (parameters.isEmpty()) {
             log.warn("Empty list of values in list parameter, using upper bounds");
             parameters.add(new IntParameter(Integer.MAX_VALUE));
         }
-        return new ListParameter(parameters);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param value      value
+     * @param parameters params
+     */
+    public static void handleExprNumberSetListAdd(Object value, List<NumberSetParameter> parameters) {
+        if (value == null) {
+            log.info("Null value returned for lower bounds value in list parameter, skipping parameter");
+            return;
+        }
+        if ((value instanceof FrequencyParameter) || (value instanceof RangeParameter)) {
+            parameters.add((NumberSetParameter) value);
+            return;
+        }
+
+        int intValue = ((Number) value).intValue();
+        parameters.add(new IntParameter(intValue));
     }
 }

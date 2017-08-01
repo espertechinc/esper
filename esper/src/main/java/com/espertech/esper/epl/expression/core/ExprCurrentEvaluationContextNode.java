@@ -12,14 +12,19 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLExpressionEvaluationContext;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
+
 /**
  * Represents the "current_evaluation_context" function in an expression tree.
  */
-public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements ExprEvaluator, ExprForge {
     private static final long serialVersionUID = -7345152240852371730L;
 
     /**
@@ -30,6 +35,26 @@ public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements Ex
 
     public ExprEvaluator getExprEvaluator() {
         return this;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return staticMethod(ExprCurrentEvaluationContextNode.class, "exprCurrentEvaluationContextMake", params.passEvalCtx());
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SINGLE;
+    }
+
+    public Class getEvaluationType() {
+        return EPLExpressionEvaluationContext.class;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -43,16 +68,21 @@ public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements Ex
         return false;
     }
 
-    public Class getType() {
-        return EPLExpressionEvaluationContext.class;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        EPLExpressionEvaluationContext ctx = new EPLExpressionEvaluationContext(exprEvaluatorContext.getStatementName(), exprEvaluatorContext.getAgentInstanceId(), exprEvaluatorContext.getEngineURI(), exprEvaluatorContext.getStatementUserObject());
+        EPLExpressionEvaluationContext ctx = exprCurrentEvaluationContextMake(exprEvaluatorContext);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qaExprConst(ctx);
         }
         return ctx;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param exprEvaluatorContext ctx
+     * @return wrapper
+     */
+    public static EPLExpressionEvaluationContext exprCurrentEvaluationContextMake(ExprEvaluatorContext exprEvaluatorContext) {
+        return new EPLExpressionEvaluationContext(exprEvaluatorContext.getStatementName(), exprEvaluatorContext.getAgentInstanceId(), exprEvaluatorContext.getEngineURI(), exprEvaluatorContext.getStatementUserObject());
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

@@ -129,15 +129,15 @@ public class ExecEventInfraSuperType implements RegressionExecution {
         }
     }
 
-    private static class Bean_Type_Root {
+    public static class Bean_Type_Root {
     }
 
-    private static class Bean_Type_1 extends Bean_Type_Root {
+    public static class Bean_Type_1 extends Bean_Type_Root {
     }
 
-    private static class Bean_Type_2 extends Bean_Type_Root {
+    public static class Bean_Type_2 extends Bean_Type_Root {
     }
 
-    private static class Bean_Type_2_1 extends Bean_Type_2 {
+    public static class Bean_Type_2_1 extends Bean_Type_2 {
     }
 }

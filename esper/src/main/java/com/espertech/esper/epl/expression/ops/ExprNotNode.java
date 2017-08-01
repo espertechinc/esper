@@ -11,16 +11,24 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.dot.ExprDotNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.not;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
+
 /**
  * Represents a NOT expression in an expression tree.
  */
-public class ExprNotNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForge {
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -5958420226808323787L;
 
@@ -30,11 +38,12 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator {
             throw new ExprValidationException("The NOT node requires exactly 1 child node");
         }
 
-        evaluator = this.getChildNodes()[0].getExprEvaluator();
-        Class childType = evaluator.getType();
+        ExprForge forge = this.getChildNodes()[0].getForge();
+        Class childType = forge.getEvaluationType();
         if (!JavaClassHelper.isBoolean(childType)) {
             throw new ExprValidationException("Incorrect use of NOT clause, sub-expressions do not return boolean");
         }
+        evaluator = forge.getExprEvaluator();
         return null;
     }
 
@@ -42,7 +51,31 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator {
         return this;
     }
 
-    public Class getType() {
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        ExprForge child = this.getChildNodes()[0].getForge();
+        if (child.getEvaluationType() == boolean.class) {
+            not(child.evaluateCodegen(params, context));
+        }
+        String method = context.addMethod(Boolean.class, ExprDotNode.class).add(params).begin()
+                .declareVar(Boolean.class, "b", child.evaluateCodegen(params, context))
+                .ifRefNullReturnNull("b")
+                .methodReturn(not(ref("b")));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.INTER;
+    }
+
+    public Class getEvaluationType() {
         return Boolean.class;
     }
 

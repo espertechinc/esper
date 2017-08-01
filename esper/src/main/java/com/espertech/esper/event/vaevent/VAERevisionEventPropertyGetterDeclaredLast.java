@@ -36,11 +36,11 @@ public class VAERevisionEventPropertyGetterDeclaredLast implements EventProperty
     }
 
     private String getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, EventBean.class, "eventBean", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "eventBean").begin()
                 .declareVar(RevisionEventBeanDeclared.class, "riv", cast(RevisionEventBeanDeclared.class, ref("eventBean")))
                 .declareVar(EventBean.class, "bean", exprDotMethod(ref("riv"), "getLastBaseEvent"))
                 .ifRefNullReturnNull("bean")
-                .methodReturn(fullGetter.codegenEventBeanGet(ref("bean"), context));
+                .methodReturn(fullGetter.eventBeanGetCodegen(ref("bean"), context));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -51,27 +51,27 @@ public class VAERevisionEventPropertyGetterDeclaredLast implements EventProperty
         return null; // fragments no provided by revision events
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return localMethod(getCodegen(context), beanExpression);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw revisionImplementationNotProvided();
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw revisionImplementationNotProvided();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         throw revisionImplementationNotProvided();
     }
 }

@@ -19,8 +19,4 @@ public class SupportExprEvaluator implements ExprEvaluator {
         return eventsPerStream[0].get("boolPrimitive");
     }
 
-    public Class getType() {
-        return boolean.class;
-    }
-
 }

@@ -10,19 +10,19 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumeration;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumerationGivenEvent;
+import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
+import com.espertech.esper.epl.expression.core.ExprEnumerationGivenEvent;
 import com.espertech.esper.epl.rettype.EPType;
 
 public class ExprDotEnumerationSourceForProps extends ExprDotEnumerationSource {
-    private final ExprEvaluatorEnumerationGivenEvent enumerationGivenEvent;
+    private final ExprEnumerationGivenEvent enumerationGivenEvent;
 
-    public ExprDotEnumerationSourceForProps(ExprEvaluatorEnumeration enumeration, EPType returnType, Integer streamOfProviderIfApplicable, ExprEvaluatorEnumerationGivenEvent enumerationGivenEvent) {
+    public ExprDotEnumerationSourceForProps(ExprEnumerationEval enumeration, EPType returnType, Integer streamOfProviderIfApplicable, ExprEnumerationGivenEvent enumerationGivenEvent) {
         super(returnType, streamOfProviderIfApplicable, enumeration);
         this.enumerationGivenEvent = enumerationGivenEvent;
     }
 
-    public ExprEvaluatorEnumerationGivenEvent getEnumerationGivenEvent() {
+    public ExprEnumerationGivenEvent getEnumerationGivenEvent() {
         return enumerationGivenEvent;
     }
 }

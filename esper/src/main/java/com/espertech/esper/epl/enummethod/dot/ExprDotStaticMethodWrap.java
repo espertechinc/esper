@@ -10,14 +10,16 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 
 import java.util.Collection;
 
 public interface ExprDotStaticMethodWrap {
-    public EPType getTypeInfo();
-
-    public Collection convert(Object result);
+    EPType getTypeInfo();
+    Collection convertNonNull(Object result);
+    CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context);
 }
 
 

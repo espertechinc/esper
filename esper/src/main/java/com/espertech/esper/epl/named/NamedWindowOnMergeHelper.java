@@ -17,6 +17,7 @@ import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
@@ -58,12 +59,12 @@ public class NamedWindowOnMergeHelper {
                         actions.add(setupInsert(namedWindowName, internalEventRouter, namedWindowType, count, insertDesc, triggeringEventType, triggeringStreamName, statementContext));
                     } else if (item instanceof OnTriggerMergeActionUpdate) {
                         OnTriggerMergeActionUpdate updateDesc = (OnTriggerMergeActionUpdate) item;
-                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(namedWindowName, namedWindowType, updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, true, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
-                        ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : updateDesc.getOptionalWhereClause().getExprEvaluator();
+                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(namedWindowName, namedWindowType, updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, true, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService(), false);
+                        ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(updateDesc.getOptionalWhereClause().getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
                         actions.add(new NamedWindowOnMergeActionUpd(filterEval, updateHelper));
                     } else if (item instanceof OnTriggerMergeActionDelete) {
                         OnTriggerMergeActionDelete deleteDesc = (OnTriggerMergeActionDelete) item;
-                        ExprEvaluator filterEval = deleteDesc.getOptionalWhereClause() == null ? null : deleteDesc.getOptionalWhereClause().getExprEvaluator();
+                        ExprEvaluator filterEval = deleteDesc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(deleteDesc.getOptionalWhereClause().getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
                         actions.add(new NamedWindowOnMergeActionDel(filterEval));
                     } else {
                         throw new IllegalArgumentException("Invalid type of merge item '" + item.getClass() + "'");
@@ -77,9 +78,9 @@ public class NamedWindowOnMergeHelper {
             }
 
             if (matchedItem.isMatchedUnmatched()) {
-                matched.add(new NamedWindowOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
+                matched.add(new NamedWindowOnMergeMatch(matchedItem.getOptionalMatchCond(), actions, statementContext.getEngineImportService(), statementContext.getStatementName()));
             } else {
-                unmatched.add(new NamedWindowOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
+                unmatched.add(new NamedWindowOnMergeMatch(matchedItem.getOptionalMatchCond(), actions, statementContext.getEngineImportService(), statementContext.getStatementName()));
             }
         }
     }
@@ -111,7 +112,7 @@ public class NamedWindowOnMergeHelper {
                 statementContext.getEventAdapterService(), statementContext.getStatementResultService(), statementContext.getValueAddEventService(), selectExprEventTypeRegistry,
                 statementContext.getEngineImportService(), exprEvaluatorContext, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null, null,
                 statementContext.getStatementExtensionServicesContext());
-        ExprEvaluator filterEval = desc.getOptionalWhereClause() == null ? null : desc.getOptionalWhereClause().getExprEvaluator();
+        ExprEvaluator filterEval = desc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(desc.getOptionalWhereClause().getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
 
         InternalEventRouter routerToUser = streamName.equals(namedWindowName) ? null : internalEventRouter;
         boolean audit = AuditEnum.INSERT.getAudit(statementContext.getAnnotations()) != null;

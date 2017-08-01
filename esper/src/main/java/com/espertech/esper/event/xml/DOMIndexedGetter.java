@@ -106,7 +106,7 @@ public class DOMIndexedGetter implements EventPropertyGetterSPI, DOMPropertyGett
 
     private String getValueAsFragmentCodegen(CodegenContext context) {
         CodegenMember member = context.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return context.addMethod(Object.class, Node.class, "node", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node.class, "result", staticMethod(DOMIndexedGetter.class, "getNodeValue", ref("node"), constant(propertyName), constant(index)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(ref(member.getMemberName()), "getEvent", ref("result")));
@@ -143,27 +143,27 @@ public class DOMIndexedGetter implements EventPropertyGetterSPI, DOMPropertyGett
         return getValueAsFragment(node);
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getNodeValue", underlyingExpression, propertyName, index);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getNodeValue", underlyingExpression, constant(propertyName), constant(index));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getNodeValueExists", underlyingExpression, propertyName, index);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getNodeValueExists", underlyingExpression, constant(propertyName), constant(index));
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         if (fragmentFactory == null) {
             return constantNull();
         }
@@ -171,7 +171,7 @@ public class DOMIndexedGetter implements EventPropertyGetterSPI, DOMPropertyGett
     }
 
     public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenContext context) {
-        return codegenUnderlyingGet(value, context);
+        return underlyingGetCodegen(value, context);
     }
 
     public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenContext context) {
@@ -179,6 +179,6 @@ public class DOMIndexedGetter implements EventPropertyGetterSPI, DOMPropertyGett
     }
 
     public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenContext context) {
-        return codegenUnderlyingFragment(value, context);
+        return underlyingFragmentCodegen(value, context);
     }
 }

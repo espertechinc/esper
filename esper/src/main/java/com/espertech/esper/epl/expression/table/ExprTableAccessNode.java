@@ -16,7 +16,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
 
 import java.io.StringWriter;
 
-public abstract class ExprTableAccessNode extends ExprNodeBase {
+public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprForge {
     private static final long serialVersionUID = -2048267912299812034L;
 
     protected final String tableName;
@@ -68,18 +68,22 @@ public abstract class ExprTableAccessNode extends ExprNodeBase {
         return null;
     }
 
-    protected void validateGroupKeys(TableMetadata metadata) throws ExprValidationException {
+    protected void validateGroupKeys(TableMetadata metadata, ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length > 0) {
-            groupKeyEvaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
+            groupKeyEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(this.getChildNodes(), validationContext.getEngineImportService(), ExprTableAccessNode.class, validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
         } else {
             groupKeyEvaluators = new ExprEvaluator[0];
         }
-        Class[] typesReturned = ExprNodeUtility.getExprResultTypes(groupKeyEvaluators);
+        Class[] typesReturned = ExprNodeUtility.getExprResultTypes(this.getChildNodes());
         ExprTableNodeUtil.validateExpressions(tableName, typesReturned, "key", this.getChildNodes(), metadata.getKeyTypes(), "key");
     }
 
     public final ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
     }
 
     protected void toPrecedenceFreeEPLInternal(StringWriter writer, String subprop) {

@@ -13,6 +13,10 @@ package com.espertech.esper.epl.expression.accessagg;
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.enummethod.dot.ArrayWrappingCollection;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
@@ -30,7 +34,7 @@ import java.util.Collection;
 /**
  * Represents a custom aggregation function in an expresson tree.
  */
-public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode, ExprAggregationPlugInNodeMarker {
+public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implements ExprEnumerationEval, ExprAggregateAccessMultiValueNode, ExprAggregationPlugInNodeMarker {
     private static final long serialVersionUID = 6356766499476980697L;
     private PlugInAggregationMultiFunctionFactory pluginAggregationMultiFunctionFactory;
     private final String functionName;
@@ -42,6 +46,10 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
         this.pluginAggregationMultiFunctionFactory = pluginAggregationMultiFunctionFactory;
         this.functionName = functionName;
         this.config = config;
+    }
+
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
     }
 
     public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
@@ -71,6 +79,10 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
         return super.aggregationResultFuture.getCollectionOfEvents(column, eventsPerStream, isNewData, context);
     }
 
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
+    }
+
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Object result = super.aggregationResultFuture.getValue(column, context.getAgentInstanceId(), eventsPerStream, isNewData, context);
         if (result == null) {
@@ -80,6 +92,10 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
             return new ArrayWrappingCollection(result);
         }
         return (Collection) result;
+    }
+
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
     }
 
     public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) {
@@ -96,6 +112,10 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return super.aggregationResultFuture.getEventBean(column, eventsPerStream, isNewData, context);
+    }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
     }
 
     protected boolean isFilterExpressionAsLastParameter() {

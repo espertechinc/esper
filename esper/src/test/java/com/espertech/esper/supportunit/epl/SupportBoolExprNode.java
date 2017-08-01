@@ -11,11 +11,16 @@
 package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
 
-public class SupportBoolExprNode extends ExprNodeBase implements ExprEvaluator {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
+
+public class SupportBoolExprNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private boolean evaluateResult;
 
     public SupportBoolExprNode(boolean evaluateResult) {
@@ -30,16 +35,28 @@ public class SupportBoolExprNode extends ExprNodeBase implements ExprEvaluator {
         return null;
     }
 
-    public Class getType() {
-        return Boolean.class;
-    }
-
     public boolean isConstantResult() {
         return false;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return evaluateResult;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constantNull();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
+    }
+
+    public Class getEvaluationType() {
+        return Boolean.class;
+    }
+
+    public ExprForge getForge() {
+        return this;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -51,5 +68,9 @@ public class SupportBoolExprNode extends ExprNodeBase implements ExprEvaluator {
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         throw new UnsupportedOperationException("not implemented");
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
     }
 }

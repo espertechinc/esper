@@ -17,15 +17,16 @@ import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
 public class ExprEvaluatorProxy implements java.lang.reflect.InvocationHandler {
 
     private static Method targetEvaluate = JavaClassHelper.getMethodByName(ExprEvaluator.class, "evaluate");
-    private static Method targetEvaluateCollEvents = JavaClassHelper.getMethodByName(ExprEvaluatorEnumeration.class, "evaluateGetROCollectionEvents");
-    private static Method targetEvaluateCollScalar = JavaClassHelper.getMethodByName(ExprEvaluatorEnumeration.class, "evaluateGetROCollectionScalar");
-    private static Method targetEvaluateBean = JavaClassHelper.getMethodByName(ExprEvaluatorEnumeration.class, "evaluateGetEventBean");
+    private static Method targetEvaluateCollEvents = JavaClassHelper.getMethodByName(ExprEnumerationEval.class, "evaluateGetROCollectionEvents");
+    private static Method targetEvaluateCollScalar = JavaClassHelper.getMethodByName(ExprEnumerationEval.class, "evaluateGetROCollectionScalar");
+    private static Method targetEvaluateBean = JavaClassHelper.getMethodByName(ExprEnumerationEval.class, "evaluateGetEventBean");
 
     private final String engineURI;
     private final String statementName;
@@ -49,61 +50,65 @@ public class ExprEvaluatorProxy implements java.lang.reflect.InvocationHandler {
     public Object invoke(Object proxy, Method m, Object[] args)
             throws Throwable {
 
-        if (m.equals(targetEvaluate)) {
-            Object result = m.invoke(evaluator, args);
-            if (AuditPath.isInfoEnabled()) {
-                AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + result);
+        try {
+            if (m.equals(targetEvaluate)) {
+                Object result = m.invoke(evaluator, args);
+                if (AuditPath.isInfoEnabled()) {
+                    AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + result);
+                }
+                return result;
             }
-            return result;
-        }
 
-        if (m.equals(targetEvaluateCollEvents)) {
-            Object result = m.invoke(evaluator, args);
-            if (AuditPath.isInfoEnabled()) {
-                Collection<EventBean> resultBeans = (Collection<EventBean>) result;
-                String outStr = "null";
-                if (resultBeans != null) {
-                    if (resultBeans.isEmpty()) {
-                        outStr = "{}";
-                    } else {
-                        StringWriter buf = new StringWriter();
-                        int count = 0;
-                        for (EventBean theEvent : resultBeans) {
-                            buf.append(" Event ");
-                            buf.append(Integer.toString(count++));
-                            buf.append(":");
-                            EventBeanUtility.appendEvent(buf, theEvent);
+            if (m.equals(targetEvaluateCollEvents)) {
+                Object result = m.invoke(evaluator, args);
+                if (AuditPath.isInfoEnabled()) {
+                    Collection<EventBean> resultBeans = (Collection<EventBean>) result;
+                    String outStr = "null";
+                    if (resultBeans != null) {
+                        if (resultBeans.isEmpty()) {
+                            outStr = "{}";
+                        } else {
+                            StringWriter buf = new StringWriter();
+                            int count = 0;
+                            for (EventBean theEvent : resultBeans) {
+                                buf.append(" Event ");
+                                buf.append(Integer.toString(count++));
+                                buf.append(":");
+                                EventBeanUtility.appendEvent(buf, theEvent);
+                            }
+                            outStr = buf.toString();
                         }
+                    }
+                    AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + outStr);
+                }
+                return result;
+            }
+
+            if (m.equals(targetEvaluateCollScalar)) {
+                Object result = m.invoke(evaluator, args);
+                if (AuditPath.isInfoEnabled()) {
+                    AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + result);
+                }
+                return result;
+            }
+
+            if (m.equals(targetEvaluateBean)) {
+                Object result = m.invoke(evaluator, args);
+                if (AuditPath.isInfoEnabled()) {
+                    String outStr = "null";
+                    if (result != null) {
+                        StringWriter buf = new StringWriter();
+                        EventBeanUtility.appendEvent(buf, (EventBean) result);
                         outStr = buf.toString();
                     }
+                    AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + outStr);
                 }
-                AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + outStr);
+                return result;
             }
-            return result;
+            return m.invoke(evaluator, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
         }
-
-        if (m.equals(targetEvaluateCollScalar)) {
-            Object result = m.invoke(evaluator, args);
-            if (AuditPath.isInfoEnabled()) {
-                AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + result);
-            }
-            return result;
-        }
-
-        if (m.equals(targetEvaluateBean)) {
-            Object result = m.invoke(evaluator, args);
-            if (AuditPath.isInfoEnabled()) {
-                String outStr = "null";
-                if (result != null) {
-                    StringWriter buf = new StringWriter();
-                    EventBeanUtility.appendEvent(buf, (EventBean) result);
-                    outStr = buf.toString();
-                }
-                AuditPath.auditLog(engineURI, statementName, AuditEnum.EXPRESSION, expressionToString + " result " + outStr);
-            }
-            return result;
-        }
-        return m.invoke(evaluator, args);
     }
 }
 

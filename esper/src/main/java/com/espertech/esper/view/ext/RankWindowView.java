@@ -17,7 +17,6 @@ import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.*;
@@ -39,45 +38,26 @@ import java.util.*;
  */
 public class RankWindowView extends ViewSupport implements DataWindowView, CloneableView {
     private final RankWindowViewFactory rankWindowViewFactory;
-    protected final ExprEvaluator[] sortCriteriaEvaluators;
-    private final ExprNode[] sortCriteriaExpressions;
-    protected final ExprEvaluator[] uniqueCriteriaEvaluators;
-    private final ExprNode[] uniqueCriteriaExpressions;
     private final EventBean[] eventsPerStream = new EventBean[1];
-    private final boolean[] isDescendingValues;
     private final int sortWindowSize;
     private final IStreamSortRankRandomAccess optionalRankedRandomAccess;
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
-
-    private final Comparator<Object> comparator;
 
     protected TreeMap<Object, Object> sortedEvents;   // key is computed sort-key, value is either List<EventBean> or EventBean
     protected Map<Object, Object> uniqueKeySortKeys;  // key is computed unique-key, value is computed sort-key
     protected int numberOfEvents;
 
     public RankWindowView(RankWindowViewFactory rankWindowViewFactory,
-                          ExprNode[] uniqueCriteriaExpressions,
-                          ExprEvaluator[] uniqueCriteriaEvaluators,
-                          ExprNode[] sortCriteriaExpressions,
-                          ExprEvaluator[] sortCriteriaEvaluators,
-                          boolean[] descendingValues,
                           int sortWindowSize,
                           IStreamSortRankRandomAccess optionalRankedRandomAccess,
-                          boolean isSortUsingCollator,
                           AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.rankWindowViewFactory = rankWindowViewFactory;
-        this.uniqueCriteriaExpressions = uniqueCriteriaExpressions;
-        this.uniqueCriteriaEvaluators = uniqueCriteriaEvaluators;
-        this.sortCriteriaExpressions = sortCriteriaExpressions;
-        this.sortCriteriaEvaluators = sortCriteriaEvaluators;
-        this.isDescendingValues = descendingValues;
         this.sortWindowSize = sortWindowSize;
         this.optionalRankedRandomAccess = optionalRankedRandomAccess;
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
 
-        comparator = CollectionUtil.getComparator(sortCriteriaEvaluators, isSortUsingCollator, isDescendingValues);
-        sortedEvents = new TreeMap<Object, Object>(comparator);
-        uniqueKeySortKeys = new HashMap<Object, Object>();
+        sortedEvents = new TreeMap<>(rankWindowViewFactory.comparator);
+        uniqueKeySortKeys = new HashMap<>();
     }
 
     public View cloneView() {
@@ -217,7 +197,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
     private void compareAndAddOrPassthru(EventBean eventBean, Object uniqueKey, Object newSortKey, OneEventCollection removedEvents) {
         // determine full or not
         if (numberOfEvents >= sortWindowSize) {
-            int compared = comparator.compare(sortedEvents.lastKey(), newSortKey);
+            int compared = rankWindowViewFactory.comparator.compare(sortedEvents.lastKey(), newSortKey);
 
             // this new event will fall outside of the ranks or coincides with the last entry, so its an old event already
             if (compared < 0) {
@@ -297,18 +277,18 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
 
     public final String toString() {
         return this.getClass().getName() +
-                " uniqueFieldName=" + Arrays.toString(uniqueCriteriaExpressions) +
-                " sortFieldName=" + Arrays.toString(sortCriteriaExpressions) +
-                " isDescending=" + Arrays.toString(isDescendingValues) +
+                " uniqueFieldName=" + Arrays.toString(rankWindowViewFactory.uniqueCriteriaExpressions) +
+                " sortFieldName=" + Arrays.toString(rankWindowViewFactory.sortCriteriaExpressions) +
+                " isDescending=" + Arrays.toString(rankWindowViewFactory.isDescendingValues) +
                 " sortWindowSize=" + sortWindowSize;
     }
 
     public Object getUniqueValues(EventBean theEvent) {
-        return getCriteriaKey(eventsPerStream, uniqueCriteriaEvaluators, theEvent, agentInstanceViewFactoryContext);
+        return getCriteriaKey(eventsPerStream, rankWindowViewFactory.uniqueEvals, theEvent, agentInstanceViewFactoryContext);
     }
 
     public Object getSortValues(EventBean theEvent) {
-        return getCriteriaKey(eventsPerStream, sortCriteriaEvaluators, theEvent, agentInstanceViewFactoryContext);
+        return getCriteriaKey(eventsPerStream, rankWindowViewFactory.sortEvals, theEvent, agentInstanceViewFactoryContext);
     }
 
     public static Object getCriteriaKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext) {

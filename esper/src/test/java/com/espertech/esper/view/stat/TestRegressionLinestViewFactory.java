@@ -50,9 +50,9 @@ public class TestRegressionLinestViewFactory extends TestCase {
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
         assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
         EventType type = RegressionLinestView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
-        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null), agentInstanceContext));
-        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("volume"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null), agentInstanceContext));
-        assertTrue(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null), agentInstanceContext));
+        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), null, SupportExprNodeFactory.makeIdentNodeMD("price"), null, type, null), agentInstanceContext));
+        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("volume"), null, SupportExprNodeFactory.makeIdentNodeMD("price"), null, type, null), agentInstanceContext));
+        assertTrue(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), null, SupportExprNodeFactory.makeIdentNodeMD("volume"), null, type, null), agentInstanceContext));
     }
 
     public void testAttaches() throws Exception {

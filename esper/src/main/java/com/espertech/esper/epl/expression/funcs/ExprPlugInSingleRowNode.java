@@ -11,16 +11,12 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.ConfigurationPlugInSingleRowFunction;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
 import com.espertech.esper.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.epl.enummethod.dot.ExprDotStaticMethodWrapFactory;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.expression.dot.ExprDotEval;
-import com.espertech.esper.epl.expression.dot.ExprDotEvalStaticMethod;
-import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputStatic;
-import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
+import com.espertech.esper.epl.expression.dot.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeContextPropertiesVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeStreamRequiredVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
@@ -28,7 +24,6 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.filter.FilterSpecLookupable;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -45,8 +40,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     private final List<ExprChainedSpec> chainSpec;
     private final EngineImportSingleRowDesc config;
 
-    private transient boolean isReturnsConstantResult;
-    private transient ExprEvaluator evaluator;
+    private transient ExprPlugInSingleRowNodeForge forge;
 
     public ExprPlugInSingleRowNode(String functionName, Class clazz, List<ExprChainedSpec> chainSpec, EngineImportSingleRowDesc config) {
         this.functionName = functionName;
@@ -56,7 +50,13 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return evaluator;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public List<ExprChainedSpec> getChainSpec() {
@@ -65,7 +65,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
 
     @Override
     public boolean isConstantResult() {
-        return isReturnsConstantResult;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.isReturnsConstantResult();
     }
 
     public String getFunctionName() {
@@ -73,7 +74,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     }
 
     public boolean getFilterLookupEligible() {
-        boolean eligible = !isReturnsConstantResult;
+        boolean eligible = !forge.isReturnsConstantResult();
         if (eligible) {
             eligible = chainSpec.size() == 1;
         }
@@ -100,9 +101,9 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     }
 
     public FilterSpecLookupable getFilterLookupable() {
-
-        ExprDotEvalStaticMethod eval = (ExprDotEvalStaticMethod) evaluator;
-        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), eval, evaluator.getType(), true);
+        ExprNodeUtility.checkValidated(forge);
+        ExprDotNodeForgeStaticMethodEval eval = (ExprDotNodeForgeStaticMethodEval) forge.getExprEvaluator();
+        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), eval, forge.getEvaluationType(), true);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -146,6 +147,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         final ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(clazz.getName(), null, firstItem.getName(), firstItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName(), true), functionName, validationContext.getTableService(), validationContext.getStreamTypeService().getEngineURIQualifier());
 
         boolean allowValueCache = true;
+        boolean isReturnsConstantResult;
         if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED) {
             isReturnsConstantResult = false;
             allowValueCache = false;
@@ -162,25 +164,15 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         ExprDotStaticMethodWrap optionalLambdaWrap = ExprDotStaticMethodWrapFactory.make(staticMethodDesc.getReflectionMethod(), validationContext.getEventAdapterService(), chainList, config.getOptionalEventTypeName());
         EPType typeInfo = optionalLambdaWrap != null ? optionalLambdaWrap.getTypeInfo() : EPTypeHelper.singleValue(staticMethodDesc.getReflectionMethod().getReturnType());
 
-        ExprDotEval[] eval = ExprDotNodeUtility.getChainEvaluators(-1, typeInfo, chainList, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic()).getChainWithUnpack();
-        evaluator = new ExprDotEvalStaticMethod(validationContext.getStatementName(), clazz.getName(), staticMethodDesc.getFastMethod(), staticMethodDesc.getChildEvals(), allowValueCache && staticMethodDesc.isAllConstants(), optionalLambdaWrap, eval, config.isRethrowExceptions(), null);
+        ExprDotForge[] eval = ExprDotNodeUtility.getChainEvaluators(-1, typeInfo, chainList, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic()).getChainWithUnpack();
+        ExprDotNodeForgeStaticMethod staticMethodForge = new ExprDotNodeForgeStaticMethod(this, isReturnsConstantResult, validationContext.getStatementName(), clazz.getName(), staticMethodDesc.getFastMethod(), staticMethodDesc.getChildForges(), allowValueCache && staticMethodDesc.isAllConstants(), eval, optionalLambdaWrap, config.isRethrowExceptions(), null);
 
         // If caching the result, evaluate now and return the result.
         if (isReturnsConstantResult) {
-            final Object result = evaluator.evaluate(null, true, null);
-            evaluator = new ExprEvaluator() {
-                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().qExprPlugInSingleRow(staticMethodDesc.getReflectionMethod());
-                        InstrumentationHelper.get().aExprPlugInSingleRow(result);
-                    }
-                    return result;
-                }
-
-                public Class getType() {
-                    return staticMethodDesc.getFastMethod().getReturnType();
-                }
-            };
+            final Object result = staticMethodForge.getExprEvaluator().evaluate(null, true, null);
+            forge = new ExprPlugInSingleRowNodeForgeConst(this, result, staticMethodDesc.getReflectionMethod());
+        } else {
+            forge = new ExprPlugInSingleRowNodeForgeNC(this, staticMethodForge);
         }
         return null;
     }

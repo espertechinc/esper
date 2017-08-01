@@ -11,6 +11,7 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
@@ -26,7 +27,7 @@ public class FilterSpecLookupable implements MetaDefItem, Serializable {
     public FilterSpecLookupable(String expression, EventPropertyGetter getter, Class returnType, boolean isNonPropertyGetter) {
         this.expression = expression;
         this.getter = getter;
-        this.returnType = returnType;
+        this.returnType = JavaClassHelper.getBoxedType(returnType); // For type consistency for recovery and serde define as boxed type
         this.isNonPropertyGetter = isNonPropertyGetter;
     }
 

@@ -12,6 +12,9 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 
 import java.io.StringWriter;
 
@@ -19,7 +22,7 @@ import java.io.StringWriter;
  * Represents an expression node that returns the predefined type and
  * that cannot be evaluated.
  */
-public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final long serialVersionUID = -6120042141834089857L;
 
     private final String returnTypeName;
@@ -34,16 +37,24 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprEvaluator {
         return this;
     }
 
+    public Class getEvaluationType() {
+        return returnType;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         return null;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return returnType;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -60,5 +71,13 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprEvaluator {
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         throw new EPException(this.getClass().getSimpleName() + " cannot be evaluated");
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        throw new IllegalStateException("Typed-no-eval-expression does not allow code generation");
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
     }
 }

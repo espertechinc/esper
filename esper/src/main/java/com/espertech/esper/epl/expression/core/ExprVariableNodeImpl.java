@@ -11,23 +11,32 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.DuplicatePropertyException;
 import com.espertech.esper.epl.core.PropertyNotFoundException;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.Map;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Represents a variable in an expression tree.
  */
-public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprVariableNode {
+public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForge, ExprEvaluator, ExprVariableNode {
     private static final long serialVersionUID = 0L;
 
     private final String variableName;
@@ -38,7 +47,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
     private Class variableType;
     private boolean isPrimitive;
 
-    private transient EventPropertyGetter eventTypeGetter;
+    private transient EventPropertyGetterSPI eventTypeGetter;
     private transient Map<Integer, VariableReader> readersPerCp;
     private transient VariableReader readerNonCP;
 
@@ -75,6 +84,18 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
         return isConstant;
     }
 
+    public Class getEvaluationType() {
+        return variableType;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // determine if any types are property agnostic; If yes, resolve to variable
         boolean hasPropertyAgnosticType = false;
@@ -107,7 +128,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
             if (variableMetadata.getEventType() == null) {
                 throw new ExprValidationException("Property '" + optSubPropName + "' is not valid for variable '" + variableName + "'");
             }
-            eventTypeGetter = variableMetadata.getEventType().getGetter(optSubPropName);
+            eventTypeGetter = ((EventTypeSPI) variableMetadata.getEventType()).getGetterSPI(optSubPropName);
             if (eventTypeGetter == null) {
                 throw new ExprValidationException("Property '" + optSubPropName + "' is not valid for variable '" + variableName + "'");
             }
@@ -118,14 +139,11 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
         if (variableMetadata.getContextPartitionName() == null) {
             readerNonCP = readersPerCp.get(EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         }
+        variableType = JavaClassHelper.getBoxedType(variableType);
         return null;
     }
 
     public Class getConstantType() {
-        return variableType;
-    }
-
-    public Class getType() {
         return variableType;
     }
 
@@ -164,6 +182,38 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
             InstrumentationHelper.get().aExprVariable(result);
         }
         return result;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        CodegenExpression readerExpression;
+        if (readerNonCP != null) {
+            CodegenMember memberVariableReader = context.makeAddMember(VariableReader.class, readerNonCP);
+            readerExpression = ref(memberVariableReader.getMemberName());
+        } else {
+            CodegenMember memberReadersPerCp = context.makeAddMember(Map.class, readersPerCp);
+            readerExpression = cast(VariableReader.class, exprDotMethod(ref(memberReadersPerCp.getMemberName()), "get", exprDotMethod(params.passEvalCtx(), "getAgentInstanceId")));
+        }
+        CodegenBlock block = context.addMethod(variableType, ExprVariableNodeImpl.class).add(params).begin()
+                .declareVar(VariableReader.class, "reader", readerExpression);
+        String method;
+        if (isPrimitive) {
+            method = block.declareVar(variableType, "value", cast(variableType, exprDotMethod(ref("reader"), "getValue")))
+                    .methodReturn(ref("value"));
+        } else {
+            block.declareVar(Object.class, "value", exprDotMethod(ref("reader"), "getValue"))
+                    .ifRefNullReturnNull("value")
+                    .declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")));
+            if (optSubPropName == null) {
+                method = block.methodReturn(cast(variableType, exprDotUnderlying(ref("theEvent"))));
+            } else {
+                method = block.methodReturn(CodegenLegoCast.castSafeFromObjectType(variableType, eventTypeGetter.eventBeanGetCodegen(ref("theEvent"), context)));
+            }
+        }
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SINGLE;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

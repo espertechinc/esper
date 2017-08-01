@@ -28,12 +28,12 @@ public class TestExprCaseNode extends TestCase {
         // Template expression is:
         // case when (so.floatPrimitive>s1.shortBoxed) then count(5) when (so.LongPrimitive>s1.intPrimitive) then (25 + 130.5) else (3*3) end
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
-        assertEquals(String.class, caseNode.getType());
+        assertEquals(String.class, caseNode.getForge().getEvaluationType());
 
         // case when (2.5>2) then count(5) when (1>3) then (25 + 130.5) else (3*3) end
         // First when node is true, case node type is the first when node type.
         caseNode = SupportExprNodeFactory.makeCaseSyntax2Node();
-        assertEquals(String.class, caseNode.getType());
+        assertEquals(String.class, caseNode.getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {
@@ -68,16 +68,16 @@ public class TestExprCaseNode extends TestCase {
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
         caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
-        assertEquals("a", caseNode.evaluate(makeEvent(1), false, null));
-        assertEquals("b", caseNode.evaluate(makeEvent(2), false, null));
-        assertEquals("c", caseNode.evaluate(makeEvent(3), false, null));
+        assertEquals("a", caseNode.getForge().getExprEvaluator().evaluate(makeEvent(1), false, null));
+        assertEquals("b", caseNode.getForge().getExprEvaluator().evaluate(makeEvent(2), false, null));
+        assertEquals("c", caseNode.getForge().getExprEvaluator().evaluate(makeEvent(3), false, null));
 
         caseNode = SupportExprNodeFactory.makeCaseSyntax2Node();
         caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
-        assertEquals("a", caseNode.evaluate(makeEvent(1), false, null));
-        assertEquals("b", caseNode.evaluate(makeEvent(2), false, null));
-        assertEquals("c", caseNode.evaluate(makeEvent(3), false, null));
+        assertEquals("a", caseNode.getForge().getExprEvaluator().evaluate(makeEvent(1), false, null));
+        assertEquals("b", caseNode.getForge().getExprEvaluator().evaluate(makeEvent(2), false, null));
+        assertEquals("c", caseNode.getForge().getExprEvaluator().evaluate(makeEvent(3), false, null));
     }
 
     public void testEquals() throws Exception {

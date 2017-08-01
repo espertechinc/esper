@@ -26,7 +26,7 @@ public class DotMethodUtil {
         List<DotMethodFPProvidedParam> paramsList = new ArrayList<DotMethodFPProvidedParam>();
         for (ExprNode node : parameters) {
             if (!(node instanceof ExprLambdaGoesNode)) {
-                paramsList.add(new DotMethodFPProvidedParam(0, node.getExprEvaluator().getType(), node));
+                paramsList.add(new DotMethodFPProvidedParam(0, node.getForge().getEvaluationType(), node));
                 continue;
             }
             ExprLambdaGoesNode goesNode = (ExprLambdaGoesNode) node;

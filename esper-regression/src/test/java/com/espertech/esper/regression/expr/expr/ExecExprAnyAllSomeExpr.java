@@ -20,6 +20,8 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanArrayCollMap;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -32,15 +34,37 @@ public class ExecExprAnyAllSomeExpr implements RegressionExecution {
 
         runAssertionEqualsAll(epService);
         runAssertionEqualsAllArray(epService);
+        runAssertionEqualsAny(epService);
+        runAssertionEqualsAnyBigInt(epService);
         runAssertionEqualsAnyArray(epService);
         runAssertionRelationalOpAllArray(epService);
         runAssertionRelationalOpNullOrNoRows(epService);
         runAssertionRelationalOpAnyArray(epService);
-        runAssertionEqualsAny(epService);
         runAssertionRelationalOpAll(epService);
         runAssertionRelationalOpAny(epService);
         runAssertionEqualsInNullOrNoRows(epService);
         runAssertionInvalid(epService);
+    }
+
+    private void runAssertionEqualsAnyBigInt(EPServiceProvider epService) {
+        String[] fields = "c0,c1,c2,c3".split(",");
+        String stmtText = "select " +
+                "bigInteger = any (null, 1) as c0," +
+                "bigInteger = any (2, 3) as c1," +
+                "bigDecimal = any (null, 1) as c2," +
+                "bigDecimal = any (2, 3) as c3" +
+                " from SupportBean";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        SupportBean bean = new SupportBean();
+        bean.setBigInteger(BigInteger.valueOf(1));
+        bean.setBigDecimal(new BigDecimal(1d));
+        epService.getEPRuntime().sendEvent(bean);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true, false, true, false});
+
+        stmt.destroy();
     }
 
     private void runAssertionEqualsAll(EPServiceProvider epService) {
@@ -202,12 +226,15 @@ public class ExecExprAnyAllSomeExpr implements RegressionExecution {
     private void runAssertionRelationalOpNullOrNoRows(EPServiceProvider epService) {
         // test array
         String[] fields = "vall,vany".split(",");
-        String stmtText = "select " +
+        String stmtText;
+        EPStatement stmt;
+        SupportUpdateListener listener = new SupportUpdateListener();
+
+        stmtText = "select " +
                 "intBoxed >= all ({doubleBoxed, longBoxed}) as vall, " +
                 "intBoxed >= any ({doubleBoxed, longBoxed}) as vany " +
                 " from SupportBean(theString like 'E%')";
-        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
-        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
         sendEvent(epService, "E3", null, null, null);
@@ -222,8 +249,9 @@ public class ExecExprAnyAllSomeExpr implements RegressionExecution {
         sendEvent(epService, "E7", 0, 1d, null);
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{false, false});
 
-        // test fields
         stmt.destroy();
+
+        // test fields
         fields = "vall,vany".split(",");
         stmtText = "select " +
                 "intBoxed >= all (doubleBoxed, longBoxed) as vall, " +
@@ -382,16 +410,20 @@ public class ExecExprAnyAllSomeExpr implements RegressionExecution {
 
     private void runAssertionEqualsInNullOrNoRows(EPServiceProvider epService) {
         // test fixed array case
-        String[] fields = "eall,eany,neall,neany,isin".split(",");
-        String stmtText = "select " +
+        String[] fields;
+        String stmtText;
+        EPStatement stmt;
+        SupportUpdateListener listener = new SupportUpdateListener();
+
+        fields = "eall,eany,neall,neany,isin".split(",");
+        stmtText = "select " +
                 "intBoxed = all ({doubleBoxed, longBoxed}) as eall, " +
                 "intBoxed = any ({doubleBoxed, longBoxed}) as eany, " +
                 "intBoxed != all ({doubleBoxed, longBoxed}) as neall, " +
                 "intBoxed != any ({doubleBoxed, longBoxed}) as neany, " +
                 "intBoxed in ({doubleBoxed, longBoxed}) as isin " +
                 " from SupportBean";
-        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
-        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
         sendEvent(epService, "E3", null, null, null);
@@ -406,8 +438,9 @@ public class ExecExprAnyAllSomeExpr implements RegressionExecution {
         sendEvent(epService, "E7", 0, null, 1L);
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{false, null, null, true, null});
 
-        // test non-array case
         stmt.destroy();
+
+        // test non-array case
         fields = "eall,eany,neall,neany,isin".split(",");
         stmtText = "select " +
                 "intBoxed = all (doubleBoxed, longBoxed) as eall, " +

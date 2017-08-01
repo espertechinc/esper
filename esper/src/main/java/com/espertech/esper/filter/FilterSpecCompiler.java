@@ -203,7 +203,7 @@ public final class FilterSpecCompiler {
             ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, node, validationContext);
             validatedNodes.add(validated);
 
-            if ((validated.getExprEvaluator().getType() != Boolean.class) && ((validated.getExprEvaluator().getType() != boolean.class))) {
+            if ((validated.getForge().getEvaluationType() != Boolean.class) && ((validated.getForge().getEvaluationType() != boolean.class))) {
                 throw new ExprValidationException("Filter expression not returning a boolean value: '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated) + "'");
             }
         }
@@ -294,7 +294,7 @@ public final class FilterSpecCompiler {
                 ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
                 ExprValidationContext validationContext = new ExprValidationContext(subselectTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), viewResourceDelegateSubselect, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
                 selectExpression = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SUBQUERYSELECT, selectExpression, validationContext);
-                subselect.setSelectClause(new ExprNode[]{selectExpression});
+                subselect.setSelectClause(new ExprNode[]{selectExpression}, validationContext.getEngineImportService(), validationContext.getStatementName());
                 subselect.setSelectAsNames(new String[]{compiled.getAssignedName()});
 
                 // handle aggregation

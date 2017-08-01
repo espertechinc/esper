@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberBigDecimalCoercer;
 import com.espertech.esper.util.SimpleNumberBigIntegerCoercer;
@@ -24,19 +26,21 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
+
 /**
  * Represents the between-clause function in an expression tree.
  */
-public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprBetweenNode {
+public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode {
+    private static final long serialVersionUID = -9089344387956311948L;
+
     private final boolean isLowEndpointIncluded;
     private final boolean isHighEndpointIncluded;
     private final boolean isNotBetween;
 
-    private boolean isAlwaysFalse;
-    private transient ExprBetweenComp computer;
-    private transient ExprEvaluator[] evaluators;
-
-    private static final long serialVersionUID = -9089344387956311948L;
+    private transient ExprBetweenNodeForge forge;
 
     /**
      * Ctor.
@@ -53,7 +57,13 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return this.forge;
     }
 
     public boolean isConstantResult() {
@@ -93,16 +103,18 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
         }
 
         // Must be either numeric or string
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-        Class typeOne = JavaClassHelper.getBoxedType(evaluators[0].getType());
-        Class typeTwo = JavaClassHelper.getBoxedType(evaluators[1].getType());
-        Class typeThree = JavaClassHelper.getBoxedType(evaluators[2].getType());
+        ExprForge[] forges = ExprNodeUtility.getForges(this.getChildNodes());
+        Class typeOne = JavaClassHelper.getBoxedType(forges[0].getEvaluationType());
+        Class typeTwo = JavaClassHelper.getBoxedType(forges[1].getEvaluationType());
+        Class typeThree = JavaClassHelper.getBoxedType(forges[2].getEvaluationType());
 
         if (typeOne == null) {
             throw new ExprValidationException("Null value not allowed in between-clause");
         }
 
         Class compareType;
+        boolean isAlwaysFalse = false;
+        ExprBetweenComp computer = null;
         if ((typeTwo == null) || (typeThree == null)) {
             isAlwaysFalse = true;
         } else {
@@ -128,48 +140,8 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
             compareType = JavaClassHelper.getCompareToCoercionType(intermedType, typeThree);
             computer = makeComputer(compareType, typeOne, typeTwo, typeThree);
         }
+        forge = new ExprBetweenNodeForge(this, computer, isAlwaysFalse);
         return null;
-    }
-
-    public Class getType() {
-        return Boolean.class;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprBetween(this);
-        }
-        if (isAlwaysFalse) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprBetween(false);
-            }
-            return false;
-        }
-
-        // Evaluate first child which is the base value to compare to
-        Object value = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (value == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprBetween(false);
-            }
-            return false;
-        }
-        Object lower = evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        Object higher = evaluators[2].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-        boolean result = computer.isBetween(value, lower, higher);
-
-        if (isNotBetween) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprBetween(!result);
-            }
-            return !result;
-        }
-
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprBetween(result);
-        }
-        return result;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
@@ -216,11 +188,13 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
         return computer;
     }
 
-    private interface ExprBetweenComp {
+    protected interface ExprBetweenComp {
         public boolean isBetween(Object value, Object lower, Object upper);
+
+        CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenContext context);
     }
 
-    private static class ExprBetweenCompString implements ExprBetweenComp {
+    protected static class ExprBetweenCompString implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
 
@@ -265,9 +239,30 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
         public boolean isEqualsEndpoint(Object value, Object endpoint) {
             return value.equals(endpoint);
         }
+
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenContext context) {
+            CodegenBlock block = context.addMethod(boolean.class, ExprBetweenCompString.class).add(String.class, "value").add(String.class, "lower").add(String.class, "upper").begin()
+                    .ifCondition(relational(exprDotMethod(ref("upper"), "compareTo", ref("lower")), LT, constant(0)))
+                    .declareVar(String.class, "temp", ref("upper"))
+                    .assignRef("upper", ref("lower"))
+                    .assignRef("lower", ref("temp"))
+                    .blockEnd()
+                    .ifCondition(relational(exprDotMethod(ref("value"), "compareTo", ref("lower")), LT, constant(0)))
+                    .blockReturn(constantFalse())
+                    .ifCondition(relational(exprDotMethod(ref("value"), "compareTo", ref("upper")), GT, constant(0)))
+                    .blockReturn(constantFalse());
+            if (!isLowIncluded) {
+                block.ifCondition(exprDotMethod(ref("value"), "equals", ref("lower"))).blockReturn(constantFalse());
+            }
+            if (!isHighIncluded) {
+                block.ifCondition(exprDotMethod(ref("value"), "equals", ref("upper"))).blockReturn(constantFalse());
+            }
+            String method = block.methodReturn(constantTrue());
+            return localMethod(method, value, lower, higher);
+        }
     }
 
-    private static class ExprBetweenCompDouble implements ExprBetweenComp {
+    protected static class ExprBetweenCompDouble implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
 
@@ -304,9 +299,34 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
             }
             return false;
         }
+
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenContext context) {
+            CodegenBlock block = context.addMethod(boolean.class, ExprBetweenCompDouble.class).add(double.class, "value").add(double.class, "lower").add(double.class, "upper").begin()
+                    .ifCondition(relational(ref("lower"), GT, ref("upper")))
+                    .declareVar(double.class, "temp", ref("upper"))
+                    .assignRef("upper", ref("lower"))
+                    .assignRef("lower", ref("temp"))
+                    .blockEnd();
+            CodegenBlock ifValueGTLower = block.ifCondition(relational(ref("value"), GT, ref("lower")));
+            {
+                ifValueGTLower.ifCondition(relational(ref("value"), LT, ref("upper"))).blockReturn(constantTrue());
+                if (isHighIncluded) {
+                    ifValueGTLower.blockReturn(equalsIdentity(ref("value"), ref("upper")));
+                } else {
+                    ifValueGTLower.blockReturn(constantFalse());
+                }
+            }
+            String method;
+            if (isLowIncluded) {
+                method = block.methodReturn(equalsIdentity(ref("value"), ref("lower")));
+            } else {
+                method = block.methodReturn(constantFalse());
+            }
+            return localMethod(method, value, lower, higher);
+        }
     }
 
-    private static class ExprBetweenCompLong implements ExprBetweenComp {
+    protected static class ExprBetweenCompLong implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
 
@@ -343,9 +363,34 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
             }
             return false;
         }
+
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenContext context) {
+            CodegenBlock block = context.addMethod(boolean.class, ExprBetweenCompLong.class).add(long.class, "value").add(long.class, "lower").add(long.class, "upper").begin()
+                    .ifCondition(relational(ref("lower"), GT, ref("upper")))
+                    .declareVar(long.class, "temp", ref("upper"))
+                    .assignRef("upper", ref("lower"))
+                    .assignRef("lower", ref("temp"))
+                    .blockEnd();
+            CodegenBlock ifValueGTLower = block.ifCondition(relational(ref("value"), GT, ref("lower")));
+            {
+                ifValueGTLower.ifCondition(relational(ref("value"), LT, ref("upper"))).blockReturn(constantTrue());
+                if (isHighIncluded) {
+                    ifValueGTLower.blockReturn(equalsIdentity(ref("value"), ref("upper")));
+                } else {
+                    ifValueGTLower.blockReturn(constantFalse());
+                }
+            }
+            String method;
+            if (isLowIncluded) {
+                method = block.methodReturn(equalsIdentity(ref("value"), ref("lower")));
+            } else {
+                method = block.methodReturn(constantFalse());
+            }
+            return localMethod(method, value, lower, higher);
+        }
     }
 
-    private static class ExprBetweenCompBigDecimal implements ExprBetweenComp {
+    protected static class ExprBetweenCompBigDecimal implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
         private SimpleNumberBigDecimalCoercer numberCoercerLower;
@@ -388,9 +433,40 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
             }
             return false;
         }
+
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenContext context) {
+            CodegenBlock block = context.addMethod(boolean.class, ExprBetweenCompBigDecimal.class).add(BigDecimal.class, "value").add(BigDecimal.class, "lower").add(BigDecimal.class, "upper").begin()
+                    .ifRefNullReturnFalse("value")
+                    .ifRefNullReturnFalse("lower")
+                    .ifRefNullReturnFalse("upper")
+                    .ifCondition(relational(exprDotMethod(ref("lower"), "compareTo", ref("upper")), GT, constant(0)))
+                    .declareVar(BigDecimal.class, "temp", ref("upper"))
+                    .assignRef("upper", ref("lower"))
+                    .assignRef("lower", ref("temp"))
+                    .blockEnd();
+            CodegenBlock ifValueGTLower = block.ifCondition(relational(exprDotMethod(ref("value"), "compareTo", ref("lower")), GT, constant(0)));
+            {
+                ifValueGTLower.ifCondition(relational(exprDotMethod(ref("value"), "compareTo", ref("upper")), LT, constant(0))).blockReturn(constantTrue());
+                if (isHighIncluded) {
+                    ifValueGTLower.blockReturn(exprDotMethod(ref("value"), "equals", ref("upper")));
+                } else {
+                    ifValueGTLower.blockReturn(constantFalse());
+                }
+            }
+            String method;
+            if (isLowIncluded) {
+                method = block.methodReturn(exprDotMethod(ref("value"), "equals", ref("lower")));
+            } else {
+                method = block.methodReturn(constantFalse());
+            }
+            CodegenExpression valueCoerced = numberCoercerValue.coerceBoxedBigDecCodegen(value, valueType);
+            CodegenExpression lowerCoerced = numberCoercerValue.coerceBoxedBigDecCodegen(lower, lowerType);
+            CodegenExpression higherCoerced = numberCoercerValue.coerceBoxedBigDecCodegen(higher, higherType);
+            return localMethod(method, valueCoerced, lowerCoerced, higherCoerced);
+        }
     }
 
-    private static class ExprBetweenCompBigInteger implements ExprBetweenComp {
+    protected static class ExprBetweenCompBigInteger implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
         private SimpleNumberBigIntegerCoercer numberCoercerLower;
@@ -433,6 +509,37 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
                 return true;
             }
             return false;
+        }
+
+        public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenContext context) {
+            CodegenBlock block = context.addMethod(boolean.class, ExprBetweenCompBigInteger.class).add(BigInteger.class, "value").add(BigInteger.class, "lower").add(BigInteger.class, "upper").begin()
+                    .ifRefNullReturnFalse("value")
+                    .ifRefNullReturnFalse("lower")
+                    .ifRefNullReturnFalse("upper")
+                    .ifCondition(relational(exprDotMethod(ref("lower"), "compareTo", ref("upper")), GT, constant(0)))
+                    .declareVar(BigInteger.class, "temp", ref("upper"))
+                    .assignRef("upper", ref("lower"))
+                    .assignRef("lower", ref("temp"))
+                    .blockEnd();
+            CodegenBlock ifValueGTLower = block.ifCondition(relational(exprDotMethod(ref("value"), "compareTo", ref("lower")), GT, constant(0)));
+            {
+                ifValueGTLower.ifCondition(relational(exprDotMethod(ref("value"), "compareTo", ref("upper")), LT, constant(0))).blockReturn(constantTrue());
+                if (isHighIncluded) {
+                    ifValueGTLower.blockReturn(exprDotMethod(ref("value"), "equals", ref("upper")));
+                } else {
+                    ifValueGTLower.blockReturn(constantFalse());
+                }
+            }
+            String method;
+            if (isLowIncluded) {
+                method = block.methodReturn(exprDotMethod(ref("value"), "equals", ref("lower")));
+            } else {
+                method = block.methodReturn(constantFalse());
+            }
+            CodegenExpression valueCoerced = numberCoercerValue.coerceBoxedBigIntCodegen(value, valueType);
+            CodegenExpression lowerCoerced = numberCoercerValue.coerceBoxedBigIntCodegen(lower, lowerType);
+            CodegenExpression higherCoerced = numberCoercerValue.coerceBoxedBigIntCodegen(higher, higherType);
+            return localMethod(method, valueCoerced, lowerCoerced, higherCoerced);
         }
     }
 }

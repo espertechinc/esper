@@ -69,12 +69,12 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
             outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSAggregateGroupedOutputLastOpt(agentInstanceContext, this, prototype);
         } else if (prototype.isOutputAll()) {
             if (!prototype.isEnableOutputLimitOpt()) {
-                outputAllGroupReps = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
+                outputAllGroupReps = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodeExpressions(), prototype.getNumStreams());
             } else {
                 outputAllHelper = prototype.getResultSetProcessorHelperFactory().makeRSAggregateGroupedOutputAll(agentInstanceContext, this, prototype);
             }
         } else if (prototype.isOutputFirst()) {
-            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory(), null, -1);
+            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getGroupKeyNodeExpressions(), prototype.getOptionalOutputFirstConditionFactory(), null, -1);
         }
     }
 

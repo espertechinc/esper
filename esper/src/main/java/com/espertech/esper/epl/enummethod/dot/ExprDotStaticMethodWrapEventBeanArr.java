@@ -12,11 +12,15 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class ExprDotStaticMethodWrapEventBeanArr implements ExprDotStaticMethodWrap {
     private EventType type;
@@ -29,13 +33,14 @@ public class ExprDotStaticMethodWrapEventBeanArr implements ExprDotStaticMethodW
         return EPTypeHelper.collectionOfEvents(type);
     }
 
-    public Collection convert(Object result) {
-        if (result == null) {
-            return null;
-        }
+    public Collection convertNonNull(Object result) {
         if (!result.getClass().isArray()) {
             return null;
         }
         return Arrays.asList((EventBean[]) result);
+    }
+
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
+        return staticMethod(Arrays.class, "asList", result);
     }
 }

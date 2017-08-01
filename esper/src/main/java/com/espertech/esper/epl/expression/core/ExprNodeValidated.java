@@ -11,6 +11,9 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 
 import java.io.StringWriter;
@@ -18,7 +21,7 @@ import java.io.StringWriter;
 /**
  * A placeholder for another expression node that has been validated already.
  */
-public class ExprNodeValidated extends ExprNodeBase implements ExprEvaluator {
+public class ExprNodeValidated extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private final ExprNode inner;
     private static final long serialVersionUID = 301058622892268624L;
 
@@ -32,6 +35,22 @@ public class ExprNodeValidated extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return inner.getForge().evaluateCodegen(params, context);
+    }
+
+    public Class getEvaluationType() {
+        return inner.getForge().getEvaluationType();
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
         return this;
     }
 
@@ -69,11 +88,11 @@ public class ExprNodeValidated extends ExprNodeBase implements ExprEvaluator {
         }
     }
 
-    public Class getType() {
-        return inner.getExprEvaluator().getType();
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return inner.getForge().getExprEvaluator().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        return inner.getExprEvaluator().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+    public ExprForgeComplexityEnum getComplexity() {
+        return inner.getForge().getComplexity();
     }
 }

@@ -16,6 +16,8 @@ import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.CollectionUtil;
 
 import java.util.Comparator;
@@ -24,6 +26,7 @@ public class SortedAggregationStateFactoryFactory {
 
     private final EngineImportService engineImportService;
     private final StatementExtensionSvcContext statementExtensionSvcContext;
+    private final ExprNode[] expressions;
     private final ExprEvaluator[] evaluators;
     private final boolean[] sortDescending;
     private final boolean ever;
@@ -31,9 +34,10 @@ public class SortedAggregationStateFactoryFactory {
     private final ExprAggMultiFunctionSortedMinMaxByNode parent;
     private final ExprEvaluator optionalFilter;
 
-    public SortedAggregationStateFactoryFactory(EngineImportService engineImportService, StatementExtensionSvcContext statementExtensionSvcContext, ExprEvaluator[] evaluators, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprEvaluator optionalFilter) {
+    public SortedAggregationStateFactoryFactory(EngineImportService engineImportService, StatementExtensionSvcContext statementExtensionSvcContext, ExprNode[] expressions, ExprEvaluator[] evaluators, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprEvaluator optionalFilter) {
         this.engineImportService = engineImportService;
         this.statementExtensionSvcContext = statementExtensionSvcContext;
+        this.expressions = expressions;
         this.evaluators = evaluators;
         this.sortDescending = sortDescending;
         this.ever = ever;
@@ -44,14 +48,15 @@ public class SortedAggregationStateFactoryFactory {
 
     public AggregationStateFactory makeFactory() {
         boolean sortUsingCollator = engineImportService.isSortUsingCollator();
-        Comparator<Object> comparator = CollectionUtil.getComparator(evaluators, sortUsingCollator, sortDescending);
+        Comparator<Object> comparator = CollectionUtil.getComparator(expressions, evaluators, sortUsingCollator, sortDescending);
+        Class[] criteraTypes = ExprNodeUtility.getExprResultTypes(expressions);
 
         if (ever) {
-            AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, parent.isMax(), comparator, null, optionalFilter);
+            AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, criteraTypes, parent.isMax(), comparator, null, optionalFilter);
             return engineImportService.getAggregationFactoryFactory().makeMinMaxEver(statementExtensionSvcContext, parent, spec);
         }
 
-        AggregationStateSortedSpec spec = new AggregationStateSortedSpec(streamNum, evaluators, comparator, null, optionalFilter);
+        AggregationStateSortedSpec spec = new AggregationStateSortedSpec(streamNum, evaluators, criteraTypes, comparator, null, optionalFilter);
         return engineImportService.getAggregationFactoryFactory().makeSorted(statementExtensionSvcContext, parent, spec);
     }
 }

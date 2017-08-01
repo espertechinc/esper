@@ -70,7 +70,7 @@ public class SelectExprProcessorFactory {
                                                    StatementExtensionSvcContext statementExtensionSvcContext)
             throws ExprValidationException {
         if (selectExprProcessorCallback != null) {
-            BindProcessor bindProcessor = new BindProcessor(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService);
+            BindProcessor bindProcessor = new BindProcessor(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService, engineImportService, typeService.isOnDemandStreams(), annotations, statementName);
             Map<String, Object> properties = new LinkedHashMap<String, Object>();
             for (int i = 0; i < bindProcessor.getColumnNamesAssigned().length; i++) {
                 properties.put(bindProcessor.getColumnNamesAssigned()[i], bindProcessor.getExpressionTypes()[i]);
@@ -116,8 +116,9 @@ public class SelectExprProcessorFactory {
                 }
             }
 
-            BindProcessor bindProcessor = new BindProcessor(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService);
-            statementResultService.setSelectClause(bindProcessor.getExpressionTypes(), bindProcessor.getColumnNamesAssigned(), forDelivery, ExprNodeUtility.getEvaluators(groupedDeliveryExpr), exprEvaluatorContext);
+            BindProcessor bindProcessor = new BindProcessor(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService, engineImportService, typeService.isOnDemandStreams(), annotations, statementName);
+            ExprEvaluator[] groupedDeliveryEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupedDeliveryExpr, engineImportService, SelectExprProcessorFactory.class, typeService.isOnDemandStreams(), statementName);
+            statementResultService.setSelectClause(bindProcessor.getExpressionTypes(), bindProcessor.getColumnNamesAssigned(), forDelivery, groupedDeliveryEvals, exprEvaluatorContext);
             return new SelectExprResultProcessor(statementResultService, synthetic, bindProcessor);
         }
 

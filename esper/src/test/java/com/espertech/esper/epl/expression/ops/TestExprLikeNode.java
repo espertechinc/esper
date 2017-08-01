@@ -66,10 +66,10 @@ public class TestExprLikeNode extends TestCase {
 
     public void testEvaluate() throws Exception {
         // Build :      s0.string like "%abc__"  (with or witout escape)
-        assertFalse((Boolean) likeNodeNormal.evaluate(makeEvent("abcx"), false, null));
-        assertTrue((Boolean) likeNodeNormal.evaluate(makeEvent("dskfsljkdfabcxx"), false, null));
-        assertTrue((Boolean) likeNodeNot.evaluate(makeEvent("abcx"), false, null));
-        assertFalse((Boolean) likeNodeNot.evaluate(makeEvent("dskfsljkdfabcxx"), false, null));
+        assertFalse((Boolean) likeNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent("abcx"), false, null));
+        assertTrue((Boolean) likeNodeNormal.getForge().getExprEvaluator().evaluate(makeEvent("dskfsljkdfabcxx"), false, null));
+        assertTrue((Boolean) likeNodeNot.getForge().getExprEvaluator().evaluate(makeEvent("abcx"), false, null));
+        assertFalse((Boolean) likeNodeNot.getForge().getExprEvaluator().evaluate(makeEvent("dskfsljkdfabcxx"), false, null));
     }
 
     public void testEquals() throws Exception {

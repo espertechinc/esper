@@ -11,10 +11,11 @@
 package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 
 import java.io.StringWriter;
@@ -43,11 +44,23 @@ public class ExprTableAccessNodeKeys extends ExprTableAccessNode implements Expr
         return strategy.evaluate(eventsPerStream, isNewData, context);
     }
 
-    public Class getType() {
+    protected boolean equalsNodeInternal(ExprTableAccessNode other) {
+        return true;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
+    public Class getEvaluationType() {
         return Object[].class;
     }
 
-    protected boolean equalsNodeInternal(ExprTableAccessNode other) {
-        return true;
+    public ExprForge getForge() {
+        return this;
     }
 }

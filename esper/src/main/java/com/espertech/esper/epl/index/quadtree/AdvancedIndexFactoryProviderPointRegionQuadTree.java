@@ -30,10 +30,10 @@ public class AdvancedIndexFactoryProviderPointRegionQuadTree extends AdvancedInd
         validateParameters(indexTypeName, parameters);
 
         AdvancedIndexDesc indexDesc = new AdvancedIndexDesc(indexTypeName, columns);
-        ExprEvaluator xEval = indexDesc.getIndexedExpressions()[0].getExprEvaluator();
-        ExprEvaluator yEval = indexDesc.getIndexedExpressions()[1].getExprEvaluator();
+        ExprEvaluator xEval = indexDesc.getIndexedExpressions()[0].getForge().getExprEvaluator();
+        ExprEvaluator yEval = indexDesc.getIndexedExpressions()[1].getForge().getExprEvaluator();
         AdvancedIndexConfigStatementPointRegionQuadtree indexStatementConfigs = new AdvancedIndexConfigStatementPointRegionQuadtree(xEval, yEval);
 
-        return new EventAdvancedIndexProvisionDesc(indexDesc, ExprNodeUtility.getEvaluators(parameters), EventAdvancedIndexFactoryQuadTreePointRegion.INSTANCE, indexStatementConfigs);
+        return new EventAdvancedIndexProvisionDesc(indexDesc, ExprNodeUtility.getEvaluatorsNoCompile(parameters), EventAdvancedIndexFactoryQuadTreePointRegion.INSTANCE, indexStatementConfigs);
     }
 }

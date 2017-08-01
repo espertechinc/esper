@@ -16,6 +16,7 @@ import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContex
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstZero;
 import com.espertech.esper.util.JavaClassHelper;
@@ -48,12 +49,12 @@ public class TimeToLiveViewFactory implements DataWindowViewFactory, DataWindowV
         if (viewParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if (JavaClassHelper.getBoxedType(validated[0].getExprEvaluator().getType()) != Long.class) {
+        if (JavaClassHelper.getBoxedType(validated[0].getForge().getEvaluationType()) != Long.class) {
             throw new ViewParameterException(getViewParamMessage());
         }
         timestampExpression = validated[0];
         eventType = parentEventType;
-        timestampExpressionEvaluator = timestampExpression.getExprEvaluator();
+        timestampExpressionEvaluator = ExprNodeCompiler.allocateEvaluator(timestampExpression.getForge(), statementContext.getEngineImportService(), TimeToLiveViewFactory.class, false, statementContext.getStatementName());
     }
 
     public Object makePreviousGetter() {

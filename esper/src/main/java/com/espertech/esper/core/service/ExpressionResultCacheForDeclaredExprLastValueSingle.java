@@ -18,19 +18,19 @@ import java.util.IdentityHashMap;
 
 public class ExpressionResultCacheForDeclaredExprLastValueSingle implements ExpressionResultCacheForDeclaredExprLastValue {
 
-    private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Object>>> exprDeclCacheObject
-            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Object>>>();
+    private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntryEventBeanArrayAndObj>> exprDeclCacheObject
+            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntryEventBeanArrayAndObj>>();
 
     public boolean cacheEnabled() {
         return true;
     }
 
-    public ExpressionResultCacheEntry<EventBean[], Object> getDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream) {
-        SoftReference<ExpressionResultCacheEntry<EventBean[], Object>> cacheRef = this.exprDeclCacheObject.get(node);
+    public ExpressionResultCacheEntryEventBeanArrayAndObj getDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream) {
+        SoftReference<ExpressionResultCacheEntryEventBeanArrayAndObj> cacheRef = this.exprDeclCacheObject.get(node);
         if (cacheRef == null) {
             return null;
         }
-        ExpressionResultCacheEntry<EventBean[], Object> entry = cacheRef.get();
+        ExpressionResultCacheEntryEventBeanArrayAndObj entry = cacheRef.get();
         if (entry == null) {
             return null;
         }
@@ -39,7 +39,7 @@ public class ExpressionResultCacheForDeclaredExprLastValueSingle implements Expr
 
     public void saveDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream, Object result) {
         EventBean[] copy = EventBeanUtility.copyArray(eventsPerStream);
-        ExpressionResultCacheEntry<EventBean[], Object> entry = new ExpressionResultCacheEntry<EventBean[], Object>(copy, result);
-        exprDeclCacheObject.put(node, new SoftReference<ExpressionResultCacheEntry<EventBean[], Object>>(entry));
+        ExpressionResultCacheEntryEventBeanArrayAndObj entry = new ExpressionResultCacheEntryEventBeanArrayAndObj(copy, result);
+        exprDeclCacheObject.put(node, new SoftReference<ExpressionResultCacheEntryEventBeanArrayAndObj>(entry));
     }
 }

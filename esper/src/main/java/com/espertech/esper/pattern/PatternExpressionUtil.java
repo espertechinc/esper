@@ -106,7 +106,7 @@ public class PatternExpressionUtil {
 
     private static Object evaluate(String objectName, ExprNode expression, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) throws EPException {
         try {
-            return expression.getExprEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
+            return expression.getForge().getExprEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
         } catch (RuntimeException ex) {
             throw handleRuntimeEx(ex, objectName);
         }

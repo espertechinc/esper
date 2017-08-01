@@ -27,7 +27,7 @@ public class TestExprPreviousNode extends TestCase {
     }
 
     public void testGetType() throws Exception {
-        assertEquals(Double.class, prevNode.getType());
+        assertEquals(Double.class, prevNode.getEvaluationType());
     }
 
     public void testValidate() throws Exception {

@@ -101,7 +101,7 @@ public class ExecEPLUpdate implements RegressionExecution {
         epService.getEPAdministrator().createEPL("insert into SupportBeanStreamRO select * from SupportBeanReadOnly");
 
         tryInvalid(epService, "update istream SupportBeanStream set intPrimitive=longPrimitive",
-                "Error starting statement: Invalid assignment of column 'longPrimitive' of type 'long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
+                "Error starting statement: Invalid assignment of column 'longPrimitive' of type 'java.lang.Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
         tryInvalid(epService, "update istream SupportBeanStream set xxx='abc'",
                 "Error starting statement: Property 'xxx' is not available for write access [update istream SupportBeanStream set xxx='abc']");
         tryInvalid(epService, "update istream SupportBeanStream set intPrimitive=null",

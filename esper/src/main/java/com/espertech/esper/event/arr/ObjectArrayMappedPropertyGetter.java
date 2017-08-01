@@ -16,9 +16,7 @@ import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.castUnderlying;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethodTakingExprAndConst;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for a dynamic mappeds property for maps.
@@ -29,9 +27,10 @@ public class ObjectArrayMappedPropertyGetter implements ObjectArrayEventProperty
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param objectArray data
+     *
+     * @param objectArray   data
      * @param propertyIndex prop index
-     * @param providedKey key
+     * @param providedKey   key
      * @return value
      * @throws PropertyAccessException exception
      */
@@ -42,9 +41,10 @@ public class ObjectArrayMappedPropertyGetter implements ObjectArrayEventProperty
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param objectArray data
+     *
+     * @param objectArray   data
      * @param propertyIndex prop index
-     * @param providedKey key
+     * @param providedKey   key
      * @return value
      * @throws PropertyAccessException exception
      */
@@ -91,27 +91,31 @@ public class ObjectArrayMappedPropertyGetter implements ObjectArrayEventProperty
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getOAMapValue", underlyingExpression, propertyIndex, key);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getOAMapValue", underlyingExpression, constant(propertyIndex), constant(key));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getOAMapExists", underlyingExpression, propertyIndex, key);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getOAMapExists", underlyingExpression, constant(propertyIndex), constant(key));
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
+    }
+
+    public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return staticMethod(this.getClass(), "getOAMapValue", castUnderlying(Object[].class, beanExpression), constant(propertyIndex), key);
     }
 }

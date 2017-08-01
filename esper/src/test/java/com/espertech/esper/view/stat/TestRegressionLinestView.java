@@ -13,6 +13,8 @@ package com.espertech.esper.view.stat;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
@@ -32,7 +34,11 @@ public class TestRegressionLinestView extends TestCase {
         // Set up sum view and a test child view
         EventType type = RegressionLinestView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         RegressionLinestViewFactory viewFactory = new RegressionLinestViewFactory();
-        myView = new RegressionLinestView(viewFactory, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null);
+        ExprNode x = SupportExprNodeFactory.makeIdentNodeMD("price");
+        ExprEvaluator xEval = x.getForge().getExprEvaluator();
+        ExprNode y = SupportExprNodeFactory.makeIdentNodeMD("volume");
+        ExprEvaluator yEval = y.getForge().getExprEvaluator();
+        myView = new RegressionLinestView(viewFactory, SupportStatementContextFactory.makeAgentInstanceContext(), x, xEval, y, yEval, type, null);
 
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);

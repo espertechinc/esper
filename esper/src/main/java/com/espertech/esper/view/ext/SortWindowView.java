@@ -21,7 +21,10 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TreeMap;
 
 /**
  * Window sorting by values in the specified field extending a specified number of elements
@@ -39,10 +42,7 @@ import java.util.*;
  */
 public class SortWindowView extends ViewSupport implements DataWindowView, CloneableView {
     private final SortWindowViewFactory sortWindowViewFactory;
-    protected final ExprEvaluator[] sortCriteriaEvaluators;
-    private final ExprNode[] sortCriteriaExpressions;
     private final EventBean[] eventsPerStream = new EventBean[1];
-    private final boolean[] isDescendingValues;
     private final int sortWindowSize;
     private final IStreamSortRankRandomAccess optionalSortedRandomAccess;
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
@@ -51,23 +51,15 @@ public class SortWindowView extends ViewSupport implements DataWindowView, Clone
     protected int eventCount;
 
     public SortWindowView(SortWindowViewFactory sortWindowViewFactory,
-                          ExprNode[] sortCriteriaExpressions,
-                          ExprEvaluator[] sortCriteriaEvaluators,
-                          boolean[] descendingValues,
                           int sortWindowSize,
                           IStreamSortRankRandomAccess optionalSortedRandomAccess,
-                          boolean isSortUsingCollator,
                           AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.sortWindowViewFactory = sortWindowViewFactory;
-        this.sortCriteriaExpressions = sortCriteriaExpressions;
-        this.sortCriteriaEvaluators = sortCriteriaEvaluators;
-        this.isDescendingValues = descendingValues;
         this.sortWindowSize = sortWindowSize;
         this.optionalSortedRandomAccess = optionalSortedRandomAccess;
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
 
-        Comparator<Object> comparator = CollectionUtil.getComparator(sortCriteriaEvaluators, isSortUsingCollator, isDescendingValues);
-        sortedEvents = new TreeMap<Object, Object>(comparator);
+        sortedEvents = new TreeMap<Object, Object>(sortWindowViewFactory.comparator);
     }
 
     /**
@@ -76,7 +68,7 @@ public class SortWindowView extends ViewSupport implements DataWindowView, Clone
      * @return field names to sort by
      */
     protected final ExprNode[] getSortCriteriaExpressions() {
-        return sortCriteriaExpressions;
+        return sortWindowViewFactory.sortCriteriaExpressions;
     }
 
     /**
@@ -85,7 +77,7 @@ public class SortWindowView extends ViewSupport implements DataWindowView, Clone
      * @return the isDescending value for each sort property
      */
     protected final boolean[] getIsDescendingValues() {
-        return isDescendingValues;
+        return sortWindowViewFactory.isDescendingValues;
     }
 
     /**
@@ -212,20 +204,20 @@ public class SortWindowView extends ViewSupport implements DataWindowView, Clone
 
     public final String toString() {
         return this.getClass().getName() +
-                " sortFieldName=" + Arrays.toString(sortCriteriaExpressions) +
-                " isDescending=" + Arrays.toString(isDescendingValues) +
+                " sortFieldName=" + Arrays.toString(sortWindowViewFactory.sortCriteriaExpressions) +
+                " isDescending=" + Arrays.toString(sortWindowViewFactory.isDescendingValues) +
                 " sortWindowSize=" + sortWindowSize;
     }
 
     protected Object getSortValues(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
-        if (sortCriteriaExpressions.length == 1) {
-            return sortCriteriaEvaluators[0].evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
+        if (sortWindowViewFactory.sortCriteriaExpressions.length == 1) {
+            return sortWindowViewFactory.sortCriteriaEvaluators[0].evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }
 
-        Object[] result = new Object[sortCriteriaExpressions.length];
+        Object[] result = new Object[sortWindowViewFactory.sortCriteriaExpressions.length];
         int count = 0;
-        for (ExprEvaluator expr : sortCriteriaEvaluators) {
+        for (ExprEvaluator expr : sortWindowViewFactory.sortCriteriaEvaluators) {
             result[count++] = expr.evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }
         return new MultiKeyUntyped(result);

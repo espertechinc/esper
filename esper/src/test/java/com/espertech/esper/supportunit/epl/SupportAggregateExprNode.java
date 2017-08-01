@@ -54,10 +54,6 @@ public class SupportAggregateExprNode extends ExprAggregateNodeBase {
         return null;
     }
 
-    public Class getType() {
-        return type;
-    }
-
     public int getValidateCountSnapshot() {
         return validateCountSnapshot;
     }

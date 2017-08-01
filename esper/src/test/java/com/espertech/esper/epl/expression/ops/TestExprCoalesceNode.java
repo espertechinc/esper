@@ -52,11 +52,11 @@ public class TestExprCoalesceNode extends TestCase {
             coalesceNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
-        assertEquals(Long.class, coalesceNodes[0].getType());
-        assertEquals(String.class, coalesceNodes[1].getType());
-        assertEquals(Boolean.class, coalesceNodes[2].getType());
-        assertEquals(Character.class, coalesceNodes[3].getType());
-        assertEquals(Double.class, coalesceNodes[4].getType());
+        assertEquals(Long.class, coalesceNodes[0].getForge().getEvaluationType());
+        assertEquals(String.class, coalesceNodes[1].getForge().getEvaluationType());
+        assertEquals(Boolean.class, coalesceNodes[2].getForge().getEvaluationType());
+        assertEquals(Character.class, coalesceNodes[3].getForge().getEvaluationType());
+        assertEquals(Double.class, coalesceNodes[4].getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {
@@ -86,11 +86,11 @@ public class TestExprCoalesceNode extends TestCase {
             coalesceNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
-        assertEquals(4L, coalesceNodes[0].evaluate(null, false, null));
-        assertEquals("a", coalesceNodes[1].evaluate(null, false, null));
-        assertEquals(true, coalesceNodes[2].evaluate(null, false, null));
-        assertEquals('b', coalesceNodes[3].evaluate(null, false, null));
-        assertEquals(5D, coalesceNodes[4].evaluate(null, false, null));
+        assertEquals(4L, coalesceNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals("a", coalesceNodes[1].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals(true, coalesceNodes[2].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals('b', coalesceNodes[3].getForge().getExprEvaluator().evaluate(null, false, null));
+        assertEquals(5D, coalesceNodes[4].getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEquals() throws Exception {

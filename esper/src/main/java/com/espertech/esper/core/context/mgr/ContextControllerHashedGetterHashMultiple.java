@@ -13,8 +13,10 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +28,10 @@ public class ContextControllerHashedGetterHashMultiple implements EventPropertyG
     private final ExprEvaluator[] evaluators;
     private final int granularity;
 
-    public ContextControllerHashedGetterHashMultiple(List<ExprNode> nodes, int granularity) {
+    public ContextControllerHashedGetterHashMultiple(List<ExprNode> nodes, int granularity, EngineImportService engineImportService, String statementName) {
         evaluators = new ExprEvaluator[nodes.size()];
         for (int i = 0; i < nodes.size(); i++) {
-            evaluators[i] = nodes.get(i).getExprEvaluator();
+            evaluators[i] = ExprNodeCompiler.allocateEvaluator(nodes.get(i).getForge(), engineImportService, ContextControllerHashedGetterHashMultiple.class, false, statementName);
         }
         this.granularity = granularity;
     }

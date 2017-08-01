@@ -48,10 +48,10 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
     }
 
     private String handleNestedValueCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object.class, Object.class, "value", this.getClass())
+        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
                 .ifRefNotTypeReturnConst("value", Map.class, "null");
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).codegenUnderlyingGet(cast(Map.class, ref("value")), context));
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingGetCodegen(cast(Map.class, ref("value")), context));
         }
         return block.methodReturn(constantNull());
     }
@@ -68,12 +68,12 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
     }
 
     private String isExistsPropertyCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(boolean.class, Map.class, "map", this.getClass())
+        CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnFalse("value")
                 .ifRefNotTypeReturnConst("value", Map.class, false);
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).codegenUnderlyingExists(cast(Map.class, ref("value")), context));
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(Map.class, ref("value")), context));
         }
         return block.methodReturn(constantFalse());
     }
@@ -91,12 +91,12 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
     }
 
     @Override
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
     @Override
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
     }
 }

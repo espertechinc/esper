@@ -30,7 +30,7 @@ public class TestExternallyTimedWindowView extends TestCase {
     public void setUp() throws Exception {
         // Set up timed window view and a test child view, set the time window size to 1 second
         ExprNode node = SupportExprNodeFactory.makeIdentNodeBean("longPrimitive");
-        myView = new ExternallyTimedWindowView(new ExternallyTimedWindowViewFactory(), node, node.getExprEvaluator(), new ExprTimePeriodEvalDeltaConstGivenDelta(1000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
+        myView = new ExternallyTimedWindowView(new ExternallyTimedWindowViewFactory(), node, node.getForge().getExprEvaluator(), new ExprTimePeriodEvalDeltaConstGivenDelta(1000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
         childView = new SupportBeanClassView(SupportBean.class);
         myView.addView(childView);
     }

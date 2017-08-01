@@ -11,8 +11,10 @@
 package com.espertech.esper.codegen.model.statement;
 
 import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenIndent;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
+import java.util.Map;
 import java.util.Set;
 
 public class CodegenStatementIfConditionBlock {
@@ -32,8 +34,17 @@ public class CodegenStatementIfConditionBlock {
         return block;
     }
 
-    void mergeClasses(Set<Class> classes) {
+    public void mergeClasses(Set<Class> classes) {
         condition.mergeClasses(classes);
         block.mergeClasses(classes);
+    }
+
+    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+        builder.append("if (");
+        condition.render(builder, imports);
+        builder.append(") {\n");
+        block.render(builder, imports, level + 1, indent);
+        indent.indent(builder, level);
+        builder.append("}");
     }
 }

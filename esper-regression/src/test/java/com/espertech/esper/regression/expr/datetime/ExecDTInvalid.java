@@ -63,7 +63,7 @@ public class ExecDTInvalid implements RegressionExecution {
 
         // invalid wrong parameter
         epl = "select utildate.between(utildate, utildate, 1, true) from SupportDateTime";
-        tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'utildate.between(utildate,utildate,...(42 chars)': Error validating date-time method 'between', expected a boolean-type result for expression parameter 2 but received java.lang.Integer");
+        tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'utildate.between(utildate,utildate,...(42 chars)': Error validating date-time method 'between', expected a boolean-type result for expression parameter 2 but received int");
 
         // mispatch parameter to input
         epl = "select utildate.format(java.time.format.DateTimeFormatter.ISO_ORDINAL_DATE) from SupportDateTime";

@@ -11,9 +11,8 @@
 package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.join.assemble.AssemblyStrategyTreeBuilder;
 import com.espertech.esper.epl.join.assemble.BaseAssemblyNodeFactory;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
@@ -59,7 +58,9 @@ public class NStreamOuterQueryPlanBuilder {
                                      HistoricalStreamIndexList[] historicalStreamIndexLists,
                                      ExprEvaluatorContext exprEvaluatorContext,
                                      String[][][] indexedStreamsUniqueProps,
-                                     TableMetadata[] tablesPerStream)
+                                     TableMetadata[] tablesPerStream,
+                                     EngineImportService engineImportService,
+                                     boolean isFireAndForget)
             throws ExprValidationException {
         if (log.isDebugEnabled()) {
             log.debug(".build queryGraph=" + queryGraph);
@@ -107,7 +108,7 @@ public class NStreamOuterQueryPlanBuilder {
                 continue;
             }
 
-            QueryPlanNode queryPlanNode = buildPlanNode(numStreams, streamNo, streamNames, queryGraph, outerInnerGraph, outerJoinDescList, innerJoinGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), dependencyGraph, historicalStreamIndexLists, exprEvaluatorContext, tablesPerStream);
+            QueryPlanNode queryPlanNode = buildPlanNode(numStreams, streamNo, streamNames, queryGraph, outerInnerGraph, outerJoinDescList, innerJoinGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), dependencyGraph, historicalStreamIndexLists, exprEvaluatorContext, tablesPerStream, engineImportService, isFireAndForget);
 
             if (log.isDebugEnabled()) {
                 log.debug(".build spec for stream '" + streamNames[streamNo] +
@@ -138,7 +139,9 @@ public class NStreamOuterQueryPlanBuilder {
                                                DependencyGraph dependencyGraph,
                                                HistoricalStreamIndexList[] historicalStreamIndexLists,
                                                ExprEvaluatorContext exprEvaluatorContext,
-                                               TableMetadata[] tablesPerStream)
+                                               TableMetadata[] tablesPerStream,
+                                               EngineImportService engineImportService,
+                                               boolean isFireAndForget)
             throws ExprValidationException {
         // For each stream build an array of substreams, considering required streams (inner joins) first
         // The order is relevant therefore preserving order via a LinkedHashMap.
@@ -169,7 +172,7 @@ public class NStreamOuterQueryPlanBuilder {
 
         // build list of instructions for lookup
         List<LookupInstructionPlan> lookupInstructions = buildLookupInstructions(streamNo, substreamsPerStream, requiredPerStream,
-                streamNames, queryGraph, indexSpecs, typesPerStream, outerJoinDescList, ishistorical, historicalStreamIndexLists, exprEvaluatorContext, tablesPerStream);
+                streamNames, queryGraph, indexSpecs, typesPerStream, outerJoinDescList, ishistorical, historicalStreamIndexLists, exprEvaluatorContext, tablesPerStream, engineImportService, isFireAndForget);
 
         // build strategy tree for putting the result back together
         BaseAssemblyNodeFactory assemblyTopNodeFactory = AssemblyStrategyTreeBuilder.build(streamNo, substreamsPerStream, requiredPerStream);
@@ -226,7 +229,9 @@ public class NStreamOuterQueryPlanBuilder {
             boolean[] isHistorical,
             HistoricalStreamIndexList[] historicalStreamIndexLists,
             ExprEvaluatorContext exprEvaluatorContext,
-            TableMetadata[] tablesPerStream) {
+            TableMetadata[] tablesPerStream,
+            EngineImportService engineImportService,
+            boolean isFireAndForget) {
         List<LookupInstructionPlan> result = new LinkedList<LookupInstructionPlan>();
 
         for (int fromStream : substreamsPerStream.keySet()) {
@@ -245,7 +250,7 @@ public class NStreamOuterQueryPlanBuilder {
 
                 if (isHistorical[toStream]) {
                     // There may not be an outer-join descriptor, use if provided to build the associated expression
-                    ExprNode outerJoinExpr = null;
+                    ExprEvaluator outerJoinEval = null;
                     if (outerJoinDescList.length > 0) {
                         OuterJoinDesc outerJoinDesc;
                         if (toStream == 0) {
@@ -253,14 +258,15 @@ public class NStreamOuterQueryPlanBuilder {
                         } else {
                             outerJoinDesc = outerJoinDescList[toStream - 1];
                         }
-                        outerJoinExpr = outerJoinDesc.makeExprNode(exprEvaluatorContext);
+                        ExprNode outerJoinExpr = outerJoinDesc.makeExprNode(exprEvaluatorContext);
+                        outerJoinEval = ExprNodeCompiler.allocateEvaluator(outerJoinExpr.getForge(), engineImportService, NStreamOuterQueryPlanBuilder.class, isFireAndForget, exprEvaluatorContext.getStatementName());
                     }
 
                     if (historicalStreamIndexLists[toStream] == null) {
                         historicalStreamIndexLists[toStream] = new HistoricalStreamIndexList(toStream, typesPerStream, queryGraph);
                     }
                     historicalStreamIndexLists[toStream].addIndex(fromStream);
-                    historicalPlans[i] = new HistoricalDataPlanNode(toStream, rootStreamNum, fromStream, typesPerStream.length, outerJoinExpr);
+                    historicalPlans[i] = new HistoricalDataPlanNode(toStream, rootStreamNum, fromStream, typesPerStream.length, outerJoinEval);
                 } else {
                     plans[i] = NStreamQueryPlanBuilder.createLookupPlan(queryGraph, fromStream, toStream, indexSpecs[toStream], typesPerStream, tablesPerStream[toStream]);
                 }

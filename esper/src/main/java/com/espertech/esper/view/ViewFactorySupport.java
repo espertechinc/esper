@@ -116,7 +116,7 @@ public abstract class ViewFactorySupport implements ViewFactory {
 
     public static Object evaluateAssertNoProperties(String viewName, ExprNode expression, int index, ExprEvaluatorContext exprEvaluatorContext) throws ViewParameterException {
         validateNoProperties(viewName, expression, index);
-        return expression.getExprEvaluator().evaluate(null, false, exprEvaluatorContext);
+        return expression.getForge().getExprEvaluator().evaluate(null, false, exprEvaluatorContext);
     }
 
     public static void validateNoProperties(String viewName, ExprNode expression, int index) throws ViewParameterException {
@@ -133,7 +133,7 @@ public abstract class ViewFactorySupport implements ViewFactory {
         ExprNode validated = validateExpr(viewName, statementContext, expression, streamTypeService, expressionNumber);
 
         try {
-            return validated.getExprEvaluator().evaluate(null, true, new ExprEvaluatorContextStatement(statementContext, false));
+            return validated.getForge().getExprEvaluator().evaluate(null, true, new ExprEvaluatorContextStatement(statementContext, false));
         } catch (RuntimeException ex) {
             String message = "Failed to evaluate parameter expression " + expressionNumber + getViewDesc(viewName);
             if (ex.getMessage() != null) {
@@ -190,8 +190,8 @@ public abstract class ViewFactorySupport implements ViewFactory {
     }
 
     public static ExprEvaluator validateSizeParam(String viewName, StatementContext statementContext, ExprNode sizeNode, int expressionNumber) throws ViewParameterException {
-        ExprEvaluator sizeEvaluator = sizeNode.getExprEvaluator();
-        Class returnType = JavaClassHelper.getBoxedType(sizeEvaluator.getType());
+        ExprEvaluator sizeEvaluator = sizeNode.getForge().getExprEvaluator();
+        Class returnType = JavaClassHelper.getBoxedType(sizeNode.getForge().getEvaluationType());
         if (!JavaClassHelper.isNumeric(returnType) || JavaClassHelper.isFloatingPointClass(returnType) || returnType == Long.class) {
             throw new ViewParameterException(getViewParamMessage(viewName));
         }

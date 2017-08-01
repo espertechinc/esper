@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.codegen.core;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.codegen.model.statement.CodegenStatementIf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.statement.*;
 
@@ -18,9 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.notInstanceOf;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.instanceOf;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenBlock {
     private final CodegenMethod parentMethod;
@@ -44,6 +44,12 @@ public class CodegenBlock {
         return this;
     }
 
+    public CodegenBlock compoundAssignment(String ref, String op, CodegenExpression rhs) {
+        checkClosed();
+        statements.add(new CodegenStatementCompoundAssign(ref, op, rhs));
+        return this;
+    }
+
     public CodegenBlock ifConditionReturnConst(CodegenExpression condition, Object constant) {
         checkClosed();
         statements.add(new CodegenStatementIfConditionReturnConst(condition, constant));
@@ -59,56 +65,66 @@ public class CodegenBlock {
     }
 
     private CodegenBlock ifInstanceOf(String name, Class clazz, boolean not) {
-        checkClosed();
-        CodegenStatementIf ifStmt = new CodegenStatementIf(this);
-        CodegenExpression condition = !not ? instanceOf(ref(name), clazz) : notInstanceOf(ref(name), clazz);
-        CodegenBlock block = new CodegenBlock(ifStmt);
-        ifStmt.add(condition, block);
-        statements.add(ifStmt);
-        return block;
-    };
+        return ifCondition(!not ? instanceOf(ref(name), clazz) : notInstanceOf(ref(name), clazz));
+    }
 
-    public CodegenBlock forLoopInt(String name, CodegenExpression upperLimit) {
+    public CodegenBlock ifRefNull(String ref) {
+        return ifCondition(equalsNull(ref(ref)));
+    }
+
+    public CodegenBlock ifRefNotNull(String ref) {
+        return ifCondition(notEqualsNull(ref(ref)));
+    }
+
+    public CodegenBlock ifCondition(CodegenExpression condition) {
         checkClosed();
-        CodegenStatementForInt forStmt = new CodegenStatementForInt(this, name, upperLimit);
+        CodegenStatementIf builder = new CodegenStatementIf(this);
+        statements.add(builder);
+        return builder.ifBlock(condition);
+    }
+
+    public CodegenBlock synchronizedOn(CodegenExpressionRef ref) {
+        checkClosed();
+        CodegenStatementSynchronized builder = new CodegenStatementSynchronized(this, ref);
+        statements.add(builder);
+        return builder.makeBlock();
+    }
+
+    public CodegenBlock forLoopIntSimple(String name, CodegenExpression upperLimit) {
+        checkClosed();
+        CodegenStatementForIntSimple forStmt = new CodegenStatementForIntSimple(this, name, upperLimit);
         CodegenBlock block = new CodegenBlock(forStmt);
         forStmt.setBlock(block);
         statements.add(forStmt);
         return block;
-    };
+    }
 
-    public CodegenBlock blockElseIf(CodegenExpression condition) {
-        if (parentMethod != null) {
-            throw new IllegalStateException("Else-If in a method-level block?");
-        }
-        if (!(parentWBlock instanceof CodegenStatementIf)) {
-            throw new IllegalStateException("Else_if in a non-if block?");
-        }
-        CodegenStatementIf ifStmt = (CodegenStatementIf) parentWBlock;
+    public CodegenBlock forLoop(Class type, String name, CodegenExpression initialization, CodegenExpression termination, CodegenExpression increment) {
         checkClosed();
-        closed = true;
-        CodegenBlock block = new CodegenBlock(parentWBlock);
-        ifStmt.add(condition, block);
+        CodegenStatementFor forStmt = new CodegenStatementFor(this, type, name, initialization, termination, increment);
+        CodegenBlock block = new CodegenBlock(forStmt);
+        forStmt.setBlock(block);
+        statements.add(forStmt);
         return block;
-    };
+    }
 
-    public CodegenBlock blockElse() {
-        if (parentMethod != null) {
-            throw new IllegalStateException("Else in a method-level block?");
-        }
-        if (!(parentWBlock instanceof CodegenStatementIf)) {
-            throw new IllegalStateException("Else in a non-if block?");
-        }
-        CodegenStatementIf ifStmt = (CodegenStatementIf) parentWBlock;
-        if (ifStmt.getOptionalElse() != null) {
-            throw new IllegalStateException("Else already present");
-        }
+    public CodegenBlock forEach(Class type, String name, CodegenExpression target) {
         checkClosed();
-        closed = true;
-        CodegenBlock block = new CodegenBlock(parentWBlock);
-        ifStmt.setOptionalElse(block);
+        CodegenStatementForEach forStmt = new CodegenStatementForEach(this, type, name, target);
+        CodegenBlock block = new CodegenBlock(forStmt);
+        forStmt.setBlock(block);
+        statements.add(forStmt);
         return block;
-    };
+    }
+
+    public CodegenBlock tryCatch() {
+        checkClosed();
+        CodegenStatementTryCatch tryCatch = new CodegenStatementTryCatch(this);
+        CodegenBlock block = new CodegenBlock(tryCatch);
+        tryCatch.setTry(block);
+        statements.add(tryCatch);
+        return block;
+    }
 
     public CodegenBlock declareVarWCast(Class clazz, String var, String rhsName) {
         checkClosed();
@@ -118,7 +134,19 @@ public class CodegenBlock {
 
     public CodegenBlock declareVar(Class clazz, String var, CodegenExpression initializer) {
         checkClosed();
-        statements.add(new CodegenStatementDeclareVar(clazz, var, initializer));
+        statements.add(new CodegenStatementDeclareVar(clazz, null, var, initializer));
+        return this;
+    }
+
+    public CodegenBlock declareVar(Class clazz, Class optionalTypeVariable, String var, CodegenExpression initializer) {
+        checkClosed();
+        statements.add(new CodegenStatementDeclareVar(clazz, optionalTypeVariable, var, initializer));
+        return this;
+    }
+
+    public CodegenBlock declareVarNoInit(Class clazz, String var) {
+        checkClosed();
+        statements.add(new CodegenStatementDeclareVar(clazz, null, var, null));
         return this;
     }
 
@@ -134,7 +162,17 @@ public class CodegenBlock {
         return this;
     }
 
+    public CodegenBlock breakLoop() {
+        checkClosed();
+        statements.add(CodegenStatementBreakLoop.INSTANCE);
+        return this;
+    }
+
     public CodegenBlock assignArrayElement(String ref, CodegenExpression index, CodegenExpression assignment) {
+        return assignArrayElement(ref(ref), index, assignment);
+    }
+
+    public CodegenBlock assignArrayElement(CodegenExpression ref, CodegenExpression index, CodegenExpression assignment) {
         checkClosed();
         statements.add(new CodegenStatementAssignArrayElement(ref, index, assignment));
         return this;
@@ -164,13 +202,6 @@ public class CodegenBlock {
         return this;
     }
 
-    public CodegenBlock declareVarEventPerStreamUnd(Class clazz, int streamNum) {
-        checkClosed();
-        statements.add(new CodegenStatementDeclareVarEventPerStreamUnd(clazz, streamNum));
-        return this;
-    }
-
-
     public CodegenBlock blockReturn(CodegenExpression expression) {
         if (parentWBlock == null) {
             throw new IllegalStateException("No codeblock parent, use 'methodReturn... instead");
@@ -178,6 +209,50 @@ public class CodegenBlock {
         checkClosed();
         closed = true;
         statements.add(new CodegenStatementReturnExpression(expression));
+        return parentWBlock.getParent();
+    }
+
+    public CodegenBlock blockReturnNoValue() {
+        if (parentWBlock == null) {
+            throw new IllegalStateException("No codeblock parent, use 'methodReturn... instead");
+        }
+        checkClosed();
+        closed = true;
+        statements.add(CodegenStatementReturnNoValue.INSTANCE);
+        return parentWBlock.getParent();
+    }
+
+    public CodegenStatementTryCatch tryReturn(CodegenExpression expression) {
+        if (parentWBlock == null) {
+            throw new IllegalStateException("No codeblock parent, use 'methodReturn... instead");
+        }
+        if (!(parentWBlock instanceof CodegenStatementTryCatch)) {
+            throw new IllegalStateException("Codeblock parent is not try-catch");
+        }
+        checkClosed();
+        closed = true;
+        statements.add(new CodegenStatementReturnExpression(expression));
+        return (CodegenStatementTryCatch) parentWBlock;
+    }
+
+    public CodegenStatementTryCatch tryEnd() {
+        if (parentWBlock == null) {
+            throw new IllegalStateException("No codeblock parent, use 'methodReturn... instead");
+        }
+        if (!(parentWBlock instanceof CodegenStatementTryCatch)) {
+            throw new IllegalStateException("Codeblock parent is not try-catch");
+        }
+        closed = true;
+        return (CodegenStatementTryCatch) parentWBlock;
+    }
+
+    public CodegenBlock blockThrow(CodegenExpression expression) {
+        if (parentWBlock == null) {
+            throw new IllegalStateException("No codeblock parent, use 'methodReturn... instead");
+        }
+        checkClosed();
+        closed = true;
+        statements.add(new CodegenStatementThrow(expression));
         return parentWBlock.getParent();
     }
 
@@ -197,12 +272,22 @@ public class CodegenBlock {
         checkClosed();
         closed = true;
         statements.add(new CodegenStatementReturnExpression(expression));
-        return parentMethod.getMethodName();
+        return parentMethod.getFootprint().getMethodName();
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public String methodEnd() {
+        if (parentMethod == null) {
+            throw new IllegalStateException("No method parent, use 'blockReturn... instead");
+        }
+        checkClosed();
+        closed = true;
+        return parentMethod.getFootprint().getMethodName();
+    }
+
+    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
         for (CodegenStatement statement : statements) {
-            statement.render(builder, imports);
+            indent.indent(builder, level);
+            statement.render(builder, imports, level, indent);
         }
     }
 
@@ -216,5 +301,52 @@ public class CodegenBlock {
         if (closed) {
             throw new IllegalStateException("Code block already closed");
         }
+    }
+
+    public CodegenBlock ifElseIf(CodegenExpression condition) {
+        checkClosed();
+        closed = true;
+        if (parentMethod != null) {
+            throw new IllegalStateException("If-block-end in method?");
+        }
+        if (!(parentWBlock instanceof CodegenStatementIf)) {
+            throw new IllegalStateException("If-block-end in method?");
+        }
+        CodegenStatementIf ifBuilder = (CodegenStatementIf) parentWBlock;
+        return ifBuilder.addElseIf(condition);
+    }
+
+    public CodegenBlock ifElse() {
+        closed = true;
+        if (parentMethod != null) {
+            throw new IllegalStateException("If-block-end in method?");
+        }
+        if (!(parentWBlock instanceof CodegenStatementIf)) {
+            throw new IllegalStateException("If-block-end in method?");
+        }
+        CodegenStatementIf ifBuilder = (CodegenStatementIf) parentWBlock;
+        return ifBuilder.addElse();
+    }
+
+    public void ifReturn(CodegenExpression result) {
+        checkClosed();
+        closed = true;
+        if (parentMethod != null) {
+            throw new IllegalStateException("If-block-end in method?");
+        }
+        if (!(parentWBlock instanceof CodegenStatementIf)) {
+            throw new IllegalStateException("If-block-end in method?");
+        }
+        statements.add(new CodegenStatementReturnExpression(result));
+    }
+
+    public CodegenBlock blockContinue() {
+        checkClosed();
+        closed = true;
+        if (parentMethod != null) {
+            throw new IllegalStateException("If-block-end in method?");
+        }
+        statements.add(CodegenStatementContinue.INSTANCE);
+        return parentWBlock.getParent();
     }
 }

@@ -42,10 +42,10 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     private String getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(GenericData.Record.class, "value", localMethod(navigateMethodCodegen(context), ref("record")))
                 .ifRefNullReturnNull("value")
-                .methodReturn(nested[nested.length - 1].codegenUnderlyingGet(ref("value"), context));
+                .methodReturn(nested[nested.length - 1].underlyingGetCodegen(ref("value"), context));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -61,33 +61,33 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     private String getFragmentCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(GenericData.Record.class, "value", localMethod(navigateMethodCodegen(context), ref("record")))
                 .ifRefNullReturnNull("value")
-                .methodReturn(nested[nested.length - 1].codegenUnderlyingFragment(ref("value"), context));
+                .methodReturn(nested[nested.length - 1].underlyingFragmentCodegen(ref("value"), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 
@@ -101,8 +101,8 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
 
     private String navigateMethodCodegen(CodegenContext context) {
         String navigateRecordMethod = navigateRecordMethodCodegen(context);
-        return context.addMethod(GenericData.Record.class, GenericData.Record.class, "record", this.getClass())
-                .declareVar(Object.class, "value", staticMethodTakingExprAndConst(AvroEventBeanGetterNestedIndexRooted.class, "getAtIndex", ref("record"), posTop, index))
+        return context.addMethod(GenericData.Record.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+                .declareVar(Object.class, "value", staticMethod(AvroEventBeanGetterNestedIndexRooted.class, "getAtIndex", ref("record"), constant(posTop), constant(index)))
                 .ifRefNullReturnNull("value")
                 .methodReturn(CodegenExpressionBuilder.localMethod(navigateRecordMethod, castRef(GenericData.Record.class, "value")));
     }
@@ -120,11 +120,11 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     private String navigateRecordMethodCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(GenericData.Record.class, GenericData.Record.class, "record", this.getClass())
+        CodegenBlock block = context.addMethod(GenericData.Record.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(GenericData.Record.class, "current", ref("record"))
                 .declareVarNull(Object.class, "value");
         for (int i = 0; i < nested.length - 1; i++) {
-            block.assignRef("value", nested[i].codegenUnderlyingGet(ref("current"), context))
+            block.assignRef("value", nested[i].underlyingGetCodegen(ref("current"), context))
                     .ifRefNotTypeReturnConst("value", GenericData.Record.class, null)
                     .assignRef("current", castRef(GenericData.Record.class, "value"));
         }

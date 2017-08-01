@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
 import com.espertech.esper.epl.join.exec.base.ExecNode;
@@ -45,7 +46,6 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
     private final String statementName;
     private final int statementId;
     private final OuterJoinDesc[] outerJoinDescList;
-    private final ExprNode optionalFilterNode;
     private final EventType[] streamTypes;
     private final String[] streamNames;
     private final StreamJoinAnalysisResult streamJoinAnalysisResult;
@@ -59,6 +59,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
     private final boolean isOuterJoins;
     private final TableService tableService;
     private final EventTableIndexService eventTableIndexService;
+    private final ExprEvaluator postJoinFilterEvaluator;
 
     public JoinSetComposerPrototypeImpl(String statementName,
                                         int statementId,
@@ -76,11 +77,12 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                                         boolean joinRemoveStream,
                                         boolean isOuterJoins,
                                         TableService tableService,
-                                        EventTableIndexService eventTableIndexService) {
+                                        EventTableIndexService eventTableIndexService,
+                                        EngineImportService engineImportService,
+                                        boolean isFireAndForget) {
         this.statementName = statementName;
         this.statementId = statementId;
         this.outerJoinDescList = outerJoinDescList;
-        this.optionalFilterNode = optionalFilterNode;
         this.streamTypes = streamTypes;
         this.streamNames = streamNames;
         this.streamJoinAnalysisResult = streamJoinAnalysisResult;
@@ -94,6 +96,15 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         this.isOuterJoins = isOuterJoins;
         this.tableService = tableService;
         this.eventTableIndexService = eventTableIndexService;
+
+        ExprNode filterExpression;
+        if (isNonUnidirectionalNonSelf()) {
+            filterExpression = getFilterExpressionInclOnClause(optionalFilterNode, outerJoinDescList);
+        } else {
+            filterExpression = optionalFilterNode;
+
+        }
+        postJoinFilterEvaluator = filterExpression == null ? null : ExprNodeCompiler.allocateEvaluator(filterExpression.getForge(), engineImportService, this.getClass(), isFireAndForget, statementName);
     }
 
     public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
@@ -174,8 +185,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
 
         // If this is not unidirectional and not a self-join (excluding self-outer-join)
         JoinSetComposerDesc joinSetComposerDesc;
-        if ((!streamJoinAnalysisResult.isUnidirectional()) &&
-                (!streamJoinAnalysisResult.isPureSelfJoin() || outerJoinDescList.length > 0)) {
+        if (isNonUnidirectionalNonSelf()) {
             JoinSetComposer composer;
             if (historicalViewableDesc.isHasHistorical()) {
                 composer = new JoinSetComposerHistoricalImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, queryStrategies, streamViews, exprEvaluatorContext);
@@ -188,16 +198,12 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
             }
 
             // rewrite the filter expression for all-inner joins in case "on"-clause outer join syntax was used to include those expressions
-            ExprNode filterExpression = getFilterExpressionInclOnClause(optionalFilterNode, outerJoinDescList);
-
-            ExprEvaluator postJoinEval = filterExpression == null ? null : filterExpression.getExprEvaluator();
-            joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
+            joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinFilterEvaluator);
         } else {
-            ExprEvaluator postJoinEval = optionalFilterNode == null ? null : optionalFilterNode.getExprEvaluator();
 
             if (streamJoinAnalysisResult.isUnidirectionalAll()) {
                 JoinSetComposer composer = new JoinSetComposerAllUnidirectionalOuter(queryStrategies);
-                joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
+                joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinFilterEvaluator);
             } else {
                 QueryStrategy driver;
                 int unidirectionalStream;
@@ -211,7 +217,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
 
                 JoinSetComposer composer = new JoinSetComposerStreamToWinImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, streamJoinAnalysisResult.isPureSelfJoin(),
                         unidirectionalStream, driver, streamJoinAnalysisResult.getUnidirectionalNonDriving());
-                joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
+                joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinFilterEvaluator);
             }
         }
 
@@ -298,5 +304,10 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
             throw new RuntimeException("Unexpected exception validating expression: " + ex.getMessage(), ex);
         }
         return andNode;
+    }
+
+    private boolean isNonUnidirectionalNonSelf() {
+        return (!streamJoinAnalysisResult.isUnidirectional()) &&
+                (!streamJoinAnalysisResult.isPureSelfJoin() || outerJoinDescList.length > 0);
     }
 }

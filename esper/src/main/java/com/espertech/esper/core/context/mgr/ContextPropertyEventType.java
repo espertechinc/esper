@@ -38,27 +38,27 @@ public class ContextPropertyEventType {
 
     static {
         LIST_INITIATEDTERM_PROPS = new ArrayList<ContextProperty>();
-        LIST_INITIATEDTERM_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, int.class));
+        LIST_INITIATEDTERM_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, Integer.class));
         LIST_INITIATEDTERM_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_NAME, String.class));
-        LIST_INITIATEDTERM_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_STARTTIME, long.class));
-        LIST_INITIATEDTERM_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ENDTIME, long.class));
+        LIST_INITIATEDTERM_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_STARTTIME, Long.class));
+        LIST_INITIATEDTERM_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ENDTIME, Long.class));
 
         LIST_CATEGORY_PROPS = new ArrayList<ContextProperty>();
         LIST_CATEGORY_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_NAME, String.class));
-        LIST_CATEGORY_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, int.class));
+        LIST_CATEGORY_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, Integer.class));
         LIST_CATEGORY_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_LABEL, String.class));
 
         LIST_PARTITION_PROPS = new ArrayList<ContextProperty>();
         LIST_PARTITION_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_NAME, String.class));
-        LIST_PARTITION_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, int.class));
+        LIST_PARTITION_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, Integer.class));
 
         LIST_HASH_PROPS = new ArrayList<ContextProperty>();
         LIST_HASH_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_NAME, String.class));
-        LIST_HASH_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, int.class));
+        LIST_HASH_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, Integer.class));
 
         LIST_NESTED_PROPS = new ArrayList<ContextProperty>();
         LIST_NESTED_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_NAME, String.class));
-        LIST_NESTED_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, int.class));
+        LIST_NESTED_PROPS.add(new ContextProperty(ContextPropertyEventType.PROP_CTX_ID, Integer.class));
     }
 
     public static Map<String, Object> getCategorizedType() {

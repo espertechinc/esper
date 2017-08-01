@@ -11,6 +11,9 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.spec.UpdateDesc;
 import com.espertech.esper.event.EventBeanCopyMethod;
 import com.espertech.esper.util.TypeWidener;
@@ -23,13 +26,15 @@ public class InternalEventRouterDesc {
     private final TypeWidener[] wideners;
     private final EventType eventType;
     private final Annotation[] annotations;
+    private final ExprEvaluator optionalWhereClauseEval;
 
-    public InternalEventRouterDesc(UpdateDesc updateDesc, EventBeanCopyMethod copyMethod, TypeWidener[] wideners, EventType eventType, Annotation[] annotations) {
+    public InternalEventRouterDesc(UpdateDesc updateDesc, EventBeanCopyMethod copyMethod, TypeWidener[] wideners, EventType eventType, Annotation[] annotations, EngineImportService engineImportService, String statementName) {
         this.updateDesc = updateDesc;
         this.copyMethod = copyMethod;
         this.wideners = wideners;
         this.eventType = eventType;
         this.annotations = annotations;
+        optionalWhereClauseEval = updateDesc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(updateDesc.getOptionalWhereClause().getForge(), engineImportService, this.getClass(), false, statementName);
     }
 
     public UpdateDesc getUpdateDesc() {
@@ -50,5 +55,9 @@ public class InternalEventRouterDesc {
 
     public Annotation[] getAnnotations() {
         return annotations;
+    }
+
+    public ExprEvaluator getOptionalWhereClauseEval() {
+        return optionalWhereClauseEval;
     }
 }

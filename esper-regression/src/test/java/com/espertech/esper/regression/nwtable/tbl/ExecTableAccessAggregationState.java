@@ -64,7 +64,7 @@ public class ExecTableAccessAggregationState implements RegressionExecution {
         stmtSelect.addListener(listener);
         Object[][] expectedAggType = new Object[][]{
                 {"c0", SupportBean.class}, {"c1", SupportBean[].class}, {"c2", SupportBean.class},
-                {"c3", int.class}, {"c4", int[].class}, {"c5", int.class}};
+                {"c3", Integer.class}, {"c4", Integer[].class}, {"c5", Integer.class}};
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtSelect.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         String[] fields = "c0,c1,c2,c3,c4,c5".split(",");

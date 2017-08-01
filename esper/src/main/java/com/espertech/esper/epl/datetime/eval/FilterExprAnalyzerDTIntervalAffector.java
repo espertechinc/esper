@@ -70,7 +70,7 @@ public class FilterExprAnalyzerDTIntervalAffector implements FilterExprAnalyzerA
         ExprIdentNode parameterStartExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, parameterStreamNum, parameterStartProp);
         ExprIdentNode parameterEndExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, parameterStreamNum, parameterEndProp);
 
-        if (targetStartExpr.getExprEvaluator().getType() != parameterStartExpr.getExprEvaluator().getType()) {
+        if (targetStartExpr.getForge().getEvaluationType() != parameterStartExpr.getForge().getEvaluationType()) {
             return;
         }
 

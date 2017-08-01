@@ -46,7 +46,7 @@ public class ExecEnumExceptIntersectUnion implements RegressionExecution {
         runAssertionSetLogicWithEvents(epService);
         runAssertionSetLogicWithScalar(epService);
         runAssertionUnionWhere(epService);
-        tryAssertionInheritance(epService);
+        runAssertionInheritance(epService);
         runAssertionInvalid(epService);
     }
 
@@ -240,7 +240,7 @@ public class ExecEnumExceptIntersectUnion implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void tryAssertionInheritance(EPServiceProvider epService) {
+    private void runAssertionInheritance(EPServiceProvider epService) {
         for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             if (rep.isMapEvent() || rep.isObjectArrayEvent()) {
                 tryAssertionInheritance(epService, rep);

@@ -10,13 +10,12 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 /**
  * Represents the between-clause function in an expression tree.
  */
-public interface ExprBetweenNode extends ExprNode, ExprEvaluator {
+public interface ExprBetweenNode extends ExprNode {
     /**
      * Returns true if the low endpoint is included, false if not
      *

@@ -16,10 +16,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.Drop;
 import com.espertech.esper.client.annotation.Priority;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.spec.UpdateDesc;
 import com.espertech.esper.event.EventBeanCopyMethod;
@@ -42,6 +40,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
     private static final Logger log = LoggerFactory.getLogger(InternalEventRouterImpl.class);
 
     private final String engineURI;
+    private final EngineImportService engineImportService;
     private final ConcurrentHashMap<EventType, NullableObject<InternalEventRouterPreprocessor>> preprocessors;
     private final Map<UpdateDesc, IRDescEntry> descriptors;
     private boolean hasPreprocessing = false;
@@ -51,8 +50,9 @@ public class InternalEventRouterImpl implements InternalEventRouter {
      * Ctor.
      * @param engineURI engine URI
      */
-    public InternalEventRouterImpl(String engineURI) {
+    public InternalEventRouterImpl(String engineURI, EngineImportService engineImportService) {
         this.engineURI = engineURI;
+        this.engineImportService = engineImportService;
         this.preprocessors = new ConcurrentHashMap<EventType, NullableObject<InternalEventRouterPreprocessor>>();
         this.descriptors = new LinkedHashMap<UpdateDesc, IRDescEntry>();
     }
@@ -107,7 +107,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
         }
     }
 
-    public InternalEventRouterDesc getValidatePreprocessing(EventType eventType, UpdateDesc desc, Annotation[] annotations)
+    public InternalEventRouterDesc getValidatePreprocessing(EventType eventType, UpdateDesc desc, Annotation[] annotations, String statementName)
             throws ExprValidationException {
         if (log.isDebugEnabled()) {
             log.debug("Validating route preprocessing for type '" + eventType.getName() + "'");
@@ -132,7 +132,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
                 throw new ExprValidationException("Property '" + assignmentPair.getFirst() + "' is not available for write access");
             }
 
-            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getExprEvaluator().getType(),
+            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getForge().getEvaluationType(),
                     writableProperty.getPropertyType(), assignmentPair.getFirst(), false, null, null, engineURI);
             properties.add(assignmentPair.getFirst());
         }
@@ -143,11 +143,11 @@ public class InternalEventRouterImpl implements InternalEventRouter {
             throw new ExprValidationException("The update-clause requires the underlying event representation to support copy (via Serializable by default)");
         }
 
-        return new InternalEventRouterDesc(desc, copyMethod, wideners, eventType, annotations);
+        return new InternalEventRouterDesc(desc, copyMethod, wideners, eventType, annotations, engineImportService, statementName);
     }
 
     public synchronized void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect) {
-        descriptors.put(internalEventRouterDesc.getUpdateDesc(), new IRDescEntry(internalEventRouterDesc, outputView, agentInstanceLock, hasSubselect));
+        descriptors.put(internalEventRouterDesc.getUpdateDesc(), new IRDescEntry(internalEventRouterDesc, outputView, agentInstanceLock, hasSubselect, internalEventRouterDesc.getOptionalWhereClauseEval()));
 
         // remove all preprocessors for this type as well as any known child types, forcing re-init on next use
         removePreprocessors(internalEventRouterDesc.getEventType());
@@ -246,14 +246,14 @@ public class InternalEventRouterImpl implements InternalEventRouter {
                 eventPropertiesWritten.add(assignmentPair.getFirst());
             }
             EventBeanWriter writer = eventTypeSPI.getWriter(properties.toArray(new String[properties.size()]));
-            desc.add(new InternalEventRouterEntry(priority, isDrop, entry.getKey().getOptionalWhereClause(), expressions, writer, entry.getValue().getWideners(), entry.getValue().getOutputView(), entry.getValue().getAgentInstanceLock(), entry.getValue().hasSubselect));
+            desc.add(new InternalEventRouterEntry(priority, isDrop, entry.getValue().getOptionalWhereClauseEvaluator(), expressions, writer, entry.getValue().getWideners(), entry.getValue().getOutputView(), entry.getValue().getAgentInstanceLock(), entry.getValue().hasSubselect));
         }
 
         EventBeanCopyMethod copyMethod = eventTypeSPI.getCopyMethod(eventPropertiesWritten.toArray(new String[eventPropertiesWritten.size()]));
         if (copyMethod == null) {
-            return new NullableObject<InternalEventRouterPreprocessor>(null);
+            return new NullableObject<>(null);
         }
-        return new NullableObject<InternalEventRouterPreprocessor>(new InternalEventRouterPreprocessor(copyMethod, desc));
+        return new NullableObject<>(new InternalEventRouterPreprocessor(copyMethod, desc));
     }
 
     private static class IRDescEntry {
@@ -261,12 +261,18 @@ public class InternalEventRouterImpl implements InternalEventRouter {
         private final InternalRoutePreprocessView outputView;
         private final StatementAgentInstanceLock agentInstanceLock;
         private final boolean hasSubselect;
+        private final ExprEvaluator optionalWhereClauseEvaluator;
 
-        private IRDescEntry(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect) {
+        private IRDescEntry(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect, ExprEvaluator optionalWhereClauseEvaluator) {
             this.internalEventRouterDesc = internalEventRouterDesc;
             this.outputView = outputView;
             this.agentInstanceLock = agentInstanceLock;
             this.hasSubselect = hasSubselect;
+            this.optionalWhereClauseEvaluator = optionalWhereClauseEvaluator;
+        }
+
+        public ExprEvaluator getOptionalWhereClauseEvaluator() {
+            return optionalWhereClauseEvaluator;
         }
 
         public EventType getEventType() {

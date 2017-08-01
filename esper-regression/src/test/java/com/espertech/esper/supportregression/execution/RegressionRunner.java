@@ -18,7 +18,18 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class RegressionRunner {
     public static void run(RegressionExecution execution) {
+        runInternal(execution, true);
+        runInternal(execution, false);
+    }
+
+    private static void runInternal(RegressionExecution execution, boolean codegen) {
         Configuration configuration = SupportConfigFactory.getConfiguration();
+
+        if (!codegen) {
+            configuration.getEngineDefaults().getCodeGeneration().setEnablePropertyGetter(true);
+            configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
+        }
+
         try {
             execution.configure(configuration);
         } catch (Exception ex) {

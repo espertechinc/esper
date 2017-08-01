@@ -138,7 +138,7 @@ public class MethodPollingViewable implements HistoricalEventViewable {
                     metadata.getMethodProviderClass().getName(), metadata.isStaticMethod() ? null : metadata.getMethodProviderClass(),
                     methodStreamSpec.getMethodName(), validatedInputParameters, engineImportService, eventAdapterService, statementContext.getStatementId(),
                     false, null, handler, methodStreamSpec.getMethodName(), tableService, statementContext.getEngineURI());
-            validatedExprNodes = desc.getChildEvals();
+            validatedExprNodes = ExprNodeUtility.getEvaluatorsMayCompile(desc.getChildForges(), engineImportService, this.getClass(), streamTypeService.isOnDemandStreams(), statementContext.getStatementName());
 
             // Construct polling strategy as a method invocation
             Object invocationTarget = metadata.getInvocationTarget();
@@ -181,8 +181,8 @@ public class MethodPollingViewable implements HistoricalEventViewable {
             }
         } else {
             // script-based evaluation
-            pollExecStrategy = new MethodPollingExecStrategyScript(metadata.getScriptExpression(), metadata.getEventTypeEventBeanArray());
-            validatedExprNodes = ExprNodeUtility.getEvaluators(validatedInputParameters);
+            pollExecStrategy = new MethodPollingExecStrategyScript(metadata.getScriptExpression());
+            validatedExprNodes = ExprNodeUtility.getEvaluatorsMayCompile(validatedInputParameters, engineImportService, this.getClass(), streamTypeService.isOnDemandStreams(), statementContext.getStatementName());
         }
     }
 

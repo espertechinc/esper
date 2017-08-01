@@ -1390,7 +1390,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
                 }
             }
 
-            NamedWindowSelectedProps validatedElement = new NamedWindowSelectedProps(validatedExpression.getExprEvaluator().getType(), asName, fragmentType);
+            NamedWindowSelectedProps validatedElement = new NamedWindowSelectedProps(validatedExpression.getForge().getEvaluationType(), asName, fragmentType);
             selectProps.add(validatedElement);
         }
 

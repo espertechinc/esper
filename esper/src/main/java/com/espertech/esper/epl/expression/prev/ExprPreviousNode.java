@@ -12,6 +12,10 @@ package com.espertech.esper.epl.expression.prev;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -24,7 +28,7 @@ import java.util.Locale;
 /**
  * Represents the 'prev' previous event function in an expression node tree.
  */
-public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration {
+public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval, ExprForge {
     private static final long serialVersionUID = 0L;
 
     private final ExprPreviousNodePreviousType previousType;
@@ -65,6 +69,18 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return resultType;
     }
 
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return getResultType();
+    }
+
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if ((this.getChildNodes().length > 2) || (this.getChildNodes().length == 0)) {
             throw new ExprValidationException("Previous node must have 1 or 2 parameters");
@@ -89,7 +105,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         // Determine if the index is a constant value or an expression to evaluate
         if (this.getChildNodes()[0].isConstantResult()) {
             ExprNode constantNode = this.getChildNodes()[0];
-            Object value = constantNode.getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
+            Object value = constantNode.getForge().getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
             if (!(value instanceof Number)) {
                 throw new ExprValidationException("Previous function requires an integer index parameter or expression");
             }
@@ -107,11 +123,11 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         if (this.getChildNodes()[1] instanceof ExprIdentNode) {
             ExprIdentNode identNode = (ExprIdentNode) this.getChildNodes()[1];
             streamNumber = identNode.getStreamId();
-            resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getExprEvaluator().getType());
+            resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getForge().getEvaluationType());
         } else if (this.getChildNodes()[1] instanceof ExprStreamUnderlyingNode) {
             ExprStreamUnderlyingNode streamNode = (ExprStreamUnderlyingNode) this.getChildNodes()[1];
             streamNumber = streamNode.getStreamId();
-            resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getExprEvaluator().getType());
+            resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getForge().getEvaluationType());
             enumerationMethodType = validationContext.getStreamTypeService().getEventTypes()[streamNode.getStreamId()];
         } else {
             throw new ExprValidationException("Previous function requires an event property as parameter");
@@ -135,10 +151,6 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return previousType;
     }
 
-    public Class getType() {
-        return resultType;
-    }
-
     public boolean isConstantResult() {
         return false;
     }
@@ -150,6 +162,10 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return evaluator.evaluateGetCollEvents(eventsPerStream, context);
     }
 
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
+    }
+
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (!isNewData) {
             return null;
@@ -157,11 +173,19 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return evaluator.evaluateGetEventBean(eventsPerStream, context);
     }
 
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
+    }
+
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (!isNewData) {
             return null;
         }
         return evaluator.evaluateGetCollScalar(eventsPerStream, context);
+    }
+
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
     }
 
     public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
@@ -202,6 +226,14 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return evaluator.evaluate(eventsPerStream, exprEvaluatorContext);
     }
 
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append(previousType.toString().toLowerCase(Locale.ENGLISH));
         writer.append("(");
@@ -219,6 +251,10 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
 
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
     }
 
     @Override

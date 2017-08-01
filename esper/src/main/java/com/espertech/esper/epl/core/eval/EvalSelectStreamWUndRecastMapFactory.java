@@ -72,7 +72,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
                 throw new ExprValidationException("Failed to find column '" + columnName + "' in target type '" + mapResultType.getName() + "'");
             }
 
-            TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getExprEvaluator().getType(),
+            TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
                     writable.getType(), columnName, false, null, statementName, engineURI);
             items.add(new Item(count, null, evaluator, widener));
             written.add(writable);

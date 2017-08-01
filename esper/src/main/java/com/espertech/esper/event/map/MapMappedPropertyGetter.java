@@ -18,9 +18,7 @@ import com.espertech.esper.event.BaseNestableEventUtil;
 
 import java.util.Map;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.castUnderlying;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethodTakingExprAndConst;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for a dynamic mappeds property for maps.
@@ -31,8 +29,9 @@ public class MapMappedPropertyGetter implements MapEventPropertyGetter, MapEvent
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param map map
-     * @param fieldName field
+     *
+     * @param map         map
+     * @param fieldName   field
      * @param providedKey key
      * @return value
      * @throws PropertyAccessException exception
@@ -44,9 +43,10 @@ public class MapMappedPropertyGetter implements MapEventPropertyGetter, MapEvent
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param map map
+     *
+     * @param map       map
      * @param fieldName field
-     * @param key key
+     * @param key       key
      * @return value
      * @throws PropertyAccessException exception
      */
@@ -93,27 +93,31 @@ public class MapMappedPropertyGetter implements MapEventPropertyGetter, MapEvent
         return null;
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantNull();
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "getMapMappedValue", underlyingExpression, fieldName, key);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getMapMappedValue", underlyingExpression, constant(fieldName), constant(key));
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
-        return staticMethodTakingExprAndConst(this.getClass(), "isMapExistsProperty", underlyingExpression, fieldName, key);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "isMapExistsProperty", underlyingExpression, constant(fieldName), constant(key));
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
+    }
+
+    public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
+        return staticMethod(this.getClass(), "getMapMappedValue", castUnderlying(Map.class, beanExpression), constant(fieldName), key);
     }
 }

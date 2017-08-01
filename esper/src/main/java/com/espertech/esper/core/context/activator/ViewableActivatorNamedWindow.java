@@ -11,7 +11,10 @@
 package com.espertech.esper.core.context.activator;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.named.NamedWindowConsumerDesc;
 import com.espertech.esper.epl.named.NamedWindowConsumerView;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
@@ -22,17 +25,19 @@ import java.util.List;
 public class ViewableActivatorNamedWindow implements ViewableActivator {
 
     private final NamedWindowProcessor processor;
-    private final List<ExprNode> filterExpressions;
+    private final ExprNode[] filterExpressions;
+    private final ExprEvaluator[] filterEvaluators;
     private final PropertyEvaluator optPropertyEvaluator;
 
-    public ViewableActivatorNamedWindow(NamedWindowProcessor processor, List<ExprNode> filterExpressions, PropertyEvaluator optPropertyEvaluator) {
+    public ViewableActivatorNamedWindow(NamedWindowProcessor processor, List<ExprNode> filterExpressions, PropertyEvaluator optPropertyEvaluator, EngineImportService engineImportService, String statementName) {
         this.processor = processor;
-        this.filterExpressions = filterExpressions;
+        this.filterExpressions = filterExpressions.toArray(new ExprNode[filterExpressions.size()]);
+        this.filterEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(filterExpressions, engineImportService, this.getClass(), false, statementName);
         this.optPropertyEvaluator = optPropertyEvaluator;
     }
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-        NamedWindowConsumerDesc consumerDesc = new NamedWindowConsumerDesc(filterExpressions, optPropertyEvaluator, agentInstanceContext);
+        NamedWindowConsumerDesc consumerDesc = new NamedWindowConsumerDesc(filterExpressions, filterEvaluators, optPropertyEvaluator, agentInstanceContext);
         NamedWindowConsumerView consumerView = processor.addConsumer(consumerDesc, isSubselect);
         return new ViewableActivationResult(consumerView, consumerView, null, null, null, false, false, null);
     }

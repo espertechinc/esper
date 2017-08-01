@@ -10,24 +10,23 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.client.*;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.event.EventPropertyGetterSPI;
+import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.vaevent.VariantEvent;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
-import java.util.Map;
 
 /**
  * Represents the TYPEOF(a) function is an expression tree.
  */
 public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizableNode {
     private static final long serialVersionUID = -612634538694877204L;
-    private transient ExprEvaluator evaluator;
+
+    private transient ExprTypeofNodeForge forge;
 
     /**
      * Ctor.
@@ -36,11 +35,12 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return evaluator;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
     }
 
-    public Map<String, Object> getEventType() {
-        return null;
+    public ExprForge getForge() {
+        return forge;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -50,7 +50,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
 
         if (this.getChildNodes()[0] instanceof ExprStreamUnderlyingNode) {
             ExprStreamUnderlyingNode stream = (ExprStreamUnderlyingNode) getChildNodes()[0];
-            evaluator = new StreamEventTypeEval(stream.getStreamId());
+            forge = new ExprTypeofNodeForgeStreamEvent(this, stream.getStreamId());
             return null;
         }
 
@@ -58,18 +58,20 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
             ExprIdentNode ident = (ExprIdentNode) getChildNodes()[0];
             int streamNum = validationContext.getStreamTypeService().getStreamNumForStreamName(ident.getFullUnresolvedName());
             if (streamNum != -1) {
-                evaluator = new StreamEventTypeEval(streamNum);
+                forge = new ExprTypeofNodeForgeStreamEvent(this, streamNum);
                 return null;
             }
 
             EventType eventType = validationContext.getStreamTypeService().getEventTypes()[ident.getStreamId()];
-            if (eventType.getFragmentType(ident.getResolvedPropertyName()) != null) {
-                evaluator = new FragmentTypeEval(ident.getStreamId(), eventType, ident.getResolvedPropertyName());
+            FragmentEventType fragmentEventType = eventType.getFragmentType(ident.getResolvedPropertyName());
+            if (fragmentEventType != null) {
+                EventPropertyGetterSPI getter = ((EventTypeSPI) eventType).getGetterSPI(ident.getResolvedPropertyName());
+                forge = new ExprTypeofNodeForgeFragmentType(this, ident.getStreamId(), getter, fragmentEventType.getFragmentType().getName());
                 return null;
             }
         }
 
-        evaluator = new InnerEvaluator(this.getChildNodes()[0].getExprEvaluator());
+        forge = new ExprTypeofNodeForgeInnerEval(this);
         return null;
     }
 
@@ -150,10 +152,6 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
             return theEvent.getEventType().getName();
         }
 
-        @Override
-        public Class getType() {
-            return String.class;
-        }
     }
 
     public static class FragmentTypeEval implements ExprEvaluator {
@@ -207,11 +205,6 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
             return null;
         }
 
-        @Override
-        public Class getType() {
-            return String.class;
-        }
-
     }
 
     private static class InnerEvaluator implements ExprEvaluator {
@@ -219,11 +212,6 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
 
         public InnerEvaluator(ExprEvaluator evaluator) {
             this.evaluator = evaluator;
-        }
-
-        @Override
-        public Class getType() {
-            return String.class;
         }
 
         @Override

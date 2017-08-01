@@ -854,6 +854,9 @@ class ConfigurationParser {
             if (subElement.getNodeName().equals("execution")) {
                 handleExecution(configuration, subElement);
             }
+            if (subElement.getNodeName().equals("codegen")) {
+                handleCodegen(configuration, subElement);
+            }
             if (subElement.getNodeName().equals("exceptionHandling")) {
                 configuration.getEngineDefaults().getExceptionHandling().addClasses(getHandlerFactories(subElement));
                 String enableUndeployRethrowStr = getOptionalAttribute(subElement, "undeploy-rethrow-policy");
@@ -1030,6 +1033,11 @@ class ConfigurationParser {
             }
             if (subElement.getNodeName().equals("audit")) {
                 configuration.getEngineDefaults().getLogging().setAuditPattern(getOptionalAttribute(subElement, "pattern"));
+            }
+            if (subElement.getNodeName().equals("code")) {
+                String valueText = getRequiredAttribute(subElement, "enabled");
+                Boolean value = Boolean.parseBoolean(valueText);
+                configuration.getEngineDefaults().getLogging().setEnableCode(value);
             }
         }
     }
@@ -1250,6 +1258,35 @@ class ConfigurationParser {
         if (timeZoneStr != null) {
             TimeZone timeZone = TimeZone.getTimeZone(timeZoneStr);
             configuration.getEngineDefaults().getExpression().setTimeZone(timeZone);
+        }
+    }
+
+    private static void handleCodegen(Configuration configuration, Element parentElement) {
+        ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
+
+        String enableExprStr = getOptionalAttribute(parentElement, "enable-expression");
+        if (enableExprStr != null) {
+            codegen.setEnableExpression(Boolean.parseBoolean(enableExprStr));
+        }
+
+        String enablePropertyGetterStr = getOptionalAttribute(parentElement, "enable-propertygetter");
+        if (enablePropertyGetterStr != null) {
+            codegen.setEnablePropertyGetter(Boolean.parseBoolean(enablePropertyGetterStr));
+        }
+
+        String enableFallbackStr = getOptionalAttribute(parentElement, "enable-fallback");
+        if (enableFallbackStr != null) {
+            codegen.setEnableFallback(Boolean.parseBoolean(enableFallbackStr));
+        }
+
+        String includeDebugSymbolsStr = getOptionalAttribute(parentElement, "include-debugsymbols");
+        if (includeDebugSymbolsStr != null) {
+            codegen.setIncludeDebugSymbols(Boolean.parseBoolean(includeDebugSymbolsStr));
+        }
+
+        String includeCommentsStr = getOptionalAttribute(parentElement, "include-comments");
+        if (includeCommentsStr != null) {
+            codegen.setIncludeComments(Boolean.parseBoolean(includeCommentsStr));
         }
     }
 

@@ -23,6 +23,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeGroupKey;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVariableVisitor;
@@ -52,15 +53,15 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
 
         // validate expression
         expiryExpression = ViewFactorySupport.validateExpr(getViewName(), statementContext, expiryExpression, streamTypeService, 0);
-        expiryExpressionEvaluator = expiryExpression.getExprEvaluator();
 
         ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
         expiryExpression.accept(summaryVisitor);
         if (summaryVisitor.isHasSubselect() || summaryVisitor.isHasStreamSelect() || summaryVisitor.isHasPreviousPrior()) {
             throw new ViewParameterException("Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context");
         }
+        expiryExpressionEvaluator = ExprNodeCompiler.allocateEvaluator(expiryExpression.getForge(), statementContext.getEngineImportService(), ExpressionViewFactoryBase.class, false, statementContext.getStatementName());
 
-        Class returnType = expiryExpressionEvaluator.getType();
+        Class returnType = expiryExpression.getForge().getEvaluationType();
         if (JavaClassHelper.getBoxedType(returnType) != Boolean.class) {
             throw new ViewParameterException("Invalid return value for expiry expression, expected a boolean return value but received " + JavaClassHelper.getParameterAsString(returnType));
         }
@@ -75,12 +76,13 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         ExprAggregateNodeUtil.getAggregatesBottomUp(expiryExpression, aggregateNodes);
         if (!aggregateNodes.isEmpty()) {
             try {
-                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, statementContext.getAggregationServiceFactoryService(), streamTypeService.getEventTypes(), null, statementContext.getContextName(), null, null, false, false, false, statementContext.getEngineImportService());
+                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, statementContext.getAggregationServiceFactoryService(), streamTypeService.getEventTypes(), null, statementContext.getContextName(), null, null, false, false, false, statementContext.getEngineImportService(), statementContext.getStatementName());
             } catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);
             }
         }
     }
+
 
     public EventType getEventType() {
         return eventType;

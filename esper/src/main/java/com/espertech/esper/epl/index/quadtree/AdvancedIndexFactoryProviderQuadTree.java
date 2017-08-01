@@ -25,7 +25,7 @@ public abstract class AdvancedIndexFactoryProviderQuadTree implements AdvancedIn
     public AdvancedIndexConfigContextPartition validateConfigureFilterIndex(String indexName, String indexTypeName, ExprNode[] parameters, ExprValidationContext validationContext) throws ExprValidationException {
         validateParameters(indexTypeName, parameters);
         try {
-            return configureQuadTree(indexName, ExprNodeUtility.getEvaluators(parameters), validationContext.getExprEvaluatorContext());
+            return configureQuadTree(indexName, ExprNodeUtility.getEvaluatorsNoCompile(parameters), validationContext.getExprEvaluatorContext());
         } catch (EPException ex) {
             throw new ExprValidationException(ex.getMessage(), ex);
         }

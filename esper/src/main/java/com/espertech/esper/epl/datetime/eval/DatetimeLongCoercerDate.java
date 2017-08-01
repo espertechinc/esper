@@ -10,10 +10,22 @@
  */
 package com.espertech.esper.epl.datetime.eval;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.util.Date;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class DatetimeLongCoercerDate implements DatetimeLongCoercer {
     public long coerce(Object date) {
         return ((Date) date).getTime();
+    }
+
+    public CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenContext context) {
+        if (valueType != Date.class) {
+            throw new IllegalStateException("Expected a Date type");
+        }
+        return exprDotMethod(value, "getTime");
     }
 }

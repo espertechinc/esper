@@ -11,6 +11,7 @@
 package com.espertech.esper.rowregex;
 
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.Viewable;
@@ -105,7 +106,7 @@ public class EventRowRegexHelper {
      * @return strand of regex state nodes
      */
     protected static RegexNFAStrandResult recursiveBuildStartStates(RowRegexExprNode parent,
-                                                                    Map<String, ExprNode> variableDefinitions,
+                                                                    Map<String, Pair<ExprNode, ExprEvaluator>> variableDefinitions,
                                                                     Map<String, Pair<Integer, Boolean>> variableStreams,
                                                                     boolean[] exprRequiresMultimatchState
     ) {
@@ -133,7 +134,7 @@ public class EventRowRegexHelper {
     }
 
     private static RegexNFAStrand recursiveBuildStatesInternal(RowRegexExprNode node,
-                                                               Map<String, ExprNode> variableDefinitions,
+                                                               Map<String, Pair<ExprNode, ExprEvaluator>> variableDefinitions,
                                                                Map<String, Pair<Integer, Boolean>> variableStreams,
                                                                Stack<Integer> nodeNumStack,
                                                                boolean[] exprRequiresMultimatchState
@@ -256,16 +257,17 @@ public class EventRowRegexHelper {
             // assign stream number for single-variables for most direct expression eval; multiple-variable gets -1
             int streamNum = variableStreams.get(atom.getTag()).getFirst();
             boolean multiple = variableStreams.get(atom.getTag()).getSecond();
-            ExprNode expressionDef = variableDefinitions.get(atom.getTag());
+            Pair<ExprNode, ExprEvaluator> expressionDef = variableDefinitions.get(atom.getTag());
+            ExprEvaluator evaluator = expressionDef == null ? null : expressionDef.getSecond();
             boolean exprRequiresMultimatch = exprRequiresMultimatchState[streamNum];
 
             RegexNFAStateBase nextState;
             if ((atom.getType() == RegexNFATypeEnum.ZERO_TO_MANY) || (atom.getType() == RegexNFATypeEnum.ZERO_TO_MANY_RELUCTANT)) {
-                nextState = new RegexNFAStateZeroToMany(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), expressionDef, exprRequiresMultimatch);
+                nextState = new RegexNFAStateZeroToMany(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), evaluator, exprRequiresMultimatch);
             } else if ((atom.getType() == RegexNFATypeEnum.ONE_TO_MANY) || (atom.getType() == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT)) {
-                nextState = new RegexNFAStateOneToMany(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), expressionDef, exprRequiresMultimatch);
+                nextState = new RegexNFAStateOneToMany(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), evaluator, exprRequiresMultimatch);
             } else if ((atom.getType() == RegexNFATypeEnum.ONE_OPTIONAL) || (atom.getType() == RegexNFATypeEnum.ONE_OPTIONAL_RELUCTANT)) {
-                nextState = new RegexNFAStateOneOptional(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), expressionDef, exprRequiresMultimatch);
+                nextState = new RegexNFAStateOneOptional(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), evaluator, exprRequiresMultimatch);
             } else if (expressionDef == null) {
                 nextState = new RegexNFAStateAnyOne(toString(nodeNumStack), atom.getTag(), streamNum, multiple);
             } else {

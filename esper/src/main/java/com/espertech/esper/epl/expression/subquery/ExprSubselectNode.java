@@ -12,7 +12,12 @@ package com.espertech.esper.epl.expression.subquery;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
@@ -27,7 +32,7 @@ import java.util.List;
 /**
  * Represents a subselect in an expression tree.
  */
-public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration, ExprEvaluatorTypableReturn {
+public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval, ExprTypableReturnForge, ExprTypableReturnEval, ExprForge {
     public static final ExprSubselectNode[] EMPTY_SUBSELECT_ARRAY = new ExprSubselectNode[0];
     private static final long serialVersionUID = -2469169635913155764L;
 
@@ -109,6 +114,14 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         return false;
     }
 
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         this.statementName = validationContext.getStatementName();
         validateSubquery(validationContext);
@@ -140,9 +153,9 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
      *
      * @param selectClause is the expression representing the select clause
      */
-    public void setSelectClause(ExprNode[] selectClause) {
+    public void setSelectClause(ExprNode[] selectClause, EngineImportService engineImportService, String statementName) {
         this.selectClause = selectClause;
-        this.selectClauseEvaluator = ExprNodeUtility.getEvaluators(selectClause);
+        this.selectClauseEvaluator = ExprNodeUtility.getEvaluatorsMayCompile(selectClause, engineImportService, ExprSubselectNode.class, false, statementName);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -157,14 +170,30 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         return evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
     }
 
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Collection<EventBean> matchingEvents = evaluateMatching(eventsPerStream, exprEvaluatorContext);
         return evaluateGetCollEvents(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
     }
 
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
+    }
+
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Collection<EventBean> matchingEvents = evaluateMatching(eventsPerStream, exprEvaluatorContext);
         return evaluateGetCollScalar(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
+    }
+
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -189,9 +218,25 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         return evaluateTypableSingle(eventsPerStream, isNewData, matching, context);
     }
 
+    public CodegenExpression evaluateTypableSingleCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfTypableSingle(this, params, context);
+    }
+
     public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Collection<EventBean> matching = strategy.evaluateMatching(eventsPerStream, context);
         return evaluateTypableMulti(eventsPerStream, isNewData, matching, context);
+    }
+
+    public CodegenExpression evaluateTypableMultiCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfTypableMulti(this, params, context);
+    }
+
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
+    }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
     }
 
     /**
@@ -342,6 +387,10 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
     public AggregationService getSubselectAggregationService() {
         return subselectAggregationService;
+    }
+
+    public ExprTypableReturnEval getTypableReturnEvaluator() {
+        return this;
     }
 
     public static enum SubqueryAggregationType {

@@ -17,14 +17,13 @@ import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventPropertyType;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
-import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.arr.ObjectArrayPropertyGetterDefaultObjectArray;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.InternalEventPropDescriptor;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
-import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.event.map.MapPropertyGetterDefaultNoFragment;
 import com.espertech.esper.event.xml.*;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.Map;
@@ -94,20 +93,18 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
             }
 
             EventType eventType = eventAdapterService.getExistsTypeByName(propertyName);
-            if (eventType instanceof MapEventType) {
+            if (eventType != null) {
                 if (isArray) {
-                    return Map[].class;
-                } else {
-                    return Map.class;
+                    return JavaClassHelper.getArrayType(eventType.getUnderlyingType());
                 }
+                return eventType.getUnderlyingType();
             }
-            if (eventType instanceof ObjectArrayEventType) {
-                if (isArray) {
-                    return Object[][].class;
-                } else {
-                    return Object[].class;
-                }
-            }
+        } else if (def instanceof EventType) {
+            EventType eventType = (EventType) def;
+            return eventType.getUnderlyingType();
+        } else if (def instanceof EventType[]) {
+            EventType[] eventType = (EventType[]) def;
+            return JavaClassHelper.getArrayType(eventType[0].getUnderlyingType());
         }
         String message = "Nestable map type configuration encountered an unexpected value type of '"
                 + def.getClass() + " for property '" + propertyNameAtomic + "', expected Map or Class";

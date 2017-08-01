@@ -196,6 +196,7 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
         EPAssertionUtil.assertPropsPerRow(listener.assertInvokedAndReset(), "val", new Object[]{-1}, new Object[]{0});
 
         // test dot-method
+        MyAggFuncFactory.setInstanceCount(0);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_A.class);
         epService.getEPAdministrator().getConfiguration().addPlugInAggregationFunctionFactory("myagg", MyAggFuncFactory.class.getName());
         String[] fields = "val0,val1".split(",");
@@ -226,7 +227,7 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
         statement.addListener(listener);
 
         AggregationValidationContext validContext = SupportPluginAggregationMethodThreeFactory.getContexts().get(0);
-        EPAssertionUtil.assertEqualsExactOrder(new Class[]{Integer.class, Integer.class, int.class, SupportBean.class}, validContext.getParameterTypes());
+        EPAssertionUtil.assertEqualsExactOrder(new Class[]{int.class, int.class, Integer.class, SupportBean.class}, validContext.getParameterTypes());
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 10, null, null}, validContext.getConstantValues());
         EPAssertionUtil.assertEqualsExactOrder(new boolean[]{true, true, false, false}, validContext.getIsConstantValue());
 
@@ -286,7 +287,7 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
             String text = "select concat(1) from " + SupportBean.class.getName();
             epService.getEPAdministrator().createEPL(text);
         } catch (EPStatementException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'concat(1)': Plug-in aggregation function 'concat' failed validation: Invalid parameter type 'java.lang.Integer', expecting string [");
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'concat(1)': Plug-in aggregation function 'concat' failed validation: Invalid parameter type 'int', expecting string [");
         }
     }
 
@@ -327,6 +328,10 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
 
     public static class MyAggFuncFactory implements AggregationFunctionFactory {
         private static int instanceCount;
+
+        public static void setInstanceCount(int instanceCount) {
+            MyAggFuncFactory.instanceCount = instanceCount;
+        }
 
         static int getInstanceCount() {
             return instanceCount;

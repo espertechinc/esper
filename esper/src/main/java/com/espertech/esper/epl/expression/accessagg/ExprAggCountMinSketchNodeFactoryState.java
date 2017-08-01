@@ -18,6 +18,7 @@ import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggAccessorDefault;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
@@ -48,7 +49,7 @@ public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketch
         return stateFactory;
     }
 
-    public AggregationAgent getAggregationStateAgent() {
+    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         throw new UnsupportedOperationException();
     }
 
@@ -56,7 +57,7 @@ public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketch
         ExprAggCountMinSketchNodeFactoryUse use = (ExprAggCountMinSketchNodeFactoryUse) intoTableAgg;
         CountMinSketchAggType aggType = use.getParent().getAggType();
         if (aggType == CountMinSketchAggType.FREQ || aggType == CountMinSketchAggType.ADD) {
-            Class clazz = use.getAddOrFrequencyEvaluator().getType();
+            Class clazz = use.getAddOrFrequencyEvaluatorReturnType();
             boolean foundMatch = false;
             for (Class allowed : stateFactory.getSpecification().getAgent().getAcceptableValueTypes()) {
                 if (JavaClassHelper.isSubclassOrImplementsInterface(clazz, allowed)) {

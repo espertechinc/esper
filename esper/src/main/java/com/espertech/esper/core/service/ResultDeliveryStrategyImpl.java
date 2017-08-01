@@ -174,7 +174,7 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy {
      * @throws EPException converted from the passed invocation exception
      */
     protected static void handle(String statementName, Logger logger, InvocationTargetException e, Object[] parameters, Object subscriber, FastMethod method) {
-        String message = JavaClassHelper.getMessageInvocationTarget(statementName, method.getJavaMethod(), subscriber.getClass().getName(), parameters, e);
+        String message = JavaClassHelper.getMessageInvocationTarget(statementName, method.getJavaMethod(), subscriber.getClass().getName(), parameters, e.getTargetException());
         logger.error(message, e.getTargetException());
     }
 

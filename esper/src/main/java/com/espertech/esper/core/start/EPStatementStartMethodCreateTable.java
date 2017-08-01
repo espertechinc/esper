@@ -324,7 +324,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             } else {
                 methodAggColumns.add(agg);
             }
-            allColumnsPublicTypes.put(column.getColumnName(), agg.getAggregation().getType());
+            allColumnsPublicTypes.put(column.getColumnName(), agg.getAggregation().getEvaluationType());
         }
 
         // determine column metadata

@@ -33,11 +33,12 @@ public class ExecExprDotExpression implements RegressionExecution {
         runAssertionDotExpressionEnumValue(epService);
         runAssertionMapIndexPropertyRooted(epService);
         runAssertionInvalid(epService);
-        runAssertionNestedPropertyInstanceExpr(epService);
         runAssertionChainedUnparameterized(epService);
         runAssertionChainedParameterized(epService);
         runAssertionArrayPropertySizeAndGet(epService);
         runAssertionArrayPropertySizeAndGetChained(epService);
+        runAssertionNestedPropertyInstanceExpr(epService);
+        runAssertionNestedPropertyInstanceNW(epService);
     }
 
     private void runAssertionDotObjectEquals(EPServiceProvider epService) {
@@ -99,8 +100,8 @@ public class ExecExprDotExpression implements RegressionExecution {
         stmt.addListener(listener);
         assertEquals(InnerType.class, stmt.getEventType().getPropertyType("c0"));
         assertEquals(InnerType.class, stmt.getEventType().getPropertyType("c1"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("c2"));
-        assertEquals(int.class, stmt.getEventType().getPropertyType("c3"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c2"));
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c3"));
 
         MyTypeErasure event = new MyTypeErasure("key1", 2, Collections.singletonMap("key1", new InnerType(new int[]{20, 30, 40})), new InnerType[]{new InnerType(new int[]{2, 3}), new InnerType(new int[]{4, 5}), new InnerType(new int[]{6, 7, 8})});
         epService.getEPRuntime().sendEvent(event);
@@ -131,7 +132,9 @@ public class ExecExprDotExpression implements RegressionExecution {
 
         epService.getEPRuntime().sendEvent(new LevelZero(new LevelOne(new LevelTwo(new LevelThree()))));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "val0,val1,val2".split(","), new Object[]{"level1:10", "level2:20", "level3:30"});
+    }
 
+    private void runAssertionNestedPropertyInstanceNW(EPServiceProvider epService) {
         // ESPER-772
         epService.getEPAdministrator().getConfiguration().addEventType(Node.class);
         epService.getEPAdministrator().getConfiguration().addEventType(NodeData.class);
@@ -146,16 +149,16 @@ public class ExecExprDotExpression implements RegressionExecution {
         epService.getEPAdministrator().createEPL("create window NodeWithDataWindow#unique(node.id) as NodeWithData");
         epService.getEPAdministrator().createEPL("insert into NodeWithDataWindow " +
                 "select node, data from NodeWindow node join NodeDataWindow as data on node.id = data.nodeId");
-        stmt.destroy();
 
-        stmt = epService.getEPAdministrator().createEPL("select node.id, data.nodeId, data.value, node.compute(data) from NodeWithDataWindow");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select node.id, data.nodeId, data.value, node.compute(data) from NodeWithDataWindow");
+        SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new Node("1"));
         epService.getEPRuntime().sendEvent(new Node("2"));
         epService.getEPRuntime().sendEvent(new NodeData("1", "xxx"));
 
-        stmt.destroy();
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void runAssertionChainedUnparameterized(EPServiceProvider epService) {
@@ -227,10 +230,10 @@ public class ExecExprDotExpression implements RegressionExecution {
         SupportBeanComplexProps bean = SupportBeanComplexProps.makeDefaultBean();
         Object[][] rows = new Object[][]{
                 {"size", Integer.class},
-                {"get0", int.class},
-                {"get1", int.class},
-                {"get2", int.class},
-                {"get3", int.class}
+                {"get0", Integer.class},
+                {"get1", Integer.class},
+                {"get2", Integer.class},
+                {"get3", Integer.class}
         };
         for (int i = 0; i < rows.length; i++) {
             EventPropertyDescriptor prop = stmt.getEventType().getPropertyDescriptors()[i];
@@ -412,7 +415,7 @@ public class ExecExprDotExpression implements RegressionExecution {
             if (data == null) {
                 return null;
             }
-            NodeData nodeData = (NodeData) ((EventBean) data).getUnderlying();
+            NodeData nodeData = (NodeData) data;
             return id + nodeData.getValue();
         }
     }

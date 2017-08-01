@@ -11,12 +11,15 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class SelectExprProcessorEvalStreamInsertUnd implements ExprEvaluator {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class SelectExprProcessorEvalStreamInsertUnd implements ExprForge, ExprEvaluator {
     private final ExprStreamUnderlyingNode undNode;
     private final int streamNum;
     private final Class returnType;
@@ -37,11 +40,30 @@ public class SelectExprProcessorEvalStreamInsertUnd implements ExprEvaluator {
         return eventsPerStream == null ? null : eventsPerStream[streamNum];
     }
 
-    public Class getType() {
-        return returnType;
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        String method = context.addMethod(EventBean.class, SelectExprProcessorEvalStreamInsertUnd.class).add(params).begin()
+                .ifCondition(equalsNull(params.passEPS())).blockEnd()
+                .methodReturn(arrayAtIndex(params.passEPS(), constant(streamNum)));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
     }
 
     public int getStreamNum() {
         return streamNum;
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return returnType;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return undNode;
     }
 }

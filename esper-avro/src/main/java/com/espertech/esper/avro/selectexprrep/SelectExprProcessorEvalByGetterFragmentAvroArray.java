@@ -40,7 +40,4 @@ public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEva
         return null;
     }
 
-    public Class getType() {
-        return returnType;
-    }
 }

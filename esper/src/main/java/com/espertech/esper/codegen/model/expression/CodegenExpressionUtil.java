@@ -10,8 +10,13 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
+import java.lang.reflect.Array;
+import java.util.Map;
+
+import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassName;
+
 public class CodegenExpressionUtil {
-    public static void renderConstant(StringBuilder builder, Object constant) {
+    public static void renderConstant(StringBuilder builder, Object constant, Map<Class, String> imports) {
         if (constant instanceof String) {
             builder.append('"');
             String seq = (String) constant;
@@ -23,14 +28,39 @@ public class CodegenExpressionUtil {
             builder.append('"');
         } else if (constant instanceof CharSequence) {
             appendSequenceEscapeDQ(builder, (CharSequence) constant);
+        } else if (constant instanceof Character) {
+            Character c = (Character) constant;
+            if (c == '\'') {
+                builder.append('\'');
+                builder.append('\\');
+                builder.append('\'');
+                builder.append('\'');
+            } else if (c == '\\') {
+                builder.append('\'');
+                builder.append('\\');
+                builder.append('\\');
+                builder.append('\'');
+            } else {
+                builder.append('\'');
+                builder.append(c);
+                builder.append('\'');
+            }
         } else if (constant == null) {
             builder.append("null");
-        } else if (constant instanceof int[]) {
-            builder.append("new int[] {");
-            int[] nums = (int[]) constant;
+        } else if (constant instanceof Long) {
+            builder.append(constant).append("L");
+        } else if (constant instanceof Float) {
+            builder.append(constant).append("F");
+        } else if (constant instanceof Byte) {
+            builder.append("(byte)").append(constant);
+        } else if (constant.getClass().isArray()) {
+            builder.append("new ");
+            appendClassName(builder, constant.getClass().getComponentType(), null, imports);
+            builder.append("[] {");
             String delimiter = "";
-            for (int num : nums) {
-                builder.append(delimiter).append(num);
+            for (int i = 0; i < Array.getLength(constant); i++) {
+                builder.append(delimiter);
+                renderConstant(builder, Array.get(constant, i), imports);
                 delimiter = ",";
             }
             builder.append("}");

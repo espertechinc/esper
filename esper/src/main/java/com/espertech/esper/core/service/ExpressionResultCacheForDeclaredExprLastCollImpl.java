@@ -19,15 +19,15 @@ import java.util.IdentityHashMap;
 
 public class ExpressionResultCacheForDeclaredExprLastCollImpl implements ExpressionResultCacheForDeclaredExprLastColl {
 
-    private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>>> exprDeclCacheCollection
-            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>>>();
+    private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntryEventBeanArrayAndCollBean>> exprDeclCacheCollection
+            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntryEventBeanArrayAndCollBean>>();
 
-    public ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> getDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream) {
-        SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>> cacheRef = exprDeclCacheCollection.get(node);
+    public ExpressionResultCacheEntryEventBeanArrayAndCollBean getDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream) {
+        SoftReference<ExpressionResultCacheEntryEventBeanArrayAndCollBean> cacheRef = exprDeclCacheCollection.get(node);
         if (cacheRef == null) {
             return null;
         }
-        ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> entry = cacheRef.get();
+        ExpressionResultCacheEntryEventBeanArrayAndCollBean entry = cacheRef.get();
         if (entry == null) {
             return null;
         }
@@ -36,7 +36,7 @@ public class ExpressionResultCacheForDeclaredExprLastCollImpl implements Express
 
     public void saveDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream, Collection<EventBean> result) {
         EventBean[] copy = EventBeanUtility.copyArray(eventsPerStream);
-        ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> entry = new ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>(copy, result);
-        exprDeclCacheCollection.put(node, new SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>>(entry));
+        ExpressionResultCacheEntryEventBeanArrayAndCollBean entry = new ExpressionResultCacheEntryEventBeanArrayAndCollBean(copy, result);
+        exprDeclCacheCollection.put(node, new SoftReference<ExpressionResultCacheEntryEventBeanArrayAndCollBean>(entry));
     }
 }

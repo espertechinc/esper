@@ -12,8 +12,12 @@ package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.expression.dot.ExprDotEnumerationSourceForProps;
+import com.espertech.esper.epl.expression.dot.ExprDotEnumerationSourceForgeForProps;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -27,14 +31,14 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import java.io.StringWriter;
 import java.util.Collection;
 
-public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements ExprEvaluator, ExprEvaluatorEnumeration {
+public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval, ExprForge {
     private static final long serialVersionUID = 1779238498208599159L;
 
     private final String subpropName;
 
     private Class bindingReturnType;
     private transient EPType optionalEnumerationType;
-    private transient ExprEvaluatorEnumerationGivenEvent optionalPropertyEnumEvaluator;
+    private transient ExprEnumerationGivenEvent optionalPropertyEnumEvaluator;
 
     public ExprTableAccessNodeSubprop(String tableName, String subpropName) {
         super(tableName);
@@ -45,13 +49,33 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         return this;
     }
 
+    public Class getEvaluationType() {
+        return bindingReturnType;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
+    }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
+    }
+
     protected void validateBindingInternal(ExprValidationContext validationContext, TableMetadata tableMetadata)
             throws ExprValidationException {
-        validateGroupKeys(tableMetadata);
+        validateGroupKeys(tableMetadata, validationContext);
         TableMetadataColumn column = validateSubpropertyGetCol(tableMetadata, subpropName);
         if (column instanceof TableMetadataColumnPlain) {
             bindingReturnType = tableMetadata.getInternalEventType().getPropertyType(subpropName);
-            ExprDotEnumerationSourceForProps enumerationSource = ExprDotNodeUtility.getPropertyEnumerationSource(subpropName, 0, tableMetadata.getInternalEventType(), true, true);
+            ExprDotEnumerationSourceForgeForProps enumerationSource = ExprDotNodeUtility.getPropertyEnumerationSource(subpropName, 0, tableMetadata.getInternalEventType(), true, true);
             optionalEnumerationType = enumerationSource.getReturnType();
             optionalPropertyEnumEvaluator = enumerationSource.getEnumerationGivenEvent();
         } else {
@@ -59,10 +83,6 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
             optionalEnumerationType = aggcol.getOptionalEnumerationType();
             bindingReturnType = aggcol.getFactory().getResultType();
         }
-    }
-
-    public Class getType() {
-        return bindingReturnType;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -74,6 +94,10 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         }
 
         return strategy.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -92,12 +116,20 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         return strategy.evaluateGetROCollectionEvents(eventsPerStream, isNewData, context);
     }
 
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
+    }
+
     public Class getComponentTypeCollection() throws ExprValidationException {
         return EPTypeHelper.optionalIsComponentTypeColl(optionalEnumerationType);
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return strategy.evaluateGetROCollectionScalar(eventsPerStream, isNewData, context);
+    }
+
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
     }
 
     public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
@@ -108,7 +140,7 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         return strategy.evaluateGetEventBean(eventsPerStream, isNewData, context);
     }
 
-    public ExprEvaluatorEnumerationGivenEvent getOptionalPropertyEnumEvaluator() {
+    public ExprEnumerationGivenEvent getOptionalPropertyEnumEvaluator() {
         return optionalPropertyEnumEvaluator;
     }
 

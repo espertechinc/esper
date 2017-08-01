@@ -43,14 +43,14 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
     }
 
     private String handleNestedValueCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Object.class, "value", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
             .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)
                     .declareVarWCast(EventBean.class, "bean", "value")
-                    .blockReturn(mapGetter.codegenEventBeanGet(ref("bean"), context))
+                    .blockReturn(mapGetter.eventBeanGetCodegen(ref("bean"), context))
                 .blockReturn(constantNull())
             .declareVarWCast(Map.class, "map", "value")
-            .methodReturn(mapGetter.codegenUnderlyingGet(ref("map"), context));
+            .methodReturn(mapGetter.underlyingGetCodegen(ref("map"), context));
     }
 
     public Object handleNestedValueFragment(Object value) {
@@ -67,13 +67,13 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
     }
 
     private String handleNestedValueFragmentCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Object.class, "value", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
                 .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)
                 .declareVarWCast(EventBean.class, "bean", "value")
-                .blockReturn(mapGetter.codegenEventBeanFragment(ref("bean"), context))
+                .blockReturn(mapGetter.eventBeanFragmentCodegen(ref("bean"), context))
                 .blockReturn(constantNull())
-                .methodReturn(mapGetter.codegenUnderlyingFragment(cast(Map.class, ref("value")), context));
+                .methodReturn(mapGetter.underlyingFragmentCodegen(cast(Map.class, ref("value")), context));
     }
 
     public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {

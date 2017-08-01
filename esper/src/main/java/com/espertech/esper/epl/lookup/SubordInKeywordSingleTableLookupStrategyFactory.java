@@ -28,7 +28,7 @@ public class SubordInKeywordSingleTableLookupStrategyFactory implements SubordTa
 
     public SubordInKeywordSingleTableLookupStrategyFactory(boolean isNWOnTrigger, int streamCountOuter, ExprNode[] exprNodes) {
         this.streamCountOuter = streamCountOuter;
-        this.evaluators = ExprNodeUtility.getEvaluators(exprNodes);
+        this.evaluators = ExprNodeUtility.getEvaluatorsNoCompile(exprNodes);
         this.isNWOnTrigger = isNWOnTrigger;
         this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.INKEYWORDSINGLEIDX, ExprNodeUtility.toExpressionStringsMinPrecedence(exprNodes));
     }

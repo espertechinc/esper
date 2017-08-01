@@ -17,7 +17,6 @@ import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementResultService;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.timer.TimeSourceService;
 
@@ -105,7 +104,7 @@ public class NamedWindowTailView {
 
         // Construct consumer view, allow a callback to this view to remove the consumer
         boolean audit = AuditEnum.STREAM.getAudit(consumerDesc.getAgentInstanceContext().getStatementContext().getAnnotations()) != null;
-        NamedWindowConsumerView consumerView = new NamedWindowConsumerView(ExprNodeUtility.getEvaluators(consumerDesc.getFilterList()), consumerDesc.getOptPropertyEvaluator(), eventType, consumerCallback, consumerDesc.getAgentInstanceContext(), audit);
+        NamedWindowConsumerView consumerView = new NamedWindowConsumerView(consumerDesc.getFilterEvaluators(), consumerDesc.getOptPropertyEvaluator(), eventType, consumerCallback, consumerDesc.getAgentInstanceContext(), audit);
 
         // Keep a list of consumer views per statement to accomodate joins and subqueries
         List<NamedWindowConsumerView> viewsPerStatements = consumersNonContext.get(consumerDesc.getAgentInstanceContext().getEpStatementAgentInstanceHandle());

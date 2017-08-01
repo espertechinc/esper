@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.example.cycledetect;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionDeclarationContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionHandler;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
 
 public class CycleDetectorAggregationFactory implements PlugInAggregationMultiFunctionFactory {
-    private ExprEvaluator fromExpression;
-    private ExprEvaluator toExpression;
+    private ExprForge fromExpression;
+    private ExprForge toExpression;
 
     public void addAggregationFunction(PlugInAggregationMultiFunctionDeclarationContext declarationContext) {
         // provides an opportunity to inspect where used
@@ -26,17 +26,17 @@ public class CycleDetectorAggregationFactory implements PlugInAggregationMultiFu
 
     public PlugInAggregationMultiFunctionHandler validateGetHandler(PlugInAggregationMultiFunctionValidationContext validationContext) {
         if (validationContext.getParameterExpressions().length == 2) {
-            fromExpression = validationContext.getParameterExpressions()[0].getExprEvaluator();
-            toExpression = validationContext.getParameterExpressions()[1].getExprEvaluator();
+            fromExpression = validationContext.getParameterExpressions()[0].getForge();
+            toExpression = validationContext.getParameterExpressions()[1].getForge();
         }
         return new CycleDetectorAggregationHandler(this, validationContext);
     }
 
-    public ExprEvaluator getToExpression() {
-        return toExpression;
+    public ExprForge getFromExpression() {
+        return fromExpression;
     }
 
-    public ExprEvaluator getFromExpression() {
-        return fromExpression;
+    public ExprForge getToExpression() {
+        return toExpression;
     }
 }

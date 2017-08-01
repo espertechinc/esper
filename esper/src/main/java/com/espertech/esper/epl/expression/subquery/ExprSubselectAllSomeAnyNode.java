@@ -18,8 +18,6 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.type.RelationalOpEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -28,7 +26,6 @@ import java.util.LinkedHashMap;
  * Represents a subselect in an expression tree.
  */
 public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode {
-    private static final Logger log = LoggerFactory.getLogger(ExprSubselectInNode.class);
     private final boolean isNot;
     private final boolean isAll;
     private final RelationalOpEnum relationalOp;
@@ -78,12 +75,12 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode {
         return relationalOp;
     }
 
-    public Class getType() {
+    public Class getEvaluationType() {
         return Boolean.class;
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
-        evalStrategy = SubselectEvalStrategyNRFactory.createStrategyAnyAllIn(this, isNot, isAll, !isAll, relationalOp);
+        evalStrategy = SubselectEvalStrategyNRFactory.createStrategyAnyAllIn(this, isNot, isAll, !isAll, relationalOp, validationContext.getEngineImportService(), validationContext.getStatementName());
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {

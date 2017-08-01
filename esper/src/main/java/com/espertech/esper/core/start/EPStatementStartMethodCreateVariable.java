@@ -57,7 +57,7 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
             ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
             ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
             ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.VARIABLEASSIGN, createDesc.getAssignment(), validationContext);
-            value = validated.getExprEvaluator().evaluate(null, true, evaluatorContextStmt);
+            value = validated.getForge().getExprEvaluator().evaluate(null, true, evaluatorContextStmt);
         }
 
         // Create variable

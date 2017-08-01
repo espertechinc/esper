@@ -80,6 +80,17 @@ public class ExecOutputLimitGroupByEventPerGroup implements RegressionExecution 
         runAssertionNoJoinAll(epService);
         runAssertionJoinLast(epService);
         runAssertionJoinAll(epService);
+        runAssertionCrontabNumberSetVariations(epService);
+    }
+
+    private void runAssertionCrontabNumberSetVariations(EPServiceProvider epService) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString from SupportBean output all at (*/2, 8:17, lastweekday, [1, 1], *)");
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        stmt.destroy();
+
+        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select theString from SupportBean output all at (*/2, 8:17, 30 weekday, [1, 1], *)");
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        stmtTwo.destroy();
     }
 
     private void runAssertionLastNoDataWindow(EPServiceProvider epService) {

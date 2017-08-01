@@ -11,19 +11,25 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     private final int streamNum;
-    private final EventPropertyGetter propertyGetter;
-    private final Class propertyType;
+    private final EventPropertyGetterSPI propertyGetter;
+    protected final Class returnType;
     private final ExprIdentNode identNode;
 
-    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetter propertyGetter, Class propertyType, ExprIdentNode identNode) {
+    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode) {
         this.streamNum = streamNum;
         this.propertyGetter = propertyGetter;
-        this.propertyType = propertyType;
+        this.returnType = returnType;
         this.identNode = identNode;
     }
 
@@ -31,27 +37,38 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qExprIdent(identNode.getFullUnresolvedName());
         }
-        EventBean theEvent = eventsPerStream[streamNum];
-        if (theEvent == null) {
+        EventBean event = eventsPerStream[streamNum];
+        if (event == null) {
             if (InstrumentationHelper.ENABLED) {
                 InstrumentationHelper.get().aExprIdent(null);
             }
             return null;
         }
         if (InstrumentationHelper.ENABLED) {
-            Object result = propertyGetter.get(theEvent);
+            Object result = propertyGetter.get(event);
             InstrumentationHelper.get().aExprIdent(result);
             return result;
         }
 
-        return propertyGetter.get(theEvent);
+        return propertyGetter.get(event);
     }
 
-    public Class getType() {
-        return propertyType;
+    public CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        if (returnType == null) {
+            return constantNull();
+        }
+        String method = context.addMethod(returnType, this.getClass()).add(params).begin()
+                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
+                .ifRefNullReturnNull("event")
+                .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.eventBeanGetCodegen(ref("event"), context)));
+        return localMethodBuild(method).passAll(params).call();
     }
 
-    public EventPropertyGetter getGetter() {
+    public Class getEvaluationType() {
+        return returnType;
+    }
+
+    public EventPropertyGetterSPI getGetter() {
         return propertyGetter;
     }
 
@@ -77,4 +94,5 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     public boolean isContextEvaluated() {
         return false;
     }
+
 }

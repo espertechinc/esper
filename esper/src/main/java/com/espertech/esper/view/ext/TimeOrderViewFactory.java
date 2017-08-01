@@ -16,6 +16,7 @@ import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContex
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
@@ -56,12 +57,12 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
             throw new ViewParameterException(getViewParamMessage());
         }
 
-        if (!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) {
+        if (!JavaClassHelper.isNumeric(validated[0].getForge().getEvaluationType())) {
             throw new ViewParameterException(getViewParamMessage());
         }
         timestampExpression = validated[0];
         timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), statementContext, viewParameters.get(1), getViewParamMessage(), 1);
-        timestampExpressionEvaluator = timestampExpression.getExprEvaluator();
+        timestampExpressionEvaluator = ExprNodeCompiler.allocateEvaluator(timestampExpression.getForge(), statementContext.getEngineImportService(), TimeOrderViewFactory.class, false, statementContext.getStatementName());
         eventType = parentEventType;
     }
 
@@ -72,7 +73,7 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         IStreamSortRankRandomAccess sortedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
-        return new TimeOrderView(agentInstanceViewFactoryContext, this, timestampExpression, timestampExpression.getExprEvaluator(), timeDeltaComputation, sortedRandomAccess);
+        return new TimeOrderView(agentInstanceViewFactoryContext, this, timestampExpression, timestampExpressionEvaluator, timeDeltaComputation, sortedRandomAccess);
     }
 
     public EventType getEventType() {

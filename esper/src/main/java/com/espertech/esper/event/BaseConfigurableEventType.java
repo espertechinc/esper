@@ -174,20 +174,35 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
             return null;
         }
 
-        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, metadata.getPublicName(), propertyName);
         propertyGetterCodegeneratedCache.put(propertyName, getterCode);
         return getterCode;
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedProperty) {
+        EventPropertyGetterMappedSPI getter = getGetterMappedSPI(mappedProperty);
+        if (getter == null) {
+            return null;
+        }
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getter;
+        }
+        return eventAdapterService.getEngineImportService().codegenGetter(getter, metadata.getPublicName(), mappedProperty);
+    }
+
+    public EventPropertyGetterMappedSPI getGetterMappedSPI(String mappedProperty) {
         EventPropertyGetter getter = getGetter(mappedProperty);
-        if (getter instanceof EventPropertyGetterMapped) {
-            return (EventPropertyGetterMapped) getter;
+        if (getter instanceof EventPropertyGetterMappedSPI) {
+            return (EventPropertyGetterMappedSPI) getter;
         }
         return null;
     }
 
-    public EventPropertyGetterIndexed getGetterIndexed(String indexedProperty) {
+    public EventPropertyGetterIndexedSPI getGetterIndexedSPI(String propertyName) {
+        return null;
+    }
+
+    public EventPropertyGetterIndexedSPI getGetterIndexed(String indexedProperty) {
         return null;
     }
 

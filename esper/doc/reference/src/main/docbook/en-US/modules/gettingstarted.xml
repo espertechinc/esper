@@ -90,6 +90,9 @@
 				<ns:listitem>
 					<para>SLF4J logging library <literal>slf4j-api-1.7.21.jar</literal></para>
 				</ns:listitem>
+				<ns:listitem>
+					<para>Janino Java compiler (unless disabled via configuration, see below) <literal>janino-3.0.7.jar</literal> and <literal>commons-compiler-3.0.7.jar</literal></para>
+				</ns:listitem>
 			</itemizedlist>
 			
 			<para>
@@ -98,6 +101,10 @@
 
 			<para>
 				Optionally, for using Apache Avro with Esper, please add <literal>esper-avro-</literal><emphasis>version</emphasis><literal>.jar</literal> to the classpath.
+			</para>
+
+			<para>
+				The use of the Janino compiler can be disabled by turning off code generation. Please see <xref linkend="codegen"/> and <xref linkend="config-engine-codegen"/>.
 			</para>
 		</sect2>    
 
@@ -283,17 +290,22 @@ engine.getEPRuntime().sendEvent(new PersonEvent("Peter", 10));
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					ANTLR is the parser generator used for parsing and parse tree walking of the pattern and EPL syntax. Credit goes to Terence Parr at http://www.antlr.org. The ANTLR license is a BSD license and is provided in the lib directory. The <literal>antlr-runtime</literal> runtime library is required for runtime.
+					ANTLR is the parser generator used for parsing and parse tree walking of the pattern and EPL syntax. Credit goes to Terence Parr at http://www.antlr.org. The ANTLR license is a BSD license and is provided in <literal>lib/esper_3rdparties.license</literal>. The <literal>antlr-runtime</literal> runtime library is required for runtime.
 				</para>
 			</listitem>
 			<listitem>
 				<para>
-					CGLIB is the code generation library for fast method calls, licensed under Apache 2.0 license as provided in the lib directory.
+					CGLIB is the code generation library for fast method calls, licensed under Apache 2.0 license as provided in <literal>lib/esper_3rdparties.license</literal>.
 				</para>
 			</listitem>
 			<listitem>
 				<para>
-					SLF4J is a logging API that can work together with LOG4J and other logging APIs. While SLF4J is required, the LOG4J log component is not required and can be replaced with other loggers. SLF4J is licensed under Apache 2.0 license as provided in the lib directory.
+					SLF4J is a logging API that can work together with LOG4J and other logging APIs. While SLF4J is required, the LOG4J log component is not required and can be replaced with other loggers. SLF4J is licensed under Apache 2.0 license as provided in <literal>lib/esper_3rdparties.license</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Janino (optional) is a small and fast Java compiler. Esper, in the default configuration, generates code and compiles generated code using Janino. Janino is optional and does not need to be in classpath after your configuration disables code generation. Janino is licensed under 3-clause New BSD License as provided in <literal>lib/esper_3rdparties.license</literal>.
 				</para>
 			</listitem>
 		</itemizedlist>

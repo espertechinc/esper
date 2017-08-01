@@ -114,6 +114,10 @@ public class TestSuiteExpr extends TestCase {
         RegressionRunner.run(new ExecExprPrior());
     }
 
+    public void testExecExprRelOp() {
+        RegressionRunner.run(new ExecExprRelOp());
+    }
+
     public void testExecExprMinMaxNonAgg() {
         RegressionRunner.run(new ExecExprMinMaxNonAgg());
     }
@@ -122,4 +126,11 @@ public class TestSuiteExpr extends TestCase {
         RegressionRunner.run(new ExecExprTypeOf());
     }
 
+    public void testExecExprEqualsIs() {
+        RegressionRunner.run(new ExecExprEqualsIs());
+    }
+
+    public void testExecExprAndOrNot() {
+        RegressionRunner.run(new ExecExprAndOrNot());
+    }
 }

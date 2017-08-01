@@ -169,7 +169,7 @@ public class RuntimeConfigMain {
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();
-        eventData.put("byteValue", 2);
+        eventData.put("byteValue", (byte) 2);
         provider.getEPRuntime().sendEvent(eventData, "MyByteEvent");
 
         // print results
@@ -179,7 +179,7 @@ public class RuntimeConfigMain {
 
         // send a second event
         eventData = new HashMap<String, Object>();
-        eventData.put("byteValue", 1);
+        eventData.put("byteValue", (byte) 1);
         provider.getEPRuntime().sendEvent(eventData, "MyByteEvent");
 
         // print results

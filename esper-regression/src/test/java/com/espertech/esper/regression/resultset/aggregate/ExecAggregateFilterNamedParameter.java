@@ -704,8 +704,8 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
 
         public PlugInAggregationMultiFunctionHandler validateGetHandler(PlugInAggregationMultiFunctionValidationContext validationContext) {
             assertNotNull(validationContext.getNamedParameters().get("filter").iterator().next());
-            ExprEvaluator valueEval = validationContext.getParameterExpressions()[0].getExprEvaluator();
-            ExprEvaluator filterEval = validationContext.getNamedParameters().get("filter").get(0).getExprEvaluator();
+            ExprEvaluator valueEval = validationContext.getParameterExpressions()[0].getForge().getExprEvaluator();
+            ExprEvaluator filterEval = validationContext.getNamedParameters().get("filter").get(0).getForge().getExprEvaluator();
             return new MyAccessAggHandler(valueEval, filterEval);
         }
     }

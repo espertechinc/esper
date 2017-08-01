@@ -18,7 +18,7 @@ public class TestWildcardParameter extends TestCase {
     private WildcardParameter wildcard;
 
     public void setUp() {
-        wildcard = new WildcardParameter();
+        wildcard = WildcardParameter.INSTANCE;
     }
 
     public void testIsWildcard() {

@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -22,16 +20,14 @@ import java.math.BigDecimal;
 /**
  * Represents a simple Math (+/-/divide/*) in a filter expression tree.
  */
-public class ExprMathNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprMathNode extends ExprNodeBase {
+    private static final long serialVersionUID = 6479683588602862158L;
+
     private final MathArithTypeEnum mathArithTypeEnum;
     private final boolean isIntegerDivision;
     private final boolean isDivisionByZeroReturnsNull;
 
-    private transient MathArithTypeEnum.Computer arithTypeEnumComputer;
-    private Class resultType;
-    private transient ExprEvaluator evaluatorLeft;
-    private transient ExprEvaluator evaluatorRight;
-    private static final long serialVersionUID = 6479683588602862158L;
+    private transient ExprMathNodeForge forge;
 
     /**
      * Ctor.
@@ -47,7 +43,13 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -56,7 +58,7 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator {
         }
 
         for (ExprNode child : this.getChildNodes()) {
-            Class childType = child.getExprEvaluator().getType();
+            Class childType = child.getForge().getEvaluationType();
             if (!JavaClassHelper.isNumeric(childType)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
                         childType.getSimpleName() +
@@ -65,22 +67,22 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator {
         }
 
         // Determine result type, set up compute function
-        evaluatorLeft = this.getChildNodes()[0].getExprEvaluator();
-        evaluatorRight = this.getChildNodes()[1].getExprEvaluator();
+        ExprNode lhs = this.getChildNodes()[0];
+        ExprNode rhs = this.getChildNodes()[1];
+        Class lhsType = lhs.getForge().getEvaluationType();
+        Class rhsType = rhs.getForge().getEvaluationType();
 
-        Class childTypeOne = evaluatorLeft.getType();
-        Class childTypeTwo = evaluatorRight.getType();
-
-        if ((childTypeOne == short.class || childTypeOne == Short.class) &&
-                (childTypeTwo == short.class || childTypeTwo == Short.class)) {
+        Class resultType;
+        if ((lhsType == short.class || lhsType == Short.class) &&
+                (rhsType == short.class || rhsType == Short.class)) {
             resultType = Integer.class;
-        } else if ((childTypeOne == byte.class || childTypeOne == Byte.class) &&
-                (childTypeTwo == byte.class || childTypeTwo == Byte.class)) {
+        } else if ((lhsType == byte.class || lhsType == Byte.class) &&
+                (rhsType == byte.class || rhsType == Byte.class)) {
             resultType = Integer.class;
-        } else if (childTypeOne.equals(childTypeTwo)) {
-            resultType = JavaClassHelper.getBoxedType(childTypeTwo);
+        } else if (lhsType.equals(rhsType)) {
+            resultType = JavaClassHelper.getBoxedType(rhsType);
         } else {
-            resultType = JavaClassHelper.getArithmaticCoercionType(childTypeOne, childTypeTwo);
+            resultType = JavaClassHelper.getArithmaticCoercionType(lhsType, rhsType);
         }
 
         if ((mathArithTypeEnum == MathArithTypeEnum.DIVIDE) && (!isIntegerDivision)) {
@@ -89,46 +91,13 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator {
             }
         }
 
-        arithTypeEnumComputer = mathArithTypeEnum.getComputer(resultType, childTypeOne, childTypeTwo, isIntegerDivision, isDivisionByZeroReturnsNull, validationContext.getEngineImportService().getDefaultMathContext());
+        MathArithTypeEnum.Computer arithTypeEnumComputer = mathArithTypeEnum.getComputer(resultType, lhsType, rhsType, isIntegerDivision, isDivisionByZeroReturnsNull, validationContext.getEngineImportService().getDefaultMathContext());
+        forge = new ExprMathNodeForge(this, arithTypeEnumComputer, resultType);
         return null;
-    }
-
-    public Class getType() {
-        return resultType;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprMath(this, mathArithTypeEnum.getExpressionText());
-        }
-        Object valueChildOne = evaluatorLeft.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (valueChildOne == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprMath(null);
-            }
-            return null;
-        }
-
-        Object valueChildTwo = evaluatorRight.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (valueChildTwo == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprMath(null);
-            }
-            return null;
-        }
-
-        // arithTypeEnumComputer is initialized by validation
-        if (InstrumentationHelper.ENABLED) {
-            Object result = arithTypeEnumComputer.compute((Number) valueChildOne, (Number) valueChildTwo);
-            InstrumentationHelper.get().aExprMath(result);
-            return result;
-        }
-
-        return arithTypeEnumComputer.compute((Number) valueChildOne, (Number) valueChildTwo);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

@@ -14,6 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.util.CountMinSketchAgent;
 import com.espertech.esper.client.util.CountMinSketchAgentStringUTF16;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.factory.AggregationStateFactoryCountMinSketch;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
@@ -32,6 +35,8 @@ import com.espertech.esper.util.PopulateUtil;
 
 import java.util.Collection;
 import java.util.Map;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
 
 /**
  * Represents the Count-min sketch aggregate function.
@@ -66,6 +71,10 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return validateAggregationInternal(context, tableAccessColumn);
     }
 
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
+    }
+
     public String getAggregationFunctionName() {
         return aggType.getFuncName();
     }
@@ -94,6 +103,14 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return null;
     }
 
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return null;
+    }
+
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constantNull();
+    }
+
     public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
@@ -101,6 +118,11 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return null;
     }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return constantNull();
+    }
+
 
     @Override
     protected boolean isExprTextWildcardWhenNoParams() {
@@ -148,11 +170,13 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
 
         // obtain evaluator
         ExprEvaluator addOrFrequencyEvaluator = null;
+        Class addOrFrequencyEvaluatorReturnType = null;
         if (aggType == CountMinSketchAggType.ADD || aggType == CountMinSketchAggType.FREQ) {
-            addOrFrequencyEvaluator = getChildNodes()[0].getExprEvaluator();
+            addOrFrequencyEvaluator = ExprNodeCompiler.allocateEvaluator(getChildNodes()[0].getForge(), context.getEngineImportService(), this.getClass(), context.getStreamTypeService().isOnDemandStreams(), context.getStatementName());
+            addOrFrequencyEvaluatorReturnType = getChildNodes()[0].getForge().getEvaluationType();
         }
 
-        return new ExprAggCountMinSketchNodeFactoryUse(this, addOrFrequencyEvaluator);
+        return new ExprAggCountMinSketchNodeFactoryUse(this, addOrFrequencyEvaluator, addOrFrequencyEvaluatorReturnType);
     }
 
     private CountMinSketchSpec validateSpecification(final ExprValidationContext exprValidationContext) throws ExprValidationException {

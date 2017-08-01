@@ -127,7 +127,7 @@ public class FireAndForgetQueryExec {
                     Object[] values = new Object[keysExpressions.getKeyExprs().length];
                     combinations[tableHashPropNum] = values;
                     for (int j = 0; j < keysExpressions.getKeyExprs().length; j++) {
-                        values[j] = keysExpressions.getKeyExprs()[j].getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                        values[j] = keysExpressions.getKeyExprs()[j].getForge().getExprEvaluator().evaluate(null, true, agentInstanceContext);
                     }
                 }
             }
@@ -157,7 +157,7 @@ public class FireAndForgetQueryExec {
             for (int i = 0; i < keysAvailable.getIndexed().length; i++) {
                 if (keysAvailable.getIndexed()[i].equals(tableHashProp.getIndexPropName())) {
                     QueryGraphValueEntryHashKeyed key = keysAvailable.getKeys().get(i);
-                    Object value = key.getKeyExpr().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                    Object value = key.getKeyExpr().getForge().getExprEvaluator().evaluate(null, true, agentInstanceContext);
                     if (value != null) {
                         value = mayCoerceNonNull(value, tableHashProp.getCoercionType());
                         keyValues[tableHashPropNum] = value;
@@ -176,8 +176,8 @@ public class FireAndForgetQueryExec {
                     QueryGraphValueEntryRange range = rangesAvailable.getKeys().get(i);
                     if (range instanceof QueryGraphValueEntryRangeIn) {
                         QueryGraphValueEntryRangeIn between = (QueryGraphValueEntryRangeIn) range;
-                        Object start = between.getExprStart().getExprEvaluator().evaluate(null, true, agentInstanceContext);
-                        Object end = between.getExprEnd().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                        Object start = between.getExprStart().getForge().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                        Object end = between.getExprEnd().getForge().getExprEvaluator().evaluate(null, true, agentInstanceContext);
                         Range rangeValue;
                         if (JavaClassHelper.isNumeric(tableRangeProp.getCoercionType())) {
                             Double startDouble = null;
@@ -195,7 +195,7 @@ public class FireAndForgetQueryExec {
                         rangeValues[tableRangePropNum] = new RangeIndexLookupValueRange(rangeValue, between.getType(), between.isAllowRangeReversal());
                     } else {
                         QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) range;
-                        Object value = relOp.getExpression().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                        Object value = relOp.getExpression().getForge().getExprEvaluator().evaluate(null, true, agentInstanceContext);
                         if (value != null) {
                             value = mayCoerceNonNull(value, tableRangeProp.getCoercionType());
                         }
@@ -275,10 +275,10 @@ public class FireAndForgetQueryExec {
 
         // execute
         EventTableQuadTree index = (EventTableQuadTree) table;
-        double x = eval(values.getPositionalExpressions().get(0).getExprEvaluator(), agentInstanceContext, "x");
-        double y = eval(values.getPositionalExpressions().get(1).getExprEvaluator(), agentInstanceContext, "y");
-        double width = eval(values.getPositionalExpressions().get(2).getExprEvaluator(), agentInstanceContext, "width");
-        double height = eval(values.getPositionalExpressions().get(3).getExprEvaluator(), agentInstanceContext, "height");
+        double x = eval(values.getPositionalExpressions().get(0).getForge().getExprEvaluator(), agentInstanceContext, "x");
+        double y = eval(values.getPositionalExpressions().get(1).getForge().getExprEvaluator(), agentInstanceContext, "y");
+        double width = eval(values.getPositionalExpressions().get(2).getForge().getExprEvaluator(), agentInstanceContext, "width");
+        double height = eval(values.getPositionalExpressions().get(3).getForge().getExprEvaluator(), agentInstanceContext, "height");
         return new NullableObject<>(index.queryRange(x, y, width, height));
     }
 

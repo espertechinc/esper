@@ -11,6 +11,9 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
@@ -19,7 +22,7 @@ import java.util.List;
 /**
  * Represents the case-when-then-else control flow function is an expression tree.
  */
-public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, ExprDeclaredOrLambdaNode {
+public class ExprLambdaGoesNode extends ExprNodeBase implements ExprForge, ExprEvaluator, ExprDeclaredOrLambdaNode {
     private static final long serialVersionUID = 5551755641199945138L;
     private List<String> goesToNames;
 
@@ -47,12 +50,16 @@ public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, E
         return false;
     }
 
-    public Class getType() {
-        return null;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NOT_APPLICABLE;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
@@ -64,6 +71,18 @@ public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, E
 
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.MINIMUM;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return null;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
     }
 }
 

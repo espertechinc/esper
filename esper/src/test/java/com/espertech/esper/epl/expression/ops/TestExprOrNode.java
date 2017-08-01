@@ -28,7 +28,7 @@ public class TestExprOrNode extends TestCase {
     }
 
     public void testGetType() {
-        assertEquals(Boolean.class, orNode.getType());
+        assertEquals(Boolean.class, orNode.getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {
@@ -61,19 +61,19 @@ public class TestExprOrNode extends TestCase {
         orNode.addChildNode(new SupportBoolExprNode(true));
         orNode.addChildNode(new SupportBoolExprNode(false));
         SupportExprNodeUtil.validate(orNode);
-        assertTrue((Boolean) orNode.evaluate(null, false, null));
+        assertTrue((Boolean) orNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         orNode = new ExprOrNode();
         orNode.addChildNode(new SupportBoolExprNode(false));
         orNode.addChildNode(new SupportBoolExprNode(false));
         SupportExprNodeUtil.validate(orNode);
-        assertFalse((Boolean) orNode.evaluate(null, false, null));
+        assertFalse((Boolean) orNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         orNode = new ExprOrNode();
         orNode.addChildNode(new SupportExprNode(null, Boolean.class));
         orNode.addChildNode(new SupportExprNode(false));
         SupportExprNodeUtil.validate(orNode);
-        assertNull(orNode.evaluate(null, false, null));
+        assertNull(orNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testToExpressionString() throws Exception {

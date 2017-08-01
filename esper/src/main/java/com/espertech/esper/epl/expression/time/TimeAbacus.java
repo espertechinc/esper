@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.epl.expression.time;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,4 +30,9 @@ public interface TimeAbacus extends Serializable {
     long getOneSecond();
 
     Date toDate(long ts);
+
+    CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenContext context);
+    CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenContext context);
+    CodegenExpression toDateCodegen(CodegenExpression ts);
+    CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenContext context);
 }

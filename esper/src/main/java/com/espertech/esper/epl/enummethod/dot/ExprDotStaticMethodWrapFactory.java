@@ -40,7 +40,7 @@ public class ExprDotStaticMethodWrapFactory {
         if (method.getReturnType().isArray()) {
             Class componentType = method.getReturnType().getComponentType();
             if (componentType == null || JavaClassHelper.isJavaBuiltinDataType(componentType)) {
-                return new ExprDotStaticMethodWrapArrayScalar(method.getName(), componentType);
+                return new ExprDotStaticMethodWrapArrayScalar(method.getName(), method.getReturnType());
             }
             BeanEventType type = (BeanEventType) eventAdapterService.addBeanType(componentType.getName(), componentType, false, false, false);
             return new ExprDotStaticMethodWrapArrayEvents(eventAdapterService, type);

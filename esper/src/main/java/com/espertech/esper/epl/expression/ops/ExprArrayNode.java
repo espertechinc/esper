@@ -10,11 +10,9 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CoercionException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
@@ -22,22 +20,16 @@ import com.espertech.esper.util.SimpleNumberCoercerFactory;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Represents an array in a filter expressiun tree.
  */
-public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration {
-    private Class arrayReturnType;
-    private boolean mustCoerce;
-    private int length;
-
-    private transient SimpleNumberCoercer coercer;
-    private transient Object constantResult;
-    private transient ExprEvaluator[] evaluators;
-    private volatile transient Collection constantResultList;
-
+public class ExprArrayNode extends ExprNodeBase {
     private static final long serialVersionUID = 5533223915923867651L;
+
+    private transient ExprArrayNodeForge forge;
 
     /**
      * Ctor.
@@ -46,26 +38,56 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public boolean isConstantResult() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getConstantResult() != null;
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
+    }
+
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluatorEnumeration();
+    }
+
+    public Class getComponentTypeCollection() throws ExprValidationException {
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getArrayReturnType();
+    }
+
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
+        return null;
+    }
+
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
+        return null;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        length = this.getChildNodes().length;
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
+        int length = this.getChildNodes().length;
 
         // Can be an empty array with no content
         if (this.getChildNodes().length == 0) {
-            arrayReturnType = Object.class;
-            constantResult = new Object[0];
+            forge = new ExprArrayNodeForge(this, Object.class, new Object[0]);
             return null;
         }
 
         List<Class> comparedTypes = new LinkedList<Class>();
         for (int i = 0; i < length; i++) {
-            comparedTypes.add(evaluators[i].getType());
+            comparedTypes.add(this.getChildNodes()[i].getForge().getEvaluationType());
         }
 
         // Determine common denominator type
+        Class arrayReturnType = null;
+        boolean mustCoerce = false;
+        SimpleNumberCoercer coercer = null;
         try {
             arrayReturnType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
 
@@ -97,11 +119,12 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
                 results = null;  // not using a constant result
                 break;
             }
-            results[index] = evaluators[index].evaluate(null, false, validationContext.getExprEvaluatorContext());
+            results[index] = getChildNodes()[index].getForge().getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
             index++;
         }
 
         // Copy constants into array and coerce, if required
+        Object constantResult = null;
         if (results != null) {
             constantResult = Array.newInstance(arrayReturnType, length);
             for (int i = 0; i < length; i++) {
@@ -116,56 +139,8 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
                 }
             }
         }
+        forge = new ExprArrayNodeForge(this, arrayReturnType, mustCoerce, coercer, constantResult);
         return null;
-    }
-
-    public boolean isConstantResult() {
-        return constantResult != null;
-    }
-
-    public Class getType() {
-        return Array.newInstance(arrayReturnType, 0).getClass();
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprArray(this);
-        }
-        if (constantResult != null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprArray(constantResult);
-            }
-            return constantResult;
-        }
-
-        Object array = Array.newInstance(arrayReturnType, length);
-
-        if (length == 0) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprArray(array);
-            }
-            return array;
-        }
-
-        int index = 0;
-        for (ExprEvaluator child : evaluators) {
-            Object result = child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (result != null) {
-                if (mustCoerce) {
-                    Number boxed = (Number) result;
-                    Object coercedResult = coercer.coerceBoxed(boxed);
-                    Array.set(array, index, coercedResult);
-                } else {
-                    Array.set(array, index, result);
-                }
-            }
-            index++;
-        }
-
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprArray(array);
-        }
-        return array;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -181,63 +156,6 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
 
     public ExprPrecedenceEnum getPrecedence() {
         return ExprPrecedenceEnum.UNARY;
-    }
-
-    public Class getComponentTypeCollection() throws ExprValidationException {
-        return arrayReturnType;
-    }
-
-    public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        if (constantResult != null) {
-            if (constantResultList != null) {
-                return constantResultList;
-            }
-            ArrayList list = new ArrayList();
-            for (int i = 0; i < length; i++) {
-                list.add(Array.get(constantResult, i));
-            }
-            constantResultList = list;
-            return list;
-        }
-
-        if (length == 0) {
-            return Collections.emptyList();
-        }
-
-        List resultList = new ArrayList();
-
-        int index = 0;
-        for (ExprEvaluator child : evaluators) {
-            Object result = child.evaluate(eventsPerStream, isNewData, context);
-            if (result != null) {
-                if (mustCoerce) {
-                    Number boxed = (Number) result;
-                    Object coercedResult = coercer.coerceBoxed(boxed);
-                    resultList.add(coercedResult);
-                } else {
-                    resultList.add(result);
-                }
-            }
-            index++;
-        }
-
-        return resultList;
-    }
-
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
-        return null;
-    }
-
-    public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return null;
-    }
-
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
-        return null;
-    }
-
-    public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return null;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {

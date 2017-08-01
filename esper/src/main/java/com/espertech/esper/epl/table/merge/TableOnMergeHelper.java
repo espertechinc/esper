@@ -17,6 +17,7 @@ import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowOnMergeHelper;
 import com.espertech.esper.epl.spec.*;
@@ -65,8 +66,8 @@ public class TableOnMergeHelper {
                         hasInsertIntoTableAction = action.isInsertIntoBinding();
                     } else if (item instanceof OnTriggerMergeActionUpdate) {
                         OnTriggerMergeActionUpdate updateDesc = (OnTriggerMergeActionUpdate) item;
-                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(tableMetadata.getTableName(), tableMetadata.getInternalEventType(), updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, false, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
-                        ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : updateDesc.getOptionalWhereClause().getExprEvaluator();
+                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(tableMetadata.getTableName(), tableMetadata.getInternalEventType(), updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, false, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService(), false);
+                        ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(updateDesc.getOptionalWhereClause().getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
                         TableUpdateStrategy tableUpdateStrategy = statementContext.getTableService().getTableUpdateStrategy(tableMetadata, updateHelper, true);
                         TableOnMergeActionUpd upd = new TableOnMergeActionUpd(filterEval, tableUpdateStrategy);
                         actions.add(upd);
@@ -74,7 +75,7 @@ public class TableOnMergeHelper {
                         hasUpdateAction = true;
                     } else if (item instanceof OnTriggerMergeActionDelete) {
                         OnTriggerMergeActionDelete deleteDesc = (OnTriggerMergeActionDelete) item;
-                        ExprEvaluator filterEval = deleteDesc.getOptionalWhereClause() == null ? null : deleteDesc.getOptionalWhereClause().getExprEvaluator();
+                        ExprEvaluator filterEval = deleteDesc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(deleteDesc.getOptionalWhereClause().getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
                         actions.add(new TableOnMergeActionDel(filterEval));
                         hasDeleteAction = true;
                     } else {
@@ -89,9 +90,9 @@ public class TableOnMergeHelper {
             }
 
             if (matchedItem.isMatchedUnmatched()) {
-                matched.add(new TableOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
+                matched.add(new TableOnMergeMatch(matchedItem.getOptionalMatchCond(), actions, statementContext.getEngineImportService(), statementContext.getStatementName()));
             } else {
-                unmatched.add(new TableOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
+                unmatched.add(new TableOnMergeMatch(matchedItem.getOptionalMatchCond(), actions, statementContext.getEngineImportService(), statementContext.getStatementName()));
             }
         }
 
@@ -127,7 +128,7 @@ public class TableOnMergeHelper {
                 statementContext.getEventAdapterService(), statementContext.getStatementResultService(), statementContext.getValueAddEventService(), selectExprEventTypeRegistry,
                 statementContext.getEngineImportService(), exprEvaluatorContext, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null, null,
                 statementContext.getStatementExtensionServicesContext());
-        ExprEvaluator filterEval = desc.getOptionalWhereClause() == null ? null : desc.getOptionalWhereClause().getExprEvaluator();
+        ExprEvaluator filterEval = desc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(desc.getOptionalWhereClause().getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
 
         InternalEventRouter routerToUser = streamName.equals(tableMetadata.getTableName()) ? null : internalEventRouter;
         boolean audit = AuditEnum.INSERT.getAudit(statementContext.getAnnotations()) != null;

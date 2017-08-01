@@ -10,28 +10,21 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.type.BitWiseOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
 /**
  * Represents the bit-wise operators in an expression tree.
  */
-public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprBitWiseNode extends ExprNodeBase {
+    private static final long serialVersionUID = 9035943176810365437L;
 
     private final BitWiseOpEnum bitWiseOpEnum;
-    private transient BitWiseOpEnum.Computer bitWiseOpEnumComputer;
-    private Class resultType;
 
-    private transient ExprEvaluator[] evaluators;
-
-    private static final long serialVersionUID = 9035943176810365437L;
+    private transient ExprBitWiseNodeForge forge;
 
     /**
      * Ctor.
@@ -43,7 +36,13 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     /**
@@ -60,62 +59,24 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
             throw new ExprValidationException("BitWise node must have 2 parameters");
         }
 
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-        for (ExprEvaluator child : evaluators) {
-            Class childType = child.getType();
-            if ((!JavaClassHelper.isBoolean(childType)) && (!JavaClassHelper.isNumeric(childType))) {
-                throw new ExprValidationException("Invalid datatype for bitwise " +
-                        childType.getName() + " is not allowed");
-            }
-        }
+        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        Class typeTwo = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        checkNumericOrBoolean(typeOne);
+        checkNumericOrBoolean(typeTwo);
 
-        // Determine result type, set up compute function
-        Class childTypeOne = evaluators[0].getType();
-        Class childTypeTwo = evaluators[1].getType();
-        if ((JavaClassHelper.isFloatingPointClass(childTypeOne)) || (JavaClassHelper.isFloatingPointClass(childTypeTwo))) {
+        if ((JavaClassHelper.isFloatingPointClass(typeOne)) || (JavaClassHelper.isFloatingPointClass(typeTwo))) {
             throw new ExprValidationException("Invalid type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
-        } else {
-            Class childBoxedTypeOne = JavaClassHelper.getBoxedType(childTypeOne);
-            Class childBoxedTypeTwo = JavaClassHelper.getBoxedType(childTypeTwo);
-            if (childBoxedTypeOne == childBoxedTypeTwo) {
-                resultType = childBoxedTypeOne;
-                bitWiseOpEnumComputer = bitWiseOpEnum.getComputer(resultType);
-            } else {
-                throw new ExprValidationException("Bitwise expressions must be of the same type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
-            }
         }
+        if (typeOne != typeTwo) {
+            throw new ExprValidationException("Bitwise expressions must be of the same type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
+        }
+        BitWiseOpEnum.Computer computer = bitWiseOpEnum.getComputer(typeOne);
+        forge = new ExprBitWiseNodeForge(this, typeOne, computer);
         return null;
     }
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Class getType() {
-        return resultType;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprBitwise(this, bitWiseOpEnum);
-        }
-        Object valueChildOne = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        Object valueChildTwo = evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-
-        if ((valueChildOne == null) || (valueChildTwo == null)) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprBitwise(null);
-            }
-            return null;
-        }
-
-        // bitWiseOpEnumComputer is initialized by validation
-        if (InstrumentationHelper.ENABLED) {
-            Object result = bitWiseOpEnumComputer.compute(valueChildOne, valueChildTwo);
-            InstrumentationHelper.get().aExprBitwise(result);
-            return result;
-        }
-        return bitWiseOpEnumComputer.compute(valueChildOne, valueChildTwo);
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
@@ -142,5 +103,10 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
         return ExprPrecedenceEnum.BITWISE;
     }
 
-    private static final Logger log = LoggerFactory.getLogger(ExprBitWiseNode.class);
+    private void checkNumericOrBoolean(Class childType) throws ExprValidationException {
+        if ((!JavaClassHelper.isBoolean(childType)) && (!JavaClassHelper.isNumeric(childType))) {
+            throw new ExprValidationException("Invalid datatype for bitwise " +
+                    childType.getName() + " is not allowed");
+        }
+    }
 }

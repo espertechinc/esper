@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.codegen.model.statement;
 
+import com.espertech.esper.codegen.core.CodegenIndent;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -21,8 +23,8 @@ public class CodegenStatementIfRefNullReturnNull implements CodegenStatement {
         this.var = var;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        builder.append("if (").append(var).append("== null) { return null;}\n");
+    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+        builder.append("if (").append(var).append(" == null) {return null;}\n");
     }
 
     public void mergeClasses(Set<Class> classes) {

@@ -35,7 +35,7 @@ public class TestMapEventType extends TestCase {
 
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.MAP, "typename", true, true, true, false, false);
         Map<String, Object> testTypesMap = new HashMap<String, Object>();
-        testTypesMap.put("myInt", int.class);
+        testTypesMap.put("myInt", Integer.class);
         testTypesMap.put("myString", String.class);
         testTypesMap.put("myNullableString", String.class);
         testTypesMap.put("mySupportBean", SupportBean.class);
@@ -51,13 +51,13 @@ public class TestMapEventType extends TestCase {
     }
 
     public void testGetPropertyType() {
-        assertEquals(int.class, eventType.getPropertyType("myInt"));
+        assertEquals(Integer.class, eventType.getPropertyType("myInt"));
         assertEquals(String.class, eventType.getPropertyType("myString"));
         assertEquals(SupportBean.class, eventType.getPropertyType("mySupportBean"));
         assertEquals(SupportBeanComplexProps.class, eventType.getPropertyType("myComplexBean"));
-        assertEquals(int.class, eventType.getPropertyType("mySupportBean.intPrimitive"));
+        assertEquals(Integer.class, eventType.getPropertyType("mySupportBean.intPrimitive"));
         assertEquals(String.class, eventType.getPropertyType("myComplexBean.nested.nestedValue"));
-        assertEquals(int.class, eventType.getPropertyType("myComplexBean.indexed[1]"));
+        assertEquals(Integer.class, eventType.getPropertyType("myComplexBean.indexed[1]"));
         assertEquals(String.class, eventType.getPropertyType("myComplexBean.mapped('a')"));
         assertEquals(null, eventType.getPropertyType("myNullType"));
 
@@ -211,7 +211,7 @@ public class TestMapEventType extends TestCase {
         levelOne.put("mapOne", levelTwo);
 
         Map<String, Object> levelZero = new HashMap<String, Object>();
-        levelZero.put("simple", double.class);
+        levelZero.put("simple", Double.class);
         levelZero.put("obj", SupportBean_A.class);
         levelZero.put("nodefmap", Map.class);
         levelZero.put("map", levelOne);
@@ -222,16 +222,16 @@ public class TestMapEventType extends TestCase {
         MapEventBean theEvent = new MapEventBean(testData, mapType);
 
         Object[][] expected = new Object[][]{
-                {"map.mapOne.simpleTwo", float.class, 300f},
+                {"map.mapOne.simpleTwo", Float.class, 300f},
                 {"nodefmap.item?", Object.class, "|nodefmap.item|"},
                 {"map.objOne", SupportBean_B.class, new SupportBean_B("B1")},
                 {"map.simpleOne", Integer.class, 20},
                 {"map.mapOne", Map.class, ((Map) testData.get("map")).get("mapOne")},
                 {"map.mapOne.objTwo", SupportBean_C.class, new SupportBean_C("C1")},
                 {"map.mapOne.mapTwo", Map.class, ((Map) ((Map) testData.get("map")).get("mapOne")).get("mapTwo")},
-                {"map.mapOne.mapTwo.simpleThree", long.class, 4000L},
+                {"map.mapOne.mapTwo.simpleThree", Long.class, 4000L},
                 {"map.mapOne.mapTwo.objThree", SupportBean_D.class, new SupportBean_D("D1")},
-                {"simple", double.class, 1d},
+                {"simple", Double.class, 1d},
                 {"obj", SupportBean_A.class, new SupportBean_A("A1")},
                 {"nodefmap", Map.class, testData.get("nodefmap")},
                 {"map", Map.class, testData.get("map")},

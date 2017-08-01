@@ -10,48 +10,47 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.event.bean.InstanceManufacturer;
 import com.espertech.esper.event.bean.InstanceManufacturerFactory;
+import com.espertech.esper.event.bean.InstanceManufacturerFactoryFactory;
 
 import java.io.StringWriter;
 
 /**
  * Represents the "new Class(...)" operator in an expression tree.
  */
-public class ExprNewInstanceNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprNewInstanceNode extends ExprNodeBase {
 
     private static final long serialVersionUID = 1354077020397807076L;
     private final String classIdent;
-    private transient Class targetClass;
-    private transient InstanceManufacturer manufacturer;
+
+    private transient ExprNewInstanceNodeForge forge;
 
     public ExprNewInstanceNode(String classIdent) {
         this.classIdent = classIdent;
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        Class targetClass;
         try {
             targetClass = validationContext.getEngineImportService().resolveClass(classIdent, false);
         } catch (EngineImportException e) {
             throw new ExprValidationException("Failed to resolve new-operator class name '" + classIdent + "'");
         }
-        manufacturer = InstanceManufacturerFactory.getManufacturer(targetClass, validationContext.getEngineImportService(), this.getChildNodes());
+        InstanceManufacturerFactory manufacturerFactory = InstanceManufacturerFactoryFactory.getManufacturer(targetClass, validationContext.getEngineImportService(), this.getChildNodes());
+        forge = new ExprNewInstanceNodeForge(this, targetClass, manufacturerFactory);
         return null;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        return manufacturer.make(eventsPerStream, isNewData, exprEvaluatorContext);
-    }
-
-    public Class getType() {
-        return targetClass;
     }
 
     public boolean isConstantResult() {

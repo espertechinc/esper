@@ -10,14 +10,26 @@
  */
 package com.espertech.esper.epl.datetime.eval;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.time.ZonedDateTime;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethodChain;
 
 public class DatetimeLongCoercerZonedDateTime implements DatetimeLongCoercer {
     public long coerce(Object date) {
-        return coerce((ZonedDateTime) date);
+        return coerceZDTToMillis((ZonedDateTime) date);
     }
 
-    public static long coerce(ZonedDateTime zdt) {
+    public static long coerceZDTToMillis(ZonedDateTime zdt) {
         return zdt.toInstant().toEpochMilli();
+    }
+
+    public CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenContext context) {
+        if (valueType != ZonedDateTime.class) {
+            throw new IllegalStateException("Expected a ZonedDateTime type");
+        }
+        return exprDotMethodChain(value).add("toInstant").add("toEpochMilli");
     }
 }

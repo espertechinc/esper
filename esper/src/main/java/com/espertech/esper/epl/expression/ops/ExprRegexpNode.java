@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -23,14 +20,12 @@ import java.util.regex.PatternSyntaxException;
 /**
  * Represents the regexp-clause in an expression tree.
  */
-public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprRegexpNode extends ExprNodeBase {
+    private static final long serialVersionUID = -837177267278295664L;
+
     private final boolean isNot;
 
-    private Pattern pattern;
-    private boolean isNumericValue;
-    private boolean isConstantPattern;
-    private transient ExprEvaluator[] evaluators;
-    private static final long serialVersionUID = -837177267278295664L;
+    private transient ExprRegexpNodeForge forge;
 
     /**
      * Ctor.
@@ -41,31 +36,46 @@ public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator {
         this.isNot = not;
     }
 
-    @Override
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("The regexp operator requires 2 child expressions");
         }
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // check pattern child node
-        Class patternChildType = evaluators[1].getType();
+        Class patternChildType = getChildNodes()[1].getForge().getEvaluationType();
         if (patternChildType != String.class) {
             throw new ExprValidationException("The regexp operator requires a String-type pattern expression");
         }
-        if (this.getChildNodes()[1].isConstantResult()) {
-            isConstantPattern = true;
-        }
+        boolean constantPattern = this.getChildNodes()[1].isConstantResult();
 
         // check eval child node - can be String or numeric
-        Class evalChildType = evaluators[0].getType();
-        isNumericValue = JavaClassHelper.isNumeric(evalChildType);
+        Class evalChildType = getChildNodes()[0].getForge().getEvaluationType();
+        boolean isNumericValue = JavaClassHelper.isNumeric(evalChildType);
         if ((evalChildType != String.class) && (!isNumericValue)) {
             throw new ExprValidationException("The regexp operator requires a String or numeric type left-hand expression");
+        }
+
+        if (constantPattern) {
+            String patternText = (String) getChildNodes()[1].getForge().getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
+            Pattern pattern;
+            try {
+                pattern = Pattern.compile(patternText);
+            } catch (PatternSyntaxException ex) {
+                throw new ExprValidationException("Error compiling regex pattern '" + patternText + "': " + ex.getMessage(), ex);
+            }
+            forge = new ExprRegexpNodeForgeConst(this, isNumericValue, pattern);
+        } else {
+            forge = new ExprRegexpNodeForgeNonconst(this, isNumericValue);
         }
         return null;
     }
@@ -76,67 +86,6 @@ public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator {
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprRegexp(this);
-        }
-        if (pattern == null) {
-            String patternText = (String) evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (patternText == null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aExprRegexp(null);
-                }
-                return null;
-            }
-            try {
-                pattern = Pattern.compile(patternText);
-            } catch (PatternSyntaxException ex) {
-                throw new EPException("Error compiling regex pattern '" + patternText + '\'', ex);
-            }
-        } else {
-            if (!isConstantPattern) {
-                String patternText = (String) evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                if (patternText == null) {
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aExprRegexp(null);
-                    }
-                    return null;
-                }
-                try {
-                    pattern = Pattern.compile(patternText);
-                } catch (PatternSyntaxException ex) {
-                    throw new EPException("Error compiling regex pattern '" + patternText + '\'', ex);
-                }
-            }
-        }
-
-        Object evalValue = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (evalValue == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprRegexp(null);
-            }
-            return null;
-        }
-
-        if (isNumericValue) {
-            evalValue = evalValue.toString();
-        }
-
-        Boolean result = pattern.matcher((CharSequence) evalValue).matches();
-
-        if (isNot) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprRegexp(!result);
-            }
-            return !result;
-        }
-
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprRegexp(result);
-        }
-        return result;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {

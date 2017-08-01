@@ -40,7 +40,7 @@ public class ContextControllerHashedGetterSingleRow implements EventPropertyGett
             throws ExprValidationException {
         ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(func.getFirst().getName(), null, func.getSecond().getMethodName(), parameters, engineImportService, eventAdapterService, statementId, true, eventType, new ExprNodeUtilResolveExceptionHandlerDefault(func.getSecond().getMethodName(), true), func.getSecond().getMethodName(), tableService, engineURI);
         this.statementName = statementName;
-        this.evaluators = staticMethodDesc.getChildEvals();
+        this.evaluators = ExprNodeUtility.getEvaluatorsNoCompile(staticMethodDesc.getChildForges());
         this.granularity = granularity;
         this.fastMethod = staticMethodDesc.getFastMethod();
     }
@@ -64,7 +64,7 @@ public class ContextControllerHashedGetterSingleRow implements EventPropertyGett
             }
             return -value % granularity;
         } catch (InvocationTargetException e) {
-            String message = JavaClassHelper.getMessageInvocationTarget(statementName, fastMethod.getJavaMethod(), fastMethod.getDeclaringClass().getName(), parameters, e);
+            String message = JavaClassHelper.getMessageInvocationTarget(statementName, fastMethod.getJavaMethod(), fastMethod.getDeclaringClass().getName(), parameters, e.getTargetException());
             log.error(message, e.getTargetException());
         }
 

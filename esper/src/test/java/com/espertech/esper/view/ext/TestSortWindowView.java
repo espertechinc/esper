@@ -20,6 +20,7 @@ import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.view.SupportBeanClassView;
 import com.espertech.esper.supportunit.view.SupportStreamImpl;
 import com.espertech.esper.supportunit.view.SupportViewDataChecker;
+import com.espertech.esper.util.CollectionUtil;
 import junit.framework.TestCase;
 
 public class TestSortWindowView extends TestCase {
@@ -29,7 +30,12 @@ public class TestSortWindowView extends TestCase {
     public void setUp() throws Exception {
         // Set up length window view and a test child view
         ExprNode[] expressions = SupportExprNodeFactory.makeIdentNodesMD("volume");
-        myView = new SortWindowView(new SortWindowViewFactory(), expressions, ExprNodeUtility.getEvaluators(expressions), new boolean[]{false}, 5, null, false, null);
+        SortWindowViewFactory factory = new SortWindowViewFactory();
+        factory.sortCriteriaExpressions = expressions;
+        factory.sortCriteriaEvaluators = ExprNodeUtility.getEvaluatorsNoCompile(expressions);
+        factory.isDescendingValues = new boolean[]{false};
+        factory.comparator = CollectionUtil.getComparator(factory.sortCriteriaExpressions, factory.sortCriteriaEvaluators, false, factory.isDescendingValues);
+        myView = new SortWindowView(factory, 5, null, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
     }
@@ -87,7 +93,12 @@ public class TestSortWindowView extends TestCase {
     public void testViewTwoProperties() throws Exception {
         // Set up a sort windows that sorts on two properties
         ExprNode[] expressions = SupportExprNodeFactory.makeIdentNodesMD("volume", "price");
-        myView = new SortWindowView(new SortWindowViewFactory(), expressions, ExprNodeUtility.getEvaluators(expressions), new boolean[]{false, true}, 5, null, false, null);
+        SortWindowViewFactory factory = new SortWindowViewFactory();
+        factory.sortCriteriaExpressions = expressions;
+        factory.sortCriteriaEvaluators = ExprNodeUtility.getEvaluatorsNoCompile(expressions);
+        factory.isDescendingValues = new boolean[]{false, true};
+        factory.comparator = CollectionUtil.getComparator(factory.sortCriteriaExpressions, factory.sortCriteriaEvaluators, false, factory.isDescendingValues);
+        myView = new SortWindowView(factory, 5, null, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
 

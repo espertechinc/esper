@@ -13,13 +13,12 @@ package com.espertech.esper.rowregex;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
 
 /**
  * The '+' state in the regex NFA states.
  */
 public class RegexNFAStateOneToMany extends RegexNFAStateBase implements RegexNFAState {
-    private ExprEvaluator exprNode;
+    private ExprEvaluator exprEvaluator;
     private boolean exprRequiresMultimatchState;
 
     /**
@@ -30,21 +29,21 @@ public class RegexNFAStateOneToMany extends RegexNFAStateBase implements RegexNF
      * @param streamNum                   stream number
      * @param multiple                    true for multiple matches
      * @param isGreedy                    true for greedy
-     * @param exprNode                    filter expression
+     * @param exprEvaluator               filter expression
      * @param exprRequiresMultimatchState indicator for multi-match state required
      */
-    public RegexNFAStateOneToMany(String nodeNum, String variableName, int streamNum, boolean multiple, boolean isGreedy, ExprNode exprNode, boolean exprRequiresMultimatchState) {
+    public RegexNFAStateOneToMany(String nodeNum, String variableName, int streamNum, boolean multiple, boolean isGreedy, ExprEvaluator exprEvaluator, boolean exprRequiresMultimatchState) {
         super(nodeNum, variableName, streamNum, multiple, isGreedy);
-        this.exprNode = exprNode == null ? null : exprNode.getExprEvaluator();
+        this.exprEvaluator = exprEvaluator;
         this.exprRequiresMultimatchState = exprRequiresMultimatchState;
         this.addState(this);
     }
 
     public boolean matches(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
-        if (exprNode == null) {
+        if (exprEvaluator == null) {
             return true;
         }
-        Boolean result = (Boolean) exprNode.evaluate(eventsPerStream, true, exprEvaluatorContext);
+        Boolean result = (Boolean) exprEvaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
         if (result != null) {
             return result;
         }
@@ -52,7 +51,7 @@ public class RegexNFAStateOneToMany extends RegexNFAStateBase implements RegexNF
     }
 
     public String toString() {
-        if (exprNode == null) {
+        if (exprEvaluator == null) {
             return "OneMany-Unfiltered";
         }
         return "OneMany-Filtered";

@@ -13,7 +13,7 @@ package com.espertech.esper.event.arr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.model.blocks.CodegenBlockPropertyBeanOrUnd;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 
@@ -65,18 +65,18 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
     }
 
     public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
-        return localMethod(generateMethod(context, CodegenBlockPropertyBeanOrUnd.AccessType.GET), name);
+        return localMethod(generateMethod(context, CodegenLegoPropertyBeanOrUnd.AccessType.GET), name);
     }
 
     public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression refName, CodegenContext context) {
-        return localMethod(generateMethod(context, CodegenBlockPropertyBeanOrUnd.AccessType.EXISTS), refName);
+        return localMethod(generateMethod(context, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS), refName);
     }
 
     public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression refName, CodegenContext context) {
-        return localMethod(generateMethod(context, CodegenBlockPropertyBeanOrUnd.AccessType.FRAGMENT), refName);
+        return localMethod(generateMethod(context, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT), refName);
     }
 
-    private String generateMethod(CodegenContext context, CodegenBlockPropertyBeanOrUnd.AccessType accessType) {
-        return CodegenBlockPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, accessType, this.getClass());
+    private String generateMethod(CodegenContext context, CodegenLegoPropertyBeanOrUnd.AccessType accessType) {
+        return CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, accessType, this.getClass());
     }
 }

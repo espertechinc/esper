@@ -34,7 +34,7 @@ public class CalendarOpPlusFastAddHelper {
             log.debug("Work date is " + DateTime.print(work));
         }
 
-        CalendarOpPlusMinus.actionSafeOverflow(work, 1, timePeriod);
+        CalendarPlusMinusForgeOp.actionSafeOverflow(work, 1, timePeriod);
         long inMillis = timeAbacus.calendarGet(work, remainder);
         if (inMillis > currentTime) {
             return new CalendarOpPlusFastAddResult(1, work);
@@ -54,7 +54,7 @@ public class CalendarOpPlusFastAddHelper {
 
         // handle integer max
         while (multiplierRoundedLong > Integer.MAX_VALUE) {
-            CalendarOpPlusMinus.actionSafeOverflow(work, Integer.MAX_VALUE, timePeriod);
+            CalendarPlusMinusForgeOp.actionSafeOverflow(work, Integer.MAX_VALUE, timePeriod);
             factor += Integer.MAX_VALUE;
             multiplierRoundedLong -= Integer.MAX_VALUE;
             if (DEBUG && log.isDebugEnabled()) {
@@ -64,13 +64,13 @@ public class CalendarOpPlusFastAddHelper {
 
         // add
         int multiplierRoundedInt = (int) multiplierRoundedLong;
-        CalendarOpPlusMinus.actionSafeOverflow(work, multiplierRoundedInt, timePeriod);
+        CalendarPlusMinusForgeOp.actionSafeOverflow(work, multiplierRoundedInt, timePeriod);
         factor += multiplierRoundedInt;
 
         // if below, add more
         if (timeAbacus.calendarGet(work, remainder) <= currentTime) {
             while (timeAbacus.calendarGet(work, remainder) <= currentTime) {
-                CalendarOpPlusMinus.actionSafeOverflow(work, 1, timePeriod);
+                CalendarPlusMinusForgeOp.actionSafeOverflow(work, 1, timePeriod);
                 factor += 1;
                 if (DEBUG && log.isDebugEnabled()) {
                     log.debug("Work date is " + DateTime.print(work) + " factor " + factor);
@@ -81,13 +81,13 @@ public class CalendarOpPlusFastAddHelper {
 
         // we are over
         while (timeAbacus.calendarGet(work, remainder) > currentTime) {
-            CalendarOpPlusMinus.actionSafeOverflow(work, -1, timePeriod);
+            CalendarPlusMinusForgeOp.actionSafeOverflow(work, -1, timePeriod);
             factor -= 1;
             if (DEBUG && log.isDebugEnabled()) {
                 log.debug("Work date is " + DateTime.print(work) + " factor " + factor);
             }
         }
-        CalendarOpPlusMinus.actionSafeOverflow(work, 1, timePeriod);
+        CalendarPlusMinusForgeOp.actionSafeOverflow(work, 1, timePeriod);
         if (DEBUG && log.isDebugEnabled()) {
             log.debug("Work date is " + DateTime.print(work) + " factor " + factor);
         }

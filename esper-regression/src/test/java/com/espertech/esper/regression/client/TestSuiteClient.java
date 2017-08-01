@@ -30,6 +30,10 @@ public class TestSuiteClient extends TestCase {
         RegressionRunner.run(new ExecClientAudit());
     }
 
+    public void testExecClientCodegen() {
+        RegressionRunner.run(new ExecClientCodegen());
+    }
+
     public void testExecClientMicrosecondResolution() {
         RegressionRunner.run(new ExecClientMicrosecondResolution());
     }

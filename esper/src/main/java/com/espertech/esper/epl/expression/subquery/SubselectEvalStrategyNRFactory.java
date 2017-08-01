@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.epl.expression.subquery;
 
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.GroupByClauseExpressions;
 import com.espertech.esper.type.RelationalOpEnum;
@@ -50,14 +52,16 @@ public class SubselectEvalStrategyNRFactory {
                                                                  boolean isNot,
                                                                  boolean isAll,
                                                                  boolean isAny,
-                                                                 RelationalOpEnum relationalOp) throws ExprValidationException {
+                                                                 RelationalOpEnum relationalOp,
+                                                                 EngineImportService engineImportService,
+                                                                 String statementName) throws ExprValidationException {
         if (subselectExpression.getChildNodes().length != 1) {
             throw new ExprValidationException("The Subselect-IN requires 1 child expression");
         }
         ExprNode valueExpr = subselectExpression.getChildNodes()[0];
 
         // Must be the same boxed type returned by expressions under this
-        Class typeOne = JavaClassHelper.getBoxedType(subselectExpression.getChildNodes()[0].getExprEvaluator().getType());
+        Class typeOne = JavaClassHelper.getBoxedType(subselectExpression.getChildNodes()[0].getForge().getEvaluationType());
 
         // collections, array or map not supported
         if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
@@ -66,15 +70,15 @@ public class SubselectEvalStrategyNRFactory {
 
         Class typeTwo;
         if (subselectExpression.getSelectClause() != null) {
-            typeTwo = subselectExpression.getSelectClause()[0].getExprEvaluator().getType();
+            typeTwo = subselectExpression.getSelectClause()[0].getForge().getEvaluationType();
         } else {
             typeTwo = subselectExpression.getRawEventType().getUnderlyingType();
         }
 
         boolean aggregated = aggregated(subselectExpression.getSubselectAggregationType());
         boolean grouped = grouped(subselectExpression.getStatementSpecCompiled().getGroupByExpressions());
-        ExprEvaluator selectEval = subselectExpression.getSelectClause() == null ? null : subselectExpression.getSelectClause()[0].getExprEvaluator();
-        ExprEvaluator valueEval = valueExpr.getExprEvaluator();
+        ExprEvaluator selectEval = subselectExpression.getSelectClause() == null ? null : ExprNodeCompiler.allocateEvaluator(subselectExpression.getSelectClause()[0].getForge(), engineImportService, SubselectEvalStrategyNRFactory.class, false, statementName);
+        ExprEvaluator valueEval = ExprNodeCompiler.allocateEvaluator(valueExpr.getForge(), engineImportService, SubselectEvalStrategyNRFactory.class, false, statementName);
         ExprEvaluator filterEval = subselectExpression.getFilterExpr();
         ExprEvaluator havingEval = subselectExpression.getHavingExpr();
 

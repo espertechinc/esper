@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.table.strategy;
 
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public class ExprTableExprEvaluatorBase {
+public abstract class ExprTableExprEvaluatorBase implements ExprEvaluator {
 
     protected final ExprNode exprNode;
     protected final String tableName;
@@ -26,5 +27,9 @@ public class ExprTableExprEvaluatorBase {
         this.subpropName = subpropName;
         this.streamNum = streamNum;
         this.returnType = returnType;
+    }
+
+    public Class getReturnType() {
+        return returnType;
     }
 }

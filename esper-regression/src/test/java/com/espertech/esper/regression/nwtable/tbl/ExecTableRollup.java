@@ -87,8 +87,8 @@ public class ExecTableRollup implements RegressionExecution {
     }
 
     private void runAssertionGroupingSetThreeDim(EPServiceProvider epService) {
-        epService.getEPAdministrator().createEPL("create objectarray schema MyEventThree(k0 string, k1 string, k2 string, col int)");
-        epService.getEPAdministrator().createEPL("create table MyTableGS3D(k0 string primary key, k1 string primary key, k2 string primary key, total sum(int))");
+        epService.getEPAdministrator().createEPL("create objectarray schema MyEventThree(k0 int, k1 int, k2 int, col int)");
+        epService.getEPAdministrator().createEPL("create table MyTableGS3D(k0 int primary key, k1 int primary key, k2 int primary key, total sum(int))");
         epService.getEPAdministrator().createEPL("into table MyTableGS3D insert into MyStreamThree select sum(col) as total from MyEventThree#length(3) group by grouping sets(k0,k1,k2)");
 
         String[] fields = "k0,k1,k2,total".split(",");

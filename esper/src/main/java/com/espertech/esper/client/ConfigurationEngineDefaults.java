@@ -45,6 +45,7 @@ public class ConfigurationEngineDefaults implements Serializable {
     private Patterns patterns;
     private MatchRecognize matchRecognize;
     private Scripts scripts;
+    private CodeGeneration codeGeneration;
 
     /**
      * Ctor.
@@ -67,6 +68,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         patterns = new Patterns();
         matchRecognize = new MatchRecognize();
         scripts = new Scripts();
+        codeGeneration = new CodeGeneration();
     }
 
     /**
@@ -275,6 +277,22 @@ public class ConfigurationEngineDefaults implements Serializable {
      */
     public void setScripts(Scripts scripts) {
         this.scripts = scripts;
+    }
+
+    /**
+     * Returns code generation settings
+     * @return code generation settings
+     */
+    public CodeGeneration getCodeGeneration() {
+        return codeGeneration;
+    }
+
+    /**
+     * Sets code generation settings
+     * @param codeGeneration settings
+     */
+    public void setCodeGeneration(CodeGeneration codeGeneration) {
+        this.codeGeneration = codeGeneration;
     }
 
     /**
@@ -1130,6 +1148,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         private boolean enableTimerDebug;
         private boolean enableQueryPlan;
         private boolean enableJDBC;
+        private boolean enableCode;
         private String auditPattern;
         private static final long serialVersionUID = -8129836306582810327L;
 
@@ -1141,6 +1160,7 @@ public class ConfigurationEngineDefaults implements Serializable {
             enableTimerDebug = true;
             enableQueryPlan = false;
             enableJDBC = false;
+            enableCode = false;
         }
 
         /**
@@ -1248,6 +1268,25 @@ public class ConfigurationEngineDefaults implements Serializable {
         public void setAuditPattern(String auditPattern) {
             this.auditPattern = auditPattern;
         }
+
+        /**
+         * Returns indicator whether code generation logging is enabled or not.
+         *
+         * @return indicator
+         */
+        public boolean isEnableCode() {
+            return enableCode;
+        }
+
+        /**
+         * Set indicator whether code generation logging is enabled, by default it is disabled.
+         *
+         * @param enableCode indicator
+         */
+        public void setEnableCode(boolean enableCode) {
+            this.enableCode = enableCode;
+        }
+
     }
 
     /**
@@ -1753,7 +1792,6 @@ public class ConfigurationEngineDefaults implements Serializable {
         private FilterServiceProfile filterServiceProfile = FilterServiceProfile.READMOSTLY;
         private int filterServiceMaxFilterWidth = 16;
         private int declaredExprValueCacheSize = 1;
-        private CodeGeneration codeGeneration = new CodeGeneration();
 
         private static final long serialVersionUID = 0L;
 
@@ -1914,22 +1952,6 @@ public class ConfigurationEngineDefaults implements Serializable {
          */
         public void setDeclaredExprValueCacheSize(int declaredExprValueCacheSize) {
             this.declaredExprValueCacheSize = declaredExprValueCacheSize;
-        }
-
-        /**
-         * Returns code generation settings
-         * @return code generation settings
-         */
-        public CodeGeneration getCodeGeneration() {
-            return codeGeneration;
-        }
-
-        /**
-         * Sets code generation settings
-         * @param codeGeneration settings
-         */
-        public void setCodeGeneration(CodeGeneration codeGeneration) {
-            this.codeGeneration = codeGeneration;
         }
     }
 
@@ -2274,13 +2296,18 @@ public class ConfigurationEngineDefaults implements Serializable {
     }
 
     /**
-     * Code generation settings
+     * Code generation settings.
      */
     public static class CodeGeneration implements Serializable {
         private boolean enablePropertyGetter = false;
+        private boolean enableExpression = true;
+        private boolean enableFallback = true;
+        private boolean includeDebugSymbols = false;
+        private boolean includeComments = false;
 
         /**
-         * Returns indicator whether to enable code generation for event property getters (false by default).
+         * Returns indicator whether to enable code generation for event property getters (false by default),
+         * relevant only when {@link EventType#getGetter(String)} getGetter}.
          * @return indicator
          */
         public boolean isEnablePropertyGetter() {
@@ -2288,11 +2315,78 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Sets indicator whether to enable code generation for event property getters (false by default).
+         * Sets indicator whether to enable code generation for event property getters (false by default),
+         * relevant only when {@link EventType#getGetter(String)} getGetter}.
          * @param enablePropertyGetter indicator
          */
         public void setEnablePropertyGetter(boolean enablePropertyGetter) {
             this.enablePropertyGetter = enablePropertyGetter;
+        }
+
+        /**
+         * Returns indicator whether to enable code generation for expressions (false by default).
+         * @return indicator
+         */
+        public boolean isEnableExpression() {
+            return enableExpression;
+        }
+
+        /**
+         * Returns indicator whether to enable code generation for expressions (true by default).
+         * @return indicator
+         */
+        public void setEnableExpression(boolean enableExpression) {
+            this.enableExpression = enableExpression;
+        }
+
+        /**
+         * Returns indicator whether to fall back to non-generated evaluation
+         * in the case that code generation failed (true by default).
+         * @return indicator
+         */
+        public boolean isEnableFallback() {
+            return enableFallback;
+        }
+
+        /**
+         * Sets indicator whether to fall back to non-generated evaluation
+         * in the case that code generation failed (true by default).
+         * @param  enableFallback indicator
+         */
+        public void setEnableFallback(boolean enableFallback) {
+            this.enableFallback = enableFallback;
+        }
+
+        /**
+         * Returns indicator whether the binary class code should include debug symbols
+         * @return indicator
+         */
+        public boolean isIncludeDebugSymbols() {
+            return includeDebugSymbols;
+        }
+
+        /**
+         * Sets indicator whether the binary class code should include debug symbols
+         * @param includeDebugSymbols indicator
+         */
+        public void setIncludeDebugSymbols(boolean includeDebugSymbols) {
+            this.includeDebugSymbols = includeDebugSymbols;
+        }
+
+        /**
+         * Returns indicator whether the generated source code should include comments for tracing back
+         * @return indicator
+         */
+        public boolean isIncludeComments() {
+            return includeComments;
+        }
+
+        /**
+         * Sets indicator whether the generated source code should include comments for tracing back
+         * @params includeComments
+         */
+        public void setIncludeComments(boolean includeComments) {
+            this.includeComments = includeComments;
         }
     }
 }

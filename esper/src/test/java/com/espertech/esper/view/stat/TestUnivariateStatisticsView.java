@@ -34,6 +34,7 @@ public class TestUnivariateStatisticsView extends TestCase {
         UnivariateStatisticsViewFactory factory = new UnivariateStatisticsViewFactory();
         factory.setEventType(type);
         factory.setFieldExpression(SupportExprNodeFactory.makeIdentNodeMD("price"));
+        factory.fieldExpressionEvaluator = factory.fieldExpression.getForge().getExprEvaluator();
         myView = new UnivariateStatisticsView(factory, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
 
         childView = new SupportBeanClassView(SupportMarketDataBean.class);

@@ -27,10 +27,10 @@ public abstract class EventAdvancedIndexFactoryQuadTree implements EventAdvanced
     }
 
     public SubordTableLookupStrategyFactoryQuadTree getSubordinateLookupStrategy(String operationName, Map<Integer, ExprNode> positionalExpressions, boolean isNWOnTrigger, int numOuterstreams) {
-        ExprEvaluator x = positionalExpressions.get(0).getExprEvaluator();
-        ExprEvaluator y = positionalExpressions.get(1).getExprEvaluator();
-        ExprEvaluator width = positionalExpressions.get(2).getExprEvaluator();
-        ExprEvaluator height = positionalExpressions.get(3).getExprEvaluator();
+        ExprEvaluator x = positionalExpressions.get(0).getForge().getExprEvaluator();
+        ExprEvaluator y = positionalExpressions.get(1).getForge().getExprEvaluator();
+        ExprEvaluator width = positionalExpressions.get(2).getForge().getExprEvaluator();
+        ExprEvaluator height = positionalExpressions.get(3).getForge().getExprEvaluator();
         String[] expressions = new String[positionalExpressions.size()];
         for (Map.Entry<Integer, ExprNode> entry : positionalExpressions.entrySet()) {
             expressions[entry.getKey()] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(entry.getValue());

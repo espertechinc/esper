@@ -11,15 +11,20 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Represents the EXISTS(property) function in an expression tree.
  */
-public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluator, ExprForge {
     private ExprIdentNode identNode;
     private static final long serialVersionUID = -6304444201237275628L;
 
@@ -30,6 +35,18 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
     }
 
     public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return Boolean.class;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
         return this;
     }
 
@@ -50,10 +67,6 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
         return false;
     }
 
-    public Class getType() {
-        return Boolean.class;
-    }
-
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qExprPropExists(this);
@@ -63,6 +76,18 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
             InstrumentationHelper.get().aExprPropExists(exists);
         }
         return exists;
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        String method = context.addMethod(Boolean.class, this.getClass()).add(params).begin()
+                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(identNode.getStreamId())))
+                .ifRefNullReturnNull("event")
+                .methodReturn(identNode.getExprEvaluatorIdent().getGetter().eventBeanExistsCodegen(ref("event"), context));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SINGLE;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

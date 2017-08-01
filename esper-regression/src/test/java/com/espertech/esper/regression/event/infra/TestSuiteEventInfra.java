@@ -73,4 +73,8 @@ public class TestSuiteEventInfra extends TestCase {
     public void testExecEventInfraPropertyAccessPerformance() {
         RegressionRunner.run(new ExecEventInfraPropertyAccessPerformance());
     }
+
+    public void testExecEventInfraPropertyIndexedKeyExpr() {
+        RegressionRunner.run(new ExecEventInfraPropertyIndexedKeyExpr());
+    }
 }

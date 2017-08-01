@@ -64,6 +64,7 @@ import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.type.RelationalOpEnum;
+import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.PlaceholderParseException;
 import com.espertech.esper.util.PlaceholderParser;
 
@@ -1702,7 +1703,7 @@ public class StatementSpecMapper {
             if (mapContext.getContextName() != null) {
                 com.espertech.esper.core.context.util.ContextDescriptor contextDescriptor = mapContext.getContextManagementService().getContextDescriptor(mapContext.getContextName());
                 if (contextDescriptor != null && contextDescriptor.getContextPropertyRegistry().isContextPropertyPrefix(stream)) {
-                    return new ExprContextPropertyNode(property);
+                    return new ExprContextPropertyNodeImpl(property);
                 }
             }
 
@@ -1731,7 +1732,10 @@ public class StatementSpecMapper {
                 try {
                     constantType = mapContext.getEngineImportService().getClassForNameProvider().classForName(op.getConstantType());
                 } catch (ClassNotFoundException e) {
-                    throw new EPException("Error looking up class name '" + op.getConstantType() + "' to resolve as constant type");
+                    constantType = JavaClassHelper.getPrimitiveClassForName(op.getConstantType());
+                    if (constantType == null) {
+                        throw new EPException("Error looking up class name '" + op.getConstantType() + "' to resolve as constant type");
+                    }
                 }
             }
             return new ExprConstantNodeImpl(op.getConstant(), constantType);
@@ -2100,8 +2104,8 @@ public class StatementSpecMapper {
             ExprVariableNode prop = (ExprVariableNode) expr;
             String propertyName = prop.getVariableNameWithSubProp();
             return new PropertyValueExpression(propertyName);
-        } else if (expr instanceof ExprContextPropertyNode) {
-            ExprContextPropertyNode prop = (ExprContextPropertyNode) expr;
+        } else if (expr instanceof ExprContextPropertyNodeImpl) {
+            ExprContextPropertyNodeImpl prop = (ExprContextPropertyNodeImpl) expr;
             return new PropertyValueExpression(ContextPropertyRegistry.CONTEXT_PREFIX + "." + prop.getPropertyName());
         } else if (expr instanceof ExprEqualsNode) {
             ExprEqualsNode equals = (ExprEqualsNode) expr;

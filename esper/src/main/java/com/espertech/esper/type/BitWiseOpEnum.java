@@ -66,8 +66,6 @@ public enum BitWiseOpEnum {
         computers.put(new MultiKeyUntyped(new Object[]{Integer.class, BXOR}), new BXorInt());
         computers.put(new MultiKeyUntyped(new Object[]{Long.class, BXOR}), new BXorLong());
         computers.put(new MultiKeyUntyped(new Object[]{Boolean.class, BXOR}), new BXorBoolean());
-
-
     }
 
     /**

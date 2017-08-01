@@ -28,7 +28,7 @@ public class TestExprNotNode extends TestCase {
     }
 
     public void testGetType() {
-        assertEquals(Boolean.class, notNode.getType());
+        assertEquals(Boolean.class, notNode.getEvaluationType());
     }
 
     public void testValidate() throws Exception {

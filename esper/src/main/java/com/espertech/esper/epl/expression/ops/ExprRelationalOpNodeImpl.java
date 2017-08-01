@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -21,11 +19,12 @@ import java.io.StringWriter;
 /**
  * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
-public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprRelationalOpNode {
-    private final RelationalOpEnum relationalOpEnum;
-    private transient RelationalOpEnum.Computer computer;
-    private transient ExprEvaluator[] evaluators;
+public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprRelationalOpNode {
     private static final long serialVersionUID = -6170161542681634598L;
+
+    private final RelationalOpEnum relationalOpEnum;
+
+    private transient ExprRelationalOpNodeForge forge;
 
     /**
      * Ctor.
@@ -37,7 +36,13 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprEvalua
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public boolean isConstantResult() {
@@ -58,11 +63,10 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprEvalua
         if (this.getChildNodes().length != 2) {
             throw new IllegalStateException("Relational op node does not have exactly 2 parameters");
         }
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // Must be either numeric or string
-        Class typeOne = JavaClassHelper.getBoxedType(evaluators[0].getType());
-        Class typeTwo = JavaClassHelper.getBoxedType(evaluators[1].getType());
+        Class typeOne = JavaClassHelper.getBoxedType(getChildNodes()[0].getForge().getEvaluationType());
+        Class typeTwo = JavaClassHelper.getBoxedType(getChildNodes()[1].getForge().getEvaluationType());
 
         if ((typeOne != String.class) || (typeTwo != String.class)) {
             if (!JavaClassHelper.isNumeric(typeOne)) {
@@ -78,41 +82,9 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprEvalua
         }
 
         Class compareType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
-
-        computer = relationalOpEnum.getComputer(compareType, typeOne, typeTwo);
+        RelationalOpEnum.Computer computer = relationalOpEnum.getComputer(compareType, typeOne, typeTwo);
+        forge = new ExprRelationalOpNodeForge(this, computer);
         return null;
-    }
-
-    public Class getType() {
-        return Boolean.class;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprRelOp(this, relationalOpEnum.getExpressionText());
-        }
-        Object valueLeft = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (valueLeft == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprRelOp(null);
-            }
-            return null;
-        }
-
-        Object valueRight = evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (valueRight == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprRelOp(null);
-            }
-            return null;
-        }
-
-        if (InstrumentationHelper.ENABLED) {
-            Boolean result = computer.compare(valueLeft, valueRight);
-            InstrumentationHelper.get().aExprRelOp(result);
-            return result;
-        }
-        return computer.compare(valueLeft, valueRight);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.LikeUtil;
 
@@ -21,16 +19,12 @@ import java.io.StringWriter;
 /**
  * Represents the like-clause in an expression tree.
  */
-public class ExprLikeNode extends ExprNodeBase implements ExprEvaluator {
+public class ExprLikeNode extends ExprNodeBase {
+    private static final long serialVersionUID = 34888860063217132L;
+
     private final boolean isNot;
 
-    private boolean isNumericValue;
-    private boolean isConstantPattern;
-
-    private transient LikeUtil likeUtil;
-    private transient ExprEvaluator[] evaluators;
-
-    private static final long serialVersionUID = 34888860063217132L;
+    private transient ExprLikeNodeForge forge;
 
     /**
      * Ctor.
@@ -41,39 +35,65 @@ public class ExprLikeNode extends ExprNodeBase implements ExprEvaluator {
         this.isNot = not;
     }
 
+    public Class getEvaluationType() {
+        return Boolean.class;
+    }
+
     public ExprEvaluator getExprEvaluator() {
-        return this;
+        ExprNodeUtility.checkValidated(forge);
+        return forge.getExprEvaluator();
+    }
+
+    public ExprForge getForge() {
+        ExprNodeUtility.checkValidated(forge);
+        return forge;
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if ((this.getChildNodes().length != 2) && (this.getChildNodes().length != 3)) {
             throw new ExprValidationException("The 'like' operator requires 2 (no escape) or 3 (with escape) child expressions");
         }
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // check eval child node - can be String or numeric
-        Class evalChildType = evaluators[0].getType();
-        isNumericValue = JavaClassHelper.isNumeric(evalChildType);
+        Class evalChildType = getChildNodes()[0].getForge().getEvaluationType();
+        boolean isNumericValue = JavaClassHelper.isNumeric(evalChildType);
         if ((evalChildType != String.class) && (!isNumericValue)) {
             throw new ExprValidationException("The 'like' operator requires a String or numeric type left-hand expression");
         }
 
         // check pattern child node
-        ExprEvaluator patternChildNode = evaluators[1];
-        Class patternChildType = patternChildNode.getType();
+        Class patternChildType = getChildNodes()[1].getForge().getEvaluationType();
         if (patternChildType != String.class) {
             throw new ExprValidationException("The 'like' operator requires a String-type pattern expression");
         }
-        if (getChildNodes()[1].isConstantResult()) {
-            isConstantPattern = true;
-        }
+        boolean isConstantPattern = getChildNodes()[1].isConstantResult();
 
         // check escape character node
+        boolean isConstantEscape = true;
         if (this.getChildNodes().length == 3) {
-            ExprEvaluator escapeChildNode = evaluators[2];
-            if (escapeChildNode.getType() != String.class) {
+            if (this.getChildNodes()[2].getForge().getEvaluationType() != String.class) {
                 throw new ExprValidationException("The 'like' operator escape parameter requires a character-type value");
             }
+            isConstantEscape = getChildNodes()[2].isConstantResult();
+        }
+
+        if (isConstantPattern && isConstantEscape) {
+            String patternVal = (String) getChildNodes()[1].getForge().getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
+            if (patternVal == null) {
+                throw new ExprValidationException("The 'like' operator pattern returned null");
+            }
+            String escape = "\\";
+            Character escapeCharacter = null;
+            if (this.getChildNodes().length == 3) {
+                escape = (String) getChildNodes()[2].getForge().getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
+            }
+            if (escape.length() > 0) {
+                escapeCharacter = escape.charAt(0);
+            }
+            LikeUtil likeUtil = new LikeUtil(patternVal, escapeCharacter, false);
+            forge = new ExprLikeNodeForgeConst(this, isNumericValue, likeUtil);
+        } else {
+            forge = new ExprLikeNodeForgeNonconst(this, isNumericValue);
         }
         return null;
     }
@@ -84,67 +104,6 @@ public class ExprLikeNode extends ExprNodeBase implements ExprEvaluator {
 
     public boolean isConstantResult() {
         return false;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qExprLike(this);
-        }
-        if (likeUtil == null) {
-            String patternVal = (String) evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (patternVal == null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aExprLike(null);
-                }
-                return null;
-            }
-            String escape = "\\";
-            Character escapeCharacter = null;
-            if (this.getChildNodes().length == 3) {
-                escape = (String) evaluators[2].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            }
-            if (escape.length() > 0) {
-                escapeCharacter = escape.charAt(0);
-            }
-            likeUtil = new LikeUtil(patternVal, escapeCharacter, false);
-        } else {
-            if (!isConstantPattern) {
-                String patternVal = (String) evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                if (patternVal == null) {
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aExprLike(null);
-                    }
-                    return null;
-                }
-                likeUtil.resetPattern(patternVal);
-            }
-        }
-
-        Object evalValue = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (evalValue == null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprLike(null);
-            }
-            return null;
-        }
-
-        if (isNumericValue) {
-            evalValue = evalValue.toString();
-        }
-
-        Boolean result = likeUtil.compare((String) evalValue);
-
-        if (isNot) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aExprLike(!result);
-            }
-            return !result;
-        }
-
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aExprLike(result);
-        }
-        return result;
     }
 
     public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {

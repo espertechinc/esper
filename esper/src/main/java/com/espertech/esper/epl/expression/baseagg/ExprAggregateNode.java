@@ -13,13 +13,14 @@ package com.espertech.esper.epl.expression.baseagg;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationResultFuture;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 /**
  * Base expression node that represents an aggregation function such as 'sum' or 'count'.
  */
-public interface ExprAggregateNode extends ExprEvaluator, ExprNode {
+public interface ExprAggregateNode extends ExprEvaluator, ExprForge, ExprNode {
     public AggregationMethodFactory getFactory();
 
     public void setAggregationResultFuture(AggregationResultFuture aggregationResultFuture, int column);

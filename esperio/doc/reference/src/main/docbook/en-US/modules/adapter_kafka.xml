@@ -61,7 +61,7 @@
 			<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <esper-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://www.espertech.com/schema/esper"
-  xsi:noNamespaceSchemaLocation="../../esper/etc/esper-configuration-6-0.xsd">
+  xsi:noNamespaceSchemaLocation="../../esper/etc/esper-configuration-7-0.xsd">
   
   <plugin-loader name="KafkaInput" class-name="com.espertech.esperio.kafka.EsperIOKafkaInputAdapterPlugin">
     <!--
@@ -388,7 +388,7 @@ adapter.destroy();]]></programlisting>
 			<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <esper-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://www.espertech.com/schema/esper"
-  xsi:noNamespaceSchemaLocation="../../esper/etc/esper-configuration-6-0.xsd">
+  xsi:noNamespaceSchemaLocation="../../esper/etc/esper-configuration-7-0.xsd">
   
   <plugin-loader name="KafkaOutput" class-name="com.espertech.esperio.kafka.EsperIOKafkaOutputAdapterPlugin">
     <!--

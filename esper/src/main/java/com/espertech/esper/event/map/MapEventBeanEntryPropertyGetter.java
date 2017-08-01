@@ -12,6 +12,7 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
@@ -31,8 +32,7 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
 
     /**
      * Ctor.
-     *
-     * @param propertyMap          the property to look at
+     *  @param propertyMap          the property to look at
      * @param eventBeanEntryGetter the getter for the map entry
      */
     public MapEventBeanEntryPropertyGetter(String propertyMap, EventPropertyGetterSPI eventBeanEntryGetter) {
@@ -54,11 +54,11 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     private String getMapCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Map.class, "map", this.getClass())
+        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
-                .ifRefNullReturnNull("value")
-                .declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")))
-                .methodReturn(eventBeanEntryGetter.codegenEventBeanGet(ref("theEvent"), context));
+                .ifRefNullReturnNull("value");
+        return block.declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")))
+                .methodReturn(eventBeanEntryGetter.eventBeanGetCodegen(ref("theEvent"), context));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -89,34 +89,34 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     private String getFragmentCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, Map.class, "map", this.getClass())
+        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")
                 .declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")))
-                .methodReturn(eventBeanEntryGetter.codegenEventBeanFragment(ref("theEvent"), context));
+                .methodReturn(eventBeanEntryGetter.eventBeanFragmentCodegen(ref("theEvent"), context));
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingFragment(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingFragmentCodegen(castUnderlying(Map.class, beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getMapCodegen(context), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantTrue();
     }
 
-    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 }

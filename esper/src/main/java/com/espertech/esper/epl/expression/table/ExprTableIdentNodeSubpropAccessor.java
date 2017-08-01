@@ -12,6 +12,10 @@ package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
@@ -26,7 +30,7 @@ import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import java.io.StringWriter;
 import java.util.Collection;
 
-public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration {
+public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements ExprForge, ExprEvaluator, ExprEnumerationForge, ExprEnumerationEval {
     private static final long serialVersionUID = -8308528998078977774L;
 
     private final int streamNum;
@@ -54,12 +58,32 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return null;
     }
 
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    }
+
+    public Class getEvaluationType() {
+        return accessorFactory.getResultType();
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
     public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public Class getType() {
-        return accessorFactory.getResultType();
+    public ExprEnumerationEval getExprEvaluatorEnumeration() {
+        return this;
+    }
+
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -68,6 +92,10 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
             return null;
         }
         return accessor.getValue(state, eventsPerStream, isNewData, exprEvaluatorContext);
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.SELF;
     }
 
     public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
@@ -94,6 +122,10 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return accessor.getEnumerableScalar(state, eventsPerStream, isNewData, context);
     }
 
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
+    }
+
     public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return ((ExprAggregateAccessMultiValueNode) aggregateAccessMultiValueNode).getEventTypeSingle(eventAdapterService, statementId);
     }
@@ -104,6 +136,10 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
             return null;
         }
         return accessor.getEnumerableEvent(state, eventsPerStream, isNewData, context);
+    }
+
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

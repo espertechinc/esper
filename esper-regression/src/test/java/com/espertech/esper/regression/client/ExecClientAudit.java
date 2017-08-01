@@ -68,6 +68,7 @@ public class ExecClientAudit implements RegressionExecution {
     }
 
     private void runAssertionAudit(EPServiceProvider epService) throws Exception {
+        SupportUpdateListener listener = new SupportUpdateListener();
 
         // stream, and test audit callback
         SupportAuditCallback callback = new SupportAuditCallback();
@@ -101,7 +102,6 @@ public class ExecClientAudit implements RegressionExecution {
         AUDITLOG.info("*** Schedule: ");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         EPStatement stmtSchedule = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('schedule') select irstream * from SupportBean#time(1 sec)");
-        SupportUpdateListener listener = new SupportUpdateListener();
         stmtSchedule.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         listener.reset();

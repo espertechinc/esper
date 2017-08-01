@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
 import java.math.BigInteger;
 
 /**
@@ -23,4 +25,6 @@ public interface SimpleNumberBigIntegerCoercer {
      * @return widened number
      */
     public BigInteger coerceBoxedBigInt(Number numToCoerce);
+
+    CodegenExpression coerceBoxedBigIntCodegen(CodegenExpression expr, Class type);
 }

@@ -41,7 +41,7 @@ public class TestExprEqualsNode extends TestCase {
     }
 
     public void testGetType() {
-        assertEquals(Boolean.class, equalsNodes[1].getExprEvaluator().getType());
+        assertEquals(Boolean.class, equalsNodes[1].getForge().getEvaluationType());
     }
 
     public void testValidate() throws Exception {
@@ -76,53 +76,53 @@ public class TestExprEqualsNode extends TestCase {
 
     public void testEvaluateEquals() throws Exception {
         equalsNodes[0] = makeNode(true, false, false);
-        assertFalse((Boolean) equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertFalse((Boolean) equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(false, false, false);
-        assertTrue((Boolean) equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertTrue((Boolean) equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(true, true, false);
-        assertTrue((Boolean) equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertTrue((Boolean) equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(true, Boolean.class, null, Boolean.class, false);
-        assertNull(equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertNull(equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(null, String.class, "ss", String.class, false);
-        assertNull(equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertNull(equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(null, String.class, null, String.class, false);
-        assertNull(equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertNull(equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         // try a long and int
         equalsNodes[1].validate(SupportExprValidationContextFactory.makeEmpty());
-        assertTrue((Boolean) equalsNodes[1].getExprEvaluator().evaluate(null, false, null));
+        assertTrue((Boolean) equalsNodes[1].getForge().getExprEvaluator().evaluate(null, false, null));
 
         // try a double and int
         equalsNodes[2].validate(SupportExprValidationContextFactory.makeEmpty());
-        assertTrue((Boolean) equalsNodes[2].getExprEvaluator().evaluate(null, false, null));
+        assertTrue((Boolean) equalsNodes[2].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[3].validate(SupportExprValidationContextFactory.makeEmpty());
-        assertTrue((Boolean) equalsNodes[3].getExprEvaluator().evaluate(null, false, null));
+        assertTrue((Boolean) equalsNodes[3].getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testEvaluateNotEquals() throws Exception {
         equalsNodes[0] = makeNode(true, false, true);
-        assertTrue((Boolean) equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertTrue((Boolean) equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(false, false, true);
-        assertFalse((Boolean) equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertFalse((Boolean) equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(true, true, true);
-        assertFalse((Boolean) equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertFalse((Boolean) equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(true, Boolean.class, null, Boolean.class, true);
-        assertNull(equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertNull(equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(null, String.class, "ss", String.class, true);
-        assertNull(equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertNull(equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
 
         equalsNodes[0] = makeNode(null, String.class, null, String.class, true);
-        assertNull(equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
+        assertNull(equalsNodes[0].getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
     public void testToExpressionString() throws Exception {

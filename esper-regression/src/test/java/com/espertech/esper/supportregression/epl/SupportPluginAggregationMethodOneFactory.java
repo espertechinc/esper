@@ -26,6 +26,6 @@ public class SupportPluginAggregationMethodOneFactory implements AggregationFunc
     }
 
     public Class getValueType() {
-        return null;
+        return int.class;
     }
 }

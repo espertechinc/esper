@@ -11,12 +11,8 @@
 package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.client.EventPropertyGetterIndexed;
-import com.espertech.esper.client.EventPropertyGetterMapped;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.EventPropertyGetterSPI;
-import com.espertech.esper.event.EventTypeNestableGetterFactory;
+import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
@@ -32,11 +28,11 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return prop.getGetterMap(nestableTypes, eventAdapterService);
     }
 
-    public EventPropertyGetterMapped getPropertyProvidedGetterMap(Map<String, Object> nestableTypes, String mappedPropertyName, MappedProperty mappedProperty, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterMappedSPI getPropertyProvidedGetterMap(Map<String, Object> nestableTypes, String mappedPropertyName, MappedProperty mappedProperty, EventAdapterService eventAdapterService) {
         return mappedProperty.getGetterMap(nestableTypes, eventAdapterService);
     }
 
-    public EventPropertyGetterIndexed getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterIndexedSPI getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService) {
         return indexedProperty.getGetterMap(nestableTypes, eventAdapterService);
     }
 
@@ -44,8 +40,8 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return new MapEntryPropertyGetter(name, nativeFragmentType, eventAdapterService);
     }
 
-    public MapEventPropertyGetter getGetterEventBean(String name) {
-        return new MapEventBeanPropertyGetter(name);
+    public MapEventPropertyGetter getGetterEventBean(String name, Class underlyingType) {
+        return new MapEventBeanPropertyGetter(name, underlyingType);
     }
 
     public MapEventPropertyGetter getGetterEventBeanArray(String name, EventType eventType) {

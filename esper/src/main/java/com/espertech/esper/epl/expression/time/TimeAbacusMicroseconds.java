@@ -10,10 +10,15 @@
  */
 package com.espertech.esper.epl.expression.time;
 
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Calendar;
 import java.util.Date;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class TimeAbacusMicroseconds implements TimeAbacus {
     public final static TimeAbacusMicroseconds INSTANCE = new TimeAbacusMicroseconds();
@@ -24,6 +29,10 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
 
     public long deltaForSecondsDouble(double seconds) {
         return Math.round(1000000d * seconds);
+    }
+
+    public CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenContext context) {
+        return staticMethod(Math.class, "round", op(constant(1000000d), "*", sec));
     }
 
     public long deltaForSecondsNumber(Number timeInSeconds) {
@@ -39,8 +48,20 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
         return fromTime - millis * 1000;
     }
 
+    public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenContext context) {
+        String method = context.addMethod(long.class, TimeAbacusMicroseconds.class).add(long.class, "fromTime").add(Calendar.class, "cal").begin()
+                .declareVar(long.class, "millis", op(ref("fromTime"), "/", constant(1000)))
+                .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("millis")))
+                .methodReturn(op(ref("fromTime"), "-", op(ref("millis"), "*", constant(1000))));
+        return localMethodBuild(method).pass(startLong).pass(cal).call();
+    }
+
     public long calendarGet(Calendar cal, long remainder) {
         return cal.getTimeInMillis() * 1000 + remainder;
+    }
+
+    public CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenContext context) {
+        return op(op(exprDotMethod(cal, "getTimeInMillis"), "*", constant(1000)), "+", startRemainder);
     }
 
     public long getOneSecond() {
@@ -49,5 +70,9 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
 
     public Date toDate(long ts) {
         return new Date(ts / 1000);
+    }
+
+    public CodegenExpression toDateCodegen(CodegenExpression ts) {
+        return newInstance(Date.class, op(ts, "/", constant(1000)));
     }
 }

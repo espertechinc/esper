@@ -10,11 +10,8 @@
  */
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.filter.FilterSpecCompilerAdvIndexDesc;
 
 public interface EngineImportApplicationDotMethod {
@@ -24,7 +21,7 @@ public interface EngineImportApplicationDotMethod {
     FilterExprAnalyzerAffector getFilterExprAnalyzerAffector();
     FilterSpecCompilerAdvIndexDesc getFilterSpecCompilerAdvIndexDesc();
 
-    ExprEvaluator getExprEvaluator();
+    ExprForge getForge();
 
     String getLhsName();
     ExprNode[] getLhs();

@@ -34,7 +34,7 @@ public class ExprSubselectInNode extends ExprSubselectNode {
         this.isNotIn = isNotIn;
     }
 
-    public Class getType() {
+    public Class getEvaluationType() {
         return Boolean.class;
     }
 
@@ -48,7 +48,7 @@ public class ExprSubselectInNode extends ExprSubselectNode {
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
-        subselectEvalStrategyNR = SubselectEvalStrategyNRFactory.createStrategyAnyAllIn(this, isNotIn, false, false, null);
+        subselectEvalStrategyNR = SubselectEvalStrategyNRFactory.createStrategyAnyAllIn(this, isNotIn, false, false, null, validationContext.getEngineImportService(), validationContext.getStatementName());
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {

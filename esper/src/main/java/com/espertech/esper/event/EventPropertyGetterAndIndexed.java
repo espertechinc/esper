@@ -10,7 +10,5 @@
  */
 package com.espertech.esper.event;
 
-import com.espertech.esper.client.EventPropertyGetterIndexed;
-
-public interface EventPropertyGetterAndIndexed extends EventPropertyGetterSPI, EventPropertyGetterIndexed {
+public interface EventPropertyGetterAndIndexed extends EventPropertyGetterSPI, EventPropertyGetterIndexedSPI {
 }

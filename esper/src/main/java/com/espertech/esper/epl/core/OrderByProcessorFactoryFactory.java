@@ -12,6 +12,7 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -36,7 +37,7 @@ public class OrderByProcessorFactoryFactory {
      * Returns processor for order-by clauses.
      *
      * @param selectionList       is a list of select expressions
-     * @param groupByNodes        is a list of group-by expressions
+     * @param groupByNodeEvals        is a list of group-by expressions
      * @param orderByList         is a list of order-by expressions
      * @param rowLimitSpec        specification for row limit, or null if no row limit is defined
      * @param variableService     for retrieving variable state for use with row limiting
@@ -46,12 +47,15 @@ public class OrderByProcessorFactoryFactory {
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when validation of expressions fails
      */
     public static OrderByProcessorFactory getProcessor(List<SelectClauseExprCompiledSpec> selectionList,
-                                                       ExprNode[] groupByNodes,
+                                                       ExprEvaluator[] groupByNodeEvals,
                                                        List<OrderByItem> orderByList,
                                                        RowLimitSpec rowLimitSpec,
                                                        VariableService variableService,
                                                        boolean isSortUsingCollator,
-                                                       String optionalContextName)
+                                                       String optionalContextName,
+                                                       EngineImportService engineImportService,
+                                                       boolean onDemandQuery,
+                                                       String statementName)
             throws ExprValidationException {
         // Get the order by expression nodes
         List<ExprNode> orderByNodes = new ArrayList<ExprNode>();
@@ -88,7 +92,7 @@ public class OrderByProcessorFactoryFactory {
         boolean needsGroupByKeys = !selectionList.isEmpty() && !orderAggNodes.isEmpty();
 
         log.debug(".getProcessor Using OrderByProcessorImpl");
-        OrderByProcessorFactoryImpl orderByProcessorFactory = new OrderByProcessorFactoryImpl(orderByList, groupByNodes, needsGroupByKeys, isSortUsingCollator);
+        OrderByProcessorFactoryImpl orderByProcessorFactory = new OrderByProcessorFactoryImpl(orderByList, groupByNodeEvals, needsGroupByKeys, isSortUsingCollator, engineImportService, onDemandQuery, statementName);
         if (rowLimitSpec == null) {
             return orderByProcessorFactory;
         } else {

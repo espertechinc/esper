@@ -97,24 +97,24 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         return getterChain[0].getTargetType();
     }
 
-    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
-        return codegenUnderlyingExists(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+        return underlyingExistsCodegen(castUnderlying(getTargetType(), beanExpression), context);
     }
 
-    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getBeanPropCodegen(context, false), underlyingExpression);
     }
 
-    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return localMethod(getBeanPropCodegen(context, true), underlyingExpression);
     }
 
     private String getBeanPropCodegen(CodegenContext context, boolean exists) {
-        CodegenBlock block = context.addMethod(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), getterChain[0].getTargetType(), "value", this.getClass());
+        CodegenBlock block = context.addMethod(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), this.getClass()).add(getterChain[0].getTargetType(), "value").begin();
         if (!exists) {
             block.ifRefNullReturnNull("value");
         } else {
@@ -123,7 +123,7 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         String lastName = "value";
         for (int i = 0; i < getterChain.length - 1; i++) {
             String varName = "l" + i;
-            block.declareVar(getterChain[i].getBeanPropType(), varName, getterChain[i].codegenUnderlyingGet(ref(lastName), context));
+            block.declareVar(getterChain[i].getBeanPropType(), varName, getterChain[i].underlyingGetCodegen(ref(lastName), context));
             lastName = varName;
             if (!exists) {
                 block.ifRefNullReturnNull(lastName);
@@ -132,9 +132,9 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
             }
         }
         if (!exists) {
-            return block.methodReturn(getterChain[getterChain.length - 1].codegenUnderlyingGet(ref(lastName), context));
+            return block.methodReturn(getterChain[getterChain.length - 1].underlyingGetCodegen(ref(lastName), context));
         } else {
-            return block.methodReturn(getterChain[getterChain.length - 1].codegenUnderlyingExists(ref(lastName), context));
+            return block.methodReturn(getterChain[getterChain.length - 1].underlyingExistsCodegen(ref(lastName), context));
         }
     }
 }

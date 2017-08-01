@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.codegen.model.statement;
 
+import com.espertech.esper.codegen.core.CodegenIndent;
+
 import java.util.Map;
 import java.util.Set;
 
 public interface CodegenStatement {
-    void render(StringBuilder builder, Map<Class, String> imports);
+    void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent);
+
     void mergeClasses(Set<Class> classes);
 }

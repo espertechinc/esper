@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.type;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.util.SimpleNumberBigDecimalCoercer;
 import com.espertech.esper.util.SimpleNumberBigIntegerCoercer;
@@ -19,6 +22,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Enum representing relational types of operation.
@@ -82,7 +87,7 @@ public enum RelationalOpEnum {
     }
 
     static {
-        computers = new HashMap<MultiKeyUntyped, RelationalOpEnum.Computer>();
+        computers = new HashMap<>();
         computers.put(new MultiKeyUntyped(new Object[]{String.class, GT}), new GTStringComputer());
         computers.put(new MultiKeyUntyped(new Object[]{String.class, GE}), new GEStringComputer());
         computers.put(new MultiKeyUntyped(new Object[]{String.class, LT}), new LTStringComputer());
@@ -191,6 +196,8 @@ public enum RelationalOpEnum {
          * @return true if larger, false if smaller
          */
         public boolean compare(Object objOne, Object objTwo);
+
+        CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType);
     }
 
     /**
@@ -203,6 +210,10 @@ public enum RelationalOpEnum {
             int result = s1.compareTo(s2);
             return result > 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.GT);
+        }
     }
 
     /**
@@ -213,6 +224,10 @@ public enum RelationalOpEnum {
             String s1 = (String) objOne;
             String s2 = (String) objTwo;
             return s1.compareTo(s2) >= 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
 
@@ -225,6 +240,10 @@ public enum RelationalOpEnum {
             String s2 = (String) objTwo;
             return s1.compareTo(s2) <= 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.LE);
+        }
     }
 
     /**
@@ -235,6 +254,10 @@ public enum RelationalOpEnum {
             String s1 = (String) objOne;
             String s2 = (String) objTwo;
             return s1.compareTo(s2) < 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenStringCompare(lhs, lhsType, rhs, rhsType, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
 
@@ -247,6 +270,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.longValue() > s2.longValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenLong(lhs, lhsType, rhs, rhsType, GT);
+        }
     }
 
     /**
@@ -257,6 +284,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.longValue() >= s2.longValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenLong(lhs, lhsType, rhs, rhsType, GE);
         }
     }
 
@@ -269,6 +300,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.longValue() < s2.longValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenLong(lhs, lhsType, rhs, rhsType, LT);
+        }
     }
 
     /**
@@ -279,6 +314,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.longValue() <= s2.longValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenLong(lhs, lhsType, rhs, rhsType, LE);
         }
     }
 
@@ -291,6 +330,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.intValue() > s2.intValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenInt(lhs, lhsType, rhs, rhsType, GT);
+        }
     }
 
     /**
@@ -301,6 +344,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.intValue() >= s2.intValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenInt(lhs, lhsType, rhs, rhsType, GE);
         }
     }
 
@@ -313,6 +360,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.intValue() < s2.intValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenInt(lhs, lhsType, rhs, rhsType, LT);
+        }
     }
 
     /**
@@ -323,6 +374,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.intValue() <= s2.intValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenInt(lhs, lhsType, rhs, rhsType, LE);
         }
     }
 
@@ -335,6 +390,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.doubleValue() > s2.doubleValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenDouble(lhs, lhsType, rhs, rhsType, GT);
+        }
     }
 
     /**
@@ -345,6 +404,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.doubleValue() >= s2.doubleValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenDouble(lhs, lhsType, rhs, rhsType, GE);
         }
     }
 
@@ -357,6 +420,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.doubleValue() < s2.doubleValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenDouble(lhs, lhsType, rhs, rhsType, LT);
+        }
     }
 
     /**
@@ -367,6 +434,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.doubleValue() <= s2.doubleValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenDouble(lhs, lhsType, rhs, rhsType, LE);
         }
     }
 
@@ -379,6 +450,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.floatValue() > s2.floatValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenFloat(lhs, lhsType, rhs, rhsType, GT);
+        }
     }
 
     /**
@@ -389,6 +464,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.floatValue() >= s2.floatValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenFloat(lhs, lhsType, rhs, rhsType, GE);
         }
     }
 
@@ -401,6 +480,10 @@ public enum RelationalOpEnum {
             Number s2 = (Number) objTwo;
             return s1.floatValue() < s2.floatValue();
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenFloat(lhs, lhsType, rhs, rhsType, LT);
+        }
     }
 
     /**
@@ -411,6 +494,10 @@ public enum RelationalOpEnum {
             Number s1 = (Number) objOne;
             Number s2 = (Number) objTwo;
             return s1.floatValue() <= s2.floatValue();
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenFloat(lhs, lhsType, rhs, rhsType, LE);
         }
     }
 
@@ -424,6 +511,10 @@ public enum RelationalOpEnum {
             int result = s1.compareTo(s2);
             return result > 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GT);
+        }
     }
 
     /**
@@ -434,6 +525,10 @@ public enum RelationalOpEnum {
             BigDecimal s1 = (BigDecimal) objOne;
             BigDecimal s2 = (BigDecimal) objTwo;
             return s1.compareTo(s2) >= 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
 
@@ -446,6 +541,10 @@ public enum RelationalOpEnum {
             BigDecimal s2 = (BigDecimal) objTwo;
             return s1.compareTo(s2) <= 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LE);
+        }
     }
 
     /**
@@ -456,6 +555,10 @@ public enum RelationalOpEnum {
             BigDecimal s1 = (BigDecimal) objOne;
             BigDecimal s2 = (BigDecimal) objTwo;
             return s1.compareTo(s2) < 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
 
@@ -469,6 +572,10 @@ public enum RelationalOpEnum {
             int result = s1.compareTo(s2);
             return result > 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GT);
+        }
     }
 
     /**
@@ -479,6 +586,10 @@ public enum RelationalOpEnum {
             BigInteger s1 = (BigInteger) objOne;
             BigInteger s2 = (BigInteger) objTwo;
             return s1.compareTo(s2) >= 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
 
@@ -491,6 +602,10 @@ public enum RelationalOpEnum {
             BigInteger s2 = (BigInteger) objTwo;
             return s1.compareTo(s2) <= 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LE);
+        }
     }
 
     /**
@@ -501,6 +616,10 @@ public enum RelationalOpEnum {
             BigInteger s1 = (BigInteger) objOne;
             BigInteger s2 = (BigInteger) objTwo;
             return s1.compareTo(s2) < 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntBigDecPlain(lhs, rhs, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
 
@@ -528,6 +647,10 @@ public enum RelationalOpEnum {
             int result = s1.compareTo(s2);
             return result > 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GT);
+        }
     }
 
     /**
@@ -552,6 +675,10 @@ public enum RelationalOpEnum {
             BigInteger s1 = convOne.coerceBoxedBigInt((Number) objOne);
             BigInteger s2 = convTwo.coerceBoxedBigInt((Number) objTwo);
             return s1.compareTo(s2) >= 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
 
@@ -578,6 +705,10 @@ public enum RelationalOpEnum {
             BigInteger s2 = convTwo.coerceBoxedBigInt((Number) objTwo);
             return s1.compareTo(s2) <= 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LE);
+        }
     }
 
     /**
@@ -602,6 +733,10 @@ public enum RelationalOpEnum {
             BigInteger s1 = convOne.coerceBoxedBigInt((Number) objOne);
             BigInteger s2 = convTwo.coerceBoxedBigInt((Number) objTwo);
             return s1.compareTo(s2) < 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigIntConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LT);
         }
     }
 
@@ -629,6 +764,10 @@ public enum RelationalOpEnum {
             int result = s1.compareTo(s2);
             return result > 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GT);
+        }
     }
 
     /**
@@ -653,6 +792,10 @@ public enum RelationalOpEnum {
             BigDecimal s1 = convOne.coerceBoxedBigDec((Number) objOne);
             BigDecimal s2 = convTwo.coerceBoxedBigDec((Number) objTwo);
             return s1.compareTo(s2) >= 0;
+        }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.GE);
         }
     }
 
@@ -679,6 +822,10 @@ public enum RelationalOpEnum {
             BigDecimal s2 = convTwo.coerceBoxedBigDec((Number) objTwo);
             return s1.compareTo(s2) <= 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LE);
+        }
     }
 
     /**
@@ -704,6 +851,10 @@ public enum RelationalOpEnum {
             BigDecimal s2 = convTwo.coerceBoxedBigDec((Number) objTwo);
             return s1.compareTo(s2) < 0;
         }
+
+        public CodegenExpression codegen(CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {
+            return codegenBigDecConv(lhs, lhsType, rhs, rhsType, convOne, convTwo, CodegenExpressionRelational.CodegenRelational.LT);
+        }
     }
 
     /**
@@ -713,5 +864,48 @@ public enum RelationalOpEnum {
      */
     public String getExpressionText() {
         return expressionText;
+    }
+
+    private static CodegenExpression codegenLong(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+        return op(MathArithTypeEnum.codegenAsLong(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsLong(rhs, rhsType));
+    }
+
+    private static CodegenExpression codegenDouble(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+        return op(MathArithTypeEnum.codegenAsDouble(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsDouble(rhs, rhsType));
+    }
+
+    private static CodegenExpression codegenFloat(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+        return op(MathArithTypeEnum.codegenAsFloat(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsFloat(rhs, rhsType));
+    }
+
+    private static CodegenExpression codegenInt(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, RelationalOpEnum op) {
+        return op(MathArithTypeEnum.codegenAsInt(lhs, lhsType), op.getExpressionText(), MathArithTypeEnum.codegenAsInt(rhs, rhsType));
+    }
+
+    private static CodegenExpression codegenStringCompare(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, CodegenExpressionRelational.CodegenRelational rel) {
+        return relational(exprDotMethod(codegenAsString(lhs, lhsType), "compareTo", codegenAsString(rhs, rhsType)), rel, constant(0));
+    }
+
+    private static CodegenExpression codegenAsString(CodegenExpression ref, Class type) {
+        if (type == String.class) {
+            return ref;
+        }
+        return cast(String.class, ref);
+    }
+
+    private static CodegenExpression codegenBigIntBigDecPlain(CodegenExpression lhs, CodegenExpression rhs, CodegenExpressionRelational.CodegenRelational rel) {
+        return relational(exprDotMethod(lhs, "compareTo", rhs), rel, constant(0));
+    }
+
+    private static CodegenExpression codegenBigDecConv(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, SimpleNumberBigDecimalCoercer convLeft, SimpleNumberBigDecimalCoercer convRight, CodegenExpressionRelational.CodegenRelational rel) {
+        CodegenExpression leftConv = convLeft.coerceBoxedBigDecCodegen(lhs, lhsType);
+        CodegenExpression rightConv = convRight.coerceBoxedBigDecCodegen(rhs, rhsType);
+        return relational(exprDotMethod(leftConv, "compareTo", rightConv), rel, constant(0));
+    }
+
+    private static CodegenExpression codegenBigIntConv(CodegenExpression lhs, Class lhsType, CodegenExpression rhs, Class rhsType, SimpleNumberBigIntegerCoercer convLeft, SimpleNumberBigIntegerCoercer convRight, CodegenExpressionRelational.CodegenRelational rel) {
+        CodegenExpression leftConv = convLeft.coerceBoxedBigIntCodegen(lhs, lhsType);
+        CodegenExpression rightConv = convRight.coerceBoxedBigIntCodegen(rhs, rhsType);
+        return relational(exprDotMethod(leftConv, "compareTo", rightConv), rel, constant(0));
     }
 }

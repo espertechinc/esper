@@ -37,21 +37,21 @@ public class AdvancedIndexValidationHelper {
     }
 
     public static void validateColumnReturnTypeNumber(String indexTypeName, int colnum, ExprNode expr, String name) throws ExprValidationException {
-        Class receivedType = expr.getExprEvaluator().getType();
+        Class receivedType = expr.getForge().getEvaluationType();
         if (!isNumeric(receivedType)) {
             throw makeEx(indexTypeName, true, colnum, name, Number.class, receivedType);
         }
     }
 
     public static void validateParameterReturnType(Class expectedReturnType, String indexTypeName, int paramnum, ExprNode expr, String name) throws ExprValidationException {
-        Class receivedType = JavaClassHelper.getBoxedType(expr.getExprEvaluator().getType());
+        Class receivedType = JavaClassHelper.getBoxedType(expr.getForge().getEvaluationType());
         if (!JavaClassHelper.isSubclassOrImplementsInterface(receivedType, expectedReturnType)) {
             throw makeEx(indexTypeName, false, paramnum, name, expectedReturnType, receivedType);
         }
     }
 
     public static void validateParameterReturnTypeNumber(String indexTypeName, int paramnum, ExprNode expr, String name) throws ExprValidationException {
-        Class receivedType = expr.getExprEvaluator().getType();
+        Class receivedType = expr.getForge().getEvaluationType();
         if (!isNumeric(receivedType)) {
             throw makeEx(indexTypeName, false, paramnum, name, Number.class, receivedType);
         }

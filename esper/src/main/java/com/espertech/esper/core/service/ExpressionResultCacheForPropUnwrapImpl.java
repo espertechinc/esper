@@ -18,14 +18,14 @@ import java.util.HashMap;
 
 public class ExpressionResultCacheForPropUnwrapImpl implements ExpressionResultCacheForPropUnwrap {
 
-    private final HashMap<String, SoftReference<ExpressionResultCacheEntry<EventBean, Collection<EventBean>>>> collPropertyCache = new HashMap<String, SoftReference<ExpressionResultCacheEntry<EventBean, Collection<EventBean>>>>();
+    private final HashMap<String, SoftReference<ExpressionResultCacheEntryBeanAndCollBean>> collPropertyCache = new HashMap<>();
 
-    public ExpressionResultCacheEntry<EventBean, Collection<EventBean>> getPropertyColl(String propertyNameFullyQualified, EventBean reference) {
-        SoftReference<ExpressionResultCacheEntry<EventBean, Collection<EventBean>>> cacheRef = collPropertyCache.get(propertyNameFullyQualified);
+    public ExpressionResultCacheEntryBeanAndCollBean getPropertyColl(String propertyNameFullyQualified, EventBean reference) {
+        SoftReference<ExpressionResultCacheEntryBeanAndCollBean> cacheRef = collPropertyCache.get(propertyNameFullyQualified);
         if (cacheRef == null) {
             return null;
         }
-        ExpressionResultCacheEntry<EventBean, Collection<EventBean>> entry = cacheRef.get();
+        ExpressionResultCacheEntryBeanAndCollBean entry = cacheRef.get();
         if (entry == null) {
             return null;
         }
@@ -36,7 +36,7 @@ public class ExpressionResultCacheForPropUnwrapImpl implements ExpressionResultC
     }
 
     public void savePropertyColl(String propertyNameFullyQualified, EventBean reference, Collection<EventBean> events) {
-        ExpressionResultCacheEntry<EventBean, Collection<EventBean>> entry = new ExpressionResultCacheEntry<EventBean, Collection<EventBean>>(reference, events);
-        collPropertyCache.put(propertyNameFullyQualified, new SoftReference<ExpressionResultCacheEntry<EventBean, Collection<EventBean>>>(entry));
+        ExpressionResultCacheEntryBeanAndCollBean entry = new ExpressionResultCacheEntryBeanAndCollBean(reference, events);
+        collPropertyCache.put(propertyNameFullyQualified, new SoftReference<>(entry));
     }
 }

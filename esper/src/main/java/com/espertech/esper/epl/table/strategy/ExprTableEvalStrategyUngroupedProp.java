@@ -12,7 +12,7 @@ package com.espertech.esper.epl.table.strategy;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumerationGivenEvent;
+import com.espertech.esper.epl.expression.core.ExprEnumerationGivenEvent;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
@@ -21,9 +21,9 @@ import java.util.Collection;
 public class ExprTableEvalStrategyUngroupedProp extends ExprTableEvalStrategyUngroupedBase implements ExprTableAccessEvalStrategy {
 
     private final int propertyIndex;
-    private final ExprEvaluatorEnumerationGivenEvent optionalEnumEval;
+    private final ExprEnumerationGivenEvent optionalEnumEval;
 
-    public ExprTableEvalStrategyUngroupedProp(TableAndLockProviderUngrouped provider, int propertyIndex, ExprEvaluatorEnumerationGivenEvent optionalEnumEval) {
+    public ExprTableEvalStrategyUngroupedProp(TableAndLockProviderUngrouped provider, int propertyIndex, ExprEnumerationGivenEvent optionalEnumEval) {
         super(provider);
         this.propertyIndex = propertyIndex;
         this.optionalEnumEval = optionalEnumEval;
