@@ -40,7 +40,7 @@ public class CodegenParamSetEnumMethodNonPremade extends CodegenParamSet {
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, CodegenIndent codegenIndent, String optionalComment) {
-        throw new IllegalStateException("Rendering not allowed, use " + "" + "TODO.INSTANCE instead (from " + optionalComment + ")");
+        throw new IllegalStateException("Rendering not allowed, use " + CodegenParamSetEnumMethodPremade.class.getSimpleName() + ".INSTANCE instead (from " + optionalComment + ")");
     }
 
     public CodegenPassSet getPassAll() {
