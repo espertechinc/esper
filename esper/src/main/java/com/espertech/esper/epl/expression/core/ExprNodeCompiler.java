@@ -74,8 +74,7 @@ public class ExprNodeCompiler {
             String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(ex, debugInformationProvider, fallback);
             if (fallback) {
                 log.warn(message, ex);
-            }
-            else {
+            } else {
                 log.error(message, ex);
             }
             return handleThrowable(engineImportService, ex, forge, debugInformationProvider);

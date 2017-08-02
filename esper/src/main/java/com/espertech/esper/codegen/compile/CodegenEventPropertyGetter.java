@@ -23,7 +23,6 @@ import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
 import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

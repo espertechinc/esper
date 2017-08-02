@@ -17,11 +17,11 @@ set LIB=..\..\..\esper\lib
 set CLASSPATH=.
 set CLASSPATH=%CLASSPATH%;..\target\classes
 set CLASSPATH=%CLASSPATH%;..\..\..\esper-7.0.0-beta1.jar
-set CLASSPATH=%CLASSPATH%;%LIB%\cglib-nodep-3.2.4.jar
-set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-api-1.7.21.jar
-set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-log4j12-1.7.21.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\cglib-nodep-3.2.5.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-api-1.7.25.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-log4j12-1.7.25.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\log4j-1.2.17.jar
-set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.5.3.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.7.jar
 
 goto EOF
 

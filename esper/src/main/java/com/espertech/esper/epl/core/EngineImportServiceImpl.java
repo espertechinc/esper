@@ -530,8 +530,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
             return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (codeGeneration.isEnableFallback()) {
                 return getterSPI;
@@ -544,8 +543,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
             return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (codeGeneration.isEnableFallback()) {
                 return getterSPI;
@@ -558,8 +556,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
             return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (codeGeneration.isEnableFallback()) {
                 return getterSPI;
@@ -734,8 +731,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
             String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode((CodegenCompilerException) t, debugInfo, codeGeneration.isEnableFallback());
             if (codeGeneration.isEnableFallback()) {
                 log.warn(message, t);
-            }
-            else {
+            } else {
                 log.error(message, t);
             }
         }

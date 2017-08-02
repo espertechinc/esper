@@ -17,11 +17,12 @@ public class TestEPServiceProviderManager extends TestCase {
     public void testGetInstance() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(true);
+        configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
 
-        EPServiceProvider runtimeDef1 = EPServiceProviderManager.getDefaultProvider();
-        EPServiceProvider runtimeA1 = EPServiceProviderManager.getProvider("A");
-        EPServiceProvider runtimeB = EPServiceProviderManager.getProvider("B");
-        EPServiceProvider runtimeA2 = EPServiceProviderManager.getProvider("A");
+        EPServiceProvider runtimeDef1 = EPServiceProviderManager.getDefaultProvider(configuration);
+        EPServiceProvider runtimeA1 = EPServiceProviderManager.getProvider("A", configuration);
+        EPServiceProvider runtimeB = EPServiceProviderManager.getProvider("B", configuration);
+        EPServiceProvider runtimeA2 = EPServiceProviderManager.getProvider("A", configuration);
         EPServiceProvider runtimeDef2 = EPServiceProviderManager.getDefaultProvider(configuration);
         EPServiceProvider runtimeA3 = EPServiceProviderManager.getProvider("A", configuration);
 
@@ -51,6 +52,7 @@ public class TestEPServiceProviderManager extends TestCase {
     public void testInvalid() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
+        configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
         configuration.addEventType("x", "xxx.noclass");
 
         try {
@@ -62,10 +64,13 @@ public class TestEPServiceProviderManager extends TestCase {
     }
 
     public void testDefaultNaming() {
+        Configuration configuration = new Configuration();
+        configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
+
         assertEquals("default", EPServiceProviderSPI.DEFAULT_ENGINE_URI_QUALIFIER);
-        EPServiceProvider epNoArg = EPServiceProviderManager.getDefaultProvider();
-        EPServiceProvider epDefault = EPServiceProviderManager.getProvider("default");
-        EPServiceProvider epNull = EPServiceProviderManager.getProvider(null);
+        EPServiceProvider epNoArg = EPServiceProviderManager.getDefaultProvider(configuration);
+        EPServiceProvider epDefault = EPServiceProviderManager.getProvider("default", configuration);
+        EPServiceProvider epNull = EPServiceProviderManager.getProvider(null, configuration);
 
         assertTrue(epNoArg == epDefault);
         assertTrue(epNull == epDefault);

@@ -1,4 +1,4 @@
-// Generated from EsperEPL2Grammar.g by ANTLR 4.5.3
+// Generated from EsperEPL2Grammar.g by ANTLR 4.7
 
 /*
  ***************************************************************************************
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class EsperEPL2GrammarParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.5.3", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -244,7 +244,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		"':'", "','", "'=='", "'!'", "'~'", "'!='", "'/'", "'/='", "'+'", "'+='", 
 		"'++'", "'-'", "'-='", "'--'", "'*'", "'*='", "'%'", "'%='", "'>='", "'>'", 
 		"'<='", "'<'", "'^'", "'^='", "'|'", "'|='", "'||'", "'&'", "'&='", "'&&'", 
-		"';'", "'.'", "'\\u18FF'", "'\\u18FE'", "'\\u18FD'", "'\\'", "'`'", "'@'", 
+		"';'", "'.'", "'\u18FF'", "'\u18FE'", "'\u18FD'", "'\\'", "'`'", "'@'", 
 		"'#'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
@@ -600,6 +600,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			while (_la==EXPRESSIONDECL || _la==ATCHAR) {
 				{
 				setState(504);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case ATCHAR:
 					{
@@ -682,6 +683,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			while (_la==EXPRESSIONDECL || _la==ATCHAR) {
 				{
 				setState(514);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case ATCHAR:
 					{
@@ -867,6 +869,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(534);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
@@ -878,6 +881,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(537);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
@@ -899,12 +903,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(542);
 			((ExpressionDeclContext)_localctx).name = match(IDENT);
 			setState(548);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
 				setState(543);
 				match(LPAREN);
 				setState(545);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
@@ -919,6 +925,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(552);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
@@ -1018,6 +1025,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 12, RULE_expressionDef);
 		try {
 			setState(570);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case LCURLY:
 				enterOuterAlt(_localctx, 1);
@@ -1098,6 +1106,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(577);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				{
@@ -1124,7 +1133,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==FOLLOWED_BY || _la==GOES) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -1496,6 +1508,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(616);
 			match(LCURLY);
 			setState(625);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 47)) & ~0x3f) == 0 && ((1L << (_la - 47)) & ((1L << (EVENTS - 47)) | (1L << (BOOLEAN_TRUE - 47)) | (1L << (BOOLEAN_FALSE - 47)) | (1L << (VALUE_NULL - 47)))) != 0) || ((((_la - 148)) & ~0x3f) == 0 && ((1L << (_la - 148)) & ((1L << (LCURLY - 148)) | (1L << (PLUS - 148)) | (1L << (MINUS - 148)) | (1L << (ATCHAR - 148)) | (1L << (TICKED_STRING_LITERAL - 148)) | (1L << (QUOTED_STRING_LITERAL - 148)) | (1L << (STRING_LITERAL - 148)) | (1L << (IDENT - 148)) | (1L << (IntegerLiteral - 148)) | (1L << (FloatingPointLiteral - 148)))) != 0)) {
 				{
@@ -1523,6 +1536,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(628);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
@@ -1617,6 +1631,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(633);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==CONTEXT) {
 				{
@@ -1714,6 +1729,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(652);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==FOR) {
 				{
@@ -1846,6 +1862,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(659);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==INTO) {
 				{
@@ -1857,6 +1874,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(663);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==INSERT) {
 				{
@@ -1872,6 +1890,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(666);
 			selectClause();
 			setState(669);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==FROM) {
 				{
@@ -1883,6 +1902,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(672);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==MATCH_RECOGNIZE) {
 				{
@@ -1892,6 +1912,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(676);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -1903,6 +1924,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(681);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==GROUP) {
 				{
@@ -1916,6 +1938,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(685);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==HAVING) {
 				{
@@ -1927,6 +1950,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(689);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==OUTPUT) {
 				{
@@ -1938,6 +1962,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(694);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ORDER) {
 				{
@@ -1951,6 +1976,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(698);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ROW_LIMIT_EXPR) {
 				{
@@ -2029,6 +2055,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(701);
 			onStreamExpr();
 			setState(717);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case DELETE:
 				{
@@ -2042,6 +2069,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(703);
 				onSelectExpr();
 				setState(712);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==INSERT) {
 					{
@@ -2060,6 +2088,7 @@ public class EsperEPL2GrammarParser extends Parser {
 						_la = _input.LA(1);
 					} while ( _la==INSERT );
 					setState(710);
+					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==OUTPUT) {
 						{
@@ -2138,6 +2167,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(721);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case EVENTS:
 			case TICKED_STRING_LITERAL:
@@ -2157,6 +2187,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			setState(726);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -2180,7 +2211,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case MERGE:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 		}
@@ -2279,6 +2310,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(732);
 			classIdentifier();
 			setState(736);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -2297,13 +2329,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			case SET:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(738);
 			match(SET);
 			setState(739);
 			onSetAssignmentList();
 			setState(742);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -2371,6 +2404,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(744);
 			match(MERGE);
 			setState(746);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==INTO) {
 				{
@@ -2382,6 +2416,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(748);
 			((OnMergeExprContext)_localctx).n = match(IDENT);
 			setState(752);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -2401,9 +2436,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			case WHEN:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(756);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -2536,6 +2572,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(768);
 			match(MATCHED);
 			setState(771);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
@@ -2614,6 +2651,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(778);
 			match(THEN);
 			setState(793);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case UPDATE:
 				{
@@ -2626,6 +2664,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				onSetAssignmentList();
 				}
 				setState(785);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==WHERE) {
 					{
@@ -2643,6 +2682,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(787);
 				((MergeMatchedItemContext)_localctx).d = match(DELETE);
 				setState(790);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==WHERE) {
 					{
@@ -2719,6 +2759,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(797);
 			match(MATCHED);
 			setState(800);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
@@ -2841,6 +2882,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(810);
 			match(INSERT);
 			setState(813);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==INTO) {
 				{
@@ -2852,6 +2894,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(819);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
@@ -2869,6 +2912,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(822);
 			selectionList();
 			setState(825);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -2955,6 +2999,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(829);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==INSERT) {
 				{
@@ -2968,10 +3013,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(831);
 			match(SELECT);
 			setState(836);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR || _la==DELETE) {
 				{
 				setState(833);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==AND_EXPR) {
 					{
@@ -2986,6 +3033,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(839);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DISTINCT) {
 				{
@@ -2997,6 +3045,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(841);
 			selectionList();
 			setState(843);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==FROM) {
 				{
@@ -3006,6 +3055,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(847);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -3017,6 +3067,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(852);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==GROUP) {
 				{
@@ -3030,6 +3081,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(856);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==HAVING) {
 				{
@@ -3041,6 +3093,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(861);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ORDER) {
 				{
@@ -3054,6 +3107,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(865);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ROW_LIMIT_EXPR) {
 				{
@@ -3123,6 +3177,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(868);
 			((OnUpdateExprContext)_localctx).n = match(IDENT);
 			setState(872);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -3141,13 +3196,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			case SET:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(874);
 			match(SET);
 			setState(875);
 			onSetAssignmentList();
 			setState(878);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -3220,6 +3276,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(883);
 			selectionList();
 			setState(885);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==FROM) {
 				{
@@ -3229,6 +3286,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(889);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -3287,6 +3345,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(892);
 			propertyExpression();
 			setState(896);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -3309,7 +3368,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FOR:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 		}
@@ -3353,6 +3412,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(898);
 			match(OUTPUT);
 			setState(901);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case FIRST:
 				{
@@ -3418,6 +3478,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(904);
 			onExprFrom();
 			setState(907);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -3645,6 +3706,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(928);
 			((OnExprFromContext)_localctx).n = match(IDENT);
 			setState(932);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -3670,7 +3732,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FOR:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 		}
@@ -3740,6 +3802,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(936);
 			((CreateWindowExprContext)_localctx).i = match(IDENT);
 			setState(938);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOT || _la==HASHCHAR) {
 				{
@@ -3749,6 +3812,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(942);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case RETAINUNION:
 				{
@@ -3770,9 +3834,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(945);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -3782,6 +3847,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(952);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SELECT:
 			case EVENTS:
@@ -3806,12 +3872,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			setState(959);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==INSERT) {
 				{
 				setState(954);
 				((CreateWindowExprContext)_localctx).i1 = match(INSERT);
 				setState(957);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==WHERE) {
 					{
@@ -3869,6 +3937,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(965);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==SELECT) {
 				{
@@ -3936,6 +4005,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(969);
 			match(CREATE);
 			setState(971);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
@@ -4091,6 +4161,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(990);
 				match(LPAREN);
 				setState(992);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -4105,18 +4176,21 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(1005);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
 				setState(997);
 				((CreateIndexColumnContext)_localctx).t = match(IDENT);
 				setState(1003);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LPAREN) {
 					{
 					setState(998);
 					match(LPAREN);
 					setState(1000);
+					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 						{
@@ -4190,6 +4264,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1007);
 			match(CREATE);
 			setState(1009);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
@@ -4203,12 +4278,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1012);
 			classIdentifier();
 			setState(1018);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
 				setState(1013);
 				((CreateVariableExprContext)_localctx).arr = match(LBRACK);
 				setState(1015);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
@@ -4225,6 +4302,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1020);
 			((CreateVariableExprContext)_localctx).n = match(IDENT);
 			setState(1023);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==EQUALS) {
 				{
@@ -4287,6 +4365,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1027);
 			((CreateTableExprContext)_localctx).n = match(IDENT);
 			setState(1029);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -4462,6 +4541,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(1053);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
@@ -4542,12 +4622,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1062);
 			classIdentifier();
 			setState(1068);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
 				setState(1063);
 				((CreateTableColumnPlainContext)_localctx).b = match(LBRACK);
 				setState(1065);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
@@ -4677,6 +4759,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1078);
 			classIdentifier();
 			setState(1088);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case VALUE_NULL:
 				{
@@ -4692,12 +4775,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1080);
 				classIdentifier();
 				setState(1086);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LBRACK) {
 					{
 					setState(1081);
 					((CreateColumnListElementContext)_localctx).b = match(LBRACK);
 					setState(1083);
+					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==IDENT) {
 						{
@@ -4828,6 +4913,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1108);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STAR:
 				enterOuterAlt(_localctx, 1);
@@ -4893,6 +4979,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1099);
 				eventProperty();
 				setState(1102);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
@@ -4970,6 +5057,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1110);
 			match(CREATE);
 			setState(1112);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
@@ -5038,6 +5126,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1117);
 			((CreateSchemaDefContext)_localctx).name = match(IDENT);
 			setState(1119);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -5047,6 +5136,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1127);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case EVENTS:
 			case STAR:
@@ -5062,6 +5152,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1122);
 				match(LPAREN);
 				setState(1124);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==EVENTS || _la==TICKED_STRING_LITERAL || _la==IDENT) {
 					{
@@ -5145,6 +5236,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1137);
 			classIdentifier();
 			setState(1141);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -5165,9 +5257,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FOR:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(1145);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -5326,6 +5419,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1159);
 			((CreateDataflowContext)_localctx).name = match(IDENT);
 			setState(1161);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -5452,6 +5546,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1199);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SELECT:
 			case ATCHAR:
@@ -5473,6 +5568,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 				}
 				setState(1180);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case IDENT:
 					{
@@ -5490,6 +5586,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				setState(1183);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LPAREN) {
 					{
@@ -5499,6 +5596,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 
 				setState(1186);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==FOLLOWED_BY) {
 					{
@@ -5510,6 +5608,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1188);
 				match(LCURLY);
 				setState(1190);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==SELECT || _la==IDENT) {
 					{
@@ -5519,6 +5618,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 
 				setState(1193);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
@@ -5696,6 +5796,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1215);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case EVENTS:
 			case TICKED_STRING_LITERAL:
@@ -5715,6 +5816,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			setState(1218);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -5930,6 +6032,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1239);
 			((GopOutItemContext)_localctx).n = classIdentifier();
 			setState(1241);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LT) {
 				{
@@ -6047,6 +6150,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1256);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case EVENTS:
 			case TICKED_STRING_LITERAL:
@@ -6109,6 +6213,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1258);
 			classIdentifier();
 			setState(1260);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LT) {
 				{
@@ -6235,6 +6340,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1283);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SELECT:
 				enterOuterAlt(_localctx, 1);
@@ -6245,7 +6351,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==EQUALS || _la==COLON) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(1272);
@@ -6265,7 +6374,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==EQUALS || _la==COLON) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(1281);
@@ -6344,6 +6456,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1287);
 			((CreateContextExprContext)_localctx).name = match(IDENT);
 			setState(1289);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -6443,6 +6556,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1307);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case COALESCE:
 			case GROUP:
@@ -6531,6 +6645,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1310);
 			((ContextContextNestedContext)_localctx).name = match(IDENT);
 			setState(1312);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -6635,6 +6750,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			int _alt;
 			setState(1386);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case START:
 				enterOuterAlt(_localctx, 1);
@@ -6642,6 +6758,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1316);
 				match(START);
 				setState(1320);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case ATCHAR:
 					{
@@ -6666,6 +6783,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				setState(1324);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==END) {
 					{
@@ -6684,6 +6802,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1326);
 				match(INITIATED);
 				setState(1328);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==BY) {
 					{
@@ -6693,6 +6812,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 
 				setState(1331);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DISTINCT) {
 					{
@@ -6702,6 +6822,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 
 				setState(1336);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ATCHAR) {
 					{
@@ -6717,12 +6838,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1338);
 				((CreateContextChoiceContext)_localctx).r1 = createContextRangePoint();
 				setState(1344);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==TERMINATED) {
 					{
 					setState(1339);
 					match(TERMINATED);
 					setState(1341);
+					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==BY) {
 						{
@@ -6744,6 +6867,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1346);
 				match(PARTITION);
 				setState(1348);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==BY) {
 					{
@@ -6807,6 +6931,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1369);
 				match(COALESCE);
 				setState(1371);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==BY) {
 					{
@@ -6838,6 +6963,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1382);
 				number();
 				setState(1384);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
@@ -6896,6 +7022,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1389);
 			match(LPAREN);
 			setState(1391);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 				{
@@ -6956,6 +7083,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1404);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case EVENTS:
 			case TICKED_STRING_LITERAL:
@@ -6972,6 +7100,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1396);
 				patternInclusionExpression();
 				setState(1399);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ATCHAR) {
 					{
@@ -7046,10 +7175,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1406);
 			eventFilterExpression();
 			setState(1411);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS || _la==IDENT) {
 				{
 				setState(1408);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
@@ -7128,7 +7259,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==AND_EXPR || _la==COMMA) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(1415);
@@ -7236,6 +7370,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1428);
 			match(GROUP);
 			setState(1430);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==BY) {
 				{
@@ -7395,6 +7530,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 170, RULE_variantListElement);
 		try {
 			setState(1449);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STAR:
 				enterOuterAlt(_localctx, 1);
@@ -7510,6 +7646,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1457);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ISTREAM:
 				{
@@ -7532,19 +7669,21 @@ public class EsperEPL2GrammarParser extends Parser {
 			case INTO:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(1459);
 			match(INTO);
 			setState(1460);
 			classIdentifier();
 			setState(1466);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
 				setState(1461);
 				match(LPAREN);
 				setState(1463);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
@@ -7670,6 +7809,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1476);
 			streamExpression();
 			setState(1479);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case EOF:
 			case WHERE:
@@ -7873,6 +8013,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1504);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case JOIN:
 			case LEFT:
@@ -7880,10 +8021,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FULL:
 				{
 				setState(1501);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LEFT) | (1L << RIGHT) | (1L << FULL))) != 0)) {
 					{
 					setState(1498);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case LEFT:
 						{
@@ -7929,6 +8072,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1507);
 			streamExpression();
 			setState(1509);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ON) {
 				{
@@ -8162,6 +8306,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(1532);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DISTINCT) {
 				{
@@ -8349,6 +8494,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1549);
 			expression();
 			setState(1551);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
@@ -8363,6 +8509,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case 1:
 				{
 				setState(1554);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
@@ -8468,6 +8615,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1564);
 			match(STAR);
 			setState(1567);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -8566,6 +8714,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(1576);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOT || _la==HASHCHAR) {
 				{
@@ -8575,6 +8724,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1581);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -8612,9 +8762,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			case COMMA:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(1584);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==UNIDIRECTIONAL) {
 				{
@@ -8624,6 +8775,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1588);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case RETAINUNION:
 				{
@@ -8656,7 +8808,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case COMMA:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 		}
@@ -8706,12 +8858,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1591);
 			((ForExprContext)_localctx).i = match(IDENT);
 			setState(1597);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
 				setState(1592);
 				match(LPAREN);
 				setState(1594);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -8856,6 +9010,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1613);
 			match(LBRACK);
 			setState(1616);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STRING_LITERAL:
 				{
@@ -8873,12 +9028,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			setState(1623);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==METADATASQL) {
 				{
 				setState(1618);
 				match(METADATASQL);
 				setState(1621);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case STRING_LITERAL:
 					{
@@ -8959,12 +9116,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1629);
 			classIdentifier();
 			setState(1635);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
 				setState(1630);
 				match(LPAREN);
 				setState(1632);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -8979,6 +9138,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1638);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
@@ -9044,6 +9204,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1658);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case DOT:
 				enterOuterAlt(_localctx, 1);
@@ -9248,6 +9409,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1672);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				{
@@ -9272,6 +9434,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1674);
 				match(LPAREN);
 				setState(1676);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LBRACK - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (STAR - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -9470,7 +9633,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==CUBE || _la==ROLLUP) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			setState(1695);
@@ -9609,6 +9775,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 230, RULE_groupBySetsChoice);
 		try {
 			setState(1721);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case CUBE:
 			case ROLLUP:
@@ -9762,6 +9929,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1724);
 				match(LPAREN);
 				setState(1733);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -9900,6 +10068,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1746);
 			expression();
 			setState(1749);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ASC:
 				{
@@ -9921,7 +10090,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case COMMA:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 		}
@@ -10042,6 +10211,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1754);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AFTER) {
 				{
@@ -10051,6 +10221,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1760);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ALL:
 				{
@@ -10087,7 +10258,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case RPAREN:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(1790);
 			_errHandler.sync(this);
@@ -10109,6 +10280,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				case 2:
 					{
 					setState(1766);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case IntegerLiteral:
 					case FloatingPointLiteral:
@@ -10154,6 +10326,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(1774);
 				expression();
 				setState(1777);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==THEN) {
 					{
@@ -10187,6 +10360,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(1787);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==THEN) {
 					{
@@ -10206,6 +10380,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(1793);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
@@ -10271,6 +10446,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1797);
 			match(TERMINATED);
 			setState(1800);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
@@ -10282,6 +10458,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1804);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==THEN) {
 				{
@@ -10410,6 +10587,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1815);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -10430,10 +10608,12 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			setState(1825);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==OFFSET || _la==COMMA) {
 				{
 				setState(1819);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case COMMA:
 					{
@@ -10451,6 +10631,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				setState(1823);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case PLUS:
 				case MINUS:
@@ -10680,6 +10861,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1840);
 			match(LPAREN);
 			setState(1842);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PARTITION) {
 				{
@@ -10691,6 +10873,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1844);
 			matchRecogMeasures();
 			setState(1846);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ALL) {
 				{
@@ -10700,6 +10883,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1849);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AFTER) {
 				{
@@ -10711,6 +10895,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1851);
 			matchRecogPattern();
 			setState(1853);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
@@ -10720,6 +10905,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1856);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DEFINE) {
 				{
@@ -10909,12 +11095,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1879);
 			expression();
 			setState(1884);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
 				setState(1880);
 				match(AS);
 				setState(1882);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
@@ -11120,6 +11308,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1902);
 			timePeriod();
 			setState(1905);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==OR_EXPR) {
 				{
@@ -11291,6 +11480,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 274, RULE_matchRecogPatternUnary);
 		try {
 			setState(1923);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case MATCH_RECOGNIZE_PERMUTE:
 				enterOuterAlt(_localctx, 1);
@@ -11369,6 +11559,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1927);
 			match(RPAREN);
 			setState(1931);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STAR:
 				{
@@ -11397,9 +11588,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(1934);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LCURLY) {
 				{
@@ -11531,10 +11723,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(1948);
 			((MatchRecogPatternAtomContext)_localctx).i = match(IDENT);
 			setState(1957);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (STAR - 143)))) != 0)) {
 				{
 				setState(1952);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case STAR:
 					{
@@ -11558,6 +11752,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				setState(1955);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==QUESTION) {
 					{
@@ -11570,6 +11765,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1960);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LCURLY) {
 				{
@@ -11638,6 +11834,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			}
 			setState(1967);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
@@ -11647,6 +11844,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(1970);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 				{
@@ -11882,6 +12080,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 				} while ( _la==WHEN );
 				setState(1997);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ELSE) {
 					{
@@ -11918,6 +12117,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 				} while ( _la==WHEN );
 				setState(2011);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ELSE) {
 					{
@@ -12133,7 +12333,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(((((_la - 172)) & ~0x3f) == 0 && ((1L << (_la - 172)) & ((1L << (BXOR - 172)) | (1L << (BOR - 172)) | (1L << (BAND - 172)))) != 0)) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(2037);
@@ -12181,6 +12384,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 298, RULE_negatedExpression);
 		try {
 			setState(2046);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case WINDOW:
 			case ESCAPE:
@@ -12415,6 +12619,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(2071);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case WINDOW:
 				case ESCAPE:
@@ -12498,6 +12703,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				case SOME:
 					{
 					setState(2061);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case ANY:
 						{
@@ -12529,6 +12735,7 @@ public class EsperEPL2GrammarParser extends Parser {
 						setState(2063);
 						match(LPAREN);
 						setState(2065);
+						_errHandler.sync(this);
 						_la = _input.LA(1);
 						if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 							{
@@ -12702,6 +12909,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					{
 					{
 					setState(2083);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case LT:
 						{
@@ -12731,6 +12939,7 @@ public class EsperEPL2GrammarParser extends Parser {
 						throw new NoViableAltException(this);
 					}
 					setState(2099);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case WINDOW:
 					case ESCAPE:
@@ -12814,6 +13023,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					case SOME:
 						{
 						setState(2089);
+						_errHandler.sync(this);
 						switch (_input.LA(1)) {
 						case ANY:
 							{
@@ -12845,6 +13055,7 @@ public class EsperEPL2GrammarParser extends Parser {
 							setState(2091);
 							match(LPAREN);
 							setState(2093);
+							_errHandler.sync(this);
 							_la = _input.LA(1);
 							if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 								{
@@ -12882,6 +13093,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case 2:
 				{
 				setState(2107);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==NOT_EXPR) {
 					{
@@ -12899,6 +13111,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					setState(2109);
 					((EvalRelationalExpressionContext)_localctx).in = match(IN_SET);
 					setState(2112);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case LPAREN:
 						{
@@ -12918,6 +13131,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					setState(2114);
 					expression();
 					setState(2124);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case COLON:
 						{
@@ -12959,6 +13173,7 @@ public class EsperEPL2GrammarParser extends Parser {
 						throw new NoViableAltException(this);
 					}
 					setState(2128);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case RPAREN:
 						{
@@ -13114,6 +13329,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2148);
 			additiveExpression();
 			setState(2158);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LOR) {
 				{
@@ -13203,7 +13419,10 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==PLUS || _la==MINUS) ) {
 					_errHandler.recoverInline(this);
-					} else {
+					}
+					else {
+						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+						_errHandler.reportMatch(this);
 						consume();
 					}
 					setState(2162);
@@ -13280,7 +13499,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (DIV - 156)) | (1L << (STAR - 156)) | (1L << (MOD - 156)))) != 0)) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(2170);
@@ -13420,6 +13642,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2182);
 				match(RPAREN);
 				setState(2184);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -13504,6 +13727,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2205);
 				match(LPAREN);
 				setState(2214);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -13531,6 +13755,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2216);
 				match(RPAREN);
 				setState(2218);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -13569,6 +13794,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2230);
 				match(RBRACK);
 				setState(2232);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -13630,6 +13856,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2237);
 			substitution();
 			setState(2239);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
@@ -13749,6 +13976,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2250);
 			eventProperty();
 			setState(2253);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==EQUALS) {
 				{
@@ -13803,6 +14031,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2255);
 			subQueryExpr();
 			setState(2257);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
@@ -13957,6 +14186,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2265);
 			match(SELECT);
 			setState(2267);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DISTINCT) {
 				{
@@ -13972,6 +14202,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2271);
 			subSelectFilterExpr();
 			setState(2274);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -13983,6 +14214,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2279);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==GROUP) {
 				{
@@ -13996,6 +14228,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2283);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==HAVING) {
 				{
@@ -14062,6 +14295,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2287);
 			eventFilterExpression();
 			setState(2289);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOT || _la==HASHCHAR) {
 				{
@@ -14071,6 +14305,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2294);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case AS:
 				{
@@ -14094,9 +14329,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			case RPAREN:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(2298);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case RETAINUNION:
 				{
@@ -14116,7 +14352,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case RPAREN:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 			_ctx.stop = _input.LT(-1);
@@ -14173,6 +14409,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2300);
 			match(LCURLY);
 			setState(2309);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 				{
@@ -14200,6 +14437,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2311);
 			match(RCURLY);
 			setState(2313);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
@@ -14656,6 +14894,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(2478);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SUM:
 				_localctx = new Builtin_sumContext(_localctx);
@@ -14666,6 +14905,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2316);
 				match(LPAREN);
 				setState(2318);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
 					{
@@ -14673,7 +14913,10 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
-					} else {
+					}
+					else {
+						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+						_errHandler.reportMatch(this);
 						consume();
 					}
 					}
@@ -14694,6 +14937,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2324);
 				match(LPAREN);
 				setState(2326);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
 					{
@@ -14701,7 +14945,10 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
-					} else {
+					}
+					else {
+						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+						_errHandler.reportMatch(this);
 						consume();
 					}
 					}
@@ -14722,6 +14969,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2332);
 				match(LPAREN);
 				setState(2335);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case ALL:
 					{
@@ -14813,7 +15061,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				case FloatingPointLiteral:
 					break;
 				default:
-					throw new NoViableAltException(this);
+					break;
 				}
 				setState(2337);
 				expressionListWithNamed();
@@ -14830,6 +15078,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2341);
 				match(LPAREN);
 				setState(2343);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
 					{
@@ -14837,7 +15086,10 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
-					} else {
+					}
+					else {
+						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+						_errHandler.reportMatch(this);
 						consume();
 					}
 					}
@@ -14858,6 +15110,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2349);
 				match(LPAREN);
 				setState(2351);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
 					{
@@ -14865,7 +15118,10 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
-					} else {
+					}
+					else {
+						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+						_errHandler.reportMatch(this);
 						consume();
 					}
 					}
@@ -14886,6 +15142,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2357);
 				match(LPAREN);
 				setState(2359);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
 					{
@@ -14893,7 +15150,10 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
-					} else {
+					}
+					else {
+						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+						_errHandler.reportMatch(this);
 						consume();
 					}
 					}
@@ -14960,6 +15220,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2381);
 				expression();
 				setState(2384);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
@@ -14973,6 +15234,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2386);
 				match(RPAREN);
 				setState(2388);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -14994,6 +15256,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2392);
 				expression();
 				setState(2395);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
@@ -15007,6 +15270,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2397);
 				match(RPAREN);
 				setState(2399);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -15044,6 +15308,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2409);
 				match(RPAREN);
 				setState(2411);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -15162,12 +15427,16 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==AS || _la==COMMA) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(2453);
 				classIdentifier();
 				setState(2456);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
@@ -15181,6 +15450,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2458);
 				match(RPAREN);
 				setState(2460);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -15224,6 +15494,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(2473);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
@@ -15296,6 +15567,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2483);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case FIRST:
 				{
@@ -15321,6 +15593,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2485);
 			match(LPAREN);
 			setState(2487);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LBRACK - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (STAR - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 				{
@@ -15332,6 +15605,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2489);
 			match(RPAREN);
 			setState(2491);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
@@ -15542,6 +15816,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2512);
 				((LibFunctionWithClassContext)_localctx).l = match(LPAREN);
 				setState(2514);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (DISTINCT - 2)) | (1L << (ALL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LBRACK - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (STAR - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -15609,6 +15884,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2520);
 				((LibFunctionNoClassContext)_localctx).l = match(LPAREN);
 				setState(2522);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (DISTINCT - 2)) | (1L << (ALL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LBRACK - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (STAR - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -15660,6 +15936,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 344, RULE_funcIdentTop);
 		try {
 			setState(2530);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
@@ -15724,6 +16001,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 346, RULE_funcIdentInner);
 		try {
 			setState(2536);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
@@ -15801,6 +16079,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 348, RULE_funcIdentChained);
 		try {
 			setState(2548);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
@@ -15923,6 +16202,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2551);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DISTINCT || _la==ALL) {
 				{
@@ -15930,7 +16210,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==DISTINCT || _la==ALL) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				}
@@ -16201,6 +16484,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2584);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case FOLLOWED_BY:
 				{
@@ -16401,6 +16685,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2605);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
@@ -16412,6 +16697,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2607);
 			qualifyExpression();
 			setState(2610);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==UNTIL) {
 				{
@@ -16473,10 +16759,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2621);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << EVERY_DISTINCT_EXPR))) != 0)) {
 				{
 				setState(2616);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case EVERY_EXPR:
 					{
@@ -16502,6 +16790,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				setState(2619);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LBRACK) {
 					{
@@ -16569,6 +16858,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2630);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case EVENTS:
 			case TICKED_STRING_LITERAL:
@@ -16592,6 +16882,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			setState(2636);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case WHERE:
 				{
@@ -16623,7 +16914,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case RBRACK:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 		}
@@ -16842,6 +17133,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2656);
 			match(COLON);
 			setState(2659);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				{
@@ -16861,6 +17153,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2661);
 			match(LPAREN);
 			setState(2663);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LBRACK - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (STAR - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 				{
@@ -16925,6 +17218,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2670);
 			match(LPAREN);
 			setState(2672);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LBRACK - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (STAR - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 				{
@@ -17032,6 +17326,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2680);
 			match(LBRACK);
 			setState(2690);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case WINDOW:
 			case ESCAPE:
@@ -17111,12 +17406,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2681);
 				((MatchUntilRangeContext)_localctx).low = expression();
 				setState(2686);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COLON) {
 					{
 					setState(2682);
 					((MatchUntilRangeContext)_localctx).c1 = match(COLON);
 					setState(2684);
+					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 						{
@@ -17208,12 +17505,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2698);
 			classIdentifier();
 			setState(2704);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
 				setState(2699);
 				match(LPAREN);
 				setState(2701);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -17228,6 +17527,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2707);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
@@ -17352,6 +17652,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2716);
 			match(LBRACK);
 			setState(2718);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==SELECT) {
 				{
@@ -17363,6 +17664,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2720);
 			expression();
 			setState(2722);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
@@ -17372,6 +17674,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2726);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -17383,6 +17686,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2730);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
@@ -17571,6 +17875,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2748);
 				expression();
 				setState(2751);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
@@ -17634,6 +17939,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2757);
 			match(STAR);
 			setState(2760);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -17767,12 +18073,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2772);
 			classIdentifier();
 			setState(2778);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
 				setState(2773);
 				match(LPAREN);
 				setState(2775);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -17787,6 +18095,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2781);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
@@ -17796,6 +18105,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			setState(2784);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
@@ -17854,6 +18164,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2787);
 			((PatternFilterAnnotationContext)_localctx).i = match(IDENT);
 			setState(2792);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
@@ -17983,6 +18294,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2803);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DIV) {
 				{
@@ -18310,6 +18622,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2840);
 				match(LPAREN);
 				setState(2842);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -18386,6 +18699,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2850);
 				match(LPAREN);
 				setState(2852);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (WINDOW - 2)) | (1L << (ESCAPE - 2)) | (1L << (NOT_EXPR - 2)) | (1L << (EVERY_EXPR - 2)) | (1L << (SUM - 2)) | (1L << (AVG - 2)) | (1L << (MAX - 2)) | (1L << (MIN - 2)) | (1L << (COALESCE - 2)) | (1L << (MEDIAN - 2)) | (1L << (STDDEV - 2)) | (1L << (AVEDEV - 2)) | (1L << (COUNT - 2)) | (1L << (CASE - 2)) | (1L << (OUTER - 2)) | (1L << (JOIN - 2)) | (1L << (LEFT - 2)) | (1L << (RIGHT - 2)) | (1L << (FULL - 2)) | (1L << (EVENTS - 2)) | (1L << (FIRST - 2)) | (1L << (LAST - 2)) | (1L << (ISTREAM - 2)) | (1L << (SCHEMA - 2)) | (1L << (UNIDIRECTIONAL - 2)) | (1L << (RETAINUNION - 2)) | (1L << (RETAININTERSECTION - 2)) | (1L << (PATTERN - 2)) | (1L << (SQL - 2)) | (1L << (METADATASQL - 2)))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (PREVIOUS - 66)) | (1L << (PREVIOUSTAIL - 66)) | (1L << (PREVIOUSCOUNT - 66)) | (1L << (PREVIOUSWINDOW - 66)) | (1L << (PRIOR - 66)) | (1L << (EXISTS - 66)) | (1L << (WEEKDAY - 66)) | (1L << (LW - 66)) | (1L << (INSTANCEOF - 66)) | (1L << (TYPEOF - 66)) | (1L << (CAST - 66)) | (1L << (CURRENT_TIMESTAMP - 66)) | (1L << (SNAPSHOT - 66)) | (1L << (VARIABLE - 66)) | (1L << (TABLE - 66)) | (1L << (UNTIL - 66)) | (1L << (AT - 66)) | (1L << (INDEX - 66)) | (1L << (BOOLEAN_TRUE - 66)) | (1L << (BOOLEAN_FALSE - 66)) | (1L << (VALUE_NULL - 66)) | (1L << (DEFINE - 66)) | (1L << (PARTITION - 66)) | (1L << (MATCHES - 66)) | (1L << (FOR - 66)) | (1L << (WHILE - 66)) | (1L << (USING - 66)) | (1L << (MERGE - 66)) | (1L << (MATCHED - 66)) | (1L << (NEWKW - 66)) | (1L << (CONTEXT - 66)))) != 0) || ((((_la - 134)) & ~0x3f) == 0 && ((1L << (_la - 134)) & ((1L << (GROUPING - 134)) | (1L << (GROUPING_ID - 134)) | (1L << (QUESTION - 134)) | (1L << (LPAREN - 134)) | (1L << (LBRACK - 134)) | (1L << (LCURLY - 134)) | (1L << (PLUS - 134)) | (1L << (MINUS - 134)) | (1L << (STAR - 134)) | (1L << (TICKED_STRING_LITERAL - 134)) | (1L << (QUOTED_STRING_LITERAL - 134)) | (1L << (STRING_LITERAL - 134)) | (1L << (IDENT - 134)) | (1L << (IntegerLiteral - 134)) | (1L << (FloatingPointLiteral - 134)))) != 0)) {
 					{
@@ -18761,6 +19075,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2889);
 			expression();
 			setState(2895);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ASC:
 				{
@@ -18796,7 +19111,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case COMMA:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			}
 		}
@@ -18921,6 +19236,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2902);
 			match(DIV);
 			setState(2906);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
@@ -19002,6 +19318,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2911);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
@@ -19028,6 +19345,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(2913);
 			match(COLON);
 			setState(2917);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
@@ -19095,6 +19413,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2922);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
@@ -19164,6 +19483,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2929);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
@@ -19469,6 +19789,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(2964);
 				((EventPropertyAtomicContext)_localctx).lp = match(LPAREN);
 				setState(2967);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case STRING_LITERAL:
 					{
@@ -19672,6 +19993,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 454, RULE_keywordAllowedIdent);
 		try {
 			setState(3039);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
@@ -20078,6 +20400,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 456, RULE_escapableStr);
 		try {
 			setState(3044);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
@@ -20138,6 +20461,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 458, RULE_escapableIdent);
 		try {
 			setState(3048);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
@@ -20295,6 +20619,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(3073);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20370,6 +20695,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(3095);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20435,6 +20761,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(3114);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20490,6 +20817,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(3130);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20535,6 +20863,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(3143);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20570,6 +20899,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(3153);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20595,6 +20925,7 @@ public class EsperEPL2GrammarParser extends Parser {
 					break;
 				}
 				setState(3160);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20610,6 +20941,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				setState(3162);
 				millisecondPart();
 				setState(3164);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (QUESTION - 143)) | (1L << (PLUS - 143)) | (1L << (MINUS - 143)) | (1L << (IDENT - 143)) | (1L << (IntegerLiteral - 143)) | (1L << (FloatingPointLiteral - 143)))) != 0)) {
 					{
@@ -20673,6 +21005,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3172);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -20702,7 +21035,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_YEAR || _la==TIMEPERIOD_YEARS) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -20751,6 +21087,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3179);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -20780,7 +21117,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_MONTH || _la==TIMEPERIOD_MONTHS) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -20829,6 +21169,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3186);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -20858,7 +21199,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_WEEK || _la==TIMEPERIOD_WEEKS) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -20907,6 +21251,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3193);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -20936,7 +21281,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_DAY || _la==TIMEPERIOD_DAYS) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -20985,6 +21333,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3200);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -21014,7 +21363,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_HOUR || _la==TIMEPERIOD_HOURS) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -21064,6 +21416,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3207);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -21093,7 +21446,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==MIN || _la==TIMEPERIOD_MINUTE || _la==TIMEPERIOD_MINUTES) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -21143,6 +21499,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3214);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -21172,7 +21529,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(((((_la - 98)) & ~0x3f) == 0 && ((1L << (_la - 98)) & ((1L << (TIMEPERIOD_SEC - 98)) | (1L << (TIMEPERIOD_SECOND - 98)) | (1L << (TIMEPERIOD_SECONDS - 98)))) != 0)) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -21222,6 +21582,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3221);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -21251,7 +21612,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(((((_la - 101)) & ~0x3f) == 0 && ((1L << (_la - 101)) & ((1L << (TIMEPERIOD_MILLISEC - 101)) | (1L << (TIMEPERIOD_MILLISECOND - 101)) | (1L << (TIMEPERIOD_MILLISECONDS - 101)))) != 0)) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -21301,6 +21665,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3228);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -21330,7 +21695,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(((((_la - 104)) & ~0x3f) == 0 && ((1L << (_la - 104)) & ((1L << (TIMEPERIOD_MICROSEC - 104)) | (1L << (TIMEPERIOD_MICROSECOND - 104)) | (1L << (TIMEPERIOD_MICROSECONDS - 104)))) != 0)) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -21374,7 +21742,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==IntegerLiteral || _la==FloatingPointLiteral) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -21476,6 +21847,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 484, RULE_constant);
 		try {
 			setState(3244);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PLUS:
 			case MINUS:
@@ -21560,6 +21932,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3248);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case MINUS:
 				{
@@ -21577,7 +21950,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FloatingPointLiteral:
 				break;
 			default:
-				throw new NoViableAltException(this);
+				break;
 			}
 			setState(3250);
 			number();
@@ -21618,6 +21991,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 488, RULE_stringconstant);
 		try {
 			setState(3254);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STRING_LITERAL:
 				enterOuterAlt(_localctx, 1);
@@ -21677,6 +22051,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 490, RULE_jsonvalue);
 		try {
 			setState(3259);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case BOOLEAN_TRUE:
 			case BOOLEAN_FALSE:
@@ -21797,6 +22172,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			setState(3265);
 			match(LBRACK);
 			setState(3267);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 107)) & ~0x3f) == 0 && ((1L << (_la - 107)) & ((1L << (BOOLEAN_TRUE - 107)) | (1L << (BOOLEAN_FALSE - 107)) | (1L << (VALUE_NULL - 107)) | (1L << (LBRACK - 107)) | (1L << (LCURLY - 107)) | (1L << (PLUS - 107)) | (1L << (MINUS - 107)))) != 0) || ((((_la - 193)) & ~0x3f) == 0 && ((1L << (_la - 193)) & ((1L << (QUOTED_STRING_LITERAL - 193)) | (1L << (STRING_LITERAL - 193)) | (1L << (IntegerLiteral - 193)) | (1L << (FloatingPointLiteral - 193)))) != 0)) {
 				{
@@ -21874,6 +22250,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				_alt = getInterpreter().adaptivePredict(_input,468,_ctx);
 			}
 			setState(3280);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
@@ -21949,6 +22326,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				_alt = getInterpreter().adaptivePredict(_input,470,_ctx);
 			}
 			setState(3291);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
@@ -22002,6 +22380,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3295);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case QUOTED_STRING_LITERAL:
 			case STRING_LITERAL:
@@ -22089,7 +22468,7 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	private static final int _serializedATNSegments = 2;
 	private static final String _serializedATNSegment0 =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u00c7\u0ce7\4\2\t"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\u00c7\u0ce7\4\2\t"+
 		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -22436,7 +22815,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		"\4\2\u008f\u008f\u0098\u0098\4\2\13\13\u0099\u0099\3\2\u0086\u0087\5\2"+
 		"\u00ae\u00ae\u00b0\u00b0\u00b3\u00b3\4\2\u00a0\u00a0\u00a3\u00a3\5\2\u009e"+
 		"\u009e\u00a6\u00a6\u00a8\u00a8\3\2,-\4\2\20\20\u0099\u0099\3\2XY\3\2Z"+
-		"[\3\2\\]\3\2^_\3\2`a\4\2\24\24bc\3\2df\3\2gi\3\2jl\3\2\u00c6\u00c7\u0e95"+
+		"[\3\2\\]\3\2^_\3\2`a\4\2\24\24bc\3\2df\3\2gi\3\2jl\3\2\u00c6\u00c7\2\u0e95"+
 		"\2\u01fc\3\2\2\2\4\u0206\3\2\2\2\6\u020c\3\2\2\2\b\u020f\3\2\2\2\n\u0212"+
 		"\3\2\2\2\f\u022e\3\2\2\2\16\u023c\3\2\2\2\20\u0243\3\2\2\2\22\u0247\3"+
 		"\2\2\2\24\u024d\3\2\2\2\26\u0257\3\2\2\2\30\u025f\3\2\2\2\32\u0268\3\2"+
@@ -23143,14 +23522,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		"\u013f\3\2\2\2\u08cb\u08c9\3\2\2\2\u08cc\u08cf\5\u01c2\u00e2\2\u08cd\u08ce"+
 		"\7\u008f\2\2\u08ce\u08d0\5\u0122\u0092\2\u08cf\u08cd\3\2\2\2\u08cf\u08d0"+
 		"\3\2\2\2\u08d0\u0141\3\2\2\2\u08d1\u08d3\5\u0148\u00a5\2\u08d2\u08d4\5"+
-		"\u013e\u00a0\2\u08d3\u08d2\3\2\2\2\u08d3\u08d4\3\2\2";
+		"\u013e\u00a0\2\u08d3\u08d2\3\2\2\2\u08d3\u08d4\3\2";
 	private static final String _serializedATNSegment1 =
-		"\2\u08d4\u0143\3\2\2\2\u08d5\u08d6\5\u0148\u00a5\2\u08d6\u0145\3\2\2\2"+
-		"\u08d7\u08d8\7I\2\2\u08d8\u08d9\5\u0148\u00a5\2\u08d9\u0147\3\2\2\2\u08da"+
-		"\u08db\7\u0092\2\2\u08db\u08dd\7\32\2\2\u08dc\u08de\7,\2\2\u08dd\u08dc"+
-		"\3\2\2\2\u08dd\u08de\3\2\2\2\u08de\u08df\3\2\2\2\u08df\u08e0\5\u00c4c"+
-		"\2\u08e0\u08e1\7 \2\2\u08e1\u08e4\5\u014a\u00a6\2\u08e2\u08e3\7\17\2\2"+
-		"\u08e3\u08e5\5\u00c0a\2\u08e4\u08e2\3\2\2\2\u08e4\u08e5\3\2\2\2\u08e5"+
+		"\2\2\u08d4\u0143\3\2\2\2\u08d5\u08d6\5\u0148\u00a5\2\u08d6\u0145\3\2\2"+
+		"\2\u08d7\u08d8\7I\2\2\u08d8\u08d9\5\u0148\u00a5\2\u08d9\u0147\3\2\2\2"+
+		"\u08da\u08db\7\u0092\2\2\u08db\u08dd\7\32\2\2\u08dc\u08de\7,\2\2\u08dd"+
+		"\u08dc\3\2\2\2\u08dd\u08de\3\2\2\2\u08de\u08df\3\2\2\2\u08df\u08e0\5\u00c4"+
+		"c\2\u08e0\u08e1\7 \2\2\u08e1\u08e4\5\u014a\u00a6\2\u08e2\u08e3\7\17\2"+
+		"\2\u08e3\u08e5\5\u00c0a\2\u08e4\u08e2\3\2\2\2\u08e4\u08e5\3\2\2\2\u08e5"+
 		"\u08e9\3\2\2\2\u08e6\u08e7\7*\2\2\u08e7\u08e8\7)\2\2\u08e8\u08ea\5\u00e0"+
 		"q\2\u08e9\u08e6\3\2\2\2\u08e9\u08ea\3\2\2\2\u08ea\u08ed\3\2\2\2\u08eb"+
 		"\u08ec\7+\2\2\u08ec\u08ee\5\u00f0y\2\u08ed\u08eb\3\2\2\2\u08ed\u08ee\3"+

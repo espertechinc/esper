@@ -29,10 +29,10 @@ import static com.espertech.esper.codegen.compile.CodeGenerationUtil.codeWithLin
 /**
  * Janino Usage Notes
  * <p>
- *     Janino cannot do shortcut-evaluation in the form of "a ? b : c". This results in "operand stack underflow".
+ * Janino cannot do shortcut-evaluation in the form of "a ? b : c". This results in "operand stack underflow".
  * </p>
  * <p>
- *     Janino cannot handle compilation error "result = method()" with method returning void. This results in "operand stack underflow".
+ * Janino cannot handle compilation error "result = method()" with method returning void. This results in "operand stack underflow".
  * </p>
  */
 public class CodegenCompilerJanino implements CodegenCompiler {
@@ -71,8 +71,7 @@ public class CodegenCompilerJanino implements CodegenCompiler {
             String text = writer.toString();
             if (log.isDebugEnabled()) {
                 log.debug(text);
-            }
-            else if (logging) {
+            } else if (logging) {
                 log.info(text);
             }
         }

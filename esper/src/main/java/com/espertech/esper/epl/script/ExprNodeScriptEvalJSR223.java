@@ -109,7 +109,7 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements 
 
             return result;
         } catch (ScriptException e) {
-            String message = "Unexpected exception executing script '" + parent.getScript() + "' for statement '" + statementName + "' : " + e.getMessage();
+            String message = "Unexpected exception executing script '" + parent.getScript().getName() + "' for statement '" + statementName + "' : " + e.getMessage();
             log.error(message, e);
             throw new EPException(message, e);
         }

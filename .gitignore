@@ -32,3 +32,4 @@
 /target/maven-archiver/pom.properties
 /copy.cmd
 /esperio-springjms/lib/*.jar
+/esper/lib/*.jar

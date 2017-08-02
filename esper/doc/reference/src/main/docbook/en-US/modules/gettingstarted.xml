@@ -82,13 +82,13 @@
 					<para>Esper core jar file <literal>esper-</literal><emphasis>version</emphasis><literal>.jar</literal></para>
 				</ns:listitem>
 				<ns:listitem>
-					<para>ANTLR parser jar file <literal>antlr-runtime-4.5.3.jar</literal></para>
+					<para>ANTLR parser jar file <literal>antlr-runtime-4.7.jar</literal></para>
 				</ns:listitem>
 				<ns:listitem>
-					<para>CGLIB code generator jar file <literal>cglib-nodep-3.2.4.jar</literal></para>
+					<para>CGLIB code generator jar file <literal>cglib-nodep-3.2.5.jar</literal></para>
 				</ns:listitem>
 				<ns:listitem>
-					<para>SLF4J logging library <literal>slf4j-api-1.7.21.jar</literal></para>
+					<para>SLF4J logging library <literal>slf4j-api-1.7.25.jar</literal></para>
 				</ns:listitem>
 				<ns:listitem>
 					<para>Janino Java compiler (unless disabled via configuration, see below) <literal>janino-3.0.7.jar</literal> and <literal>commons-compiler-3.0.7.jar</literal></para>
@@ -96,7 +96,7 @@
 			</itemizedlist>
 			
 			<para>
-				Optionally, for logging using Log4j, please add <literal>slf4j-log4j12-1.7.21.jar</literal> and <literal>log4j-1.2.17.jar</literal> to the classpath.
+				Optionally, for logging using Log4j, please add <literal>slf4j-log4j12-1.7.25.jar</literal> and <literal>log4j-1.2.17.jar</literal> to the classpath.
 			</para>
 
 			<para>

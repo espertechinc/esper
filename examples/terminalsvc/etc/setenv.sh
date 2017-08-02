@@ -25,10 +25,10 @@ CLASSPATH=$CLASSPATH:../terminalsvc-receiver/target/example-terminalsvc-receiver
 CLASSPATH=$CLASSPATH:../../../esper-7.0.0-beta1.jar
 CLASSPATH=$CLASSPATH:../lib/jboss-jms-api_1.1_spec-1.0.0.Final.jar
 CLASSPATH=$CLASSPATH:../lib/jboss-client.jar
-CLASSPATH=$CLASSPATH:$LIB/cglib-nodep-3.2.4.jar
-CLASSPATH=$CLASSPATH:$LIB/slf4j-api-1.7.21.jar
-CLASSPATH=$CLASSPATH:$LIB/slf4j-log4j12-1.7.21.jar
+CLASSPATH=$CLASSPATH:$LIB/cglib-nodep-3.2.5.jar
+CLASSPATH=$CLASSPATH:$LIB/slf4j-api-1.7.25.jar
+CLASSPATH=$CLASSPATH:$LIB/slf4j-log4j12-1.7.25.jar
 CLASSPATH=$CLASSPATH:$LIB/log4j-1.2.17.jar
-CLASSPATH=$CLASSPATH:$LIB/antlr-runtime-4.5.3.jar
+CLASSPATH=$CLASSPATH:$LIB/antlr-runtime-4.7.jar
 
 export CLASSPATH="$CLASSPATH"

@@ -4,6 +4,10 @@ Esper Changelog
 Changes in version 7.0.0
 ------------------------
   - Code generation for all interdependent expressions
+  - The following dependent jar files are upgraded:
+    - ANTLR runtime library version is now 4.7 (antlr-runtime-4.7.jar, previously antlr-runtime-4.5.3.jar)
+    - CGLIB version is now 3.2.5 (cglib-nodep-3.2.5.jar, previously cglib-nodep-3.2.4.jar)
+    - SLF4J is now 1.7.25 (slf4j-api-1.7.25.jar, optionally use with Log4J by adding slf4j-log4j12-1.7.25.jar, previously at slf4j-api-1.7.21.jar)
  
 Minor API Change:
   - Event property types are boxed types except when the event type is a Java class and the property type is a primitive type.
