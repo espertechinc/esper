@@ -1,7 +1,7 @@
 Esper Changelog
 ===================
 
-Changes in version 7.0.0
+Changes in version 7.0.0-beta1
 ------------------------
   - Code generation for all interdependent expressions
   - The following dependent jar files are upgraded:
@@ -11,6 +11,7 @@ Changes in version 7.0.0
  
 Minor API Change:
   - Event property types are boxed types except when the event type is a Java class and the property type is a primitive type.
+    Expressions return boxed types.
 
 Changes in version 6.1.0
 ------------------------

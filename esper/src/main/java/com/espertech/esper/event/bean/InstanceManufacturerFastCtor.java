@@ -53,6 +53,7 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      * @param targetClassName name
      * @param targetException ex
+     * @return exception
      */
     public static EPException getTargetExceptionAsEPException(String targetClassName, Throwable targetException) {
         return new EPException("InvocationTargetException received invoking constructor for type '" + targetClassName + "': " + targetException.getMessage(), targetException);

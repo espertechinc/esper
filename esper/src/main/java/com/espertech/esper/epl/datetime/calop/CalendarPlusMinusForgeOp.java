@@ -115,6 +115,7 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
      * @param ldt ldt
      * @param factor factor
      * @param duration duration
+     * @return ldt
      */
     public static LocalDateTime actionLDTPlusMinusNumber(LocalDateTime ldt, int factor, Long duration) {
         if (duration == null) {
@@ -135,6 +136,7 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
      * @param zdt ldt
      * @param factor factor
      * @param duration duration
+     * @return zdt
      */
     public static ZonedDateTime actionZDTPlusMinusNumber(ZonedDateTime zdt, int factor, Long duration) {
         if (duration == null) {
@@ -203,6 +205,7 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
      * @param ldt ldt
      * @param factor factor
      * @param tp duration
+     * @return ldt
      */
     public static LocalDateTime actionLDTPlusMinusTimePeriod(LocalDateTime ldt, int factor, TimePeriod tp) {
         if (tp == null) {
@@ -240,6 +243,7 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
      * @param zdt zdt
      * @param factor factor
      * @param tp duration
+     * @return zdt
      */
     public static ZonedDateTime actionZDTPlusMinusTimePeriod(ZonedDateTime zdt, int factor, TimePeriod tp) {
         if (tp == null) {

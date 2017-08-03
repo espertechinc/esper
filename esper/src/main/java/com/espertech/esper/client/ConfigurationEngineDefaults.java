@@ -2333,7 +2333,7 @@ public class ConfigurationEngineDefaults implements Serializable {
 
         /**
          * Returns indicator whether to enable code generation for expressions (true by default).
-         * @return indicator
+         * @param enableExpression indicator
          */
         public void setEnableExpression(boolean enableExpression) {
             this.enableExpression = enableExpression;
@@ -2383,7 +2383,7 @@ public class ConfigurationEngineDefaults implements Serializable {
 
         /**
          * Sets indicator whether the generated source code should include comments for tracing back
-         * @params includeComments
+         * @param includeComments indicator
          */
         public void setIncludeComments(boolean includeComments) {
             this.includeComments = includeComments;

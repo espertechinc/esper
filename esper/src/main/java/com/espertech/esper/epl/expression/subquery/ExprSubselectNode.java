@@ -149,9 +149,11 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
     }
 
     /**
-     * Sets the validate select clause
+     * Sets the validates select clause
      *
      * @param selectClause is the expression representing the select clause
+     * @param engineImportService engine import service
+     * @param statementName name
      */
     public void setSelectClause(ExprNode[] selectClause, EngineImportService engineImportService, String statementName) {
         this.selectClause = selectClause;

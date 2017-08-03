@@ -25,11 +25,6 @@ public class ObjectArrayEventBeanPropertyGetter implements ObjectArrayEventPrope
     private final int propertyIndex;
     private final Class underlyingType;
 
-    /**
-     * Ctor.
-     *
-     * @param propertyIndex property to get
-     */
     public ObjectArrayEventBeanPropertyGetter(int propertyIndex, Class underlyingType) {
         this.propertyIndex = propertyIndex;
         this.underlyingType = underlyingType;

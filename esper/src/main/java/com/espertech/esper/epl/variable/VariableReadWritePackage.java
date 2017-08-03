@@ -51,6 +51,7 @@ public class VariableReadWritePackage {
      * @param assignments         the list of variable assignments
      * @param variableService     variable service
      * @param eventAdapterService event adapters
+     * @param statementName statement name
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when variables cannot be found
      */
     public VariableReadWritePackage(List<OnTriggerSetAssignment> assignments, VariableService variableService, EventAdapterService eventAdapterService, String statementName)

@@ -32,6 +32,10 @@ public class CodegenLegoBooleanExpression {
      * @param block   block
      * @param forge   forge
      * @param context context
+     * @param checkFor indicator
+     * @param earlyExitIfNull indicator
+     * @param resultEarlyExit indicator
+     * @param resultIfCheckPasses indicator
      */
     public static void codegenReturnBoolIfNullOrBool(CodegenBlock block, ExprForge forge, CodegenContext context, boolean earlyExitIfNull, Boolean resultEarlyExit, boolean checkFor, boolean resultIfCheckPasses) {
         Class type = forge.getEvaluationType();
@@ -68,6 +72,7 @@ public class CodegenLegoBooleanExpression {
      * @param block   block
      * @param forge   forge
      * @param context context
+     * @param value value
      */
     public static void codegenReturnValueIfNullOrNotPass(CodegenBlock block, ExprForge forge, CodegenContext context, CodegenExpression value) {
         codegenDOIfNullOrNotPass(block, forge, context, false, false, true, value);

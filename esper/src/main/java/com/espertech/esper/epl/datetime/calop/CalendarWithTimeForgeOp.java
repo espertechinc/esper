@@ -94,7 +94,6 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
      * @param minute min
      * @param second sec
      * @param msec msec
-     * @return ldt
      */
     public static void actionSetHMSMCalendar(Calendar cal, Integer hour, Integer minute, Integer second, Integer msec) {
         if (hour != null) {

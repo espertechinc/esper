@@ -56,9 +56,9 @@ public class SelectExprProcessorEnumerationAtBeanCollTableEval implements ExprEv
      * @param result result
      * @param eventToPublic conversion
      * @param eventsPerStream events
-     * @param isNewData
-     * @param exprEvaluatorContext
-     * @return
+     * @param isNewData flag
+     * @param exprEvaluatorContext context
+     * @return beans
      */
     public static EventBean[] convertToTableType(Object result, TableMetadataInternalEventToPublic eventToPublic, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (result instanceof Collection) {

@@ -39,6 +39,10 @@ public class BindProcessor {
      * @param typesPerStream the event types per stream
      * @param streamNames    the stream names
      * @param tableService   table service
+     * @param engineImportService engine imports
+     * @param statementName statement name
+     * @param annotations annotations
+     * @param isFireAndForget fire-and-forget flag
      * @throws ExprValidationException when the validation of the select clause failed
      */
     public BindProcessor(SelectClauseElementCompiled[] selectionList,

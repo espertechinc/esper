@@ -46,6 +46,8 @@ public class NStreamOuterQueryPlanBuilder {
      * @param historicalViewableDesc     historicals
      * @param indexedStreamsUniqueProps  unique props
      * @param tablesPerStream            tables
+     * @param isFireAndForget            fire-and-forget flag
+     * @param engineImportService        engine imports
      * @return query plan
      * @throws ExprValidationException if the query planning failed
      */

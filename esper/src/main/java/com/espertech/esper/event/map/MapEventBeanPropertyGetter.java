@@ -27,11 +27,6 @@ public class MapEventBeanPropertyGetter implements MapEventPropertyGetter {
     private final String propertyName;
     private final Class underlyingType;
 
-    /**
-     * Ctor.
-     *
-     * @param propertyName property to get
-     */
     public MapEventBeanPropertyGetter(String propertyName, Class underlyingType) {
         this.propertyName = propertyName;
         this.underlyingType = underlyingType;

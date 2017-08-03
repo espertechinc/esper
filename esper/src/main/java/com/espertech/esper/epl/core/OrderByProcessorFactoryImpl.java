@@ -41,6 +41,9 @@ public class OrderByProcessorFactoryImpl implements OrderByProcessorFactory {
      *                            indicates whether this processor needs to have individual
      *                            group by keys to evaluate the sort condition successfully
      * @param isSortUsingCollator for string value sorting using compare or Collator
+     * @param statementName statement name
+     * @param engineImportService engine imports
+     * @param onDemandQuery fire-and-forget flag
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when order-by items don't divulge a type
      */
     public OrderByProcessorFactoryImpl(final List<OrderByItem> orderByList,

@@ -335,7 +335,7 @@ public class IntervalComputerForgeFactory {
          * @param right   right
          * @param start   start
          * @param end     end
-         * @returnflag
+         * @return flag
          */
         public static boolean computeIntervalBefore(long leftEnd, long right, long start, long end) {
             long delta = right - leftEnd;

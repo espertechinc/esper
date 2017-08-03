@@ -47,6 +47,8 @@ public class QueryPlanBuilder {
      * @param isQueryPlanLogging         for logging
      * @param exprEvaluatorContext       context
      * @param annotations                annotations
+     * @param isFireAndForget            fire-and-forget flag
+     * @param engineImportService        engine imports
      * @return query plan
      * @throws ExprValidationException if the query plan fails
      */

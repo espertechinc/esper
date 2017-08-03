@@ -43,6 +43,9 @@ public class OrderByProcessorFactoryFactory {
      * @param variableService     for retrieving variable state for use with row limiting
      * @param isSortUsingCollator for string value sorting using compare or Collator
      * @param optionalContextName context name
+     * @param engineImportService engine import svc
+     * @param onDemandQuery fire-and-forget flag
+     * @param statementName statement name
      * @return ordering processor instance
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when validation of expressions fails
      */

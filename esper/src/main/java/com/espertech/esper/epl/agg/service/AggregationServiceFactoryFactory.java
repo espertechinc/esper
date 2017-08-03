@@ -55,6 +55,8 @@ public class AggregationServiceFactoryFactory {
      * @param numStreams                number of streams
      * @param measureExprNodesPerStream measure nodes
      * @param typesPerStream            type information
+     * @param statementName statement name
+     * @param engineImportService engine imports
      * @return service
      * @throws ExprValidationException for validation errors
      */

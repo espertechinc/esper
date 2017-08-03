@@ -97,7 +97,7 @@ public class EnumOrderByAscDescEventsForgeEval implements EnumEval {
      * @param sort sorted
      * @param hasColl collection flag
      * @param descending true for descending
-     * @return
+     * @return collection
      */
     public static Collection enumOrderBySortEval(TreeMap<Comparable, Object> sort, boolean hasColl, boolean descending) {
         Map<Comparable, Object> sorted;
