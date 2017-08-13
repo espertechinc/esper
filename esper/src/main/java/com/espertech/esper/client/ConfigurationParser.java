@@ -1264,6 +1264,11 @@ class ConfigurationParser {
     private static void handleCodegen(Configuration configuration, Element parentElement) {
         ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
 
+        String enableSelectClauseStr = getOptionalAttribute(parentElement, "enable-selectclause");
+        if (enableSelectClauseStr != null) {
+            codegen.setEnableSelectClause(Boolean.parseBoolean(enableSelectClauseStr));
+        }
+
         String enableExprStr = getOptionalAttribute(parentElement, "enable-expression");
         if (enableExprStr != null) {
             codegen.setEnableExpression(Boolean.parseBoolean(enableExprStr));

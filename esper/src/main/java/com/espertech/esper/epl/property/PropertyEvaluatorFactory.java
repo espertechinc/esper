@@ -234,8 +234,10 @@ public class PropertyEvaluatorFactory {
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false);
 
             SelectClauseElementCompiled[] cumulativeSelectArr = cumulativeSelectClause.toArray(new SelectClauseElementCompiled[cumulativeSelectClause.size()]);
-            SelectExprProcessor selectExpr = SelectExprProcessorFactory.getProcessor(assignedTypeNumberStack, cumulativeSelectArr, false, null, null, null, streamTypeService, eventAdapterService, null, null, null, engineImportService, validateContext, variableService, tableService, timeProvider, engineURI, statementId, statementName, annotations, null, configuration, null, namedWindowMgmtService, null, null, statementExtensionSvcContext);
-            return new PropertyEvaluatorSelect(selectExpr, accumulative);
+            SelectExprProcessorForge selectExprForge = SelectExprProcessorFactory.getProcessor(assignedTypeNumberStack, cumulativeSelectArr, false, null, null, null, streamTypeService, eventAdapterService, null, null, null, engineImportService, validateContext, variableService, tableService, timeProvider, engineURI, statementId, statementName, annotations, null, configuration, null, namedWindowMgmtService, null, null, statementExtensionSvcContext);
+            SelectExprProcessor selectExpr = SelectExprProcessorCompiler.allocateSelectExprEvaluator(eventAdapterService, selectExprForge, engineImportService, PropertyEvaluatorFactory.class, false, statementName);
+
+            return new PropertyEvaluatorSelect(selectExprForge.getResultEventType(), selectExpr, accumulative);
         }
     }
 }

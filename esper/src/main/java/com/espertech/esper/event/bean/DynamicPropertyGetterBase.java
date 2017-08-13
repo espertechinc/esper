@@ -30,9 +30,6 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGetter {
     private final EventAdapterService eventAdapterService;
     private final CopyOnWriteArrayList<DynamicPropertyDescriptor> cache;
-    private CodegenMember codegenCache;
-    private CodegenMember codegenThis;
-    private CodegenMember codegenEventAdapterService;
 
     /**
      * To be implemented to return the method required, or null to indicate an appropriate method could not be found.
@@ -53,9 +50,10 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param cache cache
-     * @param getter getter
-     * @param object object
+     *
+     * @param cache               cache
+     * @param getter              getter
+     * @param object              object
      * @param eventAdapterService event server
      * @return property
      */
@@ -69,9 +67,10 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param cache cache
-     * @param getter getter
-     * @param object object
+     *
+     * @param cache               cache
+     * @param getter              getter
+     * @param object              object
      * @param eventAdapterService event server
      * @return exists-flag
      */
@@ -125,18 +124,18 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        codegenMembers(context);
-        return staticMethod(this.getClass(), "cacheAndCall", ref(codegenCache.getMemberName()), ref(codegenThis.getMemberName()), underlyingExpression, ref(codegenEventAdapterService.getMemberName()));
+        DynamicGetterMembers members = codegenMembers(context);
+        return staticMethod(this.getClass(), "cacheAndCall", member(members.codegenCache.getMemberId()), member(members.codegenThis.getMemberId()), underlyingExpression, member(members.codegenEventAdapterService.getMemberId()));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        codegenMembers(context);
-        return staticMethod(this.getClass(), "cacheAndExists", ref(codegenCache.getMemberName()), ref(codegenThis.getMemberName()), underlyingExpression, ref(codegenEventAdapterService.getMemberName()));
+        DynamicGetterMembers members = codegenMembers(context);
+        return staticMethod(this.getClass(), "cacheAndExists", member(members.codegenCache.getMemberId()), member(members.codegenThis.getMemberId()), underlyingExpression, member(members.codegenEventAdapterService.getMemberId()));
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        codegenMembers(context);
-        return staticMethod(BaseNativePropertyGetter.class, "getFragmentDynamic", underlyingGetCodegen(underlyingExpression, context), ref(codegenEventAdapterService.getMemberName()));
+        DynamicGetterMembers members = codegenMembers(context);
+        return staticMethod(BaseNativePropertyGetter.class, "getFragmentDynamic", underlyingGetCodegen(underlyingExpression, context), member(members.codegenEventAdapterService.getMemberId()));
     }
 
     public Object getFragment(EventBean eventBean) {
@@ -178,14 +177,22 @@ public abstract class DynamicPropertyGetterBase implements BeanEventPropertyGett
         }
     }
 
-    private void codegenMembers(CodegenContext context) {
-        if (codegenCache == null) {
-            codegenCache = context.makeMember(CopyOnWriteArrayList.class, DynamicPropertyDescriptor.class, cache);
-            codegenThis = context.makeMember(DynamicPropertyGetterBase.class, this);
-            codegenEventAdapterService = context.makeMember(EventAdapterService.class, eventAdapterService);
+    private DynamicGetterMembers codegenMembers(CodegenContext context) {
+        return new DynamicGetterMembers(
+                context.makeAddMember(CopyOnWriteArrayList.class, cache),
+                context.makeAddMember(DynamicPropertyGetterBase.class, this),
+                context.makeAddMember(EventAdapterService.class, eventAdapterService));
+    }
+
+    private static class DynamicGetterMembers {
+        CodegenMember codegenCache;
+        CodegenMember codegenThis;
+        CodegenMember codegenEventAdapterService;
+
+        public DynamicGetterMembers(CodegenMember codegenCache, CodegenMember codegenThis, CodegenMember codegenEventAdapterService) {
+            this.codegenCache = codegenCache;
+            this.codegenThis = codegenThis;
+            this.codegenEventAdapterService = codegenEventAdapterService;
         }
-        context.addMember(codegenCache);
-        context.addMember(codegenThis);
-        context.addMember(codegenEventAdapterService);
     }
 }

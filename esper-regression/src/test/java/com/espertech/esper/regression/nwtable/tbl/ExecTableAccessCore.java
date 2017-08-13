@@ -179,7 +179,12 @@ public class ExecTableAccessCore implements RegressionExecution {
     }
 
     private void runAssertionTopLevelReadUnGrouped(EPServiceProvider epService) {
+        SupportUpdateListener listener = new SupportUpdateListener();
         epService.getEPAdministrator().getConfiguration().addEventType(AggBean.class);
+        Object[] e1 = new Object[]{10};
+        Object[] e2 = new Object[]{20};
+        Object[] e3 = new Object[]{30};
+
         epService.getEPAdministrator().createEPL("create objectarray schema MyEventOATLRU(c0 int)");
         epService.getEPAdministrator().createEPL("create table windowAndTotalTLRUG (" +
                 "thewindow window(*) @type(MyEventOATLRU), thetotal sum(int))");
@@ -187,23 +192,19 @@ public class ExecTableAccessCore implements RegressionExecution {
                 "select window(*) as thewindow, sum(c0) as thetotal from MyEventOATLRU#length(2)");
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("select windowAndTotalTLRUG as val0 from SupportBean_S0");
-        SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
 
-        Object[] e1 = new Object[]{10};
         epService.getEPRuntime().sendEvent(e1, "MyEventOATLRU");
 
         String[] fieldsInner = "thewindow,thetotal".split(",");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
         EPAssertionUtil.assertPropsMap((Map) listener.assertOneGetNewAndReset().get("val0"), fieldsInner, new Object[][]{e1}, 10);
 
-        Object[] e2 = new Object[]{20};
         epService.getEPRuntime().sendEvent(e2, "MyEventOATLRU");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
         EPAssertionUtil.assertPropsMap((Map) listener.assertOneGetNewAndReset().get("val0"), fieldsInner, new Object[][]{e1, e2}, 30);
 
-        Object[] e3 = new Object[]{30};
         epService.getEPRuntime().sendEvent(e3, "MyEventOATLRU");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(2));

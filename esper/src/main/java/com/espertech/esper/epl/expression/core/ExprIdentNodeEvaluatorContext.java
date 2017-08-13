@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -47,7 +48,7 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
     }
 
     public CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(resultType, this.getClass()).add(params).begin()
+        CodegenMethodId method = context.addMethod(resultType, this.getClass()).add(params).begin()
                 .ifCondition(notEqualsNull(params.passEvalCtx()))
                 .blockReturn(CodegenLegoCast.castSafeFromObjectType(resultType, getter.eventBeanGetCodegen(exprDotMethod(params.passEvalCtx(), "getContextProperties"), context)))
                 .methodReturn(constantNull());

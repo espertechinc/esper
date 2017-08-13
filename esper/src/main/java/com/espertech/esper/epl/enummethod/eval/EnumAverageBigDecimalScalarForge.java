@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -57,8 +58,8 @@ public class EnumAverageBigDecimalScalarForge extends EnumForgeBase implements E
     public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
         CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
         CodegenMember memberMathCtx = context.makeAddMember(MathContext.class, optionalMathContext);
-        String method = context.addMethod(BigDecimal.class, EnumAverageScalarForge.class).add(premade).begin()
-                .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, ref(memberMathCtx.getMemberName())))
+        CodegenMethodId method = context.addMethod(BigDecimal.class, EnumAverageScalarForge.class).add(premade).begin()
+                .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, member(memberMathCtx.getMemberId())))
                 .forEach(Number.class, "num", premade.enumcoll())
                 .ifRefNull("num").blockContinue()
                 .expression(exprDotMethod(ref("agg"), "enter", ref("num")))

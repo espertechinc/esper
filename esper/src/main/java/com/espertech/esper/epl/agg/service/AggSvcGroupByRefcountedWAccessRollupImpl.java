@@ -17,6 +17,7 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.util.CollectionUtil;
 
 import java.util.*;
 
@@ -329,7 +330,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
                 visitor.visitGroup(entry.getKey(), entry.getValue());
             }
         }
-        visitor.visitGroup(new Object[0], aggregatorTopGroup);
+        visitor.visitGroup(CollectionUtil.OBJECTARRAY_EMPTY, aggregatorTopGroup);
     }
 
     public boolean isGrouped() {

@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -47,7 +48,7 @@ public class PropertyDotNonLambdaForge implements ExprForge, ExprEvaluator, Expr
     }
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(getEvaluationType(), PropertyDotNonLambdaForge.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(getEvaluationType(), PropertyDotNonLambdaForge.class).add(params).begin()
                 .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamId)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("event"), context)));

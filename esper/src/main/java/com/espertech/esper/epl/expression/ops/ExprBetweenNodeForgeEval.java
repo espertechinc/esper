@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -85,7 +86,7 @@ public class ExprBetweenNodeForgeEval implements ExprEvaluator {
         }
 
         block.declareVar(boolean.class, "result", forge.getComputer().codegenNoNullCheck(ref("value"), value.getEvaluationType(), ref("lower"), lower.getEvaluationType(), ref("higher"), higher.getEvaluationType(), context));
-        String method = block.methodReturn(notOptional(forge.getForgeRenderable().isNotBetween(), ref("result")));
+        CodegenMethodId method = block.methodReturn(notOptional(forge.getForgeRenderable().isNotBetween(), ref("result")));
         return localMethodBuild(method).passAll(params).call();
     }
 

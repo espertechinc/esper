@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -57,7 +58,7 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
             ExprForge child = nodes[i].getForge();
             block.exprDotMethod(ref("props"), "put", constant(columnNames[i]), child.evaluateCodegen(params, context));
         }
-        String method = block.methodReturn(ref("props"));
+        CodegenMethodId method = block.methodReturn(ref("props"));
         return localMethodBuild(method).passAll(params).call();
     }
 

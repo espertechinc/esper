@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -79,7 +80,7 @@ public class EnumMostLeastFrequentEventForgeEval implements EnumEval {
                 .expression(increment("existing"))
                 .blockEnd()
                 .exprDotMethod(ref("items"), "put", ref("item"), ref("existing"));
-        String method = block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));
+        CodegenMethodId method = block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));
         return localMethodBuild(method).passAll(args).call();
     }
 

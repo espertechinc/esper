@@ -14,7 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -55,7 +57,7 @@ public class SelectExprProcessorTypableSingleEvalSingleRow implements ExprEvalua
         if (forge.hasWideners) {
             block.expression(applyWidenersCodegen(ref("row"), forge.wideners, context));
         }
-        String method = block.methodReturn(exprDotMethod(ref(factory.getMemberName()), "make", ref("row")));
+        CodegenMethodId method = block.methodReturn(exprDotMethod(CodegenExpressionBuilder.member(factory.getMemberId()), "make", ref("row")));
         return localMethodBuild(method).passAll(params).call();
     }
 

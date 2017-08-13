@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -46,7 +47,7 @@ public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl {
         if (returnType == null) {
             return constantNull();
         }
-        String method = context.addMethod(returnType, this.getClass()).add(params).begin()
+        CodegenMethodId method = context.addMethod(returnType, this.getClass()).add(params).begin()
                 .declareVar(returnType, "result", super.codegen(params, context))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                 .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "PROPERTY"), op(constant(propertyName + " value "), "+", ref("result"))))

@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
@@ -28,7 +29,6 @@ import com.espertech.esper.epl.table.mgmt.TableMetadataInternalEventToPublic;
 import java.util.ArrayDeque;
 import java.util.Collection;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class ExprDotForgeUnpackCollEventBeanTable implements ExprDotForge, ExprDotEval {
@@ -47,7 +47,7 @@ public class ExprDotForgeUnpackCollEventBeanTable implements ExprDotForge, ExprD
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
         CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        return staticMethod(ExprDotForgeUnpackCollEventBeanTable.class, "convertToTableUnderling", inner, ref(eventToPublic.getMemberName()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+        return staticMethod(ExprDotForgeUnpackCollEventBeanTable.class, "convertToTableUnderling", inner, CodegenExpressionBuilder.member(eventToPublic.getMemberId()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
     }
 
     /**

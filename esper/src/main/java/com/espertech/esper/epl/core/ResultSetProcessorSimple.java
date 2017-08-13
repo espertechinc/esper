@@ -22,10 +22,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.Viewable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Result set processor for the simplest case: no aggregation functions used in the select clause, and no group-by.
@@ -199,7 +196,7 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple {
 
     public Iterator<EventBean> getIterator(Set<MultiKey<EventBean>> joinSet) {
         // Process join results set as a regular join, includes sorting and having-clause filter
-        UniformPair<EventBean[]> result = processJoinResult(joinSet, CollectionUtil.EMPTY_ROW_SET, true);
+        UniformPair<EventBean[]> result = processJoinResult(joinSet, Collections.emptySet(), true);
         return new ArrayEventIterator(result.getFirst());
     }
 

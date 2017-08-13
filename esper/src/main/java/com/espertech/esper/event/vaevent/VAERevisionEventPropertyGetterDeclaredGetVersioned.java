@@ -41,7 +41,7 @@ public class VAERevisionEventPropertyGetterDeclaredGetVersioned implements Event
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
         CodegenMember member = context.makeAddMember(RevisionGetterParameters.class, parameters);
-        return exprDotMethod(cast(RevisionEventBeanDeclared.class, beanExpression), "getVersionedValue", ref(member.getMemberName()));
+        return exprDotMethod(cast(RevisionEventBeanDeclared.class, beanExpression), "getVersionedValue", member(member.getMemberId()));
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {

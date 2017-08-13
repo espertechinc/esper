@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -48,7 +49,7 @@ public class EnumDistinctScalarForge extends EnumForgeBase implements EnumForge,
 
     public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
         CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        String method = context.addMethod(Collection.class, EnumDistinctScalarForge.class).add(premade).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, EnumDistinctScalarForge.class).add(premade).begin()
                 .ifCondition(relational(exprDotMethod(premade.enumcoll(), "size"), LE, constant(1)))
                 .blockReturn(premade.enumcoll())
                 .ifCondition(instanceOf(ref("enumcoll"), Set.class))

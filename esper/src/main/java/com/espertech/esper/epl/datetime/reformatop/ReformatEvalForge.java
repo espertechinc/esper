@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
@@ -60,8 +61,8 @@ public class ReformatEvalForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        String method = context.addMethod(int.class, ReformatEvalForge.class).add(long.class, "ts").add(params).begin()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(int.class, ReformatEvalForge.class).add(long.class, "ts").add(params).begin()
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .expression(timeAbacus.calendarSetCodegen(ref("ts"), ref("cal"), context))
                 .methodReturn(calendarEval.codegen(ref("cal")));
         return localMethodBuild(method).pass(inner).passAll(params).call();
@@ -75,8 +76,8 @@ public class ReformatEvalForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        String method = context.addMethod(int.class, ReformatEvalForge.class).add(Date.class, "d").add(params).begin()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(int.class, ReformatEvalForge.class).add(Date.class, "d").add(params).begin()
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", exprDotMethod(ref("d"), "getTime")))
                 .methodReturn(calendarEval.codegen(ref("cal")));
         return localMethodBuild(method).pass(inner).passAll(params).call();

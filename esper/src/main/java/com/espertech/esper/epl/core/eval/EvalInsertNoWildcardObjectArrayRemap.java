@@ -12,18 +12,26 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
-public class EvalInsertNoWildcardObjectArrayRemap implements SelectExprProcessor {
+public class EvalInsertNoWildcardObjectArrayRemap implements SelectExprProcessor, SelectExprProcessorForge {
 
-    protected final SelectExprContext selectExprContext;
+    protected final SelectExprForgeContext context;
     protected final EventType resultEventType;
     protected final int[] remapped;
+    protected ExprEvaluator[] evaluators;
 
-    public EvalInsertNoWildcardObjectArrayRemap(SelectExprContext selectExprContext, EventType resultEventType, int[] remapped) {
-        this.selectExprContext = selectExprContext;
+    public EvalInsertNoWildcardObjectArrayRemap(SelectExprForgeContext context, EventType resultEventType, int[] remapped) {
+        this.context = context;
         this.resultEventType = resultEventType;
         this.remapped = remapped;
     }
@@ -33,13 +41,22 @@ public class EvalInsertNoWildcardObjectArrayRemap implements SelectExprProcessor
     }
 
     public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        ExprEvaluator[] expressionNodes = selectExprContext.getExpressionNodes();
-
         Object[] result = new Object[resultEventType.getPropertyNames().length];
-        for (int i = 0; i < expressionNodes.length; i++) {
-            result[remapped[i]] = expressionNodes[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        for (int i = 0; i < evaluators.length; i++) {
+            result[remapped[i]] = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         }
 
-        return selectExprContext.getEventAdapterService().adapterForTypedObjectArray(result, resultEventType);
+        return context.getEventAdapterService().adapterForTypedObjectArray(result, resultEventType);
+    }
+
+    public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        if (evaluators == null) {
+            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+        }
+        return this;
+    }
+
+    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext codegenContext) {
+        return EvalInsertNoWildcardObjectArrayRemapWWiden.processCodegen(memberResultEventType, memberEventAdapterService, params, codegenContext, context.getExprForges(), resultEventType.getPropertyNames(), remapped, null);
     }
 }

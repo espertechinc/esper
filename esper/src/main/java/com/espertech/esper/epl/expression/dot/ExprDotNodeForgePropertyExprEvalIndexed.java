@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -47,7 +48,7 @@ public class ExprDotNodeForgePropertyExprEvalIndexed implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprDotNodeForgePropertyExpr forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        String method = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgePropertyExprEvalIndexed.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgePropertyExprEvalIndexed.class).add(params).begin()
                 .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(forge.getStreamNum())))
                 .ifRefNullReturnNull("event")
                 .declareVar(Integer.class, "index", forge.getExprForge().evaluateCodegen(params, context))

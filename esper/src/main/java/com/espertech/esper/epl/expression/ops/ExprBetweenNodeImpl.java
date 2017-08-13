@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.expression.core.*;
@@ -257,7 +258,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
             if (!isHighIncluded) {
                 block.ifCondition(exprDotMethod(ref("value"), "equals", ref("upper"))).blockReturn(constantFalse());
             }
-            String method = block.methodReturn(constantTrue());
+            CodegenMethodId method = block.methodReturn(constantTrue());
             return localMethod(method, value, lower, higher);
         }
     }
@@ -316,7 +317,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
                     ifValueGTLower.blockReturn(constantFalse());
                 }
             }
-            String method;
+            CodegenMethodId method;
             if (isLowIncluded) {
                 method = block.methodReturn(equalsIdentity(ref("value"), ref("lower")));
             } else {
@@ -380,7 +381,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
                     ifValueGTLower.blockReturn(constantFalse());
                 }
             }
-            String method;
+            CodegenMethodId method;
             if (isLowIncluded) {
                 method = block.methodReturn(equalsIdentity(ref("value"), ref("lower")));
             } else {
@@ -453,7 +454,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
                     ifValueGTLower.blockReturn(constantFalse());
                 }
             }
-            String method;
+            CodegenMethodId method;
             if (isLowIncluded) {
                 method = block.methodReturn(exprDotMethod(ref("value"), "equals", ref("lower")));
             } else {
@@ -530,7 +531,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
                     ifValueGTLower.blockReturn(constantFalse());
                 }
             }
-            String method;
+            CodegenMethodId method;
             if (isLowIncluded) {
                 method = block.methodReturn(exprDotMethod(ref("value"), "equals", ref("lower")));
             } else {

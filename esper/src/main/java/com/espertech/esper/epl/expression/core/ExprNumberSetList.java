@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.type.*;
@@ -117,7 +118,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
             block.declareVar(evaluationType, refname, forge.evaluateCodegen(params, context))
                     .expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListAdd", ref(refname), ref("parameters")));
         }
-        String method = block.expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListEmpty", ref("parameters")))
+        CodegenMethodId method = block.expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListEmpty", ref("parameters")))
                 .methodReturn(newInstance(ListParameter.class, ref("parameters")));
         return localMethodBuild(method).passAll(params).call();
     }

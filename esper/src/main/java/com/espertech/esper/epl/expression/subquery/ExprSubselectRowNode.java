@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.*;
@@ -142,7 +143,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
             return null;
         }
         if (matchingEvents.size() == 0) {
-            return new Object[0][];
+            return CollectionUtil.OBJECTARRAYARRAY_EMPTY;
         }
         return evalStrategy.typableEvaluateMultirow(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext, this);
     }

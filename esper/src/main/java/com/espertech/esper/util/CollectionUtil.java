@@ -13,8 +13,8 @@ package com.espertech.esper.util;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.NullIterator;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -36,10 +36,12 @@ public class CollectionUtil {
         }
     };
     public final static SortedMap EMPTY_SORTED_MAP = new TreeMap();
-    public final static Set<MultiKey<EventBean>> EMPTY_ROW_SET = new HashSet<MultiKey<EventBean>>();
     public final static EventBean[] EVENTBEANARRAY_EMPTY = new EventBean[0];
     public final static Set<EventBean> SINGLE_NULL_ROW_EVENT_SET = new HashSet<EventBean>();
-    public final static String[] EMPTY_STRING_ARRAY = new String[0];
+    public final static String[] STRINGARRAY_EMPTY = new String[0];
+    private static final int MAX_POWER_OF_TWO = 1 << (Integer.SIZE - 2);
+    public final static Object[] OBJECTARRAY_EMPTY = new Object[0];
+    public final static Object[][] OBJECTARRAYARRAY_EMPTY = new Object[0][];
 
     static {
         SINGLE_NULL_ROW_EVENT_SET.add(null);
@@ -365,7 +367,7 @@ public class CollectionUtil {
 
     public static String[] toArray(Collection<String> strings) {
         if (strings.isEmpty()) {
-            return EMPTY_STRING_ARRAY;
+            return STRINGARRAY_EMPTY;
         }
         return strings.toArray(new String[strings.size()]);
     }
@@ -481,7 +483,7 @@ public class CollectionUtil {
         if (!arrayType.getComponentType().isPrimitive()) {
             return localMethodBuild(block.methodReturn(staticMethod(Arrays.class, "asList", ref("array")))).pass(array).call();
         }
-        String method = block.ifCondition(equalsIdentity(arrayLength(ref("array")), constant(0)))
+        CodegenMethodId method = block.ifCondition(equalsIdentity(arrayLength(ref("array")), constant(0)))
                 .blockReturn(staticMethod(Collections.class, "emptyList"))
                 .ifCondition(equalsIdentity(arrayLength(ref("array")), constant(1)))
                 .blockReturn(staticMethod(Collections.class, "singletonList", arrayAtIndex(ref("array"), constant(0))))
@@ -506,5 +508,18 @@ public class CollectionUtil {
             items.add(iterator.next());
         }
         return items;
+    }
+
+    public static int capacityHashMap(int expectedSize) {
+        if (expectedSize < 3) {
+            return expectedSize + 1;
+        }
+        if (expectedSize < MAX_POWER_OF_TWO) {
+            // This is the calculation used in JDK8 to resize when a putAll
+            // happens; it seems to be the most conservative calculation we
+            // can make.  0.75 is the default load factor.
+            return (int) ((float) expectedSize / 0.75F + 1.0F);
+        }
+        return Integer.MAX_VALUE; // any large value
     }
 }

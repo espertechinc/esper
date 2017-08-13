@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -59,10 +60,10 @@ public class SelectExprProcessorEvalStreamInsertNamedWindow implements ExprForge
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember eventSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember namedWindowType = context.makeAddMember(EventType.class, namedWindowAsType);
-        String method = context.addMethod(EventBean.class, SelectExprProcessorEvalStreamInsertNamedWindow.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(EventBean.class, SelectExprProcessorEvalStreamInsertNamedWindow.class).add(params).begin()
                 .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(exprDotMethod(ref(eventSvc.getMemberName()), "adapterForType", exprDotUnderlying(ref("event")), ref(namedWindowType.getMemberName())));
+                .methodReturn(exprDotMethod(member(eventSvc.getMemberId()), "adapterForType", exprDotUnderlying(ref("event")), member(namedWindowType.getMemberId())));
         return localMethodBuild(method).passAll(params).call();
     }
 

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionExprDotMethodChain;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -68,7 +69,7 @@ public class ExprConcatNodeForgeEvalWNew implements ExprEvaluator {
                     .ifRefNullReturnNull("value")
                     .exprDotMethod(ref("buf"), "append", ref("value"));
         }
-        String method = block.methodReturn(exprDotMethod(chain, "toString"));
+        CodegenMethodId method = block.methodReturn(exprDotMethod(chain, "toString"));
         return localMethodBuild(method).passAll(params).call();
     }
 

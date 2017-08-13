@@ -122,7 +122,7 @@ public class ReformatBetweenConstantParamsForge implements ReformatForge, Reform
 
     public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        return codegenLong(staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, ref(tz.getMemberName())), params, context);
+        return codegenLong(staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, member(tz.getMemberId())), params, context);
     }
 
     public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {

@@ -75,12 +75,12 @@ public class VariantEventPropertyGetterAny implements EventPropertyGetterSPI {
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
         CodegenMember member = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
-        return staticMethod(this.getClass(), "variantGet", beanExpression, ref(member.getMemberName()), constant(assignedPropertyNumber));
+        return staticMethod(this.getClass(), "variantGet", beanExpression, member(member.getMemberId()), constant(assignedPropertyNumber));
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         CodegenMember member = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
-        return staticMethod(this.getClass(), "variantExists", beanExpression, ref(member.getMemberName()), constant(assignedPropertyNumber));
+        return staticMethod(this.getClass(), "variantExists", beanExpression, member(member.getMemberId()), constant(assignedPropertyNumber));
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {

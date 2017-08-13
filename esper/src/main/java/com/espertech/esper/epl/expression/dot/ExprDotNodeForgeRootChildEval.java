@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.dot;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
@@ -72,7 +73,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
             block.ifRefNullReturnNull("inner");
         }
         CodegenExpression expression = ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("inner"), innerType, forge.forgesUnpacking, null);
-        String method = evaluationType == void.class ? block.expression(expression).methodEnd() : block.methodReturn(expression);
+        CodegenMethodId method = evaluationType == void.class ? block.expression(expression).methodEnd() : block.methodReturn(expression);
         return localMethodBuild(method).passAll(params).call();
     }
 
@@ -94,7 +95,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     }
 
     public static CodegenExpression codegenEvaluateGetROCollectionEvents(ExprDotNodeForgeRootChild forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class).add(params).begin()
                 .declareVar(Collection.class, "inner", forge.innerForge.evaluateGetROCollectionEventsCodegen(params, context))
                 .ifRefNullReturnNull("inner")
                 .methodReturn(ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("inner"), Collection.class, forge.forgesIteratorEventBean, null));
@@ -119,7 +120,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     }
 
     public static CodegenExpression codegenEvaluateGetROCollectionScalar(ExprDotNodeForgeRootChild forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class).add(params).begin()
                 .declareVar(Collection.class, "inner", forge.innerForge.evaluateGetROCollectionScalarCodegen(params, context))
                 .ifRefNullReturnNull("inner")
                 .methodReturn(ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("inner"), Collection.class, forge.forgesIteratorEventBean, null));

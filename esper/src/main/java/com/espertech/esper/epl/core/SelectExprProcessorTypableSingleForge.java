@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
@@ -21,7 +22,7 @@ import com.espertech.esper.util.TypeWidener;
 
 import java.io.StringWriter;
 
-public class SelectExprProcessorTypableSingleForge implements ExprForge, ExprNodeRenderable {
+public class SelectExprProcessorTypableSingleForge implements SelectExprProcessorTypableForge, ExprNodeRenderable {
     protected final ExprTypableReturnForge typable;
     protected final boolean hasWideners;
     protected final TypeWidener[] wideners;
@@ -56,11 +57,18 @@ public class SelectExprProcessorTypableSingleForge implements ExprForge, ExprNod
         return ExprForgeComplexityEnum.INTER;
     }
 
-    public Class getEvaluationType() {
+    public Class getUnderlyingEvaluationType() {
         if (singleRowOnly) {
             return targetType.getUnderlyingType();
         }
         return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
+    }
+
+    public Class getEvaluationType() {
+        if (singleRowOnly) {
+            return EventBean.class;
+        }
+        return EventBean[].class;
     }
 
     public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {

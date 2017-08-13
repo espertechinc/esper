@@ -12,13 +12,20 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.arrayAtIndex;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
 
 /**
  * Processor for select-clause expressions that handles wildcards for single streams with no insert-into.
  */
-public class SelectExprWildcardProcessor implements SelectExprProcessor {
+public class SelectExprWildcardProcessor implements SelectExprProcessor, SelectExprProcessorForge {
     private final EventType eventType;
 
     /**
@@ -37,5 +44,13 @@ public class SelectExprWildcardProcessor implements SelectExprProcessor {
 
     public EventType getResultEventType() {
         return eventType;
+    }
+
+    public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        return this;
+    }
+
+    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+        return arrayAtIndex(params.passEPS(), constant(0));
     }
 }

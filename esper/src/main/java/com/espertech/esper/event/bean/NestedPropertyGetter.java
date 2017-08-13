@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
@@ -113,7 +114,7 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         return localMethod(getBeanPropCodegen(context, true), underlyingExpression);
     }
 
-    private String getBeanPropCodegen(CodegenContext context, boolean exists) {
+    private CodegenMethodId getBeanPropCodegen(CodegenContext context, boolean exists) {
         CodegenBlock block = context.addMethod(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), this.getClass()).add(getterChain[0].getTargetType(), "value").begin();
         if (!exists) {
             block.ifRefNullReturnNull("value");

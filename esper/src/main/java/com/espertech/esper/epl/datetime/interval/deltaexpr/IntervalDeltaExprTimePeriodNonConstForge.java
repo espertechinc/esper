@@ -12,6 +12,7 @@ package com.espertech.esper.epl.datetime.interval.deltaexpr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.interval.IntervalDeltaExprEvaluator;
@@ -43,7 +44,7 @@ public class IntervalDeltaExprTimePeriodNonConstForge implements IntervalDeltaEx
     }
 
     public CodegenExpression codegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(long.class, IntervalDeltaExprTimePeriodNonConstForge.class).add(long.class, "reference").add(params).begin()
+        CodegenMethodId method = context.addMethod(long.class, IntervalDeltaExprTimePeriodNonConstForge.class).add(long.class, "reference").add(params).begin()
                 .declareVar(double.class, "sec", timePeriod.evaluateAsSecondsCodegen(params, context))
                 .methodReturn(timeAbacus.deltaForSecondsDoubleCodegen(ref("sec"), context));
         return localMethodBuild(method).pass(reference).passAll(params).call();

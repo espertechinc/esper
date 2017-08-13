@@ -13,20 +13,20 @@ package com.espertech.esper.codegen.core;
 import java.util.Set;
 
 public class CodegenMember {
-    private final String memberName;
+    private final CodegenMemberId memberId;
     private final Class clazz;
     private final Class optionalTypeParam;
     private final Object object;
 
-    protected CodegenMember(String memberName, Class clazz, Object object) {
-        this.memberName = memberName;
+    protected CodegenMember(CodegenMemberId memberId, Class clazz, Object object) {
+        this.memberId = memberId;
         this.clazz = clazz;
         this.optionalTypeParam = null;
         this.object = object;
     }
 
-    protected CodegenMember(String memberName, Class clazz, Class optionalTypeParam, Object object) {
-        this.memberName = memberName;
+    protected CodegenMember(CodegenMemberId memberId, Class clazz, Class optionalTypeParam, Object object) {
+        this.memberId = memberId;
         this.clazz = clazz;
         this.optionalTypeParam = optionalTypeParam;
         this.object = object;
@@ -40,8 +40,8 @@ public class CodegenMember {
         return optionalTypeParam;
     }
 
-    public String getMemberName() {
-        return memberName;
+    public CodegenMemberId getMemberId() {
+        return memberId;
     }
 
     public Object getObject() {
@@ -54,11 +54,11 @@ public class CodegenMember {
 
         CodegenMember that = (CodegenMember) o;
 
-        return memberName.equals(that.memberName);
+        return memberId.equals(that.memberId);
     }
 
     public int hashCode() {
-        return memberName.hashCode();
+        return memberId.hashCode();
     }
 
     public void mergeClasses(Set<Class> classes) {

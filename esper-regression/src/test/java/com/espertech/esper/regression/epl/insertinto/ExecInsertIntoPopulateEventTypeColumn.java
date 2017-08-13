@@ -19,6 +19,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
+import com.espertech.esper.util.EventRepresentationChoice;
 import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 
 import java.util.Collections;
@@ -36,7 +37,8 @@ public class ExecInsertIntoPopulateEventTypeColumn implements RegressionExecutio
         runAssertionTypableSubquery(epService);
         runAssertionEnumerationSubquery(epService);
         runAssertionTypableNewOperatorDocSample(epService);
-        runAssertionTypableAndCaseNew(epService);
+        runAssertionTypableAndCaseNew(epService, EventRepresentationChoice.MAP);
+        runAssertionTypableAndCaseNew(epService, EventRepresentationChoice.ARRAY);
         runAssertionInvalid(epService);
     }
 
@@ -75,9 +77,9 @@ public class ExecInsertIntoPopulateEventTypeColumn implements RegressionExecutio
         tryAssertionTypableNewOperatorDocSample(epService, "map");
     }
 
-    private void runAssertionTypableAndCaseNew(EPServiceProvider epService) {
-        epService.getEPAdministrator().createEPL("create objectarray schema Nested(p0 string, p1 int)");
-        epService.getEPAdministrator().createEPL("create objectarray schema OuterType(n0 Nested)");
+    private void runAssertionTypableAndCaseNew(EPServiceProvider epService, EventRepresentationChoice representation) {
+        epService.getEPAdministrator().createEPL("create " + representation.getOutputTypeCreateSchemaName() + " schema Nested(p0 string, p1 int)");
+        epService.getEPAdministrator().createEPL("create " + representation.getOutputTypeCreateSchemaName() + " schema OuterType(n0 Nested)");
 
         String[] fields = "n0.p0,n0.p1".split(",");
         epService.getEPAdministrator().createEPL("@Name('out') " +

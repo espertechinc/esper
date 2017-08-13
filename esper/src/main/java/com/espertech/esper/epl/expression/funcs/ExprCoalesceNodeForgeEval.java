@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.funcs;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -68,7 +69,7 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
         }
         CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprCoalesceNodeForgeEval.class).add(params).begin();
         int num = 0;
-        String method = null;
+        CodegenMethodId method = null;
         for (ExprNode node : forge.getForgeRenderable().getChildNodes()) {
             if (node.getForge().getEvaluationType() != null) {
                 String refname = "v" + num;

@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -67,14 +68,14 @@ public class ObjectArrayFragmentArrayPropertyGetter implements ObjectArrayEventP
         return BaseNestableEventUtil.getBNFragmentArray(value, fragmentEventType, eventAdapterService);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentEventType);
         return context.addMethod(Object.class, this.getClass()).add(Object[].class, "oa").begin()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("oa"), context))
                 .ifInstanceOf("value", EventBean[].class)
                     .blockReturn(ref("value"))
-                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNFragmentArray", ref("value"), ref(mType.getMemberName()), ref(mSvc.getMemberName())));
+                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNFragmentArray", ref("value"), member(mType.getMemberId()), member(mSvc.getMemberId())));
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {

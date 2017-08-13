@@ -11,33 +11,40 @@
 package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
+import com.espertech.esper.epl.table.mgmt.TableMetadataInternalEventToPublic;
 import com.espertech.esper.event.DecoratingEventBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.espertech.esper.event.EventPropertyGetterSPI;
+import com.espertech.esper.event.EventTypeSPI;
 
 import java.util.List;
 import java.util.Map;
 
-public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
-    private static final Logger log = LoggerFactory.getLogger(EvalSelectStreamWUnderlying.class);
+public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap implements SelectExprProcessor {
 
     private final List<SelectExprStreamDesc> unnamedStreams;
     private final boolean singleStreamWrapper;
     private final boolean underlyingIsFragmentEvent;
     private final int underlyingStreamNumber;
-    private final EventPropertyGetter underlyingPropertyEventGetter;
-    private final ExprEvaluator underlyingExprEvaluator;
+    private final EventPropertyGetterSPI underlyingPropertyEventGetter;
+    private final ExprForge underlyingExprForge;
     private final TableMetadata tableMetadata;
+    private final EventType[] eventTypes;
 
-    public EvalSelectStreamWUnderlying(SelectExprContext selectExprContext,
+    public EvalSelectStreamWUnderlying(SelectExprForgeContext selectExprForgeContext,
                                        EventType resultEventType,
                                        List<SelectClauseStreamCompiledSpec> namedStreams,
                                        boolean usingWildcard,
@@ -45,17 +52,19 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
                                        boolean singleStreamWrapper,
                                        boolean underlyingIsFragmentEvent,
                                        int underlyingStreamNumber,
-                                       EventPropertyGetter underlyingPropertyEventGetter,
-                                       ExprEvaluator underlyingExprEvaluator,
-                                       TableMetadata tableMetadata) {
-        super(selectExprContext, resultEventType, namedStreams, usingWildcard);
+                                       EventPropertyGetterSPI underlyingPropertyEventGetter,
+                                       ExprForge underlyingExprForge,
+                                       TableMetadata tableMetadata,
+                                       EventType[] eventTypes) {
+        super(selectExprForgeContext, resultEventType, namedStreams, usingWildcard);
         this.unnamedStreams = unnamedStreams;
         this.singleStreamWrapper = singleStreamWrapper;
         this.underlyingIsFragmentEvent = underlyingIsFragmentEvent;
         this.underlyingStreamNumber = underlyingStreamNumber;
         this.underlyingPropertyEventGetter = underlyingPropertyEventGetter;
-        this.underlyingExprEvaluator = underlyingExprEvaluator;
+        this.underlyingExprForge = underlyingExprForge;
         this.tableMetadata = tableMetadata;
+        this.eventTypes = eventTypes;
     }
 
     public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -76,12 +85,12 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
         } else if (underlyingPropertyEventGetter != null) {
             Object value = underlyingPropertyEventGetter.get(eventsPerStream[underlyingStreamNumber]);
             if (value != null) {
-                theEvent = super.getSelectExprContext().getEventAdapterService().adapterForBean(value);
+                theEvent = super.getContext().getEventAdapterService().adapterForBean(value);
             }
-        } else if (underlyingExprEvaluator != null) {
-            Object value = underlyingExprEvaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
+        } else if (underlyingExprForge != null) {
+            Object value = underlyingExprForge.getExprEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
             if (value != null) {
-                theEvent = super.getSelectExprContext().getEventAdapterService().adapterForBean(value);
+                theEvent = super.getContext().getEventAdapterService().adapterForBean(value);
             }
         } else {
             theEvent = eventsPerStream[underlyingStreamNumber];
@@ -92,6 +101,44 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
 
         // Using a wrapper bean since we cannot use the same event type else same-type filters match.
         // Wrapping it even when not adding properties is very inexpensive.
-        return super.getSelectExprContext().getEventAdapterService().adapterForTypedWrapper(theEvent, props, super.getResultEventType());
+        return super.getContext().getEventAdapterService().adapterForTypedWrapper(theEvent, props, super.getResultEventType());
+    }
+
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetExprPremade params, CodegenContext context) {
+        CodegenBlock block = context.addMethod(EventBean.class, EvalSelectStreamWUnderlying.class).add(Map.class, "props").add(params).begin();
+        if (singleStreamWrapper) {
+            block.declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, arrayAtIndex(params.passEPS(), constant(0))))
+                    .ifRefNotNull("wrapper")
+                    .exprDotMethod(props, "putAll", exprDotMethod(ref("wrapper"), "getDecoratingProperties"))
+                    .blockEnd();
+        }
+
+        if (underlyingIsFragmentEvent) {
+            CodegenExpression fragment = ((EventTypeSPI) eventTypes[underlyingStreamNumber]).getGetterSPI(unnamedStreams.get(0).getStreamSelected().getStreamName()).eventBeanFragmentCodegen(ref("eventBean"), context);
+            block.declareVar(EventBean.class, "eventBean", arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)))
+                    .declareVar(EventBean.class, "theEvent", cast(EventBean.class, fragment));
+        } else if (underlyingPropertyEventGetter != null) {
+            block.declareVar(EventBean.class, "theEvent", constantNull())
+                    .declareVar(Object.class, "value", underlyingPropertyEventGetter.eventBeanGetCodegen(arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)), context))
+                    .ifRefNotNull("value")
+                    .assignRef("theEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("value")))
+                    .blockEnd();
+        } else if (underlyingExprForge != null) {
+            block.declareVar(EventBean.class, "theEvent", constantNull())
+                    .declareVar(Object.class, "value", underlyingExprForge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+                    .ifRefNotNull("value")
+                    .assignRef("theEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("value")))
+                    .blockEnd();
+        } else {
+            block.declareVar(EventBean.class, "theEvent", arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)));
+            if (tableMetadata != null) {
+                CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
+                block.ifRefNotNull("theEvent")
+                        .assignRef("theEvent", exprDotMethod(member(eventToPublic.getMemberId()), "convert", ref("theEvent"), params.passEPS(), params.passIsNewData(), params.passEvalCtx()))
+                        .blockEnd();
+            }
+        }
+        CodegenMethodId method = block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", ref("theEvent"), ref("props"), member(memberResultEventType.getMemberId())));
+        return localMethodBuild(method).pass(props).passAll(params).call();
     }
 }

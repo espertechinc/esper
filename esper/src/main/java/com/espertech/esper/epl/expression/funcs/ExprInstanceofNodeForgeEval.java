@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
@@ -83,7 +84,7 @@ public class ExprInstanceofNodeForgeEval implements ExprEvaluator {
         CodegenBlock block = context.addMethod(Boolean.class, ExprInstanceofNodeForgeEval.class).add(params).begin()
                 .declareVar(Object.class, "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(params, context))
                 .ifRefNullReturnFalse("result");
-        String method = block.methodReturn(staticMethod(ExprInstanceofNodeForgeEval.class, "instanceofCacheCheckOrAdd", ref(mClasses.getMemberName()), ref(mCache.getMemberName()), ref("result")));
+        CodegenMethodId method = block.methodReturn(staticMethod(ExprInstanceofNodeForgeEval.class, "instanceofCacheCheckOrAdd", member(mClasses.getMemberId()), member(mCache.getMemberId()), ref("result")));
         return localMethodBuild(method).passAll(params).call();
     }
 

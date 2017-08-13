@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -68,7 +69,7 @@ public class PropertyDotScalarArrayForge implements ExprEnumerationEval, ExprEnu
     }
 
     public CodegenExpression codegenEvaluateEventGetROCollectionScalar(CodegenExpression event, CodegenExpression evalctx, CodegenContext context) {
-        String method = context.addMethod(Collection.class, PropertyDotScalarArrayForge.class).add(EventBean.class, "event").add(ExprEvaluatorContext.class, "context").begin()
+        CodegenMethodId method = context.addMethod(Collection.class, PropertyDotScalarArrayForge.class).add(EventBean.class, "event").add(ExprEvaluatorContext.class, "context").begin()
                 .ifRefNullReturnNull("event")
                 .methodReturn(codegenEvaluateGetInternal(ref("event"), context));
         return localMethodBuild(method).pass(event).pass(evalctx).call();
@@ -137,7 +138,7 @@ public class PropertyDotScalarArrayForge implements ExprEnumerationEval, ExprEnu
         CodegenBlock block = context.addMethod(Collection.class, PropertyDotScalarArrayForge.class).add(EventBean.class, "event").begin()
                 .declareVar(getterReturnType, "value", CodegenLegoCast.castSafeFromObjectType(getterReturnType, getter.eventBeanGetCodegen(ref("event"), context)))
                 .ifRefNullReturnNull("value");
-        String method;
+        CodegenMethodId method;
         if (componentType.isPrimitive()) {
             method = block.methodReturn(newInstance(ArrayWrappingCollection.class, ref("value")));
         } else {

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.index.quadtree;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -150,7 +151,7 @@ public class EngineImportApplicationDotMethodPointInsideRectange extends EngineI
             CodegenLegoCast.asDoubleNullReturnNull(block, "y", forge.yEval, params, context);
             CodegenLegoCast.asDoubleNullReturnNull(block, "width", forge.widthEval, params, context);
             CodegenLegoCast.asDoubleNullReturnNull(block, "height", forge.heightEval, params, context);
-            String method = block.methodReturn(staticMethod(BoundingBox.class, "containsPoint", ref("x"), ref("y"), ref("width"), ref("height"), ref("px"), ref("py")));
+            CodegenMethodId method = block.methodReturn(staticMethod(BoundingBox.class, "containsPoint", ref("x"), ref("y"), ref("width"), ref("height"), ref("px"), ref("py")));
             return localMethodBuild(method).passAll(params).call();
         }
 

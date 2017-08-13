@@ -13,6 +13,7 @@ package com.espertech.esper.epl.script;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.enummethod.dot.ArrayWrappingCollection;
@@ -102,7 +103,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Collection.class, ExprNodeScriptEvalBase.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, ExprNodeScriptEvalBase.class).add(params).begin()
                 .declareVar(Object.class, "result", evaluateCodegen(params, context))
                 .ifRefNullReturnNull("result")
                 .methodReturn(newInstance(ArrayWrappingCollection.class, ref("result")));

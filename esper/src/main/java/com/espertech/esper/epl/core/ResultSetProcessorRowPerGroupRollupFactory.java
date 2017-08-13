@@ -27,6 +27,7 @@ import com.espertech.esper.epl.view.OutputConditionPolledFactory;
  * and there are aggregation functions.
  */
 public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProcessorFactory {
+    private final EventType resultEventType;
     private final GroupByRollupPerLevelExpression perLevelExpression;
     private final ExprNode[] groupKeyNodeExpressions;
     private final ExprEvaluator groupKeyNode;
@@ -44,7 +45,8 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     private final boolean enableOutputLimitOpt;
     private final int numStreams;
 
-    public ResultSetProcessorRowPerGroupRollupFactory(GroupByRollupPerLevelExpression perLevelExpression,
+    public ResultSetProcessorRowPerGroupRollupFactory(EventType resultEventType,
+                                                      GroupByRollupPerLevelExpression perLevelExpression,
                                                       ExprNode[] groupKeyNodeExpressions,
                                                       ExprEvaluator[] groupKeyNodes,
                                                       boolean isSelectRStream,
@@ -60,6 +62,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
                                                       ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
                                                       boolean enableOutputLimitOpt,
                                                       int numStreams) {
+        this.resultEventType = resultEventType;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelExpression = perLevelExpression;
         this.groupKeyNodes = groupKeyNodes;
@@ -90,7 +93,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     }
 
     public EventType getResultEventType() {
-        return perLevelExpression.getSelectExprProcessor()[0].getResultEventType();
+        return resultEventType;
     }
 
     public boolean hasAggregation() {

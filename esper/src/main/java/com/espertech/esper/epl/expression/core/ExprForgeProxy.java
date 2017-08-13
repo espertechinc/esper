@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.JavaClassHelper;
@@ -71,7 +72,7 @@ public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
                     return forge.evaluateCodegen(premade, context);
                 }
                 CodegenBlock block = context.addMethod(evaluationType, ExprForgeProxy.class).add(CodegenParamSetExprPremade.INSTANCE).begin();
-                String method;
+                CodegenMethodId method;
                 if (evaluationType == void.class) {
                     method = block.expression(forge.evaluateCodegen(premade, context))
                             .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))

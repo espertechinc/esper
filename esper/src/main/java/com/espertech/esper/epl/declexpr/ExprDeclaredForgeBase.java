@@ -16,6 +16,7 @@ import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.service.ExpressionResultCacheEntryEventBeanArrayAndCollBean;
@@ -148,7 +149,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         if (!audit) {
             return evaluateCodegenNoAudit(params, context);
         }
-        String method = context.addMethod(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class).add(params).begin()
                 .declareVar(innerForge.getEvaluationType(), "result", evaluateCodegenNoAudit(params, context))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                 .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(parent.getPrototype().getName() + " result "), "+", ref("result"))))
@@ -163,11 +164,11 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
                 .assignRef(params.EPS_NAME, codegenEventsPerStreamRewritten(params.passEPS(), context));
         if (isCache) {
             block.declareVar(ExpressionResultCacheForDeclaredExprLastValue.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastValue"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndObj.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastValue", ref(prototype.getMemberName()), params.passEPS()))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndObj.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastValue", member(prototype.getMemberId()), params.passEPS()))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(cast(JavaClassHelper.getBoxedType(innerForge.getEvaluationType()), exprDotMethod(ref("entry"), "getResult")))
                     .declareVar(innerForge.getEvaluationType(), "result", innerForge.evaluateCodegen(params, context))
-                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastValue", ref(prototype.getMemberName()), params.passEPS(), ref("result")));
+                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastValue", member(prototype.getMemberId()), params.passEPS(), ref("result")));
         } else {
             block.declareVar(innerForge.getEvaluationType(), "result", innerForge.evaluateCodegen(params, context));
         }
@@ -204,11 +205,11 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
                 .assignRef(params.EPS_NAME, codegenEventsPerStreamRewritten(params.passEPS(), context));
         if (isCache) {
             block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", ref(prototype.getMemberName()), params.passEPS()))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS()))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(exprDotMethod(ref("entry"), "getResult"))
                     .declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionEventsCodegen(params, context))
-                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", ref(prototype.getMemberName()), params.passEPS(), ref("result")));
+                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS(), ref("result")));
         } else {
             block.declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionEventsCodegen(params, context));
         }
@@ -245,11 +246,11 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
                 .assignRef(params.EPS_NAME, codegenEventsPerStreamRewritten(params.passEPS(), context));
         if (isCache) {
             block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", ref(prototype.getMemberName()), params.passEPS()))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS()))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(exprDotMethod(ref("entry"), "getResult"))
                     .declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionScalarCodegen(params, context))
-                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", ref(prototype.getMemberName()), params.passEPS(), ref("result")));
+                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS(), ref("result")));
         } else {
             block.declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionScalarCodegen(params, context));
         }

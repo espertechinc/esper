@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -54,7 +55,7 @@ public class EnumIntersectForgeEval implements EnumEval {
         } else {
             block.declareVar(Collection.class, "other", forge.evaluatorForge.evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade.INSTANCE, context));
         }
-        String method = block.methodReturn(staticMethod(EnumIntersectForgeEval.class, "enumIntersectForgeEvalSet", ref("other"), premade.enumcoll(), constant(forge.scalar)));
+        CodegenMethodId method = block.methodReturn(staticMethod(EnumIntersectForgeEval.class, "enumIntersectForgeEvalSet", ref("other"), premade.enumcoll(), constant(forge.scalar)));
         return localMethodBuild(method).passAll(args).call();
     }
 

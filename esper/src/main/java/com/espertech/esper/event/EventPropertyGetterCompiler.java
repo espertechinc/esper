@@ -8,20 +8,19 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.compile;
+package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventPropertyGetterIndexed;
 import com.espertech.esper.client.EventPropertyGetterMapped;
+import com.espertech.esper.codegen.compile.CodegenClassGenerator;
+import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.core.*;
 import com.espertech.esper.codegen.model.method.CodegenParamSet;
 import com.espertech.esper.codegen.model.method.CodegenParamSetMulti;
 import com.espertech.esper.codegen.model.method.CodegenParamSetSingle;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
-import com.espertech.esper.event.EventPropertyGetterMappedSPI;
-import com.espertech.esper.event.EventPropertyGetterSPI;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,8 +29,7 @@ import java.util.function.Supplier;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
-public class CodegenEventPropertyGetter {
-
+public class EventPropertyGetterCompiler {
     private final static CodegenMethodFootprint GETTER_GET_FP;
     private final static CodegenMethodFootprint GETTER_EXISTS_FP;
     private final static CodegenMethodFootprint GETTER_FRAGMENT_FP;
@@ -40,15 +38,15 @@ public class CodegenEventPropertyGetter {
 
     static {
         List<CodegenParamSet> paramsGetSimple = Collections.<CodegenParamSet>singletonList(new CodegenParamSetSingle(new CodegenNamedParam(EventBean.class, "bean")));
-        GETTER_GET_FP = new CodegenMethodFootprint(Object.class, "get", paramsGetSimple, null);
-        GETTER_EXISTS_FP = new CodegenMethodFootprint(boolean.class, "isExistsProperty", paramsGetSimple, null);
-        GETTER_FRAGMENT_FP = new CodegenMethodFootprint(Object.class, "getFragment", paramsGetSimple, null);
+        GETTER_GET_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("get"), paramsGetSimple, null);
+        GETTER_EXISTS_FP = new CodegenMethodFootprint(boolean.class, new CodegenMethodId("isExistsProperty"), paramsGetSimple, null);
+        GETTER_FRAGMENT_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("getFragment"), paramsGetSimple, null);
 
         List<CodegenParamSet> paramsGetIndexed = Collections.<CodegenParamSet>singletonList(new CodegenParamSetMulti(Arrays.asList(new CodegenNamedParam(EventBean.class, "bean"), new CodegenNamedParam(int.class, "index"))));
-        GETTER_GET_INDEXED_FP = new CodegenMethodFootprint(Object.class, "get", paramsGetIndexed, null);
+        GETTER_GET_INDEXED_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("get"), paramsGetIndexed, null);
 
         List<CodegenParamSet> paramsGetMapped = Collections.<CodegenParamSet>singletonList(new CodegenParamSetMulti(Arrays.asList(new CodegenNamedParam(EventBean.class, "bean"), new CodegenNamedParam(String.class, "key"))));
-        GETTER_GET_MAPPED_FP = new CodegenMethodFootprint(Object.class, "get", paramsGetMapped, null);
+        GETTER_GET_MAPPED_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("get"), paramsGetMapped, null);
     }
 
     public static EventPropertyGetter compile(String engineURI, EngineImportService engineImportService, EventPropertyGetterSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {

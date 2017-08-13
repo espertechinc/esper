@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.funcs;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCompareEquals;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
@@ -101,7 +102,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
             num++;
         }
 
-        String method;
+        CodegenMethodId method;
         if (forge.getOptionalElseExprNode() != null) {
             method = block.methodReturn(codegenToType(forge, forge.getOptionalElseExprNode(), context, params));
         } else {
@@ -149,7 +150,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         if (!rhsType.isPrimitive()) {
             block.ifCondition(equalsNull(ref("rightResult"))).blockReturn(constantFalse());
         }
-        String method;
+        CodegenMethodId method;
         if (!forge.isMustCoerce()) {
             method = block.methodReturn(CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(ref("leftResult"), lhsType, ref("rightResult"), rhsType));
         } else {

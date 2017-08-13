@@ -11,18 +11,24 @@
 package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprForge;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.TypeWidener;
 
-public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator {
-    private final ExprEvaluator eval;
-    private final TypeWidener widener;
+import java.io.StringWriter;
 
-    public SelectExprProcessorEvalAvroArrayCoercer(ExprForge forge, TypeWidener widener) {
-        this.eval = forge.getExprEvaluator();
+public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator, ExprForge, ExprNodeRenderable {
+    private final ExprForge forge;
+    private final TypeWidener widener;
+    private final Class resultType;
+    private ExprEvaluator eval;
+
+    public SelectExprProcessorEvalAvroArrayCoercer(ExprForge forge, TypeWidener widener, Class resultType) {
+        this.forge = forge;
         this.widener = widener;
+        this.resultType = resultType;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -30,4 +36,28 @@ public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator {
         return widener.widen(result);
     }
 
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        return widener.widenCodegen(forge.evaluateCodegen(params, context), context);
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        this.eval = forge.getExprEvaluator();
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return resultType;
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.INTER;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        writer.append(this.getClass().getSimpleName());
+    }
 }

@@ -42,7 +42,7 @@ public class VAERevisionEventPropertyGetterMerge implements EventPropertyGetterS
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
         CodegenMember member = context.makeAddMember(RevisionGetterParameters.class, parameters);
-        return exprDotMethod(cast(RevisionEventBeanMerge.class, beanExpression), "getVersionedValue", ref(member.getMemberName()));
+        return exprDotMethod(cast(RevisionEventBeanMerge.class, beanExpression), "getVersionedValue", member(member.getMemberId()));
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {

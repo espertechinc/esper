@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -69,8 +70,8 @@ public class EnumAverageBigDecimalScalarLambdaForgeEval implements EnumEval {
         CodegenMember mathCtxMember = context.makeAddMember(MathContext.class, forge.optionalMathContext);
 
         CodegenBlock block = context.addMethod(BigDecimal.class, EnumAverageBigDecimalScalarLambdaForgeEval.class).add(premade).begin()
-                .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, ref(mathCtxMember.getMemberName())))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(typeMember.getMemberName())))
+                .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, member(mathCtxMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
@@ -81,7 +82,7 @@ public class EnumAverageBigDecimalScalarLambdaForgeEval implements EnumEval {
             forEach.ifRefNull("num").blockContinue();
         }
         forEach.expression(exprDotMethod(ref("agg"), "enter", ref("num")));
-        String method = block.methodReturn(exprDotMethod(ref("agg"), "getValue"));
+        CodegenMethodId method = block.methodReturn(exprDotMethod(ref("agg"), "getValue"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

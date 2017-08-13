@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -341,7 +342,7 @@ public class ExprRelationalOpAllAnyNodeForgeEval implements ExprEvaluator {
         if (!valueLeftType.isPrimitive()) {
             block.ifRefNullReturnNull("valueLeft");
         }
-        String method = block.methodReturn(constant(isAll));
+        CodegenMethodId method = block.methodReturn(constant(isAll));
         return localMethodBuild(method).passAll(params).call();
     }
 }

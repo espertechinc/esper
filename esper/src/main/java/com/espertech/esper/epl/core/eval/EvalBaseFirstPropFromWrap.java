@@ -16,8 +16,8 @@ public abstract class EvalBaseFirstPropFromWrap extends EvalBaseFirstProp {
 
     protected final WrapperEventType wrapper;
 
-    public EvalBaseFirstPropFromWrap(SelectExprContext selectExprContext, WrapperEventType wrapper) {
-        super(selectExprContext, wrapper);
+    public EvalBaseFirstPropFromWrap(SelectExprForgeContext selectExprForgeContext, WrapperEventType wrapper) {
+        super(selectExprForgeContext, wrapper);
         this.wrapper = wrapper;
     }
 }

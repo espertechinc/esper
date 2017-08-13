@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -99,7 +100,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
             block.compoundAssignment("sum", "+", cast(Double.class, value));
         }
 
-        public String codegenReturn(CodegenBlock block) {
+        public CodegenMethodId codegenReturn(CodegenBlock block) {
             return codegenReturnSumOrNull(block);
         }
     }
@@ -154,7 +155,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
                     .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(BigDecimal.class, value)));
         }
 
-        public String codegenReturn(CodegenBlock block) {
+        public CodegenMethodId codegenReturn(CodegenBlock block) {
             return codegenReturnSumOrNull(block);
         }
     }
@@ -213,7 +214,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
                     .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(BigInteger.class, value)));
         }
 
-        public String codegenReturn(CodegenBlock block) {
+        public CodegenMethodId codegenReturn(CodegenBlock block) {
             return codegenReturnSumOrNull(block);
         }
     }
@@ -272,7 +273,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
             block.compoundAssignment("sum", "+", cast(Long.class, value));
         }
 
-        public String codegenReturn(CodegenBlock block) {
+        public CodegenMethodId codegenReturn(CodegenBlock block) {
             return codegenReturnSumOrNull(block);
         }
     }
@@ -327,7 +328,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
             block.compoundAssignment("sum", "+", cast(Integer.class, value));
         }
 
-        public String codegenReturn(CodegenBlock block) {
+        public CodegenMethodId codegenReturn(CodegenBlock block) {
             return codegenReturnSumOrNull(block);
         }
     }
@@ -352,7 +353,7 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
         }
     }
 
-    private static String codegenReturnSumOrNull(CodegenBlock block) {
+    private static CodegenMethodId codegenReturnSumOrNull(CodegenBlock block) {
         return block.ifCondition(equalsIdentity(ref("cnt"), constant(0)))
                 .blockReturn(constantNull())
                 .methodReturn(ref("sum"));

@@ -16,6 +16,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -290,8 +291,8 @@ public class ExprDotNodeUtility {
                 }
             }
         }
-        String methodName = lastType == void.class ? block.methodEnd() : block.methodReturn(ref(refname));
-        return localMethodBuild(methodName).pass(inner).passAll(params).call();
+        CodegenMethodId method = lastType == void.class ? block.methodEnd() : block.methodReturn(ref(refname));
+        return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 
 

@@ -12,9 +12,9 @@ package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.avro.writer.AvroRecastFactory;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
-import com.espertech.esper.epl.core.eval.SelectExprContext;
+import com.espertech.esper.epl.core.eval.SelectExprForgeContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -23,15 +23,15 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 
 public class SelectExprProcessorRepresentationFactoryAvro implements SelectExprProcessorRepresentationFactory {
-    public SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, ExprForge[] exprForges, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException {
-        return new EvalSelectNoWildcardAvro(selectExprContext, exprForges, resultEventType, statementName, engineURI);
+    public SelectExprProcessorForge makeSelectNoWildcard(SelectExprForgeContext selectExprForgeContext, ExprForge[] exprForges, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException {
+        return new EvalSelectNoWildcardAvro(selectExprForgeContext, exprForges, resultEventType, statementName, engineURI);
     }
 
-    public SelectExprProcessor makeRecast(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, String statementName, String engineURI) throws ExprValidationException {
-        return AvroRecastFactory.make(eventTypes, selectExprContext, streamNumber, insertIntoTargetType, exprNodes, statementName, engineURI);
+    public SelectExprProcessorForge makeRecast(EventType[] eventTypes, SelectExprForgeContext selectExprForgeContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, String statementName, String engineURI) throws ExprValidationException {
+        return AvroRecastFactory.make(eventTypes, selectExprForgeContext, streamNumber, insertIntoTargetType, exprNodes, statementName, engineURI);
     }
 
-    public SelectExprProcessor makeJoinWildcard(String[] streamNames, EventType resultEventType, EventAdapterService eventAdapterService) {
+    public SelectExprProcessorForge makeJoinWildcard(String[] streamNames, EventType resultEventType, EventAdapterService eventAdapterService) {
         return new SelectExprJoinWildcardProcessorAvro(resultEventType, eventAdapterService);
     }
 }

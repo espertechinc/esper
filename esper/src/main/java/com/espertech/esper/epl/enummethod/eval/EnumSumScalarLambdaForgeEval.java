@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -63,7 +64,7 @@ public class EnumSumScalarLambdaForgeEval implements EnumEval {
         CodegenMember resultTypeMember = context.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
 
         forge.sumMethodFactory.codegenDeclare(block);
-        block.declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(resultTypeMember.getMemberName())))
+        block.declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
@@ -75,7 +76,7 @@ public class EnumSumScalarLambdaForgeEval implements EnumEval {
         }
         forge.sumMethodFactory.codegenEnterNumberTypedNonNull(forEach, ref("value"));
 
-        String method = forge.sumMethodFactory.codegenReturn(block);
+        CodegenMethodId method = forge.sumMethodFactory.codegenReturn(block);
         return localMethodBuild(method).passAll(args).call();
     }
 }

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
@@ -42,7 +43,7 @@ public class DTLocalCalOpsCalEval extends DTLocalEvaluatorCalOpsCalBase implemen
         CodegenBlock block = context.addMethod(Calendar.class, DTLocalCalOpsCalEval.class).add(Calendar.class, "target").add(params).begin()
                 .declareVar(Calendar.class, "cal", cast(Calendar.class, exprDotMethod(ref("target"), "clone")));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), params, context);
-        String method = block.methodReturn(ref("cal"));
+        CodegenMethodId method = block.methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 }

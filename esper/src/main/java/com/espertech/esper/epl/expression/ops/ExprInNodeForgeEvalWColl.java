@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCompareEquals;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -223,7 +224,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
         }
 
         block.ifCondition(ref("hasNullRow")).blockReturn(constantNull());
-        String method = block.methodReturn(isNot ? constantTrue() : constantFalse());
+        CodegenMethodId method = block.methodReturn(isNot ? constantTrue() : constantFalse());
         return localMethodBuild(method).passAll(params).call();
     }
 }

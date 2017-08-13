@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -46,9 +47,9 @@ public class ExprDotForgeUnpackBeanTable implements ExprDotForge, ExprDotEval {
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
         CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        String method = context.addMethod(Object[].class, ExprDotForgeUnpackBeanTable.class).add(EventBean.class, "target").add(params).begin()
+        CodegenMethodId method = context.addMethod(Object[].class, ExprDotForgeUnpackBeanTable.class).add(EventBean.class, "target").add(params).begin()
                 .ifRefNullReturnNull("target")
-                .methodReturn(exprDotMethod(ref(eventToPublic.getMemberName()), "convertToUnd", ref("target"), params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
+                .methodReturn(exprDotMethod(member(eventToPublic.getMemberId()), "convertToUnd", ref("target"), params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 

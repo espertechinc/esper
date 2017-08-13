@@ -14,8 +14,17 @@ import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import com.espertech.esper.epl.core.eval.SelectExprContext;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
+import com.espertech.esper.epl.core.eval.SelectExprForgeContext;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
@@ -30,20 +39,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 public class AvroRecastFactory {
 
-    public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType targetType, ExprNode[] exprNodes, String statementName, String engineURI)
+    public static SelectExprProcessorForge make(EventType[] eventTypes, SelectExprForgeContext selectExprForgeContext, int streamNumber, AvroSchemaEventType targetType, ExprNode[] exprNodes, String statementName, String engineURI)
             throws ExprValidationException {
         AvroEventType resultType = (AvroEventType) targetType;
         AvroEventType streamType = (AvroEventType) eventTypes[streamNumber];
 
         // (A) fully assignment-compatible: same number, name and type of fields, no additional expressions: Straight repackage
-        if (resultType.getSchema().equals(streamType.getSchema()) && selectExprContext.getExpressionNodes().length == 0) {
-            return new AvroInsertProcessorSimpleRepackage(selectExprContext, streamNumber, targetType);
+        if (resultType.getSchema().equals(streamType.getSchema()) && selectExprForgeContext.getExprForges().length == 0) {
+            return new AvroInsertProcessorSimpleRepackage(selectExprForgeContext, streamNumber, targetType);
         }
 
         // (B) not completely assignable: find matching properties
-        Set<WriteablePropertyDescriptor> writables = selectExprContext.getEventAdapterService().getWriteableProperties(resultType, true);
+        Set<WriteablePropertyDescriptor> writables = selectExprForgeContext.getEventAdapterService().getWriteableProperties(resultType, true);
         List<Item> items = new ArrayList<Item>();
         List<WriteablePropertyDescriptor> written = new ArrayList<WriteablePropertyDescriptor>();
 
@@ -70,10 +81,9 @@ public class AvroRecastFactory {
         }
 
         // find the properties coming from the expressions of the select clause
-        TypeWidenerCustomizer typeWidenerCustomizer = selectExprContext.getEventAdapterService().getTypeWidenerCustomizer(targetType);
-        for (int i = 0; i < selectExprContext.getExpressionNodes().length; i++) {
-            String columnName = selectExprContext.getColumnNames()[i];
-            ExprEvaluator evaluator = selectExprContext.getExpressionNodes()[i];
+        TypeWidenerCustomizer typeWidenerCustomizer = selectExprForgeContext.getEventAdapterService().getTypeWidenerCustomizer(targetType);
+        for (int i = 0; i < selectExprForgeContext.getExprForges().length; i++) {
+            String columnName = selectExprForgeContext.getColumnNames()[i];
             ExprNode exprNode = exprNodes[i];
 
             WriteablePropertyDescriptor writable = findWritable(columnName, writables);
@@ -84,13 +94,13 @@ public class AvroRecastFactory {
 
             TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
                     writable.getType(), columnName, false, typeWidenerCustomizer, statementName, engineURI);
-            items.add(new Item(resultTypeField.pos(), -1, evaluator, widener));
+            items.add(new Item(resultTypeField.pos(), -1, exprNode.getForge(), widener));
             written.add(writable);
         }
 
         // make manufacturer
         Item[] itemsArr = items.toArray(new Item[items.size()]);
-        return new AvroInsertProcessorAllocate(streamNumber, itemsArr, resultType, resultType.getSchemaAvro(), selectExprContext.getEventAdapterService());
+        return new AvroInsertProcessorAllocate(streamNumber, itemsArr, resultType, resultType.getSchemaAvro(), selectExprForgeContext.getEventAdapterService());
     }
 
     private static WriteablePropertyDescriptor findWritable(String columnName, Set<WriteablePropertyDescriptor> writables) {
@@ -102,13 +112,13 @@ public class AvroRecastFactory {
         return null;
     }
 
-    private static class AvroInsertProcessorSimpleRepackage implements SelectExprProcessor {
-        private final SelectExprContext selectExprContext;
+    private static class AvroInsertProcessorSimpleRepackage implements SelectExprProcessor, SelectExprProcessorForge {
+        private final SelectExprForgeContext selectExprForgeContext;
         private final int underlyingStreamNumber;
         private final EventType resultType;
 
-        private AvroInsertProcessorSimpleRepackage(SelectExprContext selectExprContext, int underlyingStreamNumber, EventType resultType) {
-            this.selectExprContext = selectExprContext;
+        private AvroInsertProcessorSimpleRepackage(SelectExprForgeContext selectExprForgeContext, int underlyingStreamNumber, EventType resultType) {
+            this.selectExprForgeContext = selectExprForgeContext;
             this.underlyingStreamNumber = underlyingStreamNumber;
             this.resultType = resultType;
         }
@@ -119,11 +129,20 @@ public class AvroRecastFactory {
 
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
             AvroGenericDataBackedEventBean theEvent = (AvroGenericDataBackedEventBean) eventsPerStream[underlyingStreamNumber];
-            return selectExprContext.getEventAdapterService().adapterForTypedAvro(theEvent.getProperties(), resultType);
+            return selectExprForgeContext.getEventAdapterService().adapterForTypedAvro(theEvent.getProperties(), resultType);
+        }
+
+        public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+            return this;
+        }
+
+        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+            CodegenExpression theEvent = cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)));
+            return exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", exprDotMethod(theEvent, "getProperties"), member(memberResultEventType.getMemberId()));
         }
     }
 
-    private static class AvroInsertProcessorAllocate implements SelectExprProcessor {
+    private static class AvroInsertProcessorAllocate implements SelectExprProcessor, SelectExprProcessorForge {
         private final int underlyingStreamNumber;
         private final Item[] items;
         private final EventType resultType;
@@ -142,9 +161,19 @@ public class AvroRecastFactory {
             return resultType;
         }
 
+        public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+            for (int i = 0; i < items.length; i++) {
+                if (items[i].getForge() != null) {
+                    items[i].setEvaluatorAssigned(ExprNodeCompiler.allocateEvaluator(items[i].forge, engineImportService, this.getClass(), isFireAndForget, statementName));
+                }
+            }
+            return this;
+        }
+
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
 
-            GenericData.Record source = ((AvroGenericDataBackedEventBean) eventsPerStream[underlyingStreamNumber]).getProperties();
+            AvroGenericDataBackedEventBean theEvent = (AvroGenericDataBackedEventBean) eventsPerStream[underlyingStreamNumber];
+            GenericData.Record source = theEvent.getProperties();
             GenericData.Record target = new GenericData.Record(resultSchema);
             for (Item item : items) {
                 Object value;
@@ -152,7 +181,7 @@ public class AvroRecastFactory {
                 if (item.getOptionalFromIndex() != -1) {
                     value = source.get(item.getOptionalFromIndex());
                 } else {
-                    value = item.getEvaluator().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+                    value = item.getEvaluatorAssigned().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                     if (item.getOptionalWidener() != null) {
                         value = item.getOptionalWidener().widen(value);
                     }
@@ -163,18 +192,42 @@ public class AvroRecastFactory {
 
             return eventAdapterService.adapterForTypedAvro(target, resultType);
         }
+
+        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+            CodegenMember schemaMember = context.makeAddMember(Schema.class, resultSchema);
+            CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
+                    .declareVar(AvroGenericDataBackedEventBean.class, "theEvent", cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber))))
+                    .declareVar(GenericData.Record.class, "source", exprDotMethod(ref("theEvent"), "getProperties"))
+                    .declareVar(GenericData.Record.class, "target", newInstance(GenericData.Record.class, member(schemaMember.getMemberId())));
+            for (Item item : items) {
+                CodegenExpression value;
+                if (item.getOptionalFromIndex() != -1) {
+                    value = exprDotMethod(ref("source"), "get", constant(item.getOptionalFromIndex()));
+                } else {
+                    value = item.forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+                    if (item.getOptionalWidener() != null) {
+                        value = item.getOptionalWidener().widenCodegen(value, context);
+                    }
+                }
+                block.exprDotMethod(ref("target"), "put", constant(item.getToIndex()), value);
+            }
+            CodegenMethodId method = block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", ref("target"), member(memberResultEventType.getMemberId())));
+            return localMethodBuild(method).passAll(params).call();
+        }
     }
 
     private static class Item {
         private final int toIndex;
         private final int optionalFromIndex;
-        private final ExprEvaluator evaluator;
+        private final ExprForge forge;
         private final TypeWidener optionalWidener;
 
-        private Item(int toIndex, int optionalFromIndex, ExprEvaluator evaluator, TypeWidener optionalWidener) {
+        private ExprEvaluator evaluatorAssigned;
+
+        private Item(int toIndex, int optionalFromIndex, ExprForge forge, TypeWidener optionalWidener) {
             this.toIndex = toIndex;
             this.optionalFromIndex = optionalFromIndex;
-            this.evaluator = evaluator;
+            this.forge = forge;
             this.optionalWidener = optionalWidener;
         }
 
@@ -186,12 +239,20 @@ public class AvroRecastFactory {
             return optionalFromIndex;
         }
 
-        public ExprEvaluator getEvaluator() {
-            return evaluator;
+        public ExprForge getForge() {
+            return forge;
         }
 
         public TypeWidener getOptionalWidener() {
             return optionalWidener;
+        }
+
+        public ExprEvaluator getEvaluatorAssigned() {
+            return evaluatorAssigned;
+        }
+
+        public void setEvaluatorAssigned(ExprEvaluator evaluatorAssigned) {
+            this.evaluatorAssigned = evaluatorAssigned;
         }
     }
 }

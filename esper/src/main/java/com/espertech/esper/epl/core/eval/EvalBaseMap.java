@@ -12,38 +12,80 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoMayVoid;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.util.CollectionUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class EvalBaseMap extends EvalBase implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
-    protected EvalBaseMap(SelectExprContext selectExprContext, EventType resultEventType) {
-        super(selectExprContext, resultEventType);
+public abstract class EvalBaseMap extends EvalBase implements SelectExprProcessor, SelectExprProcessorForge {
+
+    protected ExprEvaluator[] evaluators;
+
+    protected EvalBaseMap(SelectExprForgeContext selectExprForgeContext, EventType resultEventType) {
+        super(selectExprForgeContext, resultEventType);
     }
 
-    public abstract EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext);
+    protected abstract void initSelectExprProcessorSpecific(EngineImportService engineImportService, boolean isFireAndForget, String statementName);
+
+    protected abstract EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext);
+
+    protected abstract CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetSelectPremade params, CodegenContext context);
 
     public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        ExprEvaluator[] expressionNodes = selectExprContext.getExpressionNodes();
-        String[] columnNames = selectExprContext.getColumnNames();
+        String[] columnNames = context.getColumnNames();
 
         // Evaluate all expressions and build a map of name-value pairs
         Map<String, Object> props;
-        if (expressionNodes.length == 0) {
-            props = Collections.EMPTY_MAP;
+        if (evaluators.length == 0) {
+            props = Collections.emptyMap();
         } else {
-            props = new HashMap<String, Object>();
-            for (int i = 0; i < expressionNodes.length; i++) {
-                Object evalResult = expressionNodes[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+            props = new HashMap<>(CollectionUtil.capacityHashMap(evaluators.length));
+            for (int i = 0; i < evaluators.length; i++) {
+                Object evalResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                 props.put(columnNames[i], evalResult);
             }
         }
 
         return processSpecific(props, eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
+    }
+
+    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+        CodegenBlock block = context.addMethod(EventBean.class, EvalBaseMap.class).add(params).begin();
+        if (this.context.getExprForges().length == 0) {
+            block.declareVar(Map.class, "props", staticMethod(Collections.class, "emptyMap"));
+        } else {
+            block.declareVar(Map.class, "props", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(this.context.getColumnNames().length))));
+        }
+        for (int i = 0; i < this.context.getColumnNames().length; i++) {
+            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(this.context.getExprForges()[i], CodegenParamSetExprPremade.INSTANCE, context);
+            block.expression(exprDotMethod(ref("props"), "put", constant(this.context.getColumnNames()[i]), expression));
+        }
+        CodegenMethodId method = block.methodReturn(processSpecificCodegen(memberResultEventType, memberEventAdapterService, ref("props"), params, context));
+        return localMethodBuild(method).passAll(params).call();
+    }
+
+    public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        if (evaluators == null) {
+            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+        }
+        initSelectExprProcessorSpecific(engineImportService, isFireAndForget, statementName);
+        return this;
     }
 }

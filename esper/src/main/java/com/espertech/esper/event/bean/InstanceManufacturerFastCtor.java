@@ -13,6 +13,7 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -64,7 +65,7 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
         for (int i = 0; i < forges.length; i++) {
             params[i] = forges[i].evaluateCodegen(premades, context);
         }
-        String method = context.addMethod(targetClass, InstanceManufacturerFastCtor.class).add(premades).begin()
+        CodegenMethodId method = context.addMethod(targetClass, InstanceManufacturerFastCtor.class).add(premades).begin()
                 .tryCatch()
                     .tryReturn(newInstance(targetClass, params))
                 .addCatch(Throwable.class, "t")

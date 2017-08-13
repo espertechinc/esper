@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -72,7 +73,7 @@ public class EnumToMapScalarLambdaForgeEval implements EnumEval {
                 .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
                 .blockReturn(staticMethod(Collections.class, "emptyMap"))
                 .declareVar(Map.class, "map", newInstance(HashMap.class))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(resultTypeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
         CodegenBlock forEach = block.forEach(Object.class, "next", premade.enumcoll())
@@ -80,7 +81,7 @@ public class EnumToMapScalarLambdaForgeEval implements EnumEval {
                 .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
                 .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
                 .expression(exprDotMethod(ref("map"), "put", ref("key"), ref("value")));
-        String method = block.methodReturn(ref("map"));
+        CodegenMethodId method = block.methodReturn(ref("map"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

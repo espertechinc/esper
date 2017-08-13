@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarForge;
@@ -84,7 +85,7 @@ public class ExprDotDTForge implements ExprDotForge {
         if (!innerType.isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
-        String method = block.methodReturn(forge.codegen(ref("target"), innerType, params, context));
+        CodegenMethodId method = block.methodReturn(forge.codegen(ref("target"), innerType, params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 

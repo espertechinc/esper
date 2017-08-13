@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.interval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetIntervalNonPremade;
@@ -287,7 +288,7 @@ public class IntervalComputerForgeFactory {
                     .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(ref("rightStart"), params, context));
             block.ifCondition(relational(ref("rangeStartDelta"), GT, ref("rangeEndDelta")))
                     .blockReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", ref("leftStart"), ref("rightEnd"), ref("rangeEndDelta"), ref("rangeStartDelta")));
-            String method = block.methodReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", ref("leftStart"), ref("rightEnd"), ref("rangeStartDelta"), ref("rangeEndDelta")));
+            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", ref("leftStart"), ref("rightEnd"), ref("rangeStartDelta"), ref("rangeEndDelta")));
             return localMethodBuild(method).passAll(interval).passAll(params).call();
         }
     }
@@ -387,7 +388,7 @@ public class IntervalComputerForgeFactory {
                     .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(ref("leftEnd"), params, context));
             block.ifCondition(relational(ref("rangeStartDelta"), GT, ref("rangeEndDelta")))
                     .blockReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", ref("leftEnd"), ref("rightStart"), ref("rangeEndDelta"), ref("rangeStartDelta")));
-            String method = block.methodReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", ref("leftEnd"), ref("rightStart"), ref("rangeStartDelta"), ref("rangeEndDelta")));
+            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", ref("leftEnd"), ref("rightStart"), ref("rangeStartDelta"), ref("rangeEndDelta")));
             return localMethodBuild(method).passAll(interval).passAll(params).call();
         }
     }
@@ -503,7 +504,7 @@ public class IntervalComputerForgeFactory {
             block.ifCondition(or(relational(ref("startValue"), LT, constant(0)), relational(ref("endValue"), LT, constant(0))))
                     .expression(staticMethod(IntervalComputerCoincidesWithDeltaExprEval.class, "warnCoincideStartEndLessZero"))
                     .blockReturn(constantNull());
-            String method = block.methodReturn(staticMethod(IntervalComputerConstantCoincides.class, "computeIntervalCoincides", premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("startValue"), ref("endValue")));
+            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerConstantCoincides.class, "computeIntervalCoincides", premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("startValue"), ref("endValue")));
             return localMethodBuild(method).passAll(interval).passAll(params).call();
         }
 
@@ -620,7 +621,7 @@ public class IntervalComputerForgeFactory {
             CodegenBlock block = context.addMethod(boolean.class, IntervalComputerDuringAndIncludesThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "thresholdValue", forge.threshold.codegen(premade.leftStart(), params, context));
 
-            String method = "";
+            CodegenMethodId method;
             if (forge.during) {
                 method = block.declareVar(long.class, "deltaStart", op(premade.leftStart(), "-", premade.rightStart()))
                         .ifConditionReturnConst(or(relational(ref("deltaStart"), LE, constant(0)), relational(ref("deltaStart"), GT, ref("thresholdValue"))), false)
@@ -684,7 +685,7 @@ public class IntervalComputerForgeFactory {
             CodegenBlock block = context.addMethod(boolean.class, IntervalComputerDuringAndIncludesMinMaxEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "min", forge.minEval.codegen(premade.leftStart(), params, context))
                     .declareVar(long.class, "max", forge.maxEval.codegen(premade.rightEnd(), params, context));
-            String method = block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
+            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
                     forge.during ? "computeIntervalDuring" : "computeIntervalIncludes",
                     premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("min"), ref("max"), ref("min"), ref("max")));
             return localMethodBuild(method).passAll(interval).passAll(params).call();
@@ -781,7 +782,7 @@ public class IntervalComputerForgeFactory {
                     .declareVar(long.class, "maxStart", forge.maxStartEval.codegen(premade.rightStart(), params, context))
                     .declareVar(long.class, "minEnd", forge.minEndEval.codegen(premade.rightEnd(), params, context))
                     .declareVar(long.class, "maxEnd", forge.maxEndEval.codegen(premade.rightEnd(), params, context));
-            String method = block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
+            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
                     forge.during ? "computeIntervalDuring" : "computeIntervalIncludes",
                     premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("minStart"), ref("maxStart"), ref("minEnd"), ref("maxEnd")));
             return localMethodBuild(method).passAll(interval).passAll(params).call();
@@ -858,7 +859,7 @@ public class IntervalComputerForgeFactory {
 
         public static CodegenExpression codegen(IntervalComputerFinishesThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            String method = context.addMethod(Boolean.class, IntervalComputerFinishesThresholdEval.class).add(premade).add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerFinishesThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftEnd(), premade.rightEnd()), params, context))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerFinishesThresholdEval.class, "logWarningIntervalFinishThreshold"))
@@ -935,7 +936,7 @@ public class IntervalComputerForgeFactory {
 
         public static CodegenExpression codegen(IntervalComputerFinishedByThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            String method = context.addMethod(Boolean.class, IntervalComputerFinishedByThresholdEval.class).add(premade).add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerFinishedByThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.rightEnd(), premade.leftEnd()), params, context))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerFinishedByThresholdEval.class, "logWarningIntervalFinishedByThreshold"))
@@ -1011,7 +1012,7 @@ public class IntervalComputerForgeFactory {
 
         public static CodegenExpression codegen(IntervalComputerMeetsThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            String method = context.addMethod(Boolean.class, IntervalComputerMeetsThresholdEval.class).add(premade).add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerMeetsThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftEnd(), premade.rightStart()), params, context))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerMeetsThresholdEval.class, "logWarningIntervalMeetsThreshold"))
@@ -1088,7 +1089,7 @@ public class IntervalComputerForgeFactory {
 
         public static CodegenExpression codegen(IntervalComputerMetByThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            String method = context.addMethod(Boolean.class, IntervalComputerMetByThresholdEval.class).add(premade).add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerMetByThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftStart(), premade.rightEnd()), params, context))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerMetByThresholdEval.class, "logWarningIntervalMetByThreshold"))
@@ -1166,7 +1167,7 @@ public class IntervalComputerForgeFactory {
             CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
             CodegenBlock block = context.addMethod(boolean.class, IntervalComputerOverlapsAndByThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(forge.overlaps ? premade.leftStart() : premade.rightStart(), params, context));
-            String method;
+            CodegenMethodId method;
             if (forge.overlaps) {
                 method = block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
                         premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), constant(0), ref("threshold")));
@@ -1252,7 +1253,7 @@ public class IntervalComputerForgeFactory {
             CodegenBlock block = context.addMethod(boolean.class, IntervalComputerOverlapsAndByMinMaxEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "minThreshold", forge.minEval.codegen(forge.overlaps ? premade.leftStart() : premade.rightStart(), params, context))
                     .declareVar(long.class, "maxThreshold", forge.maxEval.codegen(forge.overlaps ? premade.leftEnd() : premade.rightEnd(), params, context));
-            String method;
+            CodegenMethodId method;
             if (forge.overlaps) {
                 method = block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
                         premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("minThreshold"), ref("maxThreshold")));
@@ -1353,7 +1354,7 @@ public class IntervalComputerForgeFactory {
 
         public static CodegenExpression codegen(IntervalComputerStartsThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            String method = context.addMethod(Boolean.class, IntervalComputerStartsThresholdEval.class).add(premade).add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerStartsThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftStart(), premade.rightStart()), params, context))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerStartsThresholdEval.class, "logWarningIntervalStartsThreshold"))
@@ -1430,7 +1431,7 @@ public class IntervalComputerForgeFactory {
 
         public static CodegenExpression codegen(IntervalComputerStartedByThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            String method = context.addMethod(Boolean.class, IntervalComputerStartedByThresholdEval.class).add(premade).add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerStartedByThresholdEval.class).add(premade).add(params).begin()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftStart(), premade.rightStart()), params, context))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerStartedByThresholdEval.class, "logWarningIntervalStartedByThreshold"))

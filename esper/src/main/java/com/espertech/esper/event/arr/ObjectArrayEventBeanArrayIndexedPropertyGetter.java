@@ -13,6 +13,7 @@ package com.espertech.esper.event.arr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 
@@ -42,7 +43,7 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
         return BaseNestableEventUtil.getBNArrayPropertyUnderlying(wrapper, index);
     }
 
-    private String getObjectArrayCodegen(CodegenContext context) {
+    private CodegenMethodId getObjectArrayCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayPropertyUnderlying", ref("wrapper"), constant(index)));
@@ -67,7 +68,7 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
         return BaseNestableEventUtil.getBNArrayPropertyBean(wrapper, index);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayPropertyBean", ref("wrapper"), constant(index)));

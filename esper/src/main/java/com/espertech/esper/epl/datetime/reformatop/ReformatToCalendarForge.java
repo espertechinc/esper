@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerLocalDateTime;
@@ -53,8 +54,8 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        String method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(long.class, "ts").add(params).begin()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(long.class, "ts").add(params).begin()
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .expression(timeAbacus.calendarSetCodegen(ref("ts"), ref("cal"), context))
                 .methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).passAll(params).call();
@@ -68,8 +69,8 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        String method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(Date.class, "d").begin()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(Date.class, "d").begin()
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .exprDotMethod(ref("cal"), "setTimeInMillis", exprDotMethod(ref("d"), "getTime"))
                 .methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).call();
@@ -91,9 +92,9 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        String method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(LocalDateTime.class, "ldt").begin()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
-                .exprDotMethod(ref("cal"), "setTimeInMillis", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("ldt"), ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(LocalDateTime.class, "ldt").begin()
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
+                .exprDotMethod(ref("cal"), "setTimeInMillis", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("ldt"), member(tz.getMemberId())))
                 .methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).call();
     }
@@ -106,8 +107,8 @@ public class ReformatToCalendarForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenZDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        String method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(ZonedDateTime.class, "zdt").begin()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(Calendar.class, ReformatToCalendarForge.class).add(ZonedDateTime.class, "zdt").begin()
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .exprDotMethod(ref("cal"), "setTimeInMillis", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("zdt")))
                 .methodReturn(ref("cal"));
         return localMethodBuild(method).pass(inner).call();

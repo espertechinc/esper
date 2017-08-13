@@ -97,6 +97,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(16, config.getEngineDefaults().getExecution().getFilterServiceMaxFilterWidth());
         assertEquals(1, config.getEngineDefaults().getExecution().getDeclaredExprValueCacheSize());
         ConfigurationEngineDefaults.CodeGeneration codegen = config.getEngineDefaults().getCodeGeneration();
+        assertEquals(true, codegen.isEnableSelectClause());
         assertEquals(true, codegen.isEnableExpression());
         assertEquals(false, codegen.isEnablePropertyGetter());
         assertEquals(false, codegen.isIncludeComments());
@@ -442,6 +443,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(false, config.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, config.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
         ConfigurationEngineDefaults.CodeGeneration codegen = config.getEngineDefaults().getCodeGeneration();
+        assertEquals(false, codegen.isEnableSelectClause());
         assertEquals(false, codegen.isEnableExpression());
         assertEquals(true, codegen.isEnablePropertyGetter());
         assertEquals(true, codegen.isIncludeComments());

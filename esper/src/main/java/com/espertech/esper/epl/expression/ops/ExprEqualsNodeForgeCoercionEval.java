@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -72,7 +73,7 @@ public class ExprEqualsNodeForgeCoercionEval implements ExprEvaluator {
         return left.equals(right) ^ parent.isNotEquals();
     }
 
-    public static String codegen(ExprEqualsNodeForgeCoercion forge, CodegenContext context, CodegenParamSetExprPremade params, ExprNode lhs, ExprNode rhs) {
+    public static CodegenMethodId codegen(ExprEqualsNodeForgeCoercion forge, CodegenContext context, CodegenParamSetExprPremade params, ExprNode lhs, ExprNode rhs) {
         Class lhsType = lhs.getForge().getEvaluationType();
         Class rhsType = rhs.getForge().getEvaluationType();
 

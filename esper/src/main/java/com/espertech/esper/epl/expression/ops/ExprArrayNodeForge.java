@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
@@ -26,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprArrayNodeForge implements ExprForge, ExprEnumerationForge {
     private final ExprArrayNode parent;
@@ -70,7 +70,7 @@ public class ExprArrayNodeForge implements ExprForge, ExprEnumerationForge {
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
         if (constantResult != null) {
             CodegenMember array = context.makeAddMember(getEvaluationType(), constantResult);
-            return ref(array.getMemberName());
+            return CodegenExpressionBuilder.member(array.getMemberId());
         }
         return ExprArrayNodeForgeEval.codegen(this, context, params);
     }

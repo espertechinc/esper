@@ -12,47 +12,31 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 
 import java.util.List;
 
-public class EvalSelectStreamNoUnderlyingObjectArray extends EvalSelectStreamBase implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
-    public EvalSelectStreamNoUnderlyingObjectArray(SelectExprContext selectExprContext, EventType resultEventType, List<SelectClauseStreamCompiledSpec> namedStreams, boolean usingWildcard) {
-        super(selectExprContext, resultEventType, namedStreams, usingWildcard);
+public class EvalSelectStreamNoUnderlyingObjectArray extends EvalSelectStreamBaseObjectArray implements SelectExprProcessor {
+
+    public EvalSelectStreamNoUnderlyingObjectArray(SelectExprForgeContext selectExprForgeContext, EventType resultEventType, List<SelectClauseStreamCompiledSpec> namedStreams, boolean usingWildcard) {
+        super(selectExprForgeContext, resultEventType, namedStreams, usingWildcard);
     }
 
-    public EventBean processSpecific(Object[] props, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
-        return super.getSelectExprContext().getEventAdapterService().adapterForTypedObjectArray(props, super.getResultEventType());
+    protected EventBean processSpecific(Object[] props, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        return super.getContext().getEventAdapterService().adapterForTypedObjectArray(props, super.getResultEventType());
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        // Evaluate all expressions and build a map of name-value pairs
-        int size = (isUsingWildcard && eventsPerStream.length > 1) ? eventsPerStream.length : 0;
-        size += selectExprContext.getExpressionNodes().length + namedStreams.size();
-        Object[] props = new Object[size];
-        int count = 0;
-        for (ExprEvaluator expressionNode : selectExprContext.getExpressionNodes()) {
-            Object evalResult = expressionNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            props[count] = evalResult;
-            count++;
-        }
-        for (SelectClauseStreamCompiledSpec element : namedStreams) {
-            EventBean theEvent = eventsPerStream[element.getStreamNumber()];
-            props[count] = theEvent;
-            count++;
-        }
-        if (isUsingWildcard && eventsPerStream.length > 1) {
-            for (EventBean anEventsPerStream : eventsPerStream) {
-                props[count] = anEventsPerStream;
-                count++;
-            }
-        }
-
-        return processSpecific(props, eventsPerStream, exprEvaluatorContext);
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpressionRef props, CodegenParamSetExprPremade instance, CodegenContext context) {
+        return exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", props, CodegenExpressionBuilder.member(memberResultEventType.getMemberId()));
     }
-
 }

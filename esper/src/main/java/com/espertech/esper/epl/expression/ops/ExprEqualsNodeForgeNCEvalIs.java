@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -54,7 +55,7 @@ public class ExprEqualsNodeForgeNCEvalIs implements ExprEvaluator {
         return result;
     }
 
-    public static String codegen(ExprEqualsNodeForgeNC forge, CodegenContext context, CodegenParamSetExprPremade params, ExprForge lhs, ExprForge rhs) {
+    public static CodegenMethodId codegen(ExprEqualsNodeForgeNC forge, CodegenContext context, CodegenParamSetExprPremade params, ExprForge lhs, ExprForge rhs) {
         CodegenBlock block = context.addMethod(boolean.class, ExprEqualsNodeForgeNCEvalIs.class).add(params).begin()
                 .declareVar(Object.class, "left", lhs.evaluateCodegen(params, context))
                 .declareVar(Object.class, "right", rhs.evaluateCodegen(params, context));

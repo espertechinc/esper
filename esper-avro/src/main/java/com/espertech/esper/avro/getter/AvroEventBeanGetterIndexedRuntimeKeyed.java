@@ -13,6 +13,7 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
 import org.apache.avro.generic.GenericData;
@@ -36,7 +37,7 @@ public class AvroEventBeanGetterIndexedRuntimeKeyed implements EventPropertyGett
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
-        String method = context.addMethod(Object.class, AvroEventBeanGetterIndexedRuntimeKeyed.class).add(EventBean.class, "event").add(int.class, "index").begin()
+        CodegenMethodId method = context.addMethod(Object.class, AvroEventBeanGetterIndexedRuntimeKeyed.class).add(EventBean.class, "event").add(int.class, "index").begin()
                 .declareVar(GenericData.Record.class, "record", castUnderlying(GenericData.Record.class, ref("event")))
                 .declareVar(Collection.class, "values", cast(Collection.class, exprDotMethod(ref("record"), "get", constant(pos))))
                 .methodReturn(staticMethod(AvroEventBeanGetterIndexed.class, "getAvroIndexedValue", ref("values"), ref("index")));

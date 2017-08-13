@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
 public interface ExprDotEvalSumMethodFactory {
@@ -20,5 +21,5 @@ public interface ExprDotEvalSumMethodFactory {
     void codegenDeclare(CodegenBlock block);
     void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value);
     void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value);
-    String codegenReturn(CodegenBlock block);
+    CodegenMethodId codegenReturn(CodegenBlock block);
 }

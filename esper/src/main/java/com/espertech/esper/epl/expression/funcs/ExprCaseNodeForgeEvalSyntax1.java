@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.funcs;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.UniformPair;
@@ -90,7 +91,7 @@ public class ExprCaseNodeForgeEvalSyntax1 implements ExprEvaluator {
             block.ifCondition(and(notEqualsNull(ref("when")), ref("when")))
                     .blockReturn(codegenToType(forge, pair.getSecond(), context, params));
         }
-        String method;
+        CodegenMethodId method;
         if (forge.getOptionalElseExprNode() != null) {
             method = block.methodReturn(codegenToType(forge, forge.getOptionalElseExprNode(), context, params));
         } else {

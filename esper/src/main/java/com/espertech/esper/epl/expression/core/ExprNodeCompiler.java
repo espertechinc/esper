@@ -11,17 +11,19 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.codegen.compile.CodegenClassGenerator;
 import com.espertech.esper.codegen.compile.CodegenCompilerException;
-import com.espertech.esper.codegen.compile.CodegenExprEvaluator;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSet;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.EngineImportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
@@ -29,6 +31,11 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 
 public class ExprNodeCompiler {
     private static Logger log = LoggerFactory.getLogger(ExprNodeCompiler.class);
+    private final static CodegenMethodFootprint EVALUATE_FP;
+
+    static {
+        EVALUATE_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("evaluate"), Collections.<CodegenParamSet>singletonList(CodegenParamSetExprPremade.INSTANCE), null);
+    }
 
     public static ExprEvaluator allocateEvaluator(ExprForge forge, EngineImportService engineImportService, Class compiledByClass, boolean onDemandQuery, String statementName) {
         if (!engineImportService.getCodeGeneration().isEnableExpression() || onDemandQuery || forge.getComplexity() != ExprForgeComplexityEnum.INTER) {
@@ -62,13 +69,15 @@ public class ExprNodeCompiler {
 
             // if the evaluation-type is void, still return an Object
             if (forge.getEvaluationType() == void.class) {
-                String method = context.addMethod(Object.class, ExprNodeCompiler.class).add(CodegenParamSetExprPremade.INSTANCE).begin()
+                CodegenMethodId method = context.addMethod(Object.class, ExprNodeCompiler.class).add(CodegenParamSetExprPremade.INSTANCE).begin()
                         .expression(expression)
                         .methodReturn(constantNull());
                 expression = localMethodBuild(method).passAll(CodegenParamSetExprPremade.INSTANCE).call();
             }
 
-            return CodegenExprEvaluator.compile(engineImportService.getEngineURI(), engineImportService, expression, context, forge.getEvaluationType(), debugInformationProvider);
+            CodegenMethod evalMethod = new CodegenMethod(EVALUATE_FP, expression);
+            CodegenClass clazz = new CodegenClass(ExprEvaluator.class, context, engineImportService.getEngineURI(), evalMethod);
+            return CodegenClassGenerator.compile(clazz, engineImportService, ExprEvaluator.class, debugInformationProvider);
         } catch (CodegenCompilerException ex) {
             boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
             String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(ex, debugInformationProvider, fallback);

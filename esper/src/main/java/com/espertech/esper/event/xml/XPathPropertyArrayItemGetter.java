@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
@@ -64,7 +65,7 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
         return getXPathNodeListWCheck(getter.get(eventBean), index);
     }
 
-    private String getCodegen(CodegenContext context) throws PropertyAccessException {
+    private CodegenMethodId getCodegen(CodegenContext context) throws PropertyAccessException {
         return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Object.class, "value", getter.underlyingGetCodegen(ref("node"), context))
                 .methodReturn(staticMethod(this.getClass(), "getXPathNodeListWCheck", ref("value"), constant(index)));
@@ -81,12 +82,12 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
         return fragmentFactory.getEvent(result);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         CodegenMember member = context.makeAddMember(FragmentFactory.class, fragmentFactory);
         return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node.class, "result", cast(Node.class, underlyingGetCodegen(ref("node"), context)))
                 .ifRefNullReturnNull("result")
-                .methodReturn(exprDotMethod(ref(member.getMemberName()), "getEvent", ref("result")));
+                .methodReturn(exprDotMethod(member(member.getMemberId()), "getEvent", ref("result")));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {

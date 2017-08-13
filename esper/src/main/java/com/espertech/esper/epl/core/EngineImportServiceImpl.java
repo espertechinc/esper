@@ -17,7 +17,6 @@ import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.client.util.ClassLoaderProvider;
 import com.espertech.esper.codegen.compile.CodegenCompiler;
 import com.espertech.esper.codegen.compile.CodegenCompilerException;
-import com.espertech.esper.codegen.compile.CodegenEventPropertyGetter;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
@@ -33,6 +32,7 @@ import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderMXCIFQuadTree;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderPointRegionQuadTree;
 import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
+import com.espertech.esper.event.EventPropertyGetterCompiler;
 import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
 import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -529,7 +529,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (codeGeneration.isEnableFallback()) {
@@ -542,7 +542,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetterIndexed codegenGetter(EventPropertyGetterIndexedSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (codeGeneration.isEnableFallback()) {
@@ -555,7 +555,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetterMapped codegenGetter(EventPropertyGetterMappedSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (codeGeneration.isEnableFallback()) {

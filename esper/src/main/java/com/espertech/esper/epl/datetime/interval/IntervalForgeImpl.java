@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -269,7 +270,7 @@ public class IntervalForgeImpl implements IntervalForge {
         }
 
         public static CodegenExpression codegen(IntervalOpDateForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenParamSetExprPremade params, CodegenContext context) {
-            String method = context.addMethod(Boolean.class, IntervalOpDateEval.class).add(long.class, "startTs").add(long.class, "endTs").add(Date.class, "parameter").add(params)
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpDateEval.class).add(long.class, "startTs").add(long.class, "endTs").add(Date.class, "parameter").add(params)
                     .begin()
                     .declareVar(long.class, "time", exprDotMethod(ref("parameter"), "getTime"))
                     .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
@@ -335,7 +336,7 @@ public class IntervalForgeImpl implements IntervalForge {
         }
 
         public static CodegenExpression codegen(IntervalOpCalForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenParamSetExprPremade params, CodegenContext context) {
-            String method = context.addMethod(Boolean.class, IntervalOpDateEval.class).add(long.class, "startTs").add(long.class, "endTs").add(Calendar.class, "parameter").add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpDateEval.class).add(long.class, "startTs").add(long.class, "endTs").add(Calendar.class, "parameter").add(params).begin()
                     .declareVar(long.class, "time", exprDotMethod(ref("parameter"), "getTimeInMillis"))
                     .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
             return localMethodBuild(method).pass(start).pass(end).pass(parameter).passAll(params).call();
@@ -376,8 +377,8 @@ public class IntervalForgeImpl implements IntervalForge {
 
         public static CodegenExpression codegen(IntervalOpLocalDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-            String method = context.addMethod(Boolean.class, IntervalOpLocalDateTimeEval.class).add(long.class, "startTs").add(long.class, "endTs").add(LocalDateTime.class, "parameter").add(params).begin()
-                    .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("parameter"), ref(tz.getMemberName())))
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpLocalDateTimeEval.class).add(long.class, "startTs").add(long.class, "endTs").add(LocalDateTime.class, "parameter").add(params).begin()
+                    .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("parameter"), member(tz.getMemberId())))
                     .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
             return localMethodBuild(method).pass(start).pass(end).pass(parameter).passAll(params).call();
         }
@@ -410,7 +411,7 @@ public class IntervalForgeImpl implements IntervalForge {
         }
 
         public static CodegenExpression codegen(IntervalOpZonedDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenParamSetExprPremade params, CodegenContext context) {
-            String method = context.addMethod(Boolean.class, IntervalOpZonedDateTimeEval.class).add(long.class, "startTs").add(long.class, "endTs").add(ZonedDateTime.class, "parameter").add(params).begin()
+            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpZonedDateTimeEval.class).add(long.class, "startTs").add(long.class, "endTs").add(ZonedDateTime.class, "parameter").add(params).begin()
                     .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("parameter")))
                     .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
             return localMethodBuild(method).pass(start).pass(end).pass(parameter).passAll(params).call();
@@ -553,8 +554,8 @@ public class IntervalForgeImpl implements IntervalForge {
         protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenParamSetExprPremade params, CodegenContext context) {
             CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
             return intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(startTs, endTs,
-                    staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramStartTs, ref(tz.getMemberName())),
-                    staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramEndTs, ref(tz.getMemberName()))),
+                    staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramStartTs, member(tz.getMemberId())),
+                    staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramEndTs, member(tz.getMemberId()))),
                     params, context);
         }
     }

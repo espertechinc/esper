@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -46,7 +47,7 @@ public class EnumFirstOfNoPredicateForge extends EnumForgeBase implements EnumFo
     public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
         CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
         Class type = EPTypeHelper.getCodegenReturnType(resultType);
-        String method = context.addMethod(type, EnumFirstOfNoPredicateForge.class).add(premade).begin()
+        CodegenMethodId method = context.addMethod(type, EnumFirstOfNoPredicateForge.class).add(premade).begin()
                 .ifCondition(or(equalsNull(premade.enumcoll()), exprDotMethod(premade.enumcoll(), "isEmpty")))
                 .blockReturn(constantNull())
                 .methodReturn(cast(type, exprDotMethodChain(premade.enumcoll()).add("iterator").add("next")));

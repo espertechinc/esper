@@ -28,7 +28,6 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 public class DOMConvertingGetter implements EventPropertyGetterSPI {
     private final DOMPropertyGetter getter;
     private final SimpleTypeParser parser;
-    private CodegenMember codegenParser;
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
@@ -90,9 +89,9 @@ public class DOMConvertingGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        generateParserMember(context);
+        CodegenMember parserMember = context.makeAddMember(SimpleTypeParser.class, parser);
         CodegenExpression inner = getter.underlyingGetCodegen(underlyingExpression, context);
-        return staticMethod(this.getClass(), "getParseTextValue", inner, ref(codegenParser.getMemberName()));
+        return staticMethod(this.getClass(), "getParseTextValue", inner, member(parserMember.getMemberId()));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
@@ -101,12 +100,5 @@ public class DOMConvertingGetter implements EventPropertyGetterSPI {
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         return constantNull();
-    }
-
-    private void generateParserMember(CodegenContext context) {
-        if (codegenParser == null) {
-            codegenParser = context.makeMember(SimpleTypeParser.class, parser);
-        }
-        context.addMember(codegenParser);
     }
 }

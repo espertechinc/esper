@@ -93,6 +93,15 @@ public class ExecNamedWindowViews implements RegressionExecution {
         runAssertionLateConsumerJoin(epService);
         runAssertionPattern(epService);
         runAssertionExternallyTimedBatch(epService);
+        runAssertionSelectStreamDotStarInsert(epService);
+
+    }
+
+    private void runAssertionSelectStreamDotStarInsert(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().createEPL(EventRepresentationChoice.ARRAY.getAnnotationText() + " create window MyNWWindowObjectArray#keepall (p0 int)");
+        epService.getEPAdministrator().createEPL("insert into MyNWWindowObjectArray select intPrimitive as p0, sb.* as c0 from SupportBean as sb");
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void runAssertionBeanBacked(EPServiceProvider epService) {

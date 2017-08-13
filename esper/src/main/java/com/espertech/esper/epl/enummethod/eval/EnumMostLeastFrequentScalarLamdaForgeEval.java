@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -79,7 +80,7 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
                 .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
                 .blockReturn(constantNull())
                 .declareVar(Map.class, "items", newInstance(LinkedHashMap.class))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(resultTypeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
@@ -93,7 +94,7 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
                 .expression(increment("existing"))
                 .blockEnd()
                 .exprDotMethod(ref("items"), "put", ref("item"), ref("existing"));
-        String method = block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));
+        CodegenMethodId method = block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));
         return localMethodBuild(method).passAll(args).call();
     }
 }

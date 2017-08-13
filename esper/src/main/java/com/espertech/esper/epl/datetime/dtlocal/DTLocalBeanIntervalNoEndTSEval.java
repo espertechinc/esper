@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -39,7 +40,7 @@ public class DTLocalBeanIntervalNoEndTSEval implements DTLocalEvaluator {
     }
 
     public static CodegenExpression codegen(DTLocalBeanIntervalNoEndTSForge forge, CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(forge.returnType, DTLocalBeanIntervalNoEndTSEval.class).add(EventBean.class, "target").add(params).begin()
+        CodegenMethodId method = context.addMethod(forge.returnType, DTLocalBeanIntervalNoEndTSEval.class).add(EventBean.class, "target").add(params).begin()
                 .declareVar(forge.getterResultType, "timestamp", CodegenLegoCast.castSafeFromObjectType(forge.getterResultType, forge.getter.eventBeanGetCodegen(ref("target"), context)))
                 .ifRefNullReturnNull("timestamp")
                 .methodReturn(forge.inner.codegen(ref("timestamp"), forge.getterResultType, params, context));

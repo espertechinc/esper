@@ -25,6 +25,7 @@ import com.espertech.esper.epl.view.OutputConditionPolledFactory;
  * and there are aggregation functions.
  */
 public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProcessorFactory {
+    private final EventType resultEventType;
     private final SelectExprProcessor selectExprProcessor;
     private final ExprNode[] groupKeyNodeExpressions;
     private final ExprEvaluator groupKeyNode;
@@ -40,7 +41,8 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
     private final boolean enableOutputLimitOpt;
     private final int numStreams;
 
-    public ResultSetProcessorAggregateGroupedFactory(SelectExprProcessor selectExprProcessor,
+    public ResultSetProcessorAggregateGroupedFactory(EventType resultEventType,
+                                                     SelectExprProcessor selectExprProcessor,
                                                      ExprNode[] groupKeyNodeExpressions,
                                                      ExprEvaluator[] groupKeyNodes,
                                                      ExprEvaluator optionalHavingNode,
@@ -53,6 +55,7 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
                                                      OutputConditionPolledFactory optionalOutputFirstConditionFactory,
                                                      boolean enableOutputLimitOpt,
                                                      int numStreams) {
+        this.resultEventType = resultEventType;
         this.selectExprProcessor = selectExprProcessor;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         if (groupKeyNodes.length == 1) {
@@ -78,7 +81,7 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
     }
 
     public EventType getResultEventType() {
-        return selectExprProcessor.getResultEventType();
+        return resultEventType;
     }
 
     public boolean hasAggregation() {

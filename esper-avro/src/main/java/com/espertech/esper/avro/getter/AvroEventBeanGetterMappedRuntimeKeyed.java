@@ -13,6 +13,7 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 import org.apache.avro.generic.GenericData;
@@ -36,7 +37,7 @@ public class AvroEventBeanGetterMappedRuntimeKeyed implements EventPropertyGette
     }
 
     public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
-        String method = context.addMethod(Object.class, AvroEventBeanGetterMappedRuntimeKeyed.class).add(EventBean.class, "event").add(String.class, "key").begin()
+        CodegenMethodId method = context.addMethod(Object.class, AvroEventBeanGetterMappedRuntimeKeyed.class).add(EventBean.class, "event").add(String.class, "key").begin()
                 .declareVar(GenericData.Record.class, "record", castUnderlying(GenericData.Record.class, ref("event")))
                 .declareVar(Map.class, "values", cast(Map.class, exprDotMethod(ref("record"), "get", constant(pos))))
                 .methodReturn(staticMethod(AvroEventBeanGetterMapped.class, "getAvroMappedValueWNullCheck", ref("values"), ref("key")));

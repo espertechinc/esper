@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -59,7 +60,7 @@ public class SelectExprProcessorTypableMultiEvalFirstRow implements ExprEvaluato
         if (forge.hasWideners) {
             block.expression(applyWidenersCodegenMultirow(ref("rows"), forge.wideners, context));
         }
-        String method = block.methodReturn(exprDotMethod(ref(factory.getMemberName()), "make", arrayAtIndex(ref("rows"), constant(0))));
+        CodegenMethodId method = block.methodReturn(exprDotMethod(member(factory.getMemberId()), "make", arrayAtIndex(ref("rows"), constant(0))));
         return localMethodBuild(method).passAll(params).call();
     }
 }

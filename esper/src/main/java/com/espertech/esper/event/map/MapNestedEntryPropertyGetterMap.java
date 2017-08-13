@@ -13,6 +13,7 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 
@@ -42,7 +43,7 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
         return mapGetter.getMap((Map<String, Object>) value);
     }
 
-    private String handleNestedValueCodegen(CodegenContext context) {
+    private CodegenMethodId handleNestedValueCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
             .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)
@@ -66,7 +67,7 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
         return mapGetter.getFragment(eventBean);
     }
 
-    private String handleNestedValueFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId handleNestedValueFragmentCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
                 .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)

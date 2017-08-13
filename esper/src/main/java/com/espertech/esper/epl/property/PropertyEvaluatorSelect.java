@@ -22,16 +22,12 @@ import java.util.ArrayDeque;
  * on an accumulative property evaluator that presents events for all columns and rows.
  */
 public class PropertyEvaluatorSelect implements PropertyEvaluator {
+    private final EventType resultEventType;
     private final SelectExprProcessor selectExprProcessor;
     private final PropertyEvaluatorAccumulative accumulative;
 
-    /**
-     * Ctor.
-     *
-     * @param selectExprProcessor evaluates the select clause
-     * @param accumulative        provides property events for input events
-     */
-    public PropertyEvaluatorSelect(SelectExprProcessor selectExprProcessor, PropertyEvaluatorAccumulative accumulative) {
+    public PropertyEvaluatorSelect(EventType resultEventType, SelectExprProcessor selectExprProcessor, PropertyEvaluatorAccumulative accumulative) {
+        this.resultEventType = resultEventType;
         this.selectExprProcessor = selectExprProcessor;
         this.accumulative = accumulative;
     }
@@ -50,7 +46,7 @@ public class PropertyEvaluatorSelect implements PropertyEvaluator {
     }
 
     public EventType getFragmentEventType() {
-        return selectExprProcessor.getResultEventType();
+        return resultEventType;
     }
 
     public boolean compareTo(PropertyEvaluator otherFilterPropertyEval) {

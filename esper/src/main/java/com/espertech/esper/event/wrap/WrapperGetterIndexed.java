@@ -13,6 +13,7 @@ package com.espertech.esper.event.wrap;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.DecoratingEventBean;
 import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
@@ -39,7 +40,7 @@ public class WrapperGetterIndexed implements EventPropertyGetterIndexedSPI {
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
-        String method = context.addMethod(Object.class, WrapperGetterIndexed.class).add(EventBean.class, "event").add(int.class, "index").begin()
+        CodegenMethodId method = context.addMethod(Object.class, WrapperGetterIndexed.class).add(EventBean.class, "event").add(int.class, "index").begin()
                 .declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, ref("event")))
                 .declareVar(EventBean.class, "wrapped", exprDotMethod(ref("wrapper"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrapped")

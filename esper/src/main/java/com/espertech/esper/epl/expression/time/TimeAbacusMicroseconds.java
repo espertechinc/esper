@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.util.JavaClassHelper;
@@ -49,7 +50,7 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
     }
 
     public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenContext context) {
-        String method = context.addMethod(long.class, TimeAbacusMicroseconds.class).add(long.class, "fromTime").add(Calendar.class, "cal").begin()
+        CodegenMethodId method = context.addMethod(long.class, TimeAbacusMicroseconds.class).add(long.class, "fromTime").add(Calendar.class, "cal").begin()
                 .declareVar(long.class, "millis", op(ref("fromTime"), "/", constant(1000)))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("millis")))
                 .methodReturn(op(ref("fromTime"), "-", op(ref("millis"), "*", constant(1000))));

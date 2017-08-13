@@ -12,6 +12,7 @@ package com.espertech.esper.epl.datetime.calop;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -49,7 +50,7 @@ public class CalendarSetForgeOp implements CalendarOp {
         if (forge.valueExpr.getEvaluationType().isPrimitive()) {
             return exprDotMethod(cal, "set", calField, valueExpr);
         }
-        String method = context.addMethod(void.class, CalendarSetForgeOp.class).add(Calendar.class, "cal").add(params).begin()
+        CodegenMethodId method = context.addMethod(void.class, CalendarSetForgeOp.class).add(Calendar.class, "cal").add(params).begin()
                 .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(valueExpr, forge.valueExpr.getEvaluationType(), context))
                 .ifRefNullReturnNull("value")
                 .expression(exprDotMethod(cal, "set", calField, ref("value")))
@@ -67,7 +68,7 @@ public class CalendarSetForgeOp implements CalendarOp {
 
     public static CodegenExpression codegenLDT(CalendarSetForge forge, CodegenExpression ldt, CodegenParamSetExprPremade params, CodegenContext context) {
         ChronoField chronoField = forge.fieldName.getChronoField();
-        String method = context.addMethod(LocalDateTime.class, CalendarSetForgeOp.class).add(LocalDateTime.class, "ldt").add(params).begin()
+        CodegenMethodId method = context.addMethod(LocalDateTime.class, CalendarSetForgeOp.class).add(LocalDateTime.class, "ldt").add(params).begin()
                 .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(params, context), forge.valueExpr.getEvaluationType(), context))
                 .ifRefNull("value").blockReturn(ref("ldt"))
                 .methodReturn(exprDotMethod(ref("ldt"), "with", enumValue(ChronoField.class, chronoField.name()), ref("value")));
@@ -84,7 +85,7 @@ public class CalendarSetForgeOp implements CalendarOp {
 
     public static CodegenExpression codegenZDT(CalendarSetForge forge, CodegenExpression zdt, CodegenParamSetExprPremade params, CodegenContext context) {
         ChronoField chronoField = forge.fieldName.getChronoField();
-        String method = context.addMethod(ZonedDateTime.class, CalendarSetForgeOp.class).add(ZonedDateTime.class, "zdt").add(params).begin()
+        CodegenMethodId method = context.addMethod(ZonedDateTime.class, CalendarSetForgeOp.class).add(ZonedDateTime.class, "zdt").add(params).begin()
                 .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(params, context), forge.valueExpr.getEvaluationType(), context))
                 .ifRefNull("value").blockReturn(ref("zdt"))
                 .methodReturn(exprDotMethod(ref("zdt"), "with", enumValue(ChronoField.class, chronoField.name()), ref("value")));

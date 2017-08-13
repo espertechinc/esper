@@ -13,6 +13,7 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
@@ -56,12 +57,12 @@ public class MapNestedEntryPropertyGetterObjectArray extends MapNestedEntryPrope
     }
 
     public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, this.getClass());
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, this.getClass());
         return localMethod(method, name);
     }
 
     public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, this.getClass());
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, this.getClass());
         return localMethod(method, name);
     }
 }

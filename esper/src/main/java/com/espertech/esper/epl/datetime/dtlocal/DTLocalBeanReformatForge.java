@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -43,7 +44,7 @@ public class DTLocalBeanReformatForge implements DTLocalForge {
         if (!getterResultType.isPrimitive()) {
             block.ifRefNullReturnNull("timestamp");
         }
-        String method = block.methodReturn(inner.codegen(ref("timestamp"), getterResultType, params, context));
+        CodegenMethodId method = block.methodReturn(inner.codegen(ref("timestamp"), getterResultType, params, context));
         return localMethodBuild(method).pass(target).passAll(params).call();
     }
 }

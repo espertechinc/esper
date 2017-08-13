@@ -13,6 +13,7 @@ package com.espertech.esper.epl.index.quadtree;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -178,7 +179,7 @@ public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends
             CodegenLegoCast.asDoubleNullReturnNull(block, "otherY", forge.otherYEval, params, context);
             CodegenLegoCast.asDoubleNullReturnNull(block, "otherWidth", forge.otherWidthEval, params, context);
             CodegenLegoCast.asDoubleNullReturnNull(block, "otherHeight", forge.otherHeightEval, params, context);
-            String method = block.methodReturn(staticMethod(BoundingBox.class, "intersectsBoxIncludingEnd", ref("meX"), ref("meY"), op(ref("meX"), "+", ref("meWidth")), op(ref("meY"), "+", ref("meHeight")),
+            CodegenMethodId method = block.methodReturn(staticMethod(BoundingBox.class, "intersectsBoxIncludingEnd", ref("meX"), ref("meY"), op(ref("meX"), "+", ref("meWidth")), op(ref("meY"), "+", ref("meHeight")),
                     ref("otherX"), ref("otherY"), ref("otherWidth"), ref("otherHeight")));
             return localMethodBuild(method).passAll(params).call();
         }

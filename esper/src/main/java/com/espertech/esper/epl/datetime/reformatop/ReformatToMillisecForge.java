@@ -75,7 +75,7 @@ public class ReformatToMillisecForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        return staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, ref(tz.getMemberName()));
+        return staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, member(tz.getMemberId()));
     }
 
     public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {

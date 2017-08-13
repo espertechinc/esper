@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static org.apache.avro.SchemaBuilder.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -198,7 +199,7 @@ public class ExecEventAvroHook implements RegressionExecution {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
-            throw new UnsupportedOperationException("not yet implemented");
+            return exprDotMethod(enumValue(DateTimeFormatter.class, "ISO_DATE_TIME"), "format", cast(LocalDateTime.class, expression));
         }
     }
 
@@ -207,15 +208,19 @@ public class ExecEventAvroHook implements RegressionExecution {
         public static Schema supportBeanSchema;
 
         public Object widen(Object input) {
+            return widenInput(input);
+        }
+
+        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+            return staticMethod(MySupportBeanWidener.class, "widenInput", expression);
+        }
+
+        public static Object widenInput(Object input) {
             SupportBean sb = (SupportBean) input;
             GenericData.Record record = new GenericData.Record(supportBeanSchema);
             record.put("theString", sb.getTheString());
             record.put("intPrimitive", sb.getIntPrimitive());
             return record;
-        }
-
-        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
-            throw new UnsupportedOperationException("not yet implemented");
         }
     }
 

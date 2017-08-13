@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -64,7 +65,7 @@ public class EnumOrderByAscDescScalarForge extends EnumForgeBase implements Enum
         } else {
             block.expression(staticMethod(Collections.class, "sort", ref("list")));
         }
-        String method = block.methodReturn(ref("list"));
+        CodegenMethodId method = block.methodReturn(ref("list"));
         return localMethodBuild(method).passAll(args).call();
 
     }

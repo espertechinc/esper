@@ -236,9 +236,9 @@ public class DOMComplexElementGetter implements EventPropertyGetterSPI, DOMPrope
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         CodegenMember member = context.makeAddMember(FragmentFactory.class, fragmentFactory);
         if (!isArray) {
-            return staticMethod(this.getClass(), "getValueAsNodeFragment", underlyingExpression, constant(propertyName), ref(member.getMemberName()));
+            return staticMethod(this.getClass(), "getValueAsNodeFragment", underlyingExpression, constant(propertyName), member(member.getMemberId()));
         } else {
-            return staticMethod(this.getClass(), "getValueAsNodeFragmentArray", underlyingExpression, constant(propertyName), ref(member.getMemberName()));
+            return staticMethod(this.getClass(), "getValueAsNodeFragmentArray", underlyingExpression, constant(propertyName), member(member.getMemberId()));
         }
     }
 

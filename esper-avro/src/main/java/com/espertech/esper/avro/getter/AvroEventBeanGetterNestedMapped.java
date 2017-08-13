@@ -13,6 +13,7 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
@@ -42,7 +43,7 @@ public class AvroEventBeanGetterNestedMapped implements EventPropertyGetterSPI {
         return AvroEventBeanGetterMapped.getAvroMappedValueWNullCheck(map, key);
     }
 
-    private String getCodegen(CodegenContext context) {
+    private CodegenMethodId getCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(top))))
                 .ifRefNullReturnNull("inner")

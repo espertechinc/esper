@@ -37,7 +37,7 @@ public class ExprNodeUtilExprStreamNumEventTable implements ExprForge, ExprEvalu
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        return staticMethod(ExprNodeUtilExprStreamNumEventTable.class, "evaluateConvertTableEvent", constant(streamNum), ref(eventToPublic.getMemberName()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+        return staticMethod(ExprNodeUtilExprStreamNumEventTable.class, "evaluateConvertTableEvent", constant(streamNum), member(eventToPublic.getMemberId()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
     }
 
     public ExprForgeComplexityEnum getComplexity() {

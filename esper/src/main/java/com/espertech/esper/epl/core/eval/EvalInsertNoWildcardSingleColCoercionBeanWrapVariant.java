@@ -12,27 +12,38 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
-public class EvalInsertNoWildcardSingleColCoercionBeanWrapVariant extends EvalBaseFirstProp implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
-    private static final Logger log = LoggerFactory.getLogger(EvalInsertNoWildcardSingleColCoercionBeanWrapVariant.class);
+public class EvalInsertNoWildcardSingleColCoercionBeanWrapVariant extends EvalBaseFirstProp implements SelectExprProcessor {
 
     private final ValueAddEventProcessor vaeProcessor;
 
-    public EvalInsertNoWildcardSingleColCoercionBeanWrapVariant(SelectExprContext selectExprContext, EventType resultEventType, ValueAddEventProcessor vaeProcessor) {
-        super(selectExprContext, resultEventType);
+    public EvalInsertNoWildcardSingleColCoercionBeanWrapVariant(SelectExprForgeContext selectExprForgeContext, EventType resultEventType, ValueAddEventProcessor vaeProcessor) {
+        super(selectExprForgeContext, resultEventType);
         this.vaeProcessor = vaeProcessor;
     }
 
     public EventBean processFirstCol(Object result) {
         EventBean wrappedEvent = super.getEventAdapterService().adapterForBean(result);
         EventBean variant = vaeProcessor.getValueAddEventBean(wrappedEvent);
-        return super.getEventAdapterService().adapterForTypedWrapper(variant, Collections.EMPTY_MAP, super.getResultEventType());
+        return super.getEventAdapterService().adapterForTypedWrapper(variant, Collections.emptyMap(), super.getResultEventType());
+    }
+
+    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenContext context) {
+        CodegenMember processor = context.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
+        CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(evaluationType, "result").begin()
+                .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("result")))
+                .declareVar(EventBean.class, "variant", exprDotMethod(member(processor.getMemberId()), "getValueAddEventBean", ref("wrappedEvent")))
+                .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", ref("variant"), staticMethod(Collections.class, "emptyMap"), member(memberResultEventType.getMemberId())));
+        return localMethodBuild(method).pass(expression).call();
     }
 }

@@ -13,13 +13,13 @@ package com.espertech.esper.codegen.model.blocks;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprTypableReturnEval;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class CodegenLegoEvaluateSelf {
     public static CodegenExpression evaluateSelfGetROCollectionEvents(ExprEnumerationEval provider, CodegenParamSetExprPremade params, CodegenContext context) {
@@ -36,12 +36,12 @@ public class CodegenLegoEvaluateSelf {
 
     private static CodegenExpression call(ExprEnumerationEval provider, CodegenParamSetExprPremade params, CodegenContext context, String methodName) {
         CodegenMember member = context.makeAddMember(ExprEnumerationEval.class, provider);
-        return exprDotMethod(ref(member.getMemberName()), methodName, params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+        return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, params.passEPS(), params.passIsNewData(), params.passEvalCtx());
     }
 
     public static CodegenExpression evaluateSelfPlainWithCast(ExprEvaluator provider, Class returnType, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember member = context.makeAddMember(ExprEvaluator.class, provider);
-        return CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(ref(member.getMemberName()), "evaluate", params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
+        return CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), "evaluate", params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
     }
 
     public static CodegenExpression evaluateSelfTypableMulti(ExprTypableReturnEval typableEval, CodegenParamSetExprPremade params, CodegenContext context) {
@@ -54,6 +54,6 @@ public class CodegenLegoEvaluateSelf {
 
     private static CodegenExpression evaluateSelfTypable(ExprTypableReturnEval typableEval, CodegenParamSetExprPremade params, CodegenContext context, String methodName) {
         CodegenMember member = context.makeAddMember(ExprTypableReturnEval.class, typableEval);
-        return exprDotMethod(ref(member.getMemberName()), methodName, params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+        return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, params.passEPS(), params.passIsNewData(), params.passEvalCtx());
     }
 }

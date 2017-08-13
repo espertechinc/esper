@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.interval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -45,7 +46,7 @@ public class IntervalForgeOp implements IntervalOp {
         if (!forge.getForgeTimestamp().getEvaluationType().isPrimitive()) {
             block.ifRefNullReturnNull("parameter");
         }
-        String method = block.methodReturn(forge.getIntervalOpForge().codegen(ref("startTs"), ref("endTs"), ref("parameter"), forge.getForgeTimestamp().getEvaluationType(), params, context));
+        CodegenMethodId method = block.methodReturn(forge.getIntervalOpForge().codegen(ref("startTs"), ref("endTs"), ref("parameter"), forge.getForgeTimestamp().getEvaluationType(), params, context));
         return localMethodBuild(method).pass(start).pass(end).passAll(params).call();
     }
 }

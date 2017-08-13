@@ -14,6 +14,7 @@ import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.Schema;
@@ -44,7 +45,7 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
         return inner == null ? null : getter.getAvroFieldValue(inner);
     }
 
-    private String getCodegen(CodegenContext context) {
+    private CodegenMethodId getCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(fieldTop))))
                 .methodReturn(conditional(equalsNull(ref("inner")), constantNull(), getter.underlyingGetCodegen(ref("inner"), context)));
@@ -62,7 +63,7 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
         return getter.isExistsPropertyAvro((GenericData.Record) inner);
     }
 
-    private String isExistsPropertyCodegen(CodegenContext context) {
+    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
         return context.addMethod(boolean.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(Schema.Field.class, "field", exprDotMethodChain(ref("record")).add("getSchema").add("getField", constant(fieldTop)))
                 .ifRefNullReturnFalse("field")

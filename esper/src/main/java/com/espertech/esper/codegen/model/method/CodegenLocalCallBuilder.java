@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.codegen.model.method;
 
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 import java.util.ArrayList;
@@ -17,11 +18,11 @@ import java.util.List;
 
 public class CodegenLocalCallBuilder {
 
-    private final String methodName;
+    private final CodegenMethodId methodId;
     private final List<CodegenPassSet> parameterSets = new ArrayList<>(2);
 
-    public CodegenLocalCallBuilder(String methodName) {
-        this.methodName = methodName;
+    public CodegenLocalCallBuilder(CodegenMethodId methodId) {
+        this.methodId = methodId;
     }
 
     public CodegenLocalCallBuilder passAll(CodegenParamSet params) {
@@ -35,6 +36,6 @@ public class CodegenLocalCallBuilder {
     }
 
     public CodegenExpression call() {
-        return new CodegenExpressionLocalMethodParamSet(methodName, parameterSets);
+        return new CodegenExpressionLocalMethodParamSet(methodId, parameterSets);
     }
 }

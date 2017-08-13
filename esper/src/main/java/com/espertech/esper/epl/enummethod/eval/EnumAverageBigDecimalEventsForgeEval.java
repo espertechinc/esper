@@ -14,7 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -64,7 +66,7 @@ public class EnumAverageBigDecimalEventsForgeEval implements EnumEval {
         CodegenMember mathCtxMember = context.makeAddMember(MathContext.class, forge.optionalMathContext);
 
         CodegenBlock block = context.addMethod(BigDecimal.class, EnumAverageBigDecimalEventsForgeEval.class).add(premade).begin()
-                .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, ref(mathCtxMember.getMemberName())));
+                .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, CodegenExpressionBuilder.member(mathCtxMember.getMemberId())));
         CodegenBlock forEach = block.forEach(EventBean.class, "next", premade.enumcoll())
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"))
                 .declareVar(innerType, "num", forge.getInnerExpression().evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context));
@@ -73,7 +75,7 @@ public class EnumAverageBigDecimalEventsForgeEval implements EnumEval {
         }
         forEach.expression(exprDotMethod(ref("agg"), "enter", ref("num")))
                 .blockEnd();
-        String method = block.methodReturn(exprDotMethod(ref("agg"), "getValue"));
+        CodegenMethodId method = block.methodReturn(exprDotMethod(ref("agg"), "getValue"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

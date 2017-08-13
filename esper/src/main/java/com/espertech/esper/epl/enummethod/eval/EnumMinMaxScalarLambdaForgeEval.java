@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -83,7 +84,7 @@ public class EnumMinMaxScalarLambdaForgeEval implements EnumEval {
 
         CodegenBlock block = context.addMethod(innerTypeBoxed, EnumMinMaxScalarLambdaForgeEval.class).add(premade).begin()
                 .declareVar(innerTypeBoxed, "minKey", constantNull())
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(resultTypeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
@@ -100,7 +101,7 @@ public class EnumMinMaxScalarLambdaForgeEval implements EnumEval {
                 .ifCondition(relational(exprDotMethod(ref("minKey"), "compareTo", ref("value")), forge.max ? LT : GT, constant(0)))
                 .assignRef("minKey", ref("value"));
 
-        String method = block.methodReturn(ref("minKey"));
+        CodegenMethodId method = block.methodReturn(ref("minKey"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

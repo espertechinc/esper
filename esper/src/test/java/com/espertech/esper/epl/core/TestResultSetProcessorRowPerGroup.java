@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
@@ -41,14 +42,14 @@ public class TestResultSetProcessorRowPerGroup extends TestCase {
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         SelectExprProcessorHelper factory = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), SupportSelectExprFactory.makeSelectListFromIdent("theString", "s0"),
                 Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, agentInstanceContext.getStatementContext().getEngineImportService(), 1, "stmtname", null, new Configuration(), null, new TableServiceImpl(), null);
-        SelectExprProcessor selectProcessor = factory.getEvaluator();
+        SelectExprProcessor selectProcessor = factory.getForge().getSelectExprProcessor(SupportEngineImportServiceFactory.make(), false, "abc");
         supportAggregationService = new SupportAggregationService();
 
         ExprEvaluator[] groupKeyNodes = new ExprEvaluator[2];
         groupKeyNodes[0] = SupportExprNodeFactory.makeIdentNode("intPrimitive", "s0").getForge().getExprEvaluator();
         groupKeyNodes[1] = SupportExprNodeFactory.makeIdentNode("intBoxed", "s0").getForge().getExprEvaluator();
 
-        ResultSetProcessorRowPerGroupFactory prototype = new ResultSetProcessorRowPerGroupFactory(selectProcessor, null, groupKeyNodes, null, true, false, null, false, false, false, false, null, false, 1, null);
+        ResultSetProcessorRowPerGroupFactory prototype = new ResultSetProcessorRowPerGroupFactory(factory.getForge().getResultEventType(), selectProcessor, null, groupKeyNodes, null, true, false, null, false, false, false, false, null, false, 1, null);
         processor = (ResultSetProcessorRowPerGroup) prototype.instantiate(null, supportAggregationService, agentInstanceContext);
     }
 

@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -53,14 +54,14 @@ public class RevisionNestedPropertyGetter implements EventPropertyGetterSPI {
         return nestedGetter.get(theEvent);
     }
 
-    private String getCodegen(CodegenContext context) {
+    private CodegenMethodId getCodegen(CodegenContext context) {
         CodegenMember mgetter = context.makeAddMember(EventPropertyGetter.class, nestedGetter);
         CodegenMember msvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "obj").begin()
                 .declareVar(Object.class, "result", revisionGetter.eventBeanGetCodegen(ref("obj"), context))
                 .ifRefNullReturnNull("result")
-                .declareVar(EventBean.class, "theEvent", exprDotMethod(ref(msvc.getMemberName()), "adapterForBean", ref("result")))
-                .methodReturn(exprDotMethod(ref(mgetter.getMemberName()), "get", ref("theEvent")));
+                .declareVar(EventBean.class, "theEvent", exprDotMethod(member(msvc.getMemberId()), "adapterForBean", ref("result")))
+                .methodReturn(exprDotMethod(member(mgetter.getMemberId()), "get", ref("theEvent")));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {

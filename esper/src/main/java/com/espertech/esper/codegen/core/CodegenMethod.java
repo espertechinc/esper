@@ -59,7 +59,9 @@ public class CodegenMethod {
             builder.append("public ");
         }
         appendClassName(builder, footprint.getReturnType(), null, imports);
-        builder.append(" ").append(footprint.getMethodName()).append("(");
+        builder.append(" ");
+        footprint.getMethodId().render(builder);
+        builder.append("(");
         String delimiter = "";
         for (CodegenParamSet param : footprint.getParams()) {
             builder.append(delimiter);

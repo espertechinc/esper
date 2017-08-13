@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -48,7 +49,7 @@ public class EnumLastOfNoPredicateForge extends EnumForgeBase implements EnumFor
     public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
         CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
         Class type = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
-        String method = context.addMethod(type, EnumLastOfNoPredicateForge.class).add(premade).begin()
+        CodegenMethodId method = context.addMethod(type, EnumLastOfNoPredicateForge.class).add(premade).begin()
                 .declareVar(Object.class, "result", constantNull())
                 .forEach(Object.class, "next", premade.enumcoll())
                 .assignRef("result", ref("next"))

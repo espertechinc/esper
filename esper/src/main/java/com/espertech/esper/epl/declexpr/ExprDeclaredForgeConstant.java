@@ -13,6 +13,7 @@ package com.espertech.esper.epl.declexpr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -64,7 +65,7 @@ public class ExprDeclaredForgeConstant implements ExprForge, ExprEvaluator {
         if (!audit) {
             return constant(value);
         }
-        String method = context.addMethod(returnType, ExprDeclaredForgeConstant.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(returnType, ExprDeclaredForgeConstant.class).add(params).begin()
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                 .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(prototype.getName() + " result "), "+", constant(value))))
                 .blockEnd()

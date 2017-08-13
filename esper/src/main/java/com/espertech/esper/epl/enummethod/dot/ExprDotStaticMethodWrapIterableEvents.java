@@ -48,7 +48,7 @@ public class ExprDotStaticMethodWrapIterableEvents implements ExprDotStaticMetho
     public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
         CodegenMember eventSvcMember = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember typeMember = context.makeAddMember(BeanEventType.class, type);
-        return newInstance(WrappingCollection.class, ref(eventSvcMember.getMemberName()), ref(typeMember.getMemberName()), exprDotMethod(result, "iterator"));
+        return newInstance(WrappingCollection.class, member(eventSvcMember.getMemberId()), member(typeMember.getMemberId()), exprDotMethod(result, "iterator"));
     }
 
     public static class WrappingCollection implements Collection<EventBean> {

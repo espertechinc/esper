@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.funcs;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -61,7 +62,7 @@ public class ExprCastNodeForgeNonConstEval implements ExprEvaluator {
             block.ifRefNullReturnNull("result");
         }
         CodegenExpression cast = forge.getCasterParserComputerForge().codegenPremade(forge.getEvaluationType(), ref("result"), childType, context, params);
-        String method = block.methodReturn(cast);
+        CodegenMethodId method = block.methodReturn(cast);
         return localMethodBuild(method).passAll(params).call();
     }
 

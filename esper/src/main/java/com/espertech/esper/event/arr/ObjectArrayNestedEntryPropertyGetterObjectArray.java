@@ -13,6 +13,7 @@ package com.espertech.esper.event.arr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
@@ -76,7 +77,7 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
         return localMethod(generateMethod(context, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT), refName);
     }
 
-    private String generateMethod(CodegenContext context, CodegenLegoPropertyBeanOrUnd.AccessType accessType) {
+    private CodegenMethodId generateMethod(CodegenContext context, CodegenLegoPropertyBeanOrUnd.AccessType accessType) {
         return CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, accessType, this.getClass());
     }
 }

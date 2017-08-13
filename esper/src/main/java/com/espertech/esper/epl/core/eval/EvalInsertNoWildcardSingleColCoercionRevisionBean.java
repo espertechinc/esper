@@ -12,25 +12,33 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class EvalInsertNoWildcardSingleColCoercionRevisionBean extends EvalBaseFirstProp implements SelectExprProcessor {
-
-    private static final Logger log = LoggerFactory.getLogger(EvalInsertNoWildcardSingleColCoercionRevisionBean.class);
 
     private final ValueAddEventProcessor vaeProcessor;
     private final EventType vaeInnerEventType;
 
-    public EvalInsertNoWildcardSingleColCoercionRevisionBean(SelectExprContext selectExprContext, EventType resultEventType, ValueAddEventProcessor vaeProcessor, EventType vaeInnerEventType) {
-        super(selectExprContext, resultEventType);
+    public EvalInsertNoWildcardSingleColCoercionRevisionBean(SelectExprForgeContext selectExprForgeContext, EventType resultEventType, ValueAddEventProcessor vaeProcessor, EventType vaeInnerEventType) {
+        super(selectExprForgeContext, resultEventType);
         this.vaeProcessor = vaeProcessor;
         this.vaeInnerEventType = vaeInnerEventType;
     }
 
     public EventBean processFirstCol(Object result) {
         return vaeProcessor.getValueAddEventBean(super.getEventAdapterService().adapterForTypedBean(result, vaeInnerEventType));
+    }
+
+    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenContext context) {
+        CodegenMember memberProcessor = context.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
+        CodegenMember memberType = context.makeAddMember(EventType.class, vaeInnerEventType);
+        return exprDotMethod(CodegenExpressionBuilder.member(memberProcessor.getMemberId()), "getValueAddEventBean", exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedBean", expression, CodegenExpressionBuilder.member(memberType.getMemberId())));
     }
 }

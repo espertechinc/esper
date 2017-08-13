@@ -10,27 +10,22 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
+import com.espertech.esper.codegen.core.CodegenMemberId;
+
 import java.util.Map;
 import java.util.Set;
 
-import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassName;
+public class CodegenExpressionMember implements CodegenExpression {
+    private final CodegenMemberId memberId;
 
-public class CodegenExpressionEnumValue implements CodegenExpression {
-    private final Class enumType;
-    private final String enumValue;
-
-    public CodegenExpressionEnumValue(Class enumType, String enumValue) {
-        this.enumType = enumType;
-        this.enumValue = enumValue;
+    public CodegenExpressionMember(CodegenMemberId memberId) {
+        this.memberId = memberId;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
-        appendClassName(builder, enumType, null, imports);
-        builder.append(".");
-        builder.append(enumValue);
+        memberId.render(builder);
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(enumType);
     }
 }

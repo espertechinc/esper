@@ -37,7 +37,7 @@ public class ExecClientEPAdministratorPerformance implements RegressionExecution
         }
         long end = System.currentTimeMillis();
         long delta = end - start;
-        assertTrue(".test10kValid delta=" + delta, delta < 5000);
+        assertTrue(".test10kValid delta=" + delta, delta < 10000);
         epService.getEPAdministrator().destroyAllStatements();
     }
 

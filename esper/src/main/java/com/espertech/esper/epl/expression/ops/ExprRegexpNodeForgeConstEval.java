@@ -13,8 +13,8 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -62,23 +62,23 @@ public class ExprRegexpNodeForgeConstEval implements ExprEvaluator {
         return result;
     }
 
-    public static String codegen(ExprRegexpNodeForgeConst forge, ExprNode lhs, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenMethodId codegen(ExprRegexpNodeForgeConst forge, ExprNode lhs, CodegenContext context, CodegenParamSetExprPremade params) {
         CodegenMember mPattern = context.makeAddMember(Pattern.class, forge.getPattern());
 
         if (!forge.isNumericValue()) {
             return context.addMethod(Boolean.class, ExprRegexpNodeForgeConstEval.class).add(params).begin()
                     .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(params, context))
                     .ifRefNullReturnNull("value")
-                    .methodReturn(getRegexpCode(forge, ref(mPattern.getMemberName()), ref("value")));
+                    .methodReturn(getRegexpCode(forge, member(mPattern.getMemberId()), ref("value")));
         }
         return context.addMethod(Boolean.class, ExprRegexpNodeForgeConstEval.class).add(params).begin()
                 .declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(params, context))
                 .ifRefNullReturnNull("value")
-                .methodReturn(getRegexpCode(forge, ref(mPattern.getMemberName()), exprDotMethod(ref("value"), "toString")));
+                .methodReturn(getRegexpCode(forge, member(mPattern.getMemberId()), exprDotMethod(ref("value"), "toString")));
     }
 
-    static CodegenExpression getRegexpCode(ExprRegexpNodeForge forge, CodegenExpressionRef patternRef, CodegenExpression stringExpr) {
-        CodegenExpression eval = exprDotMethodChain(patternRef).add("matcher", stringExpr).add("matches");
+    static CodegenExpression getRegexpCode(ExprRegexpNodeForge forge, CodegenExpression pattern, CodegenExpression stringExpr) {
+        CodegenExpression eval = exprDotMethodChain(pattern).add("matcher", stringExpr).add("matches");
         return !forge.getForgeRenderable().isNot() ? eval : not(eval);
     }
 }

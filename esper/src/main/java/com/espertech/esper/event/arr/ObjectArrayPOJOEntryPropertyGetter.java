@@ -13,6 +13,7 @@ package com.espertech.esper.event.arr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -58,7 +59,7 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         return entryGetter.getBeanProp(value);
     }
 
-    private String getObjectArrayCodegen(CodegenContext context) {
+    private CodegenMethodId getObjectArrayCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
@@ -95,7 +96,7 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         return entryGetter.isBeanExistsProperty(value);
     }
 
-    private String isExistsPropertyCodegen(CodegenContext context) {
+    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
         return context.addMethod(boolean.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")

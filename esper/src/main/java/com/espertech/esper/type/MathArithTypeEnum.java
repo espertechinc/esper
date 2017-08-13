@@ -13,6 +13,7 @@ package com.espertech.esper.type;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.collection.MultiKeyUntyped;
@@ -408,7 +409,7 @@ public enum MathArithTypeEnum {
             if (!divisionByZeroReturnsNull) {
                 return op(codegenAsDouble(left, ltype), "/", codegenAsDouble(right, rtype));
             }
-            String method = context.addMethod(Double.class, DivideDouble.class).add(ltype, "d1").add(rtype, "d2").begin()
+            CodegenMethodId method = context.addMethod(Double.class, DivideDouble.class).add(ltype, "d1").add(rtype, "d2").begin()
                     .declareVar(double.class, "d2Double", codegenAsDouble(ref("d2"), rtype))
                     .ifCondition(equalsIdentity(ref("d2Double"), constant(0)))
                     .blockReturn(constantNull())
@@ -464,7 +465,7 @@ public enum MathArithTypeEnum {
         }
 
         public CodegenExpression codegen(CodegenContext context, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            String method = context.addMethod(Integer.class, DivideInt.class).add(int.class, "i1").add(int.class, "i2").begin()
+            CodegenMethodId method = context.addMethod(Integer.class, DivideInt.class).add(int.class, "i1").add(int.class, "i2").begin()
                     .ifCondition(equalsIdentity(ref("i2"), constant(0)))
                     .blockReturn(constantNull())
                     .methodReturn(op(ref("i1"), "/", ref("i2")));
@@ -509,7 +510,7 @@ public enum MathArithTypeEnum {
             } else {
                 ifBlock.blockReturn(newInstance(BigDecimal.class, op(exprDotMethod(ref("b1"), "doubleValue"), "/", constant(0d))));
             }
-            String method = block.methodReturn(exprDotMethod(ref("b1"), "divide", ref("b2")));
+            CodegenMethodId method = block.methodReturn(exprDotMethod(ref("b1"), "divide", ref("b2")));
             return localMethod(method, left, right);
         }
     }
@@ -557,7 +558,7 @@ public enum MathArithTypeEnum {
                     ifZero.blockReturn(newInstance(BigDecimal.class, op(exprDotMethod(ref("b1"), "doubleValue"), "/", constant(0))));
                 }
             }
-            String method = block.methodReturn(exprDotMethod(ref("b1"), "divide", ref("b2"), ref(memberMathContext.getMemberName())));
+            CodegenMethodId method = block.methodReturn(exprDotMethod(ref("b1"), "divide", ref("b2"), member(memberMathContext.getMemberId())));
             return localMethod(method, left, right);
         }
     }
@@ -752,7 +753,7 @@ public enum MathArithTypeEnum {
         }
 
         public CodegenExpression codegen(CodegenContext context, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            String method = context.addMethod(BigDecimal.class, SubtractBigDecConvComputer.class).add(ltype, "d1").add(rtype, "d2").begin()
+            CodegenMethodId method = context.addMethod(BigDecimal.class, SubtractBigDecConvComputer.class).add(ltype, "d1").add(rtype, "d2").begin()
                     .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
                     .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
                     .methodReturn(exprDotMethod(ref("s1"), "subtract", ref("s2")));
@@ -785,7 +786,7 @@ public enum MathArithTypeEnum {
         }
 
         public CodegenExpression codegen(CodegenContext context, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            String method = context.addMethod(BigDecimal.class, MultiplyBigDecConvComputer.class).add(ltype, "d1").add(rtype, "d2").begin()
+            CodegenMethodId method = context.addMethod(BigDecimal.class, MultiplyBigDecConvComputer.class).add(ltype, "d1").add(rtype, "d2").begin()
                     .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
                     .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
                     .methodReturn(exprDotMethod(ref("s1"), "multiply", ref("s2")));
@@ -843,7 +844,7 @@ public enum MathArithTypeEnum {
                 ifZeroDivisor.declareVar(double.class, "result", op(exprDotMethod(ref("s1"), "doubleValue"), "/", constant(0)))
                         .blockReturn(newInstance(BigDecimal.class, ref("result")));
             }
-            String method = block.methodReturn(doDivideCodegen(ref("s1"), ref("s2"), context));
+            CodegenMethodId method = block.methodReturn(doDivideCodegen(ref("s1"), ref("s2"), context));
             return localMethodBuild(method).pass(left).pass(right).call();
         }
     }
@@ -876,7 +877,7 @@ public enum MathArithTypeEnum {
 
         public CodegenExpression doDivideCodegen(CodegenExpressionRef s1, CodegenExpressionRef s2, CodegenContext context) {
             CodegenMember math = context.makeAddMember(MathContext.class, mathContext);
-            return exprDotMethod(s1, "divide", s2, ref(math.getMemberName()));
+            return exprDotMethod(s1, "divide", s2, member(math.getMemberId()));
         }
     }
 
@@ -1001,7 +1002,7 @@ public enum MathArithTypeEnum {
         }
 
         public CodegenExpression codegen(CodegenContext context, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
-            String method = context.addMethod(BigInteger.class, DivideBigIntConvComputer.class).add(ltype, "d1").add(rtype, "d2").begin()
+            CodegenMethodId method = context.addMethod(BigInteger.class, DivideBigIntConvComputer.class).add(ltype, "d1").add(rtype, "d2").begin()
                     .declareVar(BigInteger.class, "s1", convOne.coerceBoxedBigIntCodegen(ref("d1"), ltype))
                     .declareVar(BigInteger.class, "s2", convTwo.coerceBoxedBigIntCodegen(ref("d2"), rtype))
                     .ifCondition(equalsIdentity(exprDotMethod(ref("s2"), "doubleValue"), constant(0)))

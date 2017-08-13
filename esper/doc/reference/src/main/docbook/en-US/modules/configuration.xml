@@ -1609,10 +1609,17 @@ class MyOwnDataSourceFactory {
 			<title>Engine Settings related to Code Generation and Compilation</title>
 			
 			<para>
+			  The setting <literal>enable-selectclause</literal> is true by default and controls whether the engine generates code for the entire select-clause.
+			</para>
+
+			<para>
 			  The setting <literal>enable-expression</literal> is true by default and controls whether the engine generates code for interdependent expressions.
-			  By setting flag to false the engine does not depend on Janino.
 			</para>
 			
+			<para>
+			  When all <literal>enable-</literal>flags are false the engine does not depend on Janino and Janino can be removed from classpath.
+			</para>
+
 			<para>
 			  The setting <literal>enable-fallback</literal> is true by default and controls whether the engine, upon encountering any exception generating any code, 
 			  falls back to regular evaluation. When this flag is false the engine rethrows any exception encountered for code generation.
@@ -1637,6 +1644,7 @@ class MyOwnDataSourceFactory {
 			</para>
 			<programlisting><![CDATA[Configuration configuration = new Configuration();
 ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
+codegen.setEnableSelectClause(true);
 codegen.setEnableExpression(true);
 codegen.setEnableFallback(true);
 codegen.setEnablePropertyGetter(false);
@@ -1648,7 +1656,12 @@ codegen.setIncludeComments(false);]]></programlisting>
 			</para>
 			<programlisting><![CDATA[<engine-settings>
   <defaults>
-    <codegen enable-expression="true" enable-fallback="true" enable-propertygetter="false" include-comments="false" include-debugsymbols="false"/>
+    <codegen enable-selectclause="true" 
+      enable-expression="true" 
+      enable-fallback="true" 
+      enable-propertygetter="false" 
+      include-comments="false" 
+      include-debugsymbols="false"/>
   </defaults>
 </engine-settings>]]></programlisting>
 			

@@ -16,6 +16,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import org.apache.avro.generic.GenericData;
@@ -91,12 +92,12 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
         return eventAdapterService.adapterForTypedAvro(value, fragmentEventType);
     }
 
-    private String getAvroFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getAvroFragmentCodegen(CodegenContext context) {
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentEventType);
         return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), context))
-                .methodReturn(exprDotMethod(ref(mSvc.getMemberName()), "adapterForTypedAvro", ref("value"), ref(mType.getMemberName())));
+                .methodReturn(exprDotMethod(member(mSvc.getMemberId()), "adapterForTypedAvro", ref("value"), member(mType.getMemberId())));
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {

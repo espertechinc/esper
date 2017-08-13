@@ -13,6 +13,7 @@ package com.espertech.esper.event;
 import com.espertech.esper.client.*;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.event.map.MapEventType;
@@ -219,10 +220,10 @@ public class WrapperEventType implements EventTypeSPI {
                 public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
                     CodegenMember eventSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
                     CodegenMember mapType = context.makeAddMember(MapEventType.class, underlyingMapType);
-                    String method = context.addMethod(Object.class, WrapperEventType.class).add(EventBean.class, "theEvent").add(String.class, "mapKey").begin()
+                    CodegenMethodId method = context.addMethod(Object.class, WrapperEventType.class).add(EventBean.class, "theEvent").add(String.class, "mapKey").begin()
                             .declareVar(DecoratingEventBean.class, "wrapperEvent", cast(DecoratingEventBean.class, ref("theEvent")))
                             .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
-                            .declareVar(EventBean.class, "wrapped", exprDotMethod(ref(eventSvc.getMemberName()), "adapterForTypedMap", ref("map"), ref(mapType.getMemberName())))
+                            .declareVar(EventBean.class, "wrapped", exprDotMethod(member(eventSvc.getMemberId()), "adapterForTypedMap", ref("map"), member(mapType.getMemberId())))
                             .methodReturn(decoMapped.eventBeanGetMappedCodegen(context, ref("wrapped"), ref("mapKey")));
                     return localMethodBuild(method).pass(beanExpression).pass(key).call();
                 }
@@ -274,10 +275,10 @@ public class WrapperEventType implements EventTypeSPI {
                 public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
                     CodegenMember eventSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
                     CodegenMember mapType = context.makeAddMember(MapEventType.class, underlyingMapType);
-                    String method = context.addMethod(Object.class, WrapperEventType.class).add(EventBean.class, "theEvent").add(int.class, "index").begin()
+                    CodegenMethodId method = context.addMethod(Object.class, WrapperEventType.class).add(EventBean.class, "theEvent").add(int.class, "index").begin()
                             .declareVar(DecoratingEventBean.class, "wrapperEvent", cast(DecoratingEventBean.class, ref("theEvent")))
                             .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
-                            .declareVar(EventBean.class, "wrapped", exprDotMethod(ref(eventSvc.getMemberName()), "adapterForTypedMap", ref("map"), ref(mapType.getMemberName())))
+                            .declareVar(EventBean.class, "wrapped", exprDotMethod(member(eventSvc.getMemberId()), "adapterForTypedMap", ref("map"), member(mapType.getMemberId())))
                             .methodReturn(decoIndexed.eventBeanGetIndexedCodegen(context, ref("wrapped"), ref("index")));
                     return localMethodBuild(method).pass(beanExpression).pass(key).call();
                 }

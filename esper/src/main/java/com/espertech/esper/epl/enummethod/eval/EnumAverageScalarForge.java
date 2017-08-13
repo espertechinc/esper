@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -53,7 +54,7 @@ public class EnumAverageScalarForge extends EnumForgeBase implements EnumEval {
 
     public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
         CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        String method = context.addMethod(Double.class, EnumAverageScalarForge.class).add(premade).begin()
+        CodegenMethodId method = context.addMethod(Double.class, EnumAverageScalarForge.class).add(premade).begin()
                 .declareVar(double.class, "sum", constant(0d))
                 .declareVar(int.class, "count", constant(0))
                 .forEach(Number.class, "num", premade.enumcoll())

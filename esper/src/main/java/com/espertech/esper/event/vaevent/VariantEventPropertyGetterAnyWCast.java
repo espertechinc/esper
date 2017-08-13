@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.SimpleTypeCaster;
@@ -40,12 +41,12 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
         return caster.cast(value);
     }
 
-    private String getCodegen(CodegenContext context) throws PropertyAccessException {
+    private CodegenMethodId getCodegen(CodegenContext context) throws PropertyAccessException {
         CodegenMember mCache = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
         CodegenMember mCaster = context.makeAddMember(SimpleTypeCaster.class, caster);
         return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "eventBean").begin()
-                .declareVar(Object.class, "value", staticMethod(VariantEventPropertyGetterAny.class, "variantGet", ref("eventBean"), ref(mCache.getMemberName()), constant(assignedPropertyNumber)))
-                .methodReturn(exprDotMethod(ref(mCaster.getMemberName()), "cast", ref("value")));
+                .declareVar(Object.class, "value", staticMethod(VariantEventPropertyGetterAny.class, "variantGet", ref("eventBean"), member(mCache.getMemberId()), constant(assignedPropertyNumber)))
+                .methodReturn(exprDotMethod(member(mCaster.getMemberId()), "cast", ref("value")));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -62,7 +63,7 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
         CodegenMember member = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
-        return staticMethod(VariantEventPropertyGetterAny.class, "variantExists", beanExpression, ref(member.getMemberName()), constant(assignedPropertyNumber));
+        return staticMethod(VariantEventPropertyGetterAny.class, "variantExists", beanExpression, member(member.getMemberId()), constant(assignedPropertyNumber));
     }
 
     public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {

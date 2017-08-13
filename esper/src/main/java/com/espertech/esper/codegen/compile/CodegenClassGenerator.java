@@ -33,7 +33,7 @@ public class CodegenClassGenerator {
 
     public static <T> T compile(CodegenClass clazz, EngineImportService engineImportService, Class<T> interfaceClass, Supplier<String> debugInformation) throws CodegenCompilerException {
         // build members and imports
-        Set<CodegenMember> memberSet = new LinkedHashSet<>(clazz.getMembers());
+        Set<CodegenMember> memberSet = new LinkedHashSet<>(clazz.getMembers().values());
         Set<Class> classes = clazz.getReferencedClasses();
         Map<Class, String> imports = compileImports(classes);
 
@@ -110,7 +110,9 @@ public class CodegenClassGenerator {
         for (CodegenMember member : memberSet) {
             INDENT.indent(builder, 1);
             appendClassName(builder, member.getClazz(), member.getOptionalTypeParam(), imports);
-            builder.append(" ").append(member.getMemberName()).append(";\n");
+            builder.append(" ");
+            member.getMemberId().render(builder);
+            builder.append(";\n");
         }
         builder.append("\n");
 
@@ -121,13 +123,18 @@ public class CodegenClassGenerator {
         for (CodegenMember member : memberSet) {
             builder.append(delimiter);
             appendClassName(builder, member.getClazz(), member.getOptionalTypeParam(), imports);
-            builder.append(" ").append(member.getMemberName());
+            builder.append(" ");
+            member.getMemberId().renderPrefixed(builder, 'p');
             delimiter = ",";
         }
         builder.append("){\n");
         for (CodegenMember member : memberSet) {
             INDENT.indent(builder, 2);
-            builder.append("this.").append(member.getMemberName()).append("=").append(member.getMemberName()).append(";\n");
+            builder.append("this.");
+            member.getMemberId().render(builder);
+            builder.append("=");
+            member.getMemberId().renderPrefixed(builder, 'p');
+            builder.append(";\n");
         }
         INDENT.indent(builder, 1);
         builder.append("}\n");

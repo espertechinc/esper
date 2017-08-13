@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -54,7 +55,7 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenExpression getMapCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        String method = context.addMethod(Object.class, MapEntryPropertyGetter.class).add(Map.class, "map").begin()
+        CodegenMethodId method = context.addMethod(Object.class, MapEntryPropertyGetter.class).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
                 .ifInstanceOf("value", EventBean.class)
                     .blockReturn(exprDotUnderlying(cast(EventBean.class, ref("value"))))
@@ -111,6 +112,6 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
         }
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(BeanEventType.class, eventType);
-        return staticMethod(BaseNestableEventUtil.class, "getBNFragmentPojo", underlyingGetCodegen(underlyingExpression, context), ref(mType.getMemberName()), ref(mSvc.getMemberName()));
+        return staticMethod(BaseNestableEventUtil.class, "getBNFragmentPojo", underlyingGetCodegen(underlyingExpression, context), member(mType.getMemberId()), member(mSvc.getMemberId()));
     }
 }

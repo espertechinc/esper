@@ -12,6 +12,7 @@ package com.espertech.esper.epl.datetime.interval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -51,7 +52,7 @@ public class ExprEvaluatorStreamDTPropFragment implements ExprForge, ExprEvaluat
     }
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Long.class, ExprEvaluatorStreamDTPropFragment.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(Long.class, ExprEvaluatorStreamDTPropFragment.class).add(params).begin()
                 .declareVar(EventBean.class, "theEvent", arrayAtIndex(params.passEPS(), constant(streamId)))
                 .ifRefNullReturnNull("theEvent")
                 .declareVar(Object.class, "event", getterFragment.eventBeanFragmentCodegen(ref("theEvent"), context))

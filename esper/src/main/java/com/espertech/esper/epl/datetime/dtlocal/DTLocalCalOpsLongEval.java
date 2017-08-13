@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
@@ -51,10 +52,10 @@ public class DTLocalCalOpsLongEval extends DTLocalEvaluatorCalOpsCalBase impleme
     public static CodegenExpression codegen(DTLocalCalOpsLongForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
         CodegenBlock block = context.addMethod(long.class, DTLocalCalOpsLongEval.class).add(long.class, "target").add(params).begin()
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .declareVar(long.class, "remainder", forge.timeAbacus.calendarSetCodegen(ref("target"), ref("cal"), context));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), params, context);
-        String method = block.methodReturn(forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("remainder"), context));
+        CodegenMethodId method = block.methodReturn(forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("remainder"), context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 }

@@ -13,6 +13,7 @@ package com.espertech.esper.event.wrap;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.DecoratingEventBean;
 import com.espertech.esper.event.EventAdapterService;
@@ -46,7 +47,7 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
         return mapGetter.get(eventAdapterService.adapterForTypedMap(map, underlyingMapType));
     }
 
-    private String getCodegen(CodegenContext context) {
+    private CodegenMethodId getCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "theEvent").begin()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
@@ -66,7 +67,7 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
         return mapGetter.getFragment(eventAdapterService.adapterForTypedMap(map, underlyingMapType));
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "theEvent").begin()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))

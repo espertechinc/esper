@@ -13,6 +13,7 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
@@ -23,14 +24,16 @@ import junit.framework.TestCase;
 import java.util.Collections;
 
 public class TestSelectExprJoinWildcardProcessor extends TestCase {
+    private SelectExprProcessorForge forge;
     private SelectExprProcessor processor;
 
     public void setUp() throws ExprValidationException {
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         SupportStreamTypeSvc3Stream supportTypes = new SupportStreamTypeSvc3Stream();
 
-        processor = SelectExprJoinWildcardProcessorFactory.create(Collections.<Integer>emptyList(), 1, "stmtname", supportTypes.getStreamNames(), supportTypes.getEventTypes(),
-                SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, null, null, new Configuration(), new TableServiceImpl(), "default");
+        forge = SelectExprJoinWildcardProcessorFactory.create(Collections.<Integer>emptyList(), 1, "stmtname", supportTypes.getStreamNames(), supportTypes.getEventTypes(),
+                SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, null, null, new Configuration(), new TableServiceImpl(), "default", false);
+        processor = forge.getSelectExprProcessor(SupportEngineImportServiceFactory.make(), false, "stmtName");
     }
 
     public void testProcess() {
@@ -48,7 +51,7 @@ public class TestSelectExprJoinWildcardProcessor extends TestCase {
     }
 
     public void testType() {
-        assertEquals(SupportBean.class, processor.getResultEventType().getPropertyType("s0"));
-        assertEquals(SupportBean.class, processor.getResultEventType().getPropertyType("s1"));
+        assertEquals(SupportBean.class, forge.getResultEventType().getPropertyType("s0"));
+        assertEquals(SupportBean.class, forge.getResultEventType().getPropertyType("s1"));
     }
 }

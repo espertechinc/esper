@@ -14,6 +14,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -350,7 +351,7 @@ public class ExprCastNode extends ExprNodeBase {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return numericTypeCaster.codegen(input, inputType, context);
             }
-            String method = context.addMethod(evaluationType, NumberCasterComputer.class).add(inputType, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(evaluationType, NumberCasterComputer.class).add(inputType, "input").add(params).begin()
                     .ifInstanceOf("input", Number.class)
                     .blockReturn(numericTypeCaster.codegen(ref("input"), inputType, context))
                     .methodReturn(constantNull());
@@ -448,11 +449,11 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         protected CodegenExpression codegenAddFormat(CodegenContext context) {
-            return ref(context.makeAddMember(DateFormat.class, dateFormat).getMemberName());
+            return member(context.makeAddMember(DateFormat.class, dateFormat).getMemberId());
         }
 
         protected CodegenExpression codegenAddFormatString(CodegenContext context) {
-            return ref(context.makeAddMember(String.class, dateFormatString).getMemberName());
+            return member(context.makeAddMember(String.class, dateFormatString).getMemberId());
         }
     }
 
@@ -524,7 +525,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         protected CodegenExpression codegenFormatter(CodegenContext context) {
-            return ref(context.makeAddMember(DateTimeFormatter.class, formatter).getMemberName());
+            return member(context.makeAddMember(DateTimeFormatter.class, formatter).getMemberId());
         }
 
         public CasterParserComputer getEvaluatorComputer() {
@@ -694,7 +695,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
-            String method = context.addMethod(LocalDateTime.class, StringToLocalDateTimeWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(LocalDateTime.class, StringToLocalDateTimeWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
                     .methodReturn(staticMethod(StringToLocalDateTimeWStaticFormatComputer.class, "stringToLocalDateTimeWStaticFormatParse", ref("input"), ref("formatter")));
             return localMethodBuild(method).pass(input).passAll(params).call();
@@ -727,7 +728,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
-            String method = context.addMethod(LocalDate.class, StringToLocalDateWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(LocalDate.class, StringToLocalDateWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
                     .methodReturn(staticMethod(StringToLocalDateWStaticFormatComputer.class, "stringToLocalDateWStaticFormatParse", ref("input"), ref("formatter")));
             return localMethodBuild(method).pass(input).passAll(params).call();
@@ -760,7 +761,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
-            String method = context.addMethod(LocalTime.class, StringToLocalTimeWDynamicFormatComputerForge.class).add(String.class, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(LocalTime.class, StringToLocalTimeWDynamicFormatComputerForge.class).add(String.class, "input").add(params).begin()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
                     .methodReturn(staticMethod(StringToLocalTimeWStaticFormatComputer.class, "stringToLocalTimeWStaticFormatParse", ref("input"), ref("formatter")));
             return localMethodBuild(method).pass(input).passAll(params).call();
@@ -793,7 +794,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
-            String method = context.addMethod(ZonedDateTime.class, StringToZonedDateTimeWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(ZonedDateTime.class, StringToZonedDateTimeWDynamicFormatComputerEval.class).add(String.class, "input").add(params).begin()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", format))
                     .methodReturn(staticMethod(StringToZonedDateTimeWStaticFormatComputer.class, "stringZonedDateTimeWStaticFormatParse", ref("input"), ref("formatter")));
             return localMethodBuild(method).pass(input).passAll(params).call();
@@ -931,7 +932,7 @@ public class ExprCastNode extends ExprNodeBase {
 
         public CodegenExpression codegenPremade(Class evaluationType, CodegenExpression input, Class inputType, CodegenContext context, CodegenParamSetExprPremade params) {
             CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-            return staticMethod(StringToCalendarWStaticFormatComputer.class, "stringToCalendarWStaticFormatParse", codegenAddFormatString(context), codegenAddFormat(context), input, ref(tz.getMemberName()));
+            return staticMethod(StringToCalendarWStaticFormatComputer.class, "stringToCalendarWStaticFormatParse", codegenAddFormatString(context), codegenAddFormat(context), input, member(tz.getMemberId()));
         }
     }
 
@@ -994,7 +995,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
-            String method = context.addMethod(Date.class, StringToDateWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(Date.class, StringToDateWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
                     .declareVar(String.class, "format", format)
                     .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
                     .methodReturn(staticMethod(StringToDateWStaticFormatComputer.class, "stringToDateWStaticFormatParseSafe", ref("format"), ref("dateFormat"), ref("input")));
@@ -1030,7 +1031,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params) {
-            String method = context.addMethod(Long.class, StringToLongWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(Long.class, StringToLongWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
                     .declareVar(String.class, "format", format)
                     .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
                     .methodReturn(staticMethod(StringToLongWStaticFormatComputer.class, "stringToLongWStaticFormatParseSafe", ref("format"), ref("dateFormat"), ref("input")));
@@ -1073,10 +1074,10 @@ public class ExprCastNode extends ExprNodeBase {
 
         public static CodegenExpression codegen(CodegenExpression input, CodegenExpression format, CodegenContext context, CodegenParamSetExprPremade params, TimeZone timeZone) {
             CodegenMember timezone = context.makeAddMember(TimeZone.class, timeZone);
-            String method = context.addMethod(Calendar.class, StringToLongWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
+            CodegenMethodId method = context.addMethod(Calendar.class, StringToLongWDynamicFormatComputerEval.class).add(Object.class, "input").add(params).begin()
                     .declareVar(String.class, "format", format)
                     .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
-                    .methodReturn(staticMethod(StringToCalendarWStaticFormatComputer.class, "stringToCalendarWStaticFormatParse", ref("format"), ref("dateFormat"), ref("input"), ref(timezone.getMemberName())));
+                    .methodReturn(staticMethod(StringToCalendarWStaticFormatComputer.class, "stringToCalendarWStaticFormatParse", ref("format"), ref("dateFormat"), ref("input"), member(timezone.getMemberId())));
             return localMethodBuild(method).pass(input).passAll(params).call();
         }
     }

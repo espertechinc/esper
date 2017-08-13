@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -73,7 +74,7 @@ public class EnumAverageEventsForgeEval implements EnumEval {
         forEach.expression(increment("count"))
                 .assignRef("sum", op(ref("sum"), "+", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(ref("num"), innerType)))
                 .blockEnd();
-        String method = block.ifCondition(equalsIdentity(ref("count"), constant(0))).blockReturn(constantNull())
+        CodegenMethodId method = block.ifCondition(equalsIdentity(ref("count"), constant(0))).blockReturn(constantNull())
                 .methodReturn(op(ref("sum"), "/", ref("count")));
         return localMethodBuild(method).passAll(args).call();
     }

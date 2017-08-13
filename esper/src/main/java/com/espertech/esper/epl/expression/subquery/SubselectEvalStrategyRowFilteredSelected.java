@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.subquery;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventBeanUtility;
+import com.espertech.esper.util.CollectionUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -97,7 +98,7 @@ public class SubselectEvalStrategyRowFilteredSelected implements SubselectEvalSt
             return rows;
         }
         if (index == -1) {
-            return new Object[0][];
+            return CollectionUtil.OBJECTARRAYARRAY_EMPTY;
         }
         int access = index + 1;
         Object[][] rowArray = new Object[access][];

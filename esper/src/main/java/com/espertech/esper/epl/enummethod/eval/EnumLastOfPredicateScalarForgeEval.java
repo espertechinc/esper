@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
@@ -67,14 +68,14 @@ public class EnumLastOfPredicateScalarForgeEval implements EnumEval {
 
         CodegenBlock block = context.addMethod(resultType, EnumLastOfPredicateScalarForgeEval.class).add(premade).begin()
                 .declareVar(Object.class, "result", constantNull())
-                .declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(typeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("evalEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("evalEvent"), "getProperties"));
         CodegenBlock forEach = block.forEach(Object.class, "next", premade.enumcoll())
                 .assignArrayElement("props", constant(0), ref("next"));
         CodegenLegoBooleanExpression.codegenContinueIfNullOrNotPass(forEach, forge.innerExpression, context);
         forEach.assignRef("result", ref("next"));
-        String method = block.methodReturn(cast(resultType, ref("result")));
+        CodegenMethodId method = block.methodReturn(cast(resultType, ref("result")));
         return localMethodBuild(method).passAll(args).call();
     }
 }

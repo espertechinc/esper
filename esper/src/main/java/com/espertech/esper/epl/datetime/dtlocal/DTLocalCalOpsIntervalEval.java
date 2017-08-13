@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -47,7 +48,7 @@ public class DTLocalCalOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBas
         CodegenBlock block = context.addMethod(Boolean.class, DTLocalCalOpsIntervalEval.class).add(Calendar.class, "target").add(params).begin()
                 .declareVar(Calendar.class, "cal", cast(Calendar.class, exprDotMethod(ref("target"), "clone")));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), params, context);
-        String method = block.declareVar(long.class, "time", exprDotMethod(ref("cal"), "getTimeInMillis"))
+        CodegenMethodId method = block.declareVar(long.class, "time", exprDotMethod(ref("cal"), "getTimeInMillis"))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
@@ -68,10 +69,10 @@ public class DTLocalCalOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBas
         CodegenBlock block = context.addMethod(Boolean.class, DTLocalCalOpsIntervalEval.class).add(Calendar.class, "startTimestamp").add(Calendar.class, "endTimestamp").add(params).begin()
                 .declareVar(long.class, "startLong", exprDotMethod(ref("startTimestamp"), "getTimeInMillis"))
                 .declareVar(long.class, "endLong", exprDotMethod(ref("endTimestamp"), "getTimeInMillis"))
-                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", ref(tz.getMemberName())))
+                .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("startLong")));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), params, context);
-        String method = block.declareVar(long.class, "startTime", exprDotMethod(ref("cal"), "getTimeInMillis"))
+        CodegenMethodId method = block.declareVar(long.class, "startTime", exprDotMethod(ref("cal"), "getTimeInMillis"))
                 .declareVar(long.class, "endTime", op(ref("startTime"), "+", op(ref("endLong"), "-", ref("startLong"))))
                 .methodReturn(forge.intervalForge.codegen(ref("startTime"), ref("endTime"), params, context));
         return localMethodBuild(method).pass(start).pass(end).passAll(params).call();

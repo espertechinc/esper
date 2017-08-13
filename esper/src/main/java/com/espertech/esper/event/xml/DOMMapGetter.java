@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
@@ -126,12 +127,12 @@ public class DOMMapGetter implements EventPropertyGetterSPI, DOMPropertyGetter {
         return fragmentFactory.getEvent(result);
     }
 
-    private String getValueAsFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getValueAsFragmentCodegen(CodegenContext context) {
         CodegenMember mType = context.makeAddMember(FragmentFactory.class, fragmentFactory);
         return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), context))
                 .ifRefNullReturnNull("result")
-                .methodReturn(exprDotMethod(ref(mType.getMemberName()), "getEvent", ref("result")));
+                .methodReturn(exprDotMethod(member(mType.getMemberId()), "getEvent", ref("result")));
     }
 
     public Node getValueAsNode(Node node) {

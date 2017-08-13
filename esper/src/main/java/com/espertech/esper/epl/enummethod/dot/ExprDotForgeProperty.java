@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -65,7 +66,7 @@ public class ExprDotForgeProperty implements ExprDotEval, ExprDotForge {
         if (innerType == EventBean.class) {
             return CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(inner, context));
         }
-        String method = context.addMethod(type, ExprDotForgeProperty.class).add(innerType, "target").add(params).begin()
+        CodegenMethodId method = context.addMethod(type, ExprDotForgeProperty.class).add(innerType, "target").add(params).begin()
                 .ifInstanceOf("target", EventBean.class)
                 .blockReturn(CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(cast(EventBean.class, inner), context)))
                 .methodReturn(constantNull());

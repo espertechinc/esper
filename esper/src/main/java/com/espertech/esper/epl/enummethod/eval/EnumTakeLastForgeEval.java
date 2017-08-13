@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -54,7 +55,7 @@ public class EnumTakeLastForgeEval implements EnumEval {
         if (!sizeType.isPrimitive()) {
             block.ifRefNullReturnNull("size");
         }
-        String method = block.methodReturn(staticMethod(EnumTakeLastForgeEval.class, "evaluateEnumMethodTakeLast", premade.enumcoll(), SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("size"), sizeType)));
+        CodegenMethodId method = block.methodReturn(staticMethod(EnumTakeLastForgeEval.class, "evaluateEnumMethodTakeLast", premade.enumcoll(), SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("size"), sizeType)));
         return localMethodBuild(method).passAll(args).call();
     }
 

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.calop;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -47,7 +48,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     public static CodegenExpression codegenCalendar(CalendarWithDateForge forge, CodegenExpression cal, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenBlock block = context.addMethod(void.class, CalendarWithDateForgeOp.class).add(Calendar.class, "value").add(params).begin();
         codegenDeclareInts(block, forge, params, context);
-        String method = block.expression(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDCalendar", ref("value"), ref("year"), ref("month"), ref("day")))
+        CodegenMethodId method = block.expression(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDCalendar", ref("value"), ref("year"), ref("month"), ref("day")))
                 .methodEnd();
         return localMethodBuild(method).pass(cal).passAll(params).call();
     }
@@ -62,7 +63,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     public static CodegenExpression codegenLDT(CalendarWithDateForge forge, CodegenExpression ldt, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenBlock block = context.addMethod(LocalDateTime.class, CalendarWithDateForgeOp.class).add(LocalDateTime.class, "value").add(params).begin();
         codegenDeclareInts(block, forge, params, context);
-        String method = block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDLocalDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
+        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDLocalDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
         return localMethodBuild(method).pass(ldt).passAll(params).call();
     }
 
@@ -76,7 +77,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     public static CodegenExpression codegenZDT(CalendarWithDateForge forge, CodegenExpression zdt, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenBlock block = context.addMethod(ZonedDateTime.class, CalendarWithDateForgeOp.class).add(ZonedDateTime.class, "value").add(params).begin();
         codegenDeclareInts(block, forge, params, context);
-        String method = block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDZonedDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
+        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDZonedDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
         return localMethodBuild(method).pass(zdt).passAll(params).call();
     }
 

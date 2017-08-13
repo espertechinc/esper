@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -67,7 +68,7 @@ public class EnumSelectFromEventsForgeEval implements EnumEval {
                 .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
                 .ifCondition(notEqualsNull(ref("item")))
                 .expression(exprDotMethod(ref("result"), "add", ref("item")));
-        String method = block.methodReturn(ref("result"));
+        CodegenMethodId method = block.methodReturn(ref("result"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

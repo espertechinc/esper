@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -43,7 +44,7 @@ public class ExprDotMethodForgeNoDuckEvalUnderlying extends ExprDotMethodForgeNo
 
     public static CodegenExpression codegenUnderlying(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
         Class underlyingType = forge.getMethod().getDeclaringClass();
-        String method = context.addMethod(JavaClassHelper.getBoxedType(forge.getMethod().getReturnType()), ExprDotMethodForgeNoDuckEvalUnderlying.class).add(EventBean.class, "target").add(params).begin()
+        CodegenMethodId method = context.addMethod(JavaClassHelper.getBoxedType(forge.getMethod().getReturnType()), ExprDotMethodForgeNoDuckEvalUnderlying.class).add(EventBean.class, "target").add(params).begin()
                 .ifRefNullReturnNull("target")
                 .declareVar(underlyingType, "underlying", cast(underlyingType, exprDotMethod(ref("target"), "getUnderlying")))
                 .methodReturn(ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("underlying"), innerType, context, params));

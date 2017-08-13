@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 /**
@@ -101,6 +100,6 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
         }
         CodegenMember target = context.makeAddMember(Class.class, typeToCastTo);
         CodegenMember cache = context.makeAddMember(CopyOnWriteArraySet.class, pairs);
-        return CodegenExpressionBuilder.cast(typeToCastTo, staticMethod(SimpleTypeCasterAnyType.class, "simpleTypeCasterCast", input, ref(target.getMemberName()), ref(cache.getMemberName())));
+        return CodegenExpressionBuilder.cast(typeToCastTo, staticMethod(SimpleTypeCasterAnyType.class, "simpleTypeCasterCast", input, CodegenExpressionBuilder.member(target.getMemberId()), CodegenExpressionBuilder.member(cache.getMemberId())));
     }
 }

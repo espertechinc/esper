@@ -26,6 +26,9 @@ import com.espertech.esper.supportregression.util.ArrayHandlingUtil;
 public class ExecClientMetricsReportingNW implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
         applyMetricsConfig(configuration, -1, 1000, false);
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getCodeGeneration().setIncludeComments(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

@@ -13,10 +13,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.util.CoercionException;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.SimpleNumberCoercer;
-import com.espertech.esper.util.SimpleNumberCoercerFactory;
+import com.espertech.esper.util.*;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
@@ -75,7 +72,7 @@ public class ExprArrayNode extends ExprNodeBase {
 
         // Can be an empty array with no content
         if (this.getChildNodes().length == 0) {
-            forge = new ExprArrayNodeForge(this, Object.class, new Object[0]);
+            forge = new ExprArrayNodeForge(this, Object.class, CollectionUtil.OBJECTARRAY_EMPTY);
             return null;
         }
 

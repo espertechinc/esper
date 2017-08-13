@@ -13,6 +13,7 @@ package com.espertech.esper.event.vaevent;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -36,7 +37,7 @@ public class VAERevisionEventPropertyGetterDeclaredNKey implements EventProperty
         return key.getKeys()[keyPropertyNumber];
     }
 
-    private String getCodegen(CodegenContext context) {
+    private CodegenMethodId getCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "eventBean").begin()
                 .declareVar(RevisionEventBeanDeclared.class, "riv", cast(RevisionEventBeanDeclared.class, ref("eventBean")))
                 .declareVar(MultiKeyUntyped.class, "key", cast(MultiKeyUntyped.class, exprDotMethod(ref("riv"), "getKey")))

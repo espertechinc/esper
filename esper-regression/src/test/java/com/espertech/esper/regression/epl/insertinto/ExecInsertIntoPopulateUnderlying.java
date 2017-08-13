@@ -45,6 +45,9 @@ public class ExecInsertIntoPopulateUnderlying implements RegressionExecution {
         legacy = new ConfigurationEventTypeLegacy();
         legacy.setFactoryMethod(SupportSensorEventFactory.class.getName() + ".getInstance");
         configuration.addEventType("SupportSensorEvent", SupportSensorEvent.class.getName(), legacy);
+
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {
@@ -124,10 +127,10 @@ public class ExecInsertIntoPopulateUnderlying implements RegressionExecution {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanCtorTwo", SupportBeanCtorTwo.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_ST0", SupportBean_ST0.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_ST1", SupportBean_ST1.class);
+        SupportUpdateListener listener = new SupportUpdateListener();
 
         String eplOne = "insert into SupportBeanCtorOne select theString, intBoxed, intPrimitive, boolPrimitive from SupportBean";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(eplOne);
-        SupportUpdateListener listener = new SupportUpdateListener();
         stmtOne.addListener(listener);
 
         sendReceive(epService, listener, "E1", 2, true, 100);

@@ -58,7 +58,7 @@
 		
 		<para>
 			All code generation takes place at time of EPL statement creation. There is no code generation at runtime.
-		</para>		
+		</para>				 
 	</sect1>
 
     <sect1 xml:id="codegen_usage" revision="1">
@@ -68,8 +68,21 @@
 		<sect2 xml:id="codegen_criteria" revision="1">
 			<title>Criteria</title>
 			<para>
-				In the default configuration, the engine generates code for interdependent expressions (expressions that depend on other expressions) and their complete evaluation path including code for obtaining event property values.
+				In the default configuration, the engine generates code for: 
 			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>
+						The entire select-clause including all expressions.
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+						 All other interdependent expressions (expressions that depend on other expressions).
+					</para>
+				</ns:listitem>
+			</itemizedlist>
+
 			<para>
 				The engine does not generate code for (not a comprehensive list):
 			</para>

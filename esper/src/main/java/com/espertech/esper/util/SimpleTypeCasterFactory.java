@@ -11,6 +11,7 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 
@@ -208,7 +209,7 @@ public class SimpleTypeCasterFactory {
         }
 
         public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
-            String method = context.addMethod(Character.class, CharacterCaster.class).add(Object.class, "object").begin()
+            CodegenMethodId method = context.addMethod(Character.class, CharacterCaster.class).add(Object.class, "object").begin()
                     .declareVar(String.class, "value", exprDotMethod(ref("object"), "toString"))
                     .ifCondition(equalsIdentity(exprDotMethod(ref("value"), "length"), constant(0)))
                     .blockReturn(constantNull())

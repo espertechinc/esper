@@ -10,22 +10,25 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
+import com.espertech.esper.codegen.core.CodegenMethodId;
+
 import java.util.Map;
 import java.util.Set;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.renderExpressions;
 
 public class CodegenExpressionLocalMethod implements CodegenExpression {
-    private final String method;
+    private final CodegenMethodId methodId;
     private final CodegenExpression[] expressions;
 
-    public CodegenExpressionLocalMethod(String method, CodegenExpression[] expressions) {
-        this.method = method;
+    public CodegenExpressionLocalMethod(CodegenMethodId methodId, CodegenExpression[] expressions) {
+        this.methodId = methodId;
         this.expressions = expressions;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
-        builder.append(method).append("(");
+        methodId.render(builder);
+        builder.append("(");
         renderExpressions(builder, expressions, imports);
         builder.append(")");
     }

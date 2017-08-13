@@ -1194,7 +1194,7 @@ public class EPAssertionUtil {
             return null;
         }
         if (!iterator.hasNext()) {
-            return new Object[0];
+            return CollectionUtil.OBJECTARRAY_EMPTY;
         }
         return eventsToObjectArr(iteratorToArray(iterator), propertyName);
     }
@@ -1211,7 +1211,7 @@ public class EPAssertionUtil {
             return null;
         }
         if (!iterator.hasNext()) {
-            return new Object[0][];
+            return CollectionUtil.OBJECTARRAYARRAY_EMPTY;
         }
         return eventsToObjectArr(iteratorToArray(iterator), propertyNames);
     }

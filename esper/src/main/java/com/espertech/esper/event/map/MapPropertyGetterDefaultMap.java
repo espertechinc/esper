@@ -14,10 +14,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 /**
@@ -36,6 +36,6 @@ public class MapPropertyGetterDefaultMap extends MapPropertyGetterDefaultBase {
     protected CodegenExpression handleCreateFragmentCodegen(CodegenExpression value, CodegenContext context) {
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentEventType);
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
-        return staticMethod(BaseNestableEventUtil.class, "handleBNCreateFragmentMap", value, ref(mType.getMemberName()), ref(mSvc.getMemberName()));
+        return staticMethod(BaseNestableEventUtil.class, "handleBNCreateFragmentMap", value, CodegenExpressionBuilder.member(mType.getMemberId()), CodegenExpressionBuilder.member(mSvc.getMemberId()));
     }
 }

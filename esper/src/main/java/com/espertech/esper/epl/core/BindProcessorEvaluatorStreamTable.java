@@ -40,7 +40,7 @@ public class BindProcessorEvaluatorStreamTable implements ExprForge, ExprEvaluat
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        return staticMethod(BindProcessorEvaluatorStreamTable.class, "evaluateConvertTableEventToUnd", constant(streamNum), ref(eventToPublic.getMemberName()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+        return staticMethod(BindProcessorEvaluatorStreamTable.class, "evaluateConvertTableEventToUnd", constant(streamNum), member(eventToPublic.getMemberId()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
     }
 
     public ExprForgeComplexityEnum getComplexity() {

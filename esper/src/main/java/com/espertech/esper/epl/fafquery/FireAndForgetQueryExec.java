@@ -37,6 +37,7 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.filter.DoubleRange;
 import com.espertech.esper.filter.Range;
 import com.espertech.esper.filter.StringRange;
+import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.NullableObject;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class FireAndForgetQueryExec {
         if (queryGraphValue == null || queryGraphValue.getItems().isEmpty()) {
             if (virtualDataWindow != null) {
                 Pair<IndexMultiKey, EventTable> pair = virtualDataWindow.getFireAndForgetDesc(Collections.<String>emptySet(), Collections.<String>emptySet());
-                return virtualDataWindow.getFireAndForgetData(pair.getSecond(), new Object[0], new RangeIndexLookupValue[0], annotations);
+                return virtualDataWindow.getFireAndForgetData(pair.getSecond(), CollectionUtil.OBJECTARRAY_EMPTY, new RangeIndexLookupValue[0], annotations);
             }
             return null;
         }

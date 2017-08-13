@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -67,7 +68,7 @@ public class ExprTypeofNodeForgeStreamEvent extends ExprTypeofNodeForge implemen
     }
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(String.class, ExprTypeofNodeForgeStreamEvent.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(String.class, ExprTypeofNodeForgeStreamEvent.class).add(params).begin()
                 .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .ifInstanceOf("event", VariantEvent.class)

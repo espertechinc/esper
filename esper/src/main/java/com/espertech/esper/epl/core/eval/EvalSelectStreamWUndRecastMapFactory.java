@@ -12,8 +12,17 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.map.MapEventType;
@@ -24,21 +33,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
+
 public class EvalSelectStreamWUndRecastMapFactory {
 
-    public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, EventType targetType, ExprNode[] exprNodes, EngineImportService engineImportService, String statementName, String engineURI)
+    public static SelectExprProcessorForge make(EventType[] eventTypes, SelectExprForgeContext selectExprForgeContext, int streamNumber, EventType targetType, ExprNode[] exprNodes, EngineImportService engineImportService, String statementName, String engineURI)
             throws ExprValidationException {
         MapEventType mapResultType = (MapEventType) targetType;
         MapEventType mapStreamType = (MapEventType) eventTypes[streamNumber];
 
         // (A) fully assignment-compatible: same number, name and type of fields, no additional expressions: Straight repackage
         String typeSameMssage = BaseNestableEventType.isDeepEqualsProperties(mapResultType.getName(), mapResultType.getTypes(), mapStreamType.getTypes());
-        if (typeSameMssage == null && selectExprContext.getExpressionNodes().length == 0) {
-            return new MapInsertProcessorSimpleRepackage(selectExprContext, streamNumber, targetType);
+        if (typeSameMssage == null && selectExprForgeContext.getExprForges().length == 0) {
+            return new MapInsertProcessorSimpleRepackage(selectExprForgeContext, streamNumber, targetType);
         }
 
         // (B) not completely assignable: find matching properties
-        Set<WriteablePropertyDescriptor> writables = selectExprContext.getEventAdapterService().getWriteableProperties(mapResultType, true);
+        Set<WriteablePropertyDescriptor> writables = selectExprForgeContext.getEventAdapterService().getWriteableProperties(mapResultType, true);
         List<Item> items = new ArrayList<Item>();
         List<WriteablePropertyDescriptor> written = new ArrayList<WriteablePropertyDescriptor>();
 
@@ -62,9 +75,8 @@ public class EvalSelectStreamWUndRecastMapFactory {
         }
 
         // find the properties coming from the expressions of the select clause
-        for (int i = 0; i < selectExprContext.getExpressionNodes().length; i++) {
-            String columnName = selectExprContext.getColumnNames()[i];
-            ExprEvaluator evaluator = selectExprContext.getExpressionNodes()[i];
+        for (int i = 0; i < selectExprForgeContext.getExprForges().length; i++) {
+            String columnName = selectExprForgeContext.getColumnNames()[i];
             ExprNode exprNode = exprNodes[i];
 
             WriteablePropertyDescriptor writable = findWritable(columnName, writables);
@@ -74,7 +86,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
 
             TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
                     writable.getType(), columnName, false, null, statementName, engineURI);
-            items.add(new Item(count, null, evaluator, widener));
+            items.add(new Item(count, null, exprNode.getForge(), widener));
             written.add(writable);
             count++;
         }
@@ -83,7 +95,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
         Item[] itemsArr = items.toArray(new Item[items.size()]);
         EventBeanManufacturer manufacturer;
         try {
-            manufacturer = selectExprContext.getEventAdapterService().getManufacturer(mapResultType,
+            manufacturer = selectExprForgeContext.getEventAdapterService().getManufacturer(mapResultType,
                     written.toArray(new WriteablePropertyDescriptor[written.size()]), engineImportService, true);
         } catch (EventBeanManufactureException e) {
             throw new ExprValidationException("Failed to write to type: " + e.getMessage(), e);
@@ -101,13 +113,13 @@ public class EvalSelectStreamWUndRecastMapFactory {
         return null;
     }
 
-    private static class MapInsertProcessorSimpleRepackage implements SelectExprProcessor {
-        private final SelectExprContext selectExprContext;
+    private static class MapInsertProcessorSimpleRepackage implements SelectExprProcessor, SelectExprProcessorForge {
+        private final SelectExprForgeContext selectExprForgeContext;
         private final int underlyingStreamNumber;
         private final EventType resultType;
 
-        private MapInsertProcessorSimpleRepackage(SelectExprContext selectExprContext, int underlyingStreamNumber, EventType resultType) {
-            this.selectExprContext = selectExprContext;
+        private MapInsertProcessorSimpleRepackage(SelectExprForgeContext selectExprForgeContext, int underlyingStreamNumber, EventType resultType) {
+            this.selectExprForgeContext = selectExprForgeContext;
             this.underlyingStreamNumber = underlyingStreamNumber;
             this.resultType = resultType;
         }
@@ -118,11 +130,20 @@ public class EvalSelectStreamWUndRecastMapFactory {
 
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
             MappedEventBean theEvent = (MappedEventBean) eventsPerStream[underlyingStreamNumber];
-            return selectExprContext.getEventAdapterService().adapterForTypedMap(theEvent.getProperties(), resultType);
+            return selectExprForgeContext.getEventAdapterService().adapterForTypedMap(theEvent.getProperties(), resultType);
+        }
+
+        public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+            return this;
+        }
+
+        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+            CodegenExpression value = exprDotMethod(cast(MappedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber))), "getProperties");
+            return exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedMap", value, CodegenExpressionBuilder.member(memberResultEventType.getMemberId()));
         }
     }
 
-    private static class MapInsertProcessorAllocate implements SelectExprProcessor {
+    private static class MapInsertProcessorAllocate implements SelectExprProcessor, SelectExprProcessorForge {
         private final int underlyingStreamNumber;
         private final Item[] items;
         private final EventBeanManufacturer manufacturer;
@@ -139,6 +160,15 @@ public class EvalSelectStreamWUndRecastMapFactory {
             return resultType;
         }
 
+        public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+            for (int i = 0; i < items.length; i++) {
+                if (items[i].getForge() != null) {
+                    items[i].setEvaluatorAssigned(ExprNodeCompiler.allocateEvaluator(items[i].forge, engineImportService, this.getClass(), isFireAndForget, statementName));
+                }
+            }
+            return this;
+        }
+
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
 
             MappedEventBean theEvent = (MappedEventBean) eventsPerStream[underlyingStreamNumber];
@@ -150,7 +180,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
                 if (item.getOptionalPropertyName() != null) {
                     value = theEvent.getProperties().get(item.getOptionalPropertyName());
                 } else {
-                    value = item.getEvaluator().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+                    value = item.getEvaluatorAssigned().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                     if (item.getOptionalWidener() != null) {
                         value = item.getOptionalWidener().widen(value);
                     }
@@ -161,18 +191,41 @@ public class EvalSelectStreamWUndRecastMapFactory {
 
             return manufacturer.make(props);
         }
+
+        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+            CodegenMember member = context.makeAddMember(EventBeanManufacturer.class, manufacturer);
+            CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
+                    .declareVar(MappedEventBean.class, "theEvent", cast(MappedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber))))
+                    .declareVar(Object[].class, "props", newArray(Object.class, constant(items.length)));
+            for (Item item : items) {
+                CodegenExpression value;
+                if (item.getOptionalPropertyName() != null) {
+                    value = exprDotMethodChain(ref("theEvent")).add("getProperties").add("get", constant(item.getOptionalPropertyName()));
+                } else {
+                    value = item.forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+                    if (item.getOptionalWidener() != null) {
+                        value = item.getOptionalWidener().widenCodegen(value, context);
+                    }
+                }
+                block.assignArrayElement("props", constant(item.getToIndex()), value);
+            }
+            CodegenMethodId method = block.methodReturn(exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), "make", ref("props")));
+            return localMethodBuild(method).passAll(params).call();
+        }
     }
 
     private static class Item {
         private final int toIndex;
         private final String optionalPropertyName;
-        private final ExprEvaluator evaluator;
+        private final ExprForge forge;
         private final TypeWidener optionalWidener;
 
-        private Item(int toIndex, String optionalPropertyName, ExprEvaluator evaluator, TypeWidener optionalWidener) {
+        private ExprEvaluator evaluatorAssigned;
+
+        private Item(int toIndex, String optionalPropertyName, ExprForge forge, TypeWidener optionalWidener) {
             this.toIndex = toIndex;
             this.optionalPropertyName = optionalPropertyName;
-            this.evaluator = evaluator;
+            this.forge = forge;
             this.optionalWidener = optionalWidener;
         }
 
@@ -184,12 +237,20 @@ public class EvalSelectStreamWUndRecastMapFactory {
             return optionalPropertyName;
         }
 
-        public ExprEvaluator getEvaluator() {
-            return evaluator;
+        public ExprForge getForge() {
+            return forge;
         }
 
         public TypeWidener getOptionalWidener() {
             return optionalWidener;
+        }
+
+        public ExprEvaluator getEvaluatorAssigned() {
+            return evaluatorAssigned;
+        }
+
+        public void setEvaluatorAssigned(ExprEvaluator evaluatorAssigned) {
+            this.evaluatorAssigned = evaluatorAssigned;
         }
     }
 }

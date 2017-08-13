@@ -41,7 +41,7 @@ import java.util.*;
 public class SelectExprProcessorFactory {
     private static final Logger log = LoggerFactory.getLogger(SelectExprProcessorFactory.class);
 
-    public static SelectExprProcessor getProcessor(Collection<Integer> assignedTypeNumberStack,
+    public static SelectExprProcessorForge getProcessor(Collection<Integer> assignedTypeNumberStack,
                                                    SelectClauseElementCompiled[] selectionList,
                                                    boolean isUsingWildcard,
                                                    InsertIntoDesc insertIntoDesc,
@@ -70,16 +70,16 @@ public class SelectExprProcessorFactory {
                                                    StatementExtensionSvcContext statementExtensionSvcContext)
             throws ExprValidationException {
         if (selectExprProcessorCallback != null) {
-            BindProcessor bindProcessor = new BindProcessor(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService, engineImportService, typeService.isOnDemandStreams(), annotations, statementName);
+            BindProcessorForge bindProcessorForge = new BindProcessorForge(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService);
             Map<String, Object> properties = new LinkedHashMap<String, Object>();
-            for (int i = 0; i < bindProcessor.getColumnNamesAssigned().length; i++) {
-                properties.put(bindProcessor.getColumnNamesAssigned()[i], bindProcessor.getExpressionTypes()[i]);
+            for (int i = 0; i < bindProcessorForge.getColumnNamesAssigned().length; i++) {
+                properties.put(bindProcessorForge.getColumnNamesAssigned()[i], bindProcessorForge.getExpressionTypes()[i]);
             }
             EventType eventType = eventAdapterService.createAnonymousObjectArrayType("Output_" + statementName, properties);
-            return new SelectExprProcessorWDeliveryCallback(eventType, bindProcessor, selectExprProcessorCallback);
+            return new SelectExprProcessorWDeliveryCallback(eventType, bindProcessorForge, selectExprProcessorCallback);
         }
 
-        SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, statementName, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
+        SelectExprProcessorForge synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, statementName, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
 
         // Handle table as an optional service
         if (statementResultService != null) {
@@ -116,7 +116,7 @@ public class SelectExprProcessorFactory {
                 }
             }
 
-            BindProcessor bindProcessor = new BindProcessor(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService, engineImportService, typeService.isOnDemandStreams(), annotations, statementName);
+            BindProcessorForge bindProcessor = new BindProcessorForge(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService);
             ExprEvaluator[] groupedDeliveryEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupedDeliveryExpr, engineImportService, SelectExprProcessorFactory.class, typeService.isOnDemandStreams(), statementName);
             statementResultService.setSelectClause(bindProcessor.getExpressionTypes(), bindProcessor.getColumnNamesAssigned(), forDelivery, groupedDeliveryEvals, exprEvaluatorContext);
             return new SelectExprResultProcessor(statementResultService, synthetic, bindProcessor);
@@ -125,7 +125,7 @@ public class SelectExprProcessorFactory {
         return synthetic;
     }
 
-    private static SelectExprProcessor getProcessorInternal(
+    private static SelectExprProcessorForge getProcessorInternal(
             Collection<Integer> assignedTypeNumberStack,
             SelectClauseElementCompiled[] selectionList,
             boolean isUsingWildcard,
@@ -154,7 +154,7 @@ public class SelectExprProcessorFactory {
             // For joins
             if (typeService.getStreamNames().length > 1) {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");
-                return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, statementName, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService, typeService.getEngineURIQualifier());
+                return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, statementName, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService, typeService.getEngineURIQualifier(), typeService.isOnDemandStreams());
             } else if (insertIntoDesc == null) {
                 // Single-table selects with no insert-into
                 // don't need extra processing
@@ -176,7 +176,7 @@ public class SelectExprProcessorFactory {
         SelectExprBuckets buckets = getSelectExpressionBuckets(selectionList);
 
         SelectExprProcessorHelper factory = new SelectExprProcessorHelper(assignedTypeNumberStack, buckets.expressions, buckets.selectedStreams, insertIntoDesc, optionalInsertIntoEventType, isUsingWildcard, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, statementName, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
-        SelectExprProcessor processor = factory.getEvaluator();
+        SelectExprProcessorForge processor = factory.getForge();
 
         // add reference to the type obtained
         EventTypeSPI type = (EventTypeSPI) processor.getResultEventType();

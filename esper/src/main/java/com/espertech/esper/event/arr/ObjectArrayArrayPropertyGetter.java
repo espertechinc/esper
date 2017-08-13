@@ -100,7 +100,7 @@ public class ObjectArrayArrayPropertyGetter implements ObjectArrayEventPropertyG
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentType);
-        return staticMethod(BaseNestableEventUtil.class, "getBNFragmentNonPojo", underlyingGetCodegen(underlyingExpression, context), ref(mType.getMemberName()), ref(mSvc.getMemberName()));
+        return staticMethod(BaseNestableEventUtil.class, "getBNFragmentNonPojo", underlyingGetCodegen(underlyingExpression, context), member(mType.getMemberId()), member(mSvc.getMemberId()));
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {

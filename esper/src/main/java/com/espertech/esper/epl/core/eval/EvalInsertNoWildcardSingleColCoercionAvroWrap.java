@@ -11,6 +11,9 @@
 package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.event.WrapperEventType;
 
@@ -18,12 +21,16 @@ import java.util.Collections;
 
 public class EvalInsertNoWildcardSingleColCoercionAvroWrap extends EvalBaseFirstPropFromWrap implements SelectExprProcessor {
 
-    public EvalInsertNoWildcardSingleColCoercionAvroWrap(SelectExprContext selectExprContext, WrapperEventType wrapper) {
-        super(selectExprContext, wrapper);
+    public EvalInsertNoWildcardSingleColCoercionAvroWrap(SelectExprForgeContext selectExprForgeContext, WrapperEventType wrapper) {
+        super(selectExprForgeContext, wrapper);
     }
 
     public EventBean processFirstCol(Object result) {
         EventBean wrappedEvent = super.getEventAdapterService().adapterForTypedAvro(result, wrapper.getUnderlyingEventType());
-        return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.EMPTY_MAP, wrapper);
+        return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.emptyMap(), wrapper);
+    }
+
+    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenContext context) {
+        return EvalInsertNoWildcardSingleColCoercionMapWrap.processFirstColCodegen(expression, memberEventAdapterService, context, wrapper, "adapterForTypedAvro", Object.class);
     }
 }

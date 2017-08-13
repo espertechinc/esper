@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -70,7 +71,7 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
         return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
     }
 
-    private String getMapInternalCodegen(CodegenContext context) {
+    private CodegenMethodId getMapInternalCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").add(int.class, "index").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), ref("index")));
@@ -85,12 +86,12 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
         return BaseNestableEventUtil.getBNFragmentNonPojo(value, fragmentType, eventAdapterService);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentType);
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("map"), context))
-                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNFragmentNonPojo", ref("value"), ref(mType.getMemberName()), ref(mSvc.getMemberName())));
+                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNFragmentNonPojo", ref("value"), member(mType.getMemberId()), member(mSvc.getMemberId())));
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {

@@ -13,6 +13,7 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
@@ -101,7 +102,7 @@ public class InstanceManufacturerUtil {
         }
 
         public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-            String method = context.addMethod(returnType, InstanceManufacturerForgeNonArray.class).add(params).begin()
+            CodegenMethodId method = context.addMethod(returnType, InstanceManufacturerForgeNonArray.class).add(params).begin()
                     .declareVar(EventBean.class, "event", cast(EventBean.class, innerForge.evaluateCodegen(params, context)))
                     .ifRefNullReturnNull("event")
                     .methodReturn(cast(returnType, exprDotUnderlying(ref("event"))));
@@ -150,7 +151,7 @@ public class InstanceManufacturerUtil {
 
         public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
             Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
-            String method = context.addMethod(arrayType, InstanceManufacturerForgeArray.class).add(params).begin()
+            CodegenMethodId method = context.addMethod(arrayType, InstanceManufacturerForgeArray.class).add(params).begin()
                     .declareVar(Object.class, "result", innerForge.evaluateCodegen(params, context))
                     .ifCondition(not(instanceOf(ref("result"), EventBean[].class)))
                     .blockReturn(constantNull())

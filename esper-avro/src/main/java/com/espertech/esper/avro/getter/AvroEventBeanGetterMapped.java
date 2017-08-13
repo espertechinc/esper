@@ -14,6 +14,7 @@ import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import org.apache.avro.generic.GenericData;
 
@@ -41,7 +42,7 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
         return getAvroMappedValueWNullCheck(values, key);
     }
 
-    private String getAvroFieldValueCodegen(CodegenContext context) {
+    private CodegenMethodId getAvroFieldValueCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
                 .declareVar(Map.class, "values", cast(Map.class, exprDotMethod(ref("record"), "get", constant(pos))))
                 .ifRefNullReturnNull("values")

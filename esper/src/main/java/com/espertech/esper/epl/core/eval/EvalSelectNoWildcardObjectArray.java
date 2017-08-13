@@ -12,37 +12,64 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoMayVoid;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.EventAdapterService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class EvalSelectNoWildcardObjectArray implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
-    private static final Logger log = LoggerFactory.getLogger(EvalSelectNoWildcardObjectArray.class);
+public class EvalSelectNoWildcardObjectArray implements SelectExprProcessor, SelectExprProcessorForge {
 
-    private final SelectExprContext selectExprContext;
+    private final SelectExprForgeContext context;
     private final EventType resultEventType;
+    private ExprEvaluator[] evaluators;
 
-    public EvalSelectNoWildcardObjectArray(SelectExprContext selectExprContext, EventType resultEventType) {
-        this.selectExprContext = selectExprContext;
+    public EvalSelectNoWildcardObjectArray(SelectExprForgeContext context, EventType resultEventType) {
+        this.context = context;
         this.resultEventType = resultEventType;
     }
 
+    public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        if (evaluators == null) {
+            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+        }
+        return this;
+    }
+
     public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        ExprEvaluator[] expressionNodes = selectExprContext.getExpressionNodes();
-        EventAdapterService eventAdapterService = selectExprContext.getEventAdapterService();
+        EventAdapterService eventAdapterService = context.getEventAdapterService();
 
         // Evaluate all expressions and build a map of name-value pairs
-        Object[] props = new Object[expressionNodes.length];
-        for (int i = 0; i < expressionNodes.length; i++) {
-            Object evalResult = expressionNodes[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        Object[] props = new Object[evaluators.length];
+        for (int i = 0; i < evaluators.length; i++) {
+            Object evalResult = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             props[i] = evalResult;
         }
 
         return eventAdapterService.adapterForTypedObjectArray(props, resultEventType);
+    }
+
+    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+        CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
+                .declareVar(Object[].class, "props", newArray(Object.class, constant(this.context.getExprForges().length)));
+        for (int i = 0; i < this.context.getExprForges().length; i++) {
+            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(this.context.getExprForges()[i], CodegenParamSetExprPremade.INSTANCE, context);
+            block.assignArrayElement("props", constant(i), expression);
+        }
+        CodegenMethodId method = block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", ref("props"), member(memberResultEventType.getMemberId())));
+        return localMethodBuild(method).passAll(params).call();
     }
 
     public EventType getResultEventType() {

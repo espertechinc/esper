@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
@@ -90,10 +91,10 @@ public class EnumTakeWhileLastIndexScalarForgeEval implements EnumEval {
         CodegenBlock block = context.addMethod(Collection.class, EnumTakeWhileLastIndexScalarForgeEval.class).add(premade).begin()
                 .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
                 .blockReturn(premade.enumcoll())
-                .declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(evalTypeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(evalTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("evalEvent"))
                 .declareVar(Object[].class, "evalProps", exprDotMethod(ref("evalEvent"), "getProperties"))
-                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(indexTypeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(indexTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda + 1), ref("indexEvent"))
                 .declareVar(Object[].class, "indexProps", exprDotMethod(ref("indexEvent"), "getProperties"));
 
@@ -112,7 +113,7 @@ public class EnumTakeWhileLastIndexScalarForgeEval implements EnumEval {
                 .assignArrayElement("indexProps", constant(0), increment("index"));
         CodegenLegoBooleanExpression.codegenBreakIfNullOrNotPass(forEach, forge.innerExpression, context);
         forEach.expression(exprDotMethod(ref("result"), "addFirst", arrayAtIndex(ref("all"), ref("i"))));
-        String method = block.methodReturn(ref("result"));
+        CodegenMethodId method = block.methodReturn(ref("result"));
         return localMethodBuild(method).passAll(args).call();
     }
 

@@ -12,27 +12,41 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
-public class EvalSelectNoWildcardEmptyProps implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
-    private static final Logger log = LoggerFactory.getLogger(EvalSelectNoWildcardEmptyProps.class);
+public class EvalSelectNoWildcardEmptyProps implements SelectExprProcessor, SelectExprProcessorForge {
 
-    private final SelectExprContext selectExprContext;
+    private final SelectExprForgeContext selectExprForgeContext;
     private final EventType resultEventType;
 
-    public EvalSelectNoWildcardEmptyProps(SelectExprContext selectExprContext, EventType resultEventType) {
-        this.selectExprContext = selectExprContext;
+    public EvalSelectNoWildcardEmptyProps(SelectExprForgeContext selectExprForgeContext, EventType resultEventType) {
+        this.selectExprForgeContext = selectExprForgeContext;
         this.resultEventType = resultEventType;
     }
 
+    public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        return this;
+    }
+
+    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+        return exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedMap", staticMethod(Collections.class, "emptyMap"), CodegenExpressionBuilder.member(memberResultEventType.getMemberId()));
+    }
+
     public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        return selectExprContext.getEventAdapterService().adapterForTypedMap(Collections.EMPTY_MAP, resultEventType);
+        return selectExprForgeContext.getEventAdapterService().adapterForTypedMap(Collections.emptyMap(), resultEventType);
     }
 
     public EventType getResultEventType() {

@@ -13,6 +13,8 @@ package com.espertech.esper.codegen.compile;
 import java.io.StringWriter;
 import java.util.function.Supplier;
 
+import static com.espertech.esper.codegen.compile.CodeGenerationUtil.codeWithLineNum;
+
 public class CodegenMessageUtil {
     public static String getFailedCompileLogMessageWithCode(CodegenCompilerException ex, Supplier<String> debugInformationProvider, boolean enableFallback) {
         StringWriter message = new StringWriter();
@@ -24,7 +26,7 @@ public class CodegenMessageUtil {
         }
         message.append("): ").append(ex.getMessage());
         message.append("\r\ncode-in-error (please provide with issue reports):\r\n")
-                .append(ex.getCode());
+                .append(codeWithLineNum(ex.getCode()));
         return message.toString();
     }
 }

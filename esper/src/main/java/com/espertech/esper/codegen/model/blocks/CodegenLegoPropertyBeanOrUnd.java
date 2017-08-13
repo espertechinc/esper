@@ -13,6 +13,7 @@ package com.espertech.esper.codegen.model.blocks;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
@@ -29,7 +30,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  * return getter.getXXXX(value);
  */
 public class CodegenLegoPropertyBeanOrUnd {
-    public static String from(CodegenContext context, Class expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
+    public static CodegenMethodId from(CodegenContext context, Class expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
         CodegenBlock block = context.addMethod(accessType == EXISTS ? boolean.class : Object.class, generator).add(Object.class, "value").begin()
                 .ifNotInstanceOf("value", expectedUnderlyingType)
                 .ifInstanceOf("value", EventBean.class)

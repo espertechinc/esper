@@ -14,8 +14,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -90,7 +92,7 @@ public class EnumTakeWhileIndexEventsForgeEval implements EnumEval {
         CodegenBlock block = context.addMethod(Collection.class, EnumTakeWhileIndexEventsForgeEval.class).add(premade).begin()
                 .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
                 .blockReturn(premade.enumcoll())
-                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(indexTypeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), CodegenExpressionBuilder.member(indexTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda + 1), ref("indexEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("indexEvent"), "getProperties"));
 
@@ -109,7 +111,7 @@ public class EnumTakeWhileIndexEventsForgeEval implements EnumEval {
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"));
         CodegenLegoBooleanExpression.codegenBreakIfNullOrNotPass(forEach, forge.innerExpression, context);
         forEach.expression(exprDotMethod(ref("result"), "add", ref("next")));
-        String method = block.methodReturn(ref("result"));
+        CodegenMethodId method = block.methodReturn(ref("result"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

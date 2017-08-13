@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -66,7 +67,7 @@ public class EnumSumEventsForgeEval implements EnumEval {
         }
         forge.sumMethodFactory.codegenEnterNumberTypedNonNull(forEach, ref("value"));
 
-        String method = forge.sumMethodFactory.codegenReturn(block);
+        CodegenMethodId method = forge.sumMethodFactory.codegenReturn(block);
         return localMethodBuild(method).passAll(args).call();
     }
 }

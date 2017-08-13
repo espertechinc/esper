@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.codegen.model.statement.CodegenStatementTryCatch;
@@ -92,9 +93,9 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
         for (int i = 0; i < forge.getParameters().length; i++) {
             catchBlock.assignArrayElement("args", constant(i), args[i]);
         }
-        catchBlock.expression(staticMethod(ExprDotMethodForgeNoDuckEvalPlain.class, "handleTargetException", constant(forge.getStatementName()), ref(methodMember.getMemberName()),
+        catchBlock.expression(staticMethod(ExprDotMethodForgeNoDuckEvalPlain.class, "handleTargetException", constant(forge.getStatementName()), member(methodMember.getMemberId()),
                 exprDotMethodChain(ref("target")).add("getClass").add("getName"), ref("args"), ref("t")));
-        String method = returnType == void.class ? block.methodEnd() : block.methodReturn(constantNull());
+        CodegenMethodId method = returnType == void.class ? block.methodEnd() : block.methodReturn(constantNull());
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 

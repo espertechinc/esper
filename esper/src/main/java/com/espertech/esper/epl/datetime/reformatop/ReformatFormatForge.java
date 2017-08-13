@@ -65,11 +65,11 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember df = context.makeAddMember(DateFormat.class, dateFormat);
         CodegenBlock blockMethod = context.addMethod(String.class, ReformatFormatForge.class).add(long.class, "ts").begin();
-        CodegenBlock syncBlock = blockMethod.synchronizedOn(ref(df.getMemberName()));
+        CodegenBlock syncBlock = blockMethod.synchronizedOn(member(df.getMemberId()));
         if (timeAbacus.getOneSecond() == 1000L) {
-            syncBlock.blockReturn(exprDotMethod(ref(df.getMemberName()), "format", ref("ts")));
+            syncBlock.blockReturn(exprDotMethod(member(df.getMemberId()), "format", ref("ts")));
         } else {
-            syncBlock.blockReturn(exprDotMethod(ref(df.getMemberName()), "format", timeAbacus.toDateCodegen(ref("ts"))));
+            syncBlock.blockReturn(exprDotMethod(member(df.getMemberId()), "format", timeAbacus.toDateCodegen(ref("ts"))));
         }
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
     }
@@ -81,8 +81,8 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember df = context.makeAddMember(DateFormat.class, dateFormat);
         CodegenBlock blockMethod = context.addMethod(String.class, ReformatFormatForge.class).add(Date.class, "d").begin()
-                .synchronizedOn(ref(df.getMemberName()))
-                .blockReturn(exprDotMethod(ref(df.getMemberName()), "format", ref("d")));
+                .synchronizedOn(member(df.getMemberId()))
+                .blockReturn(exprDotMethod(member(df.getMemberId()), "format", ref("d")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
     }
 
@@ -93,8 +93,8 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
     public CodegenExpression codegenCal(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember df = context.makeAddMember(DateFormat.class, dateFormat);
         CodegenBlock blockMethod = context.addMethod(String.class, ReformatFormatForge.class).add(Calendar.class, "cal").begin()
-                .synchronizedOn(ref(df.getMemberName()))
-                .blockReturn(exprDotMethod(ref(df.getMemberName()), "format", exprDotMethod(ref("cal"), "getTime")));
+                .synchronizedOn(member(df.getMemberId()))
+                .blockReturn(exprDotMethod(member(df.getMemberId()), "format", exprDotMethod(ref("cal"), "getTime")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
     }
 
@@ -104,7 +104,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember df = context.makeAddMember(DateTimeFormatter.class, dateTimeFormatter);
-        return exprDotMethod(inner, "format", ref(df.getMemberName()));
+        return exprDotMethod(inner, "format", member(df.getMemberId()));
     }
 
     public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -113,7 +113,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenZDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember df = context.makeAddMember(DateTimeFormatter.class, dateTimeFormatter);
-        return exprDotMethod(inner, "format", ref(df.getMemberName()));
+        return exprDotMethod(inner, "format", member(df.getMemberId()));
     }
 
     public Class getReturnType() {

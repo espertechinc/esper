@@ -11,6 +11,7 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 import java.math.BigDecimal;
@@ -304,7 +305,7 @@ public class SimpleNumberCoercerFactory {
             if (valueType == BigInteger.class) {
                 return value;
             }
-            String method = context.addMethod(BigInteger.class, SimpleNumberCoercerBigInt.class).add(valueType, "value").begin()
+            CodegenMethodId method = context.addMethod(BigInteger.class, SimpleNumberCoercerBigInt.class).add(valueType, "value").begin()
                     .ifRefNullReturnNull("value")
                     .methodReturn(codegenBigInt(ref("value"), valueType));
             return localMethod(method, value);
@@ -355,7 +356,7 @@ public class SimpleNumberCoercerFactory {
             if (valueType == BigDecimal.class) {
                 return value;
             }
-            String method = context.addMethod(BigDecimal.class, SimpleNumberCoercerBigDecLong.class).add(valueType, "value").begin()
+            CodegenMethodId method = context.addMethod(BigDecimal.class, SimpleNumberCoercerBigDecLong.class).add(valueType, "value").begin()
                     .ifRefNullReturnNull("value")
                     .methodReturn(codegenBigDec(ref("value"), valueType));
             return localMethod(method, value);
@@ -406,7 +407,7 @@ public class SimpleNumberCoercerFactory {
             if (valueType == BigDecimal.class) {
                 return value;
             }
-            String method = context.addMethod(BigDecimal.class, SimpleNumberCoercerBigDecDouble.class).add(valueType, "value").begin()
+            CodegenMethodId method = context.addMethod(BigDecimal.class, SimpleNumberCoercerBigDecDouble.class).add(valueType, "value").begin()
                     .ifRefNullReturnNull("value")
                     .methodReturn(codegenBigDec(ref("value"), valueType));
             return localMethod(method, value);
@@ -498,7 +499,7 @@ public class SimpleNumberCoercerFactory {
         if (type.isPrimitive()) {
             return cast(primitive, param);
         }
-        String method = context.addMethod(boxed, generator).add(type, "value").begin()
+        CodegenMethodId method = context.addMethod(boxed, generator).add(type, "value").begin()
                 .ifRefNullReturnNull("value")
                 .methodReturn(exprDotMethod(ref("value"), numberValueMethodName));
         return localMethod(method, param);

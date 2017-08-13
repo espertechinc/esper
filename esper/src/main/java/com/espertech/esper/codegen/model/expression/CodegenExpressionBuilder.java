@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
+import com.espertech.esper.codegen.core.CodegenMemberId;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.method.CodegenLocalCallBuilder;
 
 import java.util.Map;
@@ -18,6 +20,10 @@ import java.util.Set;
 public class CodegenExpressionBuilder {
     public static CodegenExpressionRef ref(String ref) {
         return new CodegenExpressionRef(ref);
+    }
+
+    public static CodegenExpressionMember member(CodegenMemberId memberId) {
+        return new CodegenExpressionMember(memberId);
     }
 
     public static CodegenExpression op(CodegenExpression left, String expressionText, CodegenExpression right) {
@@ -41,7 +47,11 @@ public class CodegenExpressionBuilder {
     }
 
     public static CodegenExpression enumValue(Class enumType, String enumValue) {
-        return new CodegenExpressionEnumValue(enumType, enumValue);
+        return new CodegenExpressionEnumOrPublicConstantValue(enumType, enumValue);
+    }
+
+    public static CodegenExpression publicConstValue(Class enumType, String enumValue) {
+        return new CodegenExpressionEnumOrPublicConstantValue(enumType, enumValue);
     }
 
     public static CodegenExpressionExprDotMethodChain exprDotMethodChain(CodegenExpression expression) {
@@ -52,12 +62,12 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionExprDotUnderlying(expression);
     }
 
-    public static CodegenExpression localMethod(String methodName, CodegenExpression... expressions) {
-        return new CodegenExpressionLocalMethod(methodName, expressions);
+    public static CodegenExpression localMethod(CodegenMethodId methodId, CodegenExpression... expressions) {
+        return new CodegenExpressionLocalMethod(methodId, expressions);
     }
 
-    public static CodegenLocalCallBuilder localMethodBuild(String methodName) {
-        return new CodegenLocalCallBuilder(methodName);
+    public static CodegenLocalCallBuilder localMethodBuild(CodegenMethodId methodId) {
+        return new CodegenLocalCallBuilder(methodId);
     }
 
     public static CodegenExpression constantTrue() {

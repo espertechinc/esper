@@ -96,6 +96,6 @@ public class ObjectArrayEntryPropertyGetter implements ObjectArrayEventPropertyG
         }
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(BeanEventType.class, eventType);
-        return staticMethod(BaseNestableEventUtil.class, "getBNFragmentPojo", underlyingGetCodegen(underlyingExpression, context), ref(mType.getMemberName()), ref(mSvc.getMemberName()));
+        return staticMethod(BaseNestableEventUtil.class, "getBNFragmentPojo", underlyingGetCodegen(underlyingExpression, context), member(mType.getMemberId()), member(mSvc.getMemberId()));
     }
 }

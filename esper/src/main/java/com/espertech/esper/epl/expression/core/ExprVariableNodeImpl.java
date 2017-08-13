@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -188,14 +189,14 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForge, Exp
         CodegenExpression readerExpression;
         if (readerNonCP != null) {
             CodegenMember memberVariableReader = context.makeAddMember(VariableReader.class, readerNonCP);
-            readerExpression = ref(memberVariableReader.getMemberName());
+            readerExpression = member(memberVariableReader.getMemberId());
         } else {
             CodegenMember memberReadersPerCp = context.makeAddMember(Map.class, readersPerCp);
-            readerExpression = cast(VariableReader.class, exprDotMethod(ref(memberReadersPerCp.getMemberName()), "get", exprDotMethod(params.passEvalCtx(), "getAgentInstanceId")));
+            readerExpression = cast(VariableReader.class, exprDotMethod(member(memberReadersPerCp.getMemberId()), "get", exprDotMethod(params.passEvalCtx(), "getAgentInstanceId")));
         }
         CodegenBlock block = context.addMethod(variableType, ExprVariableNodeImpl.class).add(params).begin()
                 .declareVar(VariableReader.class, "reader", readerExpression);
-        String method;
+        CodegenMethodId method;
         if (isPrimitive) {
             method = block.declareVar(variableType, "value", cast(variableType, exprDotMethod(ref("reader"), "getValue")))
                     .methodReturn(ref("value"));

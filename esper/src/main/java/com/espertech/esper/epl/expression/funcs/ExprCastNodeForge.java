@@ -13,10 +13,9 @@ package com.espertech.esper.epl.expression.funcs;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
-
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 /**
  * Represents the CAST(expression, type) function is an expression tree.
@@ -47,7 +46,7 @@ public class ExprCastNodeForge implements ExprForge {
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
         if (isConstant) {
             CodegenMember member = context.makeAddMember(targetType, constant);
-            return ref(member.getMemberName());
+            return CodegenExpressionBuilder.member(member.getMemberId());
         }
         return ExprCastNodeForgeNonConstEval.codegen(this, context, params);
     }

@@ -13,6 +13,7 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndMapped;
@@ -70,7 +71,7 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
         }
     }
 
-    private String getBeanPropInternalCodegen(CodegenContext context) throws PropertyAccessException {
+    private CodegenMethodId getBeanPropInternalCodegen(CodegenContext context) throws PropertyAccessException {
         return context.addMethod(getBeanPropType(), this.getClass()).add(getTargetType(), "object").add(Object.class, "key").begin()
                 .declareVar(Object.class, "result", exprDotName(ref("object"), field.getName()))
                 .ifRefNotTypeReturnConst("result", Map.class, null)

@@ -16,6 +16,7 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.core.service.StatementResultServiceImpl;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
@@ -56,7 +57,7 @@ public class TestSelectExprProcessorFactory extends TestCase {
     public void testGetProcessorWildcard() throws Exception {
         SelectClauseElementCompiled[] selectionList = new SelectClauseElementCompiled[]{new SelectClauseElementWildcard()};
         SelectExprProcessor processor = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectionList, false, null, null, null,
-                new SupportStreamTypeSvc3Stream(), SupportEventAdapterService.getService(), statementResultService, null, selectExprEventTypeRegistry, null, null, null, new TableServiceImpl(), null, null, 1, null, null, null, new Configuration(), null, null, null, null, null);
+                new SupportStreamTypeSvc3Stream(), SupportEventAdapterService.getService(), statementResultService, null, selectExprEventTypeRegistry, SupportEngineImportServiceFactory.make(), null, null, new TableServiceImpl(), null, null, 1, null, null, null, new Configuration(), null, null, null, null, null).getSelectExprProcessor(SupportEngineImportServiceFactory.make(), false, "abc");
         assertTrue(processor instanceof SelectExprResultProcessor);
     }
 
@@ -66,7 +67,7 @@ public class TestSelectExprProcessorFactory extends TestCase {
         selectionList[0] = new SelectClauseExprCompiledSpec(identNode, "result", null, false);
         StatementContext statementContext = SupportStatementContextFactory.makeContext();
         SelectExprProcessor processor = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectionList, false, null, null, null,
-                new SupportStreamTypeSvc3Stream(), SupportEventAdapterService.getService(), statementResultService, null, selectExprEventTypeRegistry, statementContext.getEngineImportService(), null, null, null, null, null, 1, null, null, null, new Configuration(), null, null, null, null, null);
+                new SupportStreamTypeSvc3Stream(), SupportEventAdapterService.getService(), statementResultService, null, selectExprEventTypeRegistry, statementContext.getEngineImportService(), null, null, null, null, null, 1, null, null, null, new Configuration(), null, null, null, null, null).getSelectExprProcessor(SupportEngineImportServiceFactory.make(), false, "abc");
         assertTrue(processor != null);
     }
 

@@ -13,8 +13,8 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -59,22 +59,22 @@ public class ExprLikeNodeForgeConstEval implements ExprEvaluator {
         return result;
     }
 
-    public static String codegen(ExprLikeNodeForgeConst forge, ExprNode lhs, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenMethodId codegen(ExprLikeNodeForgeConst forge, ExprNode lhs, CodegenContext context, CodegenParamSetExprPremade params) {
         CodegenMember mLikeUtil = context.makeAddMember(LikeUtil.class, forge.getLikeUtil());
 
         if (!forge.isNumericValue()) {
             return context.addMethod(Boolean.class, ExprLikeNodeForgeConstEval.class).add(params).begin()
                     .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(params, context))
                     .ifRefNullReturnNull("value")
-                    .methodReturn(getLikeCode(forge, ref(mLikeUtil.getMemberName()), ref("value")));
+                    .methodReturn(getLikeCode(forge, member(mLikeUtil.getMemberId()), ref("value")));
         }
         return context.addMethod(Boolean.class, ExprLikeNodeForgeConstEval.class).add(params).begin()
                 .declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(params, context))
                 .ifRefNullReturnNull("value")
-                .methodReturn(getLikeCode(forge, ref(mLikeUtil.getMemberName()), exprDotMethod(ref("value"), "toString")));
+                .methodReturn(getLikeCode(forge, member(mLikeUtil.getMemberId()), exprDotMethod(ref("value"), "toString")));
     }
 
-    static CodegenExpression getLikeCode(ExprLikeNodeForge forge, CodegenExpressionRef refLike, CodegenExpression stringExpr) {
+    static CodegenExpression getLikeCode(ExprLikeNodeForge forge, CodegenExpression refLike, CodegenExpression stringExpr) {
         CodegenExpression eval = exprDotMethod(refLike, "compare", stringExpr);
         return !forge.getForgeRenderable().isNot() ? eval : not(eval);
     }

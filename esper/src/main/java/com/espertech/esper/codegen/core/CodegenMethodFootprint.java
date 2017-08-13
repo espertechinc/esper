@@ -17,16 +17,16 @@ import java.util.Set;
 
 public class CodegenMethodFootprint {
     private final Class returnType;
-    private final String methodName;
+    private final CodegenMethodId methodId;
     private final List<CodegenParamSet> params;
     private final String optionalComment;
 
-    public CodegenMethodFootprint(Class returnType, String methodName, List<CodegenParamSet> params, String optionalComment) {
+    public CodegenMethodFootprint(Class returnType, CodegenMethodId methodId, List<CodegenParamSet> params, String optionalComment) {
         if (returnType == null) {
             throw new IllegalArgumentException("Invalid null return type");
         }
         this.returnType = returnType;
-        this.methodName = methodName;
+        this.methodId = methodId;
         this.params = params;
         this.optionalComment = optionalComment;
     }
@@ -35,8 +35,8 @@ public class CodegenMethodFootprint {
         return returnType;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public CodegenMethodId getMethodId() {
+        return methodId;
     }
 
     public List<CodegenParamSet> getParams() {

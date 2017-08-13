@@ -16,6 +16,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -58,11 +59,11 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember member = context.makeAddMember(ExprNodeScriptEvalJSR223.class, this);
         CodegenBlock block = context.addMethod(returnType, ExprNodeScriptEvalJSR223.class).add(params).begin()
-                .declareVar(Bindings.class, "bindings", exprDotMethod(ref(member.getMemberName()), "getBindings", params.passEvalCtx()));
+                .declareVar(Bindings.class, "bindings", exprDotMethod(member(member.getMemberId()), "getBindings", params.passEvalCtx()));
         for (int i = 0; i < names.length; i++) {
             block.expression(exprDotMethod(ref("bindings"), "put", constant(names[i]), parameters[i].evaluateCodegen(params, context)));
         }
-        String method = block.methodReturn(cast(returnType, exprDotMethod(ref(member.getMemberName()), "evaluateInternal", ref("bindings"))));
+        CodegenMethodId method = block.methodReturn(cast(returnType, exprDotMethod(member(member.getMemberId()), "evaluateInternal", ref("bindings"))));
         return localMethodBuild(method).passAll(params).call();
     }
 

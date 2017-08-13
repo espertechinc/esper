@@ -13,6 +13,7 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
@@ -75,7 +76,7 @@ public class KeyedFastPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
-    protected static String getBeanPropInternalCodegen(CodegenContext context, Class targetType, Method method) {
+    protected static CodegenMethodId getBeanPropInternalCodegen(CodegenContext context, Class targetType, Method method) {
         return context.addMethod(method.getReturnType(), KeyedFastPropertyGetter.class).add(targetType, "object").add(method.getParameterTypes()[0], "key").begin()
                 .methodReturn(exprDotMethod(ref("object"), method.getName(), ref("key")));
     }

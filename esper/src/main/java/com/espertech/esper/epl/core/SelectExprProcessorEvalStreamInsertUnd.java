@@ -12,6 +12,7 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -41,8 +42,8 @@ public class SelectExprProcessorEvalStreamInsertUnd implements ExprForge, ExprEv
     }
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(EventBean.class, SelectExprProcessorEvalStreamInsertUnd.class).add(params).begin()
-                .ifCondition(equalsNull(params.passEPS())).blockEnd()
+        CodegenMethodId method = context.addMethod(EventBean.class, SelectExprProcessorEvalStreamInsertUnd.class).add(params).begin()
+                .ifCondition(equalsNull(params.passEPS())).blockReturn(constantNull())
                 .methodReturn(arrayAtIndex(params.passEPS(), constant(streamNum)));
         return localMethodBuild(method).passAll(params).call();
     }
@@ -60,6 +61,10 @@ public class SelectExprProcessorEvalStreamInsertUnd implements ExprForge, ExprEv
     }
 
     public Class getEvaluationType() {
+        return EventBean.class;
+    }
+
+    public Class getUnderlyingReturnType() {
         return returnType;
     }
 

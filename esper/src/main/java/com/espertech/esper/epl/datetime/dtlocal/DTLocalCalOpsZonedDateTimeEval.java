@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
@@ -39,7 +40,7 @@ public class DTLocalCalOpsZonedDateTimeEval extends DTLocalEvaluatorCalOpsCalBas
     public static CodegenExpression codegen(DTLocalCalOpsZonedDateTimeForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenBlock block = context.addMethod(ZonedDateTime.class, DTLocalCalOpsZonedDateTimeEval.class).add(ZonedDateTime.class, "zdt").add(params).begin();
         evaluateCalOpsZDTCodegen(block, "zdt", forge.calendarForges, params, context);
-        String method = block.methodReturn(ref("zdt"));
+        CodegenMethodId method = block.methodReturn(ref("zdt"));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 }

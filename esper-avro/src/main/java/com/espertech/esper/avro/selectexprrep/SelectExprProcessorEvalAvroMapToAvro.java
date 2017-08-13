@@ -11,20 +11,28 @@
 package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.core.*;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.io.StringWriter;
 import java.util.Map;
 
-public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
-    private final ExprEvaluator eval;
+public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator, ExprForge, ExprNodeRenderable {
+
+    private final ExprForge forge;
     private final Schema inner;
+    private ExprEvaluator eval;
 
-    public SelectExprProcessorEvalAvroMapToAvro(ExprEvaluator eval, Schema schema, String columnName) {
-        this.eval = eval;
+    public SelectExprProcessorEvalAvroMapToAvro(ExprForge forge, Schema schema, String columnName) {
+        this.forge = forge;
         this.inner = schema.getField(columnName).schema();
         if (!(inner.getType() == Schema.Type.RECORD)) {
             throw new IllegalStateException("Column '" + columnName + "' is not a record but schema " + inner);
@@ -33,6 +41,21 @@ public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator {
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Map<String, Object> map = (Map<String, Object>) eval.evaluate(eventsPerStream, isNewData, context);
+        return selectExprProcessAvroMap(map, inner);
+    }
+
+    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        CodegenMember memberSchema = context.makeAddMember(Schema.class, inner);
+        return staticMethod(SelectExprProcessorEvalAvroMapToAvro.class, "selectExprProcessAvroMap", forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context), CodegenExpressionBuilder.member(memberSchema.getMemberId()));
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param map map
+     * @param inner inner
+     * @return record
+     */
+    public static Object selectExprProcessAvroMap(Map<String, Object> map, Schema inner) {
         if (map == null) {
             return null;
         }
@@ -43,4 +66,26 @@ public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator {
         return record;
     }
 
+    public ExprEvaluator getExprEvaluator() {
+        if (eval == null) {
+            eval = forge.getExprEvaluator();
+        }
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return GenericData.Record.class;
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.INTER;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return this;
+    }
+
+    public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+        writer.append(this.getClass().getSimpleName());
+    }
 }

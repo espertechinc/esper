@@ -10,16 +10,20 @@
  */
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
+import com.espertech.esper.epl.expression.core.ExprNodeRenderable;
+import com.espertech.esper.epl.expression.core.ExprTypableReturnForge;
 import com.espertech.esper.event.EventBeanManufacturer;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.TypeWidener;
 
-public class SelectExprProcessorTypableMultiForge implements ExprForge {
+public class SelectExprProcessorTypableMultiForge implements SelectExprProcessorTypableForge {
 
     protected final ExprTypableReturnForge typable;
     protected final boolean hasWideners;
@@ -55,11 +59,18 @@ public class SelectExprProcessorTypableMultiForge implements ExprForge {
         return ExprForgeComplexityEnum.INTER;
     }
 
-    public Class getEvaluationType() {
+    public Class getUnderlyingEvaluationType() {
         if (firstRowOnly) {
             return targetType.getUnderlyingType();
         }
         return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
+    }
+
+    public Class getEvaluationType() {
+        if (firstRowOnly) {
+            return EventBean.class;
+        }
+        return EventBean[].class;
     }
 
     public ExprNodeRenderable getForgeRenderable() {

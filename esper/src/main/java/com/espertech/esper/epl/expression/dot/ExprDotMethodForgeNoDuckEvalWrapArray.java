@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -47,7 +48,7 @@ public class ExprDotMethodForgeNoDuckEvalWrapArray extends ExprDotMethodForgeNoD
 
     public static CodegenExpression codegenWrapArray(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
         Class returnType = forge.getMethod().getReturnType();
-        String method = context.addMethod(Collection.class, ExprDotMethodForgeNoDuckEvalWrapArray.class).add(innerType, "target").add(params).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, ExprDotMethodForgeNoDuckEvalWrapArray.class).add(innerType, "target").add(params).begin()
                 .declareVar(JavaClassHelper.getBoxedType(returnType), "array", ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("target"), innerType, context, params))
                 .methodReturn(CollectionUtil.arrayToCollectionAllowNullCodegen(returnType, ref("array"), context));
         return localMethodBuild(method).pass(inner).passAll(params).call();

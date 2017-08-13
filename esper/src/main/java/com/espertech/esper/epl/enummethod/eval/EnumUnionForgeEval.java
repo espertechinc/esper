@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -62,7 +63,7 @@ public class EnumUnionForgeEval implements EnumEval {
         } else {
             block.declareVar(Collection.class, "other", forge.evaluatorForge.evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade.INSTANCE, context));
         }
-        String method = block.ifCondition(or(equalsNull(ref("other")), exprDotMethod(ref("other"), "isEmpty")))
+        CodegenMethodId method = block.ifCondition(or(equalsNull(ref("other")), exprDotMethod(ref("other"), "isEmpty")))
                 .blockReturn(premade.enumcoll())
                 .declareVar(ArrayList.class, "result", newInstance(ArrayList.class, op(exprDotMethod(premade.enumcoll(), "size"), "+", exprDotMethod(ref("other"), "size"))))
                 .expression(exprDotMethod(ref("result"), "addAll", premade.enumcoll()))

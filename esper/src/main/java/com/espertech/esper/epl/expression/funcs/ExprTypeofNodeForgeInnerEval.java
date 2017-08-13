@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -35,7 +36,7 @@ public class ExprTypeofNodeForgeInnerEval extends ExprTypeofNodeForge {
     }
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(String.class, ExprTypeofNodeForgeInnerEval.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(String.class, ExprTypeofNodeForgeInnerEval.class).add(params).begin()
                 .declareVar(Object.class, "result", parent.getChildNodes()[0].getForge().evaluateCodegen(params, context))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethodChain(ref("result")).add("getClass").add("getSimpleName"));

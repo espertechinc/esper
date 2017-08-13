@@ -13,6 +13,7 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -48,7 +49,7 @@ public class MapEventBeanArrayIndexedElementPropertyGetter implements MapEventPr
         return BaseNestableEventUtil.getArrayPropertyValue(wrapper, index, nestedGetter);
     }
 
-    private String getMapCodegen(CodegenContext context) {
+    private CodegenMethodId getMapCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, exprDotMethod(ref("map"), "get", constant(propertyName))))
                 .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyValueCodegen(context, index, nestedGetter), ref("wrapper")));
@@ -72,7 +73,7 @@ public class MapEventBeanArrayIndexedElementPropertyGetter implements MapEventPr
         return BaseNestableEventUtil.getArrayPropertyFragment(wrapper, index, nestedGetter);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, exprDotMethod(ref("map"), "get", constant(propertyName))))
                 .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyFragmentCodegen(context, index, nestedGetter), ref("wrapper")));

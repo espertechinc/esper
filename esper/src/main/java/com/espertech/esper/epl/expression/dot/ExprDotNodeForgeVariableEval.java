@@ -58,7 +58,7 @@ public class ExprDotNodeForgeVariableEval implements ExprEvaluator {
             variableType = metaData.getType();
         }
         CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeVariableEval.class).add(params).begin()
-                .declareVar(variableType, "result", cast(variableType, exprDotMethod(ref(variableReader.getMemberName()), "getValue")));
+                .declareVar(variableType, "result", cast(variableType, exprDotMethod(member(variableReader.getMemberId()), "getValue")));
         CodegenExpression chain = ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("result"), variableType, forge.getChainForge(), forge.getResultWrapLambda());
         return localMethodBuild(block.methodReturn(chain)).passAll(params).call();
     }

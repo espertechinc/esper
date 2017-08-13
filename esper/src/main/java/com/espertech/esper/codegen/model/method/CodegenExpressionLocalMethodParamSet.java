@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.codegen.model.method;
 
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 import java.util.List;
@@ -17,16 +18,17 @@ import java.util.Map;
 import java.util.Set;
 
 public class CodegenExpressionLocalMethodParamSet implements CodegenExpression {
-    private final String method;
+    private final CodegenMethodId methodId;
     private final List<CodegenPassSet> parameterSets;
 
-    public CodegenExpressionLocalMethodParamSet(String method, List<CodegenPassSet> parameterSets) {
-        this.method = method;
+    public CodegenExpressionLocalMethodParamSet(CodegenMethodId methodId, List<CodegenPassSet> parameterSets) {
+        this.methodId = methodId;
         this.parameterSets = parameterSets;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports) {
-        builder.append(method).append("(");
+        methodId.render(builder);
+        builder.append("(");
         String delimiter = "";
         for (CodegenPassSet set : parameterSets) {
             builder.append(delimiter);

@@ -11,6 +11,7 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
@@ -214,7 +215,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
-            String method = context.addMethod(ByteBuffer.class, TypeWidenerByteArrayToByteBufferCoercer.class).add(Object.class, "input").begin()
+            CodegenMethodId method = context.addMethod(ByteBuffer.class, TypeWidenerByteArrayToByteBufferCoercer.class).add(Object.class, "input").begin()
                     .ifRefNullReturnNull("input")
                     .methodReturn(staticMethod(ByteBuffer.class, "wrap", cast(byte[].class, ref("input"))));
             return localMethodBuild(method).pass(expression).call();
@@ -222,7 +223,7 @@ public class TypeWidenerFactory {
     }
 
     protected static CodegenExpression codegenWidenArrayAsListMayNull(CodegenExpression expression, Class arrayType, CodegenContext context, Class generator) {
-        String method = context.addMethod(Collection.class, generator).add(Object.class, "input").begin()
+        CodegenMethodId method = context.addMethod(Collection.class, generator).add(Object.class, "input").begin()
                 .ifRefNullReturnNull("input")
                 .methodReturn(staticMethod(Arrays.class, "asList", cast(arrayType, ref("input"))));
         return localMethodBuild(method).pass(expression).call();

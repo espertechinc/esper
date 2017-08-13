@@ -187,7 +187,7 @@ public class TestResultSetProcessorFactory extends TestCase {
                 ExprNodeUtility.EMPTY_SCRIPTS,
                 null,
                 null,
-                CollectionUtil.EMPTY_STRING_ARRAY,
+                CollectionUtil.STRINGARRAY_EMPTY,
                 new Annotation[0],
                 null,
                 null,

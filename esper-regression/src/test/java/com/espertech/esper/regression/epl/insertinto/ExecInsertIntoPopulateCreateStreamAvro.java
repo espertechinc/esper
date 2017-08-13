@@ -13,10 +13,7 @@ package com.espertech.esper.regression.epl.insertinto;
 import com.espertech.esper.avro.core.AvroConstant;
 import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.avro.util.support.SupportAvroUtil;
-import com.espertech.esper.client.ConfigurationEventTypeAvro;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBean;
@@ -34,6 +31,10 @@ import static org.apache.avro.SchemaBuilder.*;
 import static org.junit.Assert.*;
 
 public class ExecInsertIntoPopulateCreateStreamAvro implements RegressionExecution {
+
+    public void configure(Configuration configuration) throws Exception {
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+    }
 
     public void run(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);

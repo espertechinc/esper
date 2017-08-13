@@ -13,43 +13,39 @@ package com.espertech.esper.codegen.core;
 import com.espertech.esper.codegen.model.method.CodegenLocalMethodBuilder;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 public class CodegenContext {
 
     private final boolean debug;
-    private final List<CodegenMember> members = new ArrayList<>();
+    private final IdentityHashMap<Object, CodegenMember> members = new IdentityHashMap<>();
     private final List<CodegenMethod> methods = new ArrayList<>();
+    private int currentMemberNumber;
+    private int currentMethodNumber;
 
     public CodegenContext(boolean debug) {
         this.debug = debug;
     }
 
-    public void addMember(CodegenMember entry) {
-        members.add(entry);
-    }
-
-    public CodegenMember makeMember(Class clazz, Object object) {
-        String memberName = CodeGenerationIDGenerator.generateMember();
-        return new CodegenMember(memberName, clazz, object);
-    }
-
     public <T> CodegenMember makeAddMember(Class<? extends T> clazz, T object) {
-        CodegenMember member = makeMember(clazz, object);
-        members.add(member);
+        CodegenMember existing = members.get(object);
+        if (existing != null) {
+            return existing;
+        }
+
+        int memberNumber = currentMemberNumber++;
+        CodegenMember member = new CodegenMember(new CodegenMemberId(memberNumber), clazz, object);
+        members.put(object, member);
         return member;
     }
 
-    public CodegenMember makeMember(Class clazz, Class optionalTypeParam, Object object) {
-        String memberName = CodeGenerationIDGenerator.generateMember();
-        return new CodegenMember(memberName, clazz, optionalTypeParam, object);
-    }
-
     public CodegenLocalMethodBuilder addMethod(Class returnType, Class generator) {
-        return new CodegenLocalMethodBuilder(returnType, getGeneratorDetail(generator, debug), this);
+        int methodNumber = currentMethodNumber++;
+        return new CodegenLocalMethodBuilder(returnType, getGeneratorDetail(generator, debug), this, new CodegenMethodId(methodNumber));
     }
 
-    public List<CodegenMember> getMembers() {
+    public IdentityHashMap<Object, CodegenMember> getMembers() {
         return members;
     }
 

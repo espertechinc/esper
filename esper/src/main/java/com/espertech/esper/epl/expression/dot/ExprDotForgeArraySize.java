@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -50,7 +51,7 @@ public class ExprDotForgeArraySize implements ExprDotForge, ExprDotEval {
     }
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        String method = context.addMethod(Integer.class, ExprDotForgeArraySize.class).add(innerType, "target").begin()
+        CodegenMethodId method = context.addMethod(Integer.class, ExprDotForgeArraySize.class).add(innerType, "target").begin()
                 .ifRefNullReturnNull("target")
                 .methodReturn(arrayLength(ref("target")));
         return localMethodBuild(method).pass(inner).call();

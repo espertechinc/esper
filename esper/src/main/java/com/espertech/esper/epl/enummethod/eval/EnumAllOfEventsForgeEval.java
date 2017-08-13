@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
@@ -60,7 +61,7 @@ public class EnumAllOfEventsForgeEval implements EnumEval {
         CodegenBlock forEach = block.forEach(EventBean.class, "next", premade.enumcoll())
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"));
         CodegenLegoBooleanExpression.codegenReturnBoolIfNullOrBool(forEach, forge.innerExpression, context, true, false, false, false);
-        String method = block.methodReturn(constantTrue());
+        CodegenMethodId method = block.methodReturn(constantTrue());
         return localMethodBuild(method).passAll(args).call();
     }
 }

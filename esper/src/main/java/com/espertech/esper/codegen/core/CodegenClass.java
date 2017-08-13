@@ -10,16 +10,13 @@
  */
 package com.espertech.esper.codegen.core;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CodegenClass {
     private final String packageName;
     private final String className;
     private final Class interfaceImplemented;
-    private final List<CodegenMember> members;
+    private final IdentityHashMap<Object, CodegenMember> members;
     private final List<CodegenMethod> publicMethods;
     private final List<CodegenMethod> privateMethods;
 
@@ -32,7 +29,7 @@ public class CodegenClass {
                 codegenContext.getMethods());
     }
 
-    private CodegenClass(String packageName, String className, Class interfaceImplemented, List<CodegenMember> members, List<CodegenMethod> publicMethods, List<CodegenMethod> privateMethods) {
+    private CodegenClass(String packageName, String className, Class interfaceImplemented, IdentityHashMap<Object, CodegenMember> members, List<CodegenMethod> publicMethods, List<CodegenMethod> privateMethods) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceImplemented = interfaceImplemented;
@@ -53,7 +50,7 @@ public class CodegenClass {
         return interfaceImplemented;
     }
 
-    public List<CodegenMember> getMembers() {
+    public IdentityHashMap<Object, CodegenMember> getMembers() {
         return members;
     }
 
@@ -68,8 +65,8 @@ public class CodegenClass {
     public Set<Class> getReferencedClasses() {
         Set<Class> classes = new HashSet<>();
         classes.add(interfaceImplemented);
-        for (CodegenMember member : members) {
-            member.mergeClasses(classes);
+        for (Map.Entry<Object, CodegenMember> memberEntry : members.entrySet()) {
+            memberEntry.getValue().mergeClasses(classes);
         }
         for (CodegenMethod publicMethod : publicMethods) {
             publicMethod.mergeClasses(classes);

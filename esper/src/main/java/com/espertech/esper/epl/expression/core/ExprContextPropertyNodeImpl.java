@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -96,7 +97,7 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
         CodegenBlock block = context.addMethod(getEvaluationType(), ExprContextPropertyNodeImpl.class).add(params.receiveEvalCtx()).begin()
                 .declareVar(EventBean.class, "props", exprDotMethod(params.passEvalCtx(), "getContextProperties"))
                 .ifRefNullReturnNull("props");
-        String method = block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("props"), context)));
+        CodegenMethodId method = block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("props"), context)));
         return localMethodBuild(method).pass(params.passEvalCtx()).call();
     }
 

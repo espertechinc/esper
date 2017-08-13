@@ -78,11 +78,12 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
 
         EventType optionalInsertIntoEventType = processor.getEventTypeResultSetProcessor();
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry(statementContext.getStatementName(), statementContext.getStatementEventTypeRef());
-        SelectExprProcessor insertHelper = SelectExprProcessorFactory.getProcessor(Collections.singleton(0),
+        SelectExprProcessorForge insertHelperForge = SelectExprProcessorFactory.getProcessor(Collections.singleton(0),
                 selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]), false, statementSpec.getInsertIntoDesc(), optionalInsertIntoEventType, null, streamTypeService,
                 statementContext.getEventAdapterService(), statementContext.getStatementResultService(), statementContext.getValueAddEventService(), selectExprEventTypeRegistry,
                 statementContext.getEngineImportService(), exprEvaluatorContextStatement, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null, null,
                 statementContext.getStatementExtensionServicesContext());
+        SelectExprProcessor insertHelper = insertHelperForge.getSelectExprProcessor(statementContext.getEngineImportService(), true, statementContext.getStatementName());
 
         return new EPPreparedExecuteIUDSingleStreamExecInsert(exprEvaluatorContextStatement, insertHelper, statementSpec.getTableNodes(), services);
     }
@@ -105,5 +106,4 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
         statementSpec.setStreamSpecs(new StreamSpecCompiled[]{namedWindowStream});
         return statementSpec;
     }
-
 }

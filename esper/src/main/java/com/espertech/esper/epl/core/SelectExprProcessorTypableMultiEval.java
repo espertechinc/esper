@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -63,9 +64,9 @@ public class SelectExprProcessorTypableMultiEval implements ExprEvaluator {
         if (forge.hasWideners) {
             block.expression(applyWidenersCodegenMultirow(ref("rows"), forge.wideners, context));
         }
-        String method = block.declareVar(EventBean[].class, "events", newArray(EventBean.class, arrayLength(ref("rows"))))
+        CodegenMethodId method = block.declareVar(EventBean[].class, "events", newArray(EventBean.class, arrayLength(ref("rows"))))
                 .forLoopIntSimple("i", arrayLength(ref("events")))
-                .assignArrayElement("events", ref("i"), exprDotMethod(ref(factory.getMemberName()), "make", arrayAtIndex(ref("rows"), ref("i"))))
+                .assignArrayElement("events", ref("i"), exprDotMethod(member(factory.getMemberId()), "make", arrayAtIndex(ref("rows"), ref("i"))))
                 .blockEnd()
                 .methodReturn(ref("events"));
         return localMethodBuild(method).passAll(params).call();

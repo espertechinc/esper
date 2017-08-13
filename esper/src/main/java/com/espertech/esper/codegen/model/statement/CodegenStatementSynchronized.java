@@ -12,23 +12,23 @@ package com.espertech.esper.codegen.model.statement;
 
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenIndent;
-import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 import java.util.Map;
 import java.util.Set;
 
 public class CodegenStatementSynchronized extends CodegenStatementWBlockBase {
-    private CodegenExpressionRef ref;
+    private CodegenExpression expression;
     private CodegenBlock block;
 
-    public CodegenStatementSynchronized(CodegenBlock parent, CodegenExpressionRef ref) {
+    public CodegenStatementSynchronized(CodegenBlock parent, CodegenExpression expression) {
         super(parent);
-        this.ref = ref;
+        this.expression = expression;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
         builder.append("synchronized (");
-        ref.render(builder, imports);
+        expression.render(builder, imports);
         builder.append(") {\n");
         block.render(builder, imports, level + 1, indent);
         indent.indent(builder, level);
@@ -36,7 +36,7 @@ public class CodegenStatementSynchronized extends CodegenStatementWBlockBase {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        ref.mergeClasses(classes);
+        expression.mergeClasses(classes);
         block.mergeClasses(classes);
     }
 

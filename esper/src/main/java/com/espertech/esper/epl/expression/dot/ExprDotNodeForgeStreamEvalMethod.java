@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.dot;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -72,7 +73,7 @@ public class ExprDotNodeForgeStreamEvalMethod implements ExprEvaluator {
         }
         block.declareVar(eventUndType, "inner", cast(eventUndType, exprDotMethod(ref("event"), "getUnderlying")));
         CodegenExpression invoke = ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("inner"), eventUndType, forge.getEvaluators(), null);
-        String method;
+        CodegenMethodId method;
         if (evaluationType == void.class) {
             method = block.expression(invoke).methodEnd();
         } else {

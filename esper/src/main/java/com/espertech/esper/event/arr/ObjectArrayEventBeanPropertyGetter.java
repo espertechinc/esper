@@ -13,6 +13,7 @@ package com.espertech.esper.event.arr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 
@@ -40,7 +41,7 @@ public class ObjectArrayEventBeanPropertyGetter implements ObjectArrayEventPrope
         return theEvent.getUnderlying();
     }
 
-    private String getObjectArrayCodegen(CodegenContext context) {
+    private CodegenMethodId getObjectArrayCodegen(CodegenContext context) {
         return context.addMethod(underlyingType, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "eventBean", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("eventBean")

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -41,8 +42,8 @@ class DTLocalLDTIntervalEval extends DTLocalEvaluatorIntervalBase {
 
     public static CodegenExpression codegen(DTLocalLDTIntervalForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-        String method = context.addMethod(Boolean.class, DTLocalLDTIntervalEval.class).add(LocalDateTime.class, "target").add(params).begin()
-                .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("target"), ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(Boolean.class, DTLocalLDTIntervalEval.class).add(LocalDateTime.class, "target").add(params).begin()
+                .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("target"), member(tz.getMemberId())))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
@@ -55,9 +56,9 @@ class DTLocalLDTIntervalEval extends DTLocalEvaluatorIntervalBase {
 
     public static CodegenExpression codegen(DTLocalLDTIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-        String method = context.addMethod(Boolean.class, DTLocalLDTIntervalEval.class).add(LocalDateTime.class, "startTimestamp").add(LocalDateTime.class, "endTimestamp").add(params).begin()
-                .declareVar(long.class, "start", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("startTimestamp"), ref(tz.getMemberName())))
-                .declareVar(long.class, "end", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("endTimestamp"), ref(tz.getMemberName())))
+        CodegenMethodId method = context.addMethod(Boolean.class, DTLocalLDTIntervalEval.class).add(LocalDateTime.class, "startTimestamp").add(LocalDateTime.class, "endTimestamp").add(params).begin()
+                .declareVar(long.class, "start", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("startTimestamp"), member(tz.getMemberId())))
+                .declareVar(long.class, "end", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("endTimestamp"), member(tz.getMemberId())))
                 .methodReturn(forge.intervalForge.codegen(ref("start"), ref("end"), params, context));
         return localMethodBuild(method).pass(start).pass(end).passAll(params).call();
     }

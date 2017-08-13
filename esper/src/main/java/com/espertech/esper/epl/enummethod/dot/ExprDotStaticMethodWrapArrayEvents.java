@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
@@ -25,7 +26,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.newInstance;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprDotStaticMethodWrapArrayEvents implements ExprDotStaticMethodWrap {
     private EventAdapterService eventAdapterService;
@@ -50,7 +50,7 @@ public class ExprDotStaticMethodWrapArrayEvents implements ExprDotStaticMethodWr
     public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
         CodegenMember eventSvcMember = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember typeMember = context.makeAddMember(BeanEventType.class, type);
-        return newInstance(ExprDotStaticMethodWrapArrayEvents.WrappingCollection.class, ref(eventSvcMember.getMemberName()), ref(typeMember.getMemberName()), result);
+        return newInstance(ExprDotStaticMethodWrapArrayEvents.WrappingCollection.class, CodegenExpressionBuilder.member(eventSvcMember.getMemberId()), CodegenExpressionBuilder.member(typeMember.getMemberId()), result);
     }
 
     public static class WrappingCollection implements Collection<EventBean> {

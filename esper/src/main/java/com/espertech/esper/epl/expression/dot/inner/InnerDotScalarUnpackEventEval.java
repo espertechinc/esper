@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.dot.inner;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -40,7 +41,7 @@ public class InnerDotScalarUnpackEventEval implements ExprDotEvalRootChildInnerE
     }
 
     public static CodegenExpression codegenEvaluate(InnerDotScalarUnpackEventForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        String method = context.addMethod(forge.getRootForge().getEvaluationType(), InnerDotScalarUnpackEventEval.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(forge.getRootForge().getEvaluationType(), InnerDotScalarUnpackEventEval.class).add(params).begin()
                 .declareVar(Object.class, "target", forge.getRootForge().evaluateCodegen(params, context))
                 .ifInstanceOf("target", EventBean.class)
                 .blockReturn(CodegenLegoCast.castSafeFromObjectType(forge.getRootForge().getEvaluationType(), exprDotMethod(cast(EventBean.class, ref("target")), "getUnderlying")))

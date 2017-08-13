@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.dot.inner;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -40,7 +41,7 @@ public class InnerDotArrObjectToCollEval implements ExprDotEvalRootChildInnerEva
     }
 
     public static CodegenExpression codegenEvaluate(InnerDotArrObjectToCollForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Collection.class, InnerDotArrObjectToCollEval.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, InnerDotArrObjectToCollEval.class).add(params).begin()
                 .declareVar(forge.rootForge.getEvaluationType(), "array", forge.rootForge.evaluateCodegen(params, context))
                 .ifRefNullReturnNull("array")
                 .methodReturn(staticMethod(Arrays.class, "asList", ref("array")));

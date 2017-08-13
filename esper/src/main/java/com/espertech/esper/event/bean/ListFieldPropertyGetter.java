@@ -13,6 +13,7 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
@@ -77,7 +78,7 @@ public class ListFieldPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
-    private String getBeanPropInternalCodegen(CodegenContext context) {
+    private CodegenMethodId getBeanPropInternalCodegen(CodegenContext context) {
         return context.addMethod(getBeanPropType(), this.getClass()).add(getTargetType(), "object").add(int.class, "index").begin()
                 .declareVar(Object.class, "value", exprDotName(ref("object"), field.getName()))
                 .ifRefNotTypeReturnConst("value", List.class, null)

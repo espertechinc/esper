@@ -14,11 +14,11 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 /**
@@ -42,6 +42,6 @@ public class ObjectArrayPropertyGetterDefaultObjectArray extends ObjectArrayProp
         }
         CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = context.makeAddMember(EventType.class, fragmentEventType);
-        return staticMethod(BaseNestableEventUtil.class, "handleBNCreateFragmentObjectArray", value, ref(mType.getMemberName()), ref(mSvc.getMemberName()));
+        return staticMethod(BaseNestableEventUtil.class, "handleBNCreateFragmentObjectArray", value, CodegenExpressionBuilder.member(mType.getMemberId()), CodegenExpressionBuilder.member(mSvc.getMemberId()));
     }
 }

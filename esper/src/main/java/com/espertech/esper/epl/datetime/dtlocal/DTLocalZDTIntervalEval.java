@@ -12,6 +12,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
@@ -34,7 +35,7 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Boolean.class, DTLocalZDTIntervalEval.class).add(ZonedDateTime.class, "target").add(params).begin()
+        CodegenMethodId method = context.addMethod(Boolean.class, DTLocalZDTIntervalEval.class).add(ZonedDateTime.class, "target").add(params).begin()
                 .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")))
                 .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
@@ -47,7 +48,7 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression start, CodegenExpression end, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Boolean.class, DTLocalZDTIntervalEval.class).add(ZonedDateTime.class, "startTimestamp").add(ZonedDateTime.class, "endTimestamp").add(params).begin()
+        CodegenMethodId method = context.addMethod(Boolean.class, DTLocalZDTIntervalEval.class).add(ZonedDateTime.class, "startTimestamp").add(ZonedDateTime.class, "endTimestamp").add(params).begin()
                 .declareVar(long.class, "start", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("startTimestamp")))
                 .declareVar(long.class, "end", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("endTimestamp")))
                 .methodReturn(forge.intervalForge.codegen(ref("start"), ref("end"), params, context));

@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -79,7 +80,7 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
     }
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Boolean.class, this.getClass()).add(params).begin()
+        CodegenMethodId method = context.addMethod(Boolean.class, this.getClass()).add(params).begin()
                 .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(identNode.getStreamId())))
                 .ifRefNullReturnNull("event")
                 .methodReturn(identNode.getExprEvaluatorIdent().getGetter().eventBeanExistsCodegen(ref("event"), context));

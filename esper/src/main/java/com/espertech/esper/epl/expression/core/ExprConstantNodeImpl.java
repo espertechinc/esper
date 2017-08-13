@@ -98,7 +98,7 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         }
         if (!JavaClassHelper.isJavaBuiltinDataType(value.getClass())) {
             CodegenMember constant = context.makeAddMember(value.getClass(), value);
-            return ref(constant.getMemberName());
+            return member(constant.getMemberId());
         }
         return constant(value);
     }

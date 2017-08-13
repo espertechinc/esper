@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -69,13 +70,13 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
         CodegenMember mForge = context.makeAddMember(ExprDotMethodForgeDuck.class, forge);
         CodegenBlock block = context.addMethod(Object.class, ExprDotMethodForgeDuckEval.class).add(innerType, "target").add(params).begin()
                 .ifRefNullReturnNull("target")
-                .declareVar(FastMethod.class, "method", staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckGetMethod", exprDotMethod(ref("target"), "getClass"), ref(mCache.getMemberName()), ref(mForge.getMemberName())))
+                .declareVar(FastMethod.class, "method", staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckGetMethod", exprDotMethod(ref("target"), "getClass"), member(mCache.getMemberId()), member(mForge.getMemberId())))
                 .ifRefNullReturnNull("method")
                 .declareVar(Object[].class, "args", newArray(Object.class, constant(forge.getParameters().length)));
         for (int i = 0; i < forge.getParameters().length; i++) {
             block.assignArrayElement("args", constant(i), forge.getParameters()[i].evaluateCodegen(params, context));
         }
-        String method = block.methodReturn(staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckInvokeMethod", ref("method"), ref("target"), ref("args"), ref(mForge.getMemberName())));
+        CodegenMethodId method = block.methodReturn(staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckInvokeMethod", ref("method"), ref("target"), ref("args"), member(mForge.getMemberId())));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 

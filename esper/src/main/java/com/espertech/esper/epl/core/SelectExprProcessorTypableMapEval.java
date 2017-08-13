@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -45,13 +46,13 @@ public class SelectExprProcessorTypableMapEval implements ExprEvaluator {
     public static CodegenExpression codegen(SelectExprProcessorTypableMapForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
         CodegenMember eventAdapterService = context.makeAddMember(EventAdapterService.class, forge.eventAdapterService);
         CodegenMember mapType = context.makeAddMember(EventType.class, forge.mapType);
-        String method = context.addMethod(EventBean.class, SelectExprProcessorTypableMapEval.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(EventBean.class, SelectExprProcessorTypableMapEval.class).add(params).begin()
                 .declareVar(Map.class, "values", forge.innerForge.evaluateCodegen(params, context))
                 .declareVarNoInit(Map.class, "map")
                 .ifRefNull("values")
                 .assignRef("values", staticMethod(Collections.class, "emptyMap"))
                 .blockEnd()
-                .methodReturn(exprDotMethod(ref(eventAdapterService.getMemberName()), "adapterForTypedMap", ref("values"), ref(mapType.getMemberName())));
+                .methodReturn(exprDotMethod(member(eventAdapterService.getMemberId()), "adapterForTypedMap", ref("values"), member(mapType.getMemberId())));
         return localMethodBuild(method).passAll(params).call();
     }
 

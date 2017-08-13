@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
@@ -75,7 +76,7 @@ public class EnumWhereIndexEventsForgeEval implements EnumEval {
                 .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
                 .blockReturn(premade.enumcoll())
                 .declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class))
-                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(indexTypeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(indexTypeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda + 1), ref("indexEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("indexEvent"), "getProperties"))
                 .declareVar(int.class, "count", constant(-1));
@@ -85,7 +86,7 @@ public class EnumWhereIndexEventsForgeEval implements EnumEval {
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"));
         CodegenLegoBooleanExpression.codegenContinueIfNullOrNotPass(forEach, forge.innerExpression, context);
         forEach.expression(exprDotMethod(ref("result"), "add", ref("next")));
-        String method = block.methodReturn(ref("result"));
+        CodegenMethodId method = block.methodReturn(ref("result"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

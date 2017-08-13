@@ -13,6 +13,7 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 
@@ -43,7 +44,7 @@ public class MapEventBeanPropertyGetter implements MapEventPropertyGetter {
         return theEvent.getUnderlying();
     }
 
-    private String getMapCodegen(CodegenContext context) {
+    private CodegenMethodId getMapCodegen(CodegenContext context) {
         return context.addMethod(underlyingType, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "eventBean", exprDotMethod(ref("map"), "get", constant(propertyName)))
                 .ifRefNullReturnNull("eventBean")

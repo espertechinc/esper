@@ -11,10 +11,7 @@
 package com.espertech.esper.regression.expr.expr;
 
 import com.espertech.esper.avro.util.support.SupportAvroUtil;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.FragmentEventType;
+import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
@@ -31,6 +28,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class ExecExprNewStruct implements RegressionExecution {
+
+    public void configure(Configuration configuration) throws Exception {
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+    }
+
     public void run(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         runAssertionNewWRepresentation(epService);

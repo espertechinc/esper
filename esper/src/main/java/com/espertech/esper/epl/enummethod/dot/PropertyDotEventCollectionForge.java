@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.dot;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -57,7 +58,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(params).begin()
                 .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamId)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(codegenEvaluateInternal(ref("event"), params, context));
@@ -128,13 +129,13 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
 
     private CodegenExpression codegenEvaluateInternal(CodegenExpressionRef event, CodegenParamSetExprPremade params, CodegenContext context) {
         if (disablePropertyExpressionEventCollCache) {
-            String method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(EventBean.class, "event").add(params).begin()
+            CodegenMethodId method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(EventBean.class, "event").add(params).begin()
                     .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), context)))
                     .ifRefNullReturnNull("events")
                     .methodReturn(staticMethod(Arrays.class, "asList", ref("events")));
             return localMethodBuild(method).pass(event).passAll(params).call();
         }
-        String method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(EventBean.class, "event").add(params).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(EventBean.class, "event").add(params).begin()
                 .declareVar(ExpressionResultCacheForPropUnwrap.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateUnwrapProp"))
                 .declareVar(ExpressionResultCacheEntryBeanAndCollBean.class, "cacheEntry", exprDotMethod(ref("cache"), "getPropertyColl", constant(propertyNameCache), ref("event")))
                 .ifCondition(notEqualsNull(ref("cacheEntry")))

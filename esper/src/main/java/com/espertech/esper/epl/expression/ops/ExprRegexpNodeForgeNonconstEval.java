@@ -14,6 +14,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -86,7 +87,7 @@ public class ExprRegexpNodeForgeNonconstEval implements ExprEvaluator {
         return result;
     }
 
-    public static String codegen(ExprRegexpNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenMethodId codegen(ExprRegexpNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, CodegenContext context, CodegenParamSetExprPremade params) {
         CodegenBlock blockMethod = context.addMethod(Boolean.class, ExprRegexpNodeForgeNonconstEval.class).add(params).begin()
                 .declareVar(String.class, "patternText", pattern.getForge().evaluateCodegen(params, context))
                 .ifRefNullReturnNull("patternText");

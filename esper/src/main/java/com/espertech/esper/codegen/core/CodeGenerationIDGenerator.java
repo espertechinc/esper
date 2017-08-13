@@ -13,14 +13,6 @@ package com.espertech.esper.codegen.core;
 import com.espertech.esper.util.UuidGenerator;
 
 public class CodeGenerationIDGenerator {
-    public static String generateMethod() {
-        return "m" + UuidGenerator.generateNoDash();
-    }
-
-    public static String generateMember() {
-        return "_" + UuidGenerator.generateNoDash();
-    }
-
     public static String generateClass() {
         return "c" + UuidGenerator.generateNoDash();
     }

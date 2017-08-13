@@ -2301,6 +2301,7 @@ public class ConfigurationEngineDefaults implements Serializable {
     public static class CodeGeneration implements Serializable {
         private boolean enablePropertyGetter = false;
         private boolean enableExpression = true;
+        private boolean enableSelectClause = true;
         private boolean enableFallback = true;
         private boolean includeDebugSymbols = false;
         private boolean includeComments = false;
@@ -2324,7 +2325,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Returns indicator whether to enable code generation for expressions (false by default).
+         * Returns indicator whether to enable code generation for expressions (true by default).
          * @return indicator
          */
         public boolean isEnableExpression() {
@@ -2332,11 +2333,27 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Returns indicator whether to enable code generation for expressions (true by default).
+         * Sets indicator whether to enable code generation for expressions (true by default).
          * @param enableExpression indicator
          */
         public void setEnableExpression(boolean enableExpression) {
             this.enableExpression = enableExpression;
+        }
+
+        /**
+         * Returns indicator whether to enable code generation for the select-clause (true by default).
+         * @return indicator
+         */
+        public boolean isEnableSelectClause() {
+            return enableSelectClause;
+        }
+
+        /**
+         * Sets indicator whether to enable code generation for the select-clause (true by default).
+         * @param enableSelectClause indicator
+         */
+        public void setEnableSelectClause(boolean enableSelectClause) {
+            this.enableSelectClause = enableSelectClause;
         }
 
         /**

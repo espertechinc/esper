@@ -54,12 +54,12 @@ public class TestSelectExprEvalProcessor extends TestCase {
     }
 
     public void testGetResultEventType() throws Exception {
-        EventType type = methodOne.getEvaluator().getResultEventType();
+        EventType type = methodOne.getForge().getResultEventType();
         EPAssertionUtil.assertEqualsAnyOrder(type.getPropertyNames(), new String[]{"resultOne", "resultTwo"});
         assertEquals(Double.class, type.getPropertyType("resultOne"));
         assertEquals(Integer.class, type.getPropertyType("resultTwo"));
 
-        type = methodTwo.getEvaluator().getResultEventType();
+        type = methodTwo.getForge().getResultEventType();
         EPAssertionUtil.assertEqualsAnyOrder(type.getPropertyNames(), new String[]{"a", "b"});
         assertEquals(Double.class, type.getPropertyType("a"));
         assertEquals(Integer.class, type.getPropertyType("b"));
@@ -68,14 +68,14 @@ public class TestSelectExprEvalProcessor extends TestCase {
     public void testProcess() throws Exception {
         EventBean[] events = new EventBean[]{makeEvent(8.8, 3, 4)};
 
-        EventBean result = methodOne.getEvaluator().process(events, true, false, null);
+        EventBean result = methodOne.getForge().getSelectExprProcessor(SupportEngineImportServiceFactory.make(), false, "abc").process(events, true, false, null);
         assertEquals(8.8d, result.get("resultOne"));
         assertEquals(12, result.get("resultTwo"));
 
-        result = methodTwo.getEvaluator().process(events, true, false, null);
+        result = methodTwo.getForge().getSelectExprProcessor(SupportEngineImportServiceFactory.make(), false, "abc").process(events, true, false, null);
         assertEquals(8.8d, result.get("a"));
         assertEquals(12, result.get("b"));
-        assertSame(result.getEventType(), methodTwo.getEvaluator().getResultEventType());
+        assertSame(result.getEventType(), methodTwo.getForge().getResultEventType());
     }
 
     private EventBean makeEvent(double doubleBoxed, int intPrimitive, int intBoxed) {

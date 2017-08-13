@@ -123,11 +123,12 @@ public class TableOnMergeHelper {
         // Get select expr processor
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry(statementContext.getStatementName(), statementContext.getStatementEventTypeRef());
         ExprEvaluatorContextStatement exprEvaluatorContext = new ExprEvaluatorContextStatement(statementContext, false);
-        SelectExprProcessor insertHelper = SelectExprProcessorFactory.getProcessor(Collections.singleton(selectClauseNumber),
+        SelectExprProcessorForge insertHelperForge = SelectExprProcessorFactory.getProcessor(Collections.singleton(selectClauseNumber),
                 selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]), false, insertIntoDesc, insertIntoTargetType, null, streamTypeService,
                 statementContext.getEventAdapterService(), statementContext.getStatementResultService(), statementContext.getValueAddEventService(), selectExprEventTypeRegistry,
                 statementContext.getEngineImportService(), exprEvaluatorContext, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null, null,
                 statementContext.getStatementExtensionServicesContext());
+        SelectExprProcessor insertHelper = SelectExprProcessorCompiler.allocateSelectExprEvaluator(statementContext.getEventAdapterService(), insertHelperForge, statementContext.getEngineImportService(), TableOnMergeHelper.class, false, statementContext.getStatementName());
         ExprEvaluator filterEval = desc.getOptionalWhereClause() == null ? null : ExprNodeCompiler.allocateEvaluator(desc.getOptionalWhereClause().getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
 
         InternalEventRouter routerToUser = streamName.equals(tableMetadata.getTableName()) ? null : internalEventRouter;

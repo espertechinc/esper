@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
@@ -39,7 +40,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
         return handleGetterTrailingChain(result);
     }
 
-    private String getMapCodegen(CodegenContext context) throws PropertyAccessException {
+    private CodegenMethodId getMapCodegen(CodegenContext context) throws PropertyAccessException {
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "result", getterChain[0].underlyingGetCodegen(ref("map"), context))
                 .methodReturn(localMethod(handleGetterTrailingChainCodegen(context), ref("result")));
@@ -53,7 +54,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
         return handleIsExistsTrailingChain(result);
     }
 
-    private String isMapExistsPropertyCodegen(CodegenContext context) throws PropertyAccessException {
+    private CodegenMethodId isMapExistsPropertyCodegen(CodegenContext context) throws PropertyAccessException {
         return context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
                 .ifConditionReturnConst(getterChain[0].underlyingExistsCodegen(ref("map"), context), false)
                 .declareVar(Object.class, "result", getterChain[0].underlyingGetCodegen(ref("map"), context))
@@ -130,7 +131,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
         return false;
     }
 
-    private String handleIsExistsTrailingChainCodegen(CodegenContext context) {
+    private CodegenMethodId handleIsExistsTrailingChainCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Object.class, "result").begin();
         for (int i = 1; i < getterChain.length - 1; i++) {
             block.ifRefNullReturnFalse("result");
@@ -190,7 +191,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
         return result;
     }
 
-    private String handleGetterTrailingChainCodegen(CodegenContext context) {
+    private CodegenMethodId handleGetterTrailingChainCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Object.class, "result").begin();
         for (int i = 1; i < getterChain.length; i++) {
             block.ifRefNullReturnNull("result");

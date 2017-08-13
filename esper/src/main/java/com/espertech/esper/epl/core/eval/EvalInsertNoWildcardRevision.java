@@ -12,28 +12,43 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class EvalInsertNoWildcardRevision extends EvalBaseMap implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
-    private static final Logger log = LoggerFactory.getLogger(EvalInsertNoWildcardRevision.class);
+public class EvalInsertNoWildcardRevision extends EvalBaseMap implements SelectExprProcessor {
 
     private final ValueAddEventProcessor vaeProcessor;
     private final EventType vaeInnerEventType;
 
-    public EvalInsertNoWildcardRevision(SelectExprContext selectExprContext, EventType resultEventType, ValueAddEventProcessor vaeProcessor, EventType vaeInnerEventType) {
-        super(selectExprContext, resultEventType);
+    public EvalInsertNoWildcardRevision(SelectExprForgeContext selectExprForgeContext, EventType resultEventType, ValueAddEventProcessor vaeProcessor, EventType vaeInnerEventType) {
+        super(selectExprForgeContext, resultEventType);
         this.vaeProcessor = vaeProcessor;
         this.vaeInnerEventType = vaeInnerEventType;
     }
 
+    protected void initSelectExprProcessorSpecific(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+    }
+
     public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        return vaeProcessor.getValueAddEventBean(super.getEventAdapterService().adapterForTypedMap(props, vaeInnerEventType));
+        EventBean inner = super.getEventAdapterService().adapterForTypedMap(props, vaeInnerEventType);
+        return vaeProcessor.getValueAddEventBean(inner);
+    }
+
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetSelectPremade params, CodegenContext context) {
+        CodegenMember processor = context.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
+        CodegenMember innerType = context.makeAddMember(EventType.class, vaeInnerEventType);
+        CodegenExpression inner = exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedMap", props, CodegenExpressionBuilder.member(innerType.getMemberId()));
+        return exprDotMethod(CodegenExpressionBuilder.member(processor.getMemberId()), "getValueAddEventBean", inner);
     }
 }

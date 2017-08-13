@@ -32,7 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SelectExprJoinWildcardProcessorFactory {
-    public static SelectExprProcessor create(Collection<Integer> assignedTypeNumberStack,
+    public static SelectExprProcessorForge create(Collection<Integer> assignedTypeNumberStack,
                                              int statementId,
                                              String statementName,
                                              String[] streamNames,
@@ -44,7 +44,8 @@ public class SelectExprJoinWildcardProcessorFactory {
                                              Annotation[] annotations,
                                              ConfigurationInformation configuration,
                                              TableService tableService,
-                                             String engineURI) throws ExprValidationException {
+                                             String engineURI,
+                                             boolean isFireAndForget) throws ExprValidationException {
         if ((streamNames.length < 2) || (streamTypes.length < 2) || (streamNames.length != streamTypes.length)) {
             throw new IllegalArgumentException("Stream names and types parameter length is invalid, expected use of this class is for join statements");
         }
@@ -67,11 +68,11 @@ public class SelectExprJoinWildcardProcessorFactory {
         EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
         EventType resultEventType;
 
-        SelectExprProcessor processor = null;
+        SelectExprProcessorForge processor = null;
         if (insertIntoDesc != null) {
             EventType existingType = eventAdapterService.getExistsTypeByName(insertIntoDesc.getEventTypeName());
             if (existingType != null) {
-                processor = SelectExprInsertEventBeanFactory.getInsertUnderlyingJoinWildcard(eventAdapterService, existingType, streamNames, streamTypesWTables, engineImportService, statementName, engineURI);
+                processor = SelectExprInsertEventBeanFactory.getInsertUnderlyingJoinWildcard(eventAdapterService, existingType, streamNames, streamTypesWTables, engineImportService, statementName, engineURI, isFireAndForget);
             }
         }
 

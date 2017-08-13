@@ -12,40 +12,63 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.DecoratingEventBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.espertech.esper.event.EventAdapterService;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 public class EvalInsertWildcardSSWrapper extends EvalBaseMap implements SelectExprProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(EvalInsertWildcardSSWrapper.class);
+    public EvalInsertWildcardSSWrapper(SelectExprForgeContext selectExprForgeContext, EventType resultEventType) {
+        super(selectExprForgeContext, resultEventType);
+    }
 
-    public EvalInsertWildcardSSWrapper(SelectExprContext selectExprContext, EventType resultEventType) {
-        super(selectExprContext, resultEventType);
+    protected void initSelectExprProcessorSpecific(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
     }
 
     // In case of a wildcard and single stream that is itself a
     // wrapper bean, we also need to add the map properties
     public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        DecoratingEventBean wrapper = (DecoratingEventBean) eventsPerStream[0];
+        return processSelectExprSSWrapper(props, eventsPerStream, evaluators.length == 0, super.getEventAdapterService(), super.resultEventType);
+    }
+
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetSelectPremade params, CodegenContext codegenContext) {
+        return staticMethod(EvalInsertWildcardSSWrapper.class, "processSelectExprSSWrapper", props, params.passEPS(), constant(context.getExprForges().length == 0), member(memberEventAdapterService.getMemberId()), member(memberResultEventType.getMemberId()));
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param props props
+     * @param eventsPerStream events
+     * @param emptyExpressions flag
+     * @param eventAdapterService svc
+     * @param resultEventType type
+     * @return bean
+     */
+    public static EventBean processSelectExprSSWrapper(Map<String, Object> props, EventBean[] eventsPerStream, boolean emptyExpressions, EventAdapterService eventAdapterService, EventType resultEventType) {
+        EventBean theEvent = eventsPerStream[0];
+        DecoratingEventBean wrapper = (DecoratingEventBean) theEvent;
         if (wrapper != null) {
             Map<String, Object> map = wrapper.getDecoratingProperties();
-            if ((super.getExprNodes().length == 0) && (!map.isEmpty())) {
+            if (emptyExpressions && !map.isEmpty()) {
                 props = new HashMap<String, Object>(map);
             } else {
                 props.putAll(map);
             }
         }
 
-        EventBean theEvent = eventsPerStream[0];
-
         // Using a wrapper bean since we cannot use the same event type else same-type filters match.
         // Wrapping it even when not adding properties is very inexpensive.
-        return super.getEventAdapterService().adapterForTypedWrapper(theEvent, props, super.getResultEventType());
+        return eventAdapterService.adapterForTypedWrapper(theEvent, props, resultEventType);
     }
 }

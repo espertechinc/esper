@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -47,7 +48,7 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
         return null;
     }
 
-    private String handleNestedValueCodegen(CodegenContext context) {
+    private CodegenMethodId handleNestedValueCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
                 .ifRefNotTypeReturnConst("value", Map.class, "null");
         if (nestedGetter instanceof MapEventPropertyGetter) {
@@ -67,7 +68,7 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
         return false;
     }
 
-    private String isExistsPropertyCodegen(CodegenContext context) {
+    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnFalse("value")

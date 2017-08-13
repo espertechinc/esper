@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -53,7 +54,7 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
         return eventBeanEntryGetter.get(theEvent);
     }
 
-    private String getMapCodegen(CodegenContext context) {
+    private CodegenMethodId getMapCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value");
@@ -88,7 +89,7 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
         return eventBeanEntryGetter.getFragment(theEvent);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")

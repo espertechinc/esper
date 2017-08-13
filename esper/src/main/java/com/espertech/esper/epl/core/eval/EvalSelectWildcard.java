@@ -12,19 +12,26 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class EvalSelectWildcard extends EvalBaseMap implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
-    private static final Logger log = LoggerFactory.getLogger(EvalSelectWildcard.class);
+public class EvalSelectWildcard extends EvalBaseMap implements SelectExprProcessor, SelectExprProcessorForge {
 
-    public EvalSelectWildcard(SelectExprContext selectExprContext, EventType resultEventType) {
-        super(selectExprContext, resultEventType);
+    public EvalSelectWildcard(SelectExprForgeContext selectExprForgeContext, EventType resultEventType) {
+        super(selectExprForgeContext, resultEventType);
+    }
+
+    protected void initSelectExprProcessorSpecific(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
     }
 
     public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
@@ -33,5 +40,9 @@ public class EvalSelectWildcard extends EvalBaseMap implements SelectExprProcess
         // Using a wrapper bean since we cannot use the same event type else same-type filters match.
         // Wrapping it even when not adding properties is very inexpensive.
         return super.getEventAdapterService().adapterForTypedWrapper(theEvent, props, super.getResultEventType());
+    }
+
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetSelectPremade params, CodegenContext context) {
+        return exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", arrayAtIndex(params.passEPS(), constant(0)), props, member(memberResultEventType.getMemberId()));
     }
 }

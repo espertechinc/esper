@@ -15,6 +15,7 @@ import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.hook.EventBeanService;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 
@@ -53,11 +54,11 @@ public class ExprNodeUtilExprMethodContext implements ExprForge, ExprEvaluator, 
         CodegenExpression functionName = constant(defaultContextForFilters.getFunctionName());
         CodegenExpression userObject = exprDotMethod(params.passEvalCtx(), "getStatementUserObject");
         CodegenMember defaultCtx = context.makeAddMember(EPLMethodInvocationContext.class, defaultContextForFilters);
-        String method = context.addMethod(EPLMethodInvocationContext.class, ExprNodeUtilExprMethodContext.class).add(params).begin()
+        CodegenMethodId method = context.addMethod(EPLMethodInvocationContext.class, ExprNodeUtilExprMethodContext.class).add(params).begin()
                 .ifCondition(equalsNull(params.passEvalCtx()))
-                .blockReturn(ref(defaultCtx.getMemberName()))
+                .blockReturn(member(defaultCtx.getMemberId()))
                 .methodReturn(newInstance(EPLMethodInvocationContext.class, stmtName, cpid, engineURI, functionName, userObject,
-                        exprDotMethod(ref(defaultCtx.getMemberName()), "getEventBeanService")));
+                        exprDotMethod(member(defaultCtx.getMemberId()), "getEventBeanService")));
         return localMethodBuild(method).passAll(params).call();
     }
 

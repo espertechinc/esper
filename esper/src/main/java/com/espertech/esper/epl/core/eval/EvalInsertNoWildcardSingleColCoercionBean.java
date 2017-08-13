@@ -12,19 +12,25 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class EvalInsertNoWildcardSingleColCoercionBean extends EvalBaseFirstProp implements SelectExprProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(EvalInsertNoWildcardSingleColCoercionBean.class);
-
-    public EvalInsertNoWildcardSingleColCoercionBean(SelectExprContext selectExprContext, EventType resultEventType) {
-        super(selectExprContext, resultEventType);
+    public EvalInsertNoWildcardSingleColCoercionBean(SelectExprForgeContext selectExprForgeContext, EventType resultEventType) {
+        super(selectExprForgeContext, resultEventType);
     }
 
     public EventBean processFirstCol(Object result) {
         return super.getEventAdapterService().adapterForTypedBean(result, super.getResultEventType());
+    }
+
+    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenContext context) {
+        return exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedBean", expression, CodegenExpressionBuilder.member(memberResultEventType.getMemberId()));
     }
 }

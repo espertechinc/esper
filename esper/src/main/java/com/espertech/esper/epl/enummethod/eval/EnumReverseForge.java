@@ -12,6 +12,7 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -51,7 +52,7 @@ public class EnumReverseForge implements EnumEval, EnumForge {
 
     public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
         CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        String method = context.addMethod(Collection.class, EnumReverseForge.class).add(premade).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, EnumReverseForge.class).add(premade).begin()
                 .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
                 .blockReturn(premade.enumcoll())
                 .declareVar(ArrayList.class, "result", newInstance(ArrayList.class, premade.enumcoll()))

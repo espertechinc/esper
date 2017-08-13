@@ -12,13 +12,22 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
 
-public class EvalInsertBeanRecast implements SelectExprProcessor {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class EvalInsertBeanRecast implements SelectExprProcessor, SelectExprProcessorForge {
 
     private final EventType eventType;
     private final EventAdapterService eventAdapterService;
@@ -38,9 +47,18 @@ public class EvalInsertBeanRecast implements SelectExprProcessor {
         }
     }
 
+    public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        return this;
+    }
+
     public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[streamNumber];
         return eventAdapterService.adapterForTypedBean(theEvent.getUnderlying(), eventType);
+    }
+
+    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+        CodegenExpression bean = exprDotMethod(arrayAtIndex(params.passEPS(), constant(streamNumber)), "getUnderlying");
+        return exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedBean", bean, CodegenExpressionBuilder.member(memberResultEventType.getMemberId()));
     }
 
     public EventType getResultEventType() {

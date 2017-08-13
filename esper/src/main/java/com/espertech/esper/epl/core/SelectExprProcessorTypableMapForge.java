@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
@@ -22,7 +23,7 @@ import com.espertech.esper.event.EventAdapterService;
 
 import java.util.Map;
 
-public class SelectExprProcessorTypableMapForge implements ExprForge {
+public class SelectExprProcessorTypableMapForge implements SelectExprProcessorTypableForge {
     protected final EventType mapType;
     protected final ExprForge innerForge;
     protected  final EventAdapterService eventAdapterService;
@@ -45,8 +46,12 @@ public class SelectExprProcessorTypableMapForge implements ExprForge {
         return ExprForgeComplexityEnum.INTER;
     }
 
-    public Class getEvaluationType() {
+    public Class getUnderlyingEvaluationType() {
         return Map.class;
+    }
+
+    public Class getEvaluationType() {
+        return EventBean.class;
     }
 
     public ExprForge getInnerForge() {

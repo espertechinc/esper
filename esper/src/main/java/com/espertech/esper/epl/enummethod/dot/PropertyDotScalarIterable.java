@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.dot;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -81,7 +82,7 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         if (JavaClassHelper.isImplementsInterface(getterReturnType, Collection.class)) {
             return getter.eventBeanGetCodegen(event, context);
         }
-        String method = context.addMethod(Collection.class, PropertyDotScalarIterable.class).add(EventBean.class, "event").begin()
+        CodegenMethodId method = context.addMethod(Collection.class, PropertyDotScalarIterable.class).add(EventBean.class, "event").begin()
                 .declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(Iterable.class, getter.eventBeanGetCodegen(ref("event"), context)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(CollectionUtil.class, "iterableToCollection", ref("result")));

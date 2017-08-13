@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -45,7 +46,7 @@ public class DTLocalZonedDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
         CodegenBlock block = context.addMethod(Boolean.class, DTLocalZonedDateTimeOpsIntervalEval.class).add(ZonedDateTime.class, "target").add(params).begin();
         evaluateCalOpsZDTCodegen(block, "target", forge.calendarForges, params, context);
         block.declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")));
-        String method = block.methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
+        CodegenMethodId method = block.methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 
@@ -68,7 +69,7 @@ public class DTLocalZonedDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
         evaluateCalOpsZDTCodegen(block, "result", forge.calendarForges, params, context);
         block.declareVar(long.class, "startLong", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("result")));
         block.declareVar(long.class, "endTime", op(ref("startLong"), "+", ref("deltaMSec")));
-        String method = block.methodReturn(forge.intervalForge.codegen(ref("startLong"), ref("endTime"), params, context));
+        CodegenMethodId method = block.methodReturn(forge.intervalForge.codegen(ref("startLong"), ref("endTime"), params, context));
         return localMethodBuild(method).pass(start).pass(end).passAll(params).call();
     }
 }

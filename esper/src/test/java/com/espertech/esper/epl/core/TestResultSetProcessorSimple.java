@@ -16,6 +16,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
@@ -41,10 +42,10 @@ public class TestResultSetProcessorSimple extends TestCase {
         StatementContext statementContext = SupportStatementContextFactory.makeContext();
 
         SelectExprProcessorHelper factory = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), SupportSelectExprFactory.makeNoAggregateSelectList(), Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, statementContext.getEngineImportService(), 1, "stmtname", null, new Configuration(), null, new TableServiceImpl(), null);
-        selectExprProcessor = factory.getEvaluator();
+        selectExprProcessor = factory.getForge().getSelectExprProcessor(SupportEngineImportServiceFactory.make(), false, "abc");
         orderByProcessor = null;
 
-        ResultSetProcessorSimpleFactory prototype = new ResultSetProcessorSimpleFactory(selectExprProcessor, null, true, null, false, null, 1);
+        ResultSetProcessorSimpleFactory prototype = new ResultSetProcessorSimpleFactory(factory.getForge().getResultEventType(), selectExprProcessor, null, true, null, false, null, 1);
         outputProcessorAll = (ResultSetProcessorSimple) prototype.instantiate(null, null, null);
     }
 

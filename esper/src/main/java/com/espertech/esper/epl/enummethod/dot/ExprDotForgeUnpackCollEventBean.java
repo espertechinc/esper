@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.dot;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.EventUnderlyingCollection;
@@ -44,7 +45,7 @@ public class ExprDotForgeUnpackCollEventBean implements ExprDotForge, ExprDotEva
     }
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        String method = context.addMethod(Collection.class, ExprDotForgeUnpackCollEventBean.class).add(Collection.class, "target").add(params).begin()
+        CodegenMethodId method = context.addMethod(Collection.class, ExprDotForgeUnpackCollEventBean.class).add(Collection.class, "target").add(params).begin()
                 .ifRefNullReturnNull("target")
                 .methodReturn(newInstance(EventUnderlyingCollection.class, ref("target")));
         return localMethodBuild(method).pass(inner).passAll(params).call();

@@ -41,6 +41,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ExecInsertInto implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
+
         runAssertionAssertionWildcardRecast(epService);
         runAssertionVariantRStreamOMToStmt(epService);
         runAssertionVariantOneOMToStmt(epService);
@@ -61,6 +62,27 @@ public class ExecInsertInto implements RegressionExecution {
         runAssertionInsertIntoPlusPattern(epService);
         runAssertionNullType(epService);
         runAssertionSingleBeanToMulti(epService);
+        runAssertionMultiBeanToMulti(epService);
+    }
+
+    private void runAssertionMultiBeanToMulti(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(MySimpleEventObjectArray.class);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        EPStatement stmt = epService.getEPAdministrator().createEPL("insert into MySimpleEventObjectArray select window(*) @eventbean as arr from SupportBean#keepall");
+        stmt.addListener(listener);
+
+        SupportBean e1 = new SupportBean("E1", 1);
+        epService.getEPRuntime().sendEvent(e1);
+        MySimpleEventObjectArray resultOne = (MySimpleEventObjectArray) listener.assertOneGetNewAndReset().getUnderlying();
+        EPAssertionUtil.assertEqualsExactOrder(resultOne.arr, new Object[]{e1});
+
+        SupportBean e2 = new SupportBean("E2", 2);
+        epService.getEPRuntime().sendEvent(e2);
+        MySimpleEventObjectArray resultTwo = (MySimpleEventObjectArray) listener.assertOneGetNewAndReset().getUnderlying();
+        EPAssertionUtil.assertEqualsExactOrder(resultTwo.arr, new Object[]{e1, e2});
+
+        epService.getEPAdministrator().destroyAllStatements();
+        ;
     }
 
     private void runAssertionSingleBeanToMulti(EPServiceProvider epService) {
@@ -823,6 +845,18 @@ public class ExecInsertInto implements RegressionExecution {
 
         public void setC0(Object c0) {
             this.c0 = c0;
+        }
+    }
+
+    public static class MySimpleEventObjectArray {
+        private Object[] arr;
+
+        public Object[] getArr() {
+            return arr;
+        }
+
+        public void setArr(Object[] arr) {
+            this.arr = arr;
         }
     }
 }

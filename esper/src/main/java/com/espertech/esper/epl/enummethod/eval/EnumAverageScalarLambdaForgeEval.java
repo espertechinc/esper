@@ -14,7 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -74,7 +76,7 @@ public class EnumAverageScalarLambdaForgeEval implements EnumEval {
         CodegenBlock block = context.addMethod(Double.class, EnumAverageEventsForgeEval.class).add(premade).begin()
                 .declareVar(double.class, "sum", constant(0d))
                 .declareVar(int.class, "count", constant(0))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), ref(typeMember.getMemberName())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), CodegenExpressionBuilder.member(typeMember.getMemberId())))
                 .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
@@ -87,7 +89,7 @@ public class EnumAverageScalarLambdaForgeEval implements EnumEval {
         forEach.expression(increment("count"))
                 .assignRef("sum", op(ref("sum"), "+", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(ref("num"), innerType)))
                 .blockEnd();
-        String method = block.ifCondition(equalsIdentity(ref("count"), constant(0))).blockReturn(constantNull())
+        CodegenMethodId method = block.ifCondition(equalsIdentity(ref("count"), constant(0))).blockReturn(constantNull())
                 .methodReturn(op(ref("sum"), "/", ref("count")));
         return localMethodBuild(method).passAll(args).call();
     }

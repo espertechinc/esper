@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -155,7 +156,7 @@ public class ExprTimePeriodForge implements ExprForge {
             block.ifRefNull("result").blockThrow(staticMethod(ExprTimePeriodForge.class, "makeTimePeriodParamNullException", constant(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this.parent))));
             block.assignRef("seconds", op(ref("seconds"), "+", adders[i].computeCodegen(ref("result"))));
         }
-        String method = block.methodReturn(ref("seconds"));
+        CodegenMethodId method = block.methodReturn(ref("seconds"));
         return localMethodBuild(method).passAll(params).call();
     }
 
@@ -239,7 +240,7 @@ public class ExprTimePeriodForge implements ExprForge {
         counter += evaluateGetTimePeriodCodegenField(block, "seconds", parent.isHasSecond(), counter, params, context);
         counter += evaluateGetTimePeriodCodegenField(block, "milliseconds", parent.isHasMillisecond(), counter, params, context);
         evaluateGetTimePeriodCodegenField(block, "microseconds", parent.isHasMicrosecond(), counter, params, context);
-        String method = block.methodReturn(newInstance(TimePeriod.class, ref("year"), ref("month"), ref("week"), ref("day"), ref("hours"), ref("minutes"), ref("seconds"), ref("milliseconds"), ref("microseconds")));
+        CodegenMethodId method = block.methodReturn(newInstance(TimePeriod.class, ref("year"), ref("month"), ref("week"), ref("day"), ref("hours"), ref("minutes"), ref("seconds"), ref("milliseconds"), ref("microseconds")));
         return localMethodBuild(method).passAll(params).call();
     }
 

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.type.RangeParameter;
@@ -129,7 +130,7 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
                     .assignRef("valueUpper", enumValue(Integer.class, "MAX_VALUE"))
                     .blockEnd();
         }
-        String method = block.methodReturn(newInstance(RangeParameter.class,
+        CodegenMethodId method = block.methodReturn(newInstance(RangeParameter.class,
                 SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueLower"), valueLower.getEvaluationType()),
                 SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueUpper"), valueUpper.getEvaluationType())
         ));

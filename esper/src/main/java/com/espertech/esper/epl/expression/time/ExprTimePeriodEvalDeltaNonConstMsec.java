@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
@@ -33,7 +34,7 @@ public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDe
     }
 
     public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(long.class, ExprTimePeriodEvalDeltaNonConstMsec.class).add(long.class, "currentTime").add(params).begin()
+        CodegenMethodId method = context.addMethod(long.class, ExprTimePeriodEvalDeltaNonConstMsec.class).add(long.class, "currentTime").add(params).begin()
                 .declareVar(double.class, "d", forge.evaluateAsSecondsCodegen(params, context))
                 .methodReturn(forge.getTimeAbacus().deltaForSecondsDoubleCodegen(ref("d"), context));
         return localMethodBuild(method).pass(reference).passAll(params).call();

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.dtlocal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -44,7 +45,7 @@ public class DTLocalBeanCalOpsEval implements DTLocalEvaluator {
         if (!forge.getterReturnType.isPrimitive()) {
             block.ifRefNullReturnNull("timestamp");
         }
-        String method = block.methodReturn(forge.inner.codegen(ref("timestamp"), forge.getterReturnType, params, context));
+        CodegenMethodId method = block.methodReturn(forge.inner.codegen(ref("timestamp"), forge.getterReturnType, params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
     }
 }

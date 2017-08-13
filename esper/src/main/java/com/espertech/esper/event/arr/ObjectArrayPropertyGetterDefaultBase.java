@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -66,7 +67,7 @@ public abstract class ObjectArrayPropertyGetterDefaultBase implements ObjectArra
         return handleCreateFragment(value);
     }
 
-    private String getFragmentCodegen(CodegenExpression value, CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenExpression value, CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object[].class, "oa").begin()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("oa"), context))
                 .methodReturn(handleCreateFragmentCodegen(ref("value"), context));

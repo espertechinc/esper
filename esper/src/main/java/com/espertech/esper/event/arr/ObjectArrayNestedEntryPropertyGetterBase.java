@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -62,7 +63,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
         return getObjectArray(BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj));
     }
 
-    private String getCodegen(CodegenContext context) {
+    private CodegenMethodId getCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
@@ -78,7 +79,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
         return handleNestedValueExists(value);
     }
 
-    private String isExistsPropertyCodegen(CodegenContext context) {
+    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
         return context.addMethod(boolean.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
@@ -94,7 +95,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
         return handleNestedValueFragment(value);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")

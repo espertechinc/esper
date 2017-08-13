@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.SimpleTypeParser;
@@ -58,13 +59,13 @@ public class DOMConvertingArrayGetter implements EventPropertyGetterSPI {
         return getDOMArrayFromNodes(result, componentType, parser);
     }
 
-    private String getCodegen(CodegenContext context) {
+    private CodegenMethodId getCodegen(CodegenContext context) {
         CodegenMember mComponentType = context.makeAddMember(Class.class, componentType);
         CodegenMember mParser = context.makeAddMember(SimpleTypeParser.class, parser);
         return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node[].class, "result", getter.getValueAsNodeArrayCodegen(ref("node"), context))
                 .ifRefNullReturnNull("result")
-                .methodReturn(staticMethod(this.getClass(), "getDOMArrayFromNodes", ref("result"), ref(mComponentType.getMemberName()), ref(mParser.getMemberName())));
+                .methodReturn(staticMethod(this.getClass(), "getDOMArrayFromNodes", ref("result"), member(mComponentType.getMemberId()), member(mParser.getMemberId())));
     }
 
     /**

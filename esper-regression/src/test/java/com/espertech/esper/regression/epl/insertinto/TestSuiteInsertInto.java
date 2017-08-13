@@ -61,4 +61,8 @@ public class TestSuiteInsertInto extends TestCase {
     public void testExecInsertIntoFromPattern() {
         RegressionRunner.run(new ExecInsertIntoFromPattern());
     }
+
+    public void testExecInsertIntoWrapper() {
+        RegressionRunner.run(new ExecInsertIntoWrapper());
+    }
 }

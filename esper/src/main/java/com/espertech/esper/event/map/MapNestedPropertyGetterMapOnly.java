@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -56,7 +57,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
         return handleIsExistsTrailingChain(result);
     }
 
-    private String isMapExistsPropertyCodegen(CodegenContext context) {
+    private CodegenMethodId isMapExistsPropertyCodegen(CodegenContext context) {
         return context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
                 .ifConditionReturnConst(not(mapGetterChain[0].underlyingExistsCodegen(ref("map"), context)), false)
                 .declareVar(Object.class, "result", mapGetterChain[0].underlyingGetCodegen(ref("map"), context))
@@ -137,7 +138,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
         return true;
     }
 
-    private String handleIsExistsTrailingChainCodegen(CodegenContext context) {
+    private CodegenMethodId handleIsExistsTrailingChainCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Object.class, "result").begin();
         for (int i = 1; i < mapGetterChain.length; i++) {
             block.ifRefNullReturnFalse("result");
@@ -185,7 +186,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
         return result;
     }
 
-    private String handleGetterTrailingChainCodegen(CodegenContext context) {
+    private CodegenMethodId handleGetterTrailingChainCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Object.class, "result").begin();
         for (int i = 1; i < mapGetterChain.length; i++) {
             block.ifRefNullReturnNull("result");

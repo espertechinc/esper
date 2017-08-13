@@ -13,6 +13,7 @@ package com.espertech.esper.type;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
@@ -260,7 +261,7 @@ public enum MinMaxTypeEnum {
                         .assignRef("result", ref(refnameBigint))
                         .blockEnd();
             }
-            String method = block.methodReturn(ref("result"));
+            CodegenMethodId method = block.methodReturn(ref("result"));
             return localMethodBuild(method).passAll(params).call();
         }
     }
@@ -357,7 +358,7 @@ public enum MinMaxTypeEnum {
                         .assignRef("result", ref(refnameBigint))
                         .blockEnd();
             }
-            String method = block.methodReturn(ref("result"));
+            CodegenMethodId method = block.methodReturn(ref("result"));
             return localMethodBuild(method).passAll(params).call();
         }
     }
@@ -397,7 +398,7 @@ public enum MinMaxTypeEnum {
                     .assignRef("result", JavaClassHelper.coerceNumberToBoxedCodegen(ref(refname), nodeType, returnType))
                     .blockEnd();
         }
-        String method = block.methodReturn(ref("result"));
+        CodegenMethodId method = block.methodReturn(ref("result"));
         return localMethodBuild(method).passAll(params).call();
     }
 

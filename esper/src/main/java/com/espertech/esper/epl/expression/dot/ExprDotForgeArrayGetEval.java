@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.dot;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -68,7 +69,7 @@ public class ExprDotForgeArrayGetEval implements ExprDotEval {
             block.ifRefNullReturnNull("target");
         }
         block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(params, context));
-        String method = block.ifCondition(relational(arrayLength(ref("target")), LE, ref("index")))
+        CodegenMethodId method = block.ifCondition(relational(arrayLength(ref("target")), LE, ref("index")))
                 .blockReturn(constantNull())
                 .methodReturn(arrayAtIndex(ref("target"), ref("index")));
         return localMethodBuild(method).pass(inner).passAll(params).call();

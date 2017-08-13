@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.calop;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -68,7 +69,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     public static CodegenExpression codegenLDT(CalendarWithTimeForge forge, CodegenExpression ldt, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenBlock block = context.addMethod(LocalDateTime.class, CalendarWithTimeForgeOp.class).add(LocalDateTime.class, "ldt").add(params).begin();
         codegenDeclareInts(block, forge, params, context);
-        String method = block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMLocalDateTime", ref("ldt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
+        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMLocalDateTime", ref("ldt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
         return localMethodBuild(method).pass(ldt).passAll(params).call();
     }
 
@@ -83,7 +84,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     public static CodegenExpression codegenZDT(CalendarWithTimeForge forge, CodegenExpression zdt, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenBlock block = context.addMethod(ZonedDateTime.class, CalendarWithTimeForgeOp.class).add(ZonedDateTime.class, "zdt").add(params).begin();
         codegenDeclareInts(block, forge, params, context);
-        String method = block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMZonedDateTime", ref("zdt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
+        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMZonedDateTime", ref("zdt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
         return localMethodBuild(method).pass(zdt).passAll(params).call();
     }
 

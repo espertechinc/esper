@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.codegen.core;
 
-import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.statement.CodegenStatementIf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.statement.*;
 
@@ -83,9 +81,9 @@ public class CodegenBlock {
         return builder.ifBlock(condition);
     }
 
-    public CodegenBlock synchronizedOn(CodegenExpressionRef ref) {
+    public CodegenBlock synchronizedOn(CodegenExpression expression) {
         checkClosed();
-        CodegenStatementSynchronized builder = new CodegenStatementSynchronized(this, ref);
+        CodegenStatementSynchronized builder = new CodegenStatementSynchronized(this, expression);
         statements.add(builder);
         return builder.makeBlock();
     }
@@ -265,23 +263,23 @@ public class CodegenBlock {
         return parentWBlock.getParent();
     }
 
-    public String methodReturn(CodegenExpression expression) {
+    public CodegenMethodId methodReturn(CodegenExpression expression) {
         if (parentMethod == null) {
             throw new IllegalStateException("No method parent, use 'blockReturn... instead");
         }
         checkClosed();
         closed = true;
         statements.add(new CodegenStatementReturnExpression(expression));
-        return parentMethod.getFootprint().getMethodName();
+        return parentMethod.getFootprint().getMethodId();
     }
 
-    public String methodEnd() {
+    public CodegenMethodId methodEnd() {
         if (parentMethod == null) {
             throw new IllegalStateException("No method parent, use 'blockReturn... instead");
         }
         checkClosed();
         closed = true;
-        return parentMethod.getFootprint().getMethodName();
+        return parentMethod.getFootprint().getMethodId();
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.type.CronOperatorEnum;
@@ -140,7 +141,7 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
                     .expression(staticMethod(ExprNumberSetCronParam.class, "handleNumberSetCronParamNullValue"))
                     .blockReturn(defaultValue);
         }
-        String method = block.methodReturn(newInstance(CronParameter.class, enumValue, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
+        CodegenMethodId method = block.methodReturn(newInstance(CronParameter.class, enumValue, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
         return localMethodBuild(method).passAll(params).call();
     }
 

@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -93,21 +94,21 @@ public class ExprDotForgeEnumMethodEval implements ExprDotEval {
             block.declareVar(Collection.class, "coll", ref("param"));
         }
         block.declareVar(ExpressionResultCacheForEnumerationMethod.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateEnumerationMethod"));
-        String method;
+        CodegenMethodId method;
         CodegenParamSetEnumMethodNonPremade premade = new CodegenParamSetEnumMethodNonPremade(ref("eventsLambda"), ref("coll"), params.passIsNewData(), params.passEvalCtx());
         if (forge.cache) {
-            method = block.declareVar(ExpressionResultCacheEntryLongArrayAndObj.class, "cacheValue", exprDotMethod(ref("cache"), "getEnumerationMethodLastValue", ref(forgeMember.getMemberName())))
+            method = block.declareVar(ExpressionResultCacheEntryLongArrayAndObj.class, "cacheValue", exprDotMethod(ref("cache"), "getEnumerationMethodLastValue", member(forgeMember.getMemberId())))
                     .ifCondition(notEqualsNull(ref("cacheValue")))
                     .blockReturn(cast(returnType, exprDotMethod(ref("cacheValue"), "getResult")))
                     .ifRefNullReturnNull("coll")
                     .declareVar(EventBean[].class, "eventsLambda", staticMethod(ExprDotForgeEnumMethodEval.class, "allocateCopyEventLambda", params.passEPS(), constant(forge.enumEvalNumRequiredEvents)))
                     .declareVar(EPTypeHelper.getCodegenReturnType(forge.getTypeInfo()), "result", forge.enumForge.codegen(premade, context))
-                    .expression(exprDotMethod(ref("cache"), "saveEnumerationMethodLastValue", ref(forgeMember.getMemberName()), ref("result")))
+                    .expression(exprDotMethod(ref("cache"), "saveEnumerationMethodLastValue", member(forgeMember.getMemberId()), ref("result")))
                     .methodReturn(ref("result"));
         } else {
             AtomicLong contextNumber = new AtomicLong();
             CodegenMember contextNumberMember = context.makeAddMember(AtomicLong.class, contextNumber);
-            method = block.declareVar(long.class, "contextNumber", exprDotMethod(ref(contextNumberMember.getMemberName()), "getAndIncrement"))
+            method = block.declareVar(long.class, "contextNumber", exprDotMethod(member(contextNumberMember.getMemberId()), "getAndIncrement"))
                     .tryCatch()
                     .expression(exprDotMethod(ref("cache"), "pushContext", ref("contextNumber")))
                     .ifRefNullReturnNull("coll")

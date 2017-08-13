@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
@@ -57,7 +58,7 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         if (returnType == null) {
             return constantNull();
         }
-        String method = context.addMethod(returnType, this.getClass()).add(params).begin()
+        CodegenMethodId method = context.addMethod(returnType, this.getClass()).add(params).begin()
                 .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
                 .ifRefNullReturnNull("event")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.eventBeanGetCodegen(ref("event"), context)));

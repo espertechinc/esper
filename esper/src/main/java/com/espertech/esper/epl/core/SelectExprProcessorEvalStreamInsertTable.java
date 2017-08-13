@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
@@ -23,7 +24,6 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import java.io.StringWriter;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class SelectExprProcessorEvalStreamInsertTable implements ExprForge, ExprEvaluator, ExprNodeRenderable {
@@ -52,7 +52,7 @@ public class SelectExprProcessorEvalStreamInsertTable implements ExprForge, Expr
 
     public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        return staticMethod(SelectExprProcessorEvalStreamInsertTable.class, "convertToTableEvent", constant(streamNum), ref(eventToPublic.getMemberName()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+        return staticMethod(SelectExprProcessorEvalStreamInsertTable.class, "convertToTableEvent", constant(streamNum), CodegenExpressionBuilder.member(eventToPublic.getMemberId()), params.passEPS(), params.passIsNewData(), params.passEvalCtx());
     }
 
     public ExprForgeComplexityEnum getComplexity() {

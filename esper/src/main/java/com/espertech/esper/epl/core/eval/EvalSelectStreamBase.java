@@ -11,30 +11,42 @@
 package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorForge;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 
 import java.util.List;
 
-public abstract class EvalSelectStreamBase implements SelectExprProcessor {
+public abstract class EvalSelectStreamBase implements SelectExprProcessor, SelectExprProcessorForge {
 
-    protected final SelectExprContext selectExprContext;
+    protected final SelectExprForgeContext context;
     protected final EventType resultEventType;
     protected final List<SelectClauseStreamCompiledSpec> namedStreams;
     protected final boolean isUsingWildcard;
+    protected ExprEvaluator[] evaluators;
 
-    public EvalSelectStreamBase(SelectExprContext selectExprContext, EventType resultEventType, List<SelectClauseStreamCompiledSpec> namedStreams, boolean usingWildcard) {
-        this.selectExprContext = selectExprContext;
+    public EvalSelectStreamBase(SelectExprForgeContext context, EventType resultEventType, List<SelectClauseStreamCompiledSpec> namedStreams, boolean usingWildcard) {
+        this.context = context;
         this.resultEventType = resultEventType;
         this.namedStreams = namedStreams;
         this.isUsingWildcard = usingWildcard;
+    }
+
+    public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        if (evaluators == null) {
+            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+        }
+        return this;
     }
 
     public EventType getResultEventType() {
         return resultEventType;
     }
 
-    public SelectExprContext getSelectExprContext() {
-        return selectExprContext;
+    public SelectExprForgeContext getContext() {
+        return context;
     }
 }

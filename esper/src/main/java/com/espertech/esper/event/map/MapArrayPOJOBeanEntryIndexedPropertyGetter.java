@@ -13,6 +13,7 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -54,7 +55,7 @@ public class MapArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNativeProper
         return BaseNestableEventUtil.getBeanArrayValue(nestedGetter, value, index);
     }
 
-    private String getMapCodegen(CodegenContext context) {
+    private CodegenMethodId getMapCodegen(CodegenContext context) {
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(context, nestedGetter, index), ref("value")));

@@ -13,6 +13,7 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
 import com.espertech.esper.event.EventAdapterService;
@@ -119,7 +120,7 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
-    protected static String getBeanPropInternalCode(CodegenContext context, Method method) {
+    protected static CodegenMethodId getBeanPropInternalCode(CodegenContext context, Method method) {
         return context.addMethod(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayFastPropertyGetter.class).add(method.getDeclaringClass(), "obj").add(int.class, "index").begin()
             .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
             .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), null)

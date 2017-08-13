@@ -19,12 +19,14 @@ public class CodegenLocalMethodBuilder {
     private final Class returnType;
     private final String generatorDetail;
     private final CodegenContext context;
+    private final CodegenMethodId methodId;
     private final List<CodegenParamSet> paramSets = new ArrayList<>(2);
 
-    public CodegenLocalMethodBuilder(Class returnType, String generatorDetail, CodegenContext context) {
+    public CodegenLocalMethodBuilder(Class returnType, String generatorDetail, CodegenContext context, CodegenMethodId methodId) {
         this.returnType = returnType;
         this.generatorDetail = generatorDetail;
         this.context = context;
+        this.methodId = methodId;
     }
 
     public CodegenLocalMethodBuilder add(Class type, String name) {
@@ -43,8 +45,7 @@ public class CodegenLocalMethodBuilder {
     }
 
     public CodegenBlock begin() {
-        String methodName = CodeGenerationIDGenerator.generateMethod();
-        CodegenMethod method = new CodegenMethod(new CodegenMethodFootprint(returnType, methodName, paramSets, generatorDetail));
+        CodegenMethod method = new CodegenMethod(new CodegenMethodFootprint(returnType, methodId, paramSets, generatorDetail));
         context.getMethods().add(method);
         return method.statements();
     }

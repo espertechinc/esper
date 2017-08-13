@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -210,7 +211,7 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         }
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         CodegenMember msvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mtype = context.makeAddMember(BeanEventType.class, fragmentEventType);
 
@@ -219,12 +220,12 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
                 .ifRefNullReturnNull("object");
 
         if (isArray) {
-            return block.methodReturn(staticMethod(BaseNativePropertyGetter.class, "toFragmentArray", cast(Object[].class, ref("object")), ref(mtype.getMemberName()), ref(msvc.getMemberName())));
+            return block.methodReturn(staticMethod(BaseNativePropertyGetter.class, "toFragmentArray", cast(Object[].class, ref("object")), member(mtype.getMemberId()), member(msvc.getMemberId())));
         }
         if (isIterable) {
-            return block.methodReturn(staticMethod(BaseNativePropertyGetter.class, "toFragmentIterable", ref("object"), ref(mtype.getMemberName()), ref(msvc.getMemberName())));
+            return block.methodReturn(staticMethod(BaseNativePropertyGetter.class, "toFragmentIterable", ref("object"), member(mtype.getMemberId()), member(msvc.getMemberId())));
         }
-        return block.methodReturn(exprDotMethod(ref(msvc.getMemberName()), "adapterForTypedBean", ref("object"), ref(mtype.getMemberName())));
+        return block.methodReturn(exprDotMethod(member(msvc.getMemberId()), "adapterForTypedBean", ref("object"), member(mtype.getMemberId())));
     }
 
     public final CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {

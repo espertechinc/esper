@@ -16,6 +16,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.expression.core.*;
@@ -63,7 +64,7 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase implements Ex
         for (int i = 0; i < names.length; i++) {
             block.expression(exprDotMethod(ref("paramsList"), "put", constant(names[i]), parameters[i].evaluateCodegen(params, context)));
         }
-        String method = block.methodReturn(cast(returnType, exprDotMethod(ref(member.getMemberName()), "evaluateInternal", ref("paramsList"))));
+        CodegenMethodId method = block.methodReturn(cast(returnType, exprDotMethod(member(member.getMemberId()), "evaluateInternal", ref("paramsList"))));
         return localMethodBuild(method).passAll(params).call();
     }
 

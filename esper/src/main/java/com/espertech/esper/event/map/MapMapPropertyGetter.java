@@ -13,6 +13,7 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 
@@ -49,7 +50,7 @@ public class MapMapPropertyGetter implements MapEventPropertyGetter {
         return getter.getMap((Map) valueTopObj);
     }
 
-    private String getMapMethodCodegen(CodegenContext context) throws PropertyAccessException {
+    private CodegenMethodId getMapMethodCodegen(CodegenContext context) throws PropertyAccessException {
         return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
             .declareVar(Object.class, "valueTopObj", exprDotMethod(ref("map"), "get", constant(propertyMap)))
             .ifRefNotTypeReturnConst("valueTopObj", Map.class, null)
@@ -65,7 +66,7 @@ public class MapMapPropertyGetter implements MapEventPropertyGetter {
         return getter.isMapExistsProperty((Map) valueTopObj);
     }
 
-    private String isMapExistsPropertyCodegen(CodegenContext context) throws PropertyAccessException {
+    private CodegenMethodId isMapExistsPropertyCodegen(CodegenContext context) throws PropertyAccessException {
         return context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
                 .declareVar(Object.class, "valueTopObj", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNotTypeReturnConst("valueTopObj", Map.class, false)

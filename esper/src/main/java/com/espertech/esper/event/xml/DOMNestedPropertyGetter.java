@@ -16,6 +16,7 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
@@ -55,12 +56,12 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return fragmentFactory.getEvent(result);
     }
 
-    private String getValueAsFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getValueAsFragmentCodegen(CodegenContext context) {
         CodegenMember mType = context.makeAddMember(FragmentFactory.class, fragmentFactory);
         return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
                 .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), context))
                 .ifRefNullReturnNull("result")
-                .methodReturn(exprDotMethod(ref(mType.getMemberName()), "getEvent", ref("result")));
+                .methodReturn(exprDotMethod(member(mType.getMemberId()), "getEvent", ref("result")));
     }
 
     public Node[] getValueAsNodeArray(Node node) {
@@ -73,7 +74,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return domGetterChain[domGetterChain.length - 1].getValueAsNodeArray(node);
     }
 
-    private String getValueAsNodeArrayCodegen(CodegenContext codegenContext) {
+    private CodegenMethodId getValueAsNodeArrayCodegen(CodegenContext codegenContext) {
         CodegenBlock block = codegenContext.addMethod(Node[].class, this.getClass()).add(Node.class, "node").begin();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenContext));
@@ -92,7 +93,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return node;
     }
 
-    private String getValueAsNodeCodegen(CodegenContext codegenContext) {
+    private CodegenMethodId getValueAsNodeCodegen(CodegenContext codegenContext) {
         CodegenBlock block = codegenContext.addMethod(Node.class, this.getClass()).add(Node.class, "node").begin();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenContext));
@@ -131,7 +132,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return true;
     }
 
-    private String isExistsPropertyCodegen(CodegenContext context) {
+    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Node.class, "value").begin();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), context));
@@ -160,7 +161,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return domGetterChain[domGetterChain.length - 1].getValueAsFragment(value);
     }
 
-    private String getFragmentCodegen(CodegenContext context) {
+    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Node.class, "value").begin();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), context));

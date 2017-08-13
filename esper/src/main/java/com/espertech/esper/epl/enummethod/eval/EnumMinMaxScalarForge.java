@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -86,7 +87,7 @@ public class EnumMinMaxScalarForge extends EnumForgeBase implements EnumForge, E
                 .ifCondition(relational(exprDotMethod(ref("minKey"), "compareTo", ref("value")), max ? LT : GT, constant(0)))
                 .assignRef("minKey", cast(innerTypeBoxed, ref("value")));
 
-        String method = block.methodReturn(ref("minKey"));
+        CodegenMethodId method = block.methodReturn(ref("minKey"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

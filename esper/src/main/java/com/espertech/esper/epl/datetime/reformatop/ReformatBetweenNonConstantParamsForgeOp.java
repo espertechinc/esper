@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercer;
@@ -68,7 +69,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     public static CodegenExpression codegenDate(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(Date.class, "d").add(params).begin()
+        CodegenMethodId method = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(Date.class, "d").add(params).begin()
                 .ifRefNullReturnNull("d")
                 .methodReturn(codegenLongInternal(forge, exprDotMethod(ref("d"), "getTime"), params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
@@ -82,7 +83,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     public static CodegenExpression codegenCal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        String method = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(Calendar.class, "cal").add(params).begin()
+        CodegenMethodId method = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(Calendar.class, "cal").add(params).begin()
                 .ifRefNullReturnNull("cal")
                 .methodReturn(codegenLongInternal(forge, exprDotMethod(ref("cal"), "getTimeInMillis"), params, context));
         return localMethodBuild(method).pass(inner).passAll(params).call();
@@ -94,7 +95,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
 
     public static CodegenExpression codegenLDT(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
         CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-        return codegenLongInternal(forge, staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, ref(tz.getMemberName())), params, context);
+        return codegenLongInternal(forge, staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, member(tz.getMemberId())), params, context);
     }
 
     public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -188,7 +189,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
         CodegenBlock block = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(long.class, "ts").add(params).begin();
         codegenLongCoercion(block, "first", forge.start, forge.startCoercer, params, context);
         codegenLongCoercion(block, "second", forge.end, forge.secondCoercer, params, context);
-        String method;
+        CodegenMethodId method;
         CodegenExpression first = ref("first");
         CodegenExpression second = ref("second");
         CodegenExpression ts = ref("ts");

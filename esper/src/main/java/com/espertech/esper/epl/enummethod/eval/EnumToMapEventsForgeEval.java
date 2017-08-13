@@ -13,6 +13,7 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
 import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
@@ -69,7 +70,7 @@ public class EnumToMapEventsForgeEval implements EnumEval {
                 .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
                 .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
                 .expression(exprDotMethod(ref("map"), "put", ref("key"), ref("value")));
-        String method = block.methodReturn(ref("map"));
+        CodegenMethodId method = block.methodReturn(ref("map"));
         return localMethodBuild(method).passAll(args).call();
     }
 }

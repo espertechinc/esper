@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMethodId;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
@@ -151,7 +152,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenExpression handleNestedValueArrayWithMapCode(int index, MapEventPropertyGetter getter, CodegenExpression ref, CodegenContext context, Class generator) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Map.class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, generator);
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Map.class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, generator);
         return localMethod(method, staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndex", ref, constant(index)));
     }
 
@@ -170,7 +171,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenExpression handleBNNestedValueArrayWithMapFragmentCode(int index, MapEventPropertyGetter getter, CodegenExpression ref, CodegenContext context, EventAdapterService eventAdapterService, EventType fragmentType, Class generator) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Map.class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, generator);
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Map.class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, generator);
         return localMethod(method, staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndex", ref, constant(index)));
     }
 
@@ -186,7 +187,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenExpression handleNestedValueArrayWithMapExistsCode(int index, MapEventPropertyGetter getter, CodegenExpression ref, CodegenContext context, EventAdapterService eventAdapterService, EventType fragmentType, Class generator) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Map.class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS, generator);
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Map.class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS, generator);
         return localMethod(method, staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndex", ref, constant(index)));
     }
 
@@ -202,7 +203,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenExpression handleNestedValueArrayWithObjectArrayCodegen(int index, ObjectArrayEventPropertyGetter getter, CodegenExpression ref, CodegenContext context, Class generator) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, generator);
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, generator);
         return localMethod(method, staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndex", ref, constant(index)));
     }
 
@@ -218,7 +219,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenExpression handleNestedValueArrayWithObjectArrayExistsCodegen(int index, ObjectArrayEventPropertyGetter getter, CodegenExpression ref, CodegenContext context, Class generator) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS, generator);
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS, generator);
         return localMethod(method, staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndex", ref, constant(index)));
     }
 
@@ -237,7 +238,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenExpression handleNestedValueArrayWithObjectArrayFragmentCodegen(int index, ObjectArrayEventPropertyGetter getter, CodegenExpression ref, CodegenContext context, Class generator) {
-        String method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, generator);
+        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, getter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, generator);
         return localMethod(method, staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndex", ref, constant(index)));
     }
 
@@ -381,7 +382,7 @@ public class BaseNestableEventUtil {
         return nestedGetter.getBeanProp(arrayItem);
     }
 
-    public static String getBeanArrayValueCodegen(CodegenContext context, BeanEventPropertyGetter nestedGetter, int index) {
+    public static CodegenMethodId getBeanArrayValueCodegen(CodegenContext context, BeanEventPropertyGetter nestedGetter, int index) {
         return context.addMethod(Object.class, BaseNestableEventUtil.class).add(Object.class, "value").begin()
                 .ifRefNullReturnNull("value")
                 .ifConditionReturnConst(not(exprDotMethodChain(ref("value")).add("getClass").add("isArray")), null)
@@ -402,7 +403,7 @@ public class BaseNestableEventUtil {
         return nestedGetter.get(innerArrayEvent);
     }
 
-    public static String getArrayPropertyValueCodegen(CodegenContext context, int index, EventPropertyGetterSPI nestedGetter) {
+    public static CodegenMethodId getArrayPropertyValueCodegen(CodegenContext context, int index, EventPropertyGetterSPI nestedGetter) {
         return context.addMethod(Object.class, BaseNestableEventUtil.class).add(EventBean[].class, "wrapper").begin()
                 .ifRefNullReturnNull("wrapper")
                 .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
@@ -421,7 +422,7 @@ public class BaseNestableEventUtil {
         return nestedGetter.getFragment(innerArrayEvent);
     }
 
-    public static String getArrayPropertyFragmentCodegen(CodegenContext context, int index, EventPropertyGetterSPI nestedGetter) {
+    public static CodegenMethodId getArrayPropertyFragmentCodegen(CodegenContext context, int index, EventPropertyGetterSPI nestedGetter) {
         return context.addMethod(Object.class, BaseNestableEventUtil.class).add(EventBean[].class, "wrapper").begin()
                 .ifRefNullReturnNull("wrapper")
                 .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
@@ -475,7 +476,7 @@ public class BaseNestableEventUtil {
         return null;
     }
 
-    public static String getArrayPropertyAsUnderlyingsArrayCodegen(Class underlyingType, CodegenContext context) {
+    public static CodegenMethodId getArrayPropertyAsUnderlyingsArrayCodegen(Class underlyingType, CodegenContext context) {
         return context.addMethod(Object.class, BaseNestableEventUtil.class).add(EventBean[].class, "wrapper").begin()
                 .ifRefNullReturnNull("wrapper")
                 .declareVar(JavaClassHelper.getArrayType(underlyingType), "array", newArray(underlyingType, arrayLength(ref("wrapper"))))

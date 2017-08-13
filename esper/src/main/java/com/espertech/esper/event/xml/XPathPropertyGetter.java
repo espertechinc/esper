@@ -236,8 +236,8 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
         CodegenMember mIsCastToArray = context.makeAddMember(boolean.class, isCastToArray);
         CodegenMember mSimpleTypeParser = context.makeAddMember(SimpleTypeParser.class, simpleTypeParser);
         return staticMethod(XPathPropertyGetter.class, "evaluateXPathGet", underlyingExpression,
-                ref(mExpression.getMemberName()), ref(mExpressionText.getMemberName()), ref(mProperty.getMemberName()),
-                ref(mOptionalCastToType.getMemberName()), ref(mResultType.getMemberName()), ref(mIsCastToArray.getMemberName()), ref(mSimpleTypeParser.getMemberName()));
+                member(mExpression.getMemberId()), member(mExpressionText.getMemberId()), member(mProperty.getMemberId()),
+                member(mOptionalCastToType.getMemberId()), member(mResultType.getMemberId()), member(mIsCastToArray.getMemberId()), member(mSimpleTypeParser.getMemberId()));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
@@ -254,8 +254,8 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
         CodegenMember mFragmentFactory = context.makeAddMember(FragmentFactory.class, fragmentFactory);
         CodegenMember mResultType = context.makeAddMember(QName.class, resultType);
         return staticMethod(XPathPropertyGetter.class, "evaluateXPathFragment", underlyingExpression,
-                ref(mExpression.getMemberName()), ref(mExpressionText.getMemberName()), ref(mProperty.getMemberName()),
-                ref(mFragmentFactory.getMemberName()), ref(mResultType.getMemberName()));
+                member(mExpression.getMemberId()), member(mExpressionText.getMemberId()), member(mProperty.getMemberId()),
+                member(mFragmentFactory.getMemberId()), member(mResultType.getMemberId()));
     }
 
     private static Object castToArray(Object result, Class optionalCastToType, SimpleTypeParser simpleTypeParser, XPathExpression expression) {

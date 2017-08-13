@@ -22,6 +22,7 @@ import com.espertech.esper.epl.spec.OutputLimitSpec;
  * and not all of the properties in the select clause are under an aggregation function.
  */
 public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessorFactory {
+    private final EventType resultEventType;
     private final SelectExprProcessor selectExprProcessor;
     private final ExprEvaluator optionalHavingNode;
     private final boolean isSelectRStream;
@@ -31,7 +32,8 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
     private final boolean enableOutputLimitOpt;
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
-    public ResultSetProcessorAggregateAllFactory(SelectExprProcessor selectExprProcessor,
+    public ResultSetProcessorAggregateAllFactory(EventType resultEventType,
+                                                 SelectExprProcessor selectExprProcessor,
                                                  ExprEvaluator optionalHavingNode,
                                                  boolean isSelectRStream,
                                                  boolean isUnidirectional,
@@ -39,6 +41,7 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
                                                  OutputLimitSpec outputLimitSpec,
                                                  boolean enableOutputLimitOpt,
                                                  ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
+        this.resultEventType = resultEventType;
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingNode = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
@@ -54,7 +57,7 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
     }
 
     public EventType getResultEventType() {
-        return selectExprProcessor.getResultEventType();
+        return resultEventType;
     }
 
     public boolean hasAggregation() {
