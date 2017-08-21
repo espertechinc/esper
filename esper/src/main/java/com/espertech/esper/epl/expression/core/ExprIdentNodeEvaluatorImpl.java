@@ -11,12 +11,18 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.event.EventPropertyGetterSPI;
+import com.espertech.esper.event.WrapperEventType;
+import com.espertech.esper.event.vaevent.RevisionEventType;
+import com.espertech.esper.event.vaevent.VariantEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
@@ -26,12 +32,14 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     private final EventPropertyGetterSPI propertyGetter;
     protected final Class returnType;
     private final ExprIdentNode identNode;
+    private final EventType eventType;
 
-    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode) {
+    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode, EventType eventType) {
         this.streamNum = streamNum;
         this.propertyGetter = propertyGetter;
         this.returnType = returnType;
         this.identNode = identNode;
+        this.eventType = eventType;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -54,15 +62,24 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         return propertyGetter.get(event);
     }
 
-    public CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (returnType == null) {
             return constantNull();
         }
-        CodegenMethodId method = context.addMethod(returnType, this.getClass()).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
-                .ifRefNullReturnNull("event")
-                .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.eventBeanGetCodegen(ref("event"), context)));
-        return localMethodBuild(method).passAll(params).call();
+        CodegenMethodNode method = codegenMethodScope.makeChild(returnType, this.getClass());
+
+        if (exprSymbol.isAllowUnderlyingReferences() && !identNode.getResolvedPropertyName().contains("?") && !(eventType instanceof WrapperEventType) && !(eventType instanceof VariantEventType) && !(eventType instanceof RevisionEventType)) {
+            CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(method, streamNum, eventType);
+            method.getBlock().ifRefNullReturnNull(underlying)
+                    .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
+        } else {
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(method);
+            method.getBlock().declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                    .ifRefNullReturnNull("event")
+                    .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.eventBeanGetCodegen(ref("event"), method, codegenClassScope)));
+
+        }
+        return localMethod(method);
     }
 
     public Class getEvaluationType() {

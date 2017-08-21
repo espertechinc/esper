@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.datetime.reformatop;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercer;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerFactory;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.FilterExprAnalyzerDTBetweenAffector;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -77,24 +78,24 @@ public class ReformatBetweenNonConstantParamsForge implements ReformatForge {
                 forgeIncludeLow == null ? null : forgeIncludeLow.getExprEvaluator(), forgeIncludeHigh == null ? null : forgeIncludeHigh.getExprEvaluator());
     }
 
-    public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return ReformatBetweenNonConstantParamsForgeOp.codegenLong(this, inner, params, context);
+    public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ReformatBetweenNonConstantParamsForgeOp.codegenLong(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return ReformatBetweenNonConstantParamsForgeOp.codegenDate(this, inner, params, context);
+    public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ReformatBetweenNonConstantParamsForgeOp.codegenDate(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression codegenCal(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return ReformatBetweenNonConstantParamsForgeOp.codegenCal(this, inner, params, context);
+    public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ReformatBetweenNonConstantParamsForgeOp.codegenCal(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return ReformatBetweenNonConstantParamsForgeOp.codegenLDT(this, inner, params, context);
+    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ReformatBetweenNonConstantParamsForgeOp.codegenLDT(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return ReformatBetweenNonConstantParamsForgeOp.codegenZDT(this, inner, params, context);
+    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ReformatBetweenNonConstantParamsForgeOp.codegenZDT(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Class getReturnType() {

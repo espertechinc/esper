@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.type.*;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
@@ -106,8 +107,9 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
         return new ListParameter(parameters);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(ListParameter.class, ExprNumberSetList.class).add(params).begin()
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ListParameter.class, ExprNumberSetList.class);
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(List.class, "parameters", newInstance(ArrayList.class));
         int count = -1;
         for (ExprNode node : getChildNodes()) {
@@ -115,12 +117,12 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
             ExprForge forge = node.getForge();
             Class evaluationType = forge.getEvaluationType();
             String refname = "value" + count;
-            block.declareVar(evaluationType, refname, forge.evaluateCodegen(params, context))
+            block.declareVar(evaluationType, refname, forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListAdd", ref(refname), ref("parameters")));
         }
-        CodegenMethodId method = block.expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListEmpty", ref("parameters")))
+        block.expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListEmpty", ref("parameters")))
                 .methodReturn(newInstance(ListParameter.class, ref("parameters")));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

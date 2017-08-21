@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -78,14 +79,16 @@ public class ExprInstanceofNodeForgeEval implements ExprEvaluator {
         return out;
     }
 
-    public static CodegenExpression codegen(ExprInstanceofNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMember mClasses = context.makeAddMember(Class[].class, forge.getClasses());
-        CodegenMember mCache = context.makeAddMember(CopyOnWriteArrayList.class, new CopyOnWriteArrayList<Pair<Class, Boolean>>());
-        CodegenBlock block = context.addMethod(Boolean.class, ExprInstanceofNodeForgeEval.class).add(params).begin()
-                .declareVar(Object.class, "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(params, context))
+    public static CodegenExpression codegen(ExprInstanceofNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember mClasses = codegenClassScope.makeAddMember(Class[].class, forge.getClasses());
+        CodegenMember mCache = codegenClassScope.makeAddMember(CopyOnWriteArrayList.class, new CopyOnWriteArrayList<Pair<Class, Boolean>>());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInstanceofNodeForgeEval.class);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(Object.class, "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnFalse("result");
-        CodegenMethodId method = block.methodReturn(staticMethod(ExprInstanceofNodeForgeEval.class, "instanceofCacheCheckOrAdd", member(mClasses.getMemberId()), member(mCache.getMemberId()), ref("result")));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(staticMethod(ExprInstanceofNodeForgeEval.class, "instanceofCacheCheckOrAdd", member(mClasses.getMemberId()), member(mCache.getMemberId()), ref("result")));
+        return localMethod(methodNode);
     }
 
     // Checks type and adds to cache

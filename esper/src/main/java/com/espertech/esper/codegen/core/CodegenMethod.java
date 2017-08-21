@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.codegen.core;
 
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSet;
+import com.espertech.esper.codegen.base.CodegenBlock;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,36 +18,24 @@ import java.util.Set;
 import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassName;
 
 public class CodegenMethod {
+    private final String name;
     private final CodegenMethodFootprint footprint;
-    private CodegenBlock block;
+    private final CodegenBlock block;
+    private final boolean isPublic;
 
-    public CodegenMethod(CodegenMethodFootprint footprint) {
+    public CodegenMethod(String name, CodegenMethodFootprint footprint, CodegenBlock block, boolean isPublic) {
+        this.name = name;
         this.footprint = footprint;
-    }
-
-    public CodegenMethod(CodegenMethodFootprint footprint, CodegenExpression expression) {
-        this.footprint = footprint;
-        statements().methodReturn(expression);
-    }
-
-    public CodegenMethodFootprint getFootprint() {
-        return footprint;
-    }
-
-    public CodegenBlock statements() {
-        allocateBlock();
-        return block;
+        this.block = block;
+        this.isPublic = isPublic;
     }
 
     public void mergeClasses(Set<Class> classes) {
         footprint.mergeClasses(classes);
-        allocateBlock();
         block.mergeClasses(classes);
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isPublic, CodegenIndent indent) {
-        allocateBlock();
-
         if (footprint.getOptionalComment() != null) {
             indent.indent(builder, 1);
             builder.append("// ").append(footprint.getOptionalComment()).append("\n");
@@ -59,13 +46,12 @@ public class CodegenMethod {
             builder.append("public ");
         }
         appendClassName(builder, footprint.getReturnType(), null, imports);
-        builder.append(" ");
-        footprint.getMethodId().render(builder);
+        builder.append(" ").append(name);
         builder.append("(");
         String delimiter = "";
-        for (CodegenParamSet param : footprint.getParams()) {
+        for (CodegenNamedParam param : footprint.getParams()) {
             builder.append(delimiter);
-            param.render(builder, imports, indent, footprint.getOptionalComment());
+            param.render(builder, imports);
             delimiter = ",";
         }
         builder.append("){\n");
@@ -74,9 +60,19 @@ public class CodegenMethod {
         builder.append("}\n");
     }
 
-    private void allocateBlock() {
-        if (block == null) {
-            block = new CodegenBlock(this);
-        }
+    public String getName() {
+        return name;
+    }
+
+    public CodegenMethodFootprint getFootprint() {
+        return footprint;
+    }
+
+    public CodegenBlock getBlock() {
+        return block;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
     }
 }

@@ -11,11 +11,12 @@
 package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -44,9 +45,9 @@ public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator, Expr
         return selectExprProcessAvroMap(map, inner);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember memberSchema = context.makeAddMember(Schema.class, inner);
-        return staticMethod(SelectExprProcessorEvalAvroMapToAvro.class, "selectExprProcessAvroMap", forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context), CodegenExpressionBuilder.member(memberSchema.getMemberId()));
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember memberSchema = codegenClassScope.makeAddMember(Schema.class, inner);
+        return staticMethod(SelectExprProcessorEvalAvroMapToAvro.class, "selectExprProcessAvroMap", forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), CodegenExpressionBuilder.member(memberSchema.getMemberId()));
     }
 
     /**

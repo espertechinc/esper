@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -56,8 +57,9 @@ public class ExprAndNodeEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenExpression codegen(ExprAndNodeImpl parent, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenBlock block = context.addMethod(Boolean.class, ExprOrNodeEval.class).add(params).begin()
+    public static CodegenExpression codegen(ExprAndNodeImpl parent, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprAndNodeEval.class);
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(Boolean.class, "result", constantTrue());
 
         int count = -1;
@@ -65,18 +67,17 @@ public class ExprAndNodeEval implements ExprEvaluator {
             count++;
             Class childType = child.getForge().getEvaluationType();
             if (childType.isPrimitive()) {
-                block.ifCondition(not(child.getForge().evaluateCodegen(params, context))).blockReturn(constantFalse());
+                block.ifCondition(not(child.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))).blockReturn(constantFalse());
             } else {
                 String refname = "r" + count;
-                block.declareVar(Boolean.class, refname, child.getForge().evaluateCodegen(params, context))
+                block.declareVar(Boolean.class, refname, child.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                         .ifCondition(equalsNull(ref(refname)))
                         .assignRef("result", constantNull())
                         .ifElse()
                         .ifCondition(not(ref(refname))).blockReturn(constantFalse());
             }
         }
-        CodegenMethodId method = block.methodReturn(ref("result"));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(ref("result"));
+        return localMethod(methodNode);
     }
-
 }

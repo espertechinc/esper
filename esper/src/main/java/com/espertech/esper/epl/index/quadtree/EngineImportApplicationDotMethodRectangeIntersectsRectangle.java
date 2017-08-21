@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.util.EPLExpressionParamType;
@@ -89,8 +90,8 @@ public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends
                     otherXEval.getExprEvaluator(), otherYEval.getExprEvaluator(), otherWidthEval.getExprEvaluator(), otherHeightEval.getExprEvaluator());
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-            return RectangleIntersectsRectangleEvaluator.codegen(this, params, context);
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return RectangleIntersectsRectangleEvaluator.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
 
         public ExprForgeComplexityEnum getComplexity() {
@@ -169,19 +170,21 @@ public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends
             return BoundingBox.intersectsBoxIncludingEnd(x, y, x + width, y + height, otherX.doubleValue(), otherY.doubleValue(), otherWidth.doubleValue(), otherHeight.doubleValue());
         }
 
-        public static CodegenExpression codegen(RectangleIntersectsRectangleForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenBlock block = context.addMethod(Boolean.class, RectangleIntersectsRectangleEvaluator.class).add(params).begin();
-            CodegenLegoCast.asDoubleNullReturnNull(block, "meX", forge.meXEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "meY", forge.meYEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "meWidth", forge.meWidthEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "meHeight", forge.meHeightEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "otherX", forge.otherXEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "otherY", forge.otherYEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "otherWidth", forge.otherWidthEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "otherHeight", forge.otherHeightEval, params, context);
-            CodegenMethodId method = block.methodReturn(staticMethod(BoundingBox.class, "intersectsBoxIncludingEnd", ref("meX"), ref("meY"), op(ref("meX"), "+", ref("meWidth")), op(ref("meY"), "+", ref("meHeight")),
+        public static CodegenExpression codegen(RectangleIntersectsRectangleForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, RectangleIntersectsRectangleEvaluator.class);
+
+            CodegenBlock block = methodNode.getBlock();
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meX", forge.meXEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meY", forge.meYEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meWidth", forge.meWidthEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "meHeight", forge.meHeightEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherX", forge.otherXEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherY", forge.otherYEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherWidth", forge.otherWidthEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "otherHeight", forge.otherHeightEval, methodNode, exprSymbol, codegenClassScope);
+            block.methodReturn(staticMethod(BoundingBox.class, "intersectsBoxIncludingEnd", ref("meX"), ref("meY"), op(ref("meX"), "+", ref("meWidth")), op(ref("meY"), "+", ref("meHeight")),
                     ref("otherX"), ref("otherY"), ref("otherWidth"), ref("otherHeight")));
-            return localMethodBuild(method).passAll(params).call();
+            return localMethod(methodNode);
         }
 
     }

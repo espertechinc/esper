@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 
@@ -36,8 +37,8 @@ public class PropertyDotNonLambdaMappedForge implements ExprForge, ExprNodeRende
         return new PropertyDotNonLambdaMappedForgeEval(this, paramForge.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return PropertyDotNonLambdaMappedForgeEval.codegen(this, context, params);
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return PropertyDotNonLambdaMappedForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

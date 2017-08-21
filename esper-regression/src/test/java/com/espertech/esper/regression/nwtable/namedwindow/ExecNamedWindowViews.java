@@ -19,7 +19,8 @@ import com.espertech.esper.client.hook.TypeRepresentationMapperContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.event.EventTypeMetadata;
@@ -2338,7 +2339,7 @@ public class ExecNamedWindowViews implements RegressionExecution {
                         return row;
                     }
 
-                    public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+                    public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
                         throw new UnsupportedOperationException("not yet implemented");
                     }
                 };

@@ -12,10 +12,11 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalVisitor;
@@ -41,12 +42,14 @@ public class ExprDotForgeUnpackBean implements ExprDotForge, ExprDotEval {
         return theEvent.getUnderlying();
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class resultType = EPTypeHelper.getCodegenReturnType(returnType);
-        CodegenMethodId method = context.addMethod(resultType, ExprDotForgeUnpackBean.class).add(innerType, "target").add(params).begin()
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(resultType, ExprDotForgeUnpackBean.class).addParam(innerType, "target");
+
+        methodNode.getBlock()
                 .ifRefNullReturnNull("target")
                 .methodReturn(cast(resultType, exprDotUnderlying(cast(EventBean.class, ref("target")))));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        return localMethod(methodNode, inner);
     }
 
     public EPType getTypeInfo() {

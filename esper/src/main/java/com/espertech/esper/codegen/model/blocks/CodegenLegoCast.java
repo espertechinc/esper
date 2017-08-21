@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.codegen.model.blocks;
 
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -39,15 +40,15 @@ public class CodegenLegoCast {
         return cast(targetType, value);
     }
 
-    public static void asDoubleNullReturnNull(CodegenBlock block, String variable, ExprForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
+    public static void asDoubleNullReturnNull(CodegenBlock block, String variable, ExprForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class type = forge.getEvaluationType();
         if (type == double.class) {
-            block.declareVar(type, variable, forge.evaluateCodegen(params, context));
+            block.declareVar(type, variable, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
 
         String holder = variable + "_";
-        block.declareVar(type, holder, forge.evaluateCodegen(params, context));
+        block.declareVar(type, holder, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
         if (!type.isPrimitive()) {
             block.ifRefNullReturnNull(holder);
         }

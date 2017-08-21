@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.rettype.EPType;
@@ -46,8 +47,8 @@ public class ExprDotMethodForgeDuck implements ExprDotForge {
         return new ExprDotMethodForgeDuckEval(this, ExprNodeUtility.getEvaluatorsNoCompile(parameters));
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        return ExprDotMethodForgeDuckEval.codegen(this, inner, innerType, context, params);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ExprDotMethodForgeDuckEval.codegen(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public String getStatementName() {

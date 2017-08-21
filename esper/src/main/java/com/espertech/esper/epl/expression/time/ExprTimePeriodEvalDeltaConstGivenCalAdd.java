@@ -10,13 +10,14 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -65,9 +66,9 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
         return target - fromTime;
     }
 
-    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class).add(long.class, "fromTime").begin()
-                .declareVar(long.class, "target", addSubtractCodegen(ref("fromTime"), constant(1), context))
+    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class).addParam(long.class, "fromTime").getBlock()
+                .declareVar(long.class, "target", addSubtractCodegen(ref("fromTime"), constant(1), codegenMethodScope, codegenClassScope))
                 .methodReturn(op(ref("target"), "-", ref("fromTime")));
         return localMethodBuild(method).pass(reference).call();
     }
@@ -107,19 +108,19 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
         return result;
     }
 
-    private CodegenExpression addSubtractCodegen(CodegenExpressionRef fromTime, CodegenExpression factor, CodegenContext context) {
-        CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        CodegenBlock block = context.addMethod(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class).add(long.class, "fromTime").add(int.class, "factor").begin()
+    private CodegenExpression addSubtractCodegen(CodegenExpressionRef fromTime, CodegenExpression factor, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
+        CodegenBlock block = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class).addParam(long.class, "fromTime").addParam(int.class, "factor").getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
-                .declareVar(long.class, "remainder", timeAbacus.calendarSetCodegen(ref("fromTime"), ref("cal"), context));
+                .declareVar(long.class, "remainder", timeAbacus.calendarSetCodegen(ref("fromTime"), ref("cal"), codegenMethodScope, codegenClassScope));
         for (int i = 0; i < adders.length; i++) {
             block.expression(adders[i].addCodegen(ref("cal"), op(ref("factor"), "*", constant(added[i]))));
         }
-        block.declareVar(long.class, "result", timeAbacus.calendarGetCodegen(ref("cal"), ref("remainder"), context));
+        block.declareVar(long.class, "result", timeAbacus.calendarGetCodegen(ref("cal"), ref("remainder"), codegenClassScope));
         if (indexMicroseconds != -1) {
             block.assignRef("result", op(ref("result"), "+", op(ref("factor"), "*", constant(added[indexMicroseconds]))));
         }
-        CodegenMethodId method = block.methodReturn(ref("result"));
+        CodegenMethodNode method = block.methodReturn(ref("result"));
         return localMethodBuild(method).pass(fromTime).pass(factor).call();
     }
 }

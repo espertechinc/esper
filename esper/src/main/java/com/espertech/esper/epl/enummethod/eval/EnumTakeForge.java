@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.enummethod.eval;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
 public class EnumTakeForge implements EnumForge {
@@ -33,7 +34,7 @@ public class EnumTakeForge implements EnumForge {
         return new EnumTakeForgeEval(sizeEval.getExprEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade premade, CodegenContext context) {
-        return EnumTakeForgeEval.codegen(this, premade, context);
+    public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return EnumTakeForgeEval.codegen(this, premade, codegenMethodScope, codegenClassScope);
     }
 }

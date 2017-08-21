@@ -13,9 +13,10 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Map;
@@ -42,8 +43,8 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
         return getAvroMappedValueWNullCheck(values, key);
     }
 
-    private CodegenMethodId getAvroFieldValueCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+    private CodegenMethodNode getAvroFieldValueCodegen(CodegenMethodScope codegenMethodScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(Map.class, "values", cast(Map.class, exprDotMethod(ref("record"), "get", constant(pos))))
                 .ifRefNullReturnNull("values")
                 .methodReturn(exprDotMethod(ref("values"), "get", constant(key)));
@@ -65,27 +66,27 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
         return null;
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getAvroFieldValueCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getAvroFieldValueCodegen(codegenMethodScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 

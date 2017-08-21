@@ -12,10 +12,11 @@ package com.espertech.esper.epl.declexpr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.ExpressionDeclItem;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -61,16 +62,18 @@ public class ExprDeclaredForgeConstant implements ExprForge, ExprEvaluator {
         return ExprForgeComplexityEnum.NONE;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!audit) {
             return constant(value);
         }
-        CodegenMethodId method = context.addMethod(returnType, ExprDeclaredForgeConstant.class).add(params).begin()
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDeclaredForgeConstant.class);
+
+        methodNode.getBlock()
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                 .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(prototype.getName() + " result "), "+", constant(value))))
                 .blockEnd()
                 .methodReturn(constant(value));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public Class getEvaluationType() {

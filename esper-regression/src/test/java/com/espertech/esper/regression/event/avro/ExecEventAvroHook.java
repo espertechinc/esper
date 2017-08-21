@@ -17,7 +17,8 @@ import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactoryContext;
 import com.espertech.esper.client.hook.TypeRepresentationMapper;
 import com.espertech.esper.client.hook.TypeRepresentationMapperContext;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
@@ -198,7 +199,7 @@ public class ExecEventAvroHook implements RegressionExecution {
             return DateTimeFormatter.ISO_DATE_TIME.format(ldt);
         }
 
-        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return exprDotMethod(enumValue(DateTimeFormatter.class, "ISO_DATE_TIME"), "format", cast(LocalDateTime.class, expression));
         }
     }
@@ -211,7 +212,7 @@ public class ExecEventAvroHook implements RegressionExecution {
             return widenInput(input);
         }
 
-        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return staticMethod(MySupportBeanWidener.class, "widenInput", expression);
         }
 

@@ -12,8 +12,9 @@ package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.JavaClassHelper;
@@ -215,44 +216,44 @@ public class XPathPropertyGetter implements EventPropertyGetterSPI {
         return evaluateXPathFragment(und, expression, expressionText, property, fragmentFactory, resultType);
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        CodegenMember mExpression = context.makeAddMember(XPathExpression.class, expression);
-        CodegenMember mExpressionText = context.makeAddMember(String.class, expressionText);
-        CodegenMember mProperty = context.makeAddMember(String.class, property);
-        CodegenMember mOptionalCastToType = context.makeAddMember(Class.class, optionalCastToType);
-        CodegenMember mResultType = context.makeAddMember(QName.class, resultType);
-        CodegenMember mIsCastToArray = context.makeAddMember(boolean.class, isCastToArray);
-        CodegenMember mSimpleTypeParser = context.makeAddMember(SimpleTypeParser.class, simpleTypeParser);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember mExpression = codegenClassScope.makeAddMember(XPathExpression.class, expression);
+        CodegenMember mExpressionText = codegenClassScope.makeAddMember(String.class, expressionText);
+        CodegenMember mProperty = codegenClassScope.makeAddMember(String.class, property);
+        CodegenMember mOptionalCastToType = codegenClassScope.makeAddMember(Class.class, optionalCastToType);
+        CodegenMember mResultType = codegenClassScope.makeAddMember(QName.class, resultType);
+        CodegenMember mIsCastToArray = codegenClassScope.makeAddMember(boolean.class, isCastToArray);
+        CodegenMember mSimpleTypeParser = codegenClassScope.makeAddMember(SimpleTypeParser.class, simpleTypeParser);
         return staticMethod(XPathPropertyGetter.class, "evaluateXPathGet", underlyingExpression,
                 member(mExpression.getMemberId()), member(mExpressionText.getMemberId()), member(mProperty.getMemberId()),
                 member(mOptionalCastToType.getMemberId()), member(mResultType.getMemberId()), member(mIsCastToArray.getMemberId()), member(mSimpleTypeParser.getMemberId()));
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         if (fragmentFactory == null) {
             return constantNull();
         }
-        CodegenMember mExpression = context.makeAddMember(XPathExpression.class, expression);
-        CodegenMember mExpressionText = context.makeAddMember(String.class, expressionText);
-        CodegenMember mProperty = context.makeAddMember(String.class, property);
-        CodegenMember mFragmentFactory = context.makeAddMember(FragmentFactory.class, fragmentFactory);
-        CodegenMember mResultType = context.makeAddMember(QName.class, resultType);
+        CodegenMember mExpression = codegenClassScope.makeAddMember(XPathExpression.class, expression);
+        CodegenMember mExpressionText = codegenClassScope.makeAddMember(String.class, expressionText);
+        CodegenMember mProperty = codegenClassScope.makeAddMember(String.class, property);
+        CodegenMember mFragmentFactory = codegenClassScope.makeAddMember(FragmentFactory.class, fragmentFactory);
+        CodegenMember mResultType = codegenClassScope.makeAddMember(QName.class, resultType);
         return staticMethod(XPathPropertyGetter.class, "evaluateXPathFragment", underlyingExpression,
                 member(mExpression.getMemberId()), member(mExpressionText.getMemberId()), member(mProperty.getMemberId()),
                 member(mFragmentFactory.getMemberId()), member(mResultType.getMemberId()));

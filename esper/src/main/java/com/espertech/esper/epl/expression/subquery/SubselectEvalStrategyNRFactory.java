@@ -13,7 +13,7 @@ package com.espertech.esper.epl.expression.subquery;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.GroupByClauseExpressions;
 import com.espertech.esper.type.RelationalOpEnum;

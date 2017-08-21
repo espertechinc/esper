@@ -12,12 +12,13 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.event.EventAdapterService;
@@ -41,8 +42,8 @@ public class EvalSelectStreamNoUndWEventBeanToObj extends EvalSelectStreamBaseMa
         return processSelectExprbeanToMap(props, eventBeanToObjectProps, super.getContext().getEventAdapterService(), super.resultEventType);
     }
 
-    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember indexes = context.makeAddMember(Set.class, eventBeanToObjectProps);
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember indexes = codegenClassScope.makeAddMember(Set.class, eventBeanToObjectProps);
         return staticMethod(EvalSelectStreamNoUndWEventBeanToObj.class, "processSelectExprbeanToMap", props, CodegenExpressionBuilder.member(indexes.getMemberId()), CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), CodegenExpressionBuilder.member(memberResultEventType.getMemberId()));
     }
 

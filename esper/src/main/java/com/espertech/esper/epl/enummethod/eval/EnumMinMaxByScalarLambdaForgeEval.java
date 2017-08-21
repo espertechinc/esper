@@ -11,14 +11,15 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -80,22 +81,24 @@ public class EnumMinMaxByScalarLambdaForgeEval implements EnumEval {
         return result;
     }
 
-    public static CodegenExpression codegen(EnumMinMaxByScalarLambdaForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public static CodegenExpression codegen(EnumMinMaxByScalarLambdaForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerTypeBoxed = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
         Class resultTypeBoxed = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(forge.resultType));
-        CodegenMember resultTypeMember = context.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
+        CodegenMember resultTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
 
-        CodegenBlock block = context.addMethod(resultTypeBoxed, EnumMinMaxByScalarLambdaForgeEval.class).add(premade).begin()
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(resultTypeBoxed, EnumMinMaxByScalarLambdaForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(innerTypeBoxed, "minKey", constantNull())
                 .declareVar(resultTypeBoxed, "result", constantNull())
                 .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
-        CodegenBlock forEach = block.forEach(Object.class, "next", premade.enumcoll())
+        CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
                 .ifRefNull("value").blockContinue();
 
         forEach.ifCondition(equalsNull(ref("minKey")))
@@ -106,7 +109,7 @@ public class EnumMinMaxByScalarLambdaForgeEval implements EnumEval {
                 .assignRef("minKey", ref("value"))
                 .assignRef("result", cast(resultTypeBoxed, ref("next")));
 
-        CodegenMethodId method = block.methodReturn(ref("result"));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(ref("result"));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 }

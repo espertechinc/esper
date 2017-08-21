@@ -11,14 +11,16 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
@@ -27,7 +29,6 @@ import com.espertech.esper.event.arr.ObjectArrayEventType;
 import java.util.Collection;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
 
 public class EnumAllOfScalarForgeEval implements EnumEval {
 
@@ -59,19 +60,22 @@ public class EnumAllOfScalarForgeEval implements EnumEval {
         return true;
     }
 
-    public static CodegenExpression codegen(EnumAllOfScalarForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenMember typeMember = context.makeAddMember(ObjectArrayEventType.class, forge.type);
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenBlock block = context.addMethod(boolean.class, EnumAllOfScalarForgeEval.class).add(premade).begin()
-                .ifConditionReturnConst(exprDotMethod(premade.enumcoll(), "isEmpty"), true)
-                .declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("evalEvent"))
+    public static CodegenExpression codegen(EnumAllOfScalarForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember typeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.type);
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumAllOfScalarForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock();
+        block.ifConditionReturnConst(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"), true);
+        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("evalEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("evalEvent"), "getProperties"));
 
-        CodegenBlock forEach = block.forEach(Object.class, "next", premade.enumcoll())
+        CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"));
-        CodegenLegoBooleanExpression.codegenReturnBoolIfNullOrBool(forEach, forge.innerExpression, context, false, null, false, false);
-        CodegenMethodId method = block.methodReturn(constantTrue());
-        return localMethodBuild(method).passAll(args).call();
+        CodegenLegoBooleanExpression.codegenReturnBoolIfNullOrBool(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope), false, null, false, false);
+        block.methodReturn(constantTrue());
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 }

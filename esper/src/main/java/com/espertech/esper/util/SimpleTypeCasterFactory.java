@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -76,7 +77,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(input, inputType);
             }
@@ -96,7 +97,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerFloat.codegenFloat(input, inputType);
             }
@@ -116,7 +117,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(input, inputType);
             }
@@ -136,7 +137,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(input, inputType);
             }
@@ -156,7 +157,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerShort.codegenShort(input, inputType);
             }
@@ -176,7 +177,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerByte.codegenByte(input, inputType);
             }
@@ -204,12 +205,12 @@ public class SimpleTypeCasterFactory {
             return false;
         }
 
-        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
-            return codegen(expression, Object.class, context);
+        public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegen(expression, Object.class, codegenMethodScope, codegenClassScope);
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(Character.class, CharacterCaster.class).add(Object.class, "object").begin()
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode method = codegenMethodScope.makeChild(Character.class, CharacterCaster.class).addParam(Object.class, "object").getBlock()
                     .declareVar(String.class, "value", exprDotMethod(ref("object"), "toString"))
                     .ifCondition(equalsIdentity(exprDotMethod(ref("value"), "length"), constant(0)))
                     .blockReturn(constantNull())
@@ -231,7 +232,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerBigInt.codegenBigInt(input, inputType);
             }
@@ -252,7 +253,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerBigDecLong.codegenBigDec(input, inputType);
             }
@@ -273,7 +274,7 @@ public class SimpleTypeCasterFactory {
             return true;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerBigDecDouble.codegenBigDec(input, inputType);
             }
@@ -293,7 +294,7 @@ public class SimpleTypeCasterFactory {
             return false;
         }
 
-        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             return input;
         }
     }

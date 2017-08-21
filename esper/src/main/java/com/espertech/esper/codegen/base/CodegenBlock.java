@@ -8,9 +8,11 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.core;
+package com.espertech.esper.codegen.base;
 
+import com.espertech.esper.codegen.core.CodegenIndent;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.statement.*;
 
 import java.util.ArrayList;
@@ -21,19 +23,19 @@ import java.util.Set;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenBlock {
-    private final CodegenMethod parentMethod;
+    private final CodegenMethodNode parentMethodNode;
     private final CodegenStatementWBlockBase parentWBlock;
     private boolean closed;
     protected List<CodegenStatement> statements = new ArrayList<>(4);
 
-    public CodegenBlock(CodegenMethod parentMethod) {
-        this.parentMethod = parentMethod;
+    public CodegenBlock(CodegenMethodNode parentMethodNode) {
         this.parentWBlock = null;
+        this.parentMethodNode = parentMethodNode;
     }
 
     public CodegenBlock(CodegenStatementWBlockBase parentWBlock) {
         this.parentWBlock = parentWBlock;
-        this.parentMethod = null;
+        this.parentMethodNode = null;
     }
 
     public CodegenBlock expression(CodegenExpression expression) {
@@ -200,6 +202,10 @@ public class CodegenBlock {
         return this;
     }
 
+    public CodegenBlock ifRefNullReturnNull(CodegenExpressionRef ref) {
+        return ifRefNullReturnNull(ref.getRef());
+    }
+
     public CodegenBlock blockReturn(CodegenExpression expression) {
         if (parentWBlock == null) {
             throw new IllegalStateException("No codeblock parent, use 'methodReturn... instead");
@@ -263,23 +269,23 @@ public class CodegenBlock {
         return parentWBlock.getParent();
     }
 
-    public CodegenMethodId methodReturn(CodegenExpression expression) {
-        if (parentMethod == null) {
-            throw new IllegalStateException("No method parent, use 'blockReturn... instead");
+    public CodegenMethodNode methodReturn(CodegenExpression expression) {
+        if (parentMethodNode == null) {
+            throw new IllegalStateException("No method parent, use 'blockReturn...' instead");
         }
         checkClosed();
         closed = true;
         statements.add(new CodegenStatementReturnExpression(expression));
-        return parentMethod.getFootprint().getMethodId();
+        return parentMethodNode;
     }
 
-    public CodegenMethodId methodEnd() {
-        if (parentMethod == null) {
-            throw new IllegalStateException("No method parent, use 'blockReturn... instead");
+    public CodegenMethodNode methodEnd() {
+        if (parentMethodNode == null) {
+            throw new IllegalStateException("No method node parent, use 'blockReturn... instead");
         }
         checkClosed();
         closed = true;
-        return parentMethod.getFootprint().getMethodId();
+        return parentMethodNode;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
@@ -304,7 +310,7 @@ public class CodegenBlock {
     public CodegenBlock ifElseIf(CodegenExpression condition) {
         checkClosed();
         closed = true;
-        if (parentMethod != null) {
+        if (parentMethodNode != null) {
             throw new IllegalStateException("If-block-end in method?");
         }
         if (!(parentWBlock instanceof CodegenStatementIf)) {
@@ -316,7 +322,7 @@ public class CodegenBlock {
 
     public CodegenBlock ifElse() {
         closed = true;
-        if (parentMethod != null) {
+        if (parentMethodNode != null) {
             throw new IllegalStateException("If-block-end in method?");
         }
         if (!(parentWBlock instanceof CodegenStatementIf)) {
@@ -329,7 +335,7 @@ public class CodegenBlock {
     public void ifReturn(CodegenExpression result) {
         checkClosed();
         closed = true;
-        if (parentMethod != null) {
+        if (parentMethodNode != null) {
             throw new IllegalStateException("If-block-end in method?");
         }
         if (!(parentWBlock instanceof CodegenStatementIf)) {
@@ -341,7 +347,7 @@ public class CodegenBlock {
     public CodegenBlock blockContinue() {
         checkClosed();
         closed = true;
-        if (parentMethod != null) {
+        if (parentMethodNode != null) {
             throw new IllegalStateException("If-block-end in method?");
         }
         statements.add(CodegenStatementContinue.INSTANCE);

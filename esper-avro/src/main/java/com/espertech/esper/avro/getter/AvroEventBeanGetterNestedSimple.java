@@ -13,10 +13,11 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
@@ -55,40 +56,40 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetterSPI {
         return eventAdapterService.adapterForTypedAvro(value, fragmentType);
     }
 
-    private CodegenMethodId getFragmentCodegen(CodegenContext context) throws PropertyAccessException {
-        CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
-        CodegenMember mType = context.makeAddMember(EventType.class, fragmentType);
-        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
-                .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), context))
+    private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
+        CodegenMember mSvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember mType = codegenClassScope.makeAddMember(EventType.class, fragmentType);
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+                .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("value")
                 .methodReturn(exprDotMethod(member(mSvc.getMemberId()), "adapterForTypedAvro", ref("value"), member(mType.getMemberId())));
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingFragmentCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getCodegen(codegenMethodScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         if (fragmentType == null) {
             return constantNull();
         }
-        return localMethod(getFragmentCodegen(context), underlyingExpression);
+        return localMethod(getFragmentCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     private Object get(GenericData.Record record) throws PropertyAccessException {
@@ -99,8 +100,8 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetterSPI {
         return inner.get(posInner);
     }
 
-    private CodegenMethodId getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .ifRefNullReturnNull("inner")
                 .methodReturn(exprDotMethod(ref("inner"), "get", constant(posInner)));

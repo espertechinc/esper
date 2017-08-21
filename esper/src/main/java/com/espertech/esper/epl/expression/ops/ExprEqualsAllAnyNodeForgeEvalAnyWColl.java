@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -145,14 +146,16 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
         return false;
     }
 
-    public static CodegenExpression codegen(ExprEqualsAllAnyNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprEqualsAllAnyNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
         boolean isNot = forge.getForgeRenderable().isNot();
 
-        CodegenBlock block = context.addMethod(Boolean.class, ExprEqualsAllAnyNodeForgeEvalAnyWColl.class).add(params).begin();
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsAllAnyNodeForgeEvalAnyWColl.class);
+
+        CodegenBlock block = methodNode.getBlock();
         Class leftTypeUncoerced = forges[0].getEvaluationType();
-        block.declareVar(leftTypeUncoerced, "left", forges[0].evaluateCodegen(params, context));
-        block.declareVar(forge.getCoercionTypeBoxed(), "leftCoerced", !forge.isMustCoerce() ? ref("left") : forge.getCoercer().coerceCodegenMayNullBoxed(ref("left"), leftTypeUncoerced, context));
+        block.declareVar(leftTypeUncoerced, "left", forges[0].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.declareVar(forge.getCoercionTypeBoxed(), "leftCoerced", !forge.isMustCoerce() ? ref("left") : forge.getCoercer().coerceCodegenMayNullBoxed(ref("left"), leftTypeUncoerced, methodNode, codegenClassScope));
         block.declareVar(boolean.class, "hasNonNullRow", constantFalse());
         block.declareVar(boolean.class, "hasNullRow", constantFalse());
 
@@ -163,7 +166,7 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
 
             if (reftype != null && JavaClassHelper.isImplementsInterface(reftype, Collection.class)) {
                 block.ifRefNullReturnNull("left")
-                        .declareVar(Collection.class, refname, refforge.evaluateCodegen(params, context))
+                        .declareVar(Collection.class, refname, refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                         .ifCondition(equalsNull(ref(refname)))
                         .assignRef("hasNullRow", constantTrue())
                         .ifElse()
@@ -171,7 +174,7 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
                         .ifCondition(notOptional(isNot, exprDotMethod(ref(refname), "contains", ref("left")))).blockReturn(constantTrue());
             } else if (reftype != null && JavaClassHelper.isImplementsInterface(reftype, Map.class)) {
                 block.ifRefNullReturnNull("left")
-                        .declareVar(Map.class, refname, refforge.evaluateCodegen(params, context))
+                        .declareVar(Map.class, refname, refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                         .ifCondition(equalsNull(ref(refname)))
                         .assignRef("hasNullRow", constantTrue())
                         .ifElse()
@@ -179,21 +182,21 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
                         .ifCondition(notOptional(isNot, exprDotMethod(ref(refname), "containsKey", ref("left")))).blockReturn(constantTrue());
             } else if (reftype != null && reftype.isArray()) {
                 CodegenBlock arrayBlock = block.ifRefNullReturnNull("left")
-                        .declareVar(reftype, refname, refforge.evaluateCodegen(params, context))
+                        .declareVar(reftype, refname, refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                         .ifCondition(equalsNull(ref(refname)))
                         .assignRef("hasNullRow", constantTrue())
                         .ifElse();
 
                 CodegenBlock forLoop = arrayBlock.forLoopIntSimple("i", arrayLength(ref(refname)));
                 CodegenExpression arrayAtIndex = arrayAtIndex(ref(refname), ref("i"));
-                forLoop.declareVar(forge.getCoercionTypeBoxed(), "item", forge.getCoercer() == null ? arrayAtIndex : forge.getCoercer().coerceCodegenMayNullBoxed(arrayAtIndex, reftype.getComponentType(), context));
+                forLoop.declareVar(forge.getCoercionTypeBoxed(), "item", forge.getCoercer() == null ? arrayAtIndex : forge.getCoercer().coerceCodegenMayNullBoxed(arrayAtIndex, reftype.getComponentType(), methodNode, codegenClassScope));
 
                 CodegenBlock forLoopElse = forLoop.ifCondition(equalsNull(ref("item"))).assignRef("hasNullRow", constantTrue()).ifElse();
                 forLoopElse.assignRef("hasNonNullRow", constantTrue());
                 forLoopElse.ifCondition(notOptional(isNot, exprDotMethod(ref("leftCoerced"), "equals", ref("item")))).blockReturn(constantTrue());
             } else {
                 block.ifRefNullReturnNull("leftCoerced");
-                block.declareVar(forge.getCoercionTypeBoxed(), refname, forge.getCoercer() == null ? refforge.evaluateCodegen(params, context) : forge.getCoercer().coerceCodegenMayNullBoxed(refforge.evaluateCodegen(params, context), reftype, context));
+                block.declareVar(forge.getCoercionTypeBoxed(), refname, forge.getCoercer() == null ? refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope) : forge.getCoercer().coerceCodegenMayNullBoxed(refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), reftype, methodNode, codegenClassScope));
                 CodegenBlock ifRightNotNull = block.ifRefNotNull(refname);
                 {
                     ifRightNotNull.assignRef("hasNonNullRow", constantTrue());
@@ -204,7 +207,7 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
             }
         }
         block.ifCondition(or(not(ref("hasNonNullRow")), ref("hasNullRow"))).blockReturn(constantNull());
-        CodegenMethodId method = block.methodReturn(constantFalse());
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(constantFalse());
+        return localMethod(methodNode);
     }
 }

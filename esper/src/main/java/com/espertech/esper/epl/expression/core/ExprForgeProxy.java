@@ -11,10 +11,10 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -66,27 +66,28 @@ public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
 
             if (m.equals(TARGET_EVALUATECODEGEN)) {
                 Class evaluationType = forge.getEvaluationType();
-                CodegenContext context = (CodegenContext) args[args.length - 1];
-                CodegenParamSetExprPremade premade = CodegenParamSetExprPremade.INSTANCE;
+                CodegenMethodNode parentMethod = (CodegenMethodNode) args[args.length - 3];
+                ExprForgeCodegenSymbol exprSymbol = (ExprForgeCodegenSymbol) args[args.length - 2];
+                CodegenClassScope codegenClassScope = (CodegenClassScope) args[args.length - 1];
                 if (evaluationType == null) {
-                    return forge.evaluateCodegen(premade, context);
+                    return forge.evaluateCodegen(parentMethod, exprSymbol, codegenClassScope);
                 }
-                CodegenBlock block = context.addMethod(evaluationType, ExprForgeProxy.class).add(CodegenParamSetExprPremade.INSTANCE).begin();
-                CodegenMethodId method;
+                CodegenMethodNode methodNode = parentMethod.makeChild(evaluationType, ExprForgeProxy.class);
+                CodegenBlock block = methodNode.getBlock();
                 if (evaluationType == void.class) {
-                    method = block.expression(forge.evaluateCodegen(premade, context))
+                    block.expression(forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                             .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                             .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), constant(expressionToString)))
                             .blockEnd()
                             .methodEnd();
                 } else {
-                    method = block.declareVar(evaluationType, "result", forge.evaluateCodegen(premade, context))
+                    block.declareVar(evaluationType, "result", forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                             .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                             .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), op(constant(expressionToString + " result "), "+", ref("result"))))
                             .blockEnd()
                             .methodReturn(ref("result"));
                 }
-                return localMethodBuild(method).passAll(premade).call();
+                return localMethod(methodNode);
             }
 
             return m.invoke(forge, args);

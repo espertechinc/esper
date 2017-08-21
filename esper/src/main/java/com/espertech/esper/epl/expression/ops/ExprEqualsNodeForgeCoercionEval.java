@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -73,13 +74,14 @@ public class ExprEqualsNodeForgeCoercionEval implements ExprEvaluator {
         return left.equals(right) ^ parent.isNotEquals();
     }
 
-    public static CodegenMethodId codegen(ExprEqualsNodeForgeCoercion forge, CodegenContext context, CodegenParamSetExprPremade params, ExprNode lhs, ExprNode rhs) {
+    public static CodegenMethodNode codegen(ExprEqualsNodeForgeCoercion forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
         Class lhsType = lhs.getForge().getEvaluationType();
         Class rhsType = rhs.getForge().getEvaluationType();
 
-        CodegenBlock block = context.addMethod(Boolean.class, ExprEqualsNodeForgeNCEvalEquals.class).add(params).begin()
-                .declareVar(lhsType, "l", lhs.getForge().evaluateCodegen(params, context))
-                .declareVar(rhsType, "r", rhs.getForge().evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsNodeForgeNCEvalEquals.class);
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(lhsType, "l", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(rhsType, "r", rhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
 
         if (!forge.getForgeRenderable().isIs()) {
             if (!lhsType.isPrimitive()) {
@@ -101,8 +103,10 @@ public class ExprEqualsNodeForgeCoercionEval implements ExprEvaluator {
         block.declareVar(Number.class, "right", forge.getNumberCoercerRHS().coerceCodegen(ref("r"), rhs.getForge().getEvaluationType()));
         CodegenExpression compare = exprDotMethod(ref("left"), "equals", ref("right"));
         if (!forge.getForgeRenderable().isNotEquals()) {
-            return block.methodReturn(compare);
+            block.methodReturn(compare);
+        } else {
+            block.methodReturn(not(compare));
         }
-        return block.methodReturn(not(compare));
+        return methodNode;
     }
 }

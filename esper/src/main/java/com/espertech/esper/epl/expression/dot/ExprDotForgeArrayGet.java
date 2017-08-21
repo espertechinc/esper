@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -38,8 +39,8 @@ public class ExprDotForgeArrayGet implements ExprDotForge {
         return new ExprDotForgeArrayGetEval(this, indexExpression.getExprEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        return ExprDotForgeArrayGetEval.codegen(this, inner, innerType, context, params);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ExprDotForgeArrayGetEval.codegen(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForge getIndexExpression() {

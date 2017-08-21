@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.codegen.model.statement;
 
-import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenBlock;
 
 import java.util.Set;
 

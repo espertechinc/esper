@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 /**
@@ -25,5 +26,5 @@ public interface TypeWidener {
      */
     public Object widen(Object input);
 
-    CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context);
+    CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

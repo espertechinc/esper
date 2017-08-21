@@ -8,17 +8,12 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.model.method;
+package com.espertech.esper.codegen.base;
 
-import com.espertech.esper.codegen.core.CodegenIndent;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
-import java.util.Map;
-import java.util.Set;
-
-public abstract class CodegenParamSet {
-    public abstract void mergeClasses(Set<Class> classes);
-
-    public abstract void render(StringBuilder builder, Map<Class, String> imports, CodegenIndent codegenIndent, String optionalComment);
-
-    public abstract CodegenPassSet getPassAll();
+public interface CodegenMethodScope {
+    CodegenMethodNode makeChild(Class returnType, Class generator);
+    CodegenMethodNode makeChildWithScope(Class returnType, Class generator, CodegenSymbolProvider symbolProvider);
+    CodegenMethodScope addSymbol(CodegenExpressionRef symbol);
 }

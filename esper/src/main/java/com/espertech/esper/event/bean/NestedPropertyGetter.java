@@ -13,10 +13,11 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -98,24 +99,24 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         return getterChain[0].getTargetType();
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropCodegen(context, false), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getBeanPropCodegen(codegenMethodScope, codegenClassScope, false), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropCodegen(context, true), underlyingExpression);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getBeanPropCodegen(codegenMethodScope, codegenClassScope, true), underlyingExpression);
     }
 
-    private CodegenMethodId getBeanPropCodegen(CodegenContext context, boolean exists) {
-        CodegenBlock block = context.addMethod(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), this.getClass()).add(getterChain[0].getTargetType(), "value").begin();
+    private CodegenMethodNode getBeanPropCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, boolean exists) {
+        CodegenBlock block = codegenMethodScope.makeChild(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), this.getClass()).addParam(getterChain[0].getTargetType(), "value").getBlock();
         if (!exists) {
             block.ifRefNullReturnNull("value");
         } else {
@@ -124,7 +125,7 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         String lastName = "value";
         for (int i = 0; i < getterChain.length - 1; i++) {
             String varName = "l" + i;
-            block.declareVar(getterChain[i].getBeanPropType(), varName, getterChain[i].underlyingGetCodegen(ref(lastName), context));
+            block.declareVar(getterChain[i].getBeanPropType(), varName, getterChain[i].underlyingGetCodegen(ref(lastName), codegenMethodScope, codegenClassScope));
             lastName = varName;
             if (!exists) {
                 block.ifRefNullReturnNull(lastName);
@@ -133,9 +134,9 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
             }
         }
         if (!exists) {
-            return block.methodReturn(getterChain[getterChain.length - 1].underlyingGetCodegen(ref(lastName), context));
+            return block.methodReturn(getterChain[getterChain.length - 1].underlyingGetCodegen(ref(lastName), codegenMethodScope, codegenClassScope));
         } else {
-            return block.methodReturn(getterChain[getterChain.length - 1].underlyingExistsCodegen(ref(lastName), context));
+            return block.methodReturn(getterChain[getterChain.length - 1].underlyingExistsCodegen(ref(lastName), codegenMethodScope, codegenClassScope));
         }
     }
 }

@@ -11,10 +11,11 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
@@ -24,7 +25,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Collection;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprDotMethodForgeNoDuckEvalWrapArray extends ExprDotMethodForgeNoDuckEvalPlain {
@@ -46,11 +47,13 @@ public class ExprDotMethodForgeNoDuckEvalWrapArray extends ExprDotMethodForgeNoD
         return EPTypeHelper.collectionOfSingleValue(forge.getMethod().getReturnType().getComponentType());
     }
 
-    public static CodegenExpression codegenWrapArray(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegenWrapArray(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDotMethodForgeNoDuckEvalWrapArray.class).addParam(innerType, "target");
+
         Class returnType = forge.getMethod().getReturnType();
-        CodegenMethodId method = context.addMethod(Collection.class, ExprDotMethodForgeNoDuckEvalWrapArray.class).add(innerType, "target").add(params).begin()
-                .declareVar(JavaClassHelper.getBoxedType(returnType), "array", ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("target"), innerType, context, params))
-                .methodReturn(CollectionUtil.arrayToCollectionAllowNullCodegen(returnType, ref("array"), context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        methodNode.getBlock()
+                .declareVar(JavaClassHelper.getBoxedType(returnType), "array", ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("target"), innerType, methodNode, exprSymbol, codegenClassScope))
+                .methodReturn(CollectionUtil.arrayToCollectionAllowNullCodegen(methodNode, returnType, ref("array")));
+        return localMethod(methodNode, inner);
     }
 }

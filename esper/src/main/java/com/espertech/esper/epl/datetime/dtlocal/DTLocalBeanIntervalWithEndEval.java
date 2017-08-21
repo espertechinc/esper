@@ -12,15 +12,16 @@ package com.espertech.esper.epl.datetime.dtlocal;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class DTLocalBeanIntervalWithEndEval implements DTLocalEvaluator {
@@ -46,17 +47,19 @@ public class DTLocalBeanIntervalWithEndEval implements DTLocalEvaluator {
         return inner.evaluate(start, end, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalBeanIntervalWithEndForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(Boolean.class, DTLocalBeanIntervalWithEndEval.class).add(EventBean.class, "target").add(params).begin();
-        block.declareVar(forge.getterStartReturnType, "start", CodegenLegoCast.castSafeFromObjectType(forge.getterStartReturnType, forge.getterStartTimestamp.eventBeanGetCodegen(ref("target"), context)));
+    public static CodegenExpression codegen(DTLocalBeanIntervalWithEndForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalBeanIntervalWithEndEval.class).addParam(EventBean.class, "target");
+
+        CodegenBlock block = methodNode.getBlock();
+        block.declareVar(forge.getterStartReturnType, "start", CodegenLegoCast.castSafeFromObjectType(forge.getterStartReturnType, forge.getterStartTimestamp.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)));
         if (!forge.getterStartReturnType.isPrimitive()) {
             block.ifRefNullReturnNull("start");
         }
-        block.declareVar(forge.getterEndReturnType, "end", CodegenLegoCast.castSafeFromObjectType(forge.getterEndReturnType, forge.getterEndTimestamp.eventBeanGetCodegen(ref("target"), context)));
+        block.declareVar(forge.getterEndReturnType, "end", CodegenLegoCast.castSafeFromObjectType(forge.getterEndReturnType, forge.getterEndTimestamp.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)));
         if (!forge.getterEndReturnType.isPrimitive()) {
             block.ifRefNullReturnNull("end");
         }
-        CodegenMethodId method = block.methodReturn(forge.inner.codegen(ref("start"), ref("end"), params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        block.methodReturn(forge.inner.codegen(ref("start"), ref("end"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 }

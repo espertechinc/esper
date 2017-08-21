@@ -12,12 +12,15 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.DecoratingEventBean;
 import com.espertech.esper.event.EventAdapterService;
@@ -42,8 +45,9 @@ public class EvalInsertWildcardSSWrapper extends EvalBaseMap implements SelectEx
         return processSelectExprSSWrapper(props, eventsPerStream, evaluators.length == 0, super.getEventAdapterService(), super.resultEventType);
     }
 
-    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetSelectPremade params, CodegenContext codegenContext) {
-        return staticMethod(EvalInsertWildcardSSWrapper.class, "processSelectExprSSWrapper", props, params.passEPS(), constant(context.getExprForges().length == 0), member(memberEventAdapterService.getMemberId()), member(memberResultEventType.getMemberId()));
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenMethodNode methodNode, SelectExprProcessorCodegenSymbol selectEnv, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        return staticMethod(EvalInsertWildcardSSWrapper.class, "processSelectExprSSWrapper", props, refEPS, constant(context.getExprForges().length == 0), member(memberEventAdapterService.getMemberId()), member(memberResultEventType.getMemberId()));
     }
 
     /**

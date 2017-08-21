@@ -12,12 +12,13 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.core.service.StatementResultService;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.NaturalEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -97,21 +98,28 @@ public class SelectExprResultProcessor implements SelectExprProcessor, SelectExp
         return new NaturalEventBean(syntheticEventType, parameters, syntheticEvent);
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenMember stmtResultSvc = context.makeAddMember(StatementResultService.class, statementResultService);
-        CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode processMethod = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenExpressionRef isSythesize = selectSymbol.getAddSynthesize(processMethod);
+
+        CodegenMethodNode syntheticMethod = syntheticProcessorForge.processCodegen(memberResultEventType, memberEventAdapterService, processMethod, selectSymbol, exprSymbol, codegenClassScope);
+        CodegenMethodNode bindMethod = bindProcessorForge.processCodegen(processMethod, exprSymbol, codegenClassScope);
+
+        CodegenMember stmtResultSvc = codegenClassScope.makeAddMember(StatementResultService.class, statementResultService);
+        processMethod.getBlock()
                 .declareVar(boolean.class, "makeNatural", exprDotMethod(member(stmtResultSvc.getMemberId()), "isMakeNatural"))
-                .declareVar(boolean.class, "synthesize", or(exprDotMethod(member(stmtResultSvc.getMemberId()), "isMakeSynthetic"), params.passIsSynthesize()))
+                .declareVar(boolean.class, "synthesize", or(exprDotMethod(member(stmtResultSvc.getMemberId()), "isMakeSynthetic"), isSythesize))
                 .ifCondition(not(ref("makeNatural")))
-                    .ifCondition(ref("synthesize"))
-                        .blockReturn(syntheticProcessorForge.processCodegen(memberResultEventType, memberEventAdapterService, params, context))
-                    .blockReturn(constantNull())
+                .ifCondition(ref("synthesize"))
+                .blockReturn(localMethod(syntheticMethod))
+                .blockReturn(constantNull())
                 .declareVar(EventBean.class, "syntheticEvent", constantNull())
                 .ifCondition(ref("synthesize"))
-                        .assignRef("syntheticEvent", syntheticProcessorForge.processCodegen(memberResultEventType, memberEventAdapterService, params, context))
-                        .blockEnd()
-                .declareVar(Object[].class, "parameters", bindProcessorForge.processCodegen(params, context))
+                .assignRef("syntheticEvent", localMethod(syntheticMethod))
+                .blockEnd()
+                .declareVar(Object[].class, "parameters", localMethod(bindMethod))
                 .methodReturn(newInstance(NaturalEventBean.class, member(memberResultEventType.getMemberId()), ref("parameters"), ref("syntheticEvent")));
-        return localMethodBuild(method).passAll(params).call();
+
+        return processMethod;
     }
 }

@@ -8,26 +8,16 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.model.method;
-
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
+package com.espertech.esper.codegen.base;
 
 import java.util.Map;
-import java.util.Set;
 
-public class CodegenPassSetSingle extends CodegenPassSet {
+public class CodegenSymbolProviderEmpty implements CodegenSymbolProvider {
+    public final static CodegenSymbolProviderEmpty INSTANCE = new CodegenSymbolProviderEmpty();
 
-    private final CodegenExpression expression;
-
-    public CodegenPassSetSingle(CodegenExpression expression) {
-        this.expression = expression;
+    private CodegenSymbolProviderEmpty() {
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        expression.render(builder, imports);
-    }
-
-    public void mergeClasses(Set<Class> classes) {
-        expression.mergeClasses(classes);
+    public void provide(Map<String, Class> symbols) {
     }
 }

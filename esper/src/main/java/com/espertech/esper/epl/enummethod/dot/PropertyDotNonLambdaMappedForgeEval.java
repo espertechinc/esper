@@ -11,10 +11,12 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
@@ -39,13 +41,16 @@ public class PropertyDotNonLambdaMappedForgeEval implements ExprEvaluator {
         return forge.getMappedGetter().get(event, key);
     }
 
-    public static CodegenExpression codegen(PropertyDotNonLambdaMappedForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMethodId method = context.addMethod(forge.getEvaluationType(), PropertyDotNonLambdaMappedForgeEval.class).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(forge.getStreamId())))
+    public static CodegenExpression codegen(PropertyDotNonLambdaMappedForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), PropertyDotNonLambdaMappedForgeEval.class);
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamId())))
                 .ifRefNullReturnNull("event")
-                .declareVar(String.class, "key", forge.getParamForge().evaluateCodegen(params, context))
-                .methodReturn(forge.getMappedGetter().eventBeanGetMappedCodegen(context, ref("event"), ref("key")));
-        return localMethodBuild(method).passAll(params).call();
+                .declareVar(String.class, "key", forge.getParamForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .methodReturn(forge.getMappedGetter().eventBeanGetMappedCodegen(methodNode, codegenClassScope, ref("event"), ref("key")));
+        return localMethod(methodNode);
     }
 
 }

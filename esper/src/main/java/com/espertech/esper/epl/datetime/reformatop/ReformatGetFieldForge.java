@@ -12,13 +12,14 @@ package com.espertech.esper.epl.datetime.reformatop;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarFieldEnum;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
@@ -56,13 +57,15 @@ public class ReformatGetFieldForge implements ReformatForge, ReformatOp {
         return action(cal);
     }
 
-    public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        CodegenMethodId method = context.addMethod(int.class, ReformatGetFieldForge.class).add(long.class, "ts").add(params).begin()
+    public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatGetFieldForge.class).addParam(long.class, "ts");
+
+        CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
+        methodNode.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
-                .expression(timeAbacus.calendarSetCodegen(ref("ts"), ref("cal"), context))
+                .expression(timeAbacus.calendarSetCodegen(ref("ts"), ref("cal"), methodNode, codegenClassScope))
                 .methodReturn(actionCodegen(ref("cal")));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        return localMethod(methodNode, inner);
     }
 
     public Object evaluate(Date d, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -71,20 +74,22 @@ public class ReformatGetFieldForge implements ReformatForge, ReformatOp {
         return action(cal);
     }
 
-    public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        CodegenMethodId method = context.addMethod(int.class, ReformatGetFieldForge.class).add(Date.class, "d").add(params).begin()
+    public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatGetFieldForge.class).addParam(Date.class, "d");
+
+        methodNode.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .exprDotMethod(ref("cal"), "setTimeInMillis", exprDotMethod(ref("d"), "getTime"))
                 .methodReturn(actionCodegen(ref("cal")));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        return localMethod(methodNode, inner);
     }
 
     public Object evaluate(Calendar cal, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
         return action(cal);
     }
 
-    public CodegenExpression codegenCal(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return actionCodegen(inner);
     }
 
@@ -92,7 +97,7 @@ public class ReformatGetFieldForge implements ReformatForge, ReformatOp {
         return ldt.get(fieldNum.getChronoField());
     }
 
-    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return codegenJava8Get(inner);
     }
 
@@ -100,7 +105,7 @@ public class ReformatGetFieldForge implements ReformatForge, ReformatOp {
         return zdt.get(fieldNum.getChronoField());
     }
 
-    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return codegenJava8Get(inner);
     }
 

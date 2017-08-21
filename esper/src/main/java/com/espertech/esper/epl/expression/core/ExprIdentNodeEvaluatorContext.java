@@ -11,11 +11,13 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
@@ -47,12 +49,15 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
         return null;
     }
 
-    public CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(resultType, this.getClass()).add(params).begin()
-                .ifCondition(notEqualsNull(params.passEvalCtx()))
-                .blockReturn(CodegenLegoCast.castSafeFromObjectType(resultType, getter.eventBeanGetCodegen(exprDotMethod(params.passEvalCtx(), "getContextProperties"), context)))
+    public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(resultType, this.getClass());
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        methodNode.getBlock()
+                .ifCondition(notEqualsNull(refExprEvalCtx))
+                .blockReturn(CodegenLegoCast.castSafeFromObjectType(resultType, getter.eventBeanGetCodegen(exprDotMethod(refExprEvalCtx, "getContextProperties"), methodNode, codegenClassScope)))
                 .methodReturn(constantNull());
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public Class getEvaluationType() {

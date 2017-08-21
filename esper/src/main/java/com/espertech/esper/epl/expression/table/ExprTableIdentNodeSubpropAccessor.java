@@ -12,15 +12,16 @@ package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.accessagg.ExprAggregateAccessMultiValueNode;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalStrategyUtil;
@@ -58,8 +59,8 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Class getEvaluationType() {
@@ -82,8 +83,8 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return this;
     }
 
-    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, params, context);
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionEvents(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -122,8 +123,8 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return accessor.getEnumerableScalar(state, eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, params, context);
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetROCollectionScalar(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
@@ -138,8 +139,8 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return accessor.getEnumerableEvent(state, eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, params, context);
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CodegenLegoEvaluateSelf.evaluateSelfGetEventBean(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

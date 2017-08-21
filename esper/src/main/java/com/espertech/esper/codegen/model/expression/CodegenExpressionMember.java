@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
-import com.espertech.esper.codegen.core.CodegenMemberId;
+import com.espertech.esper.codegen.base.CodegenMemberId;
 
 import java.util.Map;
 import java.util.Set;

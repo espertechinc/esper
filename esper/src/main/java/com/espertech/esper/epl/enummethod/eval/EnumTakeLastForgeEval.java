@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -26,9 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class EnumTakeLastForgeEval implements EnumEval {
 
@@ -47,16 +46,18 @@ public class EnumTakeLastForgeEval implements EnumEval {
         return evaluateEnumMethodTakeLast(enumcoll, ((Number) sizeObj).intValue());
     }
 
-    public static CodegenExpression codegen(EnumTakeLastForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public static CodegenExpression codegen(EnumTakeLastForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class sizeType = forge.sizeEval.getEvaluationType();
-        CodegenBlock block = context.addMethod(Collection.class, EnumTakeLastForgeEval.class).add(premade).begin()
-                .declareVar(sizeType, "size", forge.sizeEval.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context));
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeLastForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock().declareVar(sizeType, "size", forge.sizeEval.evaluateCodegen(methodNode, scope, codegenClassScope));
         if (!sizeType.isPrimitive()) {
             block.ifRefNullReturnNull("size");
         }
-        CodegenMethodId method = block.methodReturn(staticMethod(EnumTakeLastForgeEval.class, "evaluateEnumMethodTakeLast", premade.enumcoll(), SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("size"), sizeType)));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(staticMethod(EnumTakeLastForgeEval.class, "evaluateEnumMethodTakeLast", EnumForgeCodegenNames.REF_ENUMCOLL, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("size"), sizeType)));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 
     public static Collection evaluateEnumMethodTakeLast(Collection enumcoll, int size) {

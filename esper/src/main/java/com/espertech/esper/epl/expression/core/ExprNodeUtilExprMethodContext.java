@@ -13,11 +13,13 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.hook.EventBeanService;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 
 import java.io.StringWriter;
 
@@ -47,19 +49,22 @@ public class ExprNodeUtilExprMethodContext implements ExprForge, ExprEvaluator, 
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenExpression stmtName = exprDotMethod(params.passEvalCtx(), "getStatementName");
-        CodegenExpression cpid = exprDotMethod(params.passEvalCtx(), "getAgentInstanceId");
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EPLMethodInvocationContext.class, ExprNodeUtilExprMethodContext.class);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        CodegenExpression stmtName = exprDotMethod(refExprEvalCtx, "getStatementName");
+        CodegenExpression cpid = exprDotMethod(refExprEvalCtx, "getAgentInstanceId");
         CodegenExpression engineURI = constant(defaultContextForFilters.getEngineURI());
         CodegenExpression functionName = constant(defaultContextForFilters.getFunctionName());
-        CodegenExpression userObject = exprDotMethod(params.passEvalCtx(), "getStatementUserObject");
-        CodegenMember defaultCtx = context.makeAddMember(EPLMethodInvocationContext.class, defaultContextForFilters);
-        CodegenMethodId method = context.addMethod(EPLMethodInvocationContext.class, ExprNodeUtilExprMethodContext.class).add(params).begin()
-                .ifCondition(equalsNull(params.passEvalCtx()))
+        CodegenExpression userObject = exprDotMethod(refExprEvalCtx, "getStatementUserObject");
+        CodegenMember defaultCtx = codegenClassScope.makeAddMember(EPLMethodInvocationContext.class, defaultContextForFilters);
+        methodNode.getBlock()
+                .ifCondition(equalsNull(refExprEvalCtx))
                 .blockReturn(member(defaultCtx.getMemberId()))
                 .methodReturn(newInstance(EPLMethodInvocationContext.class, stmtName, cpid, engineURI, functionName, userObject,
                         exprDotMethod(member(defaultCtx.getMemberId()), "getEventBeanService")));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public Class getEvaluationType() {

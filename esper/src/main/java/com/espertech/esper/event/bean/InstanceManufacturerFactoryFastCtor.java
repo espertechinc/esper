@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.ops.ExprNewInstanceNodeForge;
@@ -33,8 +34,8 @@ public class InstanceManufacturerFactoryFastCtor implements InstanceManufacturer
         return new InstanceManufacturerFastCtor(this, ExprNodeUtility.getEvaluatorsNoCompile(forges));
     }
 
-    public CodegenExpression codegen(ExprNewInstanceNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        return InstanceManufacturerFastCtor.codegen(context, targetClass, forges, params);
+    public CodegenExpression codegen(ExprNewInstanceNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return InstanceManufacturerFastCtor.codegen(codegenMethodScope, exprSymbol, codegenClassScope, targetClass, forges);
     }
 
     public Class getTargetClass() {

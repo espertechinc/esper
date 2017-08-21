@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -224,7 +225,7 @@ public class ExprRelationalOpAllAnyNodeForgeEval implements ExprEvaluator {
         }
     }
 
-    public static CodegenExpression codegen(ExprRelationalOpAllAnyNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprRelationalOpAllAnyNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
         Class valueLeftType = forges[0].getEvaluationType();
         boolean isAll = forge.getForgeRenderable().isAll();
@@ -232,15 +233,17 @@ public class ExprRelationalOpAllAnyNodeForgeEval implements ExprEvaluator {
             return constant(isAll);
         }
 
-        CodegenBlock block = context.addMethod(Boolean.class, ExprRelationalOpAllAnyNodeForgeEval.class).add(params).begin()
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRelationalOpAllAnyNodeForgeEval.class);
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(boolean.class, "hasNonNullRow", constantFalse())
-                .declareVar(valueLeftType, "valueLeft", forges[0].evaluateCodegen(params, context));
+                .declareVar(valueLeftType, "valueLeft", forges[0].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
 
         for (int i = 1; i < forges.length; i++) {
             ExprForge refforge = forges[i];
             String refname = "r" + i;
             Class reftype = refforge.getEvaluationType();
-            block.declareVar(reftype, refname, refforge.evaluateCodegen(params, context));
+            block.declareVar(reftype, refname, refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
 
             if (JavaClassHelper.isImplementsInterface(reftype, Collection.class)) {
                 CodegenBlock blockIfNotNull = block.ifCondition(notEqualsNull(ref(refname)));
@@ -342,7 +345,7 @@ public class ExprRelationalOpAllAnyNodeForgeEval implements ExprEvaluator {
         if (!valueLeftType.isPrimitive()) {
             block.ifRefNullReturnNull("valueLeft");
         }
-        CodegenMethodId method = block.methodReturn(constant(isAll));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(constant(isAll));
+        return localMethod(methodNode);
     }
 }

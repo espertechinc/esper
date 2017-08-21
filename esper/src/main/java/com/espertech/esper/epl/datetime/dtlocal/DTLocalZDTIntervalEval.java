@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.datetime.dtlocal;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
 import com.espertech.esper.epl.datetime.interval.IntervalOp;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.ZonedDateTime;
@@ -34,11 +35,13 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
         return intervalOp.evaluate(time, time, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Boolean.class, DTLocalZDTIntervalEval.class).add(ZonedDateTime.class, "target").add(params).begin()
+    public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class).addParam(ZonedDateTime.class, "target");
+
+        methodNode.getBlock()
                 .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")))
-                .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+                .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 
     public Object evaluate(Object startTimestamp, Object endTimestamp, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -47,11 +50,13 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
         return intervalOp.evaluate(start, end, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression start, CodegenExpression end, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Boolean.class, DTLocalZDTIntervalEval.class).add(ZonedDateTime.class, "startTimestamp").add(ZonedDateTime.class, "endTimestamp").add(params).begin()
+    public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class).addParam(ZonedDateTime.class, "startTimestamp").addParam(ZonedDateTime.class, "endTimestamp");
+
+        methodNode.getBlock()
                 .declareVar(long.class, "start", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("startTimestamp")))
                 .declareVar(long.class, "end", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("endTimestamp")))
-                .methodReturn(forge.intervalForge.codegen(ref("start"), ref("end"), params, context));
-        return localMethodBuild(method).pass(start).pass(end).passAll(params).call();
+                .methodReturn(forge.intervalForge.codegen(ref("start"), ref("end"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, start, end);
     }
 }

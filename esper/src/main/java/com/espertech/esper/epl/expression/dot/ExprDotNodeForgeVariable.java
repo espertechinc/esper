@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.enummethod.dot.ExprDotStaticMethodWrap;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
@@ -38,8 +39,8 @@ public class ExprDotNodeForgeVariable extends ExprDotNodeForge {
         return new ExprDotNodeForgeVariableEval(this, ExprDotNodeUtility.getEvaluators(chainForge));
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return ExprDotNodeForgeVariableEval.codegen(this, params, context);
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ExprDotNodeForgeVariableEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

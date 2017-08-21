@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.enummethod.eval;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 
@@ -31,7 +32,7 @@ public class EnumSumScalarLambdaForge extends EnumForgeBase {
         return new EnumSumScalarLambdaForgeEval(this, innerExpression.getExprEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade premade, CodegenContext context) {
-        return EnumSumScalarLambdaForgeEval.codegen(this, premade, context);
+    public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return EnumSumScalarLambdaForgeEval.codegen(this, premade, codegenMethodScope, codegenClassScope);
     }
 }

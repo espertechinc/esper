@@ -11,14 +11,15 @@
 package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDeltaNonConst {
@@ -33,11 +34,13 @@ public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDe
         return forge.getTimeAbacus().deltaForSecondsDouble(d);
     }
 
-    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(long.class, ExprTimePeriodEvalDeltaNonConstMsec.class).add(long.class, "currentTime").add(params).begin()
-                .declareVar(double.class, "d", forge.evaluateAsSecondsCodegen(params, context))
-                .methodReturn(forge.getTimeAbacus().deltaForSecondsDoubleCodegen(ref("d"), context));
-        return localMethodBuild(method).pass(reference).passAll(params).call();
+    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaNonConstMsec.class).addParam(long.class, "currentTime");
+
+        methodNode.getBlock()
+                .declareVar(double.class, "d", forge.evaluateAsSecondsCodegen(methodNode, exprSymbol, codegenClassScope))
+                .methodReturn(forge.getTimeAbacus().deltaForSecondsDoubleCodegen(ref("d"), codegenClassScope));
+        return localMethod(methodNode, reference);
     }
 
     public long deltaSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

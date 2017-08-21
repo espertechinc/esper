@@ -12,9 +12,10 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.bean.BaseNativePropertyGetter;
@@ -53,10 +54,12 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
         return BaseNestableEventUtil.getBeanArrayValue(nestedGetter, value, index);
     }
 
-    private CodegenMethodId getObjectArrayCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
+    private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array");
+        method.getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
-                .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(context, nestedGetter, index), ref("value")));
+                .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(codegenMethodScope, codegenClassScope, nestedGetter, index), ref("value")));
+        return method;
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -72,19 +75,19 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getObjectArrayCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getObjectArrayCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 

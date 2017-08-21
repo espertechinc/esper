@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.epl.datetime.dtlocal;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.interval.IntervalForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 public class DTLocalLongIntervalForge extends DTLocalForgeIntervalBase {
 
@@ -30,11 +31,11 @@ public class DTLocalLongIntervalForge extends DTLocalForgeIntervalBase {
         return new DTLocalLongIntervalEval(intervalForge.getOp());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        return intervalForge.codegen(inner, inner, params, context);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return intervalForge.codegen(inner, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression codegen(CodegenExpressionRef start, CodegenExpressionRef end, CodegenParamSetExprPremade params, CodegenContext context) {
-        return intervalForge.codegen(start, end, params, context);
+    public CodegenExpression codegen(CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return intervalForge.codegen(start, end, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

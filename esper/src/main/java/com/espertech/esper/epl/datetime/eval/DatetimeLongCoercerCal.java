@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.datetime.eval;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 import java.util.Calendar;
@@ -22,7 +22,7 @@ public class DatetimeLongCoercerCal implements DatetimeLongCoercer {
         return ((Calendar) date).getTimeInMillis();
     }
 
-    public CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenContext context) {
+    public CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenClassScope codegenClassScope) {
         if (valueType != Calendar.class) {
             throw new IllegalStateException("Expected a Calendar type");
         }

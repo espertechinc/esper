@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.util.EPLExpressionParamType;
@@ -81,8 +82,8 @@ public class EngineImportApplicationDotMethodPointInsideRectange extends EngineI
             return new PointIntersectsRectangleEvaluator(pxEval.getExprEvaluator(), pyEval.getExprEvaluator(), xEval.getExprEvaluator(), yEval.getExprEvaluator(), widthEval.getExprEvaluator(), heightEval.getExprEvaluator());
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-            return PointIntersectsRectangleEvaluator.codegen(this, params, context);
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return PointIntersectsRectangleEvaluator.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
 
         public ExprForgeComplexityEnum getComplexity() {
@@ -143,16 +144,18 @@ public class EngineImportApplicationDotMethodPointInsideRectange extends EngineI
             return BoundingBox.containsPoint(x.doubleValue(), y.doubleValue(), width.doubleValue(), height.doubleValue(), px.doubleValue(), py.doubleValue());
         }
 
-        public static CodegenExpression codegen(PointIntersectsRectangleForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenBlock block = context.addMethod(Boolean.class, EngineImportApplicationDotMethodRectangeIntersectsRectangle.RectangleIntersectsRectangleEvaluator.class).add(params).begin();
-            CodegenLegoCast.asDoubleNullReturnNull(block, "px", forge.pxEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "py", forge.pyEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "x", forge.xEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "y", forge.yEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "width", forge.widthEval, params, context);
-            CodegenLegoCast.asDoubleNullReturnNull(block, "height", forge.heightEval, params, context);
-            CodegenMethodId method = block.methodReturn(staticMethod(BoundingBox.class, "containsPoint", ref("x"), ref("y"), ref("width"), ref("height"), ref("px"), ref("py")));
-            return localMethodBuild(method).passAll(params).call();
+        public static CodegenExpression codegen(PointIntersectsRectangleForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, EngineImportApplicationDotMethodRectangeIntersectsRectangle.RectangleIntersectsRectangleEvaluator.class);
+
+            CodegenBlock block = methodNode.getBlock();
+            CodegenLegoCast.asDoubleNullReturnNull(block, "px", forge.pxEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "py", forge.pyEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "x", forge.xEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "y", forge.yEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "width", forge.widthEval, methodNode, exprSymbol, codegenClassScope);
+            CodegenLegoCast.asDoubleNullReturnNull(block, "height", forge.heightEval, methodNode, exprSymbol, codegenClassScope);
+            block.methodReturn(staticMethod(BoundingBox.class, "containsPoint", ref("x"), ref("y"), ref("width"), ref("height"), ref("px"), ref("py")));
+            return localMethod(methodNode);
         }
 
     }

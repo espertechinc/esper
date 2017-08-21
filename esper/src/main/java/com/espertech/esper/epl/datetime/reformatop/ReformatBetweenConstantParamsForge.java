@@ -12,11 +12,12 @@ package com.espertech.esper.epl.datetime.reformatop;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.*;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -98,8 +99,8 @@ public class ReformatBetweenConstantParamsForge implements ReformatForge, Reform
         return evaluateInternal(d.getTime());
     }
 
-    public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return codegenLong(exprDotMethod(inner, "getTime"), params, context);
+    public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return codegenLong(exprDotMethod(inner, "getTime"), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluate(Calendar cal, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -109,8 +110,8 @@ public class ReformatBetweenConstantParamsForge implements ReformatForge, Reform
         return evaluateInternal(cal.getTimeInMillis());
     }
 
-    public CodegenExpression codegenCal(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return codegenLong(exprDotMethod(inner, "getTimeInMillis"), params, context);
+    public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return codegenLong(exprDotMethod(inner, "getTimeInMillis"), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -120,9 +121,9 @@ public class ReformatBetweenConstantParamsForge implements ReformatForge, Reform
         return evaluateInternal(DatetimeLongCoercerLocalDateTime.coerceLDTToMilliWTimezone(ldt, timeZone));
     }
 
-    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-        return codegenLong(staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, member(tz.getMemberId())), params, context);
+    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
+        return codegenLong(staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, member(tz.getMemberId())), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -132,15 +133,15 @@ public class ReformatBetweenConstantParamsForge implements ReformatForge, Reform
         return evaluateInternal(DatetimeLongCoercerZonedDateTime.coerceZDTToMillis(zdt));
     }
 
-    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return codegenLong(staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", inner), params, context);
+    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return codegenLong(staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", inner), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluateInternal(long ts) {
         return first <= ts && ts <= second;
     }
 
-    public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return and(relational(constant(first), LE, inner), relational(inner, LE, constant(second)));
     }
 

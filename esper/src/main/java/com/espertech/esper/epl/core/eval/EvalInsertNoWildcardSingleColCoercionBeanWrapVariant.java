@@ -12,11 +12,12 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 
 import java.util.Collections;
@@ -38,9 +39,9 @@ public class EvalInsertNoWildcardSingleColCoercionBeanWrapVariant extends EvalBa
         return super.getEventAdapterService().adapterForTypedWrapper(variant, Collections.emptyMap(), super.getResultEventType());
     }
 
-    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenContext context) {
-        CodegenMember processor = context.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
-        CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(evaluationType, "result").begin()
+    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember processor = codegenClassScope.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
+        CodegenMethodNode method = codegenMethodScope.makeChild(EventBean.class, this.getClass()).addParam(evaluationType, "result").getBlock()
                 .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("result")))
                 .declareVar(EventBean.class, "variant", exprDotMethod(member(processor.getMemberId()), "getValueAddEventBean", ref("wrappedEvent")))
                 .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", ref("variant"), staticMethod(Collections.class, "emptyMap"), member(memberResultEventType.getMemberId())));

@@ -14,9 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.util.CountMinSketchAgent;
 import com.espertech.esper.client.util.CountMinSketchAgentStringUTF16;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.factory.AggregationStateFactoryCountMinSketch;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
@@ -25,6 +25,8 @@ import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.approx.CountMinSketchSpecHashes;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.event.EventAdapterService;
@@ -103,11 +105,11 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return null;
     }
 
-    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return null;
     }
 
-    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
@@ -119,7 +121,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return null;
     }
 
-    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 

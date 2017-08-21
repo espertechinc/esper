@@ -12,12 +12,14 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -93,12 +95,14 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
         return result;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(getEvaluationType(), ExprContextPropertyNodeImpl.class).add(params.receiveEvalCtx()).begin()
-                .declareVar(EventBean.class, "props", exprDotMethod(params.passEvalCtx(), "getContextProperties"))
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(getEvaluationType(), ExprContextPropertyNodeImpl.class);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(EventBean.class, "props", exprDotMethod(refExprEvalCtx, "getContextProperties"))
                 .ifRefNullReturnNull("props");
-        CodegenMethodId method = block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("props"), context)));
-        return localMethodBuild(method).pass(params.passEvalCtx()).call();
+        block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getter.eventBeanGetCodegen(ref("props"), methodNode, codegenClassScope)));
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

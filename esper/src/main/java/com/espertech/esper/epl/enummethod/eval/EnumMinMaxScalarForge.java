@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -71,14 +72,13 @@ public class EnumMinMaxScalarForge extends EnumForgeBase implements EnumForge, E
         return minKey;
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerTypeBoxed = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
 
-        CodegenBlock block = context.addMethod(innerTypeBoxed, EnumMinMaxEventsForgeEval.class).add(premade).begin()
+        CodegenBlock block = codegenMethodScope.makeChild(innerTypeBoxed, EnumMinMaxEventsForgeEval.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .declareVar(innerTypeBoxed, "minKey", constantNull());
 
-        CodegenBlock forEach = block.forEach(Object.class, "value", premade.enumcoll())
+        CodegenBlock forEach = block.forEach(Object.class, "value", EnumForgeCodegenNames.REF_ENUMCOLL)
             .ifRefNull("value").blockContinue();
 
         forEach.ifCondition(equalsNull(ref("minKey")))
@@ -87,7 +87,7 @@ public class EnumMinMaxScalarForge extends EnumForgeBase implements EnumForge, E
                 .ifCondition(relational(exprDotMethod(ref("minKey"), "compareTo", ref("value")), max ? LT : GT, constant(0)))
                 .assignRef("minKey", cast(innerTypeBoxed, ref("value")));
 
-        CodegenMethodId method = block.methodReturn(ref("minKey"));
-        return localMethodBuild(method).passAll(args).call();
+        CodegenMethodNode method = block.methodReturn(ref("minKey"));
+        return localMethod(method, args.getExpressions());
     }
 }

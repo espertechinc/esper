@@ -13,10 +13,11 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import org.apache.avro.generic.GenericData;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
@@ -53,27 +54,27 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
         return getAvroFieldValuePolyExists(record, getters);
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getAvroFieldValuePolyCodegen(context, getters), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getAvroFieldValuePolyCodegen(codegenMethodScope, codegenClassScope, getters), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
@@ -85,12 +86,12 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
         return record != null && getters[getters.length - 1].isExistsPropertyAvro(record);
     }
 
-    static CodegenMethodId getAvroFieldValuePolyExistsCodegen(CodegenContext context, AvroEventPropertyGetter[] getters) {
-        return context.addMethod(boolean.class, AvroEventBeanGetterDynamicPoly.class).add(GenericData.Record.class, "record").begin()
+    static CodegenMethodNode getAvroFieldValuePolyExistsCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, AvroEventPropertyGetter[] getters) {
+        return codegenMethodScope.makeChild(boolean.class, AvroEventBeanGetterDynamicPoly.class).addParam(GenericData.Record.class, "record").getBlock()
                 .ifRefNullReturnFalse("record")
-                .assignRef("record", localMethod(navigatePolyCodegen(context, getters), ref("record")))
+                .assignRef("record", localMethod(navigatePolyCodegen(codegenMethodScope, codegenClassScope, getters), ref("record")))
                 .ifRefNullReturnFalse("record")
-                .methodReturn(getters[getters.length - 1].underlyingExistsCodegen(ref("record"), context));
+                .methodReturn(getters[getters.length - 1].underlyingExistsCodegen(ref("record"), codegenMethodScope, codegenClassScope));
     }
 
     static Object getAvroFieldValuePoly(GenericData.Record record, AvroEventPropertyGetter[] getters) {
@@ -104,12 +105,12 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
         return getters[getters.length - 1].getAvroFieldValue(record);
     }
 
-    static CodegenMethodId getAvroFieldValuePolyCodegen(CodegenContext context, AvroEventPropertyGetter[] getters) {
-        return context.addMethod(Object.class, AvroEventBeanGetterDynamicPoly.class).add(GenericData.Record.class, "record").begin()
+    static CodegenMethodNode getAvroFieldValuePolyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, AvroEventPropertyGetter[] getters) {
+        return codegenMethodScope.makeChild(Object.class, AvroEventBeanGetterDynamicPoly.class).addParam(GenericData.Record.class, "record").getBlock()
                 .ifRefNullReturnNull("record")
-                .assignRef("record", localMethod(navigatePolyCodegen(context, getters), ref("record")))
+                .assignRef("record", localMethod(navigatePolyCodegen(codegenMethodScope, codegenClassScope, getters), ref("record")))
                 .ifRefNullReturnNull("record")
-                .methodReturn(getters[getters.length - 1].underlyingGetCodegen(ref("record"), context));
+                .methodReturn(getters[getters.length - 1].underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope));
     }
 
     static Object getAvroFieldFragmentPoly(GenericData.Record record, AvroEventPropertyGetter[] getters) {
@@ -123,12 +124,12 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
         return getters[getters.length - 1].getAvroFragment(record);
     }
 
-    static CodegenMethodId getAvroFieldFragmentPolyCodegen(CodegenContext context, AvroEventPropertyGetter[] getters) {
-        return context.addMethod(Object.class, AvroEventBeanGetterDynamicPoly.class).add(GenericData.Record.class, "record").begin()
+    static CodegenMethodNode getAvroFieldFragmentPolyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, AvroEventPropertyGetter[] getters) {
+        return codegenMethodScope.makeChild(Object.class, AvroEventBeanGetterDynamicPoly.class).addParam(GenericData.Record.class, "record").getBlock()
                 .ifRefNullReturnNull("record")
-                .assignRef("record", localMethod(navigatePolyCodegen(context, getters), ref("record")))
+                .assignRef("record", localMethod(navigatePolyCodegen(codegenMethodScope, codegenClassScope, getters), ref("record")))
                 .ifRefNullReturnNull("record")
-                .methodReturn(getters[getters.length - 1].underlyingFragmentCodegen(ref("record"), context));
+                .methodReturn(getters[getters.length - 1].underlyingFragmentCodegen(ref("record"), codegenMethodScope, codegenClassScope));
     }
 
     private static GenericData.Record navigatePoly(GenericData.Record record, AvroEventPropertyGetter[] getters) {
@@ -142,11 +143,11 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
         return record;
     }
 
-    private static CodegenMethodId navigatePolyCodegen(CodegenContext context, AvroEventPropertyGetter[] getters) {
-        CodegenBlock block = context.addMethod(GenericData.Record.class, AvroEventBeanGetterDynamicPoly.class).add(GenericData.Record.class, "record").begin();
+    private static CodegenMethodNode navigatePolyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, AvroEventPropertyGetter[] getters) {
+        CodegenBlock block = codegenMethodScope.makeChild(GenericData.Record.class, AvroEventBeanGetterDynamicPoly.class).addParam(GenericData.Record.class, "record").getBlock();
         block.declareVar(Object.class, "value", constantNull());
         for (int i = 0; i < getters.length - 1; i++) {
-            block.assignRef("value", getters[i].underlyingGetCodegen(ref("record"), context))
+            block.assignRef("value", getters[i].underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
                     .ifRefNotTypeReturnConst("value", GenericData.Record.class, null)
                     .assignRef("record", cast(GenericData.Record.class, ref("value")));
         }

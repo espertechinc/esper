@@ -13,11 +13,12 @@ package com.espertech.esper.epl.expression.time;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.util.TimePeriod;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -82,7 +83,7 @@ public class ExprTimePeriodForge implements ExprForge {
         };
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         throw new IllegalStateException("Time period evaluator does not have a code representation");
     }
 
@@ -146,18 +147,20 @@ public class ExprTimePeriodForge implements ExprForge {
         return new EPException("Failed to evaluate time period, received a null value for '" + expressionText + "'");
     }
 
-    public CodegenExpression evaluateAsSecondsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(double.class, ExprTimePeriodForge.class).add(params).begin()
+    public CodegenExpression evaluateAsSecondsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(double.class, ExprTimePeriodForge.class);
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(double.class, "seconds", constant(0))
                 .declareVarNoInit(Double.class, "result");
         for (int i = 0; i < parent.getChildNodes().length; i++) {
             ExprForge forge = parent.getChildNodes()[i].getForge();
-            block.assignRef("result", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDoubleMayNullBoxedIncludeBig(forge.evaluateCodegen(params, context), forge.getEvaluationType(), context));
+            block.assignRef("result", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDoubleMayNullBoxedIncludeBig(forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.getEvaluationType(), methodNode));
             block.ifRefNull("result").blockThrow(staticMethod(ExprTimePeriodForge.class, "makeTimePeriodParamNullException", constant(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this.parent))));
             block.assignRef("seconds", op(ref("seconds"), "+", adders[i].computeCodegen(ref("result"))));
         }
-        CodegenMethodId method = block.methodReturn(ref("seconds"));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(ref("seconds"));
+        return localMethod(methodNode);
     }
 
     private Double eval(ExprEvaluator expr, EventBean[] events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -228,29 +231,31 @@ public class ExprTimePeriodForge implements ExprForge {
         return new TimePeriod(year, month, week, day, hours, minutes, seconds, milliseconds, microseconds);
     }
 
-    public CodegenExpression evaluateGetTimePeriodCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(TimePeriod.class, ExprTimePeriodForge.class).add(params).begin();
+    public CodegenExpression evaluateGetTimePeriodCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(TimePeriod.class, ExprTimePeriodForge.class);
+
+        CodegenBlock block = methodNode.getBlock();
         int counter = 0;
-        counter += evaluateGetTimePeriodCodegenField(block, "year", parent.isHasYear(), counter, params, context);
-        counter += evaluateGetTimePeriodCodegenField(block, "month", parent.isHasMonth(), counter, params, context);
-        counter += evaluateGetTimePeriodCodegenField(block, "week", parent.isHasWeek(), counter, params, context);
-        counter += evaluateGetTimePeriodCodegenField(block, "day", parent.isHasDay(), counter, params, context);
-        counter += evaluateGetTimePeriodCodegenField(block, "hours", parent.isHasHour(), counter, params, context);
-        counter += evaluateGetTimePeriodCodegenField(block, "minutes", parent.isHasMinute(), counter, params, context);
-        counter += evaluateGetTimePeriodCodegenField(block, "seconds", parent.isHasSecond(), counter, params, context);
-        counter += evaluateGetTimePeriodCodegenField(block, "milliseconds", parent.isHasMillisecond(), counter, params, context);
-        evaluateGetTimePeriodCodegenField(block, "microseconds", parent.isHasMicrosecond(), counter, params, context);
-        CodegenMethodId method = block.methodReturn(newInstance(TimePeriod.class, ref("year"), ref("month"), ref("week"), ref("day"), ref("hours"), ref("minutes"), ref("seconds"), ref("milliseconds"), ref("microseconds")));
-        return localMethodBuild(method).passAll(params).call();
+        counter += evaluateGetTimePeriodCodegenField(block, "year", parent.isHasYear(), counter, methodNode, exprSymbol, codegenClassScope);
+        counter += evaluateGetTimePeriodCodegenField(block, "month", parent.isHasMonth(), counter, methodNode, exprSymbol, codegenClassScope);
+        counter += evaluateGetTimePeriodCodegenField(block, "week", parent.isHasWeek(), counter, methodNode, exprSymbol, codegenClassScope);
+        counter += evaluateGetTimePeriodCodegenField(block, "day", parent.isHasDay(), counter, methodNode, exprSymbol, codegenClassScope);
+        counter += evaluateGetTimePeriodCodegenField(block, "hours", parent.isHasHour(), counter, methodNode, exprSymbol, codegenClassScope);
+        counter += evaluateGetTimePeriodCodegenField(block, "minutes", parent.isHasMinute(), counter, methodNode, exprSymbol, codegenClassScope);
+        counter += evaluateGetTimePeriodCodegenField(block, "seconds", parent.isHasSecond(), counter, methodNode, exprSymbol, codegenClassScope);
+        counter += evaluateGetTimePeriodCodegenField(block, "milliseconds", parent.isHasMillisecond(), counter, methodNode, exprSymbol, codegenClassScope);
+        evaluateGetTimePeriodCodegenField(block, "microseconds", parent.isHasMicrosecond(), counter, methodNode, exprSymbol, codegenClassScope);
+        block.methodReturn(newInstance(TimePeriod.class, ref("year"), ref("month"), ref("week"), ref("day"), ref("hours"), ref("minutes"), ref("seconds"), ref("milliseconds"), ref("microseconds")));
+        return localMethod(methodNode);
     }
 
-    private int evaluateGetTimePeriodCodegenField(CodegenBlock block, String variable, boolean present, int counter, CodegenParamSetExprPremade params, CodegenContext context) {
+    private int evaluateGetTimePeriodCodegenField(CodegenBlock block, String variable, boolean present, int counter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!present) {
             block.declareVar(Integer.class, variable, constantNull());
             return 0;
         }
         ExprForge forge = parent.getChildNodes()[counter].getForge();
-        block.declareVar(Integer.class, variable, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.evaluateCodegen(params, context), forge.getEvaluationType(), context));
+        block.declareVar(Integer.class, variable, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType(), codegenMethodScope));
         return 1;
     }
 

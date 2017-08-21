@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.datetime.calop;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -25,9 +26,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Calendar;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class CalendarWithTimeForgeOp implements CalendarOp {
 
@@ -51,11 +50,14 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
         actionSetHMSMCalendar(cal, hourNum, minNum, secNum, msecNum);
     }
 
-    public static CodegenExpression codegenCalendar(CalendarWithTimeForge forge, CodegenExpression cal, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(void.class, CalendarWithTimeForgeOp.class).add(Calendar.class, "cal").add(params).begin();
-        codegenDeclareInts(block, forge, params, context);
+    public static CodegenExpression codegenCalendar(CalendarWithTimeForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarWithTimeForgeOp.class).addParam(Calendar.class, "cal");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
         block.expression(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMCalendar", ref("cal"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
-        return localMethodBuild(block.methodEnd()).pass(cal).passAll(params).call();
+        return localMethod(methodNode, cal);
     }
 
     public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -66,11 +68,14 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
         return actionSetHMSMLocalDateTime(ldt, hourNum, minNum, secNum, msecNum);
     }
 
-    public static CodegenExpression codegenLDT(CalendarWithTimeForge forge, CodegenExpression ldt, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(LocalDateTime.class, CalendarWithTimeForgeOp.class).add(LocalDateTime.class, "ldt").add(params).begin();
-        codegenDeclareInts(block, forge, params, context);
-        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMLocalDateTime", ref("ldt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
-        return localMethodBuild(method).pass(ldt).passAll(params).call();
+    public static CodegenExpression codegenLDT(CalendarWithTimeForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithTimeForgeOp.class).addParam(LocalDateTime.class, "ldt");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
+        block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMLocalDateTime", ref("ldt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
+        return localMethod(methodNode, ldt);
     }
 
     public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -81,11 +86,14 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
         return actionSetHMSMZonedDateTime(zdt, hourNum, minNum, secNum, msecNum);
     }
 
-    public static CodegenExpression codegenZDT(CalendarWithTimeForge forge, CodegenExpression zdt, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(ZonedDateTime.class, CalendarWithTimeForgeOp.class).add(ZonedDateTime.class, "zdt").add(params).begin();
-        codegenDeclareInts(block, forge, params, context);
-        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMZonedDateTime", ref("zdt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
-        return localMethodBuild(method).pass(zdt).passAll(params).call();
+    public static CodegenExpression codegenZDT(CalendarWithTimeForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithTimeForgeOp.class).addParam(ZonedDateTime.class, "zdt");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
+        block.methodReturn(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMZonedDateTime", ref("zdt"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
+        return localMethod(methodNode, zdt);
     }
 
     /**
@@ -161,10 +169,10 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
         return zdt;
     }
 
-    private static void codegenDeclareInts(CodegenBlock block, CalendarWithTimeForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        block.declareVar(Integer.class, "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(params, context), forge.hour.getEvaluationType(), context))
-                .declareVar(Integer.class, "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(params, context), forge.min.getEvaluationType(), context))
-                .declareVar(Integer.class, "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(params, context), forge.sec.getEvaluationType(), context))
-                .declareVar(Integer.class, "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(params, context), forge.msec.getEvaluationType(), context));
+    private static void codegenDeclareInts(CodegenBlock block, CalendarWithTimeForge forge, CodegenMethodNode methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        block.declareVar(Integer.class, "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.hour.getEvaluationType(), methodNode))
+                .declareVar(Integer.class, "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.min.getEvaluationType(), methodNode))
+                .declareVar(Integer.class, "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.sec.getEvaluationType(), methodNode))
+                .declareVar(Integer.class, "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.msec.getEvaluationType(), methodNode));
     }
 }

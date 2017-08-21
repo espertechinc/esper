@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.datetime.calop;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -45,12 +46,15 @@ public class CalendarWithDateForgeOp implements CalendarOp {
         actionSetYMDCalendar(cal, yearNum, monthNum, dayNum);
     }
 
-    public static CodegenExpression codegenCalendar(CalendarWithDateForge forge, CodegenExpression cal, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(void.class, CalendarWithDateForgeOp.class).add(Calendar.class, "value").add(params).begin();
-        codegenDeclareInts(block, forge, params, context);
-        CodegenMethodId method = block.expression(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDCalendar", ref("value"), ref("year"), ref("month"), ref("day")))
+    public static CodegenExpression codegenCalendar(CalendarWithDateForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarWithDateForgeOp.class).addParam(Calendar.class, "value");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
+        block.expression(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDCalendar", ref("value"), ref("year"), ref("month"), ref("day")))
                 .methodEnd();
-        return localMethodBuild(method).pass(cal).passAll(params).call();
+        return localMethod(methodNode, cal);
     }
 
     public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -60,11 +64,14 @@ public class CalendarWithDateForgeOp implements CalendarOp {
         return actionSetYMDLocalDateTime(ldt, yearNum, monthNum, dayNum);
     }
 
-    public static CodegenExpression codegenLDT(CalendarWithDateForge forge, CodegenExpression ldt, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(LocalDateTime.class, CalendarWithDateForgeOp.class).add(LocalDateTime.class, "value").add(params).begin();
-        codegenDeclareInts(block, forge, params, context);
-        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDLocalDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
-        return localMethodBuild(method).pass(ldt).passAll(params).call();
+    public static CodegenExpression codegenLDT(CalendarWithDateForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithDateForgeOp.class).addParam(LocalDateTime.class, "value");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
+        block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDLocalDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
+        return localMethod(methodNode, ldt);
     }
 
     public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -74,11 +81,14 @@ public class CalendarWithDateForgeOp implements CalendarOp {
         return actionSetYMDZonedDateTime(zdt, yearNum, monthNum, dayNum);
     }
 
-    public static CodegenExpression codegenZDT(CalendarWithDateForge forge, CodegenExpression zdt, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(ZonedDateTime.class, CalendarWithDateForgeOp.class).add(ZonedDateTime.class, "value").add(params).begin();
-        codegenDeclareInts(block, forge, params, context);
-        CodegenMethodId method = block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDZonedDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
-        return localMethodBuild(method).pass(zdt).passAll(params).call();
+    public static CodegenExpression codegenZDT(CalendarWithDateForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithDateForgeOp.class).addParam(ZonedDateTime.class, "value");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
+        block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDZonedDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
+        return localMethod(methodNode, zdt);
     }
 
     protected static Integer getInt(ExprEvaluator expr, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -150,9 +160,9 @@ public class CalendarWithDateForgeOp implements CalendarOp {
         return zdt;
     }
 
-    private static void codegenDeclareInts(CodegenBlock block, CalendarWithDateForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        block.declareVar(Integer.class, "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(params, context), forge.year.getEvaluationType(), context))
-                .declareVar(Integer.class, "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(params, context), forge.month.getEvaluationType(), context))
-                .declareVar(Integer.class, "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(params, context), forge.day.getEvaluationType(), context));
+    private static void codegenDeclareInts(CodegenBlock block, CalendarWithDateForge forge, CodegenMethodNode methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        block.declareVar(Integer.class, "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.year.getEvaluationType(), methodNode))
+                .declareVar(Integer.class, "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.month.getEvaluationType(), methodNode))
+                .declareVar(Integer.class, "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.day.getEvaluationType(), methodNode));
     }
 }

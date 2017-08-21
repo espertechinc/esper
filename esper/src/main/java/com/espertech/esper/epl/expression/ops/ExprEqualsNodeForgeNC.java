@@ -10,15 +10,16 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
     public ExprEqualsNodeForgeNC(ExprEqualsNodeImpl parent) {
@@ -34,16 +35,16 @@ public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
         return new ExprEqualsNodeForgeNCEvalIs(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge lhs = getForgeRenderable().getChildNodes()[0].getForge();
         ExprForge rhs = getForgeRenderable().getChildNodes()[1].getForge();
         if (!getForgeRenderable().isIs()) {
             if (lhs.getEvaluationType() == null || rhs.getEvaluationType() == null) {
                 return constantNull();
             }
-            return localMethodBuild(ExprEqualsNodeForgeNCEvalEquals.codegen(this, context, params, lhs, rhs)).passAll(params).call();
+            return localMethod(ExprEqualsNodeForgeNCEvalEquals.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs));
         }
-        return localMethodBuild(ExprEqualsNodeForgeNCEvalIs.codegen(this, context, params, lhs, rhs)).passAll(params).call();
+        return localMethod(ExprEqualsNodeForgeNCEvalIs.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs));
     }
 
     public ExprForgeComplexityEnum getComplexity() {

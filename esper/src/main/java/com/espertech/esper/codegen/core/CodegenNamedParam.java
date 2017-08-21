@@ -19,6 +19,9 @@ public class CodegenNamedParam {
     private final String name;
 
     public CodegenNamedParam(Class type, String name) {
+        if (type == null) {
+            throw new IllegalArgumentException("Invalid null type");
+        }
         this.type = type;
         this.name = name;
     }

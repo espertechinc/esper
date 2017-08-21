@@ -11,10 +11,11 @@
 package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
@@ -48,7 +49,7 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         return this;
     }
 
-    public CodegenExpression evaluateTypableMultiCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateTypableMultiCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         throw new UnsupportedOperationException();
     }
 
@@ -77,8 +78,8 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         return strategy.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), params, context);
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {
@@ -105,8 +106,8 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         return strategy.evaluateTypableSingle(eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateTypableSingleCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return CodegenLegoEvaluateSelf.evaluateSelfTypableSingle(this, params, context);
+    public CodegenExpression evaluateTypableSingleCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CodegenLegoEvaluateSelf.evaluateSelfTypableSingle(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

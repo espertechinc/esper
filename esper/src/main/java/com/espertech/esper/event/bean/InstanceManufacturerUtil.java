@@ -12,13 +12,14 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastClass;
@@ -101,12 +102,15 @@ public class InstanceManufacturerUtil {
             };
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(returnType, InstanceManufacturerForgeNonArray.class).add(params).begin()
-                    .declareVar(EventBean.class, "event", cast(EventBean.class, innerForge.evaluateCodegen(params, context)))
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, InstanceManufacturerForgeNonArray.class);
+
+
+            methodNode.getBlock()
+                    .declareVar(EventBean.class, "event", cast(EventBean.class, innerForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope)))
                     .ifRefNullReturnNull("event")
                     .methodReturn(cast(returnType, exprDotUnderlying(ref("event"))));
-            return localMethodBuild(method).passAll(params).call();
+            return localMethod(methodNode);
         }
 
         public ExprForgeComplexityEnum getComplexity() {
@@ -149,10 +153,12 @@ public class InstanceManufacturerUtil {
             };
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
-            CodegenMethodId method = context.addMethod(arrayType, InstanceManufacturerForgeArray.class).add(params).begin()
-                    .declareVar(Object.class, "result", innerForge.evaluateCodegen(params, context))
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, InstanceManufacturerForgeArray.class);
+
+            methodNode.getBlock()
+                    .declareVar(Object.class, "result", innerForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(not(instanceOf(ref("result"), EventBean[].class)))
                     .blockReturn(constantNull())
                     .declareVar(EventBean[].class, "events", cast(EventBean[].class, ref("result")))
@@ -161,7 +167,7 @@ public class InstanceManufacturerUtil {
                     .assignArrayElement("values", ref("i"), cast(componentReturnType, exprDotMethod(arrayAtIndex(ref("events"), ref("i")), "getUnderlying")))
                     .blockEnd()
                     .methodReturn(ref("values"));
-            return localMethodBuild(method).passAll(params).call();
+            return localMethod(methodNode);
         }
 
         public ExprForgeComplexityEnum getComplexity() {
@@ -169,7 +175,7 @@ public class InstanceManufacturerUtil {
         }
 
         public Class getEvaluationType() {
-            return componentReturnType;
+            return JavaClassHelper.getArrayType(componentReturnType);
         }
 
         public ExprNodeRenderable getForgeRenderable() {

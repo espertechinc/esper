@@ -16,6 +16,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.VariableValueException;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.start.EPStatementStartMethod;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.event.EventAdapterService;

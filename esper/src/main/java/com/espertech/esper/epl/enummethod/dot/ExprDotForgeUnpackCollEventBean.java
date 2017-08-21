@@ -12,11 +12,12 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.EventUnderlyingCollection;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalVisitor;
@@ -44,11 +45,13 @@ public class ExprDotForgeUnpackCollEventBean implements ExprDotForge, ExprDotEva
         return new EventUnderlyingCollection(it);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMethodId method = context.addMethod(Collection.class, ExprDotForgeUnpackCollEventBean.class).add(Collection.class, "target").add(params).begin()
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDotForgeUnpackCollEventBean.class).addParam(Collection.class, "target");
+
+        methodNode.getBlock()
                 .ifRefNullReturnNull("target")
                 .methodReturn(newInstance(EventUnderlyingCollection.class, ref("target")));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        return localMethod(methodNode, inner);
     }
 
     public EPType getTypeInfo() {

@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
@@ -41,8 +42,8 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
         return addSubtract(currentTime, 1, eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-        return addSubtractCodegen(reference, constant(1), params, context);
+    public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return addSubtractCodegen(reference, constant(1), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public synchronized long deltaSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -94,27 +95,32 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
         return result - currentTime;
     }
 
-    private CodegenExpression addSubtractCodegen(CodegenExpression reference, CodegenExpression constant, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember calMember = context.makeAddMember(Calendar.class, cal);
-        CodegenBlock block = context.addMethod(long.class, ExprTimePeriodEvalDeltaNonConstCalAdd.class).add(long.class, "currentTime").add(int.class, "factor").add(params).begin()
+    private CodegenExpression addSubtractCodegen(CodegenExpression reference, CodegenExpression constant, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember calMember = codegenClassScope.makeAddMember(Calendar.class, cal);
+
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaNonConstCalAdd.class);
+        methodNode.addParam(long.class, "currentTime");
+        methodNode.addParam(int.class, "factor");
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVarNoInit(long.class, "result")
                 .synchronizedOn(member(calMember.getMemberId()))
-                .declareVar(long.class, "remainder", forge.getTimeAbacus().calendarSetCodegen(ref("currentTime"), member(calMember.getMemberId()), context))
+                .declareVar(long.class, "remainder", forge.getTimeAbacus().calendarSetCodegen(ref("currentTime"), member(calMember.getMemberId()), methodNode, codegenClassScope))
                 .declareVar(int.class, "usec", constant(0));
         for (int i = 0; i < forge.getAdders().length; i++) {
-            String refname = "v" + i;
-            block.declareVar(int.class, refname, forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(params, context));
+            String refname = "r" + i;
+            block.declareVar(int.class, refname, forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             if (i == indexMicroseconds) {
                 block.assignRef("usec", ref(refname));
             } else {
                 block.expression(forge.getAdders()[i].addCodegen(member(calMember.getMemberId()), op(ref("factor"), "*", ref(refname))));
             }
         }
-        block.assignRef("result", forge.getTimeAbacus().calendarGetCodegen(member(calMember.getMemberId()), ref("remainder"), context));
+        block.assignRef("result", forge.getTimeAbacus().calendarGetCodegen(member(calMember.getMemberId()), ref("remainder"), codegenClassScope));
         if (indexMicroseconds != -1) {
             block.assignRef("result", op(ref("result"), "+", op(ref("factor"), "*", ref("usec"))));
         }
-        CodegenMethodId method = block.blockEnd().methodReturn(op(ref("result"), "-", ref("currentTime")));
-        return localMethodBuild(method).pass(reference).pass(constant).passAll(params).call();
+        block.blockEnd().methodReturn(op(ref("result"), "-", ref("currentTime")));
+        return localMethod(methodNode, reference, constant);
     }
 }

@@ -12,18 +12,21 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 public class EvalInsertWildcardJoinRevision extends EvalBase implements SelectExprProcessor, SelectExprProcessorForge {
 
@@ -47,9 +50,11 @@ public class EvalInsertWildcardJoinRevision extends EvalBase implements SelectEx
         return vaeProcessor.getValueAddEventBean(theEvent);
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenMember processor = context.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
-        CodegenExpression jw = joinWildcardProcessorForge.processCodegen(memberResultEventType, memberEventAdapterService, params, context);
-        return exprDotMethod(CodegenExpressionBuilder.member(processor.getMemberId()), "getValueAddEventBean", jw);
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember processor = codegenClassScope.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode jw = joinWildcardProcessorForge.processCodegen(memberResultEventType, memberEventAdapterService, methodNode, selectSymbol, exprSymbol, codegenClassScope);
+        methodNode.getBlock().methodReturn(exprDotMethod(CodegenExpressionBuilder.member(processor.getMemberId()), "getValueAddEventBean", localMethod(jw)));
+        return methodNode;
     }
 }

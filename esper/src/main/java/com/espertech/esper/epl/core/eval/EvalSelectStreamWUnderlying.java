@@ -12,13 +12,15 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
@@ -104,41 +106,47 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
         return super.getContext().getEventAdapterService().adapterForTypedWrapper(theEvent, props, super.getResultEventType());
     }
 
-    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(EventBean.class, EvalSelectStreamWUnderlying.class).add(Map.class, "props").add(params).begin();
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, EvalSelectStreamWUnderlying.class).addParam(Map.class, "props");
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        CodegenBlock block = methodNode.getBlock();
         if (singleStreamWrapper) {
-            block.declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, arrayAtIndex(params.passEPS(), constant(0))))
+            block.declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, arrayAtIndex(refEPS, constant(0))))
                     .ifRefNotNull("wrapper")
                     .exprDotMethod(props, "putAll", exprDotMethod(ref("wrapper"), "getDecoratingProperties"))
                     .blockEnd();
         }
 
         if (underlyingIsFragmentEvent) {
-            CodegenExpression fragment = ((EventTypeSPI) eventTypes[underlyingStreamNumber]).getGetterSPI(unnamedStreams.get(0).getStreamSelected().getStreamName()).eventBeanFragmentCodegen(ref("eventBean"), context);
-            block.declareVar(EventBean.class, "eventBean", arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)))
+            CodegenExpression fragment = ((EventTypeSPI) eventTypes[underlyingStreamNumber]).getGetterSPI(unnamedStreams.get(0).getStreamSelected().getStreamName()).eventBeanFragmentCodegen(ref("eventBean"), methodNode, codegenClassScope);
+            block.declareVar(EventBean.class, "eventBean", arrayAtIndex(refEPS, constant(underlyingStreamNumber)))
                     .declareVar(EventBean.class, "theEvent", cast(EventBean.class, fragment));
         } else if (underlyingPropertyEventGetter != null) {
             block.declareVar(EventBean.class, "theEvent", constantNull())
-                    .declareVar(Object.class, "value", underlyingPropertyEventGetter.eventBeanGetCodegen(arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)), context))
+                    .declareVar(Object.class, "value", underlyingPropertyEventGetter.eventBeanGetCodegen(arrayAtIndex(refEPS, constant(underlyingStreamNumber)), methodNode, codegenClassScope))
                     .ifRefNotNull("value")
                     .assignRef("theEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("value")))
                     .blockEnd();
         } else if (underlyingExprForge != null) {
             block.declareVar(EventBean.class, "theEvent", constantNull())
-                    .declareVar(Object.class, "value", underlyingExprForge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+                    .declareVar(Object.class, "value", underlyingExprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNotNull("value")
                     .assignRef("theEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("value")))
                     .blockEnd();
         } else {
-            block.declareVar(EventBean.class, "theEvent", arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)));
+            block.declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(underlyingStreamNumber)));
             if (tableMetadata != null) {
-                CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
+                CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
                 block.ifRefNotNull("theEvent")
-                        .assignRef("theEvent", exprDotMethod(member(eventToPublic.getMemberId()), "convert", ref("theEvent"), params.passEPS(), params.passIsNewData(), params.passEvalCtx()))
+                        .assignRef("theEvent", exprDotMethod(member(eventToPublic.getMemberId()), "convert", ref("theEvent"), refEPS, refIsNewData, refExprEvalCtx))
                         .blockEnd();
             }
         }
-        CodegenMethodId method = block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", ref("theEvent"), ref("props"), member(memberResultEventType.getMemberId())));
-        return localMethodBuild(method).pass(props).passAll(params).call();
+        block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", ref("theEvent"), ref("props"), member(memberResultEventType.getMemberId())));
+        return localMethod(methodNode, props);
     }
 }

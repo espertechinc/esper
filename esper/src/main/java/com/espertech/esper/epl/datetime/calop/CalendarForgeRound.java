@@ -12,10 +12,11 @@ package com.espertech.esper.epl.datetime.calop;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.LocalDateTime;
@@ -47,7 +48,7 @@ public class CalendarForgeRound implements CalendarForge, CalendarOp {
         return this;
     }
 
-    public CodegenExpression codegenCalendar(CodegenExpression cal, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenCalendar(CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return staticMethod(ApacheCommonsDateUtils.class, "modify", cal, constant(fieldName.getCalendarField()), constant(code));
     }
 
@@ -65,7 +66,7 @@ public class CalendarForgeRound implements CalendarForge, CalendarOp {
         }
     }
 
-    public CodegenExpression codegenLDT(CodegenExpression ldt, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenLDT(CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return codegenLDTZDT(ldt, LocalDateTime.class);
     }
 
@@ -79,7 +80,7 @@ public class CalendarForgeRound implements CalendarForge, CalendarOp {
         }
     }
 
-    public CodegenExpression codegenZDT(CodegenExpression zdt, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenZDT(CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return codegenLDTZDT(zdt, ZonedDateTime.class);
     }
 

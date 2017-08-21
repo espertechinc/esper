@@ -11,17 +11,18 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprDotNodeForgeStreamEvalEventBean implements ExprEvaluator {
@@ -60,11 +61,14 @@ public class ExprDotNodeForgeStreamEvalEventBean implements ExprEvaluator {
         return inner;
     }
 
-    public static CodegenExpression codegen(ExprDotNodeForgeStream forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeStreamEvalEventBean.class).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(forge.getStreamNumber())))
+    public static CodegenExpression codegen(ExprDotNodeForgeStream forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeStreamEvalEventBean.class);
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamNumber())))
                 .ifRefNullReturnNull("event")
-                .methodReturn(ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("event"), EventBean.class, forge.getEvaluators(), null));
-        return localMethodBuild(method).passAll(params).call();
+                .methodReturn(ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("event"), EventBean.class, forge.getEvaluators(), null));
+        return localMethod(methodNode);
     }
 }

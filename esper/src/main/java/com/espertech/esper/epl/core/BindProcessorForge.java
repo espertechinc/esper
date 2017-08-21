@@ -11,9 +11,9 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
@@ -103,8 +103,8 @@ public class BindProcessorForge {
         return new BindProcessor(this, evaluators);
     }
 
-    public CodegenExpression processCodegen(CodegenParamSetSelectPremade params, CodegenContext context) {
-        return BindProcessor.processCodegen(this, params, context);
+    public CodegenMethodNode processCodegen(CodegenMethodNode methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return BindProcessor.processCodegen(this, methodNode, exprSymbol, codegenClassScope);
     }
 
     /**

@@ -11,7 +11,8 @@
 package com.espertech.esper.epl.declexpr;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
@@ -25,7 +26,7 @@ public class ExprDeclaredForgeNoRewrite extends ExprDeclaredForgeBase {
         return eventsPerStream;
     }
 
-    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenContext context) {
+    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return eventsPerStream;
     }
 }

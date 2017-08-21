@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.codegen.core;
 
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -20,7 +22,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 
 public class TestCodegenIf extends TestCase {
     public void testIf() {
-        CodegenBlock block = new CodegenBlock((CodegenMethod) null);
+        CodegenBlock block = new CodegenBlock((CodegenMethodNode) null);
         block.ifCondition(equalsIdentity(ref("a"), constant(1)))
                 .declareVar(int.class, "b", constant(1))
             .ifElseIf(equalsIdentity(ref("a"), constant(2)))

@@ -11,9 +11,10 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventPropertyGetterIndexed;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 public interface EventPropertyGetterIndexedSPI extends EventPropertyGetterIndexed {
-    CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key);
+    CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key);
 }

@@ -11,10 +11,12 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
@@ -48,12 +50,15 @@ public class PropertyDotNonLambdaFragmentForge implements ExprForge, ExprEvaluat
         return getter.getFragment(event);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(EventBean.class, PropertyDotNonLambdaFragmentForge.class).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamId)))
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, PropertyDotNonLambdaFragmentForge.class);
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(cast(EventBean.class, getter.eventBeanFragmentCodegen(ref("event"), context)));
-        return localMethodBuild(method).passAll(params).call();
+                .methodReturn(cast(EventBean.class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)));
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

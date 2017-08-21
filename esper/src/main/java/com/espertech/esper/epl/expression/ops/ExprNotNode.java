@@ -11,20 +11,18 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.expression.dot.ExprDotNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.not;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Represents a NOT expression in an expression tree.
@@ -60,16 +58,17 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge child = this.getChildNodes()[0].getForge();
         if (child.getEvaluationType() == boolean.class) {
-            not(child.evaluateCodegen(params, context));
+            not(child.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
         }
-        CodegenMethodId method = context.addMethod(Boolean.class, ExprDotNode.class).add(params).begin()
-                .declareVar(Boolean.class, "b", child.evaluateCodegen(params, context))
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprNotNode.class);
+        methodNode.getBlock()
+                .declareVar(Boolean.class, "b", child.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("b")
                 .methodReturn(not(ref("b")));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {
@@ -114,7 +113,6 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
         if (!(node instanceof ExprNotNode)) {
             return false;
         }
-
         return true;
     }
 }

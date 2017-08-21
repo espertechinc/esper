@@ -12,9 +12,10 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.bean.BaseNativePropertyGetter;
@@ -59,13 +60,13 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         return entryGetter.getBeanProp(value);
     }
 
-    private CodegenMethodId getObjectArrayCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(Object[].class, "array").begin()
+    private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .ifInstanceOf("value", EventBean.class)
-                    .blockReturn(entryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), context))
-                .methodReturn(entryGetter.underlyingGetCodegen(cast(entryGetter.getTargetType(), ref("value")), context));
+                    .blockReturn(entryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), codegenMethodScope, codegenClassScope))
+                .methodReturn(entryGetter.underlyingGetCodegen(cast(entryGetter.getTargetType(), ref("value")), codegenMethodScope, codegenClassScope));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -96,29 +97,29 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         return entryGetter.isBeanExistsProperty(value);
     }
 
-    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
-        return context.addMethod(boolean.class, this.getClass()).add(Object[].class, "array").begin()
+    private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
                 .ifInstanceOf("value", EventBean.class)
-                .blockReturn(entryGetter.eventBeanExistsCodegen(castRef(EventBean.class, "value"), context))
-                .methodReturn(entryGetter.underlyingExistsCodegen(cast(entryGetter.getTargetType(), ref("value")), context));
+                .blockReturn(entryGetter.eventBeanExistsCodegen(castRef(EventBean.class, "value"), codegenMethodScope, codegenClassScope))
+                .methodReturn(entryGetter.underlyingExistsCodegen(cast(entryGetter.getTargetType(), ref("value")), codegenMethodScope, codegenClassScope));
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(Object[].class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getObjectArrayCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getObjectArrayCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(isExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public Class getTargetType() {

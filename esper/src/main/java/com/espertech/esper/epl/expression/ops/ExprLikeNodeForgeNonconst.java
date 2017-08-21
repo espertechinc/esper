@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 /**
  * Like-Node Form-1: non-constant pattern
@@ -33,8 +35,9 @@ public class ExprLikeNodeForgeNonconst extends ExprLikeNodeForge {
                 getForgeRenderable().getChildNodes().length == 2 ? null : getForgeRenderable().getChildNodes()[2].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return localMethodBuild(ExprLikeNodeFormNonconstEval.codegen(this, getForgeRenderable().getChildNodes()[0], getForgeRenderable().getChildNodes()[1],
-                getForgeRenderable().getChildNodes().length == 2 ? null : getForgeRenderable().getChildNodes()[2], context, params)).passAll(params).call();
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = ExprLikeNodeFormNonconstEval.codegen(this, getForgeRenderable().getChildNodes()[0], getForgeRenderable().getChildNodes()[1],
+                getForgeRenderable().getChildNodes().length == 2 ? null : getForgeRenderable().getChildNodes()[2], codegenMethodScope, exprSymbol, codegenClassScope);
+        return localMethod(methodNode);
     }
 }

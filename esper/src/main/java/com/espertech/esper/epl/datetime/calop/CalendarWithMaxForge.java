@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.datetime.calop;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.LocalDateTime;
@@ -36,7 +37,7 @@ public class CalendarWithMaxForge implements CalendarForge, CalendarOp {
         return this;
     }
 
-    public CodegenExpression codegenCalendar(CodegenExpression cal, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenCalendar(CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return exprDotMethod(cal, "set", constant(fieldName.getCalendarField()), exprDotMethod(cal, "getActualMaximum", constant(fieldName.getCalendarField())));
     }
 
@@ -49,7 +50,7 @@ public class CalendarWithMaxForge implements CalendarForge, CalendarOp {
         return ldt.with(fieldName.getChronoField(), range.getMaximum());
     }
 
-    public CodegenExpression codegenLDT(CodegenExpression ldt, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenLDT(CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return codegenLDTZDTMinMax(ldt, true, fieldName);
     }
 
@@ -58,7 +59,7 @@ public class CalendarWithMaxForge implements CalendarForge, CalendarOp {
         return zdt.with(fieldName.getChronoField(), range.getMaximum());
     }
 
-    public CodegenExpression codegenZDT(CodegenExpression zdt, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenZDT(CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return codegenLDTZDTMinMax(zdt, true, fieldName);
     }
 

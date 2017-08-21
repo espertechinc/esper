@@ -11,10 +11,11 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
@@ -35,12 +36,13 @@ public class ExprTypeofNodeForgeInnerEval extends ExprTypeofNodeForge {
         return new InnerEvaluator(parent.getChildNodes()[0].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(String.class, ExprTypeofNodeForgeInnerEval.class).add(params).begin()
-                .declareVar(Object.class, "result", parent.getChildNodes()[0].getForge().evaluateCodegen(params, context))
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeInnerEval.class);
+        methodNode.getBlock()
+                .declareVar(Object.class, "result", parent.getChildNodes()[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethodChain(ref("result")).add("getClass").add("getSimpleName"));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public ExprNodeRenderable getForgeRenderable() {

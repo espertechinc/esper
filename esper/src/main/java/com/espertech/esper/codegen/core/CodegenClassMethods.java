@@ -10,25 +10,18 @@
  */
 package com.espertech.esper.codegen.core;
 
-public class CodegenMethodId {
-    private final int methodNumber;
-    private final String methodName;
+import java.util.ArrayList;
+import java.util.List;
 
-    public CodegenMethodId(int methodNumber) {
-        this.methodNumber = methodNumber;
-        this.methodName = null;
+public class CodegenClassMethods {
+    private final List<CodegenMethod> publicMethods = new ArrayList<>(2);
+    private final List<CodegenMethod> privateMethods = new ArrayList<>();
+
+    public List<CodegenMethod> getPublicMethods() {
+        return publicMethods;
     }
 
-    public CodegenMethodId(String methodName) {
-        this.methodNumber = -1;
-        this.methodName = methodName;
-    }
-
-    public void render(StringBuilder builder) {
-        if (methodName != null) {
-            builder.append(methodName);
-        } else {
-            builder.append("m").append(methodNumber);
-        }
+    public List<CodegenMethod> getPrivateMethods() {
+        return privateMethods;
     }
 }

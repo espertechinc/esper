@@ -12,10 +12,11 @@ package com.espertech.esper.epl.datetime.reformatop;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
@@ -41,7 +42,7 @@ public class ReformatStringFormatForge implements ReformatForge, ReformatOp {
         return action(new Date(ts));
     }
 
-    public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return actionCodegen(newInstance(Date.class, inner));
     }
 
@@ -49,7 +50,7 @@ public class ReformatStringFormatForge implements ReformatForge, ReformatOp {
         return action(d);
     }
 
-    public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return actionCodegen(inner);
     }
 
@@ -57,7 +58,7 @@ public class ReformatStringFormatForge implements ReformatForge, ReformatOp {
         return action(cal.getTime());
     }
 
-    public CodegenExpression codegenCal(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return actionCodegen(exprDotMethod(inner, "getTime"));
     }
 
@@ -65,7 +66,7 @@ public class ReformatStringFormatForge implements ReformatForge, ReformatOp {
         return DateTimeFormatter.ISO_DATE_TIME.format(ldt);
     }
 
-    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return exprDotMethod(enumValue(DateTimeFormatter.class, "ISO_DATE_TIME"), "format", inner);
     }
 
@@ -73,7 +74,7 @@ public class ReformatStringFormatForge implements ReformatForge, ReformatOp {
         return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(zdt);
     }
 
-    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return exprDotMethod(enumValue(DateTimeFormatter.class, "ISO_ZONED_DATE_TIME"), "format", inner);
     }
 

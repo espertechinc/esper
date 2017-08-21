@@ -12,9 +12,10 @@ package com.espertech.esper.avro.getter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
 
@@ -46,8 +47,8 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
         return inner.get(propertyName);
     }
 
-    private CodegenMethodId getCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .ifRefNullReturnNull("inner")
                 .methodReturn(exprDotMethod(ref("inner"), "get", constant(propertyName)));
@@ -61,8 +62,8 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
         return inner.getSchema().getField(propertyName) != null;
     }
 
-    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
-        return context.addMethod(boolean.class, this.getClass()).add(GenericData.Record.class, "record").begin()
+    private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .ifRefNullReturnFalse("inner")
                 .methodReturn(notEqualsNull(exprDotMethodChain(ref("inner")).add("getSchema").add("getField", constant(propertyName))));
@@ -72,27 +73,27 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
         return null;
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(GenericData.Record.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getCodegen(codegenMethodScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(isExistsPropertyCodegen(codegenMethodScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 }

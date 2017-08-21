@@ -8,34 +8,33 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.expression.core;
+package com.espertech.esper.epl.expression.codegen;
 
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.compile.CodegenClassGenerator;
 import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
-import com.espertech.esper.codegen.core.*;
+import com.espertech.esper.codegen.core.CodegenClass;
+import com.espertech.esper.codegen.core.CodegenClassMethods;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSet;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.util.CodegenStackGenerator;
 import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
+import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
+import com.espertech.esper.epl.expression.core.ExprPrecedenceEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
-import java.util.Collections;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
 
 public class ExprNodeCompiler {
     private static Logger log = LoggerFactory.getLogger(ExprNodeCompiler.class);
-    private final static CodegenMethodFootprint EVALUATE_FP;
-
-    static {
-        EVALUATE_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("evaluate"), Collections.<CodegenParamSet>singletonList(CodegenParamSetExprPremade.INSTANCE), null);
-    }
 
     public static ExprEvaluator allocateEvaluator(ExprForge forge, EngineImportService engineImportService, Class compiledByClass, boolean onDemandQuery, String statementName) {
         if (!engineImportService.getCodeGeneration().isEnableExpression() || onDemandQuery || forge.getComplexity() != ExprForgeComplexityEnum.INTER) {
@@ -64,19 +63,30 @@ public class ExprNodeCompiler {
         };
 
         try {
-            CodegenContext context = new CodegenContext(includeCodeComments);
-            CodegenExpression expression = forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+            CodegenClassScope codegenClassScope = new CodegenClassScope();
+            ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true);
+            CodegenMethodNode topNode = CodegenMethodNode.makeParentNode(Object.class, ExprNodeCompiler.class, exprSymbol).addParam(ExprForgeCodegenNames.PARAMS);
 
-            // if the evaluation-type is void, still return an Object
+            // generate expression
+            CodegenExpression expression = forge.evaluateCodegen(topNode, exprSymbol, codegenClassScope);
+
+            // generate code for derived symbols
+            exprSymbol.derivedSymbolsCodegen(topNode, topNode.getBlock());
+
+            // add expression to end
             if (forge.getEvaluationType() == void.class) {
-                CodegenMethodId method = context.addMethod(Object.class, ExprNodeCompiler.class).add(CodegenParamSetExprPremade.INSTANCE).begin()
+                topNode.getBlock()
                         .expression(expression)
                         .methodReturn(constantNull());
-                expression = localMethodBuild(method).passAll(CodegenParamSetExprPremade.INSTANCE).call();
+            } else {
+                topNode.getBlock().methodReturn(expression);
             }
 
-            CodegenMethod evalMethod = new CodegenMethod(EVALUATE_FP, expression);
-            CodegenClass clazz = new CodegenClass(ExprEvaluator.class, context, engineImportService.getEngineURI(), evalMethod);
+            // build stack
+            CodegenClassMethods methods = new CodegenClassMethods();
+            CodegenStackGenerator.recursiveBuildStack(topNode, "evaluate", methods);
+
+            CodegenClass clazz = new CodegenClass(ExprEvaluator.class, codegenClassScope, engineImportService.getEngineURI(), methods);
             return CodegenClassGenerator.compile(clazz, engineImportService, ExprEvaluator.class, debugInformationProvider);
         } catch (CodegenCompilerException ex) {
             boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();

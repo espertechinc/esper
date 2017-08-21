@@ -13,12 +13,14 @@ package com.espertech.esper.epl.script;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.script.mvel.MVELInvoker;
 import org.slf4j.Logger;
@@ -57,15 +59,19 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase implements Ex
         return evaluateInternal(paramsList);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember member = context.makeAddMember(ExprNodeScriptEvalMVEL.class, this);
-        CodegenBlock block = context.addMethod(returnType, ExprNodeScriptEvalMVEL.class).add(params).begin()
-                .declareVar(Map.class, "paramsList", staticMethod(ExprNodeScriptEvalMVEL.class, "getMVELScriptParamsList", params.passEvalCtx()));
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprNodeScriptEvalMVEL.class);
+
+        CodegenMember member = codegenClassScope.makeAddMember(ExprNodeScriptEvalMVEL.class, this);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(Map.class, "paramsList", staticMethod(ExprNodeScriptEvalMVEL.class, "getMVELScriptParamsList", refExprEvalCtx));
         for (int i = 0; i < names.length; i++) {
-            block.expression(exprDotMethod(ref("paramsList"), "put", constant(names[i]), parameters[i].evaluateCodegen(params, context)));
+            block.expression(exprDotMethod(ref("paramsList"), "put", constant(names[i]), parameters[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope)));
         }
-        CodegenMethodId method = block.methodReturn(cast(returnType, exprDotMethod(member(member.getMemberId()), "evaluateInternal", ref("paramsList"))));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(cast(returnType, exprDotMethod(member(member.getMemberId()), "evaluateInternal", ref("paramsList"))));
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

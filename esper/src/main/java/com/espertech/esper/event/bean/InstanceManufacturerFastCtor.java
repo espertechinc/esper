@@ -12,10 +12,11 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -60,17 +61,20 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
         return new EPException("InvocationTargetException received invoking constructor for type '" + targetClassName + "': " + targetException.getMessage(), targetException);
     }
 
-    public static CodegenExpression codegen(CodegenContext context, Class targetClass, ExprForge[] forges, CodegenParamSetExprPremade premades) {
+    public static CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, Class targetClass, ExprForge[] forges) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(targetClass, InstanceManufacturerFastCtor.class);
+
         CodegenExpression[] params = new CodegenExpression[forges.length];
         for (int i = 0; i < forges.length; i++) {
-            params[i] = forges[i].evaluateCodegen(premades, context);
+            params[i] = forges[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
         }
-        CodegenMethodId method = context.addMethod(targetClass, InstanceManufacturerFastCtor.class).add(premades).begin()
+
+        methodNode.getBlock()
                 .tryCatch()
                     .tryReturn(newInstance(targetClass, params))
                 .addCatch(Throwable.class, "t")
                     .blockThrow(staticMethod(InstanceManufacturerFastCtor.class, "getTargetExceptionAsEPException", constant(targetClass.getName()), ref("t")))
                 .methodEnd();
-        return localMethodBuild(method).passAll(premades).call();
+        return localMethod(methodNode);
     }
 }

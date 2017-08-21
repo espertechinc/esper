@@ -11,10 +11,11 @@
 package com.espertech.esper.codegen.model.blocks;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
 import static com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd.AccessType.*;
@@ -30,18 +31,19 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  * return getter.getXXXX(value);
  */
 public class CodegenLegoPropertyBeanOrUnd {
-    public static CodegenMethodId from(CodegenContext context, Class expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
-        CodegenBlock block = context.addMethod(accessType == EXISTS ? boolean.class : Object.class, generator).add(Object.class, "value").begin()
+    public static CodegenMethodNode from(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, Class expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(accessType == EXISTS ? boolean.class : Object.class, generator).addParam(Object.class, "value");
+        CodegenBlock block = methodNode.getBlock()
                 .ifNotInstanceOf("value", expectedUnderlyingType)
                 .ifInstanceOf("value", EventBean.class)
                 .declareVarWCast(EventBean.class, "bean", "value");
 
         if (accessType == GET) {
-            block = block.blockReturn(innerGetter.eventBeanGetCodegen(ref("bean"), context));
+            block = block.blockReturn(innerGetter.eventBeanGetCodegen(ref("bean"), codegenMethodScope, codegenClassScope));
         } else if (accessType == EXISTS) {
-            block = block.blockReturn(innerGetter.eventBeanExistsCodegen(ref("bean"), context));
+            block = block.blockReturn(innerGetter.eventBeanExistsCodegen(ref("bean"), codegenMethodScope, codegenClassScope));
         } else if (accessType == FRAGMENT) {
-            block = block.blockReturn(innerGetter.eventBeanFragmentCodegen(ref("bean"), context));
+            block = block.blockReturn(innerGetter.eventBeanFragmentCodegen(ref("bean"), codegenMethodScope, codegenClassScope));
         } else {
             throw new UnsupportedOperationException("Invalid access type " + accessType);
         }
@@ -50,15 +52,16 @@ public class CodegenLegoPropertyBeanOrUnd {
 
         CodegenExpression expression;
         if (accessType == GET) {
-            expression = innerGetter.underlyingGetCodegen(cast(expectedUnderlyingType, ref("value")), context);
+            expression = innerGetter.underlyingGetCodegen(cast(expectedUnderlyingType, ref("value")), codegenMethodScope, codegenClassScope);
         } else if (accessType == EXISTS) {
-            expression = innerGetter.underlyingExistsCodegen(cast(expectedUnderlyingType, ref("value")), context);
+            expression = innerGetter.underlyingExistsCodegen(cast(expectedUnderlyingType, ref("value")), codegenMethodScope, codegenClassScope);
         } else if (accessType == FRAGMENT) {
-            expression = innerGetter.underlyingFragmentCodegen(cast(expectedUnderlyingType, ref("value")), context);
+            expression = innerGetter.underlyingFragmentCodegen(cast(expectedUnderlyingType, ref("value")), codegenMethodScope, codegenClassScope);
         } else {
             throw new UnsupportedOperationException("Invalid access type " + accessType);
         }
-        return block.methodReturn(expression);
+        block.methodReturn(expression);
+        return methodNode;
     }
 
     public enum AccessType {

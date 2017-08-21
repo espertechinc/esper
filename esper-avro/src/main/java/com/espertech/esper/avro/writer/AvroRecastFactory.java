@@ -14,17 +14,20 @@ import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.core.eval.SelectExprForgeContext;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
@@ -136,9 +139,12 @@ public class AvroRecastFactory {
             return this;
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenExpression theEvent = cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber)));
-            return exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", exprDotMethod(theEvent, "getProperties"), member(memberResultEventType.getMemberId()));
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+            CodegenExpression theEvent = cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber)));
+            methodNode.getBlock().methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", exprDotMethod(theEvent, "getProperties"), member(memberResultEventType.getMemberId())));
+            return methodNode;
         }
     }
 
@@ -193,10 +199,12 @@ public class AvroRecastFactory {
             return eventAdapterService.adapterForTypedAvro(target, resultType);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMember schemaMember = context.makeAddMember(Schema.class, resultSchema);
-            CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
-                    .declareVar(AvroGenericDataBackedEventBean.class, "theEvent", cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber))))
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMember schemaMember = codegenClassScope.makeAddMember(Schema.class, resultSchema);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(AvroGenericDataBackedEventBean.class, "theEvent", cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
                     .declareVar(GenericData.Record.class, "source", exprDotMethod(ref("theEvent"), "getProperties"))
                     .declareVar(GenericData.Record.class, "target", newInstance(GenericData.Record.class, member(schemaMember.getMemberId())));
             for (Item item : items) {
@@ -204,15 +212,15 @@ public class AvroRecastFactory {
                 if (item.getOptionalFromIndex() != -1) {
                     value = exprDotMethod(ref("source"), "get", constant(item.getOptionalFromIndex()));
                 } else {
-                    value = item.forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+                    value = item.forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
                     if (item.getOptionalWidener() != null) {
-                        value = item.getOptionalWidener().widenCodegen(value, context);
+                        value = item.getOptionalWidener().widenCodegen(value, methodNode, codegenClassScope);
                     }
                 }
                 block.exprDotMethod(ref("target"), "put", constant(item.getToIndex()), value);
             }
-            CodegenMethodId method = block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", ref("target"), member(memberResultEventType.getMemberId())));
-            return localMethodBuild(method).passAll(params).call();
+            block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", ref("target"), member(memberResultEventType.getMemberId())));
+            return methodNode;
         }
     }
 

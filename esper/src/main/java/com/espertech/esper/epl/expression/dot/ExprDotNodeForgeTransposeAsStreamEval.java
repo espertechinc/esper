@@ -11,19 +11,18 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class ExprDotNodeForgeTransposeAsStreamEval implements ExprEvaluator {
 
-    private final ExprDotNodeForgeTransposeAsStream forge;
     private final ExprEvaluator inner;
 
-    public ExprDotNodeForgeTransposeAsStreamEval(ExprDotNodeForgeTransposeAsStream forge, ExprEvaluator inner) {
-        this.forge = forge;
+    public ExprDotNodeForgeTransposeAsStreamEval(ExprEvaluator inner) {
         this.inner = inner;
     }
 
@@ -31,7 +30,7 @@ public class ExprDotNodeForgeTransposeAsStreamEval implements ExprEvaluator {
         return inner.evaluate(eventsPerStream, isNewData, context);
     }
 
-    public static CodegenExpression codegen(ExprDotNodeForgeTransposeAsStream forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        return forge.inner.evaluateCodegen(params, context);
+    public static CodegenExpression codegen(ExprDotNodeForgeTransposeAsStream forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return forge.inner.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

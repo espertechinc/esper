@@ -11,11 +11,11 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.NullIterator;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
@@ -474,16 +474,16 @@ public class CollectionUtil {
         return dq;
     }
 
-    public static CodegenExpression arrayToCollectionAllowNullCodegen(Class arrayType, CodegenExpression array, CodegenContext context) {
+    public static CodegenExpression arrayToCollectionAllowNullCodegen(CodegenMethodScope codegenMethodScope, Class arrayType, CodegenExpression array) {
         if (!arrayType.isArray()) {
             throw new IllegalArgumentException("Expected array type and received " + arrayType);
         }
-        CodegenBlock block = context.addMethod(Collection.class, CollectionUtil.class).add(arrayType, "array").begin()
+        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, CollectionUtil.class).addParam(arrayType, "array").getBlock()
                 .ifRefNullReturnNull("array");
         if (!arrayType.getComponentType().isPrimitive()) {
             return localMethodBuild(block.methodReturn(staticMethod(Arrays.class, "asList", ref("array")))).pass(array).call();
         }
-        CodegenMethodId method = block.ifCondition(equalsIdentity(arrayLength(ref("array")), constant(0)))
+        CodegenMethodNode method = block.ifCondition(equalsIdentity(arrayLength(ref("array")), constant(0)))
                 .blockReturn(staticMethod(Collections.class, "emptyList"))
                 .ifCondition(equalsIdentity(arrayLength(ref("array")), constant(1)))
                 .blockReturn(staticMethod(Collections.class, "singletonList", arrayAtIndex(ref("array"), constant(0))))

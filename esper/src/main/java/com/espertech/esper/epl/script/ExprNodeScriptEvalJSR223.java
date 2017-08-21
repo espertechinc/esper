@@ -13,12 +13,14 @@ package com.espertech.esper.epl.script;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,15 +58,18 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements 
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember member = context.makeAddMember(ExprNodeScriptEvalJSR223.class, this);
-        CodegenBlock block = context.addMethod(returnType, ExprNodeScriptEvalJSR223.class).add(params).begin()
-                .declareVar(Bindings.class, "bindings", exprDotMethod(member(member.getMemberId()), "getBindings", params.passEvalCtx()));
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember member = codegenClassScope.makeAddMember(ExprNodeScriptEvalJSR223.class, this);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprNodeScriptEvalJSR223.class);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(Bindings.class, "bindings", exprDotMethod(member(member.getMemberId()), "getBindings", refExprEvalCtx));
         for (int i = 0; i < names.length; i++) {
-            block.expression(exprDotMethod(ref("bindings"), "put", constant(names[i]), parameters[i].evaluateCodegen(params, context)));
+            block.expression(exprDotMethod(ref("bindings"), "put", constant(names[i]), parameters[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope)));
         }
-        CodegenMethodId method = block.methodReturn(cast(returnType, exprDotMethod(member(member.getMemberId()), "evaluateInternal", ref("bindings"))));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(cast(returnType, exprDotMethod(member(member.getMemberId()), "evaluateInternal", ref("bindings"))));
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

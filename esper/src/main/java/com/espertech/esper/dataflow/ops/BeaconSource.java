@@ -19,6 +19,7 @@ import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.dataflow.util.GraphTypeDesc;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventBeanManufacturer;
 import com.espertech.esper.event.EventTypeUtility;

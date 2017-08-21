@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprTypableReturnEval;
@@ -54,21 +55,23 @@ public class SelectExprProcessorTypableMultiEval implements ExprEvaluator {
         return events;
     }
 
-    public static CodegenExpression codegen(SelectExprProcessorTypableMultiForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember factory = context.makeAddMember(EventBeanManufacturer.class, forge.factory);
-        CodegenBlock block = context.addMethod(EventBean[].class, SelectExprProcessorTypableMultiEval.class).add(params).begin()
-                .declareVar(Object[][].class, "rows", forge.typable.evaluateTypableMultiCodegen(params, context))
+    public static CodegenExpression codegen(SelectExprProcessorTypableMultiForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember factory = codegenClassScope.makeAddMember(EventBeanManufacturer.class, forge.factory);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorTypableMultiEval.class);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(Object[][].class, "rows", forge.typable.evaluateTypableMultiCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("rows")
                 .ifCondition(equalsIdentity(arrayLength(ref("rows")), constant(0)))
                 .blockReturn(newArray(EventBean.class, constant(0)));
         if (forge.hasWideners) {
-            block.expression(applyWidenersCodegenMultirow(ref("rows"), forge.wideners, context));
+            block.expression(applyWidenersCodegenMultirow(ref("rows"), forge.wideners, methodNode, codegenClassScope));
         }
-        CodegenMethodId method = block.declareVar(EventBean[].class, "events", newArray(EventBean.class, arrayLength(ref("rows"))))
+        block.declareVar(EventBean[].class, "events", newArray(EventBean.class, arrayLength(ref("rows"))))
                 .forLoopIntSimple("i", arrayLength(ref("events")))
                 .assignArrayElement("events", ref("i"), exprDotMethod(member(factory.getMemberId()), "make", arrayAtIndex(ref("rows"), ref("i"))))
                 .blockEnd()
                 .methodReturn(ref("events"));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 }

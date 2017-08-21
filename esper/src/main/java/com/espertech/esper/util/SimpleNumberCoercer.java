@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 /**
@@ -30,5 +31,5 @@ public interface SimpleNumberCoercer {
 
     CodegenExpression coerceCodegen(CodegenExpression value, Class valueType);
 
-    CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenContext context);
+    CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

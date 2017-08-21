@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.SimpleNumberCoercer;
 
@@ -94,11 +95,11 @@ public class ExprCaseNodeForge implements ExprTypableReturnForge {
         return new ExprCaseNodeForgeEvalTypable(this);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!parent.isCase2()) {
-            return ExprCaseNodeForgeEvalSyntax1.codegen(this, context, params);
+            return ExprCaseNodeForgeEvalSyntax1.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         } else {
-            return ExprCaseNodeForgeEvalSyntax2.codegen(this, context, params);
+            return ExprCaseNodeForgeEvalSyntax2.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -106,11 +107,11 @@ public class ExprCaseNodeForge implements ExprTypableReturnForge {
         return ExprForgeComplexityEnum.INTER;
     }
 
-    public CodegenExpression evaluateTypableSingleCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return ExprCaseNodeForgeEvalTypable.codegenTypeableSingle(this, params, context);
+    public CodegenExpression evaluateTypableSingleCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ExprCaseNodeForgeEvalTypable.codegenTypeableSingle(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateTypableMultiCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateTypableMultiCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 

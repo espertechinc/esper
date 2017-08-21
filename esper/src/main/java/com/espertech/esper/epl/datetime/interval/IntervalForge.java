@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.datetime.interval;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.FilterExprAnalyzerDTIntervalAffector;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 
@@ -25,7 +26,7 @@ public interface IntervalForge {
 
     IntervalOp getOp();
 
-    CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenParamSetExprPremade params, CodegenContext context);
+    CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     FilterExprAnalyzerDTIntervalAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc);
 }

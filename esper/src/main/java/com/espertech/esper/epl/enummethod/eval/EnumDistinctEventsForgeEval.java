@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.JavaClassHelper;
@@ -58,20 +59,23 @@ public class EnumDistinctEventsForgeEval implements EnumEval {
         return distinct.values();
     }
 
-    public static CodegenExpression codegen(EnumDistinctEventsForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public static CodegenExpression codegen(EnumDistinctEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerType = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
-        CodegenBlock block = context.addMethod(Collection.class, EnumDistinctEventsForgeEval.class).add(premade).begin()
-                .ifCondition(relational(exprDotMethod(premade.enumcoll(), "size"), LE, constant(1)))
-                .blockReturn(premade.enumcoll())
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumDistinctEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
+                .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
+                .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class));
-        CodegenBlock forEach = block.forEach(EventBean.class, "next", premade.enumcoll())
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+        block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
+                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
                 .ifCondition(not(exprDotMethod(ref("distinct"), "containsKey", ref("comparable"))))
                 .expression(exprDotMethod(ref("distinct"), "put", ref("comparable"), ref("next")))
                 .blockEnd();
-        CodegenMethodId method = block.methodReturn(exprDotMethod(ref("distinct"), "values"));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(exprDotMethod(ref("distinct"), "values"));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 }

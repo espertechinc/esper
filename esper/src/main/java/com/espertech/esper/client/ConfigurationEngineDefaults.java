@@ -2307,6 +2307,27 @@ public class ConfigurationEngineDefaults implements Serializable {
         private boolean includeComments = false;
 
         /**
+         * Disable all code generation.
+         */
+        public void disableAll() {
+            setAll(false);
+        }
+
+        /**
+         * Enable all code generation.
+         */
+        public void enableAll() {
+            setAll(true);
+        }
+
+        private void setAll(boolean value) {
+            enablePropertyGetter = value;
+            enableExpression = value;
+            enableSelectClause = value;
+            enableFallback = value;
+        }
+
+        /**
          * Returns indicator whether to enable code generation for event property getters (false by default),
          * relevant only when {@link EventType#getGetter(String)} getGetter}.
          * @return indicator

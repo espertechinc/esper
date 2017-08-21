@@ -11,15 +11,16 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
@@ -28,8 +29,6 @@ import com.espertech.esper.event.arr.ObjectArrayEventType;
 import java.util.*;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class EnumGroupByKeySelectorScalarLambdaForgeEval implements EnumEval {
 
@@ -70,27 +69,29 @@ public class EnumGroupByKeySelectorScalarLambdaForgeEval implements EnumEval {
         return result;
     }
 
-    public static CodegenExpression codegen(EnumGroupByKeySelectorScalarLambdaForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenMember resultTypeMember = context.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenBlock block = context.addMethod(Map.class, EnumGroupByKeySelectorScalarLambdaForgeEval.class).add(premade).begin()
-                .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
+    public static CodegenExpression codegen(EnumGroupByKeySelectorScalarLambdaForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember resultTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Map.class, EnumGroupByKeySelectorScalarLambdaForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
+                .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(staticMethod(Collections.class, "emptyMap"))
                 .declareVar(Map.class, "result", newInstance(LinkedHashMap.class))
                 .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), CodegenExpressionBuilder.member(resultTypeMember.getMemberId())))
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
-
-        CodegenBlock forEach = block.forEach(Object.class, "next", premade.enumcoll())
+        CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
                 .declareVar(Collection.class, "value", cast(Collection.class, exprDotMethod(ref("result"), "get", ref("key"))))
                 .ifRefNull("value")
                 .assignRef("value", newInstance(ArrayList.class))
                 .expression(exprDotMethod(ref("result"), "put", ref("key"), ref("value")))
                 .blockEnd()
                 .expression(exprDotMethod(ref("value"), "add", ref("next")));
-        CodegenMethodId method = block.methodReturn(ref("result"));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(ref("result"));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 }

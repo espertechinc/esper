@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.type.FrequencyParameter;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -90,17 +91,18 @@ public class ExprNumberSetFrequency extends ExprNodeBase implements ExprForge, E
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge forge = this.getChildNodes()[0].getForge();
         Class evaluationType = forge.getEvaluationType();
-        CodegenBlock block = context.addMethod(FrequencyParameter.class, ExprNumberSetFrequency.class).add(params).begin()
-                .declareVar(evaluationType, "value", forge.evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(FrequencyParameter.class, ExprNumberSetFrequency.class);
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(evaluationType, "value", forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!evaluationType.isPrimitive()) {
             block.ifRefNull("value")
                 .blockReturn(staticMethod(ExprNumberSetFrequency.class, "handleNumberSetFreqNullValue"));
         }
-        CodegenMethodId method = block.methodReturn(newInstance(FrequencyParameter.class, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(newInstance(FrequencyParameter.class, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

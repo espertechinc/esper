@@ -12,15 +12,16 @@ package com.espertech.esper.epl.datetime.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarForge;
 import com.espertech.esper.epl.datetime.dtlocal.*;
 import com.espertech.esper.epl.datetime.interval.IntervalForge;
 import com.espertech.esper.epl.datetime.reformatop.ReformatForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalVisitor;
@@ -40,7 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprDotDTForge implements ExprDotForge {
@@ -80,13 +81,15 @@ public class ExprDotDTForge implements ExprDotForge {
         };
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenBlock block = context.addMethod(((ClassEPType) returnType).getType(), ExprDotDTForge.class).add(innerType, "target").add(params).begin();
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(((ClassEPType) returnType).getType(), ExprDotDTForge.class).addParam(innerType, "target");
+
+        CodegenBlock block = methodNode.getBlock();
         if (!innerType.isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
-        CodegenMethodId method = block.methodReturn(forge.codegen(ref("target"), innerType, params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        block.methodReturn(forge.codegen(ref("target"), innerType, methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 
     public EPType getTypeInfo() {

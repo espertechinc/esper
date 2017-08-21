@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.enummethod.eval;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
 public class EnumGroupByKeyValueSelectorEventsForge extends EnumForgeBase {
@@ -28,7 +29,7 @@ public class EnumGroupByKeyValueSelectorEventsForge extends EnumForgeBase {
         return new EnumGroupByKeyValueSelectorEventsForgeEval(this, innerExpression.getExprEvaluator(), secondExpression.getExprEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade premade, CodegenContext context) {
-        return EnumGroupByKeyValueSelectorEventsForgeEval.codegen(this, premade, context);
+    public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return EnumGroupByKeyValueSelectorEventsForgeEval.codegen(this, premade, codegenMethodScope, codegenClassScope);
     }
 }

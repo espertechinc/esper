@@ -11,14 +11,15 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 public interface EventPropertyGetterSPI extends EventPropertyGetter {
-    CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context);
-    CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context);
-    CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context);
-    CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context);
-    CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context);
-    CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context);
+    CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.expression.dot.inner;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalRootChildInnerEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalRootChildInnerForge;
@@ -34,20 +35,20 @@ public class InnerDotEnumerableEventBeanForge implements ExprDotEvalRootChildInn
         return new InnerDotEnumerableEventBeanEval(rootLambdaForge.getExprEvaluatorEnumeration());
     }
 
-    public CodegenExpression codegenEvaluate(CodegenParamSetExprPremade params, CodegenContext context) {
-        return rootLambdaForge.evaluateGetEventBeanCodegen(params, context);
+    public CodegenExpression codegenEvaluate(CodegenMethodNode parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return rootLambdaForge.evaluateGetEventBeanCodegen(parentMethod, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return rootLambdaForge.evaluateGetROCollectionEventsCodegen(params, context);
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodNode parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return rootLambdaForge.evaluateGetROCollectionEventsCodegen(parentMethod, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return rootLambdaForge.evaluateGetROCollectionScalarCodegen(params, context);
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodNode parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return rootLambdaForge.evaluateGetROCollectionScalarCodegen(parentMethod, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return rootLambdaForge.evaluateGetEventBeanCodegen(params, context);
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodNode parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return rootLambdaForge.evaluateGetEventBeanCodegen(parentMethod, exprSymbol, codegenClassScope);
     }
 
     public EventType getEventTypeCollection() {

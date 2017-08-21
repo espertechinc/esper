@@ -12,12 +12,12 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataInternalEventToPublic;
@@ -65,23 +65,27 @@ public class SelectExprJoinWildcardProcessorTableRows implements SelectExprProce
         return this;
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(EventBean.class, SelectExprJoinWildcardProcessorTableRows.class).add(params).begin()
-                .declareVar(EventBean[].class, "eventsPerStreamWTableRows", newArray(EventBean.class, constant(types.length)));
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+        methodNode.getBlock().declareVar(EventBean[].class, "eventsPerStreamWTableRows", newArray(EventBean.class, constant(types.length)));
         for (int i = 0; i < types.length; i++) {
             if (tables[i] == null) {
-                block.assignArrayElement("eventsPerStreamWTableRows", constant(i), arrayAtIndex(params.passEPS(), constant(i)));
+                methodNode.getBlock().assignArrayElement("eventsPerStreamWTableRows", constant(i), arrayAtIndex(refEPS, constant(i)));
             } else {
-                CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tables[i].getEventToPublic());
+                CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, tables[i].getEventToPublic());
                 String refname = "e" + i;
-                block.declareVar(EventBean.class, refname, arrayAtIndex(params.passEPS(), constant(i)))
+                methodNode.getBlock().declareVar(EventBean.class, refname, arrayAtIndex(refEPS, constant(i)))
                         .ifRefNotNull(refname)
-                        .assignArrayElement("eventsPerStreamWTableRows", constant(i), exprDotMethod(member(eventToPublic.getMemberId()), "convert", ref(refname), params.passEPS(), params.passIsNewData(), params.passEvalCtx()))
+                        .assignArrayElement("eventsPerStreamWTableRows", constant(i), exprDotMethod(member(eventToPublic.getMemberId()), "convert", ref(refname), refEPS, refIsNewData, refExprEvalCtx))
                         .blockEnd();
             }
         }
-        CodegenMethodId method = block.assignRef(CodegenParamSetSelectPremade.EPS_NAME, ref("eventsPerStreamWTableRows"))
-                            .methodReturn(innerForge.processCodegen(memberResultEventType, memberEventAdapterService, params, context));
-        return localMethodBuild(method).passAll(params).call();
+        CodegenMethodNode innerMethod = innerForge.processCodegen(memberResultEventType, memberEventAdapterService, codegenMethodScope, selectSymbol, exprSymbol, codegenClassScope);
+        methodNode.getBlock().assignRef(refEPS.getRef(), ref("eventsPerStreamWTableRows"))
+                            .methodReturn(localMethod(innerMethod));
+        return methodNode;
     }
 }

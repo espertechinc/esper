@@ -527,7 +527,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             throw new ConfigurationException("Invalid time-source time unit of " + timeUnit + ", expected millis or micros");
         }
 
-        boolean codegen = configSnapshot.getEngineDefaults().getCodeGeneration().isEnablePropertyGetter() || configSnapshot.getEngineDefaults().getCodeGeneration().isEnableExpression();
+        boolean codegen = configSnapshot.getEngineDefaults().getCodeGeneration().isEnableSelectClause() || configSnapshot.getEngineDefaults().getCodeGeneration().isEnablePropertyGetter() || configSnapshot.getEngineDefaults().getCodeGeneration().isEnableExpression();
         CodegenCompiler codegenCompiler = null;
         if (codegen) {
             if (PackageName.check("uri_" + engineURI) == PackageName.INVALID) {

@@ -11,10 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -64,13 +66,14 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
         return array;
     }
 
-    public static CodegenExpression codegen(ExprArrayNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprArrayNodeForgeEval.class).add(params).begin()
+    public static CodegenExpression codegen(ExprArrayNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprArrayNodeForgeEval.class);
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(forge.getEvaluationType(), "array", newArray(forge.getArrayReturnType(), constant(forge.getForgeRenderable().getChildNodes().length)));
         for (int i = 0; i < forge.getForgeRenderable().getChildNodes().length; i++) {
             ExprForge child = forge.getForgeRenderable().getChildNodes()[i].getForge();
             String refname = "r" + i;
-            block.declareVar(child.getEvaluationType(), refname, child.evaluateCodegen(params, context));
+            block.declareVar(child.getEvaluationType(), refname, child.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
 
             if (child.getEvaluationType().isPrimitive()) {
                 if (!forge.isMustCoerce()) {
@@ -87,7 +90,8 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
                 }
             }
         }
-        return localMethodBuild(block.methodReturn(ref("array"))).passAll(params).call();
+        block.methodReturn(ref("array"));
+        return localMethod(methodNode);
     }
 
 
@@ -117,12 +121,13 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
         return resultList;
     }
 
-    public static CodegenExpression codegenEvaluateGetROCollectionScalar(ExprArrayNodeForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
+    public static CodegenExpression codegenEvaluateGetROCollectionScalar(ExprArrayNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprNode[] children = forge.getForgeRenderable().getChildNodes();
         if (children.length == 0) {
             return staticMethod(Collections.class, "emptyList");
         }
-        CodegenBlock block = context.addMethod(Collection.class, ExprArrayNodeForgeEval.class).add(params).begin()
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprArrayNodeForgeEval.class);
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(ArrayDeque.class, "resultList", newInstance(ArrayDeque.class, constant(children.length)));
         int count = -1;
         for (ExprNode child : children) {
@@ -133,7 +138,7 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
             if (returnType == null) {
                 continue;
             }
-            block.declareVar(returnType, refname, childForge.evaluateCodegen(params, context));
+            block.declareVar(returnType, refname, childForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             CodegenExpression nonNullTest = returnType.isPrimitive() ? constantTrue() : notEqualsNull(ref(refname));
             CodegenBlock blockIfNotNull = block.ifCondition(nonNullTest);
             CodegenExpression added = ref(refname);
@@ -142,7 +147,8 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
             }
             blockIfNotNull.expression(exprDotMethod(ref("resultList"), "add", added));
         }
-        return localMethodBuild(block.methodReturn(ref("resultList"))).passAll(params).call();
+        block.methodReturn(ref("resultList"));
+        return localMethod(methodNode);
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

@@ -15,9 +15,6 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -79,10 +76,6 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
                 }
             }
         }
-    }
-
-    public CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return expressionBodyCopy.getForge().evaluateCodegen(params, context);
     }
 
     public ExprForge getForge() {

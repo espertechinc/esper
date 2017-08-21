@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.JavaClassHelper;
@@ -67,15 +68,18 @@ public class EnumOrderByAscDescEventsForgeEval implements EnumEval {
         return enumOrderBySortEval(sort, hasColl, forge.descending);
     }
 
-    public static CodegenExpression codegen(EnumOrderByAscDescEventsForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public static CodegenExpression codegen(EnumOrderByAscDescEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerBoxedType = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
-        CodegenBlock block = context.addMethod(Collection.class, EnumOrderByAscDescEventsForgeEval.class).add(premade).begin()
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumOrderByAscDescEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(TreeMap.class, "sort", newInstance(TreeMap.class))
-                .declareVar(boolean.class, "hasColl", constantFalse())
-                .forEach(EventBean.class, "next", premade.enumcoll())
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerBoxedType, "value", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+                .declareVar(boolean.class, "hasColl", constantFalse());
+        block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
+                .declareVar(innerBoxedType, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
                 .declareVar(Object.class, "entry", exprDotMethod(ref("sort"), "get", ref("value")))
                 .ifCondition(equalsNull(ref("entry")))
                     .expression(exprDotMethod(ref("sort"), "put", ref("value"), ref("next")))
@@ -89,8 +93,8 @@ public class EnumOrderByAscDescEventsForgeEval implements EnumEval {
                 .exprDotMethod(ref("sort"), "put", ref("value"), ref("coll"))
                 .assignRef("hasColl", constantTrue())
                 .blockEnd();
-        CodegenMethodId method = block.methodReturn(staticMethod(EnumOrderByAscDescEventsForgeEval.class, "enumOrderBySortEval", ref("sort"), ref("hasColl"), constant(forge.descending)));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(staticMethod(EnumOrderByAscDescEventsForgeEval.class, "enumOrderBySortEval", ref("sort"), ref("hasColl"), constant(forge.descending)));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 
     /**

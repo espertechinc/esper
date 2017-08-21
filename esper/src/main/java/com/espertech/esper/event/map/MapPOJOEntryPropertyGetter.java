@@ -12,9 +12,10 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.bean.BaseNativePropertyGetter;
@@ -59,13 +60,13 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
         return mapEntryGetter.getBeanProp(value);
     }
 
-    private CodegenMethodId getMapCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
+    private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")
                 .ifInstanceOf("value", EventBean.class)
-                    .blockReturn(mapEntryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), context))
-                .methodReturn(mapEntryGetter.underlyingGetCodegen(castRef(mapEntryGetter.getTargetType(), "value"), context));
+                    .blockReturn(mapEntryGetter.eventBeanGetCodegen(castRef(EventBean.class, "value"), codegenMethodScope, codegenClassScope))
+                .methodReturn(mapEntryGetter.underlyingGetCodegen(castRef(mapEntryGetter.getTargetType(), "value"), codegenMethodScope, codegenClassScope));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -80,19 +81,19 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getMapCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getMapCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 

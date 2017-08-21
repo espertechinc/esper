@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
 
 import java.util.Collection;
 
@@ -40,12 +41,14 @@ public class SelectExprProcessorEnumerationCollEval implements ExprEvaluator {
         return events.toArray(new EventBean[events.size()]);
     }
 
-    public static CodegenExpression codegen(SelectExprProcessorEnumerationCollForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(EventBean[].class, SelectExprProcessorEnumerationCollEval.class).add(params).begin()
-                .declareVar(Collection.class, EventBean.class, "events", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(params, context))
+    public static CodegenExpression codegen(SelectExprProcessorEnumerationCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationCollEval.class);
+
+        methodNode.getBlock()
+                .declareVar(Collection.class, EventBean.class, "events", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("events")
                 .methodReturn(cast(EventBean[].class, exprDotMethod(ref("events"), "toArray", newArray(EventBean.class, exprDotMethod(ref("events"), "size")))));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
 }

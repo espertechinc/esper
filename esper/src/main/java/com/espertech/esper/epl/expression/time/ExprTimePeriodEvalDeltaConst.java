@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 public interface ExprTimePeriodEvalDeltaConst extends ExprTimePeriodEvalDeltaConstFactory {
@@ -22,5 +23,5 @@ public interface ExprTimePeriodEvalDeltaConst extends ExprTimePeriodEvalDeltaCon
 
     public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst timeDeltaComputation);
 
-    CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenContext context);
+    CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

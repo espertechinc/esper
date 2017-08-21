@@ -14,16 +14,16 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.ExprDotDTFactory;
 import com.espertech.esper.epl.datetime.eval.ExprDotDTMethodDesc;
 import com.espertech.esper.epl.enummethod.dot.*;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.rettype.*;
@@ -36,7 +36,7 @@ import net.sf.cglib.reflect.FastMethod;
 
 import java.util.*;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprDotNodeUtility {
@@ -257,20 +257,21 @@ public class ExprDotNodeUtility {
         }
     }
 
-    public static CodegenExpression evaluateChainCodegen(CodegenContext context, CodegenParamSetExprPremade params, CodegenExpression inner, Class innerType, ExprDotForge[] forges, ExprDotStaticMethodWrap optionalResultWrapLambda) {
+    public static CodegenExpression evaluateChainCodegen(CodegenMethodNode parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, CodegenExpression inner, Class innerType, ExprDotForge[] forges, ExprDotStaticMethodWrap optionalResultWrapLambda) {
         if (forges.length == 0) {
             return inner;
         }
         ExprDotForge last = forges[forges.length - 1];
         Class lastType = EPTypeHelper.getCodegenReturnType(last.getTypeInfo());
-        CodegenBlock block = context.addMethod(lastType, ExprDotNodeUtility.class).add(innerType, "inner").add(params).begin();
+        CodegenMethodNode methodNode = parent.makeChild(lastType, ExprDotNodeUtility.class).addParam(innerType, "inner");
 
+        CodegenBlock block = methodNode.getBlock();
         String currentTarget = "wrapped";
         Class currentTargetType;
         if (optionalResultWrapLambda != null) {
             currentTargetType = EPTypeHelper.getCodegenReturnType(optionalResultWrapLambda.getTypeInfo());
             block.ifRefNullReturnNull("inner")
-                    .declareVar(currentTargetType, "wrapped", optionalResultWrapLambda.codegenConvertNonNull(ref("inner"), context));
+                    .declareVar(currentTargetType, "wrapped", optionalResultWrapLambda.codegenConvertNonNull(ref("inner"), methodNode, codegenClassScope));
         } else {
             block.declareVar(innerType, "wrapped", ref("inner"));
             currentTargetType = innerType;
@@ -281,9 +282,9 @@ public class ExprDotNodeUtility {
             refname = "r" + i;
             Class reftype = EPTypeHelper.getCodegenReturnType(forges[i].getTypeInfo());
             if (reftype == void.class) {
-                block.expression(forges[i].codegen(ref(currentTarget), currentTargetType, context, params));
+                block.expression(forges[i].codegen(ref(currentTarget), currentTargetType, methodNode, exprSymbol, codegenClassScope));
             } else {
-                block.declareVar(reftype, refname, forges[i].codegen(ref(currentTarget), currentTargetType, context, params));
+                block.declareVar(reftype, refname, forges[i].codegen(ref(currentTarget), currentTargetType, methodNode, exprSymbol, codegenClassScope));
                 currentTarget = refname;
                 currentTargetType = reftype;
                 if (!reftype.isPrimitive()) {
@@ -291,8 +292,12 @@ public class ExprDotNodeUtility {
                 }
             }
         }
-        CodegenMethodId method = lastType == void.class ? block.methodEnd() : block.methodReturn(ref(refname));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        if (lastType == void.class) {
+            block.methodEnd();
+        } else {
+            block.methodReturn(ref(refname));
+        }
+        return localMethod(methodNode, inner);
     }
 
 

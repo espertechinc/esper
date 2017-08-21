@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.epl.property;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -29,8 +28,6 @@ import java.util.List;
  * but does not consider select-clauses.
  */
 public class PropertyEvaluatorNested implements PropertyEvaluator {
-    private static final Logger log = LoggerFactory.getLogger(PropertyEvaluatorNested.class);
-
     private final ContainedEventEval[] containedEventEvals;
     private final FragmentEventType[] fragmentEventType;
     private final ExprEvaluator[] whereClauses;
@@ -121,10 +118,11 @@ public class PropertyEvaluatorNested implements PropertyEvaluator {
                 }
             }
         } catch (RuntimeException ex) {
-            log.error("Unexpected error evaluating property expression for event of type '" +
+            String message = "Unexpected error evaluating property expression for event of type '" +
                     branch.getEventType().getName() +
                     "' and property '" +
-                    expressionTexts.get(level + 1) + "': " + ex.getMessage(), ex);
+                    expressionTexts.get(level + 1) + "': " + ex.getMessage();
+            throw new EPException(message, ex);
         }
     }
 

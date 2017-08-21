@@ -11,19 +11,20 @@
 package com.espertech.esper.epl.datetime.dtlocal;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
 import com.espertech.esper.epl.datetime.reformatop.ReformatOp;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.epl.datetime.dtlocal.DTLocalUtil.evaluateCalOpsZDT;
 
@@ -39,10 +40,13 @@ public class DTLocalZonedDateTimeOpsReformatEval extends DTLocalEvaluatorCalopRe
         return reformatOp.evaluate(zdt, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalZonedDateTimeOpsReformatForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(forge.reformatForge.getReturnType(), DTLocalZonedDateTimeOpsReformatEval.class).add(ZonedDateTime.class, "zdt").add(params).begin();
-        DTLocalUtil.evaluateCalOpsZDTCodegen(block, "zdt", forge.calendarForges, params, context);
-        CodegenMethodId method = block.methodReturn(forge.reformatForge.codegenZDT(ref("zdt"), params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+    public static CodegenExpression codegen(DTLocalZonedDateTimeOpsReformatForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalZonedDateTimeOpsReformatEval.class).addParam(ZonedDateTime.class, "zdt");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        DTLocalUtil.evaluateCalOpsZDTCodegen(block, "zdt", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
+        block.methodReturn(forge.reformatForge.codegenZDT(ref("zdt"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 }

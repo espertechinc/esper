@@ -14,12 +14,13 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -92,17 +93,19 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
         return null;
     }
 
-    public static CodegenExpression codegen(ExprDotNodeForgeStaticMethod forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprDotNodeForgeStaticMethod forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember isCachedMember = null;
         CodegenMember cachedResultMember = null;
-        CodegenMember methodMember = context.makeAddMember(Method.class, forge.getStaticMethod().getJavaMethod());
+        CodegenMember methodMember = codegenClassScope.makeAddMember(Method.class, forge.getStaticMethod().getJavaMethod());
         if (forge.isConstantParameters()) {
-            isCachedMember = context.makeAddMember(AtomicBoolean.class, new AtomicBoolean(false));
-            cachedResultMember = context.makeAddMember(AtomicReference.class, new AtomicReference<Object>(null));
+            isCachedMember = codegenClassScope.makeAddMember(AtomicBoolean.class, new AtomicBoolean(false));
+            cachedResultMember = codegenClassScope.makeAddMember(AtomicReference.class, new AtomicReference<Object>(null));
         }
         Class returnType = forge.getStaticMethod().getReturnType();
 
-        CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeStaticMethodEval.class).add(params).begin();
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeStaticMethodEval.class);
+
+        CodegenBlock block = methodNode.getBlock();
 
         // check cached
         if (forge.isConstantParameters()) {
@@ -115,11 +118,11 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
         }
 
         // generate args
-        CodegenExpression[] args = codegenArgExpressions(block, forge.getChildForges(), forge.getStaticMethod().getJavaMethod(), params, context);
+        CodegenExpression[] args = codegenArgExpressions(block, forge.getChildForges(), forge.getStaticMethod().getJavaMethod(), methodNode, exprSymbol, codegenClassScope);
 
         // try block
         CodegenBlock tryBlock = block.tryCatch();
-        CodegenExpression invoke = codegenInvokeExpression(forge, args, context);
+        CodegenExpression invoke = codegenInvokeExpression(forge, args, codegenClassScope);
         if (returnType == void.class) {
             tryBlock.expression(invoke);
             if (forge.isConstantParameters()) {
@@ -136,7 +139,7 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
                 }
                 tryBlock.blockReturn(ref("result"));
             } else {
-                tryBlock.declareVar(forge.getEvaluationType(), "chain", ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("result"), returnType, forge.getChainForges(), forge.getResultWrapLambda()));
+                tryBlock.declareVar(forge.getEvaluationType(), "chain", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("result"), returnType, forge.getChainForges(), forge.getResultWrapLambda()));
                 if (forge.isConstantParameters()) {
                     tryBlock.expression(exprDotMethod(member(cachedResultMember.getMemberId()), "set", ref("chain")));
                     tryBlock.expression(exprDotMethod(member(isCachedMember.getMemberId()), "set", constantTrue()));
@@ -155,13 +158,12 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
                 constant(forge.getStatementName()), member(methodMember.getMemberId()), constant(forge.getClassOrPropertyName()), ref("argArray"), ref("t"), constant(forge.isRethrowExceptions())));
 
         // end method
-        CodegenMethodId method;
         if (returnType == void.class) {
-            method = block.methodEnd();
+            block.methodEnd();
         } else {
-            method = block.methodReturn(constantNull());
+            block.methodReturn(constantNull());
         }
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -215,20 +217,20 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
         }
     }
 
-    private static CodegenExpression codegenInvokeExpression(ExprDotNodeForgeStaticMethod forge, CodegenExpression[] args, CodegenContext context) {
+    private static CodegenExpression codegenInvokeExpression(ExprDotNodeForgeStaticMethod forge, CodegenExpression[] args, CodegenClassScope codegenClassScope) {
         if (forge.getTargetObject() == null) {
             return staticMethod(forge.getStaticMethod().getDeclaringClass(), forge.getStaticMethod().getJavaMethod().getName(), args);
         } else {
             if (forge.getTargetObject().getClass().isEnum()) {
                 return exprDotMethod(enumValue(forge.getTargetObject().getClass(), forge.getTargetObject().toString()), forge.getStaticMethod().getName(), args);
             } else {
-                CodegenMember target = context.makeAddMember(forge.getTargetObject().getClass(), forge.getTargetObject());
+                CodegenMember target = codegenClassScope.makeAddMember(forge.getTargetObject().getClass(), forge.getTargetObject());
                 return exprDotMethod(member(target.getMemberId()), forge.getStaticMethod().getJavaMethod().getName(), args);
             }
         }
     }
 
-    private static CodegenExpression[] codegenArgExpressions(CodegenBlock block, ExprForge[] forges, Method method, CodegenParamSetExprPremade params, CodegenContext context) {
+    private static CodegenExpression[] codegenArgExpressions(CodegenBlock block, ExprForge[] forges, Method method, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression[] args = new CodegenExpression[forges.length];
         for (int i = 0; i < forges.length; i++) {
             String name = "r" + i;
@@ -237,7 +239,7 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
             if (child.getEvaluationType() == null) {
                 block.declareVar(method.getParameterTypes()[i], name, constantNull());
             } else {
-                block.declareVar(child.getEvaluationType(), name, child.evaluateCodegen(params, context));
+                block.declareVar(child.getEvaluationType(), name, child.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
             }
         }
         return args;

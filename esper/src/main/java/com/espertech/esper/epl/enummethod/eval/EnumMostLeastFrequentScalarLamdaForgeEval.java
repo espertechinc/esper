@@ -11,14 +11,15 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
@@ -30,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
 
 public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
 
@@ -72,21 +72,24 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
         return EnumMostLeastFrequentEventForgeEval.getEnumMostLeastFrequentResult(items, forge.isMostFrequent);
     }
 
-    public static CodegenExpression codegen(EnumMostLeastFrequentScalarLamdaForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenMember resultTypeMember = context.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
+    public static CodegenExpression codegen(EnumMostLeastFrequentScalarLamdaForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember resultTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
         Class returnType = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenBlock block = context.addMethod(returnType, EnumMostLeastFrequentScalarLamdaForgeEval.class).add(premade).begin()
-                .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(returnType, EnumMostLeastFrequentScalarLamdaForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
+                .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(constantNull())
                 .declareVar(Map.class, "items", newInstance(LinkedHashMap.class))
                 .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("resultEvent"))
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
-        CodegenBlock forEach = block.forEach(Object.class, "next", premade.enumcoll())
+        CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
                 .declareVar(Integer.class, "existing", cast(Integer.class, exprDotMethod(ref("items"), "get", ref("item"))))
                 .ifCondition(equalsNull(ref("existing")))
                 .assignRef("existing", constant(1))
@@ -94,7 +97,7 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
                 .expression(increment("existing"))
                 .blockEnd()
                 .exprDotMethod(ref("items"), "put", ref("item"), ref("existing"));
-        CodegenMethodId method = block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 }

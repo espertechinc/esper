@@ -12,11 +12,12 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataInternalEventToPublic;
@@ -42,13 +43,17 @@ public class SelectExprWildcardTableProcessor implements SelectExprProcessor, Se
         return tableMetadata.getPublicEventBean(event, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenMember memberEventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(0)))
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember memberEventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(0)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(exprDotMethod(member(memberEventToPublic.getMemberId()), "convert", ref("event"), params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
-        return localMethodBuild(method).passAll(params).call();
+                .methodReturn(exprDotMethod(member(memberEventToPublic.getMemberId()), "convert", ref("event"), refEPS, refIsNewData, refExprEvalCtx));
+        return methodNode;
     }
 
     public EventType getResultEventType() {

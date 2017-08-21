@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -62,19 +63,22 @@ public class ExprRegexpNodeForgeConstEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenMethodId codegen(ExprRegexpNodeForgeConst forge, ExprNode lhs, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMember mPattern = context.makeAddMember(Pattern.class, forge.getPattern());
+    public static CodegenMethodNode codegen(ExprRegexpNodeForgeConst forge, ExprNode lhs, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember mPattern = codegenClassScope.makeAddMember(Pattern.class, forge.getPattern());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRegexpNodeForgeConstEval.class);
 
         if (!forge.isNumericValue()) {
-            return context.addMethod(Boolean.class, ExprRegexpNodeForgeConstEval.class).add(params).begin()
-                    .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(params, context))
+            methodNode.getBlock()
+                    .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getRegexpCode(forge, member(mPattern.getMemberId()), ref("value")));
+        } else {
+            methodNode.getBlock()
+                    .declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .ifRefNullReturnNull("value")
+                    .methodReturn(getRegexpCode(forge, member(mPattern.getMemberId()), exprDotMethod(ref("value"), "toString")));
         }
-        return context.addMethod(Boolean.class, ExprRegexpNodeForgeConstEval.class).add(params).begin()
-                .declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(params, context))
-                .ifRefNullReturnNull("value")
-                .methodReturn(getRegexpCode(forge, member(mPattern.getMemberId()), exprDotMethod(ref("value"), "toString")));
+        return methodNode;
     }
 
     static CodegenExpression getRegexpCode(ExprRegexpNodeForge forge, CodegenExpression pattern, CodegenExpression stringExpr) {

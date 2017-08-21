@@ -12,13 +12,16 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.DecoratingEventBean;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
@@ -46,9 +49,10 @@ public class EvalInsertWildcardSSWrapperRevision extends EvalBaseMap implements 
         return selectExprInsertWildcardSSWrapRevision(eventsPerStream, evaluators.length, props, vaeProcessor);
     }
 
-    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenMember member = context.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
-        return staticMethod(EvalInsertWildcardSSWrapperRevision.class, "selectExprInsertWildcardSSWrapRevision", params.passEPS(), constant(evaluators.length), props, CodegenExpressionBuilder.member(member.getMemberId()));
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenMethodNode methodNode, SelectExprProcessorCodegenSymbol selectEnv, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember member = codegenClassScope.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        return staticMethod(EvalInsertWildcardSSWrapperRevision.class, "selectExprInsertWildcardSSWrapRevision", refEPS, constant(evaluators.length), props, CodegenExpressionBuilder.member(member.getMemberId()));
     }
 
     /**

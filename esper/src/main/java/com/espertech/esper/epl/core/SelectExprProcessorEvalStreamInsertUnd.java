@@ -11,10 +11,12 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -41,11 +43,14 @@ public class SelectExprProcessorEvalStreamInsertUnd implements ExprForge, ExprEv
         return eventsPerStream == null ? null : eventsPerStream[streamNum];
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(EventBean.class, SelectExprProcessorEvalStreamInsertUnd.class).add(params).begin()
-                .ifCondition(equalsNull(params.passEPS())).blockReturn(constantNull())
-                .methodReturn(arrayAtIndex(params.passEPS(), constant(streamNum)));
-        return localMethodBuild(method).passAll(params).call();
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorEvalStreamInsertUnd.class);
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        methodNode.getBlock()
+                .ifCondition(equalsNull(refEPS)).blockReturn(constantNull())
+                .methodReturn(arrayAtIndex(refEPS, constant(streamNum)));
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

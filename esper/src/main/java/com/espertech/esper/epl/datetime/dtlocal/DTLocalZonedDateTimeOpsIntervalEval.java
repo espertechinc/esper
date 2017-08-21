@@ -11,15 +11,16 @@
 package com.espertech.esper.epl.datetime.dtlocal;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
 import com.espertech.esper.epl.datetime.interval.IntervalOp;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.ZonedDateTime;
@@ -42,12 +43,15 @@ public class DTLocalZonedDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
         return intervalOp.evaluate(time, time, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalZonedDateTimeOpsIntervalForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(Boolean.class, DTLocalZonedDateTimeOpsIntervalEval.class).add(ZonedDateTime.class, "target").add(params).begin();
-        evaluateCalOpsZDTCodegen(block, "target", forge.calendarForges, params, context);
+    public static CodegenExpression codegen(DTLocalZonedDateTimeOpsIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZonedDateTimeOpsIntervalEval.class).addParam(ZonedDateTime.class, "target");
+
+
+        CodegenBlock block = methodNode.getBlock();
+        evaluateCalOpsZDTCodegen(block, "target", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
         block.declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")));
-        CodegenMethodId method = block.methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        block.methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 
     public Object evaluate(Object startTimestamp, Object endTimestamp, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -60,16 +64,19 @@ public class DTLocalZonedDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
         return intervalOp.evaluate(startLong, endTime, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(DTLocalZonedDateTimeOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(Boolean.class, DTLocalZonedDateTimeOpsIntervalEval.class).add(ZonedDateTime.class, "start").add(ZonedDateTime.class, "end").add(params).begin()
+    public static CodegenExpression codegen(DTLocalZonedDateTimeOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZonedDateTimeOpsIntervalEval.class).addParam(ZonedDateTime.class, "start").addParam(ZonedDateTime.class, "end");
+
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(long.class, "startMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("start")))
                 .declareVar(long.class, "endMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("end")))
                 .declareVar(long.class, "deltaMSec", op(ref("endMs"), "-", ref("startMs")))
                 .declareVar(ZonedDateTime.class, "result", start);
-        evaluateCalOpsZDTCodegen(block, "result", forge.calendarForges, params, context);
+        evaluateCalOpsZDTCodegen(block, "result", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
         block.declareVar(long.class, "startLong", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("result")));
         block.declareVar(long.class, "endTime", op(ref("startLong"), "+", ref("deltaMSec")));
-        CodegenMethodId method = block.methodReturn(forge.intervalForge.codegen(ref("startLong"), ref("endTime"), params, context));
-        return localMethodBuild(method).pass(start).pass(end).passAll(params).call();
+        block.methodReturn(forge.intervalForge.codegen(ref("startLong"), ref("endTime"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, start, end);
     }
 }

@@ -11,8 +11,8 @@
 package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.event.BaseNestableEventUtil;
@@ -32,9 +32,9 @@ public class MapPropertyGetterDefaultObjectArray extends MapPropertyGetterDefaul
         return BaseNestableEventUtil.handleBNCreateFragmentObjectArray(value, fragmentEventType, eventAdapterService);
     }
 
-    protected CodegenExpression handleCreateFragmentCodegen(CodegenExpression value, CodegenContext context) {
-        CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
-        CodegenMember mType = context.makeAddMember(EventType.class, fragmentEventType);
+    protected CodegenExpression handleCreateFragmentCodegen(CodegenExpression value, CodegenClassScope codegenClassScope) {
+        CodegenMember mSvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember mType = codegenClassScope.makeAddMember(EventType.class, fragmentEventType);
         return staticMethod(BaseNestableEventUtil.class, "handleBNCreateFragmentObjectArray", value, CodegenExpressionBuilder.member(mType.getMemberId()), CodegenExpressionBuilder.member(mSvc.getMemberId()));
     }
 }

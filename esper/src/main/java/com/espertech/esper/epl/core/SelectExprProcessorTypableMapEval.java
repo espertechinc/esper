@@ -12,11 +12,12 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventAdapterService;
@@ -43,17 +44,19 @@ public class SelectExprProcessorTypableMapEval implements ExprEvaluator {
         return forge.eventAdapterService.adapterForTypedMap(values, forge.mapType);
     }
 
-    public static CodegenExpression codegen(SelectExprProcessorTypableMapForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMember eventAdapterService = context.makeAddMember(EventAdapterService.class, forge.eventAdapterService);
-        CodegenMember mapType = context.makeAddMember(EventType.class, forge.mapType);
-        CodegenMethodId method = context.addMethod(EventBean.class, SelectExprProcessorTypableMapEval.class).add(params).begin()
-                .declareVar(Map.class, "values", forge.innerForge.evaluateCodegen(params, context))
+    public static CodegenExpression codegen(SelectExprProcessorTypableMapForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember eventAdapterService = codegenClassScope.makeAddMember(EventAdapterService.class, forge.eventAdapterService);
+        CodegenMember mapType = codegenClassScope.makeAddMember(EventType.class, forge.mapType);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableMapEval.class);
+
+        methodNode.getBlock()
+                .declareVar(Map.class, "values", forge.innerForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .declareVarNoInit(Map.class, "map")
                 .ifRefNull("values")
                 .assignRef("values", staticMethod(Collections.class, "emptyMap"))
                 .blockEnd()
                 .methodReturn(exprDotMethod(member(eventAdapterService.getMemberId()), "adapterForTypedMap", ref("values"), member(mapType.getMemberId())));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
 }

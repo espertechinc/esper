@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.expression.baseagg;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.agg.service.AggregationResultFuture;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
@@ -45,8 +46,8 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge
         return groupKey;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, returnType, params, context);
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, returnType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.util.JavaClassHelper;
@@ -31,7 +32,7 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
         return Math.round(1000d * seconds);
     }
 
-    public CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenContext context) {
+    public CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenClassScope codegenClassScope) {
         return staticMethod(Math.class, "round", op(constant(1000d), "*", sec));
     }
 
@@ -47,8 +48,8 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
         return 0;
     }
 
-    public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenContext context) {
-        return localMethodBuild(context.addMethod(long.class, TimeAbacusMilliseconds.class).add(long.class, "fromTime").add(Calendar.class, "cal").begin()
+    public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethodBuild(codegenMethodScope.makeChild(long.class, TimeAbacusMilliseconds.class).addParam(long.class, "fromTime").addParam(Calendar.class, "cal").getBlock()
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("fromTime")))
                 .methodReturn(constant(0))).pass(startLong).pass(cal).call();
     }
@@ -69,7 +70,7 @@ public class TimeAbacusMilliseconds implements TimeAbacus {
         return newInstance(Date.class, ts);
     }
 
-    public CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenContext context) {
+    public CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenClassScope codegenClassScope) {
         return exprDotMethod(cal, "getTimeInMillis");
     }
 }

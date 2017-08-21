@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.codegen.core;
 
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+
 import java.util.*;
 
 public class CodegenClass {
@@ -17,25 +20,22 @@ public class CodegenClass {
     private final String className;
     private final Class interfaceImplemented;
     private final IdentityHashMap<Object, CodegenMember> members;
-    private final List<CodegenMethod> publicMethods;
-    private final List<CodegenMethod> privateMethods;
+    private final CodegenClassMethods methods;
 
-    public CodegenClass(Class interfaceClass, CodegenContext codegenContext, String engineURI, CodegenMethod... methods) {
+    public CodegenClass(Class interfaceClass, CodegenClassScope codegenClassScope, String engineURI, CodegenClassMethods methods) {
         this("com.espertech.esper.generated.uri_" + engineURI,
                 interfaceClass.getSimpleName() + "_" + CodeGenerationIDGenerator.generateClass(),
                 interfaceClass,
-                codegenContext.getMembers(),
-                Arrays.asList(methods),
-                codegenContext.getMethods());
+                codegenClassScope.getMembers(),
+                methods);
     }
 
-    private CodegenClass(String packageName, String className, Class interfaceImplemented, IdentityHashMap<Object, CodegenMember> members, List<CodegenMethod> publicMethods, List<CodegenMethod> privateMethods) {
+    private CodegenClass(String packageName, String className, Class interfaceImplemented, IdentityHashMap<Object, CodegenMember> members, CodegenClassMethods methods) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceImplemented = interfaceImplemented;
         this.members = members;
-        this.publicMethods = publicMethods;
-        this.privateMethods = privateMethods;
+        this.methods = methods;
     }
 
     public String getPackageName() {
@@ -55,11 +55,11 @@ public class CodegenClass {
     }
 
     public List<CodegenMethod> getPublicMethods() {
-        return publicMethods;
+        return methods.getPublicMethods();
     }
 
     public List<CodegenMethod> getPrivateMethods() {
-        return privateMethods;
+        return methods.getPrivateMethods();
     }
 
     public Set<Class> getReferencedClasses() {
@@ -68,10 +68,10 @@ public class CodegenClass {
         for (Map.Entry<Object, CodegenMember> memberEntry : members.entrySet()) {
             memberEntry.getValue().mergeClasses(classes);
         }
-        for (CodegenMethod publicMethod : publicMethods) {
+        for (CodegenMethod publicMethod : methods.getPublicMethods()) {
             publicMethod.mergeClasses(classes);
         }
-        for (CodegenMethod privateMethod : privateMethods) {
+        for (CodegenMethod privateMethod : methods.getPrivateMethods()) {
             privateMethod.mergeClasses(classes);
         }
         return classes;

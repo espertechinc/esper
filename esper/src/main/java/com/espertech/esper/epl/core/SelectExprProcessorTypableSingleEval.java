@@ -11,13 +11,16 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprTypableReturnEval;
 import com.espertech.esper.event.EventBeanManufacturer;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
@@ -44,18 +47,20 @@ public class SelectExprProcessorTypableSingleEval implements ExprEvaluator {
         return new EventBean[]{forge.factory.make(row)};
     }
 
-    public static CodegenExpression codegen(SelectExprProcessorTypableSingleForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember factory = context.makeAddMember(EventBeanManufacturer.class, forge.factory);
-        CodegenBlock block = context.addMethod(EventBean[].class, SelectExprProcessorTypableSingleEval.class).add(params).begin()
-                .declareVar(Object[].class, "row", forge.typable.evaluateTypableSingleCodegen(params, context))
+    public static CodegenExpression codegen(SelectExprProcessorTypableSingleForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember factory = codegenClassScope.makeAddMember(EventBeanManufacturer.class, forge.factory);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorTypableSingleEval.class);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(Object[].class, "row", forge.typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("row");
         if (forge.hasWideners) {
-            block.expression(applyWidenersCodegen(ref("row"), forge.wideners, context));
+            block.expression(applyWidenersCodegen(ref("row"), forge.wideners, methodNode, codegenClassScope));
         }
-        CodegenMethodId method = block.declareVar(EventBean[].class, "events", newArray(EventBean.class, constant(1)))
+        block.declareVar(EventBean[].class, "events", newArray(EventBean.class, constant(1)))
                 .assignArrayElement("events", constant(0), exprDotMethod(member(factory.getMemberId()), "make", ref("row")))
                 .methodReturn(ref("events"));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
 }

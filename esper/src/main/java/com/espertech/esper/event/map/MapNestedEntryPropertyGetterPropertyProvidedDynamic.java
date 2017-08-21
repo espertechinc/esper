@@ -13,10 +13,11 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 
@@ -48,11 +49,11 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
         return null;
     }
 
-    private CodegenMethodId handleNestedValueCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
+    private CodegenMethodNode handleNestedValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "value").getBlock()
                 .ifRefNotTypeReturnConst("value", Map.class, "null");
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingGetCodegen(cast(Map.class, ref("value")), context));
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingGetCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
         }
         return block.methodReturn(constantNull());
     }
@@ -68,13 +69,13 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
         return false;
     }
 
-    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
+    private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnFalse("value")
                 .ifRefNotTypeReturnConst("value", Map.class, false);
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(Map.class, ref("value")), context));
+            return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingExistsCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
         }
         return block.methodReturn(constantFalse());
     }
@@ -83,21 +84,21 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
         return null;
     }
 
-    public CodegenExpression handleNestedValueCodegen(CodegenExpression valueExpression, CodegenContext context) {
-        return localMethod(handleNestedValueCodegen(context), valueExpression);
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression valueExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(handleNestedValueCodegen(codegenMethodScope, codegenClassScope), valueExpression);
     }
 
-    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context) {
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
     @Override
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
     @Override
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(isExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 }

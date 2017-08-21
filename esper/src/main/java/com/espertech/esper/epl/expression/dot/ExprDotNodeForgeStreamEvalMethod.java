@@ -11,11 +11,13 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -61,24 +63,26 @@ public class ExprDotNodeForgeStreamEvalMethod implements ExprEvaluator {
         return inner;
     }
 
-    public static CodegenExpression codegen(ExprDotNodeForgeStream forge, CodegenParamSetExprPremade params, CodegenContext context) {
+    public static CodegenExpression codegen(ExprDotNodeForgeStream forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.getEvaluationType();
         Class eventUndType = forge.getEventType().getUnderlyingType();
-        CodegenBlock block = context.addMethod(evaluationType, ExprDotNodeForgeStreamEvalMethod.class).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(forge.getStreamNumber())));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprDotNodeForgeStreamEvalMethod.class);
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamNumber())));
         if (evaluationType == void.class) {
             block.ifCondition(equalsNull(ref("event"))).blockReturnNoValue();
         } else {
             block.ifRefNullReturnNull("event");
         }
         block.declareVar(eventUndType, "inner", cast(eventUndType, exprDotMethod(ref("event"), "getUnderlying")));
-        CodegenExpression invoke = ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("inner"), eventUndType, forge.getEvaluators(), null);
-        CodegenMethodId method;
+        CodegenExpression invoke = ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), eventUndType, forge.getEvaluators(), null);
         if (evaluationType == void.class) {
-            method = block.expression(invoke).methodEnd();
+            block.expression(invoke).methodEnd();
         } else {
-            method = block.methodReturn(invoke);
+            block.methodReturn(invoke);
         }
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 }

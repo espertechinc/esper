@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.epl.datetime.eval;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 public interface DatetimeLongCoercer {
     long coerce(Object date);
-    CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenContext context);
+    CodegenExpression codegen(CodegenExpression value, Class valueType, CodegenClassScope codegenClassScope);
 }

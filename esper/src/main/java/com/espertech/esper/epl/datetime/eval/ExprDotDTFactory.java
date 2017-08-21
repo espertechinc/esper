@@ -12,9 +12,9 @@ package com.espertech.esper.epl.datetime.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.util.TimePeriod;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.datetime.calop.CalendarForge;
 import com.espertech.esper.epl.datetime.calop.CalendarForgeFactory;
@@ -22,6 +22,7 @@ import com.espertech.esper.epl.datetime.interval.IntervalForge;
 import com.espertech.esper.epl.datetime.interval.IntervalForgeFactory;
 import com.espertech.esper.epl.datetime.reformatop.ReformatForge;
 import com.espertech.esper.epl.datetime.reformatop.ReformatForgeFactory;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotForge;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
@@ -153,8 +154,8 @@ public class ExprDotDTFactory {
                         };
                     }
 
-                    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-                        return timePeriod.evaluateGetTimePeriodCodegen(params, context);
+                    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+                        return timePeriod.evaluateGetTimePeriodCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
                     }
 
                     public ExprForgeComplexityEnum getComplexity() {

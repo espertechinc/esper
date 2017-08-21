@@ -12,14 +12,11 @@ package com.espertech.esper.epl.datetime.interval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetIntervalNonPremade;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -27,6 +24,8 @@ import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerLocalDateTime;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.FilterExprAnalyzerDTIntervalAffector;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputProp;
@@ -163,8 +162,8 @@ public class IntervalForgeImpl implements IntervalForge {
         return new IntervalForgeOp(forgeTimestamp.getExprEvaluator(), intervalOpForge.makeEval());
     }
 
-    public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenParamSetExprPremade params, CodegenContext context) {
-        return IntervalForgeOp.codegen(this, start, end, params, context);
+    public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return IntervalForgeOp.codegen(this, start, end, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForge getForgeTimestamp() {
@@ -221,7 +220,7 @@ public class IntervalForgeImpl implements IntervalForge {
 
     public static interface IntervalOpForge {
         public IntervalOpEval makeEval();
-        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context);
+        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
     }
 
     public static interface IntervalOpEval {
@@ -253,8 +252,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpDateEval(intervalComputer.makeComputerEval());
         }
 
-        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalOpDateEval.codegen(this, start, end, parameter, params, context);
+        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalOpDateEval.codegen(this, start, end, parameter, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -269,12 +268,12 @@ public class IntervalForgeImpl implements IntervalForge {
             return intervalComputer.compute(startTs, endTs, time, time, eventsPerStream, isNewData, context);
         }
 
-        public static CodegenExpression codegen(IntervalOpDateForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpDateEval.class).add(long.class, "startTs").add(long.class, "endTs").add(Date.class, "parameter").add(params)
-                    .begin()
+        public static CodegenExpression codegen(IntervalOpDateForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpDateEval.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(Date.class, "parameter");
+            methodNode.getBlock()
                     .declareVar(long.class, "time", exprDotMethod(ref("parameter"), "getTime"))
-                    .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
-            return localMethodBuild(method).pass(start).pass(end).pass(parameter).passAll(params).call();
+                    .methodReturn(forge.intervalComputer.codegen(ref("startTs"), ref("endTs"), ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
+            return localMethod(methodNode, start, end, parameter);
         }
     }
 
@@ -288,8 +287,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpEvalLong(intervalComputer.makeComputerEval());
         }
 
-        public CodegenExpression codegen(CodegenExpression startTs, CodegenExpression endTs, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalOpEvalLong.codegen(intervalComputer, startTs, endTs, parameter, params, context);
+        public CodegenExpression codegen(CodegenExpression startTs, CodegenExpression endTs, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalOpEvalLong.codegen(intervalComputer, startTs, endTs, parameter, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -304,8 +303,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return intervalComputer.compute(startTs, endTs, time, time, eventsPerStream, isNewData, context);
         }
 
-        public static CodegenExpression codegen(IntervalComputerForge intervalComputer, CodegenExpression startTs, CodegenExpression endTs, CodegenExpression parameter, CodegenParamSetExprPremade params, CodegenContext context) {
-            return intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(startTs, endTs, parameter, parameter), params, context);
+        public static CodegenExpression codegen(IntervalComputerForge intervalComputer, CodegenExpression startTs, CodegenExpression endTs, CodegenExpression parameter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return intervalComputer.codegen(startTs, endTs, parameter, parameter, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -319,8 +318,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpCalEval(intervalComputer.makeComputerEval());
         }
 
-        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalOpCalEval.codegen(this, start, end, parameter, params, context);
+        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalOpCalEval.codegen(this, start, end, parameter, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -335,11 +334,14 @@ public class IntervalForgeImpl implements IntervalForge {
             return intervalComputer.compute(startTs, endTs, time, time, eventsPerStream, isNewData, context);
         }
 
-        public static CodegenExpression codegen(IntervalOpCalForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpDateEval.class).add(long.class, "startTs").add(long.class, "endTs").add(Calendar.class, "parameter").add(params).begin()
+        public static CodegenExpression codegen(IntervalOpCalForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpDateEval.class)
+                    .addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(Calendar.class, "parameter");
+
+            methodNode.getBlock()
                     .declareVar(long.class, "time", exprDotMethod(ref("parameter"), "getTimeInMillis"))
-                    .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
-            return localMethodBuild(method).pass(start).pass(end).pass(parameter).passAll(params).call();
+                    .methodReturn(forge.intervalComputer.codegen(ref("startTs"), ref("endTs"), ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
+            return localMethod(methodNode, start, end, parameter);
         }
     }
 
@@ -356,8 +358,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpLocalDateTimeEval(intervalComputer.makeComputerEval(), timeZone);
         }
 
-        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalOpLocalDateTimeEval.codegen(this, start, end, parameter, parameterType, params, context);
+        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalOpLocalDateTimeEval.codegen(this, start, end, parameter, parameterType, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -375,12 +377,14 @@ public class IntervalForgeImpl implements IntervalForge {
             return intervalComputer.compute(startTs, endTs, time, time, eventsPerStream, isNewData, context);
         }
 
-        public static CodegenExpression codegen(IntervalOpLocalDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpLocalDateTimeEval.class).add(long.class, "startTs").add(long.class, "endTs").add(LocalDateTime.class, "parameter").add(params).begin()
+        public static CodegenExpression codegen(IntervalOpLocalDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpLocalDateTimeEval.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(LocalDateTime.class, "parameter");
+
+            methodNode.getBlock()
                     .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("parameter"), member(tz.getMemberId())))
-                    .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
-            return localMethodBuild(method).pass(start).pass(end).pass(parameter).passAll(params).call();
+                    .methodReturn(forge.intervalComputer.codegen(ref("startTs"), ref("endTs"), ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
+            return localMethod(methodNode, start, end, parameter);
         }
     }
 
@@ -394,8 +398,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpZonedDateTimeEval(intervalComputer.makeComputerEval());
         }
 
-        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalOpZonedDateTimeEval.codegen(this, start, end, parameter, params, context);
+        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalOpZonedDateTimeEval.codegen(this, start, end, parameter, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -410,11 +414,13 @@ public class IntervalForgeImpl implements IntervalForge {
             return intervalComputer.compute(startTs, endTs, time, time, eventsPerStream, isNewData, context);
         }
 
-        public static CodegenExpression codegen(IntervalOpZonedDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalOpZonedDateTimeEval.class).add(long.class, "startTs").add(long.class, "endTs").add(ZonedDateTime.class, "parameter").add(params).begin()
+        public static CodegenExpression codegen(IntervalOpZonedDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpZonedDateTimeEval.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(ZonedDateTime.class, "parameter");
+
+            methodNode.getBlock()
                     .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("parameter")))
-                    .methodReturn(forge.intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(ref("startTs"), ref("endTs"), ref("time"), ref("time")), params, context));
-            return localMethodBuild(method).pass(start).pass(end).pass(parameter).passAll(params).call();
+                    .methodReturn(forge.intervalComputer.codegen(ref("startTs"), ref("endTs"), ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
+            return localMethod(methodNode, start, end, parameter);
         }
     }
 
@@ -427,16 +433,18 @@ public class IntervalForgeImpl implements IntervalForge {
             this.forgeEndTimestamp = forgeEndTimestamp;
         }
 
-        protected abstract CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenParamSetExprPremade params, CodegenContext context);
+        protected abstract CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
-        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenBlock block = context.addMethod(Boolean.class, IntervalOpForgeDateWithEndBase.class).add(long.class, "startTs").add(long.class, "endTs").add(parameterType, "paramStartTs").add(params).begin()
-                    .declareVar(forgeEndTimestamp.getEvaluationType(), "paramEndTs", forgeEndTimestamp.evaluateCodegen(params, context));
+        public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpForgeDateWithEndBase.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(parameterType, "paramStartTs");
+
+            methodNode.getBlock().declareVar(forgeEndTimestamp.getEvaluationType(), "paramEndTs", forgeEndTimestamp.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             if (!forgeEndTimestamp.getEvaluationType().isPrimitive()) {
-                block.ifRefNullReturnNull("paramEndTs");
+                methodNode.getBlock().ifRefNullReturnNull("paramEndTs");
             }
-            CodegenExpression expression = codegenEvaluate(ref("startTs"), ref("endTs"), ref("paramStartTs"), ref("paramEndTs"), params, context);
-            return localMethodBuild(block.methodReturn(expression)).pass(start).pass(end).pass(parameter).passAll(params).call();
+            CodegenExpression expression = codegenEvaluate(ref("startTs"), ref("endTs"), ref("paramStartTs"), ref("paramEndTs"), methodNode, exprSymbol, codegenClassScope);
+            methodNode.getBlock().methodReturn(expression);
+            return localMethod(methodNode, start, end, parameter);
         }
     }
 
@@ -470,8 +478,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpDateWithEndEval(intervalComputer.makeComputerEval(), forgeEndTimestamp.getExprEvaluator());
         }
 
-        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenParamSetExprPremade params, CodegenContext context) {
-            return intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(startTs, endTs, exprDotMethod(paramStartTs, "getTime"), exprDotMethod(paramEndTs, "getTime")), params, context);
+        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return intervalComputer.codegen(startTs, endTs, exprDotMethod(paramStartTs, "getTime"), exprDotMethod(paramEndTs, "getTime"), parentNode, exprSymbol, codegenClassScope);
         }
     }
 
@@ -496,8 +504,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpLongWithEndEval(intervalComputer.makeComputerEval(), forgeEndTimestamp.getExprEvaluator());
         }
 
-        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenParamSetExprPremade params, CodegenContext context) {
-            return intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(startTs, endTs, paramStartTs, paramEndTs), params, context);
+        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return intervalComputer.codegen(startTs, endTs, paramStartTs, paramEndTs, parentNode, exprSymbol, codegenClassScope);
         }
     }
 
@@ -522,8 +530,8 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpCalWithEndEval(intervalComputer.makeComputerEval(), forgeEndTimestamp.getExprEvaluator());
         }
 
-        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenParamSetExprPremade params, CodegenContext context) {
-            return intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(startTs, endTs, exprDotMethod(paramStartTs, "getTimeInMillis"), exprDotMethod(paramEndTs, "getTimeInMillis")), params, context);
+        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return intervalComputer.codegen(startTs, endTs, exprDotMethod(paramStartTs, "getTimeInMillis"), exprDotMethod(paramEndTs, "getTimeInMillis"), parentNode, exprSymbol, codegenClassScope);
         }
     }
 
@@ -551,12 +559,12 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpLocalDateTimeWithEndEval(intervalComputer.makeComputerEval(), forgeEndTimestamp.getExprEvaluator(), timeZone);
         }
 
-        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMember tz = context.makeAddMember(TimeZone.class, timeZone);
-            return intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(startTs, endTs,
-                    staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramStartTs, member(tz.getMemberId())),
-                    staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramEndTs, member(tz.getMemberId()))),
-                    params, context);
+        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
+            return intervalComputer.codegen(startTs, endTs,
+                            staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramStartTs, member(tz.getMemberId())),
+                            staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", paramEndTs, member(tz.getMemberId())),
+                    parentNode, exprSymbol, codegenClassScope);
         }
     }
 
@@ -584,11 +592,10 @@ public class IntervalForgeImpl implements IntervalForge {
             return new IntervalOpZonedDateTimeWithEndEval(intervalComputer.makeComputerEval(), forgeEndTimestamp.getExprEvaluator());
         }
 
-        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenParamSetExprPremade params, CodegenContext context) {
-            return intervalComputer.codegen(new CodegenParamSetIntervalNonPremade(startTs, endTs,
+        protected CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return intervalComputer.codegen(startTs, endTs,
                     staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", paramStartTs),
-                    staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", paramEndTs)),
-                    params, context);
+                    staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", paramEndTs), parentNode, exprSymbol, codegenClassScope);
         }
     }
 

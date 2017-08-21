@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.datetime.dtlocal;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarForge;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.LocalDateTime;
@@ -42,9 +43,9 @@ public class DTLocalUtil {
         }
     }
 
-    protected static void evaluateCalOpsCalendarCodegen(CodegenBlock block, List<CalendarForge> calendarForges, CodegenExpressionRef cal, CodegenParamSetExprPremade params, CodegenContext context) {
+    protected static void evaluateCalOpsCalendarCodegen(CodegenBlock block, List<CalendarForge> calendarForges, CodegenExpressionRef cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         for (CalendarForge calendarForge : calendarForges) {
-            block.expression(calendarForge.codegenCalendar(cal, params, context));
+            block.expression(calendarForge.codegenCalendar(cal, codegenMethodScope, exprSymbol, codegenClassScope));
         }
     }
 
@@ -55,9 +56,9 @@ public class DTLocalUtil {
         return ldt;
     }
 
-    protected static void evaluateCalOpsLDTCodegen(CodegenBlock block, String resultVariable, List<CalendarForge> calendarForges, CodegenParamSetExprPremade params, CodegenContext context) {
+    protected static void evaluateCalOpsLDTCodegen(CodegenBlock block, String resultVariable, List<CalendarForge> calendarForges, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         for (CalendarForge calendarForge : calendarForges) {
-            block.assignRef(resultVariable, calendarForge.codegenLDT(ref(resultVariable), params, context));
+            block.assignRef(resultVariable, calendarForge.codegenLDT(ref(resultVariable), codegenMethodScope, exprSymbol, codegenClassScope));
         }
     }
 
@@ -68,9 +69,9 @@ public class DTLocalUtil {
         return zdt;
     }
 
-    protected static void evaluateCalOpsZDTCodegen(CodegenBlock block, String resultVariable, List<CalendarForge> calendarForges, CodegenParamSetExprPremade params, CodegenContext context) {
+    protected static void evaluateCalOpsZDTCodegen(CodegenBlock block, String resultVariable, List<CalendarForge> calendarForges, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         for (CalendarForge calendarForge : calendarForges) {
-            block.assignRef(resultVariable, calendarForge.codegenZDT(ref(resultVariable), params, context));
+            block.assignRef(resultVariable, calendarForge.codegenZDT(ref(resultVariable), codegenMethodScope, exprSymbol, codegenClassScope));
         }
     }
 }

@@ -11,14 +11,16 @@
 package com.espertech.esper.epl.datetime.interval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class IntervalForgeOp implements IntervalOp {
@@ -40,13 +42,16 @@ public class IntervalForgeOp implements IntervalOp {
         return intervalOpEval.evaluate(startTs, endTs, parameter, eventsPerStream, isNewData, context);
     }
 
-    public static CodegenExpression codegen(IntervalForgeImpl forge, CodegenExpression start, CodegenExpression end, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(Boolean.class, IntervalForgeOp.class).add(long.class, "startTs").add(long.class, "endTs").add(params).begin()
-                .declareVar(forge.getForgeTimestamp().getEvaluationType(), "parameter", forge.getForgeTimestamp().evaluateCodegen(params, context));
+    public static CodegenExpression codegen(IntervalForgeImpl forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalForgeOp.class).addParam(long.class, "startTs").addParam(long.class, "endTs");
+
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(forge.getForgeTimestamp().getEvaluationType(), "parameter", forge.getForgeTimestamp().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!forge.getForgeTimestamp().getEvaluationType().isPrimitive()) {
             block.ifRefNullReturnNull("parameter");
         }
-        CodegenMethodId method = block.methodReturn(forge.getIntervalOpForge().codegen(ref("startTs"), ref("endTs"), ref("parameter"), forge.getForgeTimestamp().getEvaluationType(), params, context));
-        return localMethodBuild(method).pass(start).pass(end).passAll(params).call();
+        block.methodReturn(forge.getIntervalOpForge().codegen(ref("startTs"), ref("endTs"), ref("parameter"), forge.getForgeTimestamp().getEvaluationType(), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, start, end);
     }
 }

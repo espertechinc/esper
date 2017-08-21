@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -63,24 +64,29 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
         return null;
     }
 
-    public static CodegenExpression codegen(ExprCoalesceNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprCoalesceNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (forge.getEvaluationType() == null) {
             return constantNull();
         }
-        CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprCoalesceNodeForgeEval.class).add(params).begin();
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCoalesceNodeForgeEval.class);
+
+
+        CodegenBlock block = methodNode.getBlock();
         int num = 0;
-        CodegenMethodId method = null;
+        boolean doneWithReturn = false;
         for (ExprNode node : forge.getForgeRenderable().getChildNodes()) {
             if (node.getForge().getEvaluationType() != null) {
-                String refname = "v" + num;
-                block.declareVar(node.getForge().getEvaluationType(), refname, node.getForge().evaluateCodegen(params, context));
+                String refname = "r" + num;
+                block.declareVar(node.getForge().getEvaluationType(), refname, node.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
 
                 if (node.getForge().getEvaluationType().isPrimitive()) {
                     if (!forge.getIsNumericCoercion()[num]) {
-                        method = block.methodReturn(ref(refname));
+                        block.methodReturn(ref(refname));
+                        doneWithReturn = true;
                     } else {
                         SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(node.getForge().getEvaluationType(), forge.getEvaluationType());
-                        method = block.methodReturn(coercer.coerceCodegen(ref(refname), node.getForge().getEvaluationType()));
+                        block.methodReturn(coercer.coerceCodegen(ref(refname), node.getForge().getEvaluationType()));
+                        doneWithReturn = true;
                     }
                     break;
                 }
@@ -95,9 +101,9 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
             num++;
         }
 
-        if (method == null) {
-            method = block.methodReturn(constantNull());
+        if (!doneWithReturn) {
+            block.methodReturn(constantNull());
         }
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 }

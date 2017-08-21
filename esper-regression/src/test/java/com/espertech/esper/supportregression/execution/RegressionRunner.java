@@ -26,8 +26,7 @@ public class RegressionRunner {
         Configuration configuration = SupportConfigFactory.getConfiguration();
 
         if (!codegen) {
-            configuration.getEngineDefaults().getCodeGeneration().setEnablePropertyGetter(true);
-            configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
+            configuration.getEngineDefaults().getCodeGeneration().disableAll();
         }
 
         try {

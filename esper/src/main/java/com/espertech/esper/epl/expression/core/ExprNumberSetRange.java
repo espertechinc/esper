@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.type.RangeParameter;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -111,12 +112,13 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
         log.warn("Null value returned for upper bounds value in range parameter, using max as upper bounds");
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge valueLower = this.getChildNodes()[0].getForge();
         ExprForge valueUpper = this.getChildNodes()[1].getForge();
-        CodegenBlock block = context.addMethod(RangeParameter.class, ExprNumberSetRange.class).add(params).begin()
-                .declareVar(valueLower.getEvaluationType(), "valueLower", valueLower.evaluateCodegen(params, context))
-                .declareVar(valueUpper.getEvaluationType(), "valueUpper", valueUpper.evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(RangeParameter.class, ExprNumberSetRange.class);
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(valueLower.getEvaluationType(), "valueLower", valueLower.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(valueUpper.getEvaluationType(), "valueUpper", valueUpper.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!valueLower.getEvaluationType().isPrimitive()) {
             block.ifRefNull("valueLower")
                     .expression(staticMethod(ExprNumberSetRange.class, "handleNumberSetRangeLowerNull"))
@@ -130,11 +132,11 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
                     .assignRef("valueUpper", enumValue(Integer.class, "MAX_VALUE"))
                     .blockEnd();
         }
-        CodegenMethodId method = block.methodReturn(newInstance(RangeParameter.class,
+        block.methodReturn(newInstance(RangeParameter.class,
                 SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueLower"), valueLower.getEvaluationType()),
                 SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("valueUpper"), valueUpper.getEvaluationType())
         ));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

@@ -35,5 +35,4 @@ public class ExprConcatNodeForgeEvalThreadLocal implements ExprEvaluator {
         buffer.delete(0, buffer.length());
         return ExprConcatNodeForgeEvalWNew.evaluate(eventsPerStream, isNewData, context, buffer, evaluators, form);
     }
-
 }

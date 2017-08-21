@@ -12,17 +12,18 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -30,8 +31,6 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.TypeWidener;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class EvalInsertNoWildcardObjectArrayRemapWWiden implements SelectExprProcessor, SelectExprProcessorForge {
 
@@ -74,21 +73,22 @@ public class EvalInsertNoWildcardObjectArrayRemapWWiden implements SelectExprPro
         return resultEventType;
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext codegenContext) {
-        return processCodegen(memberResultEventType, memberEventAdapterService, params, codegenContext, context.getExprForges(), resultEventType.getPropertyNames(), remapped, wideners);
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return processCodegen(memberResultEventType, memberEventAdapterService, codegenMethodScope, exprSymbol, codegenClassScope, context.getExprForges(), resultEventType.getPropertyNames(), remapped, wideners);
     }
 
-    public static CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context, ExprForge[] forges, String[] propertyNames, int[] remapped, TypeWidener[] optionalWideners) {
-        CodegenBlock block = context.addMethod(EventBean.class, EvalInsertNoWildcardObjectArrayRemap.class).add(params).begin()
+    public static CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprForge[] forges, String[] propertyNames, int[] remapped, TypeWidener[] optionalWideners) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, EvalInsertNoWildcardObjectArrayRemap.class);
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "result", newArray(Object.class, constant(propertyNames.length)));
         for (int i = 0; i < forges.length; i++) {
-            CodegenExpression value = forges[i].evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+            CodegenExpression value = forges[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
             if (optionalWideners != null && optionalWideners[i] != null) {
-                value = optionalWideners[i].widenCodegen(value, context);
+                value = optionalWideners[i].widenCodegen(value, codegenMethodScope, codegenClassScope);
             }
             block.assignArrayElement(ref("result"), constant(remapped[i]), value);
         }
-        CodegenMethodId method = block.methodReturn(exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", ref("result"), CodegenExpressionBuilder.member(memberResultEventType.getMemberId())));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", ref("result"), CodegenExpressionBuilder.member(memberResultEventType.getMemberId())));
+        return methodNode;
     }
 }

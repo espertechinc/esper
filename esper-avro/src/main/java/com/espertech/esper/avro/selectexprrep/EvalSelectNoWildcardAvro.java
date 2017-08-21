@@ -14,15 +14,16 @@ import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.core.eval.SelectExprForgeContext;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
@@ -106,16 +107,17 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor, SelectExpr
         return resultEventType;
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenMember avroSchema = context.makeAddMember(Schema.class, resultEventType.getSchemaAvro());
-        CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember avroSchema = codegenClassScope.makeAddMember(Schema.class, resultEventType.getSchemaAvro());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(GenericData.Record.class, "record", newInstance(GenericData.Record.class, member(avroSchema.getMemberId())));
         for (int i = 0; i < selectExprForgeContext.getColumnNames().length; i++) {
-            CodegenExpression expression = forges[i].evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+            CodegenExpression expression = forges[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
             block.expression(exprDotMethod(ref("record"), "put", constant(selectExprForgeContext.getColumnNames()[i]), expression));
         }
-        CodegenMethodId method = block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", ref("record"), member(memberResultEventType.getMemberId())));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", ref("record"), member(memberResultEventType.getMemberId())));
+        return methodNode;
     }
 
     private ExprForge handleFragment(SelectExprProcessorEvalByGetterFragment eval) {

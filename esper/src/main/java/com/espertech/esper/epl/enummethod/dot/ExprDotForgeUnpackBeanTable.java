@@ -12,11 +12,13 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalVisitor;
@@ -45,12 +47,18 @@ public class ExprDotForgeUnpackBeanTable implements ExprDotForge, ExprDotEval {
         return tableMetadata.getEventToPublic().convertToUnd((EventBean) target, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        CodegenMethodId method = context.addMethod(Object[].class, ExprDotForgeUnpackBeanTable.class).add(EventBean.class, "target").add(params).begin()
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprDotForgeUnpackBeanTable.class).addParam(EventBean.class, "target");
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        methodNode.getBlock()
                 .ifRefNullReturnNull("target")
-                .methodReturn(exprDotMethod(member(eventToPublic.getMemberId()), "convertToUnd", ref("target"), params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+                .methodReturn(exprDotMethod(member(eventToPublic.getMemberId()), "convertToUnd", ref("target"), refEPS, refIsNewData, refExprEvalCtx));
+        return localMethod(methodNode, inner);
     }
 
     public EPType getTypeInfo() {

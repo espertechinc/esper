@@ -12,9 +12,10 @@ package com.espertech.esper.event.wrap;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.DecoratingEventBean;
 import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
 
@@ -39,12 +40,12 @@ public class WrapperGetterIndexed implements EventPropertyGetterIndexedSPI {
         return undIndexed.get(wrapped, index);
     }
 
-    public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
-        CodegenMethodId method = context.addMethod(Object.class, WrapperGetterIndexed.class).add(EventBean.class, "event").add(int.class, "index").begin()
+    public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, WrapperGetterIndexed.class).addParam(EventBean.class, "event").addParam(int.class, "index").getBlock()
                 .declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, ref("event")))
                 .declareVar(EventBean.class, "wrapped", exprDotMethod(ref("wrapper"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrapped")
-                .methodReturn(undIndexed.eventBeanGetIndexedCodegen(context, ref("wrapped"), ref("index")));
+                .methodReturn(undIndexed.eventBeanGetIndexedCodegen(codegenMethodScope, codegenClassScope, ref("wrapped"), ref("index")));
         return localMethodBuild(method).pass(beanExpression).pass(key).call();
     }
 }

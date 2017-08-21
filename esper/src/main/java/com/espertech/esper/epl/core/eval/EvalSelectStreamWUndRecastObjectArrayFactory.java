@@ -12,16 +12,19 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
@@ -136,9 +139,12 @@ public class EvalSelectStreamWUndRecastObjectArrayFactory {
             return this;
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenExpression value = exprDotMethod(cast(ObjectArrayBackedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber))), "getProperties");
-            return exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", value, member(memberResultEventType.getMemberId()));
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+            CodegenExpression value = exprDotMethod(cast(ObjectArrayBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))), "getProperties");
+            methodNode.getBlock().methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", value, member(memberResultEventType.getMemberId())));
+            return methodNode;
         }
     }
 
@@ -191,24 +197,26 @@ public class EvalSelectStreamWUndRecastObjectArrayFactory {
             return manufacturer.make(props);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMember member = context.makeAddMember(EventBeanManufacturer.class, manufacturer);
-            CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
-                    .declareVar(ObjectArrayBackedEventBean.class, "theEvent", cast(ObjectArrayBackedEventBean.class, arrayAtIndex(params.passEPS(), constant(underlyingStreamNumber))))
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMember member = codegenClassScope.makeAddMember(EventBeanManufacturer.class, manufacturer);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(ObjectArrayBackedEventBean.class, "theEvent", cast(ObjectArrayBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
                     .declareVar(Object[].class, "props", newArray(Object.class, constant(items.length)));
             for (Item item : items) {
                 if (item.getOptionalFromIndex() != -1) {
                     block.assignArrayElement("props", constant(item.getToIndex()), arrayAtIndex(exprDotMethod(ref("theEvent"), "getProperties"), constant(item.getOptionalFromIndex())));
                 } else {
-                    CodegenExpression value = item.forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+                    CodegenExpression value = item.forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
                     if (item.getOptionalWidener() != null) {
-                        value = item.getOptionalWidener().widenCodegen(value, context);
+                        value = item.getOptionalWidener().widenCodegen(value, methodNode, codegenClassScope);
                     }
                     block.assignArrayElement("props", constant(item.getToIndex()), value);
                 }
             }
-            CodegenMethodId method = block.methodReturn(exprDotMethod(member(member.getMemberId()), "make", ref("props")));
-            return localMethodBuild(method).passAll(params).call();
+            block.methodReturn(exprDotMethod(member(member.getMemberId()), "make", ref("props")));
+            return methodNode;
         }
     }
 

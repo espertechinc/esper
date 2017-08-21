@@ -11,15 +11,16 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.service.ExpressionResultCacheForEnumerationMethod;
 import com.espertech.esper.core.service.ExpressionResultCacheStackEntry;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.enummethod.eval.EnumForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalVisitor;
@@ -67,8 +68,8 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         return new ExprDotForgeEnumMethodEval(this, enumForge.getEnumEvaluator(), cache, enumEvalNumRequiredEvents);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        return ExprDotForgeEnumMethodEval.codegen(this, inner, innerType, context, params);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ExprDotForgeEnumMethodEval.codegen(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public void init(Integer streamOfProviderIfApplicable, EnumMethodEnum enumMethodEnum, String enumMethodUsedName, EPType typeInfo, List<ExprNode> parameters, ExprValidationContext validationContext) throws ExprValidationException {

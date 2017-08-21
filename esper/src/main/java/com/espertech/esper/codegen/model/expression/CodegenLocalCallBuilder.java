@@ -8,34 +8,28 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.model.method;
+package com.espertech.esper.codegen.model.expression;
 
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CodegenLocalCallBuilder {
 
-    private final CodegenMethodId methodId;
-    private final List<CodegenPassSet> parameterSets = new ArrayList<>(2);
+    private final CodegenMethodNode methodNode;
+    private final List<CodegenExpression> parameters = new ArrayList<>(2);
 
-    public CodegenLocalCallBuilder(CodegenMethodId methodId) {
-        this.methodId = methodId;
-    }
-
-    public CodegenLocalCallBuilder passAll(CodegenParamSet params) {
-        parameterSets.add(params.getPassAll());
-        return this;
+    public CodegenLocalCallBuilder(CodegenMethodNode methodNode) {
+        this.methodNode = methodNode;
     }
 
     public CodegenLocalCallBuilder pass(CodegenExpression expression) {
-        parameterSets.add(new CodegenPassSetSingle(expression));
+        parameters.add(expression);
         return this;
     }
 
     public CodegenExpression call() {
-        return new CodegenExpressionLocalMethodParamSet(methodId, parameterSets);
+        return new CodegenExpressionLocalCall(methodNode, parameters);
     }
 }

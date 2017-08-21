@@ -12,9 +12,10 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.BaseNestableEventUtil;
 
 import java.util.Map;
@@ -50,12 +51,12 @@ public class MapMapPropertyGetter implements MapEventPropertyGetter {
         return getter.getMap((Map) valueTopObj);
     }
 
-    private CodegenMethodId getMapMethodCodegen(CodegenContext context) throws PropertyAccessException {
-        return context.addMethod(Object.class, this.getClass()).add(Map.class, "map").begin()
+    private CodegenMethodNode getMapMethodCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
             .declareVar(Object.class, "valueTopObj", exprDotMethod(ref("map"), "get", constant(propertyMap)))
             .ifRefNotTypeReturnConst("valueTopObj", Map.class, null)
             .declareVar(Map.class, "value", castRef(Map.class, "valueTopObj"))
-            .methodReturn(getter.underlyingGetCodegen(ref("value"), context));
+            .methodReturn(getter.underlyingGetCodegen(ref("value"), codegenMethodScope, codegenClassScope));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -66,12 +67,12 @@ public class MapMapPropertyGetter implements MapEventPropertyGetter {
         return getter.isMapExistsProperty((Map) valueTopObj);
     }
 
-    private CodegenMethodId isMapExistsPropertyCodegen(CodegenContext context) throws PropertyAccessException {
-        return context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
+    private CodegenMethodNode isMapExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "valueTopObj", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNotTypeReturnConst("valueTopObj", Map.class, false)
                 .declareVar(Map.class, "value", castRef(Map.class, "valueTopObj"))
-                .methodReturn(getter.underlyingExistsCodegen(ref("value"), context));
+                .methodReturn(getter.underlyingExistsCodegen(ref("value"), codegenMethodScope, codegenClassScope));
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -86,27 +87,27 @@ public class MapMapPropertyGetter implements MapEventPropertyGetter {
         return null;
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getMapMethodCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getMapMethodCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(isMapExistsPropertyCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(isMapExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 }

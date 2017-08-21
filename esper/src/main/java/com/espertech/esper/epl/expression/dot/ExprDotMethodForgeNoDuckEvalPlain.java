@@ -11,13 +11,10 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.codegen.model.statement.CodegenStatementTryCatch;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
@@ -67,17 +64,20 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
         return forge;
     }
 
-    public static CodegenExpression codegenPlain(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegenPlain(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class returnType = JavaClassHelper.getBoxedType(forge.getMethod().getReturnType());
-        CodegenMember methodMember = context.makeAddMember(Method.class, forge.getMethod().getJavaMethod());
-        CodegenBlock block = context.addMethod(returnType, ExprDotMethodForgeNoDuckEvalPlain.class).add(forge.getMethod().getDeclaringClass(), "target").add(params).begin();
+        CodegenMember methodMember = codegenClassScope.makeAddMember(Method.class, forge.getMethod().getJavaMethod());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDotMethodForgeNoDuckEvalPlain.class).addParam(forge.getMethod().getDeclaringClass(), "target");
+
+        CodegenBlock block = methodNode.getBlock();
+
         if (!innerType.isPrimitive() && returnType != void.class) {
             block.ifRefNullReturnNull("target");
         }
         CodegenExpression[] args = new CodegenExpression[forge.getParameters().length];
         for (int i = 0; i < forge.getParameters().length; i++) {
             String name = "p" + i;
-            block.declareVar(forge.getParameters()[i].getEvaluationType(), name, forge.getParameters()[i].evaluateCodegen(params, context));
+            block.declareVar(forge.getParameters()[i].getEvaluationType(), name, forge.getParameters()[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             args[i] = ref(name);
         }
         CodegenBlock tryBlock = block.tryCatch();
@@ -95,8 +95,12 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
         }
         catchBlock.expression(staticMethod(ExprDotMethodForgeNoDuckEvalPlain.class, "handleTargetException", constant(forge.getStatementName()), member(methodMember.getMemberId()),
                 exprDotMethodChain(ref("target")).add("getClass").add("getName"), ref("args"), ref("t")));
-        CodegenMethodId method = returnType == void.class ? block.methodEnd() : block.methodReturn(constantNull());
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        if (returnType == void.class) {
+            block.methodEnd();
+        } else {
+            block.methodReturn(constantNull());
+        }
+        return localMethod(methodNode, inner);
     }
 
     /**

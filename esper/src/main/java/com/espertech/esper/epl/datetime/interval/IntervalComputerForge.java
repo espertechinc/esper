@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.epl.datetime.interval;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetIntervalNonPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 public interface IntervalComputerForge {
     IntervalComputerEval makeComputerEval();
-    CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context);
+    CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 }

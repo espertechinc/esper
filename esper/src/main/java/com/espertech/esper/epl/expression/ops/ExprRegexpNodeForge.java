@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
@@ -21,7 +22,7 @@ public abstract class ExprRegexpNodeForge implements ExprForge {
     private final boolean isNumericValue;
 
     public abstract ExprEvaluator getExprEvaluator();
-    public abstract CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context);
+    public abstract CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public ExprRegexpNodeForge(ExprRegexpNode parent, boolean isNumericValue) {
         this.parent = parent;

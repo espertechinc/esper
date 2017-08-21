@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.JavaClassHelper;
@@ -25,8 +26,6 @@ import com.espertech.esper.util.JavaClassHelper;
 import java.util.Collection;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
 
@@ -71,20 +70,22 @@ public class EnumMinMaxByEventsForgeEval implements EnumEval {
             }
         }
 
-        return result;  // unpack of EventBean to underlying performed at another stage 
+        return result;  // unpack of EventBean to underlying performed at another stage
     }
 
-    public static CodegenExpression codegen(EnumMinMaxByEventsForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public static CodegenExpression codegen(EnumMinMaxByEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerTypeBoxed = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
 
-        CodegenBlock block = context.addMethod(EventBean.class, EnumMinMaxByEventsForgeEval.class).add(premade).begin()
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(EventBean.class, EnumMinMaxByEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(innerTypeBoxed, "minKey", constantNull())
                 .declareVar(EventBean.class, "result", constantNull());
 
-        CodegenBlock forEach = block.forEach(EventBean.class, "next", premade.enumcoll())
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+        CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
+                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
                 .ifRefNull("value").blockContinue();
 
         forEach.ifCondition(equalsNull(ref("minKey")))
@@ -95,7 +96,7 @@ public class EnumMinMaxByEventsForgeEval implements EnumEval {
                 .assignRef("minKey", ref("value"))
                 .assignRef("result", ref("next"));
 
-        CodegenMethodId method = block.methodReturn(ref("result"));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(ref("result"));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 }

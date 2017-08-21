@@ -11,8 +11,9 @@
 package com.espertech.esper.epl.declexpr;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
@@ -37,8 +38,8 @@ public class ExprDeclaredForgeRewrite extends ExprDeclaredForgeBase {
         return events;
     }
 
-    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenContext context) {
-        CodegenBlock block = context.addMethod(EventBean[].class, ExprDeclaredForgeRewrite.class).add(EventBean[].class, "eps").begin()
+    protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewrite.class).addParam(EventBean[].class, "eps").getBlock()
                 .declareVar(EventBean[].class, "events", newArray(EventBean.class, constant(streamAssignments.length)));
         for (int i = 0; i < streamAssignments.length; i++) {
             block.assignArrayElement("events", constant(i), arrayAtIndex(ref("eps"), constant(streamAssignments[i])));

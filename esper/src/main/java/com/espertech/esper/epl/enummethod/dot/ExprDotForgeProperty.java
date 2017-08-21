@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalVisitor;
@@ -24,9 +25,7 @@ import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.cast;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class ExprDotForgeProperty implements ExprDotEval, ExprDotForge {
 
@@ -61,15 +60,17 @@ public class ExprDotForgeProperty implements ExprDotEval, ExprDotForge {
         return this;
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class type = EPTypeHelper.getCodegenReturnType(returnType);
         if (innerType == EventBean.class) {
-            return CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(inner, context));
+            return CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(inner, codegenMethodScope, codegenClassScope));
         }
-        CodegenMethodId method = context.addMethod(type, ExprDotForgeProperty.class).add(innerType, "target").add(params).begin()
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(type, ExprDotForgeProperty.class).addParam(innerType, "target");
+
+        methodNode.getBlock()
                 .ifInstanceOf("target", EventBean.class)
-                .blockReturn(CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(cast(EventBean.class, inner), context)))
+                .blockReturn(CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(cast(EventBean.class, inner), methodNode, codegenClassScope)))
                 .methodReturn(constantNull());
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        return localMethod(methodNode, inner);
     }
 }

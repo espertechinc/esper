@@ -12,11 +12,13 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -55,8 +57,9 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         return evaluateInternal(eventsPerStream[streamId]);
     }
 
-    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return codegenEvaluateInternal(arrayAtIndex(params.passEPS(), constant(streamId)), context);
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
+        return codegenEvaluateInternal(arrayAtIndex(refEPS, constant(streamId)), codegenMethodScope, codegenClassScope);
     }
 
     public Collection evaluateEventGetROCollectionScalar(EventBean event, ExprEvaluatorContext context) {
@@ -78,12 +81,12 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         return CollectionUtil.iterableToCollection((Iterable) result);
     }
 
-    private CodegenExpression codegenEvaluateInternal(CodegenExpression event, CodegenContext context) {
+    private CodegenExpression codegenEvaluateInternal(CodegenExpression event, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         if (JavaClassHelper.isImplementsInterface(getterReturnType, Collection.class)) {
-            return getter.eventBeanGetCodegen(event, context);
+            return getter.eventBeanGetCodegen(event, codegenMethodScope, codegenClassScope);
         }
-        CodegenMethodId method = context.addMethod(Collection.class, PropertyDotScalarIterable.class).add(EventBean.class, "event").begin()
-                .declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(Iterable.class, getter.eventBeanGetCodegen(ref("event"), context)))
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarIterable.class).addParam(EventBean.class, "event").getBlock()
+                .declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(Iterable.class, getter.eventBeanGetCodegen(ref("event"), codegenMethodScope, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(CollectionUtil.class, "iterableToCollection", ref("result")));
         return localMethodBuild(method).pass(event).call();
@@ -105,7 +108,7 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         return null;
     }
 
-    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
@@ -113,7 +116,7 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         return null;
     }
 
-    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 

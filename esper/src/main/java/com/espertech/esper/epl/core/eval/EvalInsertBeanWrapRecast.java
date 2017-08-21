@@ -12,14 +12,16 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterService;
@@ -64,12 +66,14 @@ public class EvalInsertBeanWrapRecast implements SelectExprProcessor, SelectExpr
         return this;
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenMember memberUnderlyingType = context.makeAddMember(EventType.class, eventType.getUnderlyingEventType());
-        CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
-                .declareVar(EventBean.class, "theEvent", arrayAtIndex(params.passEPS(), constant(streamNumber)))
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember memberUnderlyingType = codegenClassScope.makeAddMember(EventType.class, eventType.getUnderlyingEventType());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(streamNumber)))
                 .declareVar(EventBean.class, "recast", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedBean", exprDotUnderlying(ref("theEvent")), member(memberUnderlyingType.getMemberId())))
                 .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", ref("recast"), staticMethod(Collections.class, "emptyMap"), member(memberResultEventType.getMemberId())));
-        return localMethodBuild(method).passAll(params).call();
+        return methodNode;
     }
 }

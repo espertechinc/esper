@@ -12,14 +12,16 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 /**
  * Interface for processors of select-clause items, implementors are computing results based on matching events.
@@ -52,8 +54,11 @@ public class SelectExprProcessorWDeliveryCallback implements SelectExprProcessor
         return this;
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-        CodegenMember memberCallback = context.makeAddMember(SelectExprProcessorDeliveryCallback.class, selectExprProcessorCallback);
-        return exprDotMethod(CodegenExpressionBuilder.member(memberCallback.getMemberId()), "selected", bindProcessorForge.processCodegen(params, context));
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember memberCallback = codegenClassScope.makeAddMember(SelectExprProcessorDeliveryCallback.class, selectExprProcessorCallback);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode bindMethod = bindProcessorForge.processCodegen(methodNode, exprSymbol, codegenClassScope);
+        methodNode.getBlock().methodReturn(exprDotMethod(CodegenExpressionBuilder.member(memberCallback.getMemberId()), "selected", localMethod(bindMethod)));
+        return methodNode;
     }
 }

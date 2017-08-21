@@ -11,17 +11,16 @@
 package com.espertech.esper.epl.datetime.interval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetIntervalNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetIntervalPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.interval.deltaexpr.IntervalDeltaExprMSecConstForge;
 import com.espertech.esper.epl.datetime.interval.deltaexpr.IntervalDeltaExprTimePeriodConstForge;
 import com.espertech.esper.epl.datetime.interval.deltaexpr.IntervalDeltaExprTimePeriodNonConstForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
@@ -185,8 +184,8 @@ public class IntervalComputerForgeFactory {
                             };
                         }
 
-                        public CodegenExpression codegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-                            return timerPeriodNonConst.deltaAddCodegen(reference, params, context);
+                        public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+                            return timerPeriodNonConst.deltaAddCodegen(reference, codegenMethodScope, exprSymbol, codegenClassScope);
                         }
                     };
                     return new ExprOptionalConstantForge(forge, null);
@@ -208,8 +207,8 @@ public class IntervalComputerForgeFactory {
                     };
                 }
 
-                public CodegenExpression codegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-                    return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.evaluateCodegen(params, context), forge.getEvaluationType());
+                public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+                    return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType());
                 }
             };
             return new ExprOptionalConstantForge(eval, null);
@@ -229,8 +228,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", interval.leftStart(), interval.rightEnd(), constant(start), constant(end));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", leftStart, rightEnd, constant(start), constant(end));
         }
 
         public Boolean compute(long leftStart, long leftEnd, long rightStart, long rightEnd, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
@@ -257,8 +256,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerAfterWithDeltaExprEval(start.makeEvaluator(), finish.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerAfterWithDeltaExprEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerAfterWithDeltaExprEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -282,14 +281,16 @@ public class IntervalComputerForgeFactory {
             }
         }
 
-        public static CodegenExpression codegen(IntervalComputerAfterWithDeltaExprForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenBlock block = context.addMethod(boolean.class, IntervalComputerAfterWithDeltaExprEval.class).add(CodegenParamSetIntervalPremade.INSTANCE).add(params).begin()
-                    .declareVar(long.class, "rangeStartDelta", forge.start.codegen(ref("rightStart"), params, context))
-                    .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(ref("rightStart"), params, context));
+        public static CodegenExpression codegen(IntervalComputerAfterWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerAfterWithDeltaExprEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(relational(ref("rangeStartDelta"), GT, ref("rangeEndDelta")))
-                    .blockReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", ref("leftStart"), ref("rightEnd"), ref("rangeEndDelta"), ref("rangeStartDelta")));
-            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", ref("leftStart"), ref("rightEnd"), ref("rangeStartDelta"), ref("rangeEndDelta")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+                    .blockReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("rangeEndDelta"), ref("rangeStartDelta")));
+            block.methodReturn(staticMethod(IntervalComputerConstantAfter.class, "computeIntervalAfter", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("rangeStartDelta"), ref("rangeEndDelta")));
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -303,8 +304,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return relational(interval.leftStart(), GT, interval.rightEnd());
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return relational(leftStart, GT, rightEnd);
         }
     }
 
@@ -321,8 +322,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", interval.leftEnd(), interval.rightStart(), constant(start), constant(end));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", leftEnd, rightStart, constant(start), constant(end));
         }
 
         public Boolean compute(long leftStart, long leftEnd, long rightStart, long rightEnd, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
@@ -358,8 +359,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerBeforeWithDeltaExprEval(start.makeEvaluator(), finish.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerBeforeWithDeltaExprEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerBeforeWithDeltaExprEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -382,14 +383,16 @@ public class IntervalComputerForgeFactory {
             return IntervalComputerConstantBefore.computeIntervalBefore(leftEnd, rightStart, rangeStartDelta, rangeEndDelta);
         }
 
-        public static CodegenExpression codegen(IntervalComputerBeforeWithDeltaExprForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenBlock block = context.addMethod(boolean.class, IntervalComputerBeforeWithDeltaExprEval.class).add(CodegenParamSetIntervalPremade.INSTANCE).add(params).begin()
-                    .declareVar(long.class, "rangeStartDelta", forge.start.codegen(ref("leftEnd"), params, context))
-                    .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(ref("leftEnd"), params, context));
+        public static CodegenExpression codegen(IntervalComputerBeforeWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerBeforeWithDeltaExprEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_LEFTEND, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "rangeEndDelta", forge.finish.codegen(IntervalForgeCodegenNames.REF_LEFTEND, methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(relational(ref("rangeStartDelta"), GT, ref("rangeEndDelta")))
-                    .blockReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", ref("leftEnd"), ref("rightStart"), ref("rangeEndDelta"), ref("rangeStartDelta")));
-            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", ref("leftEnd"), ref("rightStart"), ref("rangeStartDelta"), ref("rangeEndDelta")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+                    .blockReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, ref("rangeEndDelta"), ref("rangeStartDelta")));
+            block.methodReturn(staticMethod(IntervalComputerConstantBefore.class, "computeIntervalBefore", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, ref("rangeStartDelta"), ref("rangeEndDelta")));
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -399,8 +402,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return relational(interval.leftEnd(), LT, interval.rightStart());
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return relational(leftEnd, LT, rightStart);
         }
 
         public Boolean compute(long leftStart, long leftEnd, long rightStart, long rightEnd, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
@@ -428,8 +431,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return staticMethod(IntervalComputerConstantCoincides.class, "computeIntervalCoincides", interval.leftStart(), interval.leftEnd(), interval.rightStart(), interval.rightEnd(), constant(start), constant(end));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return staticMethod(IntervalComputerConstantCoincides.class, "computeIntervalCoincides", leftStart, leftEnd, rightStart, rightEnd, constant(start), constant(end));
         }
 
         public Boolean compute(long leftStart, long leftEnd, long rightStart, long rightEnd, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
@@ -467,8 +470,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerCoincidesWithDeltaExprEval(start.makeEvaluator(), finish.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerCoincidesWithDeltaExprEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerCoincidesWithDeltaExprEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -496,16 +499,17 @@ public class IntervalComputerForgeFactory {
             return IntervalComputerConstantCoincides.computeIntervalCoincides(leftStart, leftEnd, rightStart, rightEnd, startValue, endValue);
         }
 
-        public static CodegenExpression codegen(IntervalComputerCoincidesWithDeltaExprForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenBlock block = context.addMethod(Boolean.class, IntervalComputerCoincidesWithDeltaExprEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "startValue", forge.start.codegen(staticMethod(Math.class, "min", premade.leftStart(), premade.rightStart()), params, context))
-                    .declareVar(long.class, "endValue", forge.finish.codegen(staticMethod(Math.class, "min", premade.leftEnd(), premade.rightEnd()), params, context));
+        public static CodegenExpression codegen(IntervalComputerCoincidesWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerCoincidesWithDeltaExprEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "startValue", forge.start.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "endValue", forge.finish.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(or(relational(ref("startValue"), LT, constant(0)), relational(ref("endValue"), LT, constant(0))))
                     .expression(staticMethod(IntervalComputerCoincidesWithDeltaExprEval.class, "warnCoincideStartEndLessZero"))
                     .blockReturn(constantNull());
-            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerConstantCoincides.class, "computeIntervalCoincides", premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("startValue"), ref("endValue")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            block.methodReturn(staticMethod(IntervalComputerConstantCoincides.class, "computeIntervalCoincides", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("startValue"), ref("endValue")));
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
 
         /**
@@ -522,8 +526,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return and(equalsIdentity(interval.leftStart(), interval.rightStart()), equalsIdentity(interval.leftEnd(), interval.rightEnd()));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return and(equalsIdentity(leftStart, rightStart), equalsIdentity(leftEnd, rightEnd));
         }
 
         public Boolean compute(long leftStart, long leftEnd, long rightStart, long rightEnd, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
@@ -544,8 +548,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return and(relational(interval.rightStart(), LT, interval.leftStart()), relational(interval.leftEnd(), LT, interval.rightEnd()));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return and(relational(rightStart, LT, leftStart), relational(leftEnd, LT, rightEnd));
         }
     }
 
@@ -559,8 +563,8 @@ public class IntervalComputerForgeFactory {
             return leftStart < rightStart && rightEnd < leftEnd;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return and(relational(interval.leftStart(), LT, interval.rightStart()), relational(interval.rightEnd(), LT, interval.leftEnd()));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return and(relational(leftStart, LT, rightStart), relational(rightEnd, LT, leftEnd));
         }
     }
 
@@ -578,8 +582,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerDuringAndIncludesThresholdEval(during, threshold.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerDuringAndIncludesThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerDuringAndIncludesThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -616,24 +620,24 @@ public class IntervalComputerForgeFactory {
             }
         }
 
-        public static CodegenExpression codegen(IntervalComputerDuringAndIncludesThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenBlock block = context.addMethod(boolean.class, IntervalComputerDuringAndIncludesThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "thresholdValue", forge.threshold.codegen(premade.leftStart(), params, context));
+        public static CodegenExpression codegen(IntervalComputerDuringAndIncludesThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
 
-            CodegenMethodId method;
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "thresholdValue", forge.threshold.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope));
+
             if (forge.during) {
-                method = block.declareVar(long.class, "deltaStart", op(premade.leftStart(), "-", premade.rightStart()))
+                block.declareVar(long.class, "deltaStart", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART))
                         .ifConditionReturnConst(or(relational(ref("deltaStart"), LE, constant(0)), relational(ref("deltaStart"), GT, ref("thresholdValue"))), false)
-                        .declareVar(long.class, "deltaEnd", op(premade.rightEnd(), "-", premade.leftEnd()))
+                        .declareVar(long.class, "deltaEnd", op(IntervalForgeCodegenNames.REF_RIGHTEND, "-", IntervalForgeCodegenNames.REF_LEFTEND))
                         .methodReturn(not(or(relational(ref("deltaEnd"), LE, constant(0)), relational(ref("deltaEnd"), GT, ref("thresholdValue")))));
             } else {
-                method = block.declareVar(long.class, "deltaStart", op(premade.rightStart(), "-", premade.leftStart()))
+                block.declareVar(long.class, "deltaStart", op(IntervalForgeCodegenNames.REF_RIGHTSTART, "-", IntervalForgeCodegenNames.REF_LEFTSTART))
                         .ifConditionReturnConst(or(relational(ref("deltaStart"), LE, constant(0)), relational(ref("deltaStart"), GT, ref("thresholdValue"))), false)
-                        .declareVar(long.class, "deltaEnd", op(premade.leftEnd(), "-", premade.rightEnd()))
+                        .declareVar(long.class, "deltaEnd", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND))
                         .methodReturn(not(or(relational(ref("deltaEnd"), LE, constant(0)), relational(ref("deltaEnd"), GT, ref("thresholdValue")))));
             }
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -653,8 +657,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerDuringAndIncludesMinMaxEval(during, minEval.makeEvaluator(), maxEval.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerDuringAndIncludesMinMaxEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerDuringAndIncludesMinMaxEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -680,15 +684,16 @@ public class IntervalComputerForgeFactory {
             }
         }
 
-        public static CodegenExpression codegen(IntervalComputerDuringAndIncludesMinMax forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenBlock block = context.addMethod(boolean.class, IntervalComputerDuringAndIncludesMinMaxEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "min", forge.minEval.codegen(premade.leftStart(), params, context))
-                    .declareVar(long.class, "max", forge.maxEval.codegen(premade.rightEnd(), params, context));
-            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
+        public static CodegenExpression codegen(IntervalComputerDuringAndIncludesMinMax forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesMinMaxEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "min", forge.minEval.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "max", forge.maxEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
+            block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
                     forge.during ? "computeIntervalDuring" : "computeIntervalIncludes",
-                    premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("min"), ref("max"), ref("min"), ref("max")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+                    IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("min"), ref("max"), ref("min"), ref("max")));
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
 
         public static boolean computeIntervalDuring(long left, long leftEnd, long right, long rightEnd,
@@ -740,8 +745,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerDuringMinMaxStartEndEval(during, minStartEval.makeEvaluator(), maxStartEval.makeEvaluator(), minEndEval.makeEvaluator(), maxEndEval.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerDuringMinMaxStartEndEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerDuringMinMaxStartEndEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -775,17 +780,18 @@ public class IntervalComputerForgeFactory {
             }
         }
 
-        public static CodegenExpression codegen(IntervalComputerDuringMinMaxStartEndForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenBlock block = context.addMethod(boolean.class, IntervalComputerDuringMinMaxStartEndEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "minStart", forge.minStartEval.codegen(premade.rightStart(), params, context))
-                    .declareVar(long.class, "maxStart", forge.maxStartEval.codegen(premade.rightStart(), params, context))
-                    .declareVar(long.class, "minEnd", forge.minEndEval.codegen(premade.rightEnd(), params, context))
-                    .declareVar(long.class, "maxEnd", forge.maxEndEval.codegen(premade.rightEnd(), params, context));
-            CodegenMethodId method = block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
+        public static CodegenExpression codegen(IntervalComputerDuringMinMaxStartEndForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringMinMaxStartEndEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "minStart", forge.minStartEval.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "maxStart", forge.maxStartEval.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "minEnd", forge.minEndEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "maxEnd", forge.maxEndEval.codegen(IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
+            block.methodReturn(staticMethod(IntervalComputerDuringAndIncludesMinMaxEval.class,
                     forge.during ? "computeIntervalDuring" : "computeIntervalIncludes",
-                    premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("minStart"), ref("maxStart"), ref("minEnd"), ref("maxEnd")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+                    IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("minStart"), ref("maxStart"), ref("minEnd"), ref("maxEnd")));
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -802,8 +808,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return and(relational(interval.rightStart(), LT, interval.leftStart()), equalsIdentity(interval.leftEnd(), interval.rightEnd()));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return and(relational(rightStart, LT, leftStart), equalsIdentity(leftEnd, rightEnd));
         }
     }
 
@@ -820,8 +826,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerFinishesThresholdEval(thresholdExpr.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerFinishesThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerFinishesThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -857,17 +863,18 @@ public class IntervalComputerForgeFactory {
             log.warn("The 'finishes' date-time method does not allow negative threshold");
         }
 
-        public static CodegenExpression codegen(IntervalComputerFinishesThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerFinishesThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftEnd(), premade.rightEnd()), params, context))
+        public static CodegenExpression codegen(IntervalComputerFinishesThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishesThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            methodNode.getBlock()
+                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerFinishesThresholdEval.class, "logWarningIntervalFinishThreshold"))
                     .blockReturn(constantNull())
-                    .ifConditionReturnConst(relational(premade.rightStart(), GE, premade.leftStart()), false)
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(premade.leftEnd(), "-", premade.rightEnd())))
+                    .ifConditionReturnConst(relational(IntervalForgeCodegenNames.REF_RIGHTSTART, GE, IntervalForgeCodegenNames.REF_LEFTSTART), false)
+                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -884,8 +891,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return and(relational(interval.leftStart(), LT, interval.rightStart()), equalsIdentity(interval.leftEnd(), interval.rightEnd()));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return and(relational(leftStart, LT, rightStart), equalsIdentity(leftEnd, rightEnd));
         }
     }
 
@@ -901,8 +908,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerFinishedByThresholdEval(thresholdExpr.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerFinishedByThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerFinishedByThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -934,17 +941,18 @@ public class IntervalComputerForgeFactory {
             log.warn("The 'finishes' date-time method does not allow negative threshold");
         }
 
-        public static CodegenExpression codegen(IntervalComputerFinishedByThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerFinishedByThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.rightEnd(), premade.leftEnd()), params, context))
+        public static CodegenExpression codegen(IntervalComputerFinishedByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishedByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            methodNode.getBlock()
+                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_RIGHTEND, IntervalForgeCodegenNames.REF_LEFTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerFinishedByThresholdEval.class, "logWarningIntervalFinishedByThreshold"))
                     .blockReturn(constantNull())
-                    .ifConditionReturnConst(relational(premade.leftStart(), GE, premade.rightStart()), false)
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(premade.leftEnd(), "-", premade.rightEnd())))
+                    .ifConditionReturnConst(relational(IntervalForgeCodegenNames.REF_LEFTSTART, GE, IntervalForgeCodegenNames.REF_RIGHTSTART), false)
+                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -961,8 +969,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return equalsIdentity(interval.leftEnd(), interval.rightStart());
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return equalsIdentity(leftEnd, rightStart);
         }
     }
 
@@ -978,8 +986,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerMeetsThresholdEval(thresholdExpr.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerMeetsThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerMeetsThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -1010,16 +1018,17 @@ public class IntervalComputerForgeFactory {
             log.warn("The 'meets' date-time method does not allow negative threshold");
         }
 
-        public static CodegenExpression codegen(IntervalComputerMeetsThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerMeetsThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftEnd(), premade.rightStart()), params, context))
+        public static CodegenExpression codegen(IntervalComputerMeetsThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMeetsThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            methodNode.getBlock()
+                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerMeetsThresholdEval.class, "logWarningIntervalMeetsThreshold"))
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(premade.rightStart(), "-", premade.leftEnd())))
+                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_RIGHTSTART, "-", IntervalForgeCodegenNames.REF_LEFTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -1036,8 +1045,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return equalsIdentity(interval.rightEnd(), interval.leftStart());
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return equalsIdentity(rightEnd, leftStart);
         }
     }
 
@@ -1053,8 +1062,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerMetByThresholdEval(thresholdExpr.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerMetByThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerMetByThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -1087,16 +1096,17 @@ public class IntervalComputerForgeFactory {
             log.warn("The 'met-by' date-time method does not allow negative threshold");
         }
 
-        public static CodegenExpression codegen(IntervalComputerMetByThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerMetByThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftStart(), premade.rightEnd()), params, context))
+        public static CodegenExpression codegen(IntervalComputerMetByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMetByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            methodNode.getBlock()
+                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerMetByThresholdEval.class, "logWarningIntervalMetByThreshold"))
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(premade.leftStart(), "-", premade.rightEnd())))
+                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -1115,11 +1125,11 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             return and(
-                    relational(interval.leftStart(), LT, interval.rightStart()),
-                    relational(interval.rightStart(), LT, interval.leftEnd()),
-                    relational(interval.leftEnd(), LT, interval.rightEnd()));
+                    relational(leftStart, LT, rightStart),
+                    relational(rightStart, LT, leftEnd),
+                    relational(leftEnd, LT, rightEnd));
         }
     }
 
@@ -1137,8 +1147,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerOverlapsAndByThresholdEval(overlaps, thresholdExpr.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerOverlapsAndByThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerOverlapsAndByThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -1163,20 +1173,20 @@ public class IntervalComputerForgeFactory {
             }
         }
 
-        public static CodegenExpression codegen(IntervalComputerOverlapsAndByThreshold forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenBlock block = context.addMethod(boolean.class, IntervalComputerOverlapsAndByThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(forge.overlaps ? premade.leftStart() : premade.rightStart(), params, context));
-            CodegenMethodId method;
-            if (forge.overlaps) {
-                method = block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
-                        premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), constant(0), ref("threshold")));
-            } else {
-                method = block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
-                        premade.rightStart(), premade.rightEnd(), premade.leftStart(), premade.leftEnd(), constant(0), ref("threshold")));
+        public static CodegenExpression codegen(IntervalComputerOverlapsAndByThreshold forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
 
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope));
+            CodegenMethodNode method;
+            if (forge.overlaps) {
+                block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
+                        IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, constant(0), ref("threshold")));
+            } else {
+                block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
+                        IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, constant(0), ref("threshold")));
             }
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
 
         /**
@@ -1218,8 +1228,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerOverlapsAndByMinMaxEval(overlaps, minEval.makeEvaluator(), maxEval.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerOverlapsAndByMinMaxEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerOverlapsAndByMinMaxEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -1248,20 +1258,20 @@ public class IntervalComputerForgeFactory {
             }
         }
 
-        public static CodegenExpression codegen(IntervalComputerOverlapsAndByMinMaxForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenBlock block = context.addMethod(boolean.class, IntervalComputerOverlapsAndByMinMaxEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "minThreshold", forge.minEval.codegen(forge.overlaps ? premade.leftStart() : premade.rightStart(), params, context))
-                    .declareVar(long.class, "maxThreshold", forge.maxEval.codegen(forge.overlaps ? premade.leftEnd() : premade.rightEnd(), params, context));
-            CodegenMethodId method;
+        public static CodegenExpression codegen(IntervalComputerOverlapsAndByMinMaxForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByMinMaxEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            CodegenBlock block = methodNode.getBlock()
+                    .declareVar(long.class, "minThreshold", forge.minEval.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(long.class, "maxThreshold", forge.maxEval.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTEND : IntervalForgeCodegenNames.REF_RIGHTEND, methodNode, exprSymbol, codegenClassScope));
             if (forge.overlaps) {
-                method = block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
-                        premade.leftStart(), premade.leftEnd(), premade.rightStart(), premade.rightEnd(), ref("minThreshold"), ref("maxThreshold")));
+                block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
+                        IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("minThreshold"), ref("maxThreshold")));
             } else {
-                method = block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
-                        premade.rightStart(), premade.rightEnd(), premade.leftStart(), premade.leftEnd(), ref("minThreshold"), ref("maxThreshold")));
+                block.methodReturn(staticMethod(IntervalComputerOverlapsAndByThresholdEval.class, "computeIntervalOverlaps",
+                        IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, ref("minThreshold"), ref("maxThreshold")));
             }
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -1280,11 +1290,11 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             return and(
-                    relational(interval.rightStart(), LT, interval.leftStart()),
-                    relational(interval.leftStart(), LT, interval.rightEnd()),
-                    relational(interval.rightEnd(), LT, interval.leftEnd()));
+                    relational(rightStart, LT, leftStart),
+                    relational(leftStart, LT, rightEnd),
+                    relational(rightEnd, LT, leftEnd));
         }
     }
 
@@ -1301,8 +1311,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return and(equalsIdentity(interval.leftStart(), interval.rightStart()), relational(interval.leftEnd(), LT, interval.rightEnd()));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return and(equalsIdentity(leftStart, rightStart), relational(leftEnd, LT, rightEnd));
         }
     }
 
@@ -1318,8 +1328,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerStartsThresholdEval(thresholdExpr.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerStartsThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerStartsThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -1352,16 +1362,17 @@ public class IntervalComputerForgeFactory {
             log.warn("The 'starts' date-time method does not allow negative threshold");
         }
 
-        public static CodegenExpression codegen(IntervalComputerStartsThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerStartsThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftStart(), premade.rightStart()), params, context))
+        public static CodegenExpression codegen(IntervalComputerStartsThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartsThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            methodNode.getBlock()
+                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerStartsThresholdEval.class, "logWarningIntervalStartsThreshold"))
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(premade.leftStart(), "-", premade.rightStart())))
-                    .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(premade.leftEnd(), LT, premade.rightEnd())));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
+                    .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(IntervalForgeCodegenNames.REF_LEFTEND, LT, IntervalForgeCodegenNames.REF_RIGHTEND)));
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 
@@ -1378,8 +1389,8 @@ public class IntervalComputerForgeFactory {
             return this;
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return and(equalsIdentity(interval.leftStart(), interval.rightStart()), relational(interval.leftEnd(), GT, interval.rightEnd()));
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return and(equalsIdentity(leftStart, rightStart), relational(leftEnd, GT, rightEnd));
         }
     }
 
@@ -1395,8 +1406,8 @@ public class IntervalComputerForgeFactory {
             return new IntervalComputerStartedByThresholdEval(thresholdExpr.makeEvaluator());
         }
 
-        public CodegenExpression codegen(CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            return IntervalComputerStartedByThresholdEval.codegen(this, interval, params, context);
+        public CodegenExpression codegen(CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            return IntervalComputerStartedByThresholdEval.codegen(this, leftStart, leftEnd, rightStart, rightEnd, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 
@@ -1429,16 +1440,17 @@ public class IntervalComputerForgeFactory {
             log.warn("The 'started-by' date-time method does not allow negative threshold");
         }
 
-        public static CodegenExpression codegen(IntervalComputerStartedByThresholdForge forge, CodegenParamSetIntervalNonPremade interval, CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenParamSetIntervalPremade premade = CodegenParamSetIntervalPremade.INSTANCE;
-            CodegenMethodId method = context.addMethod(Boolean.class, IntervalComputerStartedByThresholdEval.class).add(premade).add(params).begin()
-                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", premade.leftStart(), premade.rightStart()), params, context))
+        public static CodegenExpression codegen(IntervalComputerStartedByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartedByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+
+            methodNode.getBlock()
+                    .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
                     .expression(staticMethod(IntervalComputerStartedByThresholdEval.class, "logWarningIntervalStartedByThreshold"))
                     .blockReturn(constantNull())
-                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(premade.leftStart(), "-", premade.rightStart())))
-                    .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(premade.leftEnd(), GT, premade.rightEnd())));
-            return localMethodBuild(method).passAll(interval).passAll(params).call();
+                    .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
+                    .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(IntervalForgeCodegenNames.REF_LEFTEND, GT, IntervalForgeCodegenNames.REF_RIGHTEND)));
+            return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
         }
     }
 }

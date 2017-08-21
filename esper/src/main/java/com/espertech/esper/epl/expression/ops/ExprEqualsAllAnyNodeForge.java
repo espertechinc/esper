@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.SimpleNumberCoercer;
 
@@ -45,11 +46,11 @@ public class ExprEqualsAllAnyNodeForge implements ExprForge {
         return new ExprEqualsAllAnyNodeForgeEvalAnyWColl(this, evaluators);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (parent.isAll()) {
-            return ExprEqualsAllAnyNodeForgeEvalAllWColl.codegen(this, context, params);
+            return ExprEqualsAllAnyNodeForgeEvalAllWColl.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
-        return ExprEqualsAllAnyNodeForgeEvalAnyWColl.codegen(this, context, params);
+        return ExprEqualsAllAnyNodeForgeEvalAnyWColl.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

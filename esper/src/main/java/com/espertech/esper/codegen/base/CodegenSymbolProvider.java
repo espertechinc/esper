@@ -8,13 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.model.method;
+package com.espertech.esper.codegen.base;
 
 import java.util.Map;
-import java.util.Set;
 
-public abstract class CodegenPassSet {
-    public abstract void render(StringBuilder builder, Map<Class, String> imports);
-
-    public abstract void mergeClasses(Set<Class> classes);
+public interface CodegenSymbolProvider {
+    void provide(Map<String, Class> symbols);
 }

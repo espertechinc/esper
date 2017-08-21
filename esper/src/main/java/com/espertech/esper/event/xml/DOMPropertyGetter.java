@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.event.xml;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
@@ -43,7 +44,7 @@ public interface DOMPropertyGetter extends EventPropertyGetterSPI {
      */
     public Object getValueAsFragment(Node node);
 
-    public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenContext context);
-    public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenContext context);
-    public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenContext context);
+    public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

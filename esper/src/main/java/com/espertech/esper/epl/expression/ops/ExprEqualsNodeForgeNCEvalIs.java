@@ -11,10 +11,11 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -55,10 +56,11 @@ public class ExprEqualsNodeForgeNCEvalIs implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenMethodId codegen(ExprEqualsNodeForgeNC forge, CodegenContext context, CodegenParamSetExprPremade params, ExprForge lhs, ExprForge rhs) {
-        CodegenBlock block = context.addMethod(boolean.class, ExprEqualsNodeForgeNCEvalIs.class).add(params).begin()
-                .declareVar(Object.class, "left", lhs.evaluateCodegen(params, context))
-                .declareVar(Object.class, "right", rhs.evaluateCodegen(params, context));
+    public static CodegenMethodNode codegen(ExprEqualsNodeForgeNC forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprForge lhs, ExprForge rhs) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, ExprEqualsNodeForgeNCEvalIs.class);
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(Object.class, "left", lhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(Object.class, "right", rhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         block.declareVarNoInit(boolean.class, "result")
                 .ifRefNull("left")
                 .assignRef("result", equalsNull(ref("right")))
@@ -66,8 +68,10 @@ public class ExprEqualsNodeForgeNCEvalIs implements ExprEvaluator {
                 .assignRef("result", and(notEqualsNull(ref("right")), exprDotMethod(ref("left"), "equals", ref("right"))))
                 .blockEnd();
         if (!forge.getForgeRenderable().isNotEquals()) {
-            return block.methodReturn(ref("result"));
+            block.methodReturn(ref("result"));
+        } else {
+            block.methodReturn(not(ref("result")));
         }
-        return block.methodReturn(not(ref("result")));
+        return methodNode;
     }
 }

@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -44,13 +45,12 @@ public class EnumFirstOfNoPredicateForge extends EnumForgeBase implements EnumFo
         return enumcoll.iterator().next();
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class type = EPTypeHelper.getCodegenReturnType(resultType);
-        CodegenMethodId method = context.addMethod(type, EnumFirstOfNoPredicateForge.class).add(premade).begin()
-                .ifCondition(or(equalsNull(premade.enumcoll()), exprDotMethod(premade.enumcoll(), "isEmpty")))
+        CodegenMethodNode method = codegenMethodScope.makeChild(type, EnumFirstOfNoPredicateForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+                .ifCondition(or(equalsNull(EnumForgeCodegenNames.REF_ENUMCOLL), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty")))
                 .blockReturn(constantNull())
-                .methodReturn(cast(type, exprDotMethodChain(premade.enumcoll()).add("iterator").add("next")));
-        return localMethodBuild(method).passAll(args).call();
+                .methodReturn(cast(type, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")));
+        return localMethod(method, args.getExpressions());
     }
 }

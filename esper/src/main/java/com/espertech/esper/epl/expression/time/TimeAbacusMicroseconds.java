@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Calendar;
@@ -32,7 +33,7 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
         return Math.round(1000000d * seconds);
     }
 
-    public CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenContext context) {
+    public CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenClassScope codegenClassScope) {
         return staticMethod(Math.class, "round", op(constant(1000000d), "*", sec));
     }
 
@@ -49,8 +50,8 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
         return fromTime - millis * 1000;
     }
 
-    public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(long.class, TimeAbacusMicroseconds.class).add(long.class, "fromTime").add(Calendar.class, "cal").begin()
+    public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(long.class, TimeAbacusMicroseconds.class).addParam(long.class, "fromTime").addParam(Calendar.class, "cal").getBlock()
                 .declareVar(long.class, "millis", op(ref("fromTime"), "/", constant(1000)))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("millis")))
                 .methodReturn(op(ref("fromTime"), "-", op(ref("millis"), "*", constant(1000))));
@@ -61,7 +62,7 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
         return cal.getTimeInMillis() * 1000 + remainder;
     }
 
-    public CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenContext context) {
+    public CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenClassScope codegenClassScope) {
         return op(op(exprDotMethod(cal, "getTimeInMillis"), "*", constant(1000)), "+", startRemainder);
     }
 

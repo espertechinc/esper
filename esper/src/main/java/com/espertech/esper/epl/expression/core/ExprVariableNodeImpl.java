@@ -12,16 +12,18 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.DuplicatePropertyException;
 import com.espertech.esper.epl.core.PropertyNotFoundException;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -185,32 +187,35 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForge, Exp
         return result;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(variableType, ExprVariableNodeImpl.class);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
         CodegenExpression readerExpression;
         if (readerNonCP != null) {
-            CodegenMember memberVariableReader = context.makeAddMember(VariableReader.class, readerNonCP);
+            CodegenMember memberVariableReader = codegenClassScope.makeAddMember(VariableReader.class, readerNonCP);
             readerExpression = member(memberVariableReader.getMemberId());
         } else {
-            CodegenMember memberReadersPerCp = context.makeAddMember(Map.class, readersPerCp);
-            readerExpression = cast(VariableReader.class, exprDotMethod(member(memberReadersPerCp.getMemberId()), "get", exprDotMethod(params.passEvalCtx(), "getAgentInstanceId")));
+            CodegenMember memberReadersPerCp = codegenClassScope.makeAddMember(Map.class, readersPerCp);
+            readerExpression = cast(VariableReader.class, exprDotMethod(member(memberReadersPerCp.getMemberId()), "get", exprDotMethod(refExprEvalCtx, "getAgentInstanceId")));
         }
-        CodegenBlock block = context.addMethod(variableType, ExprVariableNodeImpl.class).add(params).begin()
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(VariableReader.class, "reader", readerExpression);
-        CodegenMethodId method;
         if (isPrimitive) {
-            method = block.declareVar(variableType, "value", cast(variableType, exprDotMethod(ref("reader"), "getValue")))
+            block.declareVar(variableType, "value", cast(variableType, exprDotMethod(ref("reader"), "getValue")))
                     .methodReturn(ref("value"));
         } else {
             block.declareVar(Object.class, "value", exprDotMethod(ref("reader"), "getValue"))
                     .ifRefNullReturnNull("value")
                     .declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")));
             if (optSubPropName == null) {
-                method = block.methodReturn(cast(variableType, exprDotUnderlying(ref("theEvent"))));
+                block.methodReturn(cast(variableType, exprDotUnderlying(ref("theEvent"))));
             } else {
-                method = block.methodReturn(CodegenLegoCast.castSafeFromObjectType(variableType, eventTypeGetter.eventBeanGetCodegen(ref("theEvent"), context)));
+                block.methodReturn(CodegenLegoCast.castSafeFromObjectType(variableType, eventTypeGetter.eventBeanGetCodegen(ref("theEvent"), methodNode, codegenClassScope)));
             }
         }
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

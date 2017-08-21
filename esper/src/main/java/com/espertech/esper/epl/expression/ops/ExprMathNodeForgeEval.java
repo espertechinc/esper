@@ -11,10 +11,11 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -63,16 +64,18 @@ public class ExprMathNodeForgeEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenMethodId codegen(ExprMathNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params, ExprNode lhs, ExprNode rhs) {
-        CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprMathNodeForgeEval.class).add(params).begin()
-                .declareVar(lhs.getForge().getEvaluationType(), "left", lhs.getForge().evaluateCodegen(params, context));
+    public static CodegenMethodNode codegen(ExprMathNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprMathNodeForgeEval.class);
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(lhs.getForge().getEvaluationType(), "left", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!lhs.getForge().getEvaluationType().isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
-        block.declareVar(rhs.getForge().getEvaluationType(), "right", rhs.getForge().evaluateCodegen(params, context));
+        block.declareVar(rhs.getForge().getEvaluationType(), "right", rhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!rhs.getForge().getEvaluationType().isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }
-        return block.methodReturn(forge.getArithTypeEnumComputer().codegen(context, ref("left"), ref("right"), lhs.getForge().getEvaluationType(), rhs.getForge().getEvaluationType()));
+        block.methodReturn(forge.getArithTypeEnumComputer().codegen(methodNode, codegenClassScope, ref("left"), ref("right"), lhs.getForge().getEvaluationType(), rhs.getForge().getEvaluationType()));
+        return methodNode;
     }
 }

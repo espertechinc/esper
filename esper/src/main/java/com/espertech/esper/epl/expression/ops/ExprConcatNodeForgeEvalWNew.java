@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionExprDotMethodChain;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -59,18 +60,20 @@ public class ExprConcatNodeForgeEvalWNew implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenExpression codegen(ExprConcatNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenBlock block = context.addMethod(String.class, ExprConcatNodeForgeEvalWNew.class).add(params).begin();
-        block.declareVar(StringBuffer.class, "buf", newInstance(StringBuffer.class));
-        block.declareVarNoInit(String.class, "value");
+    public static CodegenExpression codegen(ExprConcatNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprConcatNodeForgeEvalWNew.class);
+
+        CodegenBlock block = methodNode.getBlock()
+            .declareVar(StringBuffer.class, "buf", newInstance(StringBuffer.class))
+            .declareVarNoInit(String.class, "value");
         CodegenExpressionExprDotMethodChain chain = exprDotMethodChain(ref("buf"));
         for (ExprNode expr : forge.getForgeRenderable().getChildNodes()) {
-            block.assignRef("value", expr.getForge().evaluateCodegen(params, context))
+            block.assignRef("value", expr.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .exprDotMethod(ref("buf"), "append", ref("value"));
         }
-        CodegenMethodId method = block.methodReturn(exprDotMethod(chain, "toString"));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(exprDotMethod(chain, "toString"));
+        return localMethod(methodNode);
     }
 
 }

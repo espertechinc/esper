@@ -10,11 +10,8 @@
  */
 package com.espertech.esper.codegen.model.blocks;
 
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.epl.expression.core.ExprForge;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
@@ -28,24 +25,22 @@ public class CodegenLegoBooleanExpression {
      * if (result == null (optional early exit if null)  ||   (!? (Boolean) result)) {
      * return false/true;
      * }
-     *
-     * @param block   block
-     * @param forge   forge
-     * @param context context
-     * @param checkFor indicator
+     *  @param block   block
      * @param earlyExitIfNull indicator
      * @param resultEarlyExit indicator
+     * @param checkFor indicator
      * @param resultIfCheckPasses indicator
+     * @param evaluationType type
+     * @param expression expr
      */
-    public static void codegenReturnBoolIfNullOrBool(CodegenBlock block, ExprForge forge, CodegenContext context, boolean earlyExitIfNull, Boolean resultEarlyExit, boolean checkFor, boolean resultIfCheckPasses) {
-        Class type = forge.getEvaluationType();
-        if (type != boolean.class && type != Boolean.class) {
+    public static void codegenReturnBoolIfNullOrBool(CodegenBlock block, Class evaluationType, CodegenExpression expression, boolean earlyExitIfNull, Boolean resultEarlyExit, boolean checkFor, boolean resultIfCheckPasses) {
+        if (evaluationType != boolean.class && evaluationType != Boolean.class) {
             throw new IllegalStateException("Invalid non-boolean expression");
         }
-        block.declareVar(type, PASS_NAME, forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context));
+        block.declareVar(evaluationType, PASS_NAME, expression);
         CodegenExpression passCheck = notOptional(!checkFor, ref(PASS_NAME));
 
-        if (type.isPrimitive()) {
+        if (evaluationType.isPrimitive()) {
             block.ifCondition(passCheck).blockReturn(constant(resultIfCheckPasses));
             return;
         }
@@ -70,12 +65,12 @@ public class CodegenLegoBooleanExpression {
      * }
      *
      * @param block   block
-     * @param forge   forge
-     * @param context context
+     * @param evaluationType   eval type
+     * @param expression expression
      * @param value value
      */
-    public static void codegenReturnValueIfNullOrNotPass(CodegenBlock block, ExprForge forge, CodegenContext context, CodegenExpression value) {
-        codegenDOIfNullOrNotPass(block, forge, context, false, false, true, value);
+    public static void codegenReturnValueIfNullOrNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression, CodegenExpression value) {
+        codegenDoIfNullOrNotPass(block, evaluationType, expression, false, false, true, value);
     }
 
     /**
@@ -86,11 +81,11 @@ public class CodegenLegoBooleanExpression {
      * }
      *
      * @param block   block
-     * @param forge   forge
-     * @param context context
+     * @param evaluationType   eval type
+     * @param expression expression
      */
-    public static void codegenBreakIfNullOrNotPass(CodegenBlock block, ExprForge forge, CodegenContext context) {
-        codegenDOIfNullOrNotPass(block, forge, context, false, true, false, null);
+    public static void codegenBreakIfNullOrNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression) {
+        codegenDoIfNullOrNotPass(block, evaluationType, expression, false, true, false, constantNull());
     }
 
     /**
@@ -100,23 +95,22 @@ public class CodegenLegoBooleanExpression {
      * }
      *
      * @param block   block
-     * @param forge   forge
-     * @param context context
+     * @param evaluationType   eval type
+     * @param expression expression
      */
-    public static void codegenContinueIfNullOrNotPass(CodegenBlock block, ExprForge forge, CodegenContext context) {
-        codegenDOIfNullOrNotPass(block, forge, context, true, false, false, null);
+    public static void codegenContinueIfNullOrNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression) {
+        codegenDoIfNullOrNotPass(block, evaluationType, expression, true, false, false, constantNull());
     }
 
-    private static void codegenDOIfNullOrNotPass(CodegenBlock block, ExprForge forge, CodegenContext context, boolean doContinue, boolean doBreakLoop, boolean doReturn, CodegenExpression returnValue) {
-        Class type = forge.getEvaluationType();
-        if (type != boolean.class && type != Boolean.class) {
+    private static void codegenDoIfNullOrNotPass(CodegenBlock block, Class evaluationType, CodegenExpression expression, boolean doContinue, boolean doBreakLoop, boolean doReturn, CodegenExpression returnValue) {
+        if (evaluationType != boolean.class && evaluationType != Boolean.class) {
             throw new IllegalStateException("Invalid non-boolean expression");
         }
-        block.declareVar(type, PASS_NAME, forge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context));
+        block.declareVar(evaluationType, PASS_NAME, expression);
         CodegenExpression passCheck = not(ref(PASS_NAME));
 
         CodegenExpression condition;
-        if (type.isPrimitive()) {
+        if (evaluationType.isPrimitive()) {
             condition = passCheck;
         } else {
             condition = and(notEqualsNull(ref(PASS_NAME)), passCheck);

@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.CronParameter;
 import com.espertech.esper.util.JavaClassHelper;
@@ -126,7 +127,7 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression enumValue = enumValue(CronOperatorEnum.class, cronOperator.name());
         CodegenExpression defaultValue = newInstance(CronParameter.class, enumValue, constantNull());
         if (this.getChildNodes().length == 0) {
@@ -134,15 +135,17 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         }
         ExprForge forge = this.getChildNodes()[0].getForge();
         Class evaluationType = forge.getEvaluationType();
-        CodegenBlock block = context.addMethod(CronParameter.class, ExprNumberSetCronParam.class).add(params).begin()
-                .declareVar(evaluationType, "value", forge.evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(CronParameter.class, ExprNumberSetCronParam.class);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(evaluationType, "value", forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!evaluationType.isPrimitive()) {
             block.ifRefNull("value")
                     .expression(staticMethod(ExprNumberSetCronParam.class, "handleNumberSetCronParamNullValue"))
                     .blockReturn(defaultValue);
         }
-        CodegenMethodId method = block.methodReturn(newInstance(CronParameter.class, enumValue, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(newInstance(CronParameter.class, enumValue, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

@@ -12,11 +12,12 @@ package com.espertech.esper.epl.script;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.enummethod.dot.ArrayWrappingCollection;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
@@ -38,7 +39,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
     protected final EventType eventTypeCollection;
     protected final SimpleNumberCoercer coercer;
 
-    protected abstract CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context);
+    protected abstract CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public ExprNodeScriptEvalBase(ExprNodeScript parent, String statementName, String[] names, ExprForge[] parameters, Class returnType, EventType eventTypeCollection) {
         this.parent = parent;
@@ -68,8 +69,8 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
         return scriptResultToROCollectionEvents(result);
     }
 
-    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return staticMethod(ExprNodeScriptEvalBase.class, "scriptResultToROCollectionEvents", evaluateCodegen(params, context));
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return staticMethod(ExprNodeScriptEvalBase.class, "scriptResultToROCollectionEvents", evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
     }
 
     /**
@@ -102,12 +103,14 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
         return new ArrayWrappingCollection(result);
     }
 
-    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Collection.class, ExprNodeScriptEvalBase.class).add(params).begin()
-                .declareVar(Object.class, "result", evaluateCodegen(params, context))
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprNodeScriptEvalBase.class);
+
+        methodNode.getBlock()
+                .declareVar(Object.class, "result", evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(newInstance(ArrayWrappingCollection.class, ref("result")));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
@@ -118,7 +121,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
         return null;
     }
 
-    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 

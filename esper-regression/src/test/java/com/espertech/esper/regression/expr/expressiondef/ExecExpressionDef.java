@@ -41,6 +41,7 @@ public class ExecExpressionDef implements RegressionExecution {
         configuration.addEventType("SupportBean_ST1", SupportBean_ST1.class);
         configuration.addEventType("SupportBean_ST0_Container", SupportBean_ST0_Container.class);
         configuration.addEventType("SupportCollection", SupportCollection.class);
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

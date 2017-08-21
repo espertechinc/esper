@@ -14,7 +14,7 @@ import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 
 public class ExprAggAggregationAgentFactory {
     public static AggregationAgent make(int streamNum, ExprNode optionalFilter, EngineImportService engineImportService, boolean isFireAndForget, String statementName) {

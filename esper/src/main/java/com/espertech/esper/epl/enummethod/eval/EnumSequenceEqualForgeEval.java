@@ -11,10 +11,13 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import org.slf4j.Logger;
@@ -24,6 +27,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethod;
 
 public class EnumSequenceEqualForgeEval implements EnumEval {
@@ -41,8 +45,12 @@ public class EnumSequenceEqualForgeEval implements EnumEval {
         return enumSequenceEqualsCompare(enumcoll, otherObj);
     }
 
-    public static CodegenExpression codegen(EnumSequenceEqualForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        return staticMethod(EnumSequenceEqualForgeEval.class, "enumSequenceEqualsCompare", args.enumcoll(), forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context));
+    public static CodegenExpression codegen(EnumSequenceEqualForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumSequenceEqualForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        methodNode.getBlock().methodReturn(staticMethod(EnumSequenceEqualForgeEval.class, "enumSequenceEqualsCompare", EnumForgeCodegenNames.REF_ENUMCOLL, forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope)));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 
     public static boolean enumSequenceEqualsCompare(Collection enumcoll, Object otherObj) {

@@ -11,17 +11,18 @@
 package com.espertech.esper.epl.datetime.interval.deltaexpr;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.interval.IntervalDeltaExprEvaluator;
 import com.espertech.esper.epl.datetime.interval.IntervalDeltaExprForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class IntervalDeltaExprTimePeriodNonConstForge implements IntervalDeltaExprForge, IntervalDeltaExprEvaluator {
@@ -43,10 +44,12 @@ public class IntervalDeltaExprTimePeriodNonConstForge implements IntervalDeltaEx
         return timeAbacus.deltaForSecondsDouble(sec);
     }
 
-    public CodegenExpression codegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(long.class, IntervalDeltaExprTimePeriodNonConstForge.class).add(long.class, "reference").add(params).begin()
-                .declareVar(double.class, "sec", timePeriod.evaluateAsSecondsCodegen(params, context))
-                .methodReturn(timeAbacus.deltaForSecondsDoubleCodegen(ref("sec"), context));
-        return localMethodBuild(method).pass(reference).passAll(params).call();
+    public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, IntervalDeltaExprTimePeriodNonConstForge.class).addParam(long.class, "reference");
+
+
+        methodNode.getBlock().declareVar(double.class, "sec", timePeriod.evaluateAsSecondsCodegen(methodNode, exprSymbol, codegenClassScope))
+                .methodReturn(timeAbacus.deltaForSecondsDoubleCodegen(ref("sec"), codegenClassScope));
+        return localMethod(methodNode, reference);
     }
 }

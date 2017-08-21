@@ -17,6 +17,7 @@ import com.espertech.esper.client.context.ContextPartitionIdentifierHash;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.stmt.*;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailHash;

@@ -10,11 +10,13 @@
  */
 package com.espertech.esper.codegen.model.blocks;
 
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprTypableReturnEval;
@@ -22,38 +24,47 @@ import com.espertech.esper.epl.expression.core.ExprTypableReturnEval;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class CodegenLegoEvaluateSelf {
-    public static CodegenExpression evaluateSelfGetROCollectionEvents(ExprEnumerationEval provider, CodegenParamSetExprPremade params, CodegenContext context) {
-        return call(provider, params, context, "evaluateGetROCollectionEvents");
+    public static CodegenExpression evaluateSelfGetROCollectionEvents(ExprEnumerationEval provider, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return call(provider, codegenMethodScope, exprSymbol, codegenClassScope, "evaluateGetROCollectionEvents");
     }
 
-    public static CodegenExpression evaluateSelfGetROCollectionScalar(ExprEnumerationEval provider, CodegenParamSetExprPremade params, CodegenContext context) {
-        return call(provider, params, context, "evaluateGetROCollectionScalar");
+    public static CodegenExpression evaluateSelfGetROCollectionScalar(ExprEnumerationEval provider, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return call(provider, codegenMethodScope, exprSymbol, codegenClassScope, "evaluateGetROCollectionScalar");
     }
 
-    public static CodegenExpression evaluateSelfGetEventBean(ExprEnumerationEval provider, CodegenParamSetExprPremade params, CodegenContext context) {
-        return call(provider, params, context, "evaluateGetEventBean");
+    public static CodegenExpression evaluateSelfGetEventBean(ExprEnumerationEval provider, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return call(provider, codegenMethodScope, exprSymbol, codegenClassScope, "evaluateGetEventBean");
     }
 
-    private static CodegenExpression call(ExprEnumerationEval provider, CodegenParamSetExprPremade params, CodegenContext context, String methodName) {
-        CodegenMember member = context.makeAddMember(ExprEnumerationEval.class, provider);
-        return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+    private static CodegenExpression call(ExprEnumerationEval provider, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, String methodName) {
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
+        CodegenMember member = codegenClassScope.makeAddMember(ExprEnumerationEval.class, provider);
+        return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, refEPS, refIsNewData, refExprEvalCtx);
     }
 
-    public static CodegenExpression evaluateSelfPlainWithCast(ExprEvaluator provider, Class returnType, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember member = context.makeAddMember(ExprEvaluator.class, provider);
-        return CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), "evaluate", params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
+    public static CodegenExpression evaluateSelfPlainWithCast(ExprEvaluator provider, Class returnType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
+        CodegenMember member = codegenClassScope.makeAddMember(ExprEvaluator.class, provider);
+        return CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), "evaluate", refEPS, refIsNewData, refExprEvalCtx));
     }
 
-    public static CodegenExpression evaluateSelfTypableMulti(ExprTypableReturnEval typableEval, CodegenParamSetExprPremade params, CodegenContext context) {
-        return evaluateSelfTypable(typableEval, params, context, "evaluateTypableMulti");
+    public static CodegenExpression evaluateSelfTypableMulti(ExprTypableReturnEval typableEval, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return evaluateSelfTypable(typableEval, codegenMethodScope, exprSymbol, codegenClassScope, "evaluateTypableMulti");
     }
 
-    public static CodegenExpression evaluateSelfTypableSingle(ExprTypableReturnEval typableEval, CodegenParamSetExprPremade params, CodegenContext context) {
-        return evaluateSelfTypable(typableEval, params, context, "evaluateTypableSingle");
+    public static CodegenExpression evaluateSelfTypableSingle(ExprTypableReturnEval typableEval, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return evaluateSelfTypable(typableEval, codegenMethodScope, exprSymbol, codegenClassScope, "evaluateTypableSingle");
     }
 
-    private static CodegenExpression evaluateSelfTypable(ExprTypableReturnEval typableEval, CodegenParamSetExprPremade params, CodegenContext context, String methodName) {
-        CodegenMember member = context.makeAddMember(ExprTypableReturnEval.class, typableEval);
-        return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, params.passEPS(), params.passIsNewData(), params.passEvalCtx());
+    private static CodegenExpression evaluateSelfTypable(ExprTypableReturnEval typableEval, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, String methodName) {
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
+        CodegenMember member = codegenClassScope.makeAddMember(ExprTypableReturnEval.class, typableEval);
+        return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, refEPS, refIsNewData, refExprEvalCtx);
     }
 }

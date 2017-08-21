@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.ArrayList;
@@ -50,14 +51,13 @@ public class EnumReverseForge implements EnumEval, EnumForge {
         return result;
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenMethodId method = context.addMethod(Collection.class, EnumReverseForge.class).add(premade).begin()
-                .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
-                .blockReturn(premade.enumcoll())
-                .declareVar(ArrayList.class, "result", newInstance(ArrayList.class, premade.enumcoll()))
+    public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, EnumReverseForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+                .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
+                .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
+                .declareVar(ArrayList.class, "result", newInstance(ArrayList.class, EnumForgeCodegenNames.REF_ENUMCOLL))
                 .expression(staticMethod(Collections.class, "reverse", ref("result")))
                 .methodReturn(ref("result"));
-        return localMethodBuild(method).passAll(args).call();
+        return localMethod(method, args.getExpressions());
     }
 }

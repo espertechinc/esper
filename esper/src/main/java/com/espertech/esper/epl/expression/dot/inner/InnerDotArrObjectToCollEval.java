@@ -11,10 +11,11 @@
 package com.espertech.esper.epl.expression.dot.inner;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalRootChildInnerEval;
@@ -40,12 +41,14 @@ public class InnerDotArrObjectToCollEval implements ExprDotEvalRootChildInnerEva
         return Arrays.asList((Object[]) array);
     }
 
-    public static CodegenExpression codegenEvaluate(InnerDotArrObjectToCollForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Collection.class, InnerDotArrObjectToCollEval.class).add(params).begin()
-                .declareVar(forge.rootForge.getEvaluationType(), "array", forge.rootForge.evaluateCodegen(params, context))
+    public static CodegenExpression codegenEvaluate(InnerDotArrObjectToCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, InnerDotArrObjectToCollEval.class);
+
+        methodNode.getBlock()
+                .declareVar(forge.rootForge.getEvaluationType(), "array", forge.rootForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("array")
                 .methodReturn(staticMethod(Arrays.class, "asList", ref("array")));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

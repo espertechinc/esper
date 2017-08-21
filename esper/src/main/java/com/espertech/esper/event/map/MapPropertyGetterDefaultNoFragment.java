@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.event.map;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 
@@ -28,7 +28,7 @@ public class MapPropertyGetterDefaultNoFragment extends MapPropertyGetterDefault
         return null;
     }
 
-    protected CodegenExpression handleCreateFragmentCodegen(CodegenExpression value, CodegenContext context) {
+    protected CodegenExpression handleCreateFragmentCodegen(CodegenExpression value, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 }

@@ -13,10 +13,7 @@ package com.espertech.esper.event.xml;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
@@ -56,10 +53,10 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return fragmentFactory.getEvent(result);
     }
 
-    private CodegenMethodId getValueAsFragmentCodegen(CodegenContext context) {
-        CodegenMember mType = context.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return context.addMethod(Object.class, this.getClass()).add(Node.class, "node").begin()
-                .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), context))
+    private CodegenMethodNode getValueAsFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember mType = codegenClassScope.makeAddMember(FragmentFactory.class, fragmentFactory);
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "node").getBlock()
+                .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(member(mType.getMemberId()), "getEvent", ref("result")));
     }
@@ -74,13 +71,13 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return domGetterChain[domGetterChain.length - 1].getValueAsNodeArray(node);
     }
 
-    private CodegenMethodId getValueAsNodeArrayCodegen(CodegenContext codegenContext) {
-        CodegenBlock block = codegenContext.addMethod(Node[].class, this.getClass()).add(Node.class, "node").begin();
+    private CodegenMethodNode getValueAsNodeArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(Node[].class, this.getClass()).addParam(Node.class, "node").getBlock();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
-            block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenContext));
+            block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("node");
         }
-        return block.methodReturn(domGetterChain[domGetterChain.length - 1].getValueAsNodeArrayCodegen(ref("node"), codegenContext));
+        return block.methodReturn(domGetterChain[domGetterChain.length - 1].getValueAsNodeArrayCodegen(ref("node"), codegenMethodScope, codegenClassScope));
     }
 
     public Node getValueAsNode(Node node) {
@@ -93,10 +90,10 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return node;
     }
 
-    private CodegenMethodId getValueAsNodeCodegen(CodegenContext codegenContext) {
-        CodegenBlock block = codegenContext.addMethod(Node.class, this.getClass()).add(Node.class, "node").begin();
+    private CodegenMethodNode getValueAsNodeCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(Node.class, this.getClass()).addParam(Node.class, "node").getBlock();
         for (int i = 0; i < domGetterChain.length; i++) {
-            block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenContext));
+            block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("node");
         }
         return block.methodReturn(ref("node"));
@@ -132,10 +129,10 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return true;
     }
 
-    private CodegenMethodId isExistsPropertyCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Node.class, "value").begin();
+    private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Node.class, "value").getBlock();
         for (int i = 0; i < domGetterChain.length; i++) {
-            block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), context));
+            block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnFalse("value");
         }
         return block.methodReturn(constantTrue());
@@ -161,48 +158,48 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
         return domGetterChain[domGetterChain.length - 1].getValueAsFragment(value);
     }
 
-    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Node.class, "value").begin();
+    private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "value").getBlock();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
-            block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), context));
+            block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("value");
         }
-        return block.methodReturn(domGetterChain[domGetterChain.length - 1].underlyingFragmentCodegen(ref("value"), context));
+        return block.methodReturn(domGetterChain[domGetterChain.length - 1].underlyingFragmentCodegen(ref("value"), codegenMethodScope, codegenClassScope));
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), context);
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingFragmentCodegen(castUnderlying(Node.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getValueAsNodeCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getValueAsNodeCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(isExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getFragmentCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getFragmentCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenContext context) {
-        return localMethod(getValueAsNodeCodegen(context), value);
+    public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getValueAsNodeCodegen(codegenMethodScope, codegenClassScope), value);
     }
 
-    public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenContext context) {
-        return localMethod(getValueAsNodeArrayCodegen(context), value);
+    public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getValueAsNodeArrayCodegen(codegenMethodScope, codegenClassScope), value);
     }
 
-    public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenContext context) {
-        return localMethod(getValueAsFragmentCodegen(context), value);
+    public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getValueAsFragmentCodegen(codegenMethodScope, codegenClassScope), value);
     }
 }

@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -35,11 +36,11 @@ public class SelectExprProcessorEnumerationCollForge implements ExprForge {
         return new SelectExprProcessorEnumerationCollEval(this, enumerationForge.getExprEvaluatorEnumeration());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (firstRowOnly) {
-            return SelectExprProcessorEnumerationCollEvalFirstRow.codegen(this, params, context);
+            return SelectExprProcessorEnumerationCollEvalFirstRow.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
-        return SelectExprProcessorEnumerationCollEval.codegen(this, params, context);
+        return SelectExprProcessorEnumerationCollEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

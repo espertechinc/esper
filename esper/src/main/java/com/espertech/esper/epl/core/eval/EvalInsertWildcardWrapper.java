@@ -12,12 +12,15 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Map;
@@ -40,7 +43,8 @@ public class EvalInsertWildcardWrapper extends EvalBaseMap implements SelectExpr
         return super.getEventAdapterService().adapterForTypedWrapper(theEvent, props, super.getResultEventType());
     }
 
-    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenParamSetSelectPremade params, CodegenContext context) {
-        return exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", arrayAtIndex(params.passEPS(), constant(0)), props, member(memberResultEventType.getMemberId()));
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenMethodNode methodNode, SelectExprProcessorCodegenSymbol selectEnv, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        return exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", arrayAtIndex(refEPS, constant(0)), props, member(memberResultEventType.getMemberId()));
     }
 }

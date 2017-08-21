@@ -12,9 +12,10 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 
 import java.util.Map;
@@ -43,15 +44,15 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
         return mapGetter.getMap((Map<String, Object>) value);
     }
 
-    private CodegenMethodId handleNestedValueCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
+    private CodegenMethodNode handleNestedValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "value").getBlock()
             .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)
                     .declareVarWCast(EventBean.class, "bean", "value")
-                    .blockReturn(mapGetter.eventBeanGetCodegen(ref("bean"), context))
+                    .blockReturn(mapGetter.eventBeanGetCodegen(ref("bean"), codegenMethodScope, codegenClassScope))
                 .blockReturn(constantNull())
             .declareVarWCast(Map.class, "map", "value")
-            .methodReturn(mapGetter.underlyingGetCodegen(ref("map"), context));
+            .methodReturn(mapGetter.underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope));
     }
 
     public Object handleNestedValueFragment(Object value) {
@@ -67,21 +68,21 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
         return mapGetter.getFragment(eventBean);
     }
 
-    private CodegenMethodId handleNestedValueFragmentCodegen(CodegenContext context) {
-        return context.addMethod(Object.class, this.getClass()).add(Object.class, "value").begin()
+    private CodegenMethodNode handleNestedValueFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "value").getBlock()
                 .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)
                 .declareVarWCast(EventBean.class, "bean", "value")
-                .blockReturn(mapGetter.eventBeanFragmentCodegen(ref("bean"), context))
+                .blockReturn(mapGetter.eventBeanFragmentCodegen(ref("bean"), codegenMethodScope, codegenClassScope))
                 .blockReturn(constantNull())
-                .methodReturn(mapGetter.underlyingFragmentCodegen(cast(Map.class, ref("value")), context));
+                .methodReturn(mapGetter.underlyingFragmentCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
     }
 
-    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
-        return localMethod(handleNestedValueCodegen(context), name);
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(handleNestedValueCodegen(codegenMethodScope, codegenClassScope), name);
     }
 
-    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context) {
-        return localMethod(handleNestedValueFragmentCodegen(context), name);
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(handleNestedValueFragmentCodegen(codegenMethodScope, codegenClassScope), name);
     }
 }

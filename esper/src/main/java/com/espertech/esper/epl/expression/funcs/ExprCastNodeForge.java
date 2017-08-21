@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 
 /**
@@ -43,12 +44,12 @@ public class ExprCastNodeForge implements ExprForge {
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (isConstant) {
-            CodegenMember member = context.makeAddMember(targetType, constant);
+            CodegenMember member = codegenClassScope.makeAddMember(targetType, constant);
             return CodegenExpressionBuilder.member(member.getMemberId());
         }
-        return ExprCastNodeForgeNonConstEval.codegen(this, context, params);
+        return ExprCastNodeForgeNonConstEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

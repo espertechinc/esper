@@ -12,12 +12,11 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
@@ -50,8 +49,8 @@ public class EvalSelectStreamNoUndWEventBeanToObjObjArray extends EvalSelectStre
         return processSelectExprbeanToObjArray(props, eventBeanToObjectIndexes, context.getEventAdapterService(), super.getResultEventType());
     }
 
-    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpressionRef props, CodegenParamSetExprPremade instance, CodegenContext context) {
-        CodegenMember indexes = context.makeAddMember(Set.class, eventBeanToObjectIndexes);
+    protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpressionRef props, CodegenClassScope codegenClassScope) {
+        CodegenMember indexes = codegenClassScope.makeAddMember(Set.class, eventBeanToObjectIndexes);
         return staticMethod(EvalSelectStreamNoUndWEventBeanToObjObjArray.class, "processSelectExprbeanToObjArray", props, CodegenExpressionBuilder.member(indexes.getMemberId()), CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), CodegenExpressionBuilder.member(memberResultEventType.getMemberId()));
     }
 

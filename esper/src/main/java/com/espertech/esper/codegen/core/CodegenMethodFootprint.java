@@ -10,23 +10,19 @@
  */
 package com.espertech.esper.codegen.core;
 
-import com.espertech.esper.codegen.model.method.CodegenParamSet;
-
 import java.util.List;
 import java.util.Set;
 
 public class CodegenMethodFootprint {
     private final Class returnType;
-    private final CodegenMethodId methodId;
-    private final List<CodegenParamSet> params;
+    private final List<CodegenNamedParam> params;
     private final String optionalComment;
 
-    public CodegenMethodFootprint(Class returnType, CodegenMethodId methodId, List<CodegenParamSet> params, String optionalComment) {
+    public CodegenMethodFootprint(Class returnType, List<CodegenNamedParam> params, String optionalComment) {
         if (returnType == null) {
             throw new IllegalArgumentException("Invalid null return type");
         }
         this.returnType = returnType;
-        this.methodId = methodId;
         this.params = params;
         this.optionalComment = optionalComment;
     }
@@ -35,11 +31,7 @@ public class CodegenMethodFootprint {
         return returnType;
     }
 
-    public CodegenMethodId getMethodId() {
-        return methodId;
-    }
-
-    public List<CodegenParamSet> getParams() {
+    public List<CodegenNamedParam> getParams() {
         return params;
     }
 
@@ -49,7 +41,7 @@ public class CodegenMethodFootprint {
 
     public void mergeClasses(Set<Class> classes) {
         classes.add(returnType);
-        for (CodegenParamSet param : params) {
+        for (CodegenNamedParam param : params) {
             param.mergeClasses(classes);
         }
     }

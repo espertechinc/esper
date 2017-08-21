@@ -12,14 +12,15 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.util.EventUnderlyingType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.core.eval.*;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
@@ -462,7 +463,7 @@ public class SelectExprProcessorHelper {
         }
 
         // obtains evaluators
-        SelectExprForgeContext selectExprForgeContext = new SelectExprForgeContext(exprForges, columnNames, eventAdapterService, typeService.getEventTypes().length);
+        SelectExprForgeContext selectExprForgeContext = new SelectExprForgeContext(exprForges, columnNames, eventAdapterService, typeService.getEventTypes());
 
         if (insertIntoDesc == null) {
             if (!selectedStreams.isEmpty()) {
@@ -1151,11 +1152,11 @@ public class SelectExprProcessorHelper {
         }
     }
 
-    protected static CodegenExpression applyWidenersCodegen(CodegenExpressionRef row, TypeWidener[] wideners, CodegenContext context) {
-        CodegenBlock block = context.addMethod(void.class, SelectExprProcessorHelper.class).add(Object[].class, "row").begin();
+    protected static CodegenExpression applyWidenersCodegen(CodegenExpressionRef row, TypeWidener[] wideners, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(void.class, SelectExprProcessorHelper.class).addParam(Object[].class, "row").getBlock();
         for (int i = 0; i < wideners.length; i++) {
             if (wideners[i] != null) {
-                block.assignArrayElement("row", constant(i), wideners[i].widenCodegen(arrayAtIndex(ref("row"), constant(i)), context));
+                block.assignArrayElement("row", constant(i), wideners[i].widenCodegen(arrayAtIndex(ref("row"), constant(i)), codegenMethodScope, codegenClassScope));
             }
         }
         return localMethodBuild(block.methodEnd()).pass(row).call();
@@ -1167,10 +1168,10 @@ public class SelectExprProcessorHelper {
         }
     }
 
-    protected static CodegenExpression applyWidenersCodegenMultirow(CodegenExpressionRef rows, TypeWidener[] wideners, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(void.class, SelectExprProcessorHelper.class).add(Object[][].class, "rows").begin()
+    protected static CodegenExpression applyWidenersCodegenMultirow(CodegenExpressionRef rows, TypeWidener[] wideners, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(void.class, SelectExprProcessorHelper.class).addParam(Object[][].class, "rows").getBlock()
                 .forEach(Object[].class, "row", rows)
-                .expression(applyWidenersCodegen(ref("row"), wideners, context))
+                .expression(applyWidenersCodegen(ref("row"), wideners, codegenMethodScope, codegenClassScope))
                 .blockEnd()
                 .methodEnd();
         return localMethodBuild(method).pass(rows).call();

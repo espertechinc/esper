@@ -11,10 +11,12 @@
 package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
@@ -51,14 +53,18 @@ public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEva
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Collection.class, this.getClass()).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamNum)))
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, this.getClass());
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
                 .ifRefNullReturnNull("event")
-                .declareVar(Object[].class, "result", cast(Object[].class, getter.eventBeanGetCodegen(ref("event"), context)))
+                .declareVar(Object[].class, "result", cast(Object[].class, getter.eventBeanGetCodegen(ref("event"), methodNode, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(Arrays.class, "asList", ref("result")));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public Class getEvaluationType() {

@@ -18,6 +18,7 @@ import com.espertech.esper.collection.IterablesArrayIterator;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.epl.join.pollindex.PollResultIndexingStrategy;

@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 /**
@@ -34,5 +35,5 @@ public interface SimpleTypeCaster {
      */
     public boolean isNumericCast();
 
-    CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context);
+    CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 }

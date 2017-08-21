@@ -12,9 +12,10 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndMapped;
 import com.espertech.esper.event.vaevent.PropertyUtility;
@@ -74,8 +75,8 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         }
     }
 
-    static CodegenMethodId getBeanPropInternalCodegen(CodegenContext context, Class beanPropType, Class targetType, Method method) throws PropertyAccessException {
-        return context.addMethod(beanPropType, KeyedMapMethodPropertyGetter.class).add(targetType, "object").add(Object.class, "key").begin()
+    static CodegenMethodNode getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method) throws PropertyAccessException {
+        return codegenMethodScope.makeChild(beanPropType, KeyedMapMethodPropertyGetter.class).addParam(targetType, "object").addParam(Object.class, "key").getBlock()
                 .declareVar(method.getReturnType(), "result", exprDotMethod(ref("object"), method.getName()))
                 .ifRefNotTypeReturnConst("result", Map.class, null)
                 .methodReturn(cast(beanPropType, exprDotMethod(cast(Map.class, ref("result")), "get", ref("key"))));
@@ -108,23 +109,23 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         return method.getDeclaringClass();
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropInternalCodegen(context, getBeanPropType(), getTargetType(), method), underlyingExpression, constant(key));
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getBeanPropInternalCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method), underlyingExpression, constant(key));
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getBeanPropInternalCodegen(context, getBeanPropType(), getTargetType(), method), castUnderlying(getTargetType(), beanExpression), key);
+    public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getBeanPropInternalCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method), castUnderlying(getTargetType(), beanExpression), key);
     }
 }

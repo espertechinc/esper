@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
@@ -51,11 +52,11 @@ public class ExprDotNodeForgePropertyExpr extends ExprDotNodeForge {
         return new ExprDotNodeForgePropertyExprEvalMapped(this, exprForge.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (indexedGetter != null) {
-            return ExprDotNodeForgePropertyExprEvalIndexed.codegen(this, context, params);
+            return ExprDotNodeForgePropertyExprEvalIndexed.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
-        return ExprDotNodeForgePropertyExprEvalMapped.codegen(this, context, params);
+        return ExprDotNodeForgePropertyExprEvalMapped.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

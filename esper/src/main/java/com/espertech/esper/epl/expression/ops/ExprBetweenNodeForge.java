@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -48,11 +49,11 @@ public class ExprBetweenNodeForge implements ExprForge {
         return new ExprBetweenNodeForgeEval(this, nodes[0].getForge().getExprEvaluator(), nodes[1].getForge().getExprEvaluator(), nodes[2].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (isAlwaysFalse) {
             return constantFalse();
         }
-        return ExprBetweenNodeForgeEval.codegen(this, context, params);
+        return ExprBetweenNodeForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

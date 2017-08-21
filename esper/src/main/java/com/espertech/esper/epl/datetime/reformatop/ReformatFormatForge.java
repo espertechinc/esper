@@ -12,12 +12,13 @@ package com.espertech.esper.epl.datetime.reformatop;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
@@ -62,9 +63,9 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         return dateFormat.format(timeAbacus.toDate(ts));
     }
 
-    public CodegenExpression codegenLong(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember df = context.makeAddMember(DateFormat.class, dateFormat);
-        CodegenBlock blockMethod = context.addMethod(String.class, ReformatFormatForge.class).add(long.class, "ts").begin();
+    public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember df = codegenClassScope.makeAddMember(DateFormat.class, dateFormat);
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class).addParam(long.class, "ts").getBlock();
         CodegenBlock syncBlock = blockMethod.synchronizedOn(member(df.getMemberId()));
         if (timeAbacus.getOneSecond() == 1000L) {
             syncBlock.blockReturn(exprDotMethod(member(df.getMemberId()), "format", ref("ts")));
@@ -78,9 +79,9 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         return dateFormat.format(d);
     }
 
-    public CodegenExpression codegenDate(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember df = context.makeAddMember(DateFormat.class, dateFormat);
-        CodegenBlock blockMethod = context.addMethod(String.class, ReformatFormatForge.class).add(Date.class, "d").begin()
+    public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember df = codegenClassScope.makeAddMember(DateFormat.class, dateFormat);
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class).addParam(Date.class, "d").getBlock()
                 .synchronizedOn(member(df.getMemberId()))
                 .blockReturn(exprDotMethod(member(df.getMemberId()), "format", ref("d")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
@@ -90,9 +91,9 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         return dateFormat.format(cal.getTime());
     }
 
-    public CodegenExpression codegenCal(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember df = context.makeAddMember(DateFormat.class, dateFormat);
-        CodegenBlock blockMethod = context.addMethod(String.class, ReformatFormatForge.class).add(Calendar.class, "cal").begin()
+    public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember df = codegenClassScope.makeAddMember(DateFormat.class, dateFormat);
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class).addParam(Calendar.class, "cal").getBlock()
                 .synchronizedOn(member(df.getMemberId()))
                 .blockReturn(exprDotMethod(member(df.getMemberId()), "format", exprDotMethod(ref("cal"), "getTime")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
@@ -102,8 +103,8 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         return ldt.format(dateTimeFormatter);
     }
 
-    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember df = context.makeAddMember(DateTimeFormatter.class, dateTimeFormatter);
+    public CodegenExpression codegenLDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember df = codegenClassScope.makeAddMember(DateTimeFormatter.class, dateTimeFormatter);
         return exprDotMethod(inner, "format", member(df.getMemberId()));
     }
 
@@ -111,8 +112,8 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
         return zdt.format(dateTimeFormatter);
     }
 
-    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember df = context.makeAddMember(DateTimeFormatter.class, dateTimeFormatter);
+    public CodegenExpression codegenZDT(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember df = codegenClassScope.makeAddMember(DateTimeFormatter.class, dateTimeFormatter);
         return exprDotMethod(inner, "format", member(df.getMemberId()));
     }
 

@@ -12,10 +12,11 @@ package com.espertech.esper.event.vaevent;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.SimpleTypeCaster;
 
@@ -41,10 +42,10 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
         return caster.cast(value);
     }
 
-    private CodegenMethodId getCodegen(CodegenContext context) throws PropertyAccessException {
-        CodegenMember mCache = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
-        CodegenMember mCaster = context.makeAddMember(SimpleTypeCaster.class, caster);
-        return context.addMethod(Object.class, this.getClass()).add(EventBean.class, "eventBean").begin()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
+        CodegenMember mCache = codegenClassScope.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
+        CodegenMember mCaster = codegenClassScope.makeAddMember(SimpleTypeCaster.class, caster);
+        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "eventBean").getBlock()
                 .declareVar(Object.class, "value", staticMethod(VariantEventPropertyGetterAny.class, "variantGet", ref("eventBean"), member(mCache.getMemberId()), constant(assignedPropertyNumber)))
                 .methodReturn(exprDotMethod(member(mCaster.getMemberId()), "cast", ref("value")));
     }
@@ -57,28 +58,28 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
         return null;
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return localMethod(getCodegen(context), beanExpression);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getCodegen(codegenMethodScope, codegenClassScope), beanExpression);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        CodegenMember member = context.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember member = codegenClassScope.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
         return staticMethod(VariantEventPropertyGetterAny.class, "variantExists", beanExpression, member(member.getMemberId()), constant(assignedPropertyNumber));
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         throw variantImplementationNotProvided();
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         throw variantImplementationNotProvided();
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         throw variantImplementationNotProvided();
     }
 }

@@ -23,7 +23,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeGroupKey;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVariableVisitor;

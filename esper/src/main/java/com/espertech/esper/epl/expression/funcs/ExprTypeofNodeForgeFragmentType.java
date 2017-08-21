@@ -11,10 +11,12 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
@@ -76,18 +78,21 @@ public class ExprTypeofNodeForgeFragmentType extends ExprTypeofNodeForge impleme
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(String.class, ExprTypeofNodeForgeFragmentType.class).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamId)))
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeFragmentType.class);
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .declareVar(Object.class, "fragment", getter.eventBeanFragmentCodegen(ref("event"), context))
+                .declareVar(Object.class, "fragment", getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope))
                 .ifRefNullReturnNull("fragment")
                 .ifInstanceOf("fragment", EventBean.class)
                 .blockReturn(exprDotMethodChain(cast(EventBean.class, ref("fragment"))).add("getEventType").add("getName"))
                 .ifCondition(exprDotMethodChain(ref("fragment")).add("getClass").add("isArray"))
                 .blockReturn(constant(fragmentType + "[]"))
                 .methodReturn(constantNull());
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

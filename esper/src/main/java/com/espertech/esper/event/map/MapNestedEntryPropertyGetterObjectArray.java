@@ -12,10 +12,11 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 
@@ -56,13 +57,13 @@ public class MapNestedEntryPropertyGetterObjectArray extends MapNestedEntryPrope
         return arrayGetter.getFragment(eventBean);
     }
 
-    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
-        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, this.getClass());
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.GET, this.getClass());
         return localMethod(method, name);
     }
 
-    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context) {
-        CodegenMethodId method = CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, this.getClass());
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, Object[].class, arrayGetter, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT, this.getClass());
         return localMethod(method, name);
     }
 }

@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
@@ -65,19 +66,21 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
         return dotMethodDuckInvokeMethod(method, target, args, forge);
     }
 
-    public static CodegenExpression codegen(ExprDotMethodForgeDuck forge, CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMember mCache = context.makeAddMember(Map.class, new HashMap());
-        CodegenMember mForge = context.makeAddMember(ExprDotMethodForgeDuck.class, forge);
-        CodegenBlock block = context.addMethod(Object.class, ExprDotMethodForgeDuckEval.class).add(innerType, "target").add(params).begin()
+    public static CodegenExpression codegen(ExprDotMethodForgeDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember mCache = codegenClassScope.makeAddMember(Map.class, new HashMap());
+        CodegenMember mForge = codegenClassScope.makeAddMember(ExprDotMethodForgeDuck.class, forge);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object.class, ExprDotMethodForgeDuckEval.class).addParam(innerType, "target");
+
+        CodegenBlock block = methodNode.getBlock()
                 .ifRefNullReturnNull("target")
                 .declareVar(FastMethod.class, "method", staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckGetMethod", exprDotMethod(ref("target"), "getClass"), member(mCache.getMemberId()), member(mForge.getMemberId())))
                 .ifRefNullReturnNull("method")
                 .declareVar(Object[].class, "args", newArray(Object.class, constant(forge.getParameters().length)));
         for (int i = 0; i < forge.getParameters().length; i++) {
-            block.assignArrayElement("args", constant(i), forge.getParameters()[i].evaluateCodegen(params, context));
+            block.assignArrayElement("args", constant(i), forge.getParameters()[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         }
-        CodegenMethodId method = block.methodReturn(staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckInvokeMethod", ref("method"), ref("target"), ref("args"), member(mForge.getMemberId())));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        block.methodReturn(staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckInvokeMethod", ref("method"), ref("target"), ref("args"), member(mForge.getMemberId())));
+        return localMethod(methodNode, inner);
     }
 
     /**

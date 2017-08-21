@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
@@ -59,18 +60,20 @@ public class EnumToMapEventsForgeEval implements EnumEval {
         return map;
     }
 
-    public static CodegenExpression codegen(EnumToMapEventsForge forge, CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenBlock block = context.addMethod(Map.class, EnumToMapEventsForgeEval.class).add(premade).begin()
-                .ifCondition(exprDotMethod(premade.enumcoll(), "isEmpty"))
-                .blockReturn(staticMethod(Collections.class, "emptyMap"))
-                .declareVar(Map.class, "map", newInstance(HashMap.class));
-        CodegenBlock forEach = block.forEach(EventBean.class, "next", premade.enumcoll())
-                .assignArrayElement(premade.eps(), constant(forge.streamNumLambda), ref("next"))
-                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
-                .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+    public static CodegenExpression codegen(EnumToMapEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Map.class, EnumToMapEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
+                .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
+                .blockReturn(staticMethod(Collections.class, "emptyMap"));
+        block.declareVar(Map.class, "map", newInstance(HashMap.class));
+        block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
+                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
                 .expression(exprDotMethod(ref("map"), "put", ref("key"), ref("value")));
-        CodegenMethodId method = block.methodReturn(ref("map"));
-        return localMethodBuild(method).passAll(args).call();
+        block.methodReturn(ref("map"));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }
 }

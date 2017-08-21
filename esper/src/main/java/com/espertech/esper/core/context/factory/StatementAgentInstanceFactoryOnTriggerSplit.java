@@ -20,7 +20,7 @@ import com.espertech.esper.core.start.EPStatementStartMethodOnTriggerItem;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.spec.OnTriggerSplitStreamDesc;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;

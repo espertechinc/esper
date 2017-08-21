@@ -13,16 +13,15 @@ package com.espertech.esper.epl.declexpr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.core.service.ExpressionResultCacheEntryEventBeanArrayAndCollBean;
 import com.espertech.esper.core.service.ExpressionResultCacheEntryEventBeanArrayAndObj;
 import com.espertech.esper.core.service.ExpressionResultCacheForDeclaredExprLastColl;
 import com.espertech.esper.core.service.ExpressionResultCacheForDeclaredExprLastValue;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenNames;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.ExpressionDeclItem;
 import com.espertech.esper.event.EventAdapterService;
@@ -49,7 +48,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
 
     public abstract EventBean[] getEventsPerStreamRewritten(EventBean[] eventsPerStream);
 
-    protected abstract CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenContext context);
+    protected abstract CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
 
     public ExprDeclaredForgeBase(ExprDeclaredNodeImpl parent, ExprForge innerForge, boolean isCache, boolean audit, String engineURI, String statementName) {
         this.parent = parent;
@@ -99,8 +98,8 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         return innerEvaluatorTypableLazy.evaluateTypableSingle(eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateTypableSingleCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return ((ExprTypableReturnForge) innerForge).evaluateTypableSingleCodegen(params, context);
+    public CodegenExpression evaluateTypableSingleCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ((ExprTypableReturnForge) innerForge).evaluateTypableSingleCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -108,8 +107,8 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         return innerEvaluatorTypableLazy.evaluateTypableMulti(eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateTypableMultiCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return ((ExprTypableReturnForge) innerForge).evaluateTypableMultiCodegen(params, context);
+    public CodegenExpression evaluateTypableMultiCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ((ExprTypableReturnForge) innerForge).evaluateTypableMultiCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public final Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -145,34 +144,58 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         return innerForge.getComplexity();
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!audit) {
-            return evaluateCodegenNoAudit(params, context);
+            return evaluateCodegenNoAudit(codegenMethodScope, exprSymbol, codegenClassScope);
         }
-        CodegenMethodId method = context.addMethod(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class).add(params).begin()
-                .declareVar(innerForge.getEvaluationType(), "result", evaluateCodegenNoAudit(params, context))
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class);
+        methodNode.getBlock()
+                .declareVar(innerForge.getEvaluationType(), "result", evaluateCodegenNoAudit(methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                 .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(parent.getPrototype().getName() + " result "), "+", ref("result"))))
                 .blockEnd()
                 .methodReturn(ref("result"));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
-    private CodegenExpression evaluateCodegenNoAudit(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember prototype = context.makeAddMember(ExpressionDeclItem.class, parent.getPrototype());
-        CodegenBlock block = context.addMethod(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class).add(params).begin()
-                .assignRef(params.EPS_NAME, codegenEventsPerStreamRewritten(params.passEPS(), context));
+    private CodegenExpression evaluateCodegenNoAudit(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class);
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
+                .methodReturn(localMethod(evaluateCodegenRewritten(methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
+        return localMethod(methodNode);
+    }
+
+    private CodegenMethodNode evaluateCodegenRewritten(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember prototype = codegenClassScope.makeAddMember(ExpressionDeclItem.class, this.parent.getPrototype());
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class, scope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenExpression refEPS = scope.getAddEPS(methodNode);
+        CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);
+
+        // generate code for the inner value so we know its symbols and derived symbols
+        CodegenExpression innerValue = innerForge.evaluateCodegen(methodNode, scope, codegenClassScope);
+
+        // produce derived symbols
+        CodegenBlock block = methodNode.getBlock();
+        scope.derivedSymbolsCodegen(methodNode, block);
+
         if (isCache) {
-            block.declareVar(ExpressionResultCacheForDeclaredExprLastValue.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastValue"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndObj.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastValue", member(prototype.getMemberId()), params.passEPS()))
+            block.declareVar(ExpressionResultCacheForDeclaredExprLastValue.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastValue"))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndObj.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastValue", member(prototype.getMemberId()), refEPS))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(cast(JavaClassHelper.getBoxedType(innerForge.getEvaluationType()), exprDotMethod(ref("entry"), "getResult")))
-                    .declareVar(innerForge.getEvaluationType(), "result", innerForge.evaluateCodegen(params, context))
-                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastValue", member(prototype.getMemberId()), params.passEPS(), ref("result")));
+                    .declareVar(innerForge.getEvaluationType(), "result", innerValue)
+                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastValue", member(prototype.getMemberId()), refEPS, ref("result")));
         } else {
-            block.declareVar(innerForge.getEvaluationType(), "result", innerForge.evaluateCodegen(params, context));
+            block.declareVar(innerForge.getEvaluationType(), "result", innerValue);
         }
-        return localMethodBuild(block.methodReturn(ref("result"))).passAll(params).call();
+        block.methodReturn(ref("result"));
+        return methodNode;
     }
 
     public final Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -199,21 +222,43 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         return result;
     }
 
-    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember prototype = context.makeAddMember(ExpressionDeclItem.class, parent.getPrototype());
-        CodegenBlock block = context.addMethod(Collection.class, ExprDeclaredForgeBase.class).add(params).begin()
-                .assignRef(params.EPS_NAME, codegenEventsPerStreamRewritten(params.passEPS(), context));
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDeclaredForgeBase.class);
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
+                .methodReturn(localMethod(evaluateGetROCollectionEventsCodegenRewritten(methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
+        return localMethod(methodNode);
+    }
+
+    private CodegenMethodNode evaluateGetROCollectionEventsCodegenRewritten(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember prototype = codegenClassScope.makeAddMember(ExpressionDeclItem.class, parent.getPrototype());
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, ExprDeclaredForgeBase.class, scope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenExpression refEPS = scope.getAddEPS(methodNode);
+        CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);
+
+        // generate code for the inner value so we know its symbols and derived symbols
+        CodegenExpression innerValue = ((ExprEnumerationForge) innerForge).evaluateGetROCollectionEventsCodegen(methodNode, scope, codegenClassScope);
+
+        CodegenBlock block = methodNode.getBlock();
+        scope.derivedSymbolsCodegen(methodNode, block);
+
         if (isCache) {
-            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS()))
+            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", member(prototype.getMemberId()), refEPS))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(exprDotMethod(ref("entry"), "getResult"))
-                    .declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionEventsCodegen(params, context))
-                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS(), ref("result")));
+                    .declareVar(Collection.class, "result", innerValue)
+                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", member(prototype.getMemberId()), refEPS, ref("result")));
         } else {
-            block.declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionEventsCodegen(params, context));
+            block.declareVar(Collection.class, "result", innerValue);
         }
-        return localMethodBuild(block.methodReturn(ref("result"))).passAll(params).call();
+        block.methodReturn(ref("result"));
+        return methodNode;
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -240,21 +285,44 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         return result;
     }
 
-    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember prototype = context.makeAddMember(ExpressionDeclItem.class, parent.getPrototype());
-        CodegenBlock block = context.addMethod(Collection.class, ExprDeclaredForgeBase.class).add(params).begin()
-                .assignRef(params.EPS_NAME, codegenEventsPerStreamRewritten(params.passEPS(), context));
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDeclaredForgeBase.class);
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+        methodNode.getBlock()
+                .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
+                .methodReturn(localMethod(evaluateGetROCollectionScalarCodegenRewritten(methodNode, codegenClassScope), ref("rewritten"), refIsNewData, refExprEvalCtx));
+        return localMethod(methodNode);
+    }
+
+    private CodegenMethodNode evaluateGetROCollectionScalarCodegenRewritten(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember prototype = codegenClassScope.makeAddMember(ExpressionDeclItem.class, parent.getPrototype());
+
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, ExprDeclaredForgeBase.class, scope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenExpression refEPS = scope.getAddEPS(methodNode);
+        CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);
+
+        // generate code for the inner value so we know its symbols and derived symbols
+        CodegenExpression innerValue = ((ExprEnumerationForge) innerForge).evaluateGetROCollectionScalarCodegen(methodNode, scope, codegenClassScope);
+
+        // produce derived symbols
+        CodegenBlock block = methodNode.getBlock();
+        scope.derivedSymbolsCodegen(methodNode, block);
+
         if (isCache) {
-            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
-                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS()))
+            block.declareVar(ExpressionResultCacheForDeclaredExprLastColl.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastColl"))
+                    .declareVar(ExpressionResultCacheEntryEventBeanArrayAndCollBean.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastColl", member(prototype.getMemberId()), refEPS))
                     .ifCondition(notEqualsNull(ref("entry")))
                     .blockReturn(exprDotMethod(ref("entry"), "getResult"))
-                    .declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionScalarCodegen(params, context))
-                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", member(prototype.getMemberId()), params.passEPS(), ref("result")));
+                    .declareVar(Collection.class, "result", innerValue)
+                    .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastColl", member(prototype.getMemberId()), refEPS, ref("result")));
         } else {
-            block.declareVar(Collection.class, "result", ((ExprEnumerationForge) innerForge).evaluateGetROCollectionScalarCodegen(params, context));
+            block.declareVar(Collection.class, "result", innerValue);
         }
-        return localMethodBuild(block.methodReturn(ref("result"))).passAll(params).call();
+        block.methodReturn(ref("result"));
+        return methodNode;
     }
 
     public Class getComponentTypeCollection() throws ExprValidationException {
@@ -283,8 +351,8 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         return innerEvaluatorLambdaLazy.evaluateGetEventBean(eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return ((ExprEnumerationForge) innerForge).evaluateGetEventBeanCodegen(params, context);
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return ((ExprEnumerationForge) innerForge).evaluateGetEventBeanCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprNode getForgeRenderable() {

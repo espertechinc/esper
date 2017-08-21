@@ -10,15 +10,17 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.util.SimpleNumberCoercer;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 public class ExprEqualsNodeForgeCoercion extends ExprEqualsNodeForge {
 
@@ -37,10 +39,11 @@ public class ExprEqualsNodeForgeCoercion extends ExprEqualsNodeForge {
         return new ExprEqualsNodeForgeCoercionEval(getForgeRenderable(), lhs.getForge().getExprEvaluator(), rhs.getForge().getExprEvaluator(), numberCoercerLHS, numberCoercerRHS);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprNode lhs = getForgeRenderable().getChildNodes()[0];
         ExprNode rhs = getForgeRenderable().getChildNodes()[1];
-        return localMethodBuild(ExprEqualsNodeForgeCoercionEval.codegen(this, context, params, lhs, rhs)).passAll(params).call();
+        CodegenMethodNode method = ExprEqualsNodeForgeCoercionEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs);
+        return localMethod(method);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -62,32 +63,34 @@ public class ExprBetweenNodeForgeEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenExpression codegen(ExprBetweenNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprBetweenNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprNode[] nodes = forge.getForgeRenderable().getChildNodes();
         ExprForge value = nodes[0].getForge();
         ExprForge lower = nodes[1].getForge();
         ExprForge higher = nodes[2].getForge();
         boolean isNot = forge.getForgeRenderable().isNotBetween();
-        CodegenBlock block = context.addMethod(Boolean.class, ExprBetweenNodeForgeEval.class).add(params).begin();
 
-        block.declareVar(value.getEvaluationType(), "value", value.evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprBetweenNodeForgeEval.class);
+        CodegenBlock block = methodNode.getBlock();
+
+        block.declareVar(value.getEvaluationType(), "value", value.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!value.getEvaluationType().isPrimitive()) {
             block.ifRefNullReturnFalse("value");
         }
 
-        block.declareVar(lower.getEvaluationType(), "lower", lower.evaluateCodegen(params, context));
+        block.declareVar(lower.getEvaluationType(), "lower", lower.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!lower.getEvaluationType().isPrimitive()) {
             block.ifRefNull("lower").blockReturn(constant(isNot));
         }
 
-        block.declareVar(higher.getEvaluationType(), "higher", higher.evaluateCodegen(params, context));
+        block.declareVar(higher.getEvaluationType(), "higher", higher.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!higher.getEvaluationType().isPrimitive()) {
             block.ifRefNull("higher").blockReturn(constant(isNot));
         }
 
-        block.declareVar(boolean.class, "result", forge.getComputer().codegenNoNullCheck(ref("value"), value.getEvaluationType(), ref("lower"), lower.getEvaluationType(), ref("higher"), higher.getEvaluationType(), context));
-        CodegenMethodId method = block.methodReturn(notOptional(forge.getForgeRenderable().isNotBetween(), ref("result")));
-        return localMethodBuild(method).passAll(params).call();
+        block.declareVar(boolean.class, "result", forge.getComputer().codegenNoNullCheck(ref("value"), value.getEvaluationType(), ref("lower"), lower.getEvaluationType(), ref("higher"), higher.getEvaluationType(), methodNode, codegenClassScope));
+        block.methodReturn(notOptional(forge.getForgeRenderable().isNotBetween(), ref("result")));
+        return localMethod(methodNode);
     }
 
 }

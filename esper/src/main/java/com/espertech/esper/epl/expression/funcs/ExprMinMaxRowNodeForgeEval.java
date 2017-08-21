@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -80,7 +81,7 @@ public class ExprMinMaxRowNodeForgeEval implements ExprEvaluator {
         return JavaClassHelper.coerceBoxed(result, forge.getEvaluationType());
     }
 
-    public static CodegenExpression codegen(ExprMinMaxRowNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprMinMaxRowNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class resultType = forge.getEvaluationType();
         ExprNode[] nodes = forge.getForgeRenderable().getChildNodes();
 
@@ -90,18 +91,18 @@ public class ExprMinMaxRowNodeForgeEval implements ExprEvaluator {
             for (int i = 0; i < nodes.length; i++) {
                 convertors[i] = SimpleNumberCoercerFactory.getCoercerBigInteger(nodes[i].getForge().getEvaluationType());
             }
-            expression = MinMaxTypeEnum.ComputerBigIntCoerce.codegen(forge.getForgeRenderable().getMinMaxTypeEnum() == MinMaxTypeEnum.MAX, context, params, nodes, convertors);
+            expression = MinMaxTypeEnum.ComputerBigIntCoerce.codegen(forge.getForgeRenderable().getMinMaxTypeEnum() == MinMaxTypeEnum.MAX, codegenMethodScope, exprSymbol, codegenClassScope, nodes, convertors);
         } else if (resultType == BigDecimal.class) {
             SimpleNumberBigDecimalCoercer[] convertors = new SimpleNumberBigDecimalCoercer[nodes.length];
             for (int i = 0; i < nodes.length; i++) {
                 convertors[i] = SimpleNumberCoercerFactory.getCoercerBigDecimal(nodes[i].getForge().getEvaluationType());
             }
-            expression = MinMaxTypeEnum.ComputerBigDecCoerce.codegen(forge.getForgeRenderable().getMinMaxTypeEnum() == MinMaxTypeEnum.MAX, context, params, nodes, convertors);
+            expression = MinMaxTypeEnum.ComputerBigDecCoerce.codegen(forge.getForgeRenderable().getMinMaxTypeEnum() == MinMaxTypeEnum.MAX, codegenMethodScope, exprSymbol, codegenClassScope, nodes, convertors);
         } else {
             if (forge.getForgeRenderable().getMinMaxTypeEnum() == MinMaxTypeEnum.MAX) {
-                expression = MinMaxTypeEnum.MaxComputerDoubleCoerce.codegen(context, params, nodes, resultType);
+                expression = MinMaxTypeEnum.MaxComputerDoubleCoerce.codegen(codegenMethodScope, exprSymbol, codegenClassScope, nodes, resultType);
             } else {
-                expression = MinMaxTypeEnum.MinComputerDoubleCoerce.codegen(context, params, nodes, resultType);
+                expression = MinMaxTypeEnum.MinComputerDoubleCoerce.codegen(codegenMethodScope, exprSymbol, codegenClassScope, nodes, resultType);
             }
         }
         return expression;

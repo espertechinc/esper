@@ -12,10 +12,11 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
 import com.espertech.esper.event.vaevent.PropertyUtility;
@@ -86,24 +87,24 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
         return fastMethod.getDeclaringClass();
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropInternalCode(context, fastMethod.getJavaMethod()), underlyingExpression, constant(index));
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getBeanPropInternalCode(codegenMethodScope, fastMethod.getJavaMethod()), underlyingExpression, constant(index));
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression eventBeanGetIndexedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getBeanPropInternalCode(context, fastMethod.getJavaMethod()), castUnderlying(getTargetType(), beanExpression), key);
+    public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getBeanPropInternalCode(codegenMethodScope, fastMethod.getJavaMethod()), castUnderlying(getTargetType(), beanExpression), key);
     }
 
     private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
@@ -120,8 +121,8 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
-    protected static CodegenMethodId getBeanPropInternalCode(CodegenContext context, Method method) {
-        return context.addMethod(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayFastPropertyGetter.class).add(method.getDeclaringClass(), "obj").add(int.class, "index").begin()
+    protected static CodegenMethodNode getBeanPropInternalCode(CodegenMethodScope codegenMethodScope, Method method) {
+        return codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayFastPropertyGetter.class).addParam(method.getDeclaringClass(), "obj").addParam(int.class, "index").getBlock()
             .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
             .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), null)
             .methodReturn(arrayAtIndex(ref("array"), ref("index")));

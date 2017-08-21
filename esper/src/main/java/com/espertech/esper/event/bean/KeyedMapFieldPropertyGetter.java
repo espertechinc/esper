@@ -12,9 +12,10 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndMapped;
 import com.espertech.esper.event.vaevent.PropertyUtility;
@@ -71,8 +72,8 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
         }
     }
 
-    private CodegenMethodId getBeanPropInternalCodegen(CodegenContext context) throws PropertyAccessException {
-        return context.addMethod(getBeanPropType(), this.getClass()).add(getTargetType(), "object").add(Object.class, "key").begin()
+    private CodegenMethodNode getBeanPropInternalCodegen(CodegenMethodScope codegenMethodScope) throws PropertyAccessException {
+        return codegenMethodScope.makeChild(getBeanPropType(), this.getClass()).addParam(getTargetType(), "object").addParam(Object.class, "key").getBlock()
                 .declareVar(Object.class, "result", exprDotName(ref("object"), field.getName()))
                 .ifRefNotTypeReturnConst("result", Map.class, null)
                 .declareVarWCast(Map.class, "map", "result")
@@ -106,23 +107,23 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
         return field.getDeclaringClass();
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(getBeanPropInternalCodegen(context), underlyingExpression, constant(key));
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(getBeanPropInternalCodegen(codegenMethodScope), underlyingExpression, constant(key));
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantTrue();
     }
 
-    public CodegenExpression eventBeanGetMappedCodegen(CodegenContext context, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getBeanPropInternalCodegen(context), castUnderlying(getTargetType(), beanExpression), key);
+    public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
+        return localMethod(getBeanPropInternalCodegen(codegenMethodScope), castUnderlying(getTargetType(), beanExpression), key);
     }
 }

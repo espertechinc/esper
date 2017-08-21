@@ -13,7 +13,7 @@ package com.espertech.esper.codegen.compile;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.codegen.core.CodegenClass;
 import com.espertech.esper.codegen.core.CodegenIndent;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.core.CodegenMethod;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
@@ -109,7 +109,7 @@ public class CodegenClassGenerator {
         // members
         for (CodegenMember member : memberSet) {
             INDENT.indent(builder, 1);
-            appendClassName(builder, member.getClazz(), member.getOptionalTypeParam(), imports);
+            appendClassName(builder, getMemberClass(member), member.getOptionalTypeParam(), imports);
             builder.append(" ");
             member.getMemberId().render(builder);
             builder.append(";\n");
@@ -122,7 +122,7 @@ public class CodegenClassGenerator {
         String delimiter = "";
         for (CodegenMember member : memberSet) {
             builder.append(delimiter);
-            appendClassName(builder, member.getClazz(), member.getOptionalTypeParam(), imports);
+            appendClassName(builder, getMemberClass(member), member.getOptionalTypeParam(), imports);
             builder.append(" ");
             member.getMemberId().renderPrefixed(builder, 'p');
             delimiter = ",";
@@ -156,5 +156,9 @@ public class CodegenClassGenerator {
         // close
         builder.append("}\n");
         return builder.toString();
+    }
+
+    private static Class getMemberClass(CodegenMember member) {
+        return member.getObject() == null ? member.getClazz() : member.getObject().getClass();
     }
 }

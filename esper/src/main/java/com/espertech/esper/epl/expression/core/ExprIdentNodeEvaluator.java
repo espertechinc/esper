@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
 public interface ExprIdentNodeEvaluator extends ExprEvaluator {
@@ -27,5 +28,5 @@ public interface ExprIdentNodeEvaluator extends ExprEvaluator {
 
     public Class getEvaluationType();
 
-    CodegenExpression codegen(CodegenParamSetExprPremade params, CodegenContext context);
+    CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 }

@@ -11,8 +11,9 @@
 package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -45,9 +46,9 @@ public class ExprDotStaticMethodWrapIterableEvents implements ExprDotStaticMetho
     }
 
 
-    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
-        CodegenMember eventSvcMember = context.makeAddMember(EventAdapterService.class, eventAdapterService);
-        CodegenMember typeMember = context.makeAddMember(BeanEventType.class, type);
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember eventSvcMember = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember typeMember = codegenClassScope.makeAddMember(BeanEventType.class, type);
         return newInstance(WrappingCollection.class, member(eventSvcMember.getMemberId()), member(typeMember.getMemberId()), exprDotMethod(result, "iterator"));
     }
 

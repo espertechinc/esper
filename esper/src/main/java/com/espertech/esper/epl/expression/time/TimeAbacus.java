@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
@@ -31,8 +32,8 @@ public interface TimeAbacus extends Serializable {
 
     Date toDate(long ts);
 
-    CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenContext context);
-    CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenContext context);
+    CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope);
+    CodegenExpression calendarGetCodegen(CodegenExpression cal, CodegenExpression startRemainder, CodegenClassScope codegenClassScope);
     CodegenExpression toDateCodegen(CodegenExpression ts);
-    CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenContext context);
+    CodegenExpression deltaForSecondsDoubleCodegen(CodegenExpressionRef sec, CodegenClassScope codegenClassScope);
 }

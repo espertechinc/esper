@@ -28,6 +28,7 @@ import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;

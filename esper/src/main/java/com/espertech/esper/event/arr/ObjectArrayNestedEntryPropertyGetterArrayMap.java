@@ -11,7 +11,8 @@
 package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -43,15 +44,15 @@ public class ObjectArrayNestedEntryPropertyGetterArrayMap extends ObjectArrayNes
         return BaseNestableEventUtil.handleNestedValueArrayWithMapExists(value, index, getter);
     }
 
-    public CodegenExpression handleNestedValueCodegen(CodegenExpression refName, CodegenContext context) {
-        return BaseNestableEventUtil.handleNestedValueArrayWithMapCode(index, getter, refName, context, this.getClass());
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression refName, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapCode(index, getter, refName, codegenMethodScope, codegenClassScope, this.getClass());
     }
 
-    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression refName, CodegenContext context) {
-        return BaseNestableEventUtil.handleNestedValueArrayWithMapExistsCode(index, getter, refName, context, eventAdapterService, fragmentType, this.getClass());
+    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression refName, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapExistsCode(index, getter, refName, codegenMethodScope, codegenClassScope, eventAdapterService, fragmentType, this.getClass());
     }
 
-    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression refName, CodegenContext context) {
-        return BaseNestableEventUtil.handleBNNestedValueArrayWithMapFragmentCode(index, getter, refName, context, eventAdapterService, fragmentType, this.getClass());
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression refName, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return BaseNestableEventUtil.handleBNNestedValueArrayWithMapFragmentCode(index, getter, refName, codegenMethodScope, codegenClassScope, eventAdapterService, fragmentType, this.getClass());
     }
 }

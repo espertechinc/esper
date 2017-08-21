@@ -12,6 +12,7 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.OrderByItem;
 import com.espertech.esper.util.CollectionUtil;

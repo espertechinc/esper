@@ -11,13 +11,14 @@
 package com.espertech.esper.type;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -118,8 +119,8 @@ public enum MinMaxTypeEnum {
             return result;
         }
 
-        public static CodegenExpression codegen(CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, Class returnType) {
-            return MinMaxTypeEnum.codegenMinMax(true, context, params, nodes, returnType);
+        public static CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode[] nodes, Class returnType) {
+            return MinMaxTypeEnum.codegenMinMax(true, codegenMethodScope, exprSymbol, codegenClassScope, nodes, returnType);
         }
     }
 
@@ -164,8 +165,8 @@ public enum MinMaxTypeEnum {
             return result;
         }
 
-        public static CodegenExpression codegen(CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, Class returnType) {
-            return MinMaxTypeEnum.codegenMinMax(false, context, params, nodes, returnType);
+        public static CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode[] nodes, Class returnType) {
+            return MinMaxTypeEnum.codegenMinMax(false, codegenMethodScope, exprSymbol, codegenClassScope, nodes, returnType);
         }
     }
 
@@ -222,19 +223,21 @@ public enum MinMaxTypeEnum {
             return result;
         }
 
-        public static CodegenExpression codegen(boolean max, CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, SimpleNumberBigIntegerCoercer[] convertors) {
+        public static CodegenExpression codegen(boolean max, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode[] nodes, SimpleNumberBigIntegerCoercer[] convertors) {
             Class r0Type = nodes[0].getForge().getEvaluationType();
             Class r1Type = nodes[1].getForge().getEvaluationType();
             if (r0Type == null || r1Type == null) {
                 return constantNull();
             }
-            CodegenBlock block = context.addMethod(BigInteger.class, ComputerBigIntCoerce.class).add(params).begin();
 
-            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(params, context));
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigInteger.class, ComputerBigIntCoerce.class);
+            CodegenBlock block = methodNode.getBlock();
+
+            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             if (!r0Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r0");
             }
-            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(params, context));
+            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             if (!r1Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r1");
             }
@@ -251,7 +254,7 @@ public enum MinMaxTypeEnum {
             for (int i = 2; i < nodes.length; i++) {
                 Class nodeType = nodes[i].getForge().getEvaluationType();
                 String refnameNumber = "r" + i;
-                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(params, context));
+                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
                 if (!nodeType.isPrimitive()) {
                     block.ifRefNullReturnNull(refnameNumber);
                 }
@@ -261,8 +264,8 @@ public enum MinMaxTypeEnum {
                         .assignRef("result", ref(refnameBigint))
                         .blockEnd();
             }
-            CodegenMethodId method = block.methodReturn(ref("result"));
-            return localMethodBuild(method).passAll(params).call();
+            block.methodReturn(ref("result"));
+            return localMethod(methodNode);
         }
     }
 
@@ -319,19 +322,20 @@ public enum MinMaxTypeEnum {
             return result;
         }
 
-        public static CodegenExpression codegen(boolean max, CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, SimpleNumberBigDecimalCoercer[] convertors) {
+        public static CodegenExpression codegen(boolean max, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode[] nodes, SimpleNumberBigDecimalCoercer[] convertors) {
             Class r0Type = nodes[0].getForge().getEvaluationType();
             Class r1Type = nodes[1].getForge().getEvaluationType();
             if (r0Type == null || r1Type == null) {
                 return constantNull();
             }
-            CodegenBlock block = context.addMethod(BigDecimal.class, ComputerBigDecCoerce.class).add(params).begin();
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigDecimal.class, ComputerBigDecCoerce.class);
+            CodegenBlock block = methodNode.getBlock();
 
-            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(params, context));
+            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             if (!r0Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r0");
             }
-            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(params, context));
+            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             if (!r1Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r1");
             }
@@ -348,7 +352,7 @@ public enum MinMaxTypeEnum {
             for (int i = 2; i < nodes.length; i++) {
                 Class nodeType = nodes[i].getForge().getEvaluationType();
                 String refnameNumber = "r" + i;
-                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(params, context));
+                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
                 if (!nodeType.isPrimitive()) {
                     block.ifRefNullReturnNull(refnameNumber);
                 }
@@ -358,24 +362,25 @@ public enum MinMaxTypeEnum {
                         .assignRef("result", ref(refnameBigint))
                         .blockEnd();
             }
-            CodegenMethodId method = block.methodReturn(ref("result"));
-            return localMethodBuild(method).passAll(params).call();
+            block.methodReturn(ref("result"));
+            return localMethod(methodNode);
         }
     }
 
-    private static CodegenExpression codegenMinMax(boolean min, CodegenContext context, CodegenParamSetExprPremade params, ExprNode[] nodes, Class returnType) {
+    private static CodegenExpression codegenMinMax(boolean min, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode[] nodes, Class returnType) {
         Class r0Type = nodes[0].getForge().getEvaluationType();
         Class r1Type = nodes[1].getForge().getEvaluationType();
         if (r0Type == null || r1Type == null) {
             return constantNull();
         }
-        CodegenBlock block = context.addMethod(returnType, MaxComputerDoubleCoerce.class).add(params).begin();
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, MaxComputerDoubleCoerce.class);
+        CodegenBlock block = methodNode.getBlock();
 
-        block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(params, context));
+        block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!r0Type.isPrimitive()) {
             block.ifRefNullReturnNull("r0");
         }
-        block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(params, context));
+        block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!r1Type.isPrimitive()) {
             block.ifRefNullReturnNull("r1");
         }
@@ -390,7 +395,7 @@ public enum MinMaxTypeEnum {
         for (int i = 2; i < nodes.length; i++) {
             Class nodeType = nodes[i].getForge().getEvaluationType();
             String refname = "r" + i;
-            block.declareVar(nodeType, refname, nodes[i].getForge().evaluateCodegen(params, context));
+            block.declareVar(nodeType, refname, nodes[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
             if (!nodeType.isPrimitive()) {
                 block.ifRefNullReturnNull(refname);
             }
@@ -398,8 +403,8 @@ public enum MinMaxTypeEnum {
                     .assignRef("result", JavaClassHelper.coerceNumberToBoxedCodegen(ref(refname), nodeType, returnType))
                     .blockEnd();
         }
-        CodegenMethodId method = block.methodReturn(ref("result"));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(ref("result"));
+        return localMethod(methodNode);
     }
 
     private static CodegenExpression codegenCompareRelop(Class resultType, RelationalOpEnum op, CodegenExpressionRef lhs, Class lhsType, CodegenExpression rhs, Class rhsType) {

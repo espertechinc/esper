@@ -13,15 +13,17 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMayVoid;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
 import com.espertech.esper.event.*;
@@ -204,8 +206,8 @@ public class SelectExprInsertEventBeanFactory {
                                 return input;
                             }
 
-                            public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
-                                CodegenMethodId method = context.addMethod(Object.class, TypeWidener.class).add(Object.class, "input").begin()
+                            public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+                                CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, TypeWidener.class).addParam(Object.class, "input").getBlock()
                                         .ifCondition(instanceOf(ref("input"), EventBean.class))
                                         .blockReturn(exprDotMethod(cast(EventBean.class, ref("input")), "getUnderlying"))
                                         .methodReturn(ref("input"));
@@ -415,16 +417,16 @@ public class SelectExprInsertEventBeanFactory {
             return eventAdapterService.adapterForTypedMap((Map) result, eventType);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenBlock block = context.addMethod(EventBean.class, SelectExprInsertNativeExpressionCoerceMap.class).add(params).begin();
-            CodegenExpression expr = exprForge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context);
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenExpression expr = exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
             if (!JavaClassHelper.isSubclassOrImplementsInterface(exprForge.getEvaluationType(), Map.class)) {
                 expr = cast(Map.class, expr);
             }
-            CodegenMethodId method = block.declareVar(Map.class, "result", expr)
+            methodNode.getBlock().declareVar(Map.class, "result", expr)
                     .ifRefNullReturnNull("result")
                     .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedMap", ref("result"), member(memberResultEventType.getMemberId())));
-            return localMethodBuild(method).passAll(params).call();
+            return methodNode;
         }
     }
 
@@ -441,12 +443,13 @@ public class SelectExprInsertEventBeanFactory {
             return eventAdapterService.adapterForTypedAvro(result, eventType);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
-                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            methodNode.getBlock()
+                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
                     .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", ref("result"), member(memberResultEventType.getMemberId())));
-            return localMethodBuild(method).passAll(params).call();
+            return methodNode;
         }
     }
 
@@ -463,12 +466,13 @@ public class SelectExprInsertEventBeanFactory {
             return eventAdapterService.adapterForTypedObjectArray((Object[]) result, eventType);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
-                    .declareVar(Object[].class, "result", exprForge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            methodNode.getBlock()
+                    .declareVar(Object[].class, "result", exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
                     .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", ref("result"), member(memberResultEventType.getMemberId())));
-            return localMethodBuild(method).passAll(params).call();
+            return methodNode;
         }
     }
 
@@ -485,12 +489,13 @@ public class SelectExprInsertEventBeanFactory {
             return eventAdapterService.adapterForTypedBean(result, eventType);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
-                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context))
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            methodNode.getBlock()
+                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
                     .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedBean", ref("result"), member(memberResultEventType.getMemberId())));
-            return localMethodBuild(method).passAll(params).call();
+            return methodNode;
         }
     }
 
@@ -544,12 +549,13 @@ public class SelectExprInsertEventBeanFactory {
             return eventManufacturer.make(values);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMember manufacturer = context.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
-            CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMember manufacturer = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenBlock block = methodNode.getBlock()
                     .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
-                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i], CodegenParamSetExprPremade.INSTANCE, context);
+                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 if (wideners[i] == null) {
                     block.assignArrayElement("values", constant(i), expression);
                 } else {
@@ -557,15 +563,15 @@ public class SelectExprInsertEventBeanFactory {
                     block.declareVar(exprForges[i].getEvaluationType(), refname, expression);
                     if (!exprForges[i].getEvaluationType().isPrimitive()) {
                         block.ifRefNotNull(refname)
-                                .assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), context))
+                                .assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), methodNode, codegenClassScope))
                                 .blockEnd();
                     } else {
-                        block.assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), context));
+                        block.assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), methodNode, codegenClassScope));
                     }
                 }
             }
-            CodegenMethodId method = block.methodReturn(exprDotMethod(member(manufacturer.getMemberId()), "make", ref("values")));
-            return localMethodBuild(method).passAll(params).call();
+            block.methodReturn(exprDotMethod(member(manufacturer.getMemberId()), "make", ref("values")));
+            return methodNode;
         }
     }
 
@@ -586,16 +592,17 @@ public class SelectExprInsertEventBeanFactory {
             return eventManufacturer.make(values);
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMember manufacturer = context.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
-            CodegenBlock block = context.addMethod(EventBean.class, this.getClass()).add(params).begin()
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMember manufacturer = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenBlock block = methodNode.getBlock()
                     .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
-                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i], CodegenParamSetExprPremade.INSTANCE, context);
+                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 block.assignArrayElement("values", constant(i), expression);
             }
-            CodegenMethodId method = block.methodReturn(exprDotMethod(member(manufacturer.getMemberId()), "make", ref("values")));
-            return localMethodBuild(method).passAll(params).call();
+            block.methodReturn(exprDotMethod(member(manufacturer.getMemberId()), "make", ref("values")));
+            return methodNode;
         }
     }
 
@@ -621,9 +628,11 @@ public class SelectExprInsertEventBeanFactory {
             return this;
         }
 
-        public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
-            CodegenMember member = context.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
-            return exprDotMethod(member(member.getMemberId()), "make", publicConstValue(CollectionUtil.class, "OBJECTARRAY_EMPTY"));
+        public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMember member = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
+            methodNode.getBlock().methodReturn(exprDotMethod(member(member.getMemberId()), "make", publicConstValue(CollectionUtil.class, "OBJECTARRAY_EMPTY")));
+            return methodNode;
         }
     }
 
@@ -652,12 +661,14 @@ public class SelectExprInsertEventBeanFactory {
             return this;
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(returnType, ExprForgeJoinWildcard.class).add(params).begin()
-                    .declareVar(EventBean.class, "bean", arrayAtIndex(params.passEPS(), constant(streamNum)))
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprForgeJoinWildcard.class);
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+            methodNode.getBlock()
+                    .declareVar(EventBean.class, "bean", arrayAtIndex(refEPS, constant(streamNum)))
                     .ifRefNullReturnNull("bean")
                     .methodReturn(cast(returnType, exprDotUnderlying(ref("bean"))));
-            return localMethodBuild(method).passAll(params).call();
+            return localMethod(methodNode);
         }
 
         public Class getEvaluationType() {
@@ -695,12 +706,15 @@ public class SelectExprInsertEventBeanFactory {
             return null;
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(returnType, this.getClass()).add(params).begin()
-                    .declareVar(EventBean.class, "theEvent", arrayAtIndex(params.passEPS(), constant(streamNumEval)))
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, this.getClass());
+
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+            methodNode.getBlock()
+                    .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(streamNumEval)))
                     .ifRefNullReturnNull("theEvent")
                     .methodReturn(cast(returnType, exprDotUnderlying(ref("theEvent"))));
-            return localMethodBuild(method).passAll(params).call();
+            return localMethod(methodNode);
         }
 
         public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
@@ -753,17 +767,20 @@ public class SelectExprInsertEventBeanFactory {
             writer.append(ExprForgeStreamWithInner.class.getSimpleName());
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
-            CodegenMethodId method = context.addMethod(arrayType, this.getClass()).add(params).begin()
-                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, inner.evaluateCodegen(CodegenParamSetExprPremade.INSTANCE, context)))
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, this.getClass());
+
+
+            methodNode.getBlock()
+                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, inner.evaluateCodegen(methodNode, exprSymbol, codegenClassScope)))
                     .ifRefNullReturnNull("events")
                     .declareVar(arrayType, "values", newArray(componentReturnType, arrayLength(ref("events"))))
                     .forLoopIntSimple("i", arrayLength(ref("events")))
                     .assignArrayElement("values", ref("i"), cast(componentReturnType, exprDotUnderlying(arrayAtIndex(ref("events"), ref("i")))))
                     .blockEnd()
                     .methodReturn(ref("values"));
-            return localMethodBuild(method).passAll(params).call();
+            return localMethod(methodNode);
         }
 
         public Class getEvaluationType() {
@@ -795,13 +812,15 @@ public class SelectExprInsertEventBeanFactory {
             return null;
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-            CodegenMethodId method = context.addMethod(Object.class, ExprForgeStreamWithGetter.class).add(params).begin()
-                    .declareVar(EventBean.class, "theEvent", arrayAtIndex(params.passEPS(), constant(0)))
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object.class, ExprForgeStreamWithGetter.class);
+            CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+            methodNode.getBlock()
+                    .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(0)))
                     .ifRefNotNull("theEvent")
-                    .blockReturn(getter.eventBeanGetCodegen(ref("theEvent"), context))
+                    .blockReturn(getter.eventBeanGetCodegen(ref("theEvent"), methodNode, codegenClassScope))
                     .methodReturn(constantNull());
-            return localMethodBuild(method).passAll(params).call();
+            return localMethod(methodNode);
         }
 
         public ExprEvaluator getExprEvaluator() {

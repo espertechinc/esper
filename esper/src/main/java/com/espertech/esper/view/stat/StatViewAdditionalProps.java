@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.view.ViewFieldEnum;
 

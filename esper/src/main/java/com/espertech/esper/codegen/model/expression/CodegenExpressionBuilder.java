@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
-import com.espertech.esper.codegen.core.CodegenMemberId;
-import com.espertech.esper.codegen.core.CodegenMethodId;
-import com.espertech.esper.codegen.model.method.CodegenLocalCallBuilder;
+import com.espertech.esper.codegen.base.CodegenMemberId;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,12 +62,12 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionExprDotUnderlying(expression);
     }
 
-    public static CodegenExpression localMethod(CodegenMethodId methodId, CodegenExpression... expressions) {
-        return new CodegenExpressionLocalMethod(methodId, expressions);
+    public static CodegenLocalCallBuilder localMethodBuild(CodegenMethodNode methodNode) {
+        return new CodegenLocalCallBuilder(methodNode);
     }
 
-    public static CodegenLocalCallBuilder localMethodBuild(CodegenMethodId methodId) {
-        return new CodegenLocalCallBuilder(methodId);
+    public static CodegenExpressionLocalCall localMethod(CodegenMethodNode methodNode, CodegenExpression ... parameters) {
+        return new CodegenExpressionLocalCall(methodNode, Arrays.asList(parameters));
     }
 
     public static CodegenExpression constantTrue() {

@@ -11,15 +11,16 @@
 package com.espertech.esper.epl.datetime.reformatop;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercer;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerLocalDateTime;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -57,8 +58,8 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
         return evaluateInternal(ts, eventsPerStream, newData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenLong(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return codegenLongInternal(forge, inner, params, context);
+    public static CodegenExpression codegenLong(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return codegenLongInternal(forge, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluate(Date d, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -68,11 +69,13 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
         return evaluateInternal(d.getTime(), eventsPerStream, newData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenDate(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(Date.class, "d").add(params).begin()
+    public static CodegenExpression codegenDate(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).addParam(Date.class, "d");
+
+        methodNode.getBlock()
                 .ifRefNullReturnNull("d")
-                .methodReturn(codegenLongInternal(forge, exprDotMethod(ref("d"), "getTime"), params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+                .methodReturn(codegenLongInternal(forge, exprDotMethod(ref("d"), "getTime"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 
     public Object evaluate(Calendar cal, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -82,28 +85,30 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
         return evaluateInternal(cal.getTimeInMillis(), eventsPerStream, newData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenCal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(Calendar.class, "cal").add(params).begin()
+    public static CodegenExpression codegenCal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).addParam(Calendar.class, "cal");
+
+        methodNode.getBlock()
                 .ifRefNullReturnNull("cal")
-                .methodReturn(codegenLongInternal(forge, exprDotMethod(ref("cal"), "getTimeInMillis"), params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+                .methodReturn(codegenLongInternal(forge, exprDotMethod(ref("cal"), "getTimeInMillis"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 
     public Object evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
         return evaluateInternal(DatetimeLongCoercerLocalDateTime.coerceLDTToMilliWTimezone(ldt, forge.timeZone), eventsPerStream, newData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenLDT(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-        return codegenLongInternal(forge, staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, member(tz.getMemberId())), params, context);
+    public static CodegenExpression codegenLDT(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
+        return codegenLongInternal(forge, staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", inner, member(tz.getMemberId())), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
         return evaluateInternal(DatetimeLongCoercerZonedDateTime.coerceZDTToMillis(zdt), eventsPerStream, newData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenZDT(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        return codegenLongInternal(forge, staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", inner), params, context);
+    public static CodegenExpression codegenZDT(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return codegenLongInternal(forge, staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", inner), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Object evaluateInternal(long ts, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -185,56 +190,57 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
         return true;
     }
 
-    private static CodegenExpression codegenLongInternal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).add(long.class, "ts").add(params).begin();
-        codegenLongCoercion(block, "first", forge.start, forge.startCoercer, params, context);
-        codegenLongCoercion(block, "second", forge.end, forge.secondCoercer, params, context);
-        CodegenMethodId method;
+    private static CodegenExpression codegenLongInternal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).addParam(long.class, "ts");
+
+        CodegenBlock block = methodNode.getBlock();
+        codegenLongCoercion(block, "first", forge.start, forge.startCoercer, methodNode, exprSymbol, codegenClassScope);
+        codegenLongCoercion(block, "second", forge.end, forge.secondCoercer, methodNode, exprSymbol, codegenClassScope);
         CodegenExpression first = ref("first");
         CodegenExpression second = ref("second");
         CodegenExpression ts = ref("ts");
         if (forge.includeBoth) {
-            method = block.ifCondition(relational(first, LE, second))
+            block.ifCondition(relational(first, LE, second))
                     .blockReturn(and(relational(first, LE, ts), relational(ts, LE, second)))
                     .methodReturn(and(relational(second, LE, ts), relational(ts, LE, first)));
         } else if (forge.includeLow != null && forge.includeHigh != null) {
-            method = block.ifCondition(relational(ts, forge.includeLow ? LT : LE, first)).blockReturn(constantFalse())
+            block.ifCondition(relational(ts, forge.includeLow ? LT : LE, first)).blockReturn(constantFalse())
                     .ifCondition(relational(ts, forge.includeHigh ? GT : GE, second)).blockReturn(constantFalse())
                     .methodReturn(constantTrue());
         } else {
-            codegenBooleanEval(block, "includeLowEndpoint", forge.includeLow, forge.forgeIncludeLow, params, context);
-            codegenBooleanEval(block, "includeLowHighpoint", forge.includeHigh, forge.forgeIncludeHigh, params, context);
-            method = block.methodReturn(staticMethod(ReformatBetweenNonConstantParamsForgeOp.class, "compareTimestamps", first, ts, second, ref("includeLowEndpoint"), ref("includeLowHighpoint")));
+            codegenBooleanEval(block, "includeLowEndpoint", forge.includeLow, forge.forgeIncludeLow, methodNode, exprSymbol, codegenClassScope);
+            codegenBooleanEval(block, "includeLowHighpoint", forge.includeHigh, forge.forgeIncludeHigh, methodNode, exprSymbol, codegenClassScope);
+            block.methodReturn(staticMethod(ReformatBetweenNonConstantParamsForgeOp.class, "compareTimestamps", first, ts, second, ref("includeLowEndpoint"), ref("includeLowHighpoint")));
         }
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        return localMethod(methodNode, inner);
     }
 
-    private static void codegenBooleanEval(CodegenBlock block, String variable, Boolean preset, ExprForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
+    private static void codegenBooleanEval(CodegenBlock block, String variable, Boolean preset, ExprForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (preset != null) {
             block.declareVar(boolean.class, variable, constant(preset));
             return;
         }
         if (forge.getEvaluationType() == boolean.class) {
-            block.declareVar(boolean.class, variable, forge.evaluateCodegen(params, context));
+            block.declareVar(boolean.class, variable, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
         String refname = variable + "Obj";
-        block.declareVar(Boolean.class, refname, forge.evaluateCodegen(params, context))
+        block.declareVar(Boolean.class, refname, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull(refname)
                 .declareVar(boolean.class, variable, ref(refname));
     }
 
-    private static void codegenLongCoercion(CodegenBlock block, String variable, ExprNode assignment, DatetimeLongCoercer coercer, CodegenParamSetExprPremade params, CodegenContext context) {
+    private static void codegenLongCoercion(CodegenBlock block, String variable, ExprNode assignment, DatetimeLongCoercer coercer, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = assignment.getForge().getEvaluationType();
         if (evaluationType == long.class) {
-            block.declareVar(long.class, variable, assignment.getForge().evaluateCodegen(params, context));
+            block.declareVar(long.class, variable, assignment.getForge().evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
         String refname = variable + "Obj";
-        block.declareVar(evaluationType, refname, assignment.getForge().evaluateCodegen(params, context));
+        block.declareVar(evaluationType, refname, assignment.getForge().evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
         if (!evaluationType.isPrimitive()) {
             block.ifRefNullReturnNull(refname);
         }
-        block.declareVar(long.class, variable, coercer.codegen(ref(refname), evaluationType, context));
+        block.declareVar(long.class, variable, coercer.codegen(ref(refname), evaluationType, codegenClassScope));
     }
 }

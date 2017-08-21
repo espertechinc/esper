@@ -11,8 +11,9 @@
 package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.event.WrapperEventType;
@@ -30,7 +31,7 @@ public class EvalInsertNoWildcardSingleColCoercionObjectArrayWrap extends EvalBa
         return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.emptyMap(), wrapper);
     }
 
-    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenContext context) {
-        return EvalInsertNoWildcardSingleColCoercionMapWrap.processFirstColCodegen(expression, memberEventAdapterService, context, wrapper, "adapterForTypedObjectArray", Object[].class);
+    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return EvalInsertNoWildcardSingleColCoercionMapWrap.processFirstColCodegen(expression, memberEventAdapterService, codegenClassScope, wrapper, "adapterForTypedObjectArray", Object[].class);
     }
 }

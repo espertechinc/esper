@@ -10,12 +10,13 @@
  */
 package com.espertech.esper.epl.datetime.dtlocal;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarForge;
 import com.espertech.esper.epl.datetime.interval.IntervalForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 import java.util.List;
 import java.util.TimeZone;
@@ -35,15 +36,15 @@ public class DTLocalDateOpsIntervalForge extends DTLocalForgeCalOpsIntervalBase 
         return new DTLocalDateOpsIntervalEval(getCalendarOps(calendarForges), intervalForge.getOp(), timeZone);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        return DTLocalDateOpsIntervalEval.codegenPointInTime(this, inner, innerType, params, context);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return DTLocalDateOpsIntervalEval.codegenPointInTime(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public DTLocalEvaluatorIntervalComp makeEvaluatorComp() {
         return new DTLocalDateOpsIntervalEval(getCalendarOps(calendarForges), intervalForge.getOp(), timeZone);
     }
 
-    public CodegenExpression codegen(CodegenExpressionRef start, CodegenExpressionRef end, CodegenParamSetExprPremade params, CodegenContext context) {
-        return DTLocalDateOpsIntervalEval.codegenStartEnd(this, start, end, params, context);
+    public CodegenExpression codegen(CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return DTLocalDateOpsIntervalEval.codegenStartEnd(this, start, end, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

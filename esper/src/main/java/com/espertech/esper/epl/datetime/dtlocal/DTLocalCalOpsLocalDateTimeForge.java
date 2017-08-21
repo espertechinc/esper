@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.epl.datetime.dtlocal;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class DTLocalCalOpsLocalDateTimeForge extends DTLocalForgeCalOpsCalBase i
         return new DTLocalCalOpsLocalDateTimeEval(getCalendarOps(calendarForges));
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        return DTLocalCalOpsLocalDateTimeEval.codegen(this, inner, innerType, params, context);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return DTLocalCalOpsLocalDateTimeEval.codegen(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

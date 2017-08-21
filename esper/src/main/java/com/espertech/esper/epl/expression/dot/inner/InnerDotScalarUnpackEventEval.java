@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.dot.inner;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCast;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalRootChildInnerEval;
@@ -40,13 +41,15 @@ public class InnerDotScalarUnpackEventEval implements ExprDotEvalRootChildInnerE
         return target;
     }
 
-    public static CodegenExpression codegenEvaluate(InnerDotScalarUnpackEventForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMethodId method = context.addMethod(forge.getRootForge().getEvaluationType(), InnerDotScalarUnpackEventEval.class).add(params).begin()
-                .declareVar(Object.class, "target", forge.getRootForge().evaluateCodegen(params, context))
+    public static CodegenExpression codegenEvaluate(InnerDotScalarUnpackEventForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getRootForge().getEvaluationType(), InnerDotScalarUnpackEventEval.class);
+
+        methodNode.getBlock()
+                .declareVar(Object.class, "target", forge.getRootForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifInstanceOf("target", EventBean.class)
                 .blockReturn(CodegenLegoCast.castSafeFromObjectType(forge.getRootForge().getEvaluationType(), exprDotMethod(cast(EventBean.class, ref("target")), "getUnderlying")))
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(forge.getRootForge().getEvaluationType(), ref("target")));
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

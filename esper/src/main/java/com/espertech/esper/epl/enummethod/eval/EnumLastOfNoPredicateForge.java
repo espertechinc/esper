@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -46,15 +47,14 @@ public class EnumLastOfNoPredicateForge extends EnumForgeBase implements EnumFor
         return result;
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
+    public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class type = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
-        CodegenMethodId method = context.addMethod(type, EnumLastOfNoPredicateForge.class).add(premade).begin()
+        CodegenMethodNode method = codegenMethodScope.makeChild(type, EnumLastOfNoPredicateForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .declareVar(Object.class, "result", constantNull())
-                .forEach(Object.class, "next", premade.enumcoll())
+                .forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignRef("result", ref("next"))
                 .blockEnd()
                 .methodReturn(cast(type, ref("result")));
-        return localMethodBuild(method).passAll(args).call();
+        return localMethod(method, args.getExpressions());
     }
 }

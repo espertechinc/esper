@@ -10,8 +10,9 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.collection.Pair;
@@ -94,12 +95,12 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
         return simpleTypeCasterCast(object, typeToCastTo, pairs);
     }
 
-    public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenContext context) {
+    public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, typeToCastTo)) {
             return input;
         }
-        CodegenMember target = context.makeAddMember(Class.class, typeToCastTo);
-        CodegenMember cache = context.makeAddMember(CopyOnWriteArraySet.class, pairs);
+        CodegenMember target = codegenClassScope.makeAddMember(Class.class, typeToCastTo);
+        CodegenMember cache = codegenClassScope.makeAddMember(CopyOnWriteArraySet.class, pairs);
         return CodegenExpressionBuilder.cast(typeToCastTo, staticMethod(SimpleTypeCasterAnyType.class, "simpleTypeCasterCast", input, CodegenExpressionBuilder.member(target.getMemberId()), CodegenExpressionBuilder.member(cache.getMemberId())));
     }
 }

@@ -11,7 +11,8 @@
 package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
@@ -36,11 +37,11 @@ public class MapNestedEntryPropertyGetterArrayObjectArray extends MapNestedEntry
         return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayFragment(value, index, getter, fragmentType, eventAdapterService);
     }
 
-    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
-        return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayCodegen(index, getter, name, context, this.getClass());
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayCodegen(index, getter, name, codegenMethodScope, codegenClassScope, this.getClass());
     }
 
-    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context) {
-        return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayFragmentCodegen(index, getter, name, context, this.getClass());
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayFragmentCodegen(index, getter, name, codegenMethodScope, codegenClassScope, this.getClass());
     }
 }

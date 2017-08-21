@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.epl.datetime.dtlocal;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.interval.IntervalForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 import java.util.TimeZone;
 
@@ -35,11 +36,11 @@ public class DTLocalLDTIntervalForge extends DTLocalForgeIntervalBase {
         return new DTLocalLDTIntervalEval(intervalForge.getOp(), timeZone);
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        return DTLocalLDTIntervalEval.codegen(this, inner, params, context);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return DTLocalLDTIntervalEval.codegen(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
-    public CodegenExpression codegen(CodegenExpressionRef start, CodegenExpressionRef end, CodegenParamSetExprPremade params, CodegenContext context) {
-        return DTLocalLDTIntervalEval.codegen(this, start, end, params, context);
+    public CodegenExpression codegen(CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return DTLocalLDTIntervalEval.codegen(this, start, end, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

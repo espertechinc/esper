@@ -26,4 +26,21 @@ public class CodegenExpressionRef implements CodegenExpression {
 
     public void mergeClasses(Set<Class> classes) {
     }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CodegenExpressionRef that = (CodegenExpressionRef) o;
+
+        return ref.equals(that.ref);
+    }
+
+    public int hashCode() {
+        return ref.hashCode();
+    }
 }

@@ -12,10 +12,11 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
@@ -57,11 +58,11 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
         return handleIsExistsTrailingChain(result);
     }
 
-    private CodegenMethodId isMapExistsPropertyCodegen(CodegenContext context) {
-        return context.addMethod(boolean.class, this.getClass()).add(Map.class, "map").begin()
-                .ifConditionReturnConst(not(mapGetterChain[0].underlyingExistsCodegen(ref("map"), context)), false)
-                .declareVar(Object.class, "result", mapGetterChain[0].underlyingGetCodegen(ref("map"), context))
-                .methodReturn(localMethod(handleIsExistsTrailingChainCodegen(context), ref("result")));
+    private CodegenMethodNode isMapExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Map.class, "map").getBlock()
+                .ifConditionReturnConst(not(mapGetterChain[0].underlyingExistsCodegen(ref("map"), codegenMethodScope, codegenClassScope)), false)
+                .declareVar(Object.class, "result", mapGetterChain[0].underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope))
+                .methodReturn(localMethod(handleIsExistsTrailingChainCodegen(codegenMethodScope, codegenClassScope), ref("result")));
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -81,28 +82,28 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
         return null;
     }
 
-    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingGetCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenContext context) {
-        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), context);
+    public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return underlyingExistsCodegen(castUnderlying(Map.class, beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
-    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        CodegenExpression resultExpression = mapGetterChain[0].underlyingGetCodegen(underlyingExpression, context);
-        return localMethod(handleGetterTrailingChainCodegen(context), resultExpression);
+    public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenExpression resultExpression = mapGetterChain[0].underlyingGetCodegen(underlyingExpression, codegenMethodScope, codegenClassScope);
+        return localMethod(handleGetterTrailingChainCodegen(codegenMethodScope, codegenClassScope), resultExpression);
     }
 
-    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
-        return localMethod(isMapExistsPropertyCodegen(context), underlyingExpression);
+    public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(isMapExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
-    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
@@ -138,8 +139,8 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
         return true;
     }
 
-    private CodegenMethodId handleIsExistsTrailingChainCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(boolean.class, this.getClass()).add(Object.class, "result").begin();
+    private CodegenMethodNode handleIsExistsTrailingChainCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Object.class, "result").getBlock();
         for (int i = 1; i < mapGetterChain.length; i++) {
             block.ifRefNullReturnFalse("result");
             MapEventPropertyGetter getter = mapGetterChain[i];
@@ -147,20 +148,20 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
             if (i == mapGetterChain.length - 1) {
                 block.ifNotInstanceOf("result", Map.class)
                         .ifInstanceOf("result", EventBean.class)
-                        .assignRef("result", getter.eventBeanExistsCodegen(castRef(EventBean.class, "result"), context))
+                        .assignRef("result", getter.eventBeanExistsCodegen(castRef(EventBean.class, "result"), codegenMethodScope, codegenClassScope))
                         .ifElse()
                         .blockReturn(constantFalse())
                         .ifElse()
-                        .blockReturn(getter.underlyingExistsCodegen(castRef(Map.class, "result"), context));
+                        .blockReturn(getter.underlyingExistsCodegen(castRef(Map.class, "result"), codegenMethodScope, codegenClassScope));
             }
 
             block.ifNotInstanceOf("result", Map.class)
                     .ifInstanceOf("result", EventBean.class)
-                    .assignRef("result", getter.eventBeanGetCodegen(castRef(EventBean.class, "result"), context))
+                    .assignRef("result", getter.eventBeanGetCodegen(castRef(EventBean.class, "result"), codegenMethodScope, codegenClassScope))
                     .ifElse()
                     .blockReturn(constantFalse())
                     .ifElse()
-                    .assignRef("result", getter.underlyingGetCodegen(castRef(Map.class, "result"), context))
+                    .assignRef("result", getter.underlyingGetCodegen(castRef(Map.class, "result"), codegenMethodScope, codegenClassScope))
                     .blockEnd();
         }
         return block.methodReturn(constantTrue());
@@ -186,18 +187,18 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
         return result;
     }
 
-    private CodegenMethodId handleGetterTrailingChainCodegen(CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(Object.class, "result").begin();
+    private CodegenMethodNode handleGetterTrailingChainCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "result").getBlock();
         for (int i = 1; i < mapGetterChain.length; i++) {
             block.ifRefNullReturnNull("result");
             MapEventPropertyGetter getter = mapGetterChain[i];
             block.ifNotInstanceOf("result", Map.class)
                     .ifInstanceOf("result", EventBean.class)
-                    .assignRef("result", getter.eventBeanGetCodegen(castRef(EventBean.class, "result"), context))
+                    .assignRef("result", getter.eventBeanGetCodegen(castRef(EventBean.class, "result"), codegenMethodScope, codegenClassScope))
                     .ifElse()
                     .blockReturn(constantNull())
                     .ifElse()
-                    .assignRef("result", getter.underlyingGetCodegen(castRef(Map.class, "result"), context))
+                    .assignRef("result", getter.underlyingGetCodegen(castRef(Map.class, "result"), codegenMethodScope, codegenClassScope))
                     .blockEnd();
         }
         return block.methodReturn(ref("result"));

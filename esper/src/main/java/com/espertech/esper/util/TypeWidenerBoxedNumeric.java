@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.cast;
@@ -34,7 +35,7 @@ public class TypeWidenerBoxedNumeric implements TypeWidener {
         return coercer.coerceBoxed((Number) input);
     }
 
-    public CodegenExpression widenCodegen(CodegenExpression expression, CodegenContext context) {
+    public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return coercer.coerceCodegen(cast(Number.class, expression), Number.class);
     }
 }

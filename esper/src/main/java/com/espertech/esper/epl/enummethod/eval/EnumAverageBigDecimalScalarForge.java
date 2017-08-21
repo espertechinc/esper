@@ -11,13 +11,14 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
 import com.espertech.esper.epl.agg.aggregator.AggregatorAvgBigDecimal;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.math.BigDecimal;
@@ -55,17 +56,15 @@ public class EnumAverageBigDecimalScalarForge extends EnumForgeBase implements E
         return agg.getValue();
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenMember memberMathCtx = context.makeAddMember(MathContext.class, optionalMathContext);
-        CodegenMethodId method = context.addMethod(BigDecimal.class, EnumAverageScalarForge.class).add(premade).begin()
+    public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember memberMathCtx = codegenClassScope.makeAddMember(MathContext.class, optionalMathContext);
+        CodegenMethodNode method = codegenMethodScope.makeChild(BigDecimal.class, EnumAverageScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, member(memberMathCtx.getMemberId())))
-                .forEach(Number.class, "num", premade.enumcoll())
+                .forEach(Number.class, "num", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifRefNull("num").blockContinue()
                 .expression(exprDotMethod(ref("agg"), "enter", ref("num")))
                 .blockEnd()
                 .methodReturn(exprDotMethod(ref("agg"), "getValue"));
-        return localMethodBuild(method).passAll(args).call();
+        return localMethod(method, args.getExpressions());
     }
-
 }

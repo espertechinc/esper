@@ -14,61 +14,66 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventPropertyGetterIndexed;
 import com.espertech.esper.client.EventPropertyGetterMapped;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenSymbolProviderEmpty;
 import com.espertech.esper.codegen.compile.CodegenClassGenerator;
 import com.espertech.esper.codegen.compile.CodegenCompilerException;
-import com.espertech.esper.codegen.core.*;
-import com.espertech.esper.codegen.model.method.CodegenParamSet;
-import com.espertech.esper.codegen.model.method.CodegenParamSetMulti;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSingle;
+import com.espertech.esper.codegen.core.CodegenClass;
+import com.espertech.esper.codegen.core.CodegenClassMethods;
+import com.espertech.esper.codegen.util.CodegenStackGenerator;
 import com.espertech.esper.epl.core.EngineImportService;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class EventPropertyGetterCompiler {
-    private final static CodegenMethodFootprint GETTER_GET_FP;
-    private final static CodegenMethodFootprint GETTER_EXISTS_FP;
-    private final static CodegenMethodFootprint GETTER_FRAGMENT_FP;
-    private final static CodegenMethodFootprint GETTER_GET_INDEXED_FP;
-    private final static CodegenMethodFootprint GETTER_GET_MAPPED_FP;
-
-    static {
-        List<CodegenParamSet> paramsGetSimple = Collections.<CodegenParamSet>singletonList(new CodegenParamSetSingle(new CodegenNamedParam(EventBean.class, "bean")));
-        GETTER_GET_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("get"), paramsGetSimple, null);
-        GETTER_EXISTS_FP = new CodegenMethodFootprint(boolean.class, new CodegenMethodId("isExistsProperty"), paramsGetSimple, null);
-        GETTER_FRAGMENT_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("getFragment"), paramsGetSimple, null);
-
-        List<CodegenParamSet> paramsGetIndexed = Collections.<CodegenParamSet>singletonList(new CodegenParamSetMulti(Arrays.asList(new CodegenNamedParam(EventBean.class, "bean"), new CodegenNamedParam(int.class, "index"))));
-        GETTER_GET_INDEXED_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("get"), paramsGetIndexed, null);
-
-        List<CodegenParamSet> paramsGetMapped = Collections.<CodegenParamSet>singletonList(new CodegenParamSetMulti(Arrays.asList(new CodegenNamedParam(EventBean.class, "bean"), new CodegenNamedParam(String.class, "key"))));
-        GETTER_GET_MAPPED_FP = new CodegenMethodFootprint(Object.class, new CodegenMethodId("get"), paramsGetMapped, null);
-    }
-
+    
     public static EventPropertyGetter compile(String engineURI, EngineImportService engineImportService, EventPropertyGetterSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
-        CodegenContext codegenContext = new CodegenContext(includeCodeComments);
-        CodegenMethod getMethod = new CodegenMethod(GETTER_GET_FP, getterSPI.eventBeanGetCodegen(ref("bean"), codegenContext));
-        CodegenMethod isExistsPropertyMethod = new CodegenMethod(GETTER_EXISTS_FP, getterSPI.eventBeanExistsCodegen(ref("bean"), codegenContext));
-        CodegenMethod fragmentMethod = new CodegenMethod(GETTER_FRAGMENT_FP, getterSPI.eventBeanFragmentCodegen(ref("bean"), codegenContext));
-        CodegenClass clazz = new CodegenClass(EventPropertyGetter.class, codegenContext, engineURI, getMethod, isExistsPropertyMethod, fragmentMethod);
+        CodegenClassScope codegenClassScope = new CodegenClassScope();
+
+        CodegenMethodNode getMethod = CodegenMethodNode.makeParentNode(Object.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE).addParam(EventBean.class, "bean");
+        getMethod.getBlock().methodReturn(getterSPI.eventBeanGetCodegen(ref("bean"), getMethod, codegenClassScope));
+
+        CodegenMethodNode existsMethod = CodegenMethodNode.makeParentNode(boolean.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE).addParam(EventBean.class, "bean");
+        existsMethod.getBlock().methodReturn(getterSPI.eventBeanExistsCodegen(ref("bean"), existsMethod, codegenClassScope));
+
+        CodegenMethodNode fragmentMethod = CodegenMethodNode.makeParentNode(Object.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE).addParam(EventBean.class, "bean");
+        fragmentMethod.getBlock().methodReturn(getterSPI.eventBeanFragmentCodegen(ref("bean"), fragmentMethod, codegenClassScope));
+
+        CodegenClassMethods methods = new CodegenClassMethods();
+        CodegenStackGenerator.recursiveBuildStack(getMethod, "get", methods);
+        CodegenStackGenerator.recursiveBuildStack(existsMethod, "isExistsProperty", methods);
+        CodegenStackGenerator.recursiveBuildStack(fragmentMethod, "getFragment", methods);
+
+        CodegenClass clazz = new CodegenClass(EventPropertyGetter.class, codegenClassScope, engineURI, methods);
         return CodegenClassGenerator.compile(clazz, engineImportService, EventPropertyGetter.class, debugInfoSupplier);
     }
 
     public static EventPropertyGetterIndexed compile(String engineURI, EngineImportService engineImportService, EventPropertyGetterIndexedSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
-        CodegenContext codegenContext = new CodegenContext(includeCodeComments);
-        CodegenMethod getMethod = new CodegenMethod(GETTER_GET_INDEXED_FP, getterSPI.eventBeanGetIndexedCodegen(codegenContext, ref("bean"), ref("index")));
-        CodegenClass clazz = new CodegenClass(EventPropertyGetterIndexed.class, codegenContext, engineURI, getMethod);
+        CodegenClassScope codegenClassScope = new CodegenClassScope();
+
+        CodegenMethodNode getMethod = CodegenMethodNode.makeParentNode(Object.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE).addParam(EventBean.class, "bean").addParam(int.class, "index");
+        getMethod.getBlock().methodReturn(getterSPI.eventBeanGetIndexedCodegen(getMethod, codegenClassScope, ref("bean"), ref("index")));
+
+        CodegenClassMethods methods = new CodegenClassMethods();
+        CodegenStackGenerator.recursiveBuildStack(getMethod, "get", methods);
+
+        CodegenClass clazz = new CodegenClass(EventPropertyGetterIndexed.class, codegenClassScope, engineURI, methods);
         return CodegenClassGenerator.compile(clazz, engineImportService, EventPropertyGetterIndexed.class, debugInfoSupplier);
     }
 
     public static EventPropertyGetterMapped compile(String engineURI, EngineImportService engineImportService, EventPropertyGetterMappedSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
-        CodegenContext codegenContext = new CodegenContext(includeCodeComments);
-        CodegenMethod getMethod = new CodegenMethod(GETTER_GET_MAPPED_FP, getterSPI.eventBeanGetMappedCodegen(codegenContext, ref("bean"), ref("key")));
-        CodegenClass clazz = new CodegenClass(EventPropertyGetterMapped.class, codegenContext, engineURI, getMethod);
+        CodegenClassScope codegenClassScope = new CodegenClassScope();
+
+        CodegenMethodNode getMethod = CodegenMethodNode.makeParentNode(Object.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE).addParam(EventBean.class, "bean").addParam(String.class, "key");
+        getMethod.getBlock().methodReturn(getterSPI.eventBeanGetMappedCodegen(getMethod, codegenClassScope, ref("bean"), ref("key")));
+
+        CodegenClassMethods methods = new CodegenClassMethods();
+        CodegenStackGenerator.recursiveBuildStack(getMethod, "get", methods);
+
+        CodegenClass clazz = new CodegenClass(EventPropertyGetterMapped.class, codegenClassScope, engineURI, methods);
         return CodegenClassGenerator.compile(clazz, engineImportService, EventPropertyGetterMapped.class, debugInfoSupplier);
     }
 }

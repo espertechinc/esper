@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;

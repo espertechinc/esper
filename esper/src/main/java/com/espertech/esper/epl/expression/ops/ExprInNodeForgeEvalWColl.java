@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCompareEquals;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -132,17 +133,19 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
         return isNotIn;
     }
 
-    public static CodegenExpression codegen(ExprInNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprInNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
         boolean isNot = forge.getForgeRenderable().isNotIn();
-        CodegenBlock block = context.addMethod(Boolean.class, ExprInNodeForgeEvalWColl.class).add(params).begin();
-        block.declareVar(boolean.class, "hasNullRow", constantFalse());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInNodeForgeEvalWColl.class);
+
+        CodegenBlock block = methodNode.getBlock()
+            .declareVar(boolean.class, "hasNullRow", constantFalse());
 
         Class leftTypeUncoerced = forges[0].getEvaluationType();
         Class leftTypeCoerced = forge.getCoercionType();
 
-        block.declareVar(forges[0].getEvaluationType(), "left", forges[0].evaluateCodegen(params, context));
-        block.declareVar(forge.getCoercionType(), "leftCoerced", !forge.isMustCoerce() ? ref("left") : forge.getCoercer().coerceCodegenMayNullBoxed(ref("left"), leftTypeUncoerced, context));
+        block.declareVar(forges[0].getEvaluationType(), "left", forges[0].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.declareVar(forge.getCoercionType(), "leftCoerced", !forge.isMustCoerce() ? ref("left") : forge.getCoercer().coerceCodegenMayNullBoxed(ref("left"), leftTypeUncoerced, methodNode, codegenClassScope));
 
         for (int i = 1; i < forges.length; i++) {
             Class reftype = forges[i].getEvaluationType();
@@ -154,7 +157,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
                 continue;
             }
 
-            block.declareVar(reftype, refname, refforge.evaluateCodegen(params, context));
+            block.declareVar(reftype, refname, refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
 
             if (JavaClassHelper.isImplementsInterface(reftype, Collection.class)) {
                 CodegenBlock ifRightNotNull = block.ifCondition(notEqualsNull(ref(refname)));
@@ -224,7 +227,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
         }
 
         block.ifCondition(ref("hasNullRow")).blockReturn(constantNull());
-        CodegenMethodId method = block.methodReturn(isNot ? constantTrue() : constantFalse());
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(isNot ? constantTrue() : constantFalse());
+        return localMethod(methodNode);
     }
 }

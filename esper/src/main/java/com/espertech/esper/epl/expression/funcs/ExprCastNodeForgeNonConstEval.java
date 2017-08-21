@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -50,20 +51,23 @@ public class ExprCastNodeForgeNonConstEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenExpression codegen(ExprCastNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprCastNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (forge.getEvaluationType() == null) {
             return constantNull();
         }
         ExprNode child = forge.getForgeRenderable().getChildNodes()[0];
         Class childType = child.getForge().getEvaluationType();
-        CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprCastNodeForgeNonConstEval.class).add(params).begin()
-                .declareVar(childType, "result", child.getForge().evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCastNodeForgeNonConstEval.class);
+
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(childType, "result", child.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!childType.isPrimitive()) {
             block.ifRefNullReturnNull("result");
         }
-        CodegenExpression cast = forge.getCasterParserComputerForge().codegenPremade(forge.getEvaluationType(), ref("result"), childType, context, params);
-        CodegenMethodId method = block.methodReturn(cast);
-        return localMethodBuild(method).passAll(params).call();
+        CodegenExpression cast = forge.getCasterParserComputerForge().codegenPremade(forge.getEvaluationType(), ref("result"), childType, methodNode, exprSymbol, codegenClassScope);
+        block.methodReturn(cast);
+        return localMethod(methodNode);
     }
 
 }

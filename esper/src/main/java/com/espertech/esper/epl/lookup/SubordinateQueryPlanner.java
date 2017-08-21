@@ -15,7 +15,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.index.quadtree.SubordTableLookupStrategyFactoryQuadTree;
 import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;

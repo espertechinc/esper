@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -59,19 +60,21 @@ public class ExprLikeNodeForgeConstEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenMethodId codegen(ExprLikeNodeForgeConst forge, ExprNode lhs, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenMember mLikeUtil = context.makeAddMember(LikeUtil.class, forge.getLikeUtil());
+    public static CodegenMethodNode codegen(ExprLikeNodeForgeConst forge, ExprNode lhs, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember mLikeUtil = codegenClassScope.makeAddMember(LikeUtil.class, forge.getLikeUtil());
 
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprLikeNodeForgeConstEval.class);
         if (!forge.isNumericValue()) {
-            return context.addMethod(Boolean.class, ExprLikeNodeForgeConstEval.class).add(params).begin()
-                    .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(params, context))
+            methodNode.getBlock()
+                    .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getLikeCode(forge, member(mLikeUtil.getMemberId()), ref("value")));
+        } else {
+            methodNode.getBlock().declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .ifRefNullReturnNull("value")
+                    .methodReturn(getLikeCode(forge, member(mLikeUtil.getMemberId()), exprDotMethod(ref("value"), "toString")));
         }
-        return context.addMethod(Boolean.class, ExprLikeNodeForgeConstEval.class).add(params).begin()
-                .declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(params, context))
-                .ifRefNullReturnNull("value")
-                .methodReturn(getLikeCode(forge, member(mLikeUtil.getMemberId()), exprDotMethod(ref("value"), "toString")));
+        return methodNode;
     }
 
     static CodegenExpression getLikeCode(ExprLikeNodeForge forge, CodegenExpression refLike, CodegenExpression stringExpr) {

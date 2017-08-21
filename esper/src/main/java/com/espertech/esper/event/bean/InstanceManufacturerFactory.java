@@ -10,12 +10,13 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.ops.ExprNewInstanceNodeForge;
 
 public interface InstanceManufacturerFactory {
     InstanceManufacturer makeEvaluator();
-    CodegenExpression codegen(ExprNewInstanceNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params);
+    CodegenExpression codegen(ExprNewInstanceNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 }

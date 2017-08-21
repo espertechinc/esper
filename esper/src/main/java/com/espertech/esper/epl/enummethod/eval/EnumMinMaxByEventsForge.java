@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.enummethod.eval;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
 public class EnumMinMaxByEventsForge extends EnumForgeBase {
@@ -28,7 +29,7 @@ public class EnumMinMaxByEventsForge extends EnumForgeBase {
         return new EnumMinMaxByEventsForgeEval(this, innerExpression.getExprEvaluator());
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade premade, CodegenContext context) {
-        return EnumMinMaxByEventsForgeEval.codegen(this, premade, context);
+    public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return EnumMinMaxByEventsForgeEval.codegen(this, premade, codegenMethodScope, codegenClassScope);
     }
 }

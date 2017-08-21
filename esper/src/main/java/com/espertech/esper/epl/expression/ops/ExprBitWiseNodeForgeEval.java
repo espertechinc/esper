@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -58,10 +59,12 @@ public class ExprBitWiseNodeForgeEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenExpression codegen(ExprBitWiseNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params, ExprNode lhs, ExprNode rhs) {
-        CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprBitWiseNodeForgeEval.class).add(params).begin()
-                .declareVar(lhs.getForge().getEvaluationType(), "left", lhs.getForge().evaluateCodegen(params, context))
-                .declareVar(rhs.getForge().getEvaluationType(), "right", rhs.getForge().evaluateCodegen(params, context));
+    public static CodegenExpression codegen(ExprBitWiseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprBitWiseNodeForgeEval.class);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(lhs.getForge().getEvaluationType(), "left", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(rhs.getForge().getEvaluationType(), "right", rhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!lhs.getForge().getEvaluationType().isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
@@ -72,7 +75,7 @@ public class ExprBitWiseNodeForgeEval implements ExprEvaluator {
         block.declareVar(primitive, "l", ref("left"))
                 .declareVar(primitive, "r", ref("right"));
 
-        CodegenMethodId id = block.methodReturn(cast(primitive, op(ref("l"), forge.getForgeRenderable().getBitWiseOpEnum().getExpressionText(), ref("r"))));
-        return localMethodBuild(id).passAll(params).call();
+        block.methodReturn(cast(primitive, op(ref("l"), forge.getForgeRenderable().getBitWiseOpEnum().getExpressionText(), ref("r"))));
+        return localMethod(methodNode);
     }
 }

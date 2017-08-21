@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.datetime.dtlocal;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
 public class DTLocalBeanIntervalWithEndForge implements DTLocalForge {
@@ -34,7 +35,7 @@ public class DTLocalBeanIntervalWithEndForge implements DTLocalForge {
         return new DTLocalBeanIntervalWithEndEval(getterStartTimestamp, getterEndTimestamp, inner.makeEvaluatorComp());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        return DTLocalBeanIntervalWithEndEval.codegen(this, inner, params, context);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return DTLocalBeanIntervalWithEndEval.codegen(this, inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

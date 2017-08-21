@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.datetime.interval.deltaexpr;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.interval.IntervalDeltaExprEvaluator;
 import com.espertech.esper.epl.datetime.interval.IntervalDeltaExprForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 
@@ -35,7 +36,7 @@ public class IntervalDeltaExprTimePeriodConstForge implements IntervalDeltaExprF
         return timerPeriodConst.deltaAdd(reference);
     }
 
-    public CodegenExpression codegen(CodegenExpression reference, CodegenParamSetExprPremade params, CodegenContext context) {
-        return timerPeriodConst.deltaAddCodegen(reference, context);
+    public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return timerPeriodConst.deltaAddCodegen(reference, codegenMethodScope, codegenClassScope);
     }
 }

@@ -11,14 +11,15 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoCompareEquals;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -86,29 +87,30 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         return caseResult;
     }
 
-    public static CodegenExpression codegen(ExprCaseNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.getEvaluationType() == null ? Map.class : forge.getEvaluationType();
         Class compareType = forge.getOptionalCompareExprNode().getForge().getEvaluationType();
-        CodegenBlock block = context.addMethod(evaluationType, ExprCaseNodeForgeEvalSyntax2.class).add(params).begin()
-                .declareVar(compareType == null ? Object.class : compareType, "checkResult", forge.getOptionalCompareExprNode().getForge().evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax2.class);
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(compareType == null ? Object.class : compareType, "checkResult", forge.getOptionalCompareExprNode().getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         int num = 0;
         for (UniformPair<ExprNode> pair : forge.getWhenThenNodeList()) {
             String refname = "r" + num;
             Class lhsType = pair.getFirst().getForge().getEvaluationType();
-            block.declareVar(lhsType == null ? Object.class : lhsType, refname, pair.getFirst().getForge().evaluateCodegen(params, context));
-            CodegenExpression compareExpression = codegenCompare(ref("checkResult"), compareType, ref(refname), pair.getFirst().getForge().getEvaluationType(), forge, context);
+            block.declareVar(lhsType == null ? Object.class : lhsType, refname, pair.getFirst().getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            CodegenExpression compareExpression = codegenCompare(ref("checkResult"), compareType, ref(refname), pair.getFirst().getForge().getEvaluationType(), forge, methodNode);
             block.ifCondition(compareExpression)
-                    .blockReturn(codegenToType(forge, pair.getSecond(), context, params));
+                    .blockReturn(codegenToType(forge, pair.getSecond(), methodNode, exprSymbol, codegenClassScope));
             num++;
         }
 
-        CodegenMethodId method;
         if (forge.getOptionalElseExprNode() != null) {
-            method = block.methodReturn(codegenToType(forge, forge.getOptionalElseExprNode(), context, params));
+            block.methodReturn(codegenToType(forge, forge.getOptionalElseExprNode(), methodNode, exprSymbol, codegenClassScope));
         } else {
-            method = block.methodReturn(constantNull());
+            block.methodReturn(constantNull());
         }
-        return localMethodBuild(method).passAll(params).call();
+        return localMethod(methodNode);
     }
 
     private boolean compare(Object leftResult, Object rightResult) {
@@ -128,7 +130,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         }
     }
 
-    private static CodegenExpression codegenCompare(CodegenExpressionRef lhs, Class lhsType, CodegenExpressionRef rhs, Class rhsType, ExprCaseNodeForge forge, CodegenContext context) {
+    private static CodegenExpression codegenCompare(CodegenExpressionRef lhs, Class lhsType, CodegenExpressionRef rhs, Class rhsType, ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope) {
         if (lhsType == null) {
             return equalsNull(rhs);
         }
@@ -138,7 +140,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         if (lhsType.isPrimitive() && rhsType.isPrimitive() && !forge.isMustCoerce()) {
             return CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(lhs, lhsType, rhs, rhsType);
         }
-        CodegenBlock block = context.addMethod(boolean.class, ExprCaseNodeForgeEvalSyntax2.class).add(lhsType, "leftResult").add(rhsType, "rightResult").begin();
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprCaseNodeForgeEvalSyntax2.class).addParam(lhsType, "leftResult").addParam(rhsType, "rightResult").getBlock();
         if (!lhsType.isPrimitive()) {
             CodegenBlock ifBlock = block.ifCondition(equalsNull(ref("leftResult")));
             if (rhsType.isPrimitive()) {
@@ -150,7 +152,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         if (!rhsType.isPrimitive()) {
             block.ifCondition(equalsNull(ref("rightResult"))).blockReturn(constantFalse());
         }
-        CodegenMethodId method;
+        CodegenMethodNode method;
         if (!forge.isMustCoerce()) {
             method = block.methodReturn(CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(ref("leftResult"), lhsType, ref("rightResult"), rhsType));
         } else {

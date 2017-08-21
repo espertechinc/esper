@@ -12,13 +12,14 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.core.service.ExpressionResultCacheEntryBeanAndCollBean;
 import com.espertech.esper.core.service.ExpressionResultCacheForPropUnwrap;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -57,12 +58,16 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
         return evaluateInternal(eventInQuestion, context);
     }
 
-    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMethodId method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(params).begin()
-                .declareVar(EventBean.class, "event", arrayAtIndex(params.passEPS(), constant(streamId)))
+    public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class);
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+
+        methodNode.getBlock()
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamId)))
                 .ifRefNullReturnNull("event")
-                .methodReturn(codegenEvaluateInternal(ref("event"), params, context));
-        return localMethodBuild(method).passAll(params).call();
+                .methodReturn(codegenEvaluateInternal(ref("event"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode);
     }
 
     public Collection<EventBean> evaluateEventGetROCollectionEvents(EventBean event, ExprEvaluatorContext context) {
@@ -80,7 +85,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
         return null;
     }
 
-    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
@@ -104,7 +109,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
         return null;
     }
 
-    public CodegenExpression evaluateGetEventBeanCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+    public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constantNull();
     }
 
@@ -127,20 +132,25 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
         return coll;
     }
 
-    private CodegenExpression codegenEvaluateInternal(CodegenExpressionRef event, CodegenParamSetExprPremade params, CodegenContext context) {
+    private CodegenExpression codegenEvaluateInternal(CodegenExpressionRef event, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (disablePropertyExpressionEventCollCache) {
-            CodegenMethodId method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(EventBean.class, "event").add(params).begin()
-                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), context)))
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class).addParam(EventBean.class, "event");
+
+            methodNode.getBlock()
+                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)))
                     .ifRefNullReturnNull("events")
                     .methodReturn(staticMethod(Arrays.class, "asList", ref("events")));
-            return localMethodBuild(method).pass(event).passAll(params).call();
+            return localMethod(methodNode, event);
         }
-        CodegenMethodId method = context.addMethod(Collection.class, PropertyDotEventCollectionForge.class).add(EventBean.class, "event").add(params).begin()
-                .declareVar(ExpressionResultCacheForPropUnwrap.class, "cache", exprDotMethodChain(params.passEvalCtx()).add("getExpressionResultCacheService").add("getAllocateUnwrapProp"))
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class).addParam(EventBean.class, "event");
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        methodNode.getBlock()
+                .declareVar(ExpressionResultCacheForPropUnwrap.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateUnwrapProp"))
                 .declareVar(ExpressionResultCacheEntryBeanAndCollBean.class, "cacheEntry", exprDotMethod(ref("cache"), "getPropertyColl", constant(propertyNameCache), ref("event")))
                 .ifCondition(notEqualsNull(ref("cacheEntry")))
                 .blockReturn(exprDotMethod(ref("cacheEntry"), "getResult"))
-                .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), context)))
+                .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)))
                 .declareVarNoInit(Collection.class, "coll")
                 .ifRefNull("events")
                 .assignRef("coll", constantNull())
@@ -149,7 +159,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
                 .blockEnd()
                 .expression(exprDotMethod(ref("cache"), "savePropertyColl", constant(propertyNameCache), ref("event"), ref("coll")))
                 .methodReturn(ref("coll"));
-        return localMethodBuild(method).pass(event).passAll(params).call();
+        return localMethod(methodNode, event);
     }
 
     public ExprNodeRenderable getForgeRenderable() {

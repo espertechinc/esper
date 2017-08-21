@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
@@ -47,14 +48,13 @@ public class EnumDistinctScalarForge extends EnumForgeBase implements EnumForge,
         return new LinkedHashSet<Object>(enumcoll);
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenMethodId method = context.addMethod(Collection.class, EnumDistinctScalarForge.class).add(premade).begin()
-                .ifCondition(relational(exprDotMethod(premade.enumcoll(), "size"), LE, constant(1)))
-                .blockReturn(premade.enumcoll())
+    public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, EnumDistinctScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+                .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
+                .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifCondition(instanceOf(ref("enumcoll"), Set.class))
-                .blockReturn(premade.enumcoll())
-                .methodReturn(newInstance(LinkedHashSet.class, premade.enumcoll()));
-        return localMethodBuild(method).passAll(args).call();
+                .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
+                .methodReturn(newInstance(LinkedHashSet.class, EnumForgeCodegenNames.REF_ENUMCOLL));
+        return localMethod(method, args.getExpressions());
     }
 }

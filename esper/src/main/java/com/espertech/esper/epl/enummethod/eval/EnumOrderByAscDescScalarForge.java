@@ -11,12 +11,13 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodNonPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetEnumMethodPremade;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.ArrayList;
@@ -54,19 +55,17 @@ public class EnumOrderByAscDescScalarForge extends EnumForgeBase implements Enum
         return list;
     }
 
-    public CodegenExpression codegen(CodegenParamSetEnumMethodNonPremade args, CodegenContext context) {
-        CodegenParamSetEnumMethodPremade premade = CodegenParamSetEnumMethodPremade.INSTANCE;
-        CodegenBlock block = context.addMethod(Collection.class, EnumOrderByAscDescScalarForge.class).add(premade).begin()
-                .ifCondition(or(equalsNull(premade.enumcoll()), exprDotMethod(premade.enumcoll(), "isEmpty")))
-                .blockReturn(premade.enumcoll())
-                .declareVar(List.class, "list", newInstance(ArrayList.class, premade.enumcoll()));
+    public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, EnumOrderByAscDescScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+                .ifCondition(or(equalsNull(EnumForgeCodegenNames.REF_ENUMCOLL), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty")))
+                .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
+                .declareVar(List.class, "list", newInstance(ArrayList.class, EnumForgeCodegenNames.REF_ENUMCOLL));
         if (descending) {
             block.expression(staticMethod(Collections.class, "sort", ref("list"), staticMethod(Collections.class, "reverseOrder")));
         } else {
             block.expression(staticMethod(Collections.class, "sort", ref("list")));
         }
-        CodegenMethodId method = block.methodReturn(ref("list"));
-        return localMethodBuild(method).passAll(args).call();
-
+        CodegenMethodNode method = block.methodReturn(ref("list"));
+        return localMethod(method, args.getExpressions());
     }
 }

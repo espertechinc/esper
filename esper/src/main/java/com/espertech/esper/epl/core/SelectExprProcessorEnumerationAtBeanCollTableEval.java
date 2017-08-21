@@ -11,11 +11,13 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -43,13 +45,19 @@ public class SelectExprProcessorEnumerationAtBeanCollTableEval implements ExprEv
         return convertToTableType(result, forge.tableMetadata.getEventToPublic(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegen(SelectExprProcessorEnumerationAtBeanCollTableForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember eventToPublic = context.makeAddMember(TableMetadataInternalEventToPublic.class, forge.tableMetadata.getEventToPublic());
-        CodegenMethodId method = context.addMethod(EventBean[].class, SelectExprProcessorEnumerationAtBeanCollTableEval.class).add(params).begin()
-                .declareVar(Object.class, "result", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(params, context))
+    public static CodegenExpression codegen(SelectExprProcessorEnumerationAtBeanCollTableForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, forge.tableMetadata.getEventToPublic());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationAtBeanCollTableEval.class);
+
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
+
+        methodNode.getBlock()
+                .declareVar(Object.class, "result", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
-                .methodReturn(staticMethod(SelectExprProcessorEnumerationAtBeanCollTableEval.class, "convertToTableType", ref("result"), member(eventToPublic.getMemberId()), params.passEPS(), params.passIsNewData(), params.passEvalCtx()));
-        return localMethodBuild(method).passAll(params).call();
+                .methodReturn(staticMethod(SelectExprProcessorEnumerationAtBeanCollTableEval.class, "convertToTableType", ref("result"), member(eventToPublic.getMemberId()), refEPS, refIsNewData, refExprEvalCtx));
+        return localMethod(methodNode);
     }
 
     /**

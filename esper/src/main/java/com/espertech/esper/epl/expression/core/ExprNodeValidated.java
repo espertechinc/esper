@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 
 import java.io.StringWriter;
@@ -38,8 +39,8 @@ public class ExprNodeValidated extends ExprNodeBase implements ExprForge, ExprEv
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return inner.getForge().evaluateCodegen(params, context);
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return inner.getForge().evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Class getEvaluationType() {

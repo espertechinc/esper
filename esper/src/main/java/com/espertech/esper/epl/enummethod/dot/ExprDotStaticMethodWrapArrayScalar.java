@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -36,7 +37,7 @@ public class ExprDotStaticMethodWrapArrayScalar implements ExprDotStaticMethodWr
         return CollectionUtil.arrayToCollectionAllowNull(result);
     }
 
-    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenContext context) {
-        return CollectionUtil.arrayToCollectionAllowNullCodegen(arrayType, result, context);
+    public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return CollectionUtil.arrayToCollectionAllowNullCodegen(codegenMethodScope, arrayType, result);
     }
 }

@@ -11,10 +11,13 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class SelectExprProcessorEnumerationAtBeanSingleEval implements ExprEvaluator {
     private final SelectExprProcessorEnumerationAtBeanSingleForge forge;
@@ -29,7 +32,7 @@ public class SelectExprProcessorEnumerationAtBeanSingleEval implements ExprEvalu
         return enumEval.evaluateGetEventBean(eventsPerStream, isNewData, context);
     }
 
-    public static CodegenExpression codegen(SelectExprProcessorEnumerationAtBeanSingleForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        return forge.enumerationForge.evaluateGetEventBeanCodegen(params, context);
+    public static CodegenExpression codegen(SelectExprProcessorEnumerationAtBeanSingleForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return forge.enumerationForge.evaluateGetEventBeanCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

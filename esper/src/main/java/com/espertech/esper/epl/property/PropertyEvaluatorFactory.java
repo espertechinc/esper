@@ -13,6 +13,7 @@ package com.espertech.esper.epl.property;
 import com.espertech.esper.client.*;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.*;

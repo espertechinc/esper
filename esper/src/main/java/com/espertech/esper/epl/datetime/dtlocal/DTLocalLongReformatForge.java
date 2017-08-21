@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.epl.datetime.dtlocal;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.reformatop.ReformatForge;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 public class DTLocalLongReformatForge extends DTLocalReformatForgeBase {
     public DTLocalLongReformatForge(ReformatForge reformatForge) {
@@ -24,7 +25,7 @@ public class DTLocalLongReformatForge extends DTLocalReformatForgeBase {
         return new DTLocalLongReformatEval(reformatForge.getOp());
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        return reformatForge.codegenLong(inner, params, context);
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return reformatForge.codegenLong(inner, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

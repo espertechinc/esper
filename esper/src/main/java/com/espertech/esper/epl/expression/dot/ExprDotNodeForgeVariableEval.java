@@ -11,11 +11,13 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.variable.VariableMetaData;
@@ -47,9 +49,9 @@ public class ExprDotNodeForgeVariableEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenExpression codegen(ExprDotNodeForgeVariable forge, CodegenParamSetExprPremade params, CodegenContext context) {
+    public static CodegenExpression codegen(ExprDotNodeForgeVariable forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
 
-        CodegenMember variableReader = context.makeAddMember(VariableReader.class, forge.getVariableReader());
+        CodegenMember variableReader = codegenClassScope.makeAddMember(VariableReader.class, forge.getVariableReader());
         Class variableType;
         VariableMetaData metaData = forge.getVariableReader().getVariableMetaData();
         if (metaData.getEventType() != null) {
@@ -57,9 +59,13 @@ public class ExprDotNodeForgeVariableEval implements ExprEvaluator {
         } else {
             variableType = metaData.getType();
         }
-        CodegenBlock block = context.addMethod(forge.getEvaluationType(), ExprDotNodeForgeVariableEval.class).add(params).begin()
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeVariableEval.class);
+
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(variableType, "result", cast(variableType, exprDotMethod(member(variableReader.getMemberId()), "getValue")));
-        CodegenExpression chain = ExprDotNodeUtility.evaluateChainCodegen(context, params, ref("result"), variableType, forge.getChainForge(), forge.getResultWrapLambda());
-        return localMethodBuild(block.methodReturn(chain)).passAll(params).call();
+        CodegenExpression chain = ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("result"), variableType, forge.getChainForge(), forge.getResultWrapLambda());
+        block.methodReturn(chain);
+        return localMethod(methodNode);
     }
 }

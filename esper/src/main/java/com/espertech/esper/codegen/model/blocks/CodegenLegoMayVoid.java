@@ -10,23 +10,24 @@
  */
 package com.espertech.esper.codegen.model.blocks;
 
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethodBuild;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 public class CodegenLegoMayVoid {
-    public static CodegenExpression expressionMayVoid(ExprForge forge, CodegenParamSetExprPremade premade, CodegenContext context) {
+
+    public static CodegenExpression expressionMayVoid(ExprForge forge, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (forge.getEvaluationType() != void.class) {
-            return forge.evaluateCodegen(premade, context);
+            return forge.evaluateCodegen(parentNode, exprSymbol, codegenClassScope);
         }
-        CodegenMethodId method = context.addMethod(Object.class, CodegenLegoMayVoid.class).add(premade).begin()
-                .expression(forge.evaluateCodegen(premade, context))
+        CodegenMethodNode methodNode = parentNode.makeChild(Object.class, CodegenLegoMayVoid.class);
+        methodNode.getBlock().expression(forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(constantNull());
-        return localMethodBuild(method).passAll(premade).call();
+        return localMethod(methodNode);
     }
 }

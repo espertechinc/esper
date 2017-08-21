@@ -12,8 +12,9 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.event.WrapperEventType;
@@ -34,13 +35,13 @@ public class EvalInsertNoWildcardSingleColCoercionMapWrap extends EvalBaseFirstP
         return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.emptyMap(), wrapper);
     }
 
-    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenContext context) {
-        return processFirstColCodegen(expression, memberEventAdapterService, context, wrapper, "adapterForTypedMap", Map.class);
+    protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return processFirstColCodegen(expression, memberEventAdapterService, codegenClassScope, wrapper, "adapterForTypedMap", Map.class);
     }
 
-    public static CodegenExpression processFirstColCodegen(CodegenExpression expression, CodegenMember memberEventAdapterService, CodegenContext context, WrapperEventType wrapperEventType, String adapterMethod, Class castType) {
-        CodegenMember memberUndType = context.makeAddMember(EventType.class, wrapperEventType.getUnderlyingEventType());
-        CodegenMember memberWrapperType = context.makeAddMember(WrapperEventType.class, wrapperEventType);
+    public static CodegenExpression processFirstColCodegen(CodegenExpression expression, CodegenMember memberEventAdapterService, CodegenClassScope codegenClassScope, WrapperEventType wrapperEventType, String adapterMethod, Class castType) {
+        CodegenMember memberUndType = codegenClassScope.makeAddMember(EventType.class, wrapperEventType.getUnderlyingEventType());
+        CodegenMember memberWrapperType = codegenClassScope.makeAddMember(WrapperEventType.class, wrapperEventType);
         CodegenExpression wrapped = exprDotMethod(member(memberEventAdapterService.getMemberId()), adapterMethod, castType == Object.class ? expression : cast(castType, expression), member(memberUndType.getMemberId()));
         return exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", wrapped, staticMethod(Collections.class, "emptyMap"), member(memberWrapperType.getMemberId()));
     }

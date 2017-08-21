@@ -11,9 +11,10 @@
 package com.espertech.esper.epl.expression.dot.inner;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalRootChildInnerEval;
@@ -34,8 +35,8 @@ public class InnerDotArrPrimitiveToCollEval implements ExprDotEvalRootChildInner
         return CollectionUtil.arrayToCollectionAllowNull(array);
     }
 
-    public static CodegenExpression codegen(InnerDotArrPrimitiveToCollForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        return CollectionUtil.arrayToCollectionAllowNullCodegen(forge.rootForge.getEvaluationType(), forge.rootForge.evaluateCodegen(params, context), context);
+    public static CodegenExpression codegen(InnerDotArrPrimitiveToCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return CollectionUtil.arrayToCollectionAllowNullCodegen(codegenMethodScope, forge.rootForge.getEvaluationType(), forge.rootForge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

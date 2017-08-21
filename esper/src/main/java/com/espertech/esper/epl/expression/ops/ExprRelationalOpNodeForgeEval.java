@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -62,7 +63,7 @@ public class ExprRelationalOpNodeForgeEval implements ExprEvaluator {
         return forge.getComputer().compare(lvalue, rvalue);
     }
 
-    public static CodegenExpression codegen(ExprRelationalOpNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
+    public static CodegenExpression codegen(ExprRelationalOpNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge lhs = forge.getForgeRenderable().getChildNodes()[0].getForge();
         ExprForge rhs = forge.getForgeRenderable().getChildNodes()[1].getForge();
         Class lhsType = lhs.getEvaluationType();
@@ -74,18 +75,21 @@ public class ExprRelationalOpNodeForgeEval implements ExprEvaluator {
             return constantNull();
         }
 
-        CodegenBlock block = context.addMethod(Boolean.class, ExprRelationalOpNodeForgeEval.class).add(params).begin()
-                .declareVar(lhsType, "left", lhs.evaluateCodegen(params, context));
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRelationalOpNodeForgeEval.class);
+
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(lhsType, "left", lhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!lhsType.isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
 
-        block.declareVar(rhsType, "right", rhs.evaluateCodegen(params, context));
+        block.declareVar(rhsType, "right", rhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         if (!rhsType.isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }
 
-        CodegenMethodId method = block.methodReturn(forge.getComputer().codegen(ref("left"), lhsType, ref("right"), rhsType));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(forge.getComputer().codegen(ref("left"), lhsType, ref("right"), rhsType));
+        return localMethod(methodNode);
     }
 }

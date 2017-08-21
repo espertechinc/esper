@@ -11,10 +11,7 @@
 package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -211,12 +208,12 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         }
     }
 
-    private CodegenMethodId getFragmentCodegen(CodegenContext context) {
-        CodegenMember msvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
-        CodegenMember mtype = context.makeAddMember(BeanEventType.class, fragmentEventType);
+    private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMember msvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember mtype = codegenClassScope.makeAddMember(BeanEventType.class, fragmentEventType);
 
-        CodegenBlock block = context.addMethod(Object.class, this.getClass()).add(getTargetType(), "underlying").begin()
-                .declareVar(getBeanPropType(), "object", underlyingGetCodegen(ref("underlying"), context))
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(getTargetType(), "underlying").getBlock()
+                .declareVar(getBeanPropType(), "object", underlyingGetCodegen(ref("underlying"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("object");
 
         if (isArray) {
@@ -228,20 +225,20 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         return block.methodReturn(exprDotMethod(member(msvc.getMemberId()), "adapterForTypedBean", ref("object"), member(mtype.getMemberId())));
     }
 
-    public final CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenContext context) {
+    public final CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         determineFragmentable();
         if (!isFragmentable) {
             return constantNull();
         }
-        return underlyingFragmentCodegen(castUnderlying(getTargetType(), beanExpression), context);
+        return underlyingFragmentCodegen(castUnderlying(getTargetType(), beanExpression), codegenMethodScope, codegenClassScope);
     }
 
-    public final CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenContext context) {
+    public final CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         determineFragmentable();
         if (!isFragmentable) {
             return constantNull();
         }
-        return localMethod(getFragmentCodegen(context), underlyingExpression);
+        return localMethod(getFragmentCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     private void determineFragmentable() {

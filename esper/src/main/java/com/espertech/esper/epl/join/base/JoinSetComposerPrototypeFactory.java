@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;

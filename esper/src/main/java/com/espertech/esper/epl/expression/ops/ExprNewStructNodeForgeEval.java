@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -49,17 +50,19 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
         return props;
     }
 
-    public static CodegenExpression codegen(ExprNewStructNodeForge forge, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenBlock block = context.addMethod(Map.class, ExprNewStructNodeForgeEval.class).add(params).begin()
+    public static CodegenExpression codegen(ExprNewStructNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Map.class, ExprNewStructNodeForgeEval.class);
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(Map.class, "props", newInstance(HashMap.class));
         ExprNode[] nodes = forge.getForgeRenderable().getChildNodes();
         String[] columnNames = forge.getForgeRenderable().getColumnNames();
         for (int i = 0; i < nodes.length; i++) {
             ExprForge child = nodes[i].getForge();
-            block.exprDotMethod(ref("props"), "put", constant(columnNames[i]), child.evaluateCodegen(params, context));
+            block.exprDotMethod(ref("props"), "put", constant(columnNames[i]), child.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         }
-        CodegenMethodId method = block.methodReturn(ref("props"));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(ref("props"));
+        return localMethod(methodNode);
     }
 
     public Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -71,13 +74,17 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
         return rows;
     }
 
-    public static CodegenExpression codegenTypeableSingle(ExprNewStructNodeForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object[].class, ExprNewStructNodeForgeEval.class).add(params).begin()
+    public static CodegenExpression codegenTypeableSingle(ExprNewStructNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprNewStructNodeForgeEval.class);
+
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "rows", newArray(Object.class, constant(forge.getForgeRenderable().getColumnNames().length)));
         for (int i = 0; i < forge.getForgeRenderable().getColumnNames().length; i++) {
-            block.assignArrayElement("rows", constant(i), forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(params, context));
+            block.assignArrayElement("rows", constant(i), forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
         }
-        return localMethodBuild(block.methodReturn(ref("rows"))).passAll(params).call();
+        block.methodReturn(ref("rows"));
+        return localMethod(methodNode);
     }
 
     public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

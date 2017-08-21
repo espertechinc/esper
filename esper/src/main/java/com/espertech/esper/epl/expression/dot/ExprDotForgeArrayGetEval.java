@@ -11,11 +11,12 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
@@ -63,15 +64,18 @@ public class ExprDotForgeArrayGetEval implements ExprDotEval {
         return forge;
     }
 
-    public static CodegenExpression codegen(ExprDotForgeArrayGet forge, CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
-        CodegenBlock block = context.addMethod(EPTypeHelper.getNormalizedClass(forge.getTypeInfo()), ExprDotForgeArrayGetEval.class).add(innerType, "target").add(params).begin();
+    public static CodegenExpression codegen(ExprDotForgeArrayGet forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EPTypeHelper.getNormalizedClass(forge.getTypeInfo()), ExprDotForgeArrayGetEval.class).addParam(innerType, "target");
+
+
+        CodegenBlock block = methodNode.getBlock();
         if (!innerType.isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
-        block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(params, context));
-        CodegenMethodId method = block.ifCondition(relational(arrayLength(ref("target")), LE, ref("index")))
+        block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.ifCondition(relational(arrayLength(ref("target")), LE, ref("index")))
                 .blockReturn(constantNull())
                 .methodReturn(arrayAtIndex(ref("target"), ref("index")));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+        return localMethod(methodNode, inner);
     }
 }

@@ -11,10 +11,12 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprTypableReturnEval;
@@ -48,16 +50,20 @@ public class ExprCaseNodeForgeEvalTypable implements ExprTypableReturnEval {
         return row;
     }
 
-    public static CodegenExpression codegenTypeableSingle(ExprCaseNodeForge forge, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenBlock block = context.addMethod(Object[].class, ExprCaseNodeForgeEvalTypable.class).add(params).begin()
-                .declareVar(Map.class, "map", cast(Map.class, forge.evaluateCodegen(params, context)))
+    public static CodegenExpression codegenTypeableSingle(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprCaseNodeForgeEvalTypable.class);
+
+
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(Map.class, "map", cast(Map.class, forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope)))
                 .declareVar(Object[].class, "row", newArray(Object.class, exprDotMethod(ref("map"), "size")));
         int index = -1;
         for (Map.Entry<String, Object> entry : forge.mapResultType.entrySet()) {
             index++;
             block.assignArrayElement(ref("row"), constant(index), exprDotMethod(ref("map"), "get", constant(entry.getKey())));
         }
-        return localMethodBuild(block.methodReturn(ref("row"))).passAll(params).call();
+        block.methodReturn(ref("row"));
+        return localMethod(methodNode);
     }
 
     public Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

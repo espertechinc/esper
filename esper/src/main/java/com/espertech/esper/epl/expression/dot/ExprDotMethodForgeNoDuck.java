@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
@@ -57,13 +58,13 @@ public class ExprDotMethodForgeNoDuck implements ExprDotForge {
         }
     }
 
-    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenContext context, CodegenParamSetExprPremade params) {
+    public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (type == Type.WRAPARRAY) {
-            return ExprDotMethodForgeNoDuckEvalWrapArray.codegenWrapArray(this, inner, innerType, context, params);
+            return ExprDotMethodForgeNoDuckEvalWrapArray.codegenWrapArray(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
         } else if (type == Type.PLAIN) {
-            return ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(this, inner, innerType, context, params);
+            return ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
         } else {
-            return ExprDotMethodForgeNoDuckEvalUnderlying.codegenUnderlying(this, inner, innerType, context, params);
+            return ExprDotMethodForgeNoDuckEvalUnderlying.codegenUnderlying(this, inner, innerType, codegenMethodScope, exprSymbol, codegenClassScope);
         }
     }
 

@@ -17,7 +17,7 @@ import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;

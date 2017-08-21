@@ -12,16 +12,17 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMayVoid;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
-import com.espertech.esper.codegen.model.method.CodegenParamSetSelectPremade;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -39,7 +40,7 @@ public abstract class EvalSelectStreamBaseObjectArray extends EvalSelectStreamBa
 
     protected abstract EventBean processSpecific(Object[] props, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 
-    protected abstract CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpressionRef props, CodegenParamSetExprPremade instance, CodegenContext context);
+    protected abstract CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpressionRef props, CodegenClassScope codegenClassScope);
 
     public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         int size = computeSize();
@@ -65,28 +66,31 @@ public abstract class EvalSelectStreamBaseObjectArray extends EvalSelectStreamBa
         return processSpecific(props, eventsPerStream, exprEvaluatorContext);
     }
 
-    public CodegenExpression processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenParamSetSelectPremade params, CodegenContext context) {
+    public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         int size = computeSize();
-        CodegenBlock block = context.addMethod(EventBean.class, EvalSelectStreamBaseObjectArray.class).add(params).begin()
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "props", newArray(Object.class, constant(size)));
         int count = 0;
         for (ExprForge forge : this.context.getExprForges()) {
-            block.assignArrayElement(ref("props"), constant(count), CodegenLegoMayVoid.expressionMayVoid(forge, CodegenParamSetExprPremade.INSTANCE, context));
+            block.assignArrayElement(ref("props"), constant(count), CodegenLegoMayVoid.expressionMayVoid(forge, methodNode, exprSymbol, codegenClassScope));
             count++;
         }
         for (SelectClauseStreamCompiledSpec element : namedStreams) {
-            CodegenExpression theEvent = arrayAtIndex(params.passEPS(), constant(element.getStreamNumber()));
+            CodegenExpression theEvent = arrayAtIndex(refEPS, constant(element.getStreamNumber()));
             block.assignArrayElement(ref("props"), constant(count), theEvent);
             count++;
         }
         if (isUsingWildcard && this.context.getNumStreams() > 1) {
             for (int i = 0; i < this.context.getNumStreams(); i++) {
-                block.assignArrayElement(ref("props"), constant(count), arrayAtIndex(params.passEPS(), constant(i)));
+                block.assignArrayElement(ref("props"), constant(count), arrayAtIndex(refEPS, constant(i)));
                 count++;
             }
         }
-        CodegenMethodId method = block.methodReturn(processSpecificCodegen(memberResultEventType, memberEventAdapterService, ref("props"), CodegenParamSetExprPremade.INSTANCE, context));
-        return localMethodBuild(method).passAll(params).call();
+        block.methodReturn(processSpecificCodegen(memberResultEventType, memberEventAdapterService, ref("props"), codegenClassScope));
+        return methodNode;
     }
 
     private int computeSize() {

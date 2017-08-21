@@ -26,6 +26,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateLocalGroupByDesc;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeGroupKey;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 import com.espertech.esper.epl.expression.table.ExprTableNodeUtil;

@@ -16,10 +16,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.util.TimePeriod;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
@@ -32,6 +32,9 @@ import com.espertech.esper.epl.enummethod.dot.ExprDeclaredOrLambdaNode;
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
@@ -1775,12 +1778,15 @@ public class ExprNodeUtility {
             return new VarargOnlyArrayForgeWithCoerce(this, ExprNodeUtility.getEvaluatorsNoCompile(forges));
         }
 
-        public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
+        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(varargClass);
-            CodegenBlock block = context.addMethod(arrayType, VarargOnlyArrayForge.class).add(params).begin()
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, VarargOnlyArrayForge.class);
+
+
+            CodegenBlock block = methodNode.getBlock()
                     .declareVar(arrayType, "array", newArray(varargClass, constant(forges.length)));
             for (int i = 0; i < forges.length; i++) {
-                CodegenExpression expression = forges[i].evaluateCodegen(params, context);
+                CodegenExpression expression = forges[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
                 CodegenExpression assignment;
                 if (optionalCoercers == null || optionalCoercers[i] == null) {
                     assignment = expression;
@@ -1789,12 +1795,13 @@ public class ExprNodeUtility {
                     if (evalType.isPrimitive()) {
                         assignment = optionalCoercers[i].coerceCodegen(expression, evalType);
                     } else {
-                        assignment = optionalCoercers[i].coerceCodegenMayNullBoxed(expression, evalType, context);
+                        assignment = optionalCoercers[i].coerceCodegenMayNullBoxed(expression, evalType, methodNode, codegenClassScope);
                     }
                 }
                 block.assignArrayElement("array", constant(i), assignment);
             }
-            return localMethodBuild(block.methodReturn(ref("array"))).passAll(params).call();
+            block.methodReturn(ref("array"));
+            return localMethod(methodNode);
         }
 
         public ExprForgeComplexityEnum getComplexity() {

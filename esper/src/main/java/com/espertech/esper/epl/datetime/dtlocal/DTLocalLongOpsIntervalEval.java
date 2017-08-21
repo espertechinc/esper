@@ -11,15 +11,16 @@
 package com.espertech.esper.epl.datetime.dtlocal;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.core.CodegenBlock;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
 import com.espertech.esper.epl.datetime.interval.IntervalOp;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 
@@ -49,15 +50,17 @@ public class DTLocalLongOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBa
         return intervalOp.evaluate(time, time, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenPointInTime(DTLocalLongOpsIntervalForge forge, CodegenExpression inner, Class innerType, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-        CodegenBlock block = context.addMethod(Boolean.class, DTLocalLongOpsIntervalEval.class).add(long.class, "target").add(params).begin()
+    public static CodegenExpression codegenPointInTime(DTLocalLongOpsIntervalForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLongOpsIntervalEval.class).addParam(long.class, "target");
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
-                .declareVar(long.class, "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("target"), ref("cal"), context));
-        evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), params, context);
-        CodegenMethodId method = block.declareVar(long.class, "time", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), context))
-                .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), params, context));
-        return localMethodBuild(method).pass(inner).passAll(params).call();
+                .declareVar(long.class, "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("target"), ref("cal"), methodNode, codegenClassScope));
+        evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), methodNode, exprSymbol, codegenClassScope);
+        block.declareVar(long.class, "time", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), codegenClassScope))
+                .methodReturn(forge.intervalForge.codegen(ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, inner);
     }
 
     public Object evaluate(Object startTimestamp, Object endTimestamp, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -71,15 +74,17 @@ public class DTLocalLongOpsIntervalEval extends DTLocalEvaluatorCalOpsIntervalBa
         return intervalOp.evaluate(startTime, endTime, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public static CodegenExpression codegenStartEnd(DTLocalLongOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenParamSetExprPremade params, CodegenContext context) {
-        CodegenMember tz = context.makeAddMember(TimeZone.class, forge.timeZone);
-        CodegenBlock block = context.addMethod(Boolean.class, DTLocalLongOpsIntervalEval.class).add(long.class, "startLong").add(long.class, "endLong").add(params).begin()
+    public static CodegenExpression codegenStartEnd(DTLocalLongOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLongOpsIntervalEval.class).addParam(long.class, "startLong").addParam(long.class, "endLong");
+
+        CodegenBlock block = methodNode.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
-                .declareVar(long.class, "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("startLong"), ref("cal"), context));
-        evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), params, context);
-        CodegenMethodId method = block.declareVar(long.class, "startTime", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), context))
+                .declareVar(long.class, "startRemainder", forge.timeAbacus.calendarSetCodegen(ref("startLong"), ref("cal"), methodNode, codegenClassScope));
+        evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), methodNode, exprSymbol, codegenClassScope);
+        block.declareVar(long.class, "startTime", forge.timeAbacus.calendarGetCodegen(ref("cal"), ref("startRemainder"), codegenClassScope))
                 .declareVar(long.class, "endTime", op(ref("startTime"), "+", op(ref("endLong"), "-", ref("startLong"))))
-                .methodReturn(forge.intervalForge.codegen(ref("startTime"), ref("endTime"), params, context));
-        return localMethodBuild(method).pass(start).pass(end).passAll(params).call();
+                .methodReturn(forge.intervalForge.codegen(ref("startTime"), ref("endTime"), methodNode, exprSymbol, codegenClassScope));
+        return localMethod(methodNode, start, end);
     }
 }

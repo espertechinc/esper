@@ -12,10 +12,11 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.core.CodegenMethodId;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventAdapterService;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
@@ -65,19 +66,19 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
         return arrayGetter.isObjectArrayExistsProperty((Object[]) value);
     }
 
-    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
-        return localMethod(generateMethod(context, CodegenLegoPropertyBeanOrUnd.AccessType.GET), name);
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(generateMethod(codegenMethodScope, codegenClassScope, CodegenLegoPropertyBeanOrUnd.AccessType.GET), name);
     }
 
-    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression refName, CodegenContext context) {
-        return localMethod(generateMethod(context, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS), refName);
+    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression refName, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(generateMethod(codegenMethodScope, codegenClassScope, CodegenLegoPropertyBeanOrUnd.AccessType.EXISTS), refName);
     }
 
-    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression refName, CodegenContext context) {
-        return localMethod(generateMethod(context, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT), refName);
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression refName, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return localMethod(generateMethod(codegenMethodScope, codegenClassScope, CodegenLegoPropertyBeanOrUnd.AccessType.FRAGMENT), refName);
     }
 
-    private CodegenMethodId generateMethod(CodegenContext context, CodegenLegoPropertyBeanOrUnd.AccessType accessType) {
-        return CodegenLegoPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, accessType, this.getClass());
+    private CodegenMethodNode generateMethod(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenLegoPropertyBeanOrUnd.AccessType accessType) {
+        return CodegenLegoPropertyBeanOrUnd.from(codegenMethodScope, codegenClassScope, Object[].class, arrayGetter, accessType, this.getClass());
     }
 }

@@ -14,11 +14,12 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.client.annotation.Audit;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.method.CodegenParamSetExprPremade;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.EventPropertyGetterSPI;
@@ -85,7 +86,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             throw new IllegalArgumentException("Ident-node constructor could not locate property " + propertyName);
         }
         Class propertyType = eventType.getPropertyType(propertyName);
-        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(propertyType), this);
+        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(propertyType), this, eventType);
     }
 
     public ExprForge getForge() {
@@ -103,8 +104,8 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         return evaluator.getEvaluationType();
     }
 
-    public CodegenExpression evaluateCodegen(CodegenParamSetExprPremade params, CodegenContext context) {
-        return evaluator.codegen(params, context);
+    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return evaluator.codegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {
@@ -179,9 +180,10 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         int streamNum = propertyInfoPair.getFirst().getStreamNum();
         Class propertyType = JavaClassHelper.getBoxedType(propertyInfoPair.getFirst().getPropertyType());
         resolvedPropertyName = propertyInfoPair.getFirst().getPropertyName();
+        EventType eventType = propertyInfoPair.getFirst().getStreamEventType();
         EventPropertyGetterSPI propertyGetter;
         try {
-            propertyGetter = ((EventTypeSPI) propertyInfoPair.getFirst().getStreamEventType()).getGetterSPI(resolvedPropertyName);
+            propertyGetter = ((EventTypeSPI) eventType).getGetterSPI(resolvedPropertyName);
         } catch (PropertyAccessException ex) {
             throw new ExprValidationException("Property '" + unresolvedPropertyName + "' is not valid: " + ex.getMessage(), ex);
         }
@@ -192,9 +194,9 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
 
         Audit audit = AuditEnum.PROPERTY.getAudit(validationContext.getAnnotations());
         if (audit != null) {
-            evaluator = new ExprIdentNodeEvaluatorLogging(streamNum, propertyGetter, propertyType, this, resolvedPropertyName, validationContext.getStatementName(), validationContext.getStreamTypeService().getEngineURIQualifier());
+            evaluator = new ExprIdentNodeEvaluatorLogging(streamNum, propertyGetter, propertyType, this, eventType, resolvedPropertyName, validationContext.getStatementName(), validationContext.getStreamTypeService().getEngineURIQualifier());
         } else {
-            evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this);
+            evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this, eventType);
         }
 
         // if running in a context, take the property value from context
