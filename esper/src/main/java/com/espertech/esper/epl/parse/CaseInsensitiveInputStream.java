@@ -13,6 +13,8 @@ package com.espertech.esper.epl.parse;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.IntStream;
 
+import java.util.Locale;
+
 /**
  * CREDIT: https://gist.github.com/sharwell/9424666 (with modifications), see ANTLR license for BSD terms
  */
@@ -51,7 +53,7 @@ public class CaseInsensitiveInputStream extends ANTLRInputStream {
 
     public CaseInsensitiveInputStream(String input) {
         super(input);
-        la = input.toLowerCase().toCharArray();
+        la = input.toLowerCase(Locale.ENGLISH).toCharArray();
     }
 
     @Override
