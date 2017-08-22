@@ -17,7 +17,7 @@ import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
 public interface ExprForge {
     ExprEvaluator getExprEvaluator();
-    CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
+    CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     Class getEvaluationType();
     ExprForgeComplexityEnum getComplexity();

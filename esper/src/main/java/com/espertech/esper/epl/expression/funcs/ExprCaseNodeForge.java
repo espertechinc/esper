@@ -95,7 +95,7 @@ public class ExprCaseNodeForge implements ExprTypableReturnForge {
         return new ExprCaseNodeForgeEvalTypable(this);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!parent.isCase2()) {
             return ExprCaseNodeForgeEvalSyntax1.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         } else {

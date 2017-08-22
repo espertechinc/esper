@@ -56,7 +56,7 @@ public class ExprDotNodeForgePropertyExprEvalIndexed implements ExprEvaluator {
         methodNode.getBlock()
                 .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamNum())))
                 .ifRefNullReturnNull("event")
-                .declareVar(Integer.class, "index", forge.getExprForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(Integer.class, "index", forge.getExprForge().evaluateCodegen(Integer.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("index")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(forge.getEvaluationType(), forge.getIndexedGetter().eventBeanGetIndexedCodegen(methodNode, codegenClassScope, ref("event"), ref("index"))));
         return localMethod(methodNode);

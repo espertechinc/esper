@@ -66,16 +66,18 @@ public class ExprMathNodeForgeEval implements ExprEvaluator {
 
     public static CodegenMethodNode codegen(ExprMathNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprMathNodeForgeEval.class);
+        Class lhsType = lhs.getForge().getEvaluationType();
+        Class rhsType = rhs.getForge().getEvaluationType();
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(lhs.getForge().getEvaluationType(), "left", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
-        if (!lhs.getForge().getEvaluationType().isPrimitive()) {
+                .declareVar(lhsType, "left", lhs.getForge().evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope));
+        if (!lhsType.isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
-        block.declareVar(rhs.getForge().getEvaluationType(), "right", rhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
-        if (!rhs.getForge().getEvaluationType().isPrimitive()) {
+        block.declareVar(rhsType, "right", rhs.getForge().evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
+        if (!rhsType.isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }
-        block.methodReturn(forge.getArithTypeEnumComputer().codegen(methodNode, codegenClassScope, ref("left"), ref("right"), lhs.getForge().getEvaluationType(), rhs.getForge().getEvaluationType()));
+        block.methodReturn(forge.getArithTypeEnumComputer().codegen(methodNode, codegenClassScope, ref("left"), ref("right"), lhsType, rhsType));
         return methodNode;
     }
 }

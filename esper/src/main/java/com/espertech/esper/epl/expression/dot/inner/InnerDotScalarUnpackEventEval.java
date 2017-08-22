@@ -45,7 +45,7 @@ public class InnerDotScalarUnpackEventEval implements ExprDotEvalRootChildInnerE
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getRootForge().getEvaluationType(), InnerDotScalarUnpackEventEval.class);
 
         methodNode.getBlock()
-                .declareVar(Object.class, "target", forge.getRootForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(Object.class, "target", forge.getRootForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                 .ifInstanceOf("target", EventBean.class)
                 .blockReturn(CodegenLegoCast.castSafeFromObjectType(forge.getRootForge().getEvaluationType(), exprDotMethod(cast(EventBean.class, ref("target")), "getUnderlying")))
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(forge.getRootForge().getEvaluationType(), ref("target")));

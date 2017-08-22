@@ -30,7 +30,7 @@ public class SelectExprProcessorEnumerationAtBeanSingleForge implements ExprForg
         return new SelectExprProcessorEnumerationAtBeanSingleEval(this, enumerationForge.getExprEvaluatorEnumeration());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return SelectExprProcessorEnumerationAtBeanSingleEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

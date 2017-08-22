@@ -70,7 +70,7 @@ public class SupportExprNode extends ExprNodeBase implements ExprForge, ExprEval
         return value;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return constant(value);
     }
 

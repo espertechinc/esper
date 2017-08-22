@@ -43,7 +43,7 @@ public class SelectExprProcessorEvalStreamInsertUnd implements ExprForge, ExprEv
         return eventsPerStream == null ? null : eventsPerStream[streamNum];
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorEvalStreamInsertUnd.class);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);

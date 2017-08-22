@@ -102,12 +102,12 @@ public class InstanceManufacturerUtil {
             };
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, InstanceManufacturerForgeNonArray.class);
 
 
             methodNode.getBlock()
-                    .declareVar(EventBean.class, "event", cast(EventBean.class, innerForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope)))
+                    .declareVar(EventBean.class, "event", cast(EventBean.class, innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
                     .ifRefNullReturnNull("event")
                     .methodReturn(cast(returnType, exprDotUnderlying(ref("event"))));
             return localMethod(methodNode);
@@ -153,12 +153,12 @@ public class InstanceManufacturerUtil {
             };
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, InstanceManufacturerForgeArray.class);
 
             methodNode.getBlock()
-                    .declareVar(Object.class, "result", innerForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(Object.class, "result", innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(not(instanceOf(ref("result"), EventBean[].class)))
                     .blockReturn(constantNull())
                     .declareVar(EventBean[].class, "events", cast(EventBean[].class, ref("result")))

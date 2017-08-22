@@ -35,7 +35,7 @@ public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
         return new ExprEqualsNodeForgeNCEvalIs(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge lhs = getForgeRenderable().getChildNodes()[0].getForge();
         ExprForge rhs = getForgeRenderable().getChildNodes()[1].getForge();
         if (!getForgeRenderable().isIs()) {

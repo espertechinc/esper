@@ -48,7 +48,7 @@ public class PropertyDotNonLambdaMappedForgeEval implements ExprEvaluator {
         methodNode.getBlock()
                 .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamId())))
                 .ifRefNullReturnNull("event")
-                .declareVar(String.class, "key", forge.getParamForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(String.class, "key", forge.getParamForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(forge.getMappedGetter().eventBeanGetMappedCodegen(methodNode, codegenClassScope, ref("event"), ref("key")));
         return localMethod(methodNode);
     }

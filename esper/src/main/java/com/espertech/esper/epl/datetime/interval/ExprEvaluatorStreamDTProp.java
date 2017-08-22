@@ -53,7 +53,7 @@ public class ExprEvaluatorStreamDTProp implements ExprForge, ExprEvaluator, Expr
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(getterReturnTypeBoxed, ExprEvaluatorStreamDTProp.class);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);

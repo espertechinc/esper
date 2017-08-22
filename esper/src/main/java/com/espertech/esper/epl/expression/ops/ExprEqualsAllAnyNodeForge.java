@@ -46,7 +46,7 @@ public class ExprEqualsAllAnyNodeForge implements ExprForge {
         return new ExprEqualsAllAnyNodeForgeEvalAnyWColl(this, evaluators);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (parent.isAll()) {
             return ExprEqualsAllAnyNodeForgeEvalAllWColl.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }

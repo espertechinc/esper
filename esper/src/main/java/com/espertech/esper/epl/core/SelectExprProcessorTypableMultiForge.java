@@ -49,7 +49,7 @@ public class SelectExprProcessorTypableMultiForge implements SelectExprProcessor
         return new SelectExprProcessorTypableMultiEval(this, typable.getTypableReturnEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (firstRowOnly) {
             return SelectExprProcessorTypableMultiEvalFirstRow.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }

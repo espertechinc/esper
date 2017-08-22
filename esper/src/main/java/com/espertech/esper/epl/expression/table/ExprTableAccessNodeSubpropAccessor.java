@@ -51,7 +51,7 @@ public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode impl
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

@@ -46,7 +46,7 @@ public class ExprInNodeForge implements ExprForge {
         return new ExprInNodeForgeEvalNoColl(this, evaluators);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprInNodeForgeEvalWColl.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

@@ -72,7 +72,7 @@ public class ExprDotForgeArrayGetEval implements ExprDotEval {
         if (!innerType.isPrimitive()) {
             block.ifRefNullReturnNull("target");
         }
-        block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.declareVar(int.class, "index", forge.getIndexExpression().evaluateCodegen(int.class, methodNode, exprSymbol, codegenClassScope));
         block.ifCondition(relational(arrayLength(ref("target")), LE, ref("index")))
                 .blockReturn(constantNull())
                 .methodReturn(arrayAtIndex(ref("target"), ref("index")));

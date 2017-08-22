@@ -47,7 +47,7 @@ public class SelectExprProcessorTypableSingleForge implements SelectExprProcesso
         return new SelectExprProcessorTypableSingleEval(this, typable.getTypableReturnEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (singleRowOnly) {
             return SelectExprProcessorTypableSingleEvalSingleRow.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }

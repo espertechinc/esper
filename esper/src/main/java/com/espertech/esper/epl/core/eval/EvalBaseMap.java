@@ -76,7 +76,7 @@ public abstract class EvalBaseMap extends EvalBase implements SelectExprProcesso
             block.declareVar(Map.class, "props", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(this.context.getColumnNames().length))));
         }
         for (int i = 0; i < this.context.getColumnNames().length; i++) {
-            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
+            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
             block.expression(exprDotMethod(ref("props"), "put", constant(this.context.getColumnNames()[i]), expression));
         }
         block.methodReturn(processSpecificCodegen(memberResultEventType, memberEventAdapterService, ref("props"), methodNode, selectSymbol, exprSymbol, codegenClassScope));

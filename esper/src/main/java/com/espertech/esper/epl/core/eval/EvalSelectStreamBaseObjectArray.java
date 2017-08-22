@@ -75,7 +75,7 @@ public abstract class EvalSelectStreamBaseObjectArray extends EvalSelectStreamBa
                 .declareVar(Object[].class, "props", newArray(Object.class, constant(size)));
         int count = 0;
         for (ExprForge forge : this.context.getExprForges()) {
-            block.assignArrayElement(ref("props"), constant(count), CodegenLegoMayVoid.expressionMayVoid(forge, methodNode, exprSymbol, codegenClassScope));
+            block.assignArrayElement(ref("props"), constant(count), CodegenLegoMayVoid.expressionMayVoid(Object.class, forge, methodNode, exprSymbol, codegenClassScope));
             count++;
         }
         for (SelectClauseStreamCompiledSpec element : namedStreams) {

@@ -87,7 +87,7 @@ public abstract class EvalSelectStreamBaseMap extends EvalSelectStreamBase imple
                 .declareVar(Map.class, "props", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(size))));
         int count = 0;
         for (ExprForge forge : this.context.getExprForges()) {
-            block.expression(exprDotMethod(ref("props"), "put", constant(this.context.getColumnNames()[count]), CodegenLegoMayVoid.expressionMayVoid(forge, methodNode, exprSymbol, codegenClassScope)));
+            block.expression(exprDotMethod(ref("props"), "put", constant(this.context.getColumnNames()[count]), CodegenLegoMayVoid.expressionMayVoid(Object.class, forge, methodNode, exprSymbol, codegenClassScope)));
             count++;
         }
         for (SelectClauseStreamCompiledSpec element : namedStreams) {

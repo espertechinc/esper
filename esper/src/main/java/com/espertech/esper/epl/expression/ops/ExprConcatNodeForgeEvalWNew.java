@@ -68,7 +68,7 @@ public class ExprConcatNodeForgeEvalWNew implements ExprEvaluator {
             .declareVarNoInit(String.class, "value");
         CodegenExpressionExprDotMethodChain chain = exprDotMethodChain(ref("buf"));
         for (ExprNode expr : forge.getForgeRenderable().getChildNodes()) {
-            block.assignRef("value", expr.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+            block.assignRef("value", expr.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .exprDotMethod(ref("buf"), "append", ref("value"));
         }

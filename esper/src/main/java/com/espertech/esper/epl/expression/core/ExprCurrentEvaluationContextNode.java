@@ -47,7 +47,7 @@ public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements Ex
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
         return staticMethod(ExprCurrentEvaluationContextNode.class, "exprCurrentEvaluationContextMake", refExprEvalCtx);
     }

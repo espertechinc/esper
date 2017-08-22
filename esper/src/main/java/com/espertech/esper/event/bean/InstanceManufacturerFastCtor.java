@@ -66,7 +66,7 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
 
         CodegenExpression[] params = new CodegenExpression[forges.length];
         for (int i = 0; i < forges.length; i++) {
-            params[i] = forges[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
+            params[i] = forges[i].evaluateCodegen(forges[i].getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
         }
 
         methodNode.getBlock()

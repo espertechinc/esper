@@ -70,7 +70,7 @@ public class EvalSelectNoWildcardMap implements SelectExprProcessor, SelectExprP
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
         methodNode.getBlock().declareVar(Map.class, "props", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(selectContext.getColumnNames().length))));
         for (int i = 0; i < selectContext.getColumnNames().length; i++) {
-            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(selectContext.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
+            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, selectContext.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
             methodNode.getBlock().expression(exprDotMethod(ref("props"), "put", constant(selectContext.getColumnNames()[i]), expression));
         }
         methodNode.getBlock().methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedMap", ref("props"), member(memberResultEventType.getMemberId())));

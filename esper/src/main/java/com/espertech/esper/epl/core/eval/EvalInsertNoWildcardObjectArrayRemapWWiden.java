@@ -12,18 +12,14 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.base.CodegenBlock;
-import com.espertech.esper.codegen.base.CodegenClassScope;
-import com.espertech.esper.codegen.base.CodegenMember;
-import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
@@ -82,9 +78,12 @@ public class EvalInsertNoWildcardObjectArrayRemapWWiden implements SelectExprPro
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "result", newArray(Object.class, constant(propertyNames.length)));
         for (int i = 0; i < forges.length; i++) {
-            CodegenExpression value = forges[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
+            CodegenExpression value;
             if (optionalWideners != null && optionalWideners[i] != null) {
+                value = forges[i].evaluateCodegen(forges[i].getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
                 value = optionalWideners[i].widenCodegen(value, codegenMethodScope, codegenClassScope);
+            } else {
+                value = forges[i].evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope);
             }
             block.assignArrayElement(ref("result"), constant(remapped[i]), value);
         }

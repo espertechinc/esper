@@ -89,7 +89,7 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
 
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .declareVar(Integer.class, "existing", cast(Integer.class, exprDotMethod(ref("items"), "get", ref("item"))))
                 .ifCondition(equalsNull(ref("existing")))
                 .assignRef("existing", constant(1))

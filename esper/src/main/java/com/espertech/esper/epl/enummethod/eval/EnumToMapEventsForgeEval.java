@@ -70,8 +70,8 @@ public class EnumToMapEventsForgeEval implements EnumEval {
         block.declareVar(Map.class, "map", newInstance(HashMap.class));
         block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
-                .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .expression(exprDotMethod(ref("map"), "put", ref("key"), ref("value")));
         block.methodReturn(ref("map"));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());

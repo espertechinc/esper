@@ -127,7 +127,7 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression enumValue = enumValue(CronOperatorEnum.class, cronOperator.name());
         CodegenExpression defaultValue = newInstance(CronParameter.class, enumValue, constantNull());
         if (this.getChildNodes().length == 0) {
@@ -138,7 +138,7 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(CronParameter.class, ExprNumberSetCronParam.class);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(evaluationType, "value", forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(evaluationType, "value", forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
         if (!evaluationType.isPrimitive()) {
             block.ifRefNull("value")
                     .expression(staticMethod(ExprNumberSetCronParam.class, "handleNumberSetCronParamNullValue"))

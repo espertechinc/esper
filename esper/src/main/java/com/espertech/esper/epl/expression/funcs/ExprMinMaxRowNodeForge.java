@@ -37,7 +37,7 @@ public class ExprMinMaxRowNodeForge implements ExprForge {
         return new ExprMinMaxRowNodeForgeEval(this, evaluators, ExprNodeUtility.getForges(parent.getChildNodes()));
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprMinMaxRowNodeForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

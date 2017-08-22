@@ -35,7 +35,7 @@ public class ExprRegexpNodeForgeNonconst extends ExprRegexpNodeForge {
                 getForgeRenderable().getChildNodes()[1].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = ExprRegexpNodeForgeNonconstEval.codegen(this, getForgeRenderable().getChildNodes()[0], getForgeRenderable().getChildNodes()[1], codegenMethodScope, exprSymbol, codegenClassScope);
         return localMethod(methodNode);
     }

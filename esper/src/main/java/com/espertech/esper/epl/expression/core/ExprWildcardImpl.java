@@ -66,7 +66,7 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprForge, ExprEva
         return WildcardParameter.INSTANCE;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return enumValue(WildcardParameter.class, "INSTANCE");
     }
 

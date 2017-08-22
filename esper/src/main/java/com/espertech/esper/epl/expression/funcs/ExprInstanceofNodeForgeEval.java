@@ -85,7 +85,7 @@ public class ExprInstanceofNodeForgeEval implements ExprEvaluator {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInstanceofNodeForgeEval.class);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object.class, "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(Object.class, "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnFalse("result");
         block.methodReturn(staticMethod(ExprInstanceofNodeForgeEval.class, "instanceofCacheCheckOrAdd", member(mClasses.getMemberId()), member(mCache.getMemberId()), ref("result")));
         return localMethod(methodNode);

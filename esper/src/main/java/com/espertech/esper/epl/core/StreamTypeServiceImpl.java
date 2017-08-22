@@ -20,7 +20,6 @@ import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.util.LevenshteinDistance;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

@@ -71,7 +71,7 @@ public class EnumDistinctEventsForgeEval implements EnumEval {
                 .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class));
         block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope))
                 .ifCondition(not(exprDotMethod(ref("distinct"), "containsKey", ref("comparable"))))
                 .expression(exprDotMethod(ref("distinct"), "put", ref("comparable"), ref("next")))
                 .blockEnd();

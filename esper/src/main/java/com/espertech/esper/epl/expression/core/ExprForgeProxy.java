@@ -66,22 +66,23 @@ public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
 
             if (m.equals(TARGET_EVALUATECODEGEN)) {
                 Class evaluationType = forge.getEvaluationType();
+                Class requiredType = (Class) args[args.length - 4];
                 CodegenMethodNode parentMethod = (CodegenMethodNode) args[args.length - 3];
                 ExprForgeCodegenSymbol exprSymbol = (ExprForgeCodegenSymbol) args[args.length - 2];
                 CodegenClassScope codegenClassScope = (CodegenClassScope) args[args.length - 1];
                 if (evaluationType == null) {
-                    return forge.evaluateCodegen(parentMethod, exprSymbol, codegenClassScope);
+                    return forge.evaluateCodegen(requiredType, parentMethod, exprSymbol, codegenClassScope);
                 }
                 CodegenMethodNode methodNode = parentMethod.makeChild(evaluationType, ExprForgeProxy.class);
                 CodegenBlock block = methodNode.getBlock();
                 if (evaluationType == void.class) {
-                    block.expression(forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    block.expression(forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                             .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                             .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), constant(expressionToString)))
                             .blockEnd()
                             .methodEnd();
                 } else {
-                    block.declareVar(evaluationType, "result", forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    block.declareVar(evaluationType, "result", forge.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope))
                             .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                             .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), op(constant(expressionToString + " result "), "+", ref("result"))))
                             .blockEnd()

@@ -52,7 +52,7 @@ public class ExprDotNodeForgePropertyExpr extends ExprDotNodeForge {
         return new ExprDotNodeForgePropertyExprEvalMapped(this, exprForge.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (indexedGetter != null) {
             return ExprDotNodeForgePropertyExprEvalIndexed.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }

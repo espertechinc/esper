@@ -62,7 +62,7 @@ public class EnumAnyOfEventsForgeEval implements EnumEval {
                 .ifConditionReturnConst(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"), false);
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"));
-        CodegenLegoBooleanExpression.codegenReturnBoolIfNullOrBool(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope), false, null, true, true);
+        CodegenLegoBooleanExpression.codegenReturnBoolIfNullOrBool(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope), false, null, true, true);
         block.methodReturn(constantFalse());
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }

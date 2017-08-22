@@ -117,7 +117,7 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         return evalResult;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

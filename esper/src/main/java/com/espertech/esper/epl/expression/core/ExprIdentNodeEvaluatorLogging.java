@@ -45,13 +45,14 @@ public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl {
     }
 
     @Override
-    public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression codegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (returnType == null) {
             return constantNull();
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, this.getClass());
+        Class castTargetType = getCodegenReturnType(requiredType);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(castTargetType, this.getClass());
         methodNode.getBlock()
-                .declareVar(returnType, "result", super.codegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(castTargetType, "result", super.codegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                 .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "PROPERTY"), op(constant(propertyName + " value "), "+", ref("result"))))
                 .blockEnd()

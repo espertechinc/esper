@@ -36,10 +36,10 @@ public class ExprTypeofNodeForgeInnerEval extends ExprTypeofNodeForge {
         return new InnerEvaluator(parent.getChildNodes()[0].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeInnerEval.class);
         methodNode.getBlock()
-                .declareVar(Object.class, "result", parent.getChildNodes()[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(Object.class, "result", parent.getChildNodes()[0].getForge().evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethodChain(ref("result")).add("getClass").add("getSimpleName"));
         return localMethod(methodNode);

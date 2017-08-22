@@ -51,7 +51,7 @@ public class BindProcessor {
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "parameters", newArray(Object.class, constant(forge.getExpressionForges().length)));
         for (int i = 0; i < forge.getExpressionForges().length; i++) {
-            block.assignArrayElement("parameters", constant(i), CodegenLegoMayVoid.expressionMayVoid(forge.getExpressionForges()[i], methodNode, exprSymbol, codegenClassScope));
+            block.assignArrayElement("parameters", constant(i), CodegenLegoMayVoid.expressionMayVoid(Object.class, forge.getExpressionForges()[i], methodNode, exprSymbol, codegenClassScope));
         }
         block.methodReturn(ref("parameters"));
         return methodNode;

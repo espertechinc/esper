@@ -221,11 +221,11 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
             return;
         }
         if (forge.getEvaluationType() == boolean.class) {
-            block.declareVar(boolean.class, variable, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+            block.declareVar(boolean.class, variable, forge.evaluateCodegen(boolean.class, codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
         String refname = variable + "Obj";
-        block.declareVar(Boolean.class, refname, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope))
+        block.declareVar(Boolean.class, refname, forge.evaluateCodegen(Boolean.class, codegenMethodScope, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull(refname)
                 .declareVar(boolean.class, variable, ref(refname));
     }
@@ -233,11 +233,11 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     private static void codegenLongCoercion(CodegenBlock block, String variable, ExprNode assignment, DatetimeLongCoercer coercer, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = assignment.getForge().getEvaluationType();
         if (evaluationType == long.class) {
-            block.declareVar(long.class, variable, assignment.getForge().evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+            block.declareVar(long.class, variable, assignment.getForge().evaluateCodegen(long.class, codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
         String refname = variable + "Obj";
-        block.declareVar(evaluationType, refname, assignment.getForge().evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+        block.declareVar(evaluationType, refname, assignment.getForge().evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));
         if (!evaluationType.isPrimitive()) {
             block.ifRefNullReturnNull(refname);
         }

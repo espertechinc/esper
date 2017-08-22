@@ -37,7 +37,7 @@ public class ExprNodeUtilExprStreamNumEvent implements ExprForge, ExprEvaluator,
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
         return arrayAtIndex(refEPS, constant(streamNum));
     }

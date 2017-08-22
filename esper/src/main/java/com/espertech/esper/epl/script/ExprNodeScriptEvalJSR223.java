@@ -58,7 +58,7 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements 
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember member = codegenClassScope.makeAddMember(ExprNodeScriptEvalJSR223.class, this);
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprNodeScriptEvalJSR223.class);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
@@ -66,7 +66,7 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Bindings.class, "bindings", exprDotMethod(member(member.getMemberId()), "getBindings", refExprEvalCtx));
         for (int i = 0; i < names.length; i++) {
-            block.expression(exprDotMethod(ref("bindings"), "put", constant(names[i]), parameters[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope)));
+            block.expression(exprDotMethod(ref("bindings"), "put", constant(names[i]), parameters[i].evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)));
         }
         block.methodReturn(cast(returnType, exprDotMethod(member(member.getMemberId()), "evaluateInternal", ref("bindings"))));
         return localMethod(methodNode);

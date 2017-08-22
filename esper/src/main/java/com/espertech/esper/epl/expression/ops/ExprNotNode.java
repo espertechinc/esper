@@ -58,14 +58,14 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge child = this.getChildNodes()[0].getForge();
         if (child.getEvaluationType() == boolean.class) {
-            not(child.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+            not(child.evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope));
         }
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprNotNode.class);
         methodNode.getBlock()
-                .declareVar(Boolean.class, "b", child.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(Boolean.class, "b", child.evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("b")
                 .methodReturn(not(ref("b")));
         return localMethod(methodNode);

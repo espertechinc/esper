@@ -72,8 +72,9 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
                 .declareVar(forge.getEvaluationType(), "array", newArray(forge.getArrayReturnType(), constant(forge.getForgeRenderable().getChildNodes().length)));
         for (int i = 0; i < forge.getForgeRenderable().getChildNodes().length; i++) {
             ExprForge child = forge.getForgeRenderable().getChildNodes()[i].getForge();
+            Class childType = child.getEvaluationType();
             String refname = "r" + i;
-            block.declareVar(child.getEvaluationType(), refname, child.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(childType, refname, child.evaluateCodegen(childType, methodNode, exprSymbol, codegenClassScope));
 
             if (child.getEvaluationType().isPrimitive()) {
                 if (!forge.isMustCoerce()) {
@@ -138,7 +139,7 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
             if (returnType == null) {
                 continue;
             }
-            block.declareVar(returnType, refname, childForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(returnType, refname, childForge.evaluateCodegen(returnType, methodNode, exprSymbol, codegenClassScope));
             CodegenExpression nonNullTest = returnType.isPrimitive() ? constantTrue() : notEqualsNull(ref(refname));
             CodegenBlock blockIfNotNull = block.ifCondition(nonNullTest);
             CodegenExpression added = ref(refname);

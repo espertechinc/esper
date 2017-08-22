@@ -36,7 +36,7 @@ public class InnerDotCollForge implements ExprDotEvalRootChildInnerForge {
     }
 
     public CodegenExpression codegenEvaluate(CodegenMethodNode parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return rootForge.evaluateCodegen(parentMethod, exprSymbol, codegenClassScope);
+        return rootForge.evaluateCodegen(rootForge.getEvaluationType(), parentMethod, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodNode parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

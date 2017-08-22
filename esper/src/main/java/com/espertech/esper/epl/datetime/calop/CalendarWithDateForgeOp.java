@@ -84,7 +84,6 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     public static CodegenExpression codegenZDT(CalendarWithDateForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithDateForgeOp.class).addParam(ZonedDateTime.class, "value");
 
-
         CodegenBlock block = methodNode.getBlock();
         codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
         block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDZonedDateTime", ref("value"), ref("year"), ref("month"), ref("day")));
@@ -161,8 +160,11 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     private static void codegenDeclareInts(CodegenBlock block, CalendarWithDateForge forge, CodegenMethodNode methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        block.declareVar(Integer.class, "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.year.getEvaluationType(), methodNode))
-                .declareVar(Integer.class, "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.month.getEvaluationType(), methodNode))
-                .declareVar(Integer.class, "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.day.getEvaluationType(), methodNode));
+        Class yearType = forge.year.getEvaluationType();
+        Class monthType = forge.month.getEvaluationType();
+        Class dayType = forge.day.getEvaluationType();
+        block.declareVar(Integer.class, "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(yearType, methodNode, exprSymbol, codegenClassScope), yearType, methodNode))
+                .declareVar(Integer.class, "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(monthType, methodNode, exprSymbol, codegenClassScope), monthType, methodNode))
+                .declareVar(Integer.class, "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(dayType, methodNode, exprSymbol, codegenClassScope), dayType, methodNode));
     }
 }

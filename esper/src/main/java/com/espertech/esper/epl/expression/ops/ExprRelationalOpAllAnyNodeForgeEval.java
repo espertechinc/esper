@@ -237,13 +237,13 @@ public class ExprRelationalOpAllAnyNodeForgeEval implements ExprEvaluator {
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(boolean.class, "hasNonNullRow", constantFalse())
-                .declareVar(valueLeftType, "valueLeft", forges[0].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(valueLeftType, "valueLeft", forges[0].evaluateCodegen(valueLeftType, methodNode, exprSymbol, codegenClassScope));
 
         for (int i = 1; i < forges.length; i++) {
             ExprForge refforge = forges[i];
             String refname = "r" + i;
             Class reftype = refforge.getEvaluationType();
-            block.declareVar(reftype, refname, refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(reftype, refname, refforge.evaluateCodegen(reftype, methodNode, exprSymbol, codegenClassScope));
 
             if (JavaClassHelper.isImplementsInterface(reftype, Collection.class)) {
                 CodegenBlock blockIfNotNull = block.ifCondition(notEqualsNull(ref(refname)));

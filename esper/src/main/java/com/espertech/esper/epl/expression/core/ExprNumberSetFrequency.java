@@ -91,12 +91,12 @@ public class ExprNumberSetFrequency extends ExprNodeBase implements ExprForge, E
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge forge = this.getChildNodes()[0].getForge();
         Class evaluationType = forge.getEvaluationType();
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(FrequencyParameter.class, ExprNumberSetFrequency.class);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(evaluationType, "value", forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(evaluationType, "value", forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
         if (!evaluationType.isPrimitive()) {
             block.ifRefNull("value")
                 .blockReturn(staticMethod(ExprNumberSetFrequency.class, "handleNumberSetFreqNullValue"));

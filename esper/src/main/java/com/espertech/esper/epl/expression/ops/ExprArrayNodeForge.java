@@ -68,7 +68,7 @@ public class ExprArrayNodeForge implements ExprForge, ExprEnumerationForge {
         return new ExprArrayNodeForgeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes()));
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (constantResult != null) {
             CodegenMember array = codegenClassScope.makeAddMember(getEvaluationType(), constantResult);
             return CodegenExpressionBuilder.member(array.getMemberId());

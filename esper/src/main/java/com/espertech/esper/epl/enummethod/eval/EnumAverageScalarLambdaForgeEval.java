@@ -84,7 +84,7 @@ public class EnumAverageScalarLambdaForgeEval implements EnumEval {
 
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(innerType, "num", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope));
+                .declareVar(innerType, "num", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope));
         if (!innerType.isPrimitive()) {
             forEach.ifRefNull("num").blockContinue();
         }

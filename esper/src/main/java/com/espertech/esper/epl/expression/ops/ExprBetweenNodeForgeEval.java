@@ -73,17 +73,20 @@ public class ExprBetweenNodeForgeEval implements ExprEvaluator {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprBetweenNodeForgeEval.class);
         CodegenBlock block = methodNode.getBlock();
 
-        block.declareVar(value.getEvaluationType(), "value", value.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
-        if (!value.getEvaluationType().isPrimitive()) {
+        Class valueType = value.getEvaluationType();
+        block.declareVar(valueType, "value", value.evaluateCodegen(valueType, methodNode, exprSymbol, codegenClassScope));
+        if (!valueType.isPrimitive()) {
             block.ifRefNullReturnFalse("value");
         }
 
-        block.declareVar(lower.getEvaluationType(), "lower", lower.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
-        if (!lower.getEvaluationType().isPrimitive()) {
+        Class lowerType = lower.getEvaluationType();
+        block.declareVar(lowerType, "lower", lower.evaluateCodegen(lowerType, methodNode, exprSymbol, codegenClassScope));
+        if (!lowerType.isPrimitive()) {
             block.ifRefNull("lower").blockReturn(constant(isNot));
         }
 
-        block.declareVar(higher.getEvaluationType(), "higher", higher.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        Class higherType = higher.getEvaluationType();
+        block.declareVar(higherType, "higher", higher.evaluateCodegen(higherType, methodNode, exprSymbol, codegenClassScope));
         if (!higher.getEvaluationType().isPrimitive()) {
             block.ifRefNull("higher").blockReturn(constant(isNot));
         }

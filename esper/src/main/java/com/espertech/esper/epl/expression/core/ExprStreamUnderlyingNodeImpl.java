@@ -140,7 +140,7 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
         return ExprForgeComplexityEnum.SINGLE;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(eventType.getUnderlyingType(), ExprStreamUnderlyingNodeImpl.class);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()

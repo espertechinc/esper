@@ -47,15 +47,14 @@ public class CalendarSetForgeOp implements CalendarOp {
 
     public static CodegenExpression codegenCalendar(CalendarSetForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpression calField = constant(forge.fieldName.getCalendarField());
-        if (forge.valueExpr.getEvaluationType().isPrimitive()) {
-            CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
+        Class evaluationType = forge.valueExpr.getEvaluationType();
+        if (evaluationType.isPrimitive()) {
+            CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope);
             return exprDotMethod(cal, "set", calField, valueExpr);
         }
 
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarSetForgeOp.class).addParam(Calendar.class, "cal");
-
-        CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
-
+        CodegenExpression valueExpr = forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope);
         methodNode.getBlock()
                 .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(valueExpr, forge.valueExpr.getEvaluationType(), methodNode))
                 .ifRefNullReturnNull("value")
@@ -75,9 +74,10 @@ public class CalendarSetForgeOp implements CalendarOp {
     public static CodegenExpression codegenLDT(CalendarSetForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ChronoField chronoField = forge.fieldName.getChronoField();
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarSetForgeOp.class).addParam(LocalDateTime.class, "ldt");
+        Class evaluationType = forge.valueExpr.getEvaluationType();
 
         methodNode.getBlock()
-                .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.valueExpr.getEvaluationType(), methodNode))
+                .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode))
                 .ifRefNull("value").blockReturn(ref("ldt"))
                 .methodReturn(exprDotMethod(ref("ldt"), "with", enumValue(ChronoField.class, chronoField.name()), ref("value")));
         return localMethod(methodNode, ldt);
@@ -94,9 +94,10 @@ public class CalendarSetForgeOp implements CalendarOp {
     public static CodegenExpression codegenZDT(CalendarSetForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ChronoField chronoField = forge.fieldName.getChronoField();
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarSetForgeOp.class).addParam(ZonedDateTime.class, "zdt");
+        Class evaluationType = forge.valueExpr.getEvaluationType();
 
         methodNode.getBlock()
-                .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.valueExpr.getEvaluationType(), methodNode))
+                .declareVar(Integer.class, "value", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.valueExpr.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode))
                 .ifRefNull("value").blockReturn(ref("zdt"))
                 .methodReturn(exprDotMethod(ref("zdt"), "with", enumValue(ChronoField.class, chronoField.name()), ref("value")));
         return localMethod(methodNode, zdt);

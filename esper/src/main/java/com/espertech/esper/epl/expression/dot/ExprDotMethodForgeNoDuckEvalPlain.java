@@ -77,7 +77,8 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
         CodegenExpression[] args = new CodegenExpression[forge.getParameters().length];
         for (int i = 0; i < forge.getParameters().length; i++) {
             String name = "p" + i;
-            block.declareVar(forge.getParameters()[i].getEvaluationType(), name, forge.getParameters()[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            Class evaluationType = forge.getParameters()[i].getEvaluationType();
+            block.declareVar(evaluationType, name, forge.getParameters()[i].evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope));
             args[i] = ref(name);
         }
         CodegenBlock tryBlock = block.tryCatch();

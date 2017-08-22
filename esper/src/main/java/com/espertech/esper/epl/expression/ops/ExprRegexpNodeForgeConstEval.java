@@ -69,12 +69,12 @@ public class ExprRegexpNodeForgeConstEval implements ExprEvaluator {
 
         if (!forge.isNumericValue()) {
             methodNode.getBlock()
-                    .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getRegexpCode(forge, member(mPattern.getMemberId()), ref("value")));
         } else {
             methodNode.getBlock()
-                    .declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getRegexpCode(forge, member(mPattern.getMemberId()), exprDotMethod(ref("value"), "toString")));
         }

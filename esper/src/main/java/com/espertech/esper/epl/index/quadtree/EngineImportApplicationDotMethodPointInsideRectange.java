@@ -82,7 +82,7 @@ public class EngineImportApplicationDotMethodPointInsideRectange extends EngineI
             return new PointIntersectsRectangleEvaluator(pxEval.getExprEvaluator(), pyEval.getExprEvaluator(), xEval.getExprEvaluator(), yEval.getExprEvaluator(), widthEval.getExprEvaluator(), heightEval.getExprEvaluator());
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             return PointIntersectsRectangleEvaluator.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
 

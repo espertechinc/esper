@@ -59,7 +59,7 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
         String[] columnNames = forge.getForgeRenderable().getColumnNames();
         for (int i = 0; i < nodes.length; i++) {
             ExprForge child = nodes[i].getForge();
-            block.exprDotMethod(ref("props"), "put", constant(columnNames[i]), child.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.exprDotMethod(ref("props"), "put", constant(columnNames[i]), child.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
         }
         block.methodReturn(ref("props"));
         return localMethod(methodNode);
@@ -77,11 +77,10 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
     public static CodegenExpression codegenTypeableSingle(ExprNewStructNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprNewStructNodeForgeEval.class);
 
-
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "rows", newArray(Object.class, constant(forge.getForgeRenderable().getColumnNames().length)));
         for (int i = 0; i < forge.getForgeRenderable().getColumnNames().length; i++) {
-            block.assignArrayElement("rows", constant(i), forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.assignArrayElement("rows", constant(i), forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
         }
         block.methodReturn(ref("rows"));
         return localMethod(methodNode);

@@ -40,7 +40,7 @@ public class BindProcessorEvaluatorStreamTable implements ExprForge, ExprEvaluat
         return evaluateConvertTableEventToUnd(streamNum, tableMetadata.getEventToPublic(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
         CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);

@@ -56,7 +56,7 @@ public class ExprDotNodeForgePropertyExprEvalMapped implements ExprEvaluator {
         methodNode.getBlock()
                 .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(forge.getStreamNum())))
                 .ifRefNullReturnNull("event")
-                .declareVar(String.class, "result", forge.getExprForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(String.class, "result", forge.getExprForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(forge.getEvaluationType(), forge.getMappedGetter().eventBeanGetMappedCodegen(methodNode, codegenClassScope, ref("event"), ref("result"))));
 

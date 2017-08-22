@@ -67,7 +67,7 @@ public class EvalSelectNoWildcardObjectArray implements SelectExprProcessor, Sel
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "props", newArray(Object.class, constant(this.context.getExprForges().length)));
         for (int i = 0; i < this.context.getExprForges().length; i++) {
-            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
+            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
             block.assignArrayElement("props", constant(i), expression);
         }
         block.methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", ref("props"), member(memberResultEventType.getMemberId())));

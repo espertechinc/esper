@@ -70,7 +70,7 @@ public class EnumGroupByKeySelectorEventsForgeEval implements EnumEval {
                 .declareVar(Map.class, "result", newInstance(LinkedHashMap.class));
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .declareVar(Collection.class, "value", cast(Collection.class, exprDotMethod(ref("result"), "get", ref("key"))))
                 .ifRefNull("value")
                 .assignRef("value", newInstance(ArrayList.class))

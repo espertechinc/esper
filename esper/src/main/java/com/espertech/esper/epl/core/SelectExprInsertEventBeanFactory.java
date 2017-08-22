@@ -419,7 +419,7 @@ public class SelectExprInsertEventBeanFactory {
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
-            CodegenExpression expr = exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
+            CodegenExpression expr = exprForge.evaluateCodegen(Map.class, methodNode, exprSymbol, codegenClassScope);
             if (!JavaClassHelper.isSubclassOrImplementsInterface(exprForge.getEvaluationType(), Map.class)) {
                 expr = cast(Map.class, expr);
             }
@@ -446,7 +446,7 @@ public class SelectExprInsertEventBeanFactory {
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
             methodNode.getBlock()
-                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
                     .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", ref("result"), member(memberResultEventType.getMemberId())));
             return methodNode;
@@ -469,7 +469,7 @@ public class SelectExprInsertEventBeanFactory {
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
             methodNode.getBlock()
-                    .declareVar(Object[].class, "result", exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(Object[].class, "result", exprForge.evaluateCodegen(Object[].class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
                     .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", ref("result"), member(memberResultEventType.getMemberId())));
             return methodNode;
@@ -492,7 +492,7 @@ public class SelectExprInsertEventBeanFactory {
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
             methodNode.getBlock()
-                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
                     .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedBean", ref("result"), member(memberResultEventType.getMemberId())));
             return methodNode;
@@ -555,7 +555,7 @@ public class SelectExprInsertEventBeanFactory {
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
-                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i], methodNode, exprSymbol, codegenClassScope);
+                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i].getEvaluationType(), exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 if (wideners[i] == null) {
                     block.assignArrayElement("values", constant(i), expression);
                 } else {
@@ -598,7 +598,7 @@ public class SelectExprInsertEventBeanFactory {
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
-                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i], methodNode, exprSymbol, codegenClassScope);
+                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 block.assignArrayElement("values", constant(i), expression);
             }
             block.methodReturn(exprDotMethod(member(manufacturer.getMemberId()), "make", ref("values")));
@@ -661,7 +661,7 @@ public class SelectExprInsertEventBeanFactory {
             return this;
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprForgeJoinWildcard.class);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
@@ -706,7 +706,7 @@ public class SelectExprInsertEventBeanFactory {
             return null;
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, this.getClass());
 
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
@@ -767,13 +767,13 @@ public class SelectExprInsertEventBeanFactory {
             writer.append(ExprForgeStreamWithInner.class.getSimpleName());
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, this.getClass());
 
 
             methodNode.getBlock()
-                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, inner.evaluateCodegen(methodNode, exprSymbol, codegenClassScope)))
+                    .declareVar(EventBean[].class, "events", cast(EventBean[].class, inner.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
                     .ifRefNullReturnNull("events")
                     .declareVar(arrayType, "values", newArray(componentReturnType, arrayLength(ref("events"))))
                     .forLoopIntSimple("i", arrayLength(ref("events")))
@@ -812,7 +812,7 @@ public class SelectExprInsertEventBeanFactory {
             return null;
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object.class, ExprForgeStreamWithGetter.class);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()

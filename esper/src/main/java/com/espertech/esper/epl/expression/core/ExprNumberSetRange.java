@@ -112,13 +112,13 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
         log.warn("Null value returned for upper bounds value in range parameter, using max as upper bounds");
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge valueLower = this.getChildNodes()[0].getForge();
         ExprForge valueUpper = this.getChildNodes()[1].getForge();
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(RangeParameter.class, ExprNumberSetRange.class);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(valueLower.getEvaluationType(), "valueLower", valueLower.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
-                .declareVar(valueUpper.getEvaluationType(), "valueUpper", valueUpper.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(valueLower.getEvaluationType(), "valueLower", valueLower.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(valueUpper.getEvaluationType(), "valueUpper", valueUpper.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
         if (!valueLower.getEvaluationType().isPrimitive()) {
             block.ifRefNull("valueLower")
                     .expression(staticMethod(ExprNumberSetRange.class, "handleNumberSetRangeLowerNull"))

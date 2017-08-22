@@ -109,7 +109,7 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
                 .declareVar(int.class, "usec", constant(0));
         for (int i = 0; i < forge.getAdders().length; i++) {
             String refname = "r" + i;
-            block.declareVar(int.class, refname, forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(int.class, refname, forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(int.class, methodNode, exprSymbol, codegenClassScope));
             if (i == indexMicroseconds) {
                 block.assignRef("usec", ref(refname));
             } else {

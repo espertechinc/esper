@@ -78,7 +78,7 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
         return strategy.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

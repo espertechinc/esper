@@ -42,7 +42,7 @@ public class ExprConcatNodeForge implements ExprForge {
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprConcatNodeForgeEvalWNew.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

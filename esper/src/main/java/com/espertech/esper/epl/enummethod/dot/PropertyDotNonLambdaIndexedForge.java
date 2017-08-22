@@ -37,7 +37,7 @@ public class PropertyDotNonLambdaIndexedForge implements ExprForge, ExprNodeRend
         return new PropertyDotNonLambdaIndexedForgeEval(this, paramForge.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return PropertyDotNonLambdaIndexedForgeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

@@ -170,9 +170,13 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     private static void codegenDeclareInts(CodegenBlock block, CalendarWithTimeForge forge, CodegenMethodNode methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        block.declareVar(Integer.class, "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.hour.getEvaluationType(), methodNode))
-                .declareVar(Integer.class, "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.min.getEvaluationType(), methodNode))
-                .declareVar(Integer.class, "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.sec.getEvaluationType(), methodNode))
-                .declareVar(Integer.class, "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.msec.getEvaluationType(), methodNode));
+        Class hourType = forge.hour.getEvaluationType();
+        Class minType = forge.min.getEvaluationType();
+        Class secType = forge.sec.getEvaluationType();
+        Class msecType = forge.msec.getEvaluationType();
+        block.declareVar(Integer.class, "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(hourType, methodNode, exprSymbol, codegenClassScope), hourType, methodNode))
+                .declareVar(Integer.class, "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(minType, methodNode, exprSymbol, codegenClassScope), minType, methodNode))
+                .declareVar(Integer.class, "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(secType, methodNode, exprSymbol, codegenClassScope), secType, methodNode))
+                .declareVar(Integer.class, "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(msecType, methodNode, exprSymbol, codegenClassScope), msecType, methodNode));
     }
 }

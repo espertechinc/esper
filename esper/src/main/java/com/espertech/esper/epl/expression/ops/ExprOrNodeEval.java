@@ -69,10 +69,10 @@ public class ExprOrNodeEval implements ExprEvaluator {
             count++;
             Class childType = child.getForge().getEvaluationType();
             if (childType.isPrimitive()) {
-                block.ifCondition(child.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope)).blockReturn(constantTrue());
+                block.ifCondition(child.getForge().evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope)).blockReturn(constantTrue());
             } else {
                 String refname = "r" + count;
-                block.declareVar(Boolean.class, refname, child.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                block.declareVar(Boolean.class, refname, child.getForge().evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope))
                         .ifCondition(equalsNull(ref(refname)))
                         .assignRef("result", constantNull())
                         .ifElse()

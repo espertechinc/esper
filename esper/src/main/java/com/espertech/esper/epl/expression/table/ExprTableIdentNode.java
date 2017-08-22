@@ -61,7 +61,7 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForge {
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(eval, eval.getReturnType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

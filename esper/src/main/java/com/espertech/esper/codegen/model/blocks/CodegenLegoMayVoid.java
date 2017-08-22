@@ -21,12 +21,12 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 
 public class CodegenLegoMayVoid {
 
-    public static CodegenExpression expressionMayVoid(ExprForge forge, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public static CodegenExpression expressionMayVoid(Class requiredType, ExprForge forge, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (forge.getEvaluationType() != void.class) {
-            return forge.evaluateCodegen(parentNode, exprSymbol, codegenClassScope);
+            return forge.evaluateCodegen(requiredType, parentNode, exprSymbol, codegenClassScope);
         }
         CodegenMethodNode methodNode = parentNode.makeChild(Object.class, CodegenLegoMayVoid.class);
-        methodNode.getBlock().expression(forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+        methodNode.getBlock().expression(forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(constantNull());
         return localMethod(methodNode);
     }

@@ -92,13 +92,15 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         Class compareType = forge.getOptionalCompareExprNode().getForge().getEvaluationType();
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax2.class);
 
+        Class checkResultType = compareType == null ? Object.class : compareType;
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(compareType == null ? Object.class : compareType, "checkResult", forge.getOptionalCompareExprNode().getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(checkResultType, "checkResult", forge.getOptionalCompareExprNode().getForge().evaluateCodegen(checkResultType, methodNode, exprSymbol, codegenClassScope));
         int num = 0;
         for (UniformPair<ExprNode> pair : forge.getWhenThenNodeList()) {
             String refname = "r" + num;
             Class lhsType = pair.getFirst().getForge().getEvaluationType();
-            block.declareVar(lhsType == null ? Object.class : lhsType, refname, pair.getFirst().getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            Class lhsDeclaredType = lhsType == null ? Object.class : lhsType;
+            block.declareVar(lhsDeclaredType, refname, pair.getFirst().getForge().evaluateCodegen(lhsDeclaredType, methodNode, exprSymbol, codegenClassScope));
             CodegenExpression compareExpression = codegenCompare(ref("checkResult"), compareType, ref(refname), pair.getFirst().getForge().getEvaluationType(), forge, methodNode);
             block.ifCondition(compareExpression)
                     .blockReturn(codegenToType(forge, pair.getSecond(), methodNode, exprSymbol, codegenClassScope));

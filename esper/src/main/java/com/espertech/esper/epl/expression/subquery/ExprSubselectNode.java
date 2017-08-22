@@ -173,7 +173,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         return evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

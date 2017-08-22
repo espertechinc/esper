@@ -144,7 +144,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
         Class leftTypeUncoerced = forges[0].getEvaluationType();
         Class leftTypeCoerced = forge.getCoercionType();
 
-        block.declareVar(forges[0].getEvaluationType(), "left", forges[0].evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.declareVar(leftTypeUncoerced, "left", forges[0].evaluateCodegen(leftTypeUncoerced, methodNode, exprSymbol, codegenClassScope));
         block.declareVar(forge.getCoercionType(), "leftCoerced", !forge.isMustCoerce() ? ref("left") : forge.getCoercer().coerceCodegenMayNullBoxed(ref("left"), leftTypeUncoerced, methodNode, codegenClassScope));
 
         for (int i = 1; i < forges.length; i++) {
@@ -157,7 +157,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
                 continue;
             }
 
-            block.declareVar(reftype, refname, refforge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(reftype, refname, refforge.evaluateCodegen(reftype, methodNode, exprSymbol, codegenClassScope));
 
             if (JavaClassHelper.isImplementsInterface(reftype, Collection.class)) {
                 CodegenBlock ifRightNotNull = block.ifCondition(notEqualsNull(ref(refname)));

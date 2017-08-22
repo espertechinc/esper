@@ -133,7 +133,7 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
                     .blockEnd();
         } else if (underlyingExprForge != null) {
             block.declareVar(EventBean.class, "theEvent", constantNull())
-                    .declareVar(Object.class, "value", underlyingExprForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                    .declareVar(Object.class, "value", underlyingExprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNotNull("value")
                     .assignRef("theEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("value")))
                     .blockEnd();

@@ -67,8 +67,10 @@ public class EnumAggregateScalarForgeEval implements EnumEval {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(forge.initialization.getEvaluationType(), EnumAggregateScalarForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
 
+        Class initializationEvalType = forge.initialization.getEvaluationType();
+        Class innerEvalType = forge.innerExpression.getEvaluationType();
         CodegenBlock block = methodNode.getBlock();
-        block.declareVar(forge.initialization.getEvaluationType(), "value", forge.initialization.evaluateCodegen(methodNode, scope, codegenClassScope))
+        block.declareVar(initializationEvalType, "value", forge.initialization.evaluateCodegen(initializationEvalType, methodNode, scope, codegenClassScope))
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(ref("value"));
         block.declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
@@ -80,7 +82,7 @@ public class EnumAggregateScalarForgeEval implements EnumEval {
         block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("resultProps", constant(0), ref("value"))
                 .assignArrayElement("evalProps", constant(0), ref("next"))
-                .assignRef("value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .assignRef("value", forge.innerExpression.evaluateCodegen(innerEvalType, methodNode, scope, codegenClassScope))
                 .blockEnd();
         block.methodReturn(ref("value"));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());

@@ -167,7 +167,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return aggregationResultFuture.getValue(column, exprEvaluatorContext.getAgentInstanceId(), events, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

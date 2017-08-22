@@ -75,7 +75,7 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
         return new ExprDotNodeForgeRootChildEval(this, innerForge.getInnerEvaluator(), ExprDotNodeUtility.getEvaluators(forgesIteratorEventBean), ExprDotNodeUtility.getEvaluators(forgesUnpacking));
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprDotNodeForgeRootChildEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

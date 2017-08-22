@@ -43,12 +43,12 @@ public class CodegenLegoCast {
     public static void asDoubleNullReturnNull(CodegenBlock block, String variable, ExprForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class type = forge.getEvaluationType();
         if (type == double.class) {
-            block.declareVar(type, variable, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+            block.declareVar(type, variable, forge.evaluateCodegen(type, codegenMethodScope, exprSymbol, codegenClassScope));
             return;
         }
 
         String holder = variable + "_";
-        block.declareVar(type, holder, forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+        block.declareVar(type, holder, forge.evaluateCodegen(type, codegenMethodScope, exprSymbol, codegenClassScope));
         if (!type.isPrimitive()) {
             block.ifRefNullReturnNull(holder);
         }

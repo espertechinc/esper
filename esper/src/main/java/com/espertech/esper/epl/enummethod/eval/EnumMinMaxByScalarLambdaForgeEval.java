@@ -98,7 +98,7 @@ public class EnumMinMaxByScalarLambdaForgeEval implements EnumEval {
 
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(innerTypeBoxed, methodNode, scope, codegenClassScope))
                 .ifRefNull("value").blockContinue();
 
         forEach.ifCondition(equalsNull(ref("minKey")))

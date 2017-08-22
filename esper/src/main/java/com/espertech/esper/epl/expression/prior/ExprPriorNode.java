@@ -116,7 +116,7 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator, ExprFo
         return priorStrategy.evaluate(eventsPerStream, isNewData, exprEvaluatorContext, streamNumber, innerEvaluator, constantIndexNumber);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

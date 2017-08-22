@@ -31,7 +31,7 @@ public class SelectExprProcessorEnumerationAtBeanCollTableForge implements ExprF
         return new SelectExprProcessorEnumerationAtBeanCollTableEval(this, enumerationForge.getExprEvaluatorEnumeration());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return SelectExprProcessorEnumerationAtBeanCollTableEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

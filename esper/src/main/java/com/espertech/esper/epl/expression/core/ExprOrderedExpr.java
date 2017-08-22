@@ -85,8 +85,8 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprForge, ExprEval
         return evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return getChildNodes()[0].getForge().evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return getChildNodes()[0].getForge().evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

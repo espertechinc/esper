@@ -46,7 +46,7 @@ public class SelectExprProcessorEvalByGetterFragment implements ExprForge, ExprE
         return getter.getFragment(event);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class result = fragmentType.isIndexed() ? EventBean[].class : EventBean.class;
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(result, SelectExprProcessorEvalByGetterFragment.class);
 

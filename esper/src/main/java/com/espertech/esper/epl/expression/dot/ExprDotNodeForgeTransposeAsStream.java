@@ -33,7 +33,7 @@ public class ExprDotNodeForgeTransposeAsStream extends ExprDotNodeForge {
         return new ExprDotNodeForgeTransposeAsStreamEval(inner.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprDotNodeForgeTransposeAsStreamEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

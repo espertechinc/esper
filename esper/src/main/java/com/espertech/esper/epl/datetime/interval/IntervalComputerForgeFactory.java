@@ -208,7 +208,7 @@ public class IntervalComputerForgeFactory {
                 }
 
                 public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-                    return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType());
+                    return SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.evaluateCodegen(forge.getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType());
                 }
             };
             return new ExprOptionalConstantForge(eval, null);

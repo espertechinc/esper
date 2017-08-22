@@ -36,7 +36,7 @@ public class ExprAndNodeImpl extends ExprNodeBase implements ExprForge, ExprAndN
         return new ExprAndNodeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(this.getChildNodes()));
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprAndNodeEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

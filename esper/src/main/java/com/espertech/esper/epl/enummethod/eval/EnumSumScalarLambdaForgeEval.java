@@ -73,7 +73,7 @@ public class EnumSumScalarLambdaForgeEval implements EnumEval {
 
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(innerType, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope));
+                .declareVar(innerType, "value", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope));
         if (!innerType.isPrimitive()) {
             forEach.ifRefNull("value").blockContinue();
         }

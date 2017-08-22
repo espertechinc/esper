@@ -51,7 +51,7 @@ public class EnumTakeForgeEval implements EnumEval {
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
 
         Class sizeType = forge.sizeEval.getEvaluationType();
-        CodegenBlock block = methodNode.getBlock().declareVar(sizeType, "size", forge.sizeEval.evaluateCodegen(methodNode, scope, codegenClassScope));
+        CodegenBlock block = methodNode.getBlock().declareVar(sizeType, "size", forge.sizeEval.evaluateCodegen(sizeType, methodNode, scope, codegenClassScope));
         if (!sizeType.isPrimitive()) {
             block.ifRefNullReturnNull("size");
         }

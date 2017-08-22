@@ -74,7 +74,7 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprForge, Expr
         throw new EPException(this.getClass().getSimpleName() + " cannot be evaluated");
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         throw new IllegalStateException("Typed-no-eval-expression does not allow code generation");
     }
 

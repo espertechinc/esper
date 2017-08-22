@@ -1778,7 +1778,7 @@ public class ExprNodeUtility {
             return new VarargOnlyArrayForgeWithCoerce(this, ExprNodeUtility.getEvaluatorsNoCompile(forges));
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(varargClass);
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, VarargOnlyArrayForge.class);
 
@@ -1786,7 +1786,7 @@ public class ExprNodeUtility {
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(arrayType, "array", newArray(varargClass, constant(forges.length)));
             for (int i = 0; i < forges.length; i++) {
-                CodegenExpression expression = forges[i].evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
+                CodegenExpression expression = forges[i].evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope);
                 CodegenExpression assignment;
                 if (optionalCoercers == null || optionalCoercers[i] == null) {
                     assignment = expression;

@@ -59,7 +59,7 @@ public class SelectExprProcessorEvalStreamInsertNamedWindow implements ExprForge
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember eventSvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember namedWindowType = codegenClassScope.makeAddMember(EventType.class, namedWindowAsType);
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorEvalStreamInsertNamedWindow.class);

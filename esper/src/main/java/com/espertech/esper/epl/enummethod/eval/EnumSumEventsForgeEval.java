@@ -62,7 +62,7 @@ public class EnumSumEventsForgeEval implements EnumEval {
 
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerType, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope));
+                .declareVar(innerType, "value", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope));
         if (!innerType.isPrimitive()) {
             forEach.ifRefNull("value").blockContinue();
         }

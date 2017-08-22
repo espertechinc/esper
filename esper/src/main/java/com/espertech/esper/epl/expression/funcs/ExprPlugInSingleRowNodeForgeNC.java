@@ -31,8 +31,8 @@ public class ExprPlugInSingleRowNodeForgeNC extends ExprPlugInSingleRowNodeForge
         return inner.getExprEvaluator();
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return inner.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return inner.evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

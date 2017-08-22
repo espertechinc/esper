@@ -91,18 +91,18 @@ public class ExprRegexpNodeForgeNonconstEval implements ExprEvaluator {
     public static CodegenMethodNode codegen(ExprRegexpNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRegexpNodeForgeNonconstEval.class);
         CodegenBlock blockMethod = methodNode.getBlock()
-                .declareVar(String.class, "patternText", pattern.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(String.class, "patternText", pattern.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("patternText");
 
         // initial like-setup
         blockMethod.declareVar(Pattern.class, "pattern", staticMethod(ExprRegexpNodeForgeNonconstEval.class, "exprRegexNodeCompilePattern", ref("patternText")));
 
         if (!forge.isNumericValue()) {
-            blockMethod.declareVar(String.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(String.class, "value", lhs.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getRegexpCode(forge, ref("pattern"), ref("value")));
         } else {
-            blockMethod.declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getRegexpCode(forge, ref("pattern"), exprDotMethod(ref("value"), "toString")));
         }

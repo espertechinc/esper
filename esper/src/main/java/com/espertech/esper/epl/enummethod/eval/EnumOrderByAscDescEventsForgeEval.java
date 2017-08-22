@@ -79,7 +79,7 @@ public class EnumOrderByAscDescEventsForgeEval implements EnumEval {
                 .declareVar(boolean.class, "hasColl", constantFalse());
         block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerBoxedType, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(innerBoxedType, "value", forge.innerExpression.evaluateCodegen(innerBoxedType, methodNode, scope, codegenClassScope))
                 .declareVar(Object.class, "entry", exprDotMethod(ref("sort"), "get", ref("value")))
                 .ifCondition(equalsNull(ref("entry")))
                     .expression(exprDotMethod(ref("sort"), "put", ref("value"), ref("next")))

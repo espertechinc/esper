@@ -35,7 +35,7 @@ public class ExprLikeNodeForgeNonconst extends ExprLikeNodeForge {
                 getForgeRenderable().getChildNodes().length == 2 ? null : getForgeRenderable().getChildNodes()[2].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = ExprLikeNodeFormNonconstEval.codegen(this, getForgeRenderable().getChildNodes()[0], getForgeRenderable().getChildNodes()[1],
                 getForgeRenderable().getChildNodes().length == 2 ? null : getForgeRenderable().getChildNodes()[2], codegenMethodScope, exprSymbol, codegenClassScope);
         return localMethod(methodNode);

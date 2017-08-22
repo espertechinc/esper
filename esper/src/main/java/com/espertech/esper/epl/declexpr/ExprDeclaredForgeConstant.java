@@ -62,7 +62,7 @@ public class ExprDeclaredForgeConstant implements ExprForge, ExprEvaluator {
         return ExprForgeComplexityEnum.NONE;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!audit) {
             return constant(value);
         }

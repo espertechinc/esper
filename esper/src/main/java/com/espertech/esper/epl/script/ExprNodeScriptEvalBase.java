@@ -39,7 +39,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
     protected final EventType eventTypeCollection;
     protected final SimpleNumberCoercer coercer;
 
-    protected abstract CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
+    protected abstract CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public ExprNodeScriptEvalBase(ExprNodeScript parent, String statementName, String[] names, ExprForge[] parameters, Class returnType, EventType eventTypeCollection) {
         this.parent = parent;
@@ -70,7 +70,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return staticMethod(ExprNodeScriptEvalBase.class, "scriptResultToROCollectionEvents", evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+        return staticMethod(ExprNodeScriptEvalBase.class, "scriptResultToROCollectionEvents", evaluateCodegen(Collection.class, codegenMethodScope, exprSymbol, codegenClassScope));
     }
 
     /**
@@ -107,7 +107,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprNodeScriptEvalBase.class);
 
         methodNode.getBlock()
-                .declareVar(Object.class, "result", evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(Object.class, "result", evaluateCodegen(Collection.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(newInstance(ArrayWrappingCollection.class, ref("result")));
         return localMethod(methodNode);

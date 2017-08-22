@@ -39,8 +39,8 @@ public class ExprNodeValidated extends ExprNodeBase implements ExprForge, ExprEv
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return inner.getForge().evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return inner.getForge().evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Class getEvaluationType() {

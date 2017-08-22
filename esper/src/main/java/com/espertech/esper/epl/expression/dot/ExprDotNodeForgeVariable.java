@@ -39,7 +39,7 @@ public class ExprDotNodeForgeVariable extends ExprDotNodeForge {
         return new ExprDotNodeForgeVariableEval(this, ExprDotNodeUtility.getEvaluators(chainForge));
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprDotNodeForgeVariableEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

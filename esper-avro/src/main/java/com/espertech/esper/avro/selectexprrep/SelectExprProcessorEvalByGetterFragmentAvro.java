@@ -44,7 +44,7 @@ public class SelectExprProcessorEvalByGetterFragmentAvro implements ExprEvaluato
         return getter.get(streamEvent);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, this.getClass());
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);

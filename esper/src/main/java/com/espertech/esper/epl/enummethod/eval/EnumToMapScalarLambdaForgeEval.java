@@ -82,8 +82,8 @@ public class EnumToMapScalarLambdaForgeEval implements EnumEval {
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
-                .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "value", forge.secondExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .expression(exprDotMethod(ref("map"), "put", ref("key"), ref("value")));
         block.methodReturn(ref("map"));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());

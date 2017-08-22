@@ -44,8 +44,9 @@ public class InnerDotArrObjectToCollEval implements ExprDotEvalRootChildInnerEva
     public static CodegenExpression codegenEvaluate(InnerDotArrObjectToCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, InnerDotArrObjectToCollEval.class);
 
+        Class evalType = forge.rootForge.getEvaluationType();
         methodNode.getBlock()
-                .declareVar(forge.rootForge.getEvaluationType(), "array", forge.rootForge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(forge.rootForge.getEvaluationType(), "array", forge.rootForge.evaluateCodegen(evalType, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("array")
                 .methodReturn(staticMethod(Arrays.class, "asList", ref("array")));
         return localMethod(methodNode);

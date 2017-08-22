@@ -68,7 +68,7 @@ public class EnumSelectFromEventsForgeEval implements EnumEval {
                 .declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class, exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size")));
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .ifCondition(notEqualsNull(ref("item")))
                 .expression(exprDotMethod(ref("result"), "add", ref("item")));
         block.methodReturn(ref("result"));

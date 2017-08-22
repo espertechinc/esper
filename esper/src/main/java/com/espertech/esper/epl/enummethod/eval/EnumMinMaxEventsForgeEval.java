@@ -81,7 +81,7 @@ public class EnumMinMaxEventsForgeEval implements EnumEval {
 
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope));
+                .declareVar(innerTypeBoxed, "value", forge.innerExpression.evaluateCodegen(innerTypeBoxed, methodNode, scope, codegenClassScope));
         if (!innerType.isPrimitive()) {
             forEach.ifRefNull("value").blockContinue();
         }

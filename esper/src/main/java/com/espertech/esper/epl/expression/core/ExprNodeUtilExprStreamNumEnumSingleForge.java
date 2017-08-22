@@ -27,7 +27,7 @@ public class ExprNodeUtilExprStreamNumEnumSingleForge implements ExprForge {
         return new ExprNodeUtilExprStreamNumEnumSingleEval(enumeration.getExprEvaluatorEnumeration());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return enumeration.evaluateGetEventBeanCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

@@ -37,8 +37,8 @@ public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator, E
         return widener.widen(result);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return widener.widenCodegen(forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), codegenMethodScope, codegenClassScope);
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return widener.widenCodegen(forge.evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope), codegenMethodScope, codegenClassScope);
     }
 
     public ExprEvaluator getExprEvaluator() {

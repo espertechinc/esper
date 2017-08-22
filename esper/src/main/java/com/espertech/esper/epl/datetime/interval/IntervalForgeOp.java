@@ -45,9 +45,9 @@ public class IntervalForgeOp implements IntervalOp {
     public static CodegenExpression codegen(IntervalForgeImpl forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalForgeOp.class).addParam(long.class, "startTs").addParam(long.class, "endTs");
 
-
+        Class evaluationType = forge.getForgeTimestamp().getEvaluationType();
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(forge.getForgeTimestamp().getEvaluationType(), "parameter", forge.getForgeTimestamp().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(evaluationType, "parameter", forge.getForgeTimestamp().evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope));
         if (!forge.getForgeTimestamp().getEvaluationType().isPrimitive()) {
             block.ifRefNullReturnNull("parameter");
         }

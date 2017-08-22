@@ -39,7 +39,7 @@ public class SelectExprProcessorTypableMapForge implements SelectExprProcessorTy
         return new SelectExprProcessorTypableMapEval(this, innerForge.getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return SelectExprProcessorTypableMapEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

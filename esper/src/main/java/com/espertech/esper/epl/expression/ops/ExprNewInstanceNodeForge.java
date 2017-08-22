@@ -36,7 +36,7 @@ public class ExprNewInstanceNodeForge implements ExprForge {
         return new ExprNewInstanceNodeForgeEval(this, manufacturerFactory.makeEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return manufacturerFactory.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

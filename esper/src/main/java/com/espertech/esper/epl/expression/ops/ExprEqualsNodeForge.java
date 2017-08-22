@@ -22,7 +22,7 @@ public abstract class ExprEqualsNodeForge implements ExprForge {
 
     public abstract ExprEvaluator getExprEvaluator();
 
-    public abstract CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
+    public abstract CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public ExprEqualsNodeForge(ExprEqualsNodeImpl parent) {
         this.parent = parent;

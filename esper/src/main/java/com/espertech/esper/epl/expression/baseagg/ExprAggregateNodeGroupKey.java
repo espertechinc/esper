@@ -46,7 +46,7 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge
         return groupKey;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, returnType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

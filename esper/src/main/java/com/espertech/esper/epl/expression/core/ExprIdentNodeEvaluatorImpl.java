@@ -65,31 +65,36 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         return propertyGetter.get(event);
     }
 
-    public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public Class getCodegenReturnType(Class requiredType) {
+        return requiredType == Object.class ? Object.class : returnType;
+    }
+
+    public CodegenExpression codegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (returnType == null) {
             return constantNull();
         }
 
+        Class castTargetType = getCodegenReturnType(requiredType);
         boolean useUnderlying = exprSymbol.isAllowUnderlyingReferences() && !identNode.getResolvedPropertyName().contains("?") && !(eventType instanceof WrapperEventType) && !(eventType instanceof VariantEventType) && !(eventType instanceof RevisionEventType);
         if (useUnderlying && !optionalEvent) {
             CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(codegenMethodScope, streamNum, eventType, false);
-            return CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.underlyingGetCodegen(underlying, codegenMethodScope, codegenClassScope));
+            return CodegenLegoCast.castSafeFromObjectType(castTargetType, propertyGetter.underlyingGetCodegen(underlying, codegenMethodScope, codegenClassScope));
         }
 
-        CodegenMethodNode method = codegenMethodScope.makeChild(returnType, this.getClass());
+        CodegenMethodNode method = codegenMethodScope.makeChild(castTargetType, this.getClass());
         CodegenBlock block = method.getBlock();
 
         if (useUnderlying) {
             CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(method, streamNum, eventType, true);
             block.ifRefNullReturnNull(underlying)
-                  .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
+                  .methodReturn(CodegenLegoCast.castSafeFromObjectType(castTargetType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
         } else {
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(method);
             method.getBlock().declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)));
             if (optionalEvent) {
                 block.ifRefNullReturnNull("event");
             }
-            block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.eventBeanGetCodegen(ref("event"), method, codegenClassScope)));
+            block.methodReturn(CodegenLegoCast.castSafeFromObjectType(castTargetType, propertyGetter.eventBeanGetCodegen(ref("event"), method, codegenClassScope)));
 
         }
         return localMethod(method);

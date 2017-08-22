@@ -52,7 +52,7 @@ public class EnumTakeLastForgeEval implements EnumEval {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeLastForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
 
-        CodegenBlock block = methodNode.getBlock().declareVar(sizeType, "size", forge.sizeEval.evaluateCodegen(methodNode, scope, codegenClassScope));
+        CodegenBlock block = methodNode.getBlock().declareVar(sizeType, "size", forge.sizeEval.evaluateCodegen(sizeType, methodNode, scope, codegenClassScope));
         if (!sizeType.isPrimitive()) {
             block.ifRefNullReturnNull("size");
         }

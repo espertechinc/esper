@@ -65,8 +65,8 @@ public class ExprEqualsNodeForgeNCEvalEquals implements ExprEvaluator {
 
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsNodeForgeNCEvalEquals.class);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(lhsType, "left", lhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
-                .declareVar(rhsType, "right", rhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(lhsType, "left", lhs.evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(rhsType, "right", rhs.evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
 
         if (!lhsType.isPrimitive()) {
             block.ifRefNullReturnNull("left");

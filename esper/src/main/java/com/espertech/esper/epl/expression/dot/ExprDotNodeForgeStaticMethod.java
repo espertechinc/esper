@@ -66,7 +66,7 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return ExprDotNodeForgeStaticMethodEval.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 

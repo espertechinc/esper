@@ -70,7 +70,7 @@ public class EnumAverageBigDecimalEventsForgeEval implements EnumEval {
         block.declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, CodegenExpressionBuilder.member(mathCtxMember.getMemberId())));
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerType, "num", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope));
+                .declareVar(innerType, "num", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope));
         if (!innerType.isPrimitive()) {
             forEach.ifRefNull("num").blockContinue();
         }

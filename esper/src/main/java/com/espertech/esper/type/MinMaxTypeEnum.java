@@ -233,11 +233,11 @@ public enum MinMaxTypeEnum {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigInteger.class, ComputerBigIntCoerce.class);
             CodegenBlock block = methodNode.getBlock();
 
-            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(r0Type, methodNode, exprSymbol, codegenClassScope));
             if (!r0Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r0");
             }
-            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(r1Type, methodNode, exprSymbol, codegenClassScope));
             if (!r1Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r1");
             }
@@ -254,7 +254,7 @@ public enum MinMaxTypeEnum {
             for (int i = 2; i < nodes.length; i++) {
                 Class nodeType = nodes[i].getForge().getEvaluationType();
                 String refnameNumber = "r" + i;
-                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(nodeType, methodNode, exprSymbol, codegenClassScope));
                 if (!nodeType.isPrimitive()) {
                     block.ifRefNullReturnNull(refnameNumber);
                 }
@@ -331,11 +331,11 @@ public enum MinMaxTypeEnum {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigDecimal.class, ComputerBigDecCoerce.class);
             CodegenBlock block = methodNode.getBlock();
 
-            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(r0Type, methodNode, exprSymbol, codegenClassScope));
             if (!r0Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r0");
             }
-            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(r1Type, methodNode, exprSymbol, codegenClassScope));
             if (!r1Type.isPrimitive()) {
                 block.ifRefNullReturnNull("r1");
             }
@@ -352,7 +352,7 @@ public enum MinMaxTypeEnum {
             for (int i = 2; i < nodes.length; i++) {
                 Class nodeType = nodes[i].getForge().getEvaluationType();
                 String refnameNumber = "r" + i;
-                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                block.declareVar(nodeType, refnameNumber, nodes[i].getForge().evaluateCodegen(nodeType, methodNode, exprSymbol, codegenClassScope));
                 if (!nodeType.isPrimitive()) {
                     block.ifRefNullReturnNull(refnameNumber);
                 }
@@ -376,11 +376,11 @@ public enum MinMaxTypeEnum {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, MaxComputerDoubleCoerce.class);
         CodegenBlock block = methodNode.getBlock();
 
-        block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(r0Type, methodNode, exprSymbol, codegenClassScope));
         if (!r0Type.isPrimitive()) {
             block.ifRefNullReturnNull("r0");
         }
-        block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.declareVar(r1Type, "r1", nodes[1].getForge().evaluateCodegen(r1Type, methodNode, exprSymbol, codegenClassScope));
         if (!r1Type.isPrimitive()) {
             block.ifRefNullReturnNull("r1");
         }
@@ -395,7 +395,7 @@ public enum MinMaxTypeEnum {
         for (int i = 2; i < nodes.length; i++) {
             Class nodeType = nodes[i].getForge().getEvaluationType();
             String refname = "r" + i;
-            block.declareVar(nodeType, refname, nodes[i].getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.declareVar(nodeType, refname, nodes[i].getForge().evaluateCodegen(nodeType, methodNode, exprSymbol, codegenClassScope));
             if (!nodeType.isPrimitive()) {
                 block.ifRefNullReturnNull(refname);
             }

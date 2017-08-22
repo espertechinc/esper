@@ -90,7 +90,7 @@ public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends
                     otherXEval.getExprEvaluator(), otherYEval.getExprEvaluator(), otherWidthEval.getExprEvaluator(), otherHeightEval.getExprEvaluator());
         }
 
-        public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             return RectangleIntersectsRectangleEvaluator.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }
 

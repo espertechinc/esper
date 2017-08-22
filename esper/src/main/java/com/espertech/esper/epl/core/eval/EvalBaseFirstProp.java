@@ -51,7 +51,8 @@ public abstract class EvalBaseFirstProp implements SelectExprProcessor, SelectEx
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
         ExprForge first = selectExprForgeContext.getExprForges()[0];
-        methodNode.getBlock().methodReturn(processFirstColCodegen(first.getEvaluationType(), first.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), memberResultEventType, memberEventAdapterService, methodNode, codegenClassScope));
+        Class evaluationType = first.getEvaluationType();
+        methodNode.getBlock().methodReturn(processFirstColCodegen(evaluationType, first.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), memberResultEventType, memberEventAdapterService, methodNode, codegenClassScope));
         return methodNode;
     }
 

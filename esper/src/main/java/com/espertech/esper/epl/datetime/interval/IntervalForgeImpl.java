@@ -438,8 +438,9 @@ public class IntervalForgeImpl implements IntervalForge {
         public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpForgeDateWithEndBase.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(parameterType, "paramStartTs");
 
-            methodNode.getBlock().declareVar(forgeEndTimestamp.getEvaluationType(), "paramEndTs", forgeEndTimestamp.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
-            if (!forgeEndTimestamp.getEvaluationType().isPrimitive()) {
+            Class evaluationType = forgeEndTimestamp.getEvaluationType();
+            methodNode.getBlock().declareVar(evaluationType, "paramEndTs", forgeEndTimestamp.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope));
+            if (!evaluationType.isPrimitive()) {
                 methodNode.getBlock().ifRefNullReturnNull("paramEndTs");
             }
             CodegenExpression expression = codegenEvaluate(ref("startTs"), ref("endTs"), ref("paramStartTs"), ref("paramEndTs"), methodNode, exprSymbol, codegenClassScope);

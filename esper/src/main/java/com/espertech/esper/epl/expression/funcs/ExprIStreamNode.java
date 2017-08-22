@@ -66,7 +66,7 @@ public class ExprIStreamNode extends ExprNodeBase implements ExprForge, ExprEval
         return isNewData;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return exprSymbol.getAddIsNewData(codegenMethodScope);
     }
 

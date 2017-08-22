@@ -49,7 +49,7 @@ public class ExprBetweenNodeForge implements ExprForge {
         return new ExprBetweenNodeForgeEval(this, nodes[0].getForge().getExprEvaluator(), nodes[1].getForge().getExprEvaluator(), nodes[2].getForge().getExprEvaluator());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (isAlwaysFalse) {
             return constantFalse();
         }

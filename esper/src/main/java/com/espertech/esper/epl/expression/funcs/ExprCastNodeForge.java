@@ -44,7 +44,7 @@ public class ExprCastNodeForge implements ExprForge {
         }
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (isConstant) {
             CodegenMember member = codegenClassScope.makeAddMember(targetType, constant);
             return CodegenExpressionBuilder.member(member.getMemberId());

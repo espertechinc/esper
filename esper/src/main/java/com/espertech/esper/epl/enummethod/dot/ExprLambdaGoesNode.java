@@ -55,7 +55,7 @@ public class ExprLambdaGoesNode extends ExprNodeBase implements ExprForge, ExprE
         throw new UnsupportedOperationException();
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         throw new UnsupportedOperationException();
     }
 

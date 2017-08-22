@@ -28,5 +28,5 @@ public interface ExprIdentNodeEvaluator extends ExprEvaluator {
 
     public Class getEvaluationType();
 
-    CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
+    public CodegenExpression codegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 }

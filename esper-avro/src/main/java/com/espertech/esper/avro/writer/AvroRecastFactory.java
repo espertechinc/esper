@@ -14,20 +14,16 @@ import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.base.CodegenBlock;
-import com.espertech.esper.codegen.base.CodegenClassScope;
-import com.espertech.esper.codegen.base.CodegenMember;
-import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.core.eval.SelectExprForgeContext;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
@@ -212,9 +208,11 @@ public class AvroRecastFactory {
                 if (item.getOptionalFromIndex() != -1) {
                     value = exprDotMethod(ref("source"), "get", constant(item.getOptionalFromIndex()));
                 } else {
-                    value = item.forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
                     if (item.getOptionalWidener() != null) {
+                        value = item.forge.evaluateCodegen(item.getForge().getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
                         value = item.getOptionalWidener().widenCodegen(value, methodNode, codegenClassScope);
+                    } else {
+                        value = item.forge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope);
                     }
                 }
                 block.exprDotMethod(ref("target"), "put", constant(item.getToIndex()), value);

@@ -92,7 +92,7 @@ public class EnumOrderByAscDescScalarLambdaForgeEval implements EnumEval {
 
         block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(innerBoxedType, "value", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(innerBoxedType, "value", forge.innerExpression.evaluateCodegen(innerBoxedType, methodNode, scope, codegenClassScope))
                 .declareVar(Object.class, "entry", exprDotMethod(ref("sort"), "get", ref("value")))
                 .ifCondition(equalsNull(ref("entry")))
                 .expression(exprDotMethod(ref("sort"), "put", ref("value"), ref("next")))

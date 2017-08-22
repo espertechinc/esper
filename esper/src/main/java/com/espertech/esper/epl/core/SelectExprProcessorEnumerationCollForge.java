@@ -36,7 +36,7 @@ public class SelectExprProcessorEnumerationCollForge implements ExprForge {
         return new SelectExprProcessorEnumerationCollEval(this, enumerationForge.getExprEvaluatorEnumeration());
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (firstRowOnly) {
             return SelectExprProcessorEnumerationCollEvalFirstRow.codegen(this, codegenMethodScope, exprSymbol, codegenClassScope);
         }

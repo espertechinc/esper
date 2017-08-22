@@ -104,8 +104,8 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         return evaluator.getEvaluationType();
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return evaluator.codegen(codegenMethodScope, exprSymbol, codegenClassScope);
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return evaluator.codegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

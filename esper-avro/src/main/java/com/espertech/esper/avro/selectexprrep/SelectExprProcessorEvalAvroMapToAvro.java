@@ -45,9 +45,9 @@ public class SelectExprProcessorEvalAvroMapToAvro implements ExprEvaluator, Expr
         return selectExprProcessAvroMap(map, inner);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember memberSchema = codegenClassScope.makeAddMember(Schema.class, inner);
-        return staticMethod(SelectExprProcessorEvalAvroMapToAvro.class, "selectExprProcessAvroMap", forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), CodegenExpressionBuilder.member(memberSchema.getMemberId()));
+        return staticMethod(SelectExprProcessorEvalAvroMapToAvro.class, "selectExprProcessAvroMap", forge.evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope), CodegenExpressionBuilder.member(memberSchema.getMemberId()));
     }
 
     /**

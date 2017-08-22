@@ -61,7 +61,7 @@ public class ExprCastNodeForgeNonConstEval implements ExprEvaluator {
 
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(childType, "result", child.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(childType, "result", child.getForge().evaluateCodegen(childType, methodNode, exprSymbol, codegenClassScope));
         if (!childType.isPrimitive()) {
             block.ifRefNullReturnNull("result");
         }

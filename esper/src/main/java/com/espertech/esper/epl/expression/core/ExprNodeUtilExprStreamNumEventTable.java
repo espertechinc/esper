@@ -37,7 +37,7 @@ public class ExprNodeUtilExprStreamNumEventTable implements ExprForge, ExprEvalu
         return evaluateConvertTableEvent(streamNum, tableMetadata.getEventToPublic(), eventsPerStream, isNewData, context);
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
         CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);

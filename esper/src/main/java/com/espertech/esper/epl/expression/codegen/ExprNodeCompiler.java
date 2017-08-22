@@ -68,7 +68,7 @@ public class ExprNodeCompiler {
             CodegenMethodNode topNode = CodegenMethodNode.makeParentNode(Object.class, ExprNodeCompiler.class, exprSymbol).addParam(ExprForgeCodegenNames.PARAMS);
 
             // generate expression
-            CodegenExpression expression = forge.evaluateCodegen(topNode, exprSymbol, codegenClassScope);
+            CodegenExpression expression = forge.evaluateCodegen(Object.class, topNode, exprSymbol, codegenClassScope);
 
             // generate code for derived symbols
             exprSymbol.derivedSymbolsCodegen(topNode, topNode.getBlock());

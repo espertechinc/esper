@@ -49,11 +49,12 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenCalendar(CalendarPlusMinusForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        if (JavaClassHelper.isNumeric(forge.param.getEvaluationType())) {
-            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.param.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), forge.param.getEvaluationType());
+        Class evaluationType = forge.param.getEvaluationType();
+        if (JavaClassHelper.isNumeric(evaluationType)) {
+            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLong(forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), evaluationType);
             return staticMethod(CalendarPlusMinusForgeOp.class, "actionCalendarPlusMinusNumber", cal, constant(forge.factor), longDuration);
         }
-        return staticMethod(CalendarPlusMinusForgeOp.class, "actionCalendarPlusMinusTimePeriod", cal, constant(forge.factor), forge.param.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+        return staticMethod(CalendarPlusMinusForgeOp.class, "actionCalendarPlusMinusTimePeriod", cal, constant(forge.factor), forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));
     }
 
     public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -66,11 +67,12 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenLDT(CalendarPlusMinusForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        if (JavaClassHelper.isNumeric(forge.param.getEvaluationType())) {
-            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), forge.param.getEvaluationType(), codegenMethodScope);
+        Class evaluationType = forge.param.getEvaluationType();
+        if (JavaClassHelper.isNumeric(evaluationType)) {
+            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), evaluationType, codegenMethodScope);
             return staticMethod(CalendarPlusMinusForgeOp.class, "actionLDTPlusMinusNumber", ldt, constant(forge.factor), longDuration);
         }
-        return staticMethod(CalendarPlusMinusForgeOp.class, "actionLDTPlusMinusTimePeriod", ldt, constant(forge.factor), forge.param.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+        return staticMethod(CalendarPlusMinusForgeOp.class, "actionLDTPlusMinusTimePeriod", ldt, constant(forge.factor), forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));
     }
 
     public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -83,11 +85,12 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenZDT(CalendarPlusMinusForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        if (JavaClassHelper.isNumeric(forge.param.getEvaluationType())) {
-            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), forge.param.getEvaluationType(), codegenMethodScope);
+        Class evaluationType = forge.param.getEvaluationType();
+        if (JavaClassHelper.isNumeric(evaluationType)) {
+            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), evaluationType, codegenMethodScope);
             return staticMethod(CalendarPlusMinusForgeOp.class, "actionZDTPlusMinusNumber", zdt, constant(forge.factor), longDuration);
         }
-        return staticMethod(CalendarPlusMinusForgeOp.class, "actionZDTPlusMinusTimePeriod", zdt, constant(forge.factor), forge.param.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+        return staticMethod(CalendarPlusMinusForgeOp.class, "actionZDTPlusMinusTimePeriod", zdt, constant(forge.factor), forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));
     }
 
     /**

@@ -83,7 +83,7 @@ public class ExprTimePeriodForge implements ExprForge {
         };
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         throw new IllegalStateException("Time period evaluator does not have a code representation");
     }
 
@@ -138,15 +138,6 @@ public class ExprTimePeriodForge implements ExprForge {
         return seconds;
     }
 
-    /**
-     * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param expressionText text
-     * @return exception
-     */
-    public static EPException makeTimePeriodParamNullException(String expressionText) {
-        return new EPException("Failed to evaluate time period, received a null value for '" + expressionText + "'");
-    }
-
     public CodegenExpression evaluateAsSecondsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(double.class, ExprTimePeriodForge.class);
 
@@ -155,7 +146,8 @@ public class ExprTimePeriodForge implements ExprForge {
                 .declareVarNoInit(Double.class, "result");
         for (int i = 0; i < parent.getChildNodes().length; i++) {
             ExprForge forge = parent.getChildNodes()[i].getForge();
-            block.assignRef("result", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDoubleMayNullBoxedIncludeBig(forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope), forge.getEvaluationType(), methodNode));
+            Class evaluationType = forge.getEvaluationType();
+            block.assignRef("result", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDoubleMayNullBoxedIncludeBig(forge.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode));
             block.ifRefNull("result").blockThrow(staticMethod(ExprTimePeriodForge.class, "makeTimePeriodParamNullException", constant(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this.parent))));
             block.assignRef("seconds", op(ref("seconds"), "+", adders[i].computeCodegen(ref("result"))));
         }
@@ -249,13 +241,23 @@ public class ExprTimePeriodForge implements ExprForge {
         return localMethod(methodNode);
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param expressionText text
+     * @return exception
+     */
+    public static EPException makeTimePeriodParamNullException(String expressionText) {
+        return new EPException("Failed to evaluate time period, received a null value for '" + expressionText + "'");
+    }
+
     private int evaluateGetTimePeriodCodegenField(CodegenBlock block, String variable, boolean present, int counter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (!present) {
             block.declareVar(Integer.class, variable, constantNull());
             return 0;
         }
         ExprForge forge = parent.getChildNodes()[counter].getForge();
-        block.declareVar(Integer.class, variable, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType(), codegenMethodScope));
+        Class evaluationType = forge.getEvaluationType();
+        block.declareVar(Integer.class, variable, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType(), codegenMethodScope));
         return 1;
     }
 

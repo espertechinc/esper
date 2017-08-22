@@ -31,6 +31,6 @@ public class ExprDotNodeForgeTransposeAsStreamEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprDotNodeForgeTransposeAsStream forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return forge.inner.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
+        return forge.inner.evaluateCodegen(forge.inner.getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 }

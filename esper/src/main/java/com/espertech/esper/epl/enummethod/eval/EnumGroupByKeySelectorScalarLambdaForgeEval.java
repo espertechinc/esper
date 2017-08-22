@@ -84,7 +84,7 @@ public class EnumGroupByKeySelectorScalarLambdaForgeEval implements EnumEval {
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .declareVar(Collection.class, "value", cast(Collection.class, exprDotMethod(ref("result"), "get", ref("key"))))
                 .ifRefNull("value")
                 .assignRef("value", newInstance(ArrayList.class))

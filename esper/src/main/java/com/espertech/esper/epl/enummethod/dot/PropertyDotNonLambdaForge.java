@@ -49,7 +49,7 @@ public class PropertyDotNonLambdaForge implements ExprForge, ExprEvaluator, Expr
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(getEvaluationType(), PropertyDotNonLambdaForge.class);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);

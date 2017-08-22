@@ -81,7 +81,7 @@ public class EnumWhereScalarForgeEval implements EnumEval {
                 .declareVar(Object[].class, "props", exprDotMethod(ref("evalEvent"), "getProperties"));
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"));
-        CodegenLegoBooleanExpression.codegenContinueIfNullOrNotPass(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope));
+        CodegenLegoBooleanExpression.codegenContinueIfNullOrNotPass(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));
         forEach.expression(exprDotMethod(ref("result"), "add", ref("next")));
         block.methodReturn(ref("result"));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());

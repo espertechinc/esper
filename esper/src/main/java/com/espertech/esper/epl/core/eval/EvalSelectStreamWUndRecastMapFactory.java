@@ -12,20 +12,16 @@ package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.base.CodegenBlock;
-import com.espertech.esper.codegen.base.CodegenClassScope;
-import com.espertech.esper.codegen.base.CodegenMember;
-import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.core.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.map.MapEventType;
@@ -37,7 +33,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class EvalSelectStreamWUndRecastMapFactory {
 
@@ -209,9 +204,11 @@ public class EvalSelectStreamWUndRecastMapFactory {
                 if (item.getOptionalPropertyName() != null) {
                     value = exprDotMethodChain(ref("theEvent")).add("getProperties").add("get", constant(item.getOptionalPropertyName()));
                 } else {
-                    value = item.forge.evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
                     if (item.getOptionalWidener() != null) {
+                        value = item.forge.evaluateCodegen(item.forge.getEvaluationType(), methodNode, exprSymbol, codegenClassScope);
                         value = item.getOptionalWidener().widenCodegen(value, methodNode, codegenClassScope);
+                    } else {
+                        value = item.forge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope);
                     }
                 }
                 block.assignArrayElement("props", constant(item.getToIndex()), value);

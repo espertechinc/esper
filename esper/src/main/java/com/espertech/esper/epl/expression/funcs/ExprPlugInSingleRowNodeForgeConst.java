@@ -52,7 +52,7 @@ public class ExprPlugInSingleRowNodeForgeConst extends ExprPlugInSingleRowNodeFo
         return constantResult;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (getEvaluationType() == void.class) {
             return noop();
         }

@@ -89,7 +89,7 @@ public class ExprCaseNodeForgeEvalSyntax1 implements ExprEvaluator {
         CodegenBlock block = methodNode.getBlock().declareVar(Boolean.class, "when", constantFalse());
 
         for (UniformPair<ExprNode> pair : forge.getWhenThenNodeList()) {
-            block.assignRef("when", pair.getFirst().getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            block.assignRef("when", pair.getFirst().getForge().evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(and(notEqualsNull(ref("when")), ref("when")))
                     .blockReturn(codegenToType(forge, pair.getSecond(), methodNode, exprSymbol, codegenClassScope));
         }
@@ -102,12 +102,13 @@ public class ExprCaseNodeForgeEvalSyntax1 implements ExprEvaluator {
     }
 
     protected static CodegenExpression codegenToType(ExprCaseNodeForge forge, ExprNode node, CodegenMethodNode methodNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        if (node.getForge().getEvaluationType() == forge.getEvaluationType() || !forge.isNumericResult()) {
-            return node.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope);
+        Class nodeEvaluationType = node.getForge().getEvaluationType();
+        if (nodeEvaluationType == forge.getEvaluationType() || !forge.isNumericResult()) {
+            return node.getForge().evaluateCodegen(nodeEvaluationType, methodNode, exprSymbol, codegenClassScope);
         }
-        if (node.getForge().getEvaluationType() == null) {
+        if (nodeEvaluationType == null) {
             return constantNull();
         }
-        return JavaClassHelper.coerceNumberToBoxedCodegen(node.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope), node.getForge().getEvaluationType(), forge.getEvaluationType());
+        return JavaClassHelper.coerceNumberToBoxedCodegen(node.getForge().evaluateCodegen(nodeEvaluationType, methodNode, exprSymbol, codegenClassScope), nodeEvaluationType, forge.getEvaluationType());
     }
 }

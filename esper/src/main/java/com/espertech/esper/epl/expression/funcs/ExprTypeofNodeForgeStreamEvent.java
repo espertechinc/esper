@@ -69,7 +69,7 @@ public class ExprTypeofNodeForgeStreamEvent extends ExprTypeofNodeForge implemen
         return this;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeStreamEvent.class);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);

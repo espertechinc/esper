@@ -92,7 +92,7 @@ public class EnumTakeWhileIndexEventsForgeEval implements EnumEval {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeWhileIndexEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
 
-        CodegenExpression innerValue = forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope);
+        CodegenExpression innerValue = forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)

@@ -75,7 +75,7 @@ public class EnumMostLeastFrequentEventForgeEval implements EnumEval {
                 .declareVar(Map.class, "items", newInstance(LinkedHashMap.class));
         CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .declareVar(Integer.class, "existing", cast(Integer.class, exprDotMethod(ref("items"), "get", ref("item"))))
                 .ifCondition(equalsNull(ref("existing")))
                 .assignRef("existing", constant(1))

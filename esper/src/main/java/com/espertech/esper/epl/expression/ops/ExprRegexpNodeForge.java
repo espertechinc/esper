@@ -22,7 +22,7 @@ public abstract class ExprRegexpNodeForge implements ExprForge {
     private final boolean isNumericValue;
 
     public abstract ExprEvaluator getExprEvaluator();
-    public abstract CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
+    public abstract CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
     public ExprRegexpNodeForge(ExprRegexpNode parent, boolean isNumericValue) {
         this.parent = parent;

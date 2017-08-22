@@ -81,7 +81,7 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
         return exists;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, this.getClass());
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);

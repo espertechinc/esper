@@ -236,10 +236,11 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
             String name = "r" + i;
             args[i] = ref(name);
             ExprForge child = forges[i];
-            if (child.getEvaluationType() == null) {
+            Class childType = child.getEvaluationType();
+            if (childType == null) {
                 block.declareVar(method.getParameterTypes()[i], name, constantNull());
             } else {
-                block.declareVar(child.getEvaluationType(), name, child.evaluateCodegen(codegenMethodScope, exprSymbol, codegenClassScope));
+                block.declareVar(childType, name, child.evaluateCodegen(childType, codegenMethodScope, exprSymbol, codegenClassScope));
             }
         }
         return args;

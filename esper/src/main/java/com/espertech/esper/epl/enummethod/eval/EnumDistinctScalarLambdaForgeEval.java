@@ -82,7 +82,7 @@ public class EnumDistinctScalarLambdaForgeEval implements EnumEval {
 
         block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope))
                 .ifCondition(not(exprDotMethod(ref("distinct"), "containsKey", ref("comparable"))))
                 .expression(exprDotMethod(ref("distinct"), "put", ref("comparable"), ref("next")))
                 .blockEnd();

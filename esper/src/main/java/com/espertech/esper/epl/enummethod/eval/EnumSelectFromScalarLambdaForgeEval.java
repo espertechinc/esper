@@ -83,7 +83,7 @@ public class EnumSelectFromScalarLambdaForgeEval implements EnumEval {
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(methodNode, scope, codegenClassScope))
+                .declareVar(Object.class, "item", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
                 .ifCondition(notEqualsNull(ref("item")))
                 .expression(exprDotMethod(ref("result"), "add", ref("item")));
         block.methodReturn(ref("result"));

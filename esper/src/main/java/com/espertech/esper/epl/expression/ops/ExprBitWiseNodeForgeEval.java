@@ -59,13 +59,15 @@ public class ExprBitWiseNodeForgeEval implements ExprEvaluator {
         return result;
     }
 
-    public static CodegenExpression codegen(ExprBitWiseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
+    public static CodegenExpression codegen(ExprBitWiseNodeForge forge, Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprBitWiseNodeForgeEval.class);
 
+        Class leftType = lhs.getForge().getEvaluationType();
+        Class rightType = rhs.getForge().getEvaluationType();
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(lhs.getForge().getEvaluationType(), "left", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
-                .declareVar(rhs.getForge().getEvaluationType(), "right", rhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
-        if (!lhs.getForge().getEvaluationType().isPrimitive()) {
+                .declareVar(leftType, "left", lhs.getForge().evaluateCodegen(leftType, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(rightType, "right", rhs.getForge().evaluateCodegen(rightType, methodNode, exprSymbol, codegenClassScope));
+        if (!leftType.isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
         if (!rhs.getForge().getEvaluationType().isPrimitive()) {

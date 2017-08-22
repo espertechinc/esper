@@ -34,7 +34,7 @@ public class ExprNodeUtilExprStreamNumUnd implements ExprForge, ExprEvaluator, E
         return eventsPerStream[streamNum].getUnderlying();
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
         return cast(returnType, exprDotUnderlying(arrayAtIndex(refEPS, constant(streamNum))));
     }

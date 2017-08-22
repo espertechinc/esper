@@ -83,24 +83,24 @@ public class ExprLikeNodeFormNonconstEval implements ExprEvaluator {
     public static CodegenMethodNode codegen(ExprLikeNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, ExprNode optionalEscape, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprLikeNodeFormNonconstEval.class);
         CodegenBlock blockMethod = methodNode.getBlock()
-                .declareVar(String.class, "pattern", pattern.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+                .declareVar(String.class, "pattern", pattern.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("pattern");
 
         // initial like-setup
         blockMethod.declareVar(Character.class, "es", constant('\\'));
         if (optionalEscape != null) {
-            blockMethod.declareVar(String.class, "escapeString", optionalEscape.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+            blockMethod.declareVar(String.class, "escapeString", optionalEscape.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope));
             blockMethod.ifCondition(and(notEqualsNull(ref("escapeString")), not(exprDotMethod(ref("escapeString"), "isEmpty"))))
                     .assignRef("es", exprDotMethod(ref("escapeString"), "charAt", constant(0)));
         }
         blockMethod.declareVar(LikeUtil.class, "likeUtil", newInstance(LikeUtil.class, ref("pattern"), ref("es"), constant(false)));
 
         if (!forge.isNumericValue()) {
-            blockMethod.declareVar(String.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(String.class, "value", lhs.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getLikeCode(forge, ref("likeUtil"), ref("value")));
         } else {
-            blockMethod.declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope))
+            blockMethod.declareVar(Object.class, "value", lhs.getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("value")
                     .methodReturn(getLikeCode(forge, ref("likeUtil"), exprDotMethod(ref("value"), "toString")));
         }

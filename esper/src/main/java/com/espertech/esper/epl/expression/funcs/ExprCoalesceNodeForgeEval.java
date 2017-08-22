@@ -75,17 +75,18 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
         int num = 0;
         boolean doneWithReturn = false;
         for (ExprNode node : forge.getForgeRenderable().getChildNodes()) {
-            if (node.getForge().getEvaluationType() != null) {
+            Class reftype = node.getForge().getEvaluationType();
+            if (reftype != null) {
                 String refname = "r" + num;
-                block.declareVar(node.getForge().getEvaluationType(), refname, node.getForge().evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                block.declareVar(reftype, refname, node.getForge().evaluateCodegen(reftype, methodNode, exprSymbol, codegenClassScope));
 
-                if (node.getForge().getEvaluationType().isPrimitive()) {
+                if (reftype.isPrimitive()) {
                     if (!forge.getIsNumericCoercion()[num]) {
                         block.methodReturn(ref(refname));
                         doneWithReturn = true;
                     } else {
-                        SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(node.getForge().getEvaluationType(), forge.getEvaluationType());
-                        block.methodReturn(coercer.coerceCodegen(ref(refname), node.getForge().getEvaluationType()));
+                        SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(reftype, forge.getEvaluationType());
+                        block.methodReturn(coercer.coerceCodegen(ref(refname), reftype));
                         doneWithReturn = true;
                     }
                     break;
@@ -95,7 +96,7 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
                 if (!forge.getIsNumericCoercion()[num]) {
                     blockIf.blockReturn(ref(refname));
                 } else {
-                    blockIf.blockReturn(JavaClassHelper.coerceNumberBoxedToBoxedCodegen(ref(refname), node.getForge().getEvaluationType(), forge.getEvaluationType()));
+                    blockIf.blockReturn(JavaClassHelper.coerceNumberBoxedToBoxedCodegen(ref(refname), reftype, forge.getEvaluationType()));
                 }
             }
             num++;

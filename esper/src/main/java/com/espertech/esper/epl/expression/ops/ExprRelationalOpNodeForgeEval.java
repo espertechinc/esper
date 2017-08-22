@@ -79,12 +79,12 @@ public class ExprRelationalOpNodeForgeEval implements ExprEvaluator {
 
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(lhsType, "left", lhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+                .declareVar(lhsType, "left", lhs.evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope));
         if (!lhsType.isPrimitive()) {
             block.ifRefNullReturnNull("left");
         }
 
-        block.declareVar(rhsType, "right", rhs.evaluateCodegen(methodNode, exprSymbol, codegenClassScope));
+        block.declareVar(rhsType, "right", rhs.evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));
         if (!rhsType.isPrimitive()) {
             block.ifRefNullReturnNull("right");
         }

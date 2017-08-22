@@ -78,7 +78,7 @@ public class ExprTypeofNodeForgeFragmentType extends ExprTypeofNodeForge impleme
         return null;
     }
 
-    public CodegenExpression evaluateCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeFragmentType.class);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
