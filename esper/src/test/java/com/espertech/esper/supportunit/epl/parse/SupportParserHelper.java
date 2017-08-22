@@ -21,10 +21,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.supportunit.bean.SupportBean_N;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.Tree;
@@ -110,14 +107,7 @@ public class SupportParserHelper {
     }
 
     public static Pair<Tree, CommonTokenStream> parse(ParseRuleSelector parseRuleSelector, String text) throws Exception {
-        CharStream input;
-        try {
-            input = new NoCaseSensitiveStream(new StringReader(text));
-        } catch (IOException ex) {
-            throw new RuntimeException("IOException parsing text '" + text + '\'', ex);
-        }
-
-        EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
+        EsperEPL2GrammarLexer lex = ParseHelper.newLexer(new CaseInsensitiveInputStream(text));
 
         CommonTokenStream tokens = new CommonTokenStream(lex);
         EsperEPL2GrammarParser g = ParseHelper.newParser(tokens);

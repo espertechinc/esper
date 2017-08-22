@@ -81,13 +81,7 @@ public class ParseHelper {
             log.debug(".parse Parsing expr=" + expression);
         }
 
-        CharStream input;
-        try {
-            input = new NoCaseSensitiveStream(new StringReader(expression));
-        } catch (IOException ex) {
-            throw new EPException("IOException parsing expression '" + expression + '\'', ex);
-        }
-
+        CharStream input = new CaseInsensitiveInputStream(expression);
         EsperEPL2GrammarLexer lex = newLexer(input);
 
         CommonTokenStream tokens = new CommonTokenStream(lex);

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestEPLParser extends TestCase {
+
     public void testDisplayAST() throws Exception {
         String expression = "select * from A where exp > ANY (select a from B)";
 

@@ -37,6 +37,7 @@ public class ExecMTStmtNamedWindowUniqueTwoWJoinConsumer implements RegressionEx
         if (!useDefault) {
             config.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchPreserveOrder(preserve);
             config.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchLocking(locking);
+            config.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchTimeout(100000);
         }
 
         EPServiceProvider epService = EPServiceProviderManager.getProvider(this.getClass().getSimpleName() + "_" + engineNum + "_" + (count++), config);
