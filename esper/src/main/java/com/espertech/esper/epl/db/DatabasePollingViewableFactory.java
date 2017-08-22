@@ -20,7 +20,7 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
-import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
+import com.espertech.esper.epl.parse.CaseInsensitiveInputStream;
 import com.espertech.esper.epl.parse.ParseHelper;
 import com.espertech.esper.epl.spec.DBStatementStreamSpec;
 import com.espertech.esper.event.EventAdapterService;
@@ -318,14 +318,7 @@ public class DatabasePollingViewableFactory {
     protected static String lexSampleSQL(String querySQL)
             throws ExprValidationException {
         querySQL = querySQL.replaceAll("\\s\\s+|\\n|\\r", " ");
-        StringReader reader = new StringReader(querySQL);
-        CharStream input;
-        try {
-            input = new NoCaseSensitiveStream(reader);
-        } catch (IOException ex) {
-            throw new ExprValidationException("IOException lexing query SQL '" + querySQL + '\'', ex);
-        }
-
+        CharStream input = new CaseInsensitiveInputStream(querySQL);
         int whereIndex = -1;
         int groupbyIndex = -1;
         int havingIndex = -1;

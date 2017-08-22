@@ -18,7 +18,7 @@ import com.espertech.esper.core.service.StatementEventTypeRef;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
-import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
+import com.espertech.esper.epl.parse.CaseInsensitiveInputStream;
 import com.espertech.esper.epl.parse.ParseHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeSPI;
@@ -142,8 +142,7 @@ public class EPLModuleUtil {
     }
 
     public static ParseNode getModule(EPLModuleParseItem item, String resourceName) throws ParseException, IOException {
-        CharStream input = new NoCaseSensitiveStream(new StringReader(item.getExpression()));
-
+        CharStream input = new CaseInsensitiveInputStream(item.getExpression());
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokenStream = new CommonTokenStream(lex);
         tokenStream.fill();
@@ -245,14 +244,7 @@ public class EPLModuleUtil {
 
     public static List<EPLModuleParseItem> parse(String module) throws ParseException {
 
-        CharStream input;
-        try {
-            input = new NoCaseSensitiveStream(new StringReader(module));
-        } catch (IOException ex) {
-            log.error("Exception reading module expression: " + ex.getMessage(), ex);
-            return null;
-        }
-
+        CharStream input = new CaseInsensitiveInputStream(module);
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lex);
         try {

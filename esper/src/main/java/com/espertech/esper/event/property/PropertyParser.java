@@ -14,8 +14,8 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.parse.ASTUtil;
+import com.espertech.esper.epl.parse.CaseInsensitiveInputStream;
 import com.espertech.esper.epl.parse.ExceptionConvertor;
-import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.epl.parse.ParseHelper;
 import com.espertech.esper.type.IntValue;
 import com.espertech.esper.type.StringValue;
@@ -93,13 +93,7 @@ public class PropertyParser {
      * @return AST syntax tree
      */
     public static EsperEPL2GrammarParser.StartEventPropertyRuleContext parse(String propertyName) {
-        CharStream input;
-        try {
-            input = new NoCaseSensitiveStream(new StringReader(propertyName));
-        } catch (IOException ex) {
-            throw new PropertyAccessException("IOException parsing property name '" + propertyName + '\'', ex);
-        }
-
+        CharStream input = new CaseInsensitiveInputStream(propertyName);
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lex);
         try {
@@ -136,13 +130,7 @@ public class PropertyParser {
         // Check for keywords and escape each, parse again
         String escapedPropertyName = escapeKeywords(tokens);
 
-        CharStream inputEscaped;
-        try {
-            inputEscaped = new NoCaseSensitiveStream(new StringReader(escapedPropertyName));
-        } catch (IOException ex) {
-            throw new PropertyAccessException("IOException parsing property name '" + propertyName + '\'', ex);
-        }
-
+        CharStream inputEscaped = new CaseInsensitiveInputStream(escapedPropertyName);
         EsperEPL2GrammarLexer lexEscaped = ParseHelper.newLexer(inputEscaped);
         CommonTokenStream tokensEscaped = new CommonTokenStream(lexEscaped);
         EsperEPL2GrammarParser gEscaped = ParseHelper.newParser(tokensEscaped);
