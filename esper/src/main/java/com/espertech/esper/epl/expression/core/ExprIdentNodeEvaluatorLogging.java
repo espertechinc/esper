@@ -28,11 +28,11 @@ public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl {
     private final String propertyName;
     private final String statementName;
 
-    public ExprIdentNodeEvaluatorLogging(int streamNum, EventPropertyGetterSPI propertyGetter, Class propertyType, ExprIdentNode identNode, EventType eventType, String propertyName, String statementName, String engineURI) {
-        super(streamNum, propertyGetter, propertyType, identNode, eventType);
+    public ExprIdentNodeEvaluatorLogging(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode, EventType eventType, boolean optionalEvent, String engineURI, String propertyName, String statementName) {
+        super(streamNum, propertyGetter, returnType, identNode, eventType, optionalEvent);
+        this.engineURI = engineURI;
         this.propertyName = propertyName;
         this.statementName = statementName;
-        this.engineURI = engineURI;
     }
 
     @Override

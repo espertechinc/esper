@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
@@ -33,13 +34,15 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     protected final Class returnType;
     private final ExprIdentNode identNode;
     private final EventType eventType;
+    private final boolean optionalEvent;
 
-    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode, EventType eventType) {
+    public ExprIdentNodeEvaluatorImpl(int streamNum, EventPropertyGetterSPI propertyGetter, Class returnType, ExprIdentNode identNode, EventType eventType, boolean optionalEvent) {
         this.streamNum = streamNum;
         this.propertyGetter = propertyGetter;
         this.returnType = returnType;
         this.identNode = identNode;
         this.eventType = eventType;
+        this.optionalEvent = optionalEvent;
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -66,17 +69,27 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         if (returnType == null) {
             return constantNull();
         }
-        CodegenMethodNode method = codegenMethodScope.makeChild(returnType, this.getClass());
 
-        if (exprSymbol.isAllowUnderlyingReferences() && !identNode.getResolvedPropertyName().contains("?") && !(eventType instanceof WrapperEventType) && !(eventType instanceof VariantEventType) && !(eventType instanceof RevisionEventType)) {
-            CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(method, streamNum, eventType);
-            method.getBlock().ifRefNullReturnNull(underlying)
-                    .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
+        boolean useUnderlying = exprSymbol.isAllowUnderlyingReferences() && !identNode.getResolvedPropertyName().contains("?") && !(eventType instanceof WrapperEventType) && !(eventType instanceof VariantEventType) && !(eventType instanceof RevisionEventType);
+        if (useUnderlying && !optionalEvent) {
+            CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(codegenMethodScope, streamNum, eventType, false);
+            return CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.underlyingGetCodegen(underlying, codegenMethodScope, codegenClassScope));
+        }
+
+        CodegenMethodNode method = codegenMethodScope.makeChild(returnType, this.getClass());
+        CodegenBlock block = method.getBlock();
+
+        if (useUnderlying) {
+            CodegenExpressionRef underlying = exprSymbol.getAddRequiredUnderlying(method, streamNum, eventType, true);
+            block.ifRefNullReturnNull(underlying)
+                  .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.underlyingGetCodegen(underlying, method, codegenClassScope)));
         } else {
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(method);
-            method.getBlock().declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
-                    .ifRefNullReturnNull("event")
-                    .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.eventBeanGetCodegen(ref("event"), method, codegenClassScope)));
+            method.getBlock().declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)));
+            if (optionalEvent) {
+                block.ifRefNullReturnNull("event");
+            }
+            block.methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, propertyGetter.eventBeanGetCodegen(ref("event"), method, codegenClassScope)));
 
         }
         return localMethod(method);

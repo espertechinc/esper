@@ -49,7 +49,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         // define built-in fields
         Map<String, Object> builtinTypeDef = ExpressionViewOAFieldEnum.asMapOfTypes(eventType);
         builtinMapType = statementContext.getEventAdapterService().createAnonymousObjectArrayType(statementContext.getStatementId() + "_exprview", builtinTypeDef);
-        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType, builtinMapType}, new String[2], new boolean[2], statementContext.getEngineURI(), false);
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType, builtinMapType}, new String[2], new boolean[2], statementContext.getEngineURI(), false, false);
 
         // validate expression
         expiryExpression = ViewFactorySupport.validateExpr(getViewName(), statementContext, expiryExpression, streamTypeService, 0);

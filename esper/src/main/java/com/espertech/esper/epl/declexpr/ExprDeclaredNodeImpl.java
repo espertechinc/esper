@@ -192,7 +192,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         }
 
         StreamTypeService streamTypeService = validationContext.getStreamTypeService();
-        StreamTypeServiceImpl copyTypes = new StreamTypeServiceImpl(eventTypes, streamNames, isIStreamOnly, streamTypeService.getEngineURIQualifier(), streamTypeService.isOnDemandStreams());
+        StreamTypeServiceImpl copyTypes = new StreamTypeServiceImpl(eventTypes, streamNames, isIStreamOnly, streamTypeService.getEngineURIQualifier(), streamTypeService.isOnDemandStreams(), streamTypeService.isOptionalStreams());
         copyTypes.setRequireStreamNames(true);
 
         // validate expression body in this context

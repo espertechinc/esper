@@ -69,7 +69,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
         // Create result set processor, use wildcard selection
         statementSpec.getSelectClauseSpec().setSelectExprList(new SelectClauseElementWildcard());
         statementSpec.setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
-        StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{createView.getEventType()}, new String[]{"create_variable"}, new boolean[]{true}, services.getEngineURI(), false);
+        StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{createView.getEventType()}, new String[]{"create_variable"}, new boolean[]{true}, services.getEngineURI(), false, false);
         OutputProcessViewBase outputViewBase;
         try {
             ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(

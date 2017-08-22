@@ -1359,7 +1359,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
 
     private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectClauseSpecRaw spec, String eplStatement, EventType singleType, String selectFromTypeName, String engineURI, ExprEvaluatorContext exprEvaluatorContext, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName, int statementId, Annotation[] annotations, StatementExtensionSvcContext statementExtensionSvcContext) {
         List<NamedWindowSelectedProps> selectProps = new LinkedList<NamedWindowSelectedProps>();
-        StreamTypeService streams = new StreamTypeServiceImpl(new EventType[]{singleType}, new String[]{"stream_0"}, new boolean[]{false}, engineURI, false);
+        StreamTypeService streams = new StreamTypeServiceImpl(new EventType[]{singleType}, new String[]{"stream_0"}, new boolean[]{false}, engineURI, false, false);
 
         ExprValidationContext validationContext = new ExprValidationContext(streams, engineImportService, statementExtensionSvcContext, null, null, null, null, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, false, false, null, false);
         for (SelectClauseElementRaw raw : spec.getSelectExprList()) {

@@ -38,7 +38,7 @@ public class TestStreamTypeServiceImpl extends TestCase {
         };
         String[] eventTypeName = new String[]{"SupportBean", "SupportBean", "SupportBean_A", "SupportMarketDataBean"};
         String[] streamNames = new String[]{"s1", null, "s3", "s4"};
-        serviceRegular = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[10], "default", false);
+        serviceRegular = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[10], "default", false, false);
 
         // Prepare with stream-zero being unambigous
         LinkedHashMap<String, Pair<EventType, String>> streamTypes = new LinkedHashMap<String, Pair<EventType, String>>();

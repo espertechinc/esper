@@ -24,6 +24,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.join.base.*;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzer;
+import com.espertech.esper.epl.join.plan.OuterJoinAnalyzer;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
@@ -107,7 +108,8 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
         }
 
         // compile filter to optimize access to named window
-        StreamTypeServiceImpl types = new StreamTypeServiceImpl(typesPerStream, namesPerStream, new boolean[numStreams], services.getEngineURI(), false);
+        boolean optionalStreamsIfAny = OuterJoinAnalyzer.optionalStreamsIfAny(statementSpec.getOuterJoinDescList());
+        StreamTypeServiceImpl types = new StreamTypeServiceImpl(typesPerStream, namesPerStream, new boolean[numStreams], services.getEngineURI(), false, optionalStreamsIfAny);
         ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(types.getStreamNames(), statementContext);
         queryGraph = new QueryGraph(numStreams, excludePlanHint, false);
         if (statementSpec.getFilterRootNode() != null) {
@@ -126,7 +128,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
         // obtain result set processor
         boolean[] isIStreamOnly = new boolean[namesPerStream.length];
         Arrays.fill(isIStreamOnly, true);
-        StreamTypeService typeService = new StreamTypeServiceImpl(typesPerStream, namesPerStream, isIStreamOnly, services.getEngineURI(), true);
+        StreamTypeService typeService = new StreamTypeServiceImpl(typesPerStream, namesPerStream, isIStreamOnly, services.getEngineURI(), true, optionalStreamsIfAny);
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
 
         ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), true, false);

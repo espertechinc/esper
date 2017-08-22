@@ -122,7 +122,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             statementSpec.setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
 
             // obtain result set processor factory
-            StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{processor.getNamedWindowType()}, new String[]{windowName}, new boolean[]{true}, services.getEngineURI(), false);
+            StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{processor.getNamedWindowType()}, new String[]{windowName}, new boolean[]{true}, services.getEngineURI(), false, false);
             ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(
                     statementSpec, statementContext, typeService, null, new boolean[0], true, null, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, false);
 

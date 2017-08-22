@@ -99,7 +99,7 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
         }
 
         // compile filter to optimize access to named window
-        StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{aliasName}, new boolean[]{true}, services.getEngineURI(), true);
+        StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{aliasName}, new boolean[]{true}, services.getEngineURI(), true, false);
         ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(typeService.getStreamNames(), statementContext);
         QueryGraph queryGraph = new QueryGraph(1, excludePlanHint, false);
         if (statementSpec.getFilterRootNode() != null) {

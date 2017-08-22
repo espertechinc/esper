@@ -201,7 +201,7 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         EventType[] addTypes = (EventType[]) CollectionUtil.arrayExpandAddElements(validationContext.getStreamTypeService().getEventTypes(), additionalTypes);
         String[] addNames = (String[]) CollectionUtil.arrayExpandAddElements(validationContext.getStreamTypeService().getStreamNames(), additionalStreamNames);
 
-        StreamTypeServiceImpl types = new StreamTypeServiceImpl(addTypes, addNames, new boolean[addTypes.length], null, false);
+        StreamTypeServiceImpl types = new StreamTypeServiceImpl(addTypes, addNames, new boolean[addTypes.length], null, false, validationContext.getStreamTypeService().isOptionalStreams());
 
         // validate expression body
         ExprNode filter = goesNode.getChildNodes()[0];

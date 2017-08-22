@@ -95,7 +95,7 @@ public class PropertyEvaluatorFactory {
                 String[] availableStreamNames = streamNames.toArray(new String[streamNames.size()]);
                 boolean[] isIStreamOnly = new boolean[streamNames.size()];
                 Arrays.fill(isIStreamOnly, true);
-                StreamTypeService streamTypeService = new StreamTypeServiceImpl(availableTypes, availableStreamNames, isIStreamOnly, engineURI, false);
+                StreamTypeService streamTypeService = new StreamTypeServiceImpl(availableTypes, availableStreamNames, isIStreamOnly, engineURI, false, false);
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, validateContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
                 ExprNode validatedExprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getSplitterExpression(), validationContext);
                 ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(validatedExprNode.getForge(), engineImportService, PropertyEvaluatorFactory.class, false, statementName);
@@ -159,7 +159,7 @@ public class PropertyEvaluatorFactory {
                 String[] whereStreamNames = streamNames.toArray(new String[streamNames.size()]);
                 boolean[] isIStreamOnly = new boolean[streamNames.size()];
                 Arrays.fill(isIStreamOnly, true);
-                StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false);
+                StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false, false);
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, validateContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
                 ExprNode whereClause = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getOptionalWhereClause(), validationContext);
                 whereClauses[i] = ExprNodeCompiler.allocateEvaluator(whereClause.getForge(), engineImportService, PropertyEvaluatorFactory.class, false, statementName);
@@ -171,7 +171,7 @@ public class PropertyEvaluatorFactory {
                 String[] whereStreamNames = streamNames.toArray(new String[streamNames.size()]);
                 boolean[] isIStreamOnly = new boolean[streamNames.size()];
                 Arrays.fill(isIStreamOnly, true);
-                StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false);
+                StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false, false);
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, validateContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
 
                 for (SelectClauseElementRaw raw : atom.getOptionalSelectClause().getSelectExprList()) {
@@ -232,7 +232,7 @@ public class PropertyEvaluatorFactory {
             String[] whereStreamNames = streamNames.toArray(new String[streamNames.size()]);
             boolean[] isIStreamOnly = new boolean[streamNames.size()];
             Arrays.fill(isIStreamOnly, true);
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false);
+            StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false, false);
 
             SelectClauseElementCompiled[] cumulativeSelectArr = cumulativeSelectClause.toArray(new SelectClauseElementCompiled[cumulativeSelectClause.size()]);
             SelectExprProcessorForge selectExprForge = SelectExprProcessorFactory.getProcessor(assignedTypeNumberStack, cumulativeSelectArr, false, null, null, null, streamTypeService, eventAdapterService, null, null, null, engineImportService, validateContext, variableService, tableService, timeProvider, engineURI, statementId, statementName, annotations, null, configuration, null, namedWindowMgmtService, null, null, statementExtensionSvcContext);

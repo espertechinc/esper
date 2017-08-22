@@ -19,7 +19,7 @@ public class SupportStreamTypeSvc1Stream implements StreamTypeService {
     private StreamTypeService impl;
 
     public SupportStreamTypeSvc1Stream() {
-        impl = new StreamTypeServiceImpl(getEventTypes(), getStreamNames(), new boolean[10], "default", false);
+        impl = new StreamTypeServiceImpl(getEventTypes(), getStreamNames(), new boolean[10], "default", false, false);
     }
 
     public PropertyResolutionDescriptor resolveByPropertyName(String propertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException {
@@ -77,6 +77,10 @@ public class SupportStreamTypeSvc1Stream implements StreamTypeService {
     }
 
     public boolean isStreamZeroUnambigous() {
+        return false;
+    }
+
+    public boolean isOptionalStreams() {
         return false;
     }
 }

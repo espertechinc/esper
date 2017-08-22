@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
+import com.espertech.esper.type.OuterJoinType;
 
 /**
  * Analyzes an outer join descriptor list and builds a query graph model from it.
@@ -41,8 +42,6 @@ public class OuterJoinAnalyzer {
                         add(queryGraph, outerJoinDesc.getAdditionalLeftNodes()[i], outerJoinDesc.getAdditionalRightNodes()[i]);
                     }
                 }
-            } else {
-
             }
         }
 
@@ -52,5 +51,17 @@ public class OuterJoinAnalyzer {
     private static void add(QueryGraph queryGraph, ExprIdentNode identNodeLeft, ExprIdentNode identNodeRight) {
         queryGraph.addStrictEquals(identNodeLeft.getStreamId(), identNodeLeft.getResolvedPropertyName(), identNodeLeft,
                 identNodeRight.getStreamId(), identNodeRight.getResolvedPropertyName(), identNodeRight);
+    }
+
+    public static boolean optionalStreamsIfAny(OuterJoinDesc[] outerJoinDescList) {
+        if (outerJoinDescList == null || outerJoinDescList.length == 0) {
+            return false;
+        }
+        for (OuterJoinDesc outerJoinDesc : outerJoinDescList) {
+            if (outerJoinDesc.getOuterJoinType() != OuterJoinType.INNER) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -185,7 +185,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             istreamOnly = new boolean[0];
         }
 
-        StreamTypeServiceImpl streamTypeService = new StreamTypeServiceImpl(types, streamNames, istreamOnly, services.getEngineURI(), false);
+        StreamTypeServiceImpl streamTypeService = new StreamTypeServiceImpl(types, streamNames, istreamOnly, services.getEngineURI(), false, false);
         ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
 
         // substitute parameter nodes

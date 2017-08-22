@@ -40,7 +40,7 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
         StreamTypeServiceImpl assignmentTypeService = new StreamTypeServiceImpl(
                 new EventType[]{processor.getEventTypeResultSetProcessor(), null, processor.getEventTypeResultSetProcessor()},
                 new String[]{aliasName, "", EPStatementStartMethodOnTrigger.INITIAL_VALUE_STREAM_NAME},
-                new boolean[]{true, true, true}, services.getEngineURI(), true);
+                new boolean[]{true, true, true}, services.getEngineURI(), true, false);
         assignmentTypeService.setStreamZeroUnambigous(true);
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, true);
         ExprValidationContext validationContext = new ExprValidationContext(assignmentTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);

@@ -16,6 +16,7 @@ import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.base.CodegenSymbolProvider;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -30,7 +31,7 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
     private final boolean allowUnderlyingReferences;
 
     private int currentParamNum;
-    private Map<Integer, Pair<CodegenExpressionRef, EventType>> underlyingStreamNums = Collections.emptyMap();
+    private Map<Integer, EventTypeWithOptionalFlag> underlyingStreamNums = Collections.emptyMap();
     private CodegenExpressionRef optionalEPSRef;
     private CodegenExpressionRef optionalIsNewDataRef;
     private CodegenExpressionRef optionalExprEvalCtxRef;
@@ -67,17 +68,17 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
         return optionalExprEvalCtxRef;
     }
 
-    public CodegenExpressionRef getAddRequiredUnderlying(CodegenMethodScope scope, int streamNum, EventType eventType) {
+    public CodegenExpressionRef getAddRequiredUnderlying(CodegenMethodScope scope, int streamNum, EventType eventType, boolean optionalEvent) {
         if (underlyingStreamNums.isEmpty()) {
             underlyingStreamNums = new HashMap<>();
         }
-        Pair<CodegenExpressionRef, EventType> existing = underlyingStreamNums.get(streamNum);
+        EventTypeWithOptionalFlag existing = underlyingStreamNums.get(streamNum);
         if (existing != null) {
-            scope.addSymbol(existing.getFirst());
-            return existing.getFirst();
+            scope.addSymbol(existing.getRef());
+            return existing.getRef();
         }
         CodegenExpressionRef assigned = ref("u" + currentParamNum);
-        underlyingStreamNums.put(streamNum, new Pair<>(assigned, eventType));
+        underlyingStreamNums.put(streamNum, new EventTypeWithOptionalFlag(assigned, eventType, optionalEvent));
         currentParamNum++;
         scope.addSymbol(assigned);
         return assigned;
@@ -94,21 +95,29 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
             symbols.put(optionalIsNewDataRef.getRef(), boolean.class);
         }
         if (allowUnderlyingReferences) {
-            for (Map.Entry<Integer, Pair<CodegenExpressionRef, EventType>> entry : underlyingStreamNums.entrySet()) {
-                symbols.put(entry.getValue().getFirst().getRef(), entry.getValue().getSecond().getUnderlyingType());
+            for (Map.Entry<Integer, EventTypeWithOptionalFlag> entry : underlyingStreamNums.entrySet()) {
+                symbols.put(entry.getValue().getRef().getRef(), entry.getValue().getEventType().getUnderlyingType());
             }
         }
     }
 
     public void derivedSymbolsCodegen(CodegenMethodNode parent, CodegenBlock processBlock) {
-        for (Map.Entry<Integer, Pair<CodegenExpressionRef, EventType>> underlying : underlyingStreamNums.entrySet()) {
-            Class underlyingType = underlying.getValue().getSecond().getUnderlyingType();
-            CodegenMethodNode methodNode = parent.makeChild(underlyingType, ExprForgeCodegenSymbol.class).addParam(EventBean[].class, ExprForgeCodegenNames.NAME_EPS);
-            methodNode.getBlock()
-                    .declareVar(EventBean.class, "event", arrayAtIndex(ref(ExprForgeCodegenNames.NAME_EPS), constant(underlying.getKey())))
-                    .ifRefNullReturnNull("event")
-                    .methodReturn(cast(underlyingType, exprDotUnderlying(ref("event"))));
-            processBlock.declareVar(underlyingType, underlying.getValue().getFirst().getRef(), localMethod(methodNode, ExprForgeCodegenNames.REF_EPS));
+        for (Map.Entry<Integer, EventTypeWithOptionalFlag> underlying : underlyingStreamNums.entrySet()) {
+            Class underlyingType = underlying.getValue().getEventType().getUnderlyingType();
+            String name = underlying.getValue().getRef().getRef();
+            CodegenExpression arrayAtIndex = arrayAtIndex(ref(ExprForgeCodegenNames.NAME_EPS), constant(underlying.getKey()));
+
+            if (!underlying.getValue().isOptionalEvent()) {
+                processBlock.declareVar(underlyingType, name, cast(underlyingType, exprDotUnderlying(arrayAtIndex)));
+            }
+            else {
+                CodegenMethodNode methodNode = parent.makeChild(underlyingType, ExprForgeCodegenSymbol.class).addParam(EventBean[].class, ExprForgeCodegenNames.NAME_EPS);
+                methodNode.getBlock()
+                        .declareVar(EventBean.class, "event", arrayAtIndex)
+                        .ifRefNullReturnNull("event")
+                        .methodReturn(cast(underlyingType, exprDotUnderlying(ref("event"))));
+                processBlock.declareVar(underlyingType, name, localMethod(methodNode, ExprForgeCodegenNames.REF_EPS));
+            }
         }
     }
 }

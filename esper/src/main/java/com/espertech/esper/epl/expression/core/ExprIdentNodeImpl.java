@@ -86,7 +86,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             throw new IllegalArgumentException("Ident-node constructor could not locate property " + propertyName);
         }
         Class propertyType = eventType.getPropertyType(propertyName);
-        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(propertyType), this, eventType);
+        evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, JavaClassHelper.getBoxedType(propertyType), this, eventType, true);
     }
 
     public ExprForge getForge() {
@@ -194,9 +194,9 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
 
         Audit audit = AuditEnum.PROPERTY.getAudit(validationContext.getAnnotations());
         if (audit != null) {
-            evaluator = new ExprIdentNodeEvaluatorLogging(streamNum, propertyGetter, propertyType, this, eventType, resolvedPropertyName, validationContext.getStatementName(), validationContext.getStreamTypeService().getEngineURIQualifier());
+            evaluator = new ExprIdentNodeEvaluatorLogging(streamNum, propertyGetter, propertyType, this, eventType, validationContext.getStreamTypeService().isOptionalStreams(), resolvedPropertyName, validationContext.getStatementName(), validationContext.getStreamTypeService().getEngineURIQualifier());
         } else {
-            evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this, eventType);
+            evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this, eventType, validationContext.getStreamTypeService().isOptionalStreams());
         }
 
         // if running in a context, take the property value from context

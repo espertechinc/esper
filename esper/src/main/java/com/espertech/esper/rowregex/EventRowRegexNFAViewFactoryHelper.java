@@ -92,6 +92,6 @@ public class EventRowRegexNFAViewFactoryHelper {
             streamNamesDefine[streamNamesDefine.length - 1] = multimatch.getName();
         }
 
-        return new StreamTypeServiceImpl(typesDefine, streamNamesDefine, isIStreamOnly, statementContext.getEngineURI(), false);
+        return new StreamTypeServiceImpl(typesDefine, streamNamesDefine, isIStreamOnly, statementContext.getEngineURI(), false, true);
     }
 }

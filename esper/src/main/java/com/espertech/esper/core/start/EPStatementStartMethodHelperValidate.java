@@ -103,7 +103,7 @@ public class EPStatementStartMethodHelperValidate {
             // Validate where clause, initializing nodes to the stream ids used
             try {
                 EventType outputLimitType = OutputConditionExpressionFactory.getBuiltInEventType(statementContext.getEventAdapterService());
-                StreamTypeService typeServiceOutputWhen = new StreamTypeServiceImpl(new EventType[]{outputLimitType}, new String[]{null}, new boolean[]{true}, statementContext.getEngineURI(), false);
+                StreamTypeService typeServiceOutputWhen = new StreamTypeServiceImpl(new EventType[]{outputLimitType}, new String[]{null}, new boolean[]{true}, statementContext.getEngineURI(), false, false);
                 ExprValidationContext validationContext = new ExprValidationContext(typeServiceOutputWhen, engineImportService, statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, intoTableName, false);
 
                 ExprNode outputLimitWhenNode = statementSpec.getOutputLimitSpec().getWhenExpressionNode();

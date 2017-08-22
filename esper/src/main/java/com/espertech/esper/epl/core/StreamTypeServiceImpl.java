@@ -20,6 +20,7 @@ import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.util.LevenshteinDistance;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
     private boolean requireStreamNames;
     private boolean isOnDemandStreams;
     private boolean hasTableTypes;
+    private boolean optionalStreams;
 
     /**
      * Ctor.
@@ -43,7 +45,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
      * @param isOnDemandStreams for on-demand stream
      */
     public StreamTypeServiceImpl(String engineURI, boolean isOnDemandStreams) {
-        this(new EventType[0], new String[0], new boolean[0], engineURI, isOnDemandStreams);
+        this(new EventType[0], new String[0], new boolean[0], engineURI, isOnDemandStreams, false);
     }
 
     /**
@@ -55,7 +57,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
      * @param isIStreamOnly true for no datawindow for stream
      */
     public StreamTypeServiceImpl(EventType eventType, String streamName, boolean isIStreamOnly, String engineURI) {
-        this(new EventType[]{eventType}, new String[]{streamName}, new boolean[]{isIStreamOnly}, engineURI, false);
+        this(new EventType[]{eventType}, new String[]{streamName}, new boolean[]{isIStreamOnly}, engineURI, false, false);
     }
 
     /**
@@ -67,11 +69,12 @@ public class StreamTypeServiceImpl implements StreamTypeService {
      * @param engineURI         - engine URI
      * @param isOnDemandStreams - true to indicate that all streams are on-demand pull-based
      */
-    public StreamTypeServiceImpl(EventType[] eventTypes, String[] streamNames, boolean[] isIStreamOnly, String engineURI, boolean isOnDemandStreams) {
+    public StreamTypeServiceImpl(EventType[] eventTypes, String[] streamNames, boolean[] isIStreamOnly, String engineURI, boolean isOnDemandStreams, boolean optionalStreams) {
         this.eventTypes = eventTypes;
         this.streamNames = streamNames;
         this.isIStreamOnly = isIStreamOnly;
         this.isOnDemandStreams = isOnDemandStreams;
+        this.optionalStreams = optionalStreams;
 
         if (engineURI == null || EPServiceProviderSPI.DEFAULT_ENGINE_URI.equals(engineURI)) {
             engineURIQualifier = EPServiceProviderSPI.DEFAULT_ENGINE_URI_QUALIFIER;
@@ -108,6 +111,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             count++;
         }
         hasTableTypes = determineHasTableTypes();
+        optionalStreams = true;
     }
 
     private boolean determineHasTableTypes() {
@@ -120,6 +124,10 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             }
         }
         return false;
+    }
+
+    public boolean isOptionalStreams() {
+        return optionalStreams;
     }
 
     public void setRequireStreamNames(boolean requireStreamNames) {
@@ -140,6 +148,10 @@ public class StreamTypeServiceImpl implements StreamTypeService {
 
     public boolean[] getIStreamOnly() {
         return isIStreamOnly;
+    }
+
+    public boolean getOptionalStreams() {
+        return optionalStreams;
     }
 
     public int getStreamNumForStreamName(String streamWildcard) {

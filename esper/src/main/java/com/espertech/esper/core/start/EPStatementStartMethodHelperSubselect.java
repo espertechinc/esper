@@ -452,7 +452,7 @@ public class EPStatementStartMethodHelperSubselect {
                 count++;
             }
 
-            StreamTypeServiceImpl availableTypes = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[eventTypes.length], engineURI, false);
+            StreamTypeServiceImpl availableTypes = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[eventTypes.length], engineURI, false, false);
             availableTypes.setRequireStreamNames(true);
             return availableTypes;
         }

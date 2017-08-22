@@ -36,6 +36,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototype;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototypeFactory;
+import com.espertech.esper.epl.join.plan.OuterJoinAnalyzer;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.*;
@@ -267,7 +268,8 @@ public class EPStatementStartMethodSelectUtil {
         SubSelectStrategyCollection subSelectStrategyCollection = EPStatementStartMethodHelperSubselect.planSubSelect(services, statementContext, queryPlanLogging, subSelectStreamDesc, streamNames, streamEventTypes, eventTypeNames, statementSpec.getDeclaredExpressions(), contextPropertyRegistry);
 
         // Construct type information per stream
-        StreamTypeService typeService = new StreamTypeServiceImpl(streamEventTypes, streamNames, EPStatementStartMethodHelperUtil.getHasIStreamOnly(isNamedWindow, unmaterializedViewChain), services.getEngineURI(), false);
+        boolean optionalStreamsIfAny = OuterJoinAnalyzer.optionalStreamsIfAny(statementSpec.getOuterJoinDescList());
+        StreamTypeService typeService = new StreamTypeServiceImpl(streamEventTypes, streamNames, EPStatementStartMethodHelperUtil.getHasIStreamOnly(isNamedWindow, unmaterializedViewChain), services.getEngineURI(), false, optionalStreamsIfAny);
         ViewResourceDelegateUnverified viewResourceDelegateUnverified = new ViewResourceDelegateUnverified();
 
         // Validate views that require validation, specifically streams that don't have

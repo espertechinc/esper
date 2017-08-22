@@ -230,7 +230,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
         if (!measureAggregateExprNodes.isEmpty()) {
             boolean[] isIStreamOnly = new boolean[allStreamNames.length];
             Arrays.fill(isIStreamOnly, true);
-            StreamTypeServiceImpl typeServiceAggregateMeasure = new StreamTypeServiceImpl(allTypes, allStreamNames, isIStreamOnly, statementContext.getEngineURI(), false);
+            StreamTypeServiceImpl typeServiceAggregateMeasure = new StreamTypeServiceImpl(allTypes, allStreamNames, isIStreamOnly, statementContext.getEngineURI(), false, true);
             Map<Integer, List<ExprAggregateNode>> measureExprAggNodesPerStream = new HashMap<Integer, List<ExprAggregateNode>>();
 
             for (ExprAggregateNode aggregateNode : measureAggregateExprNodes) {

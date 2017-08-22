@@ -127,4 +127,6 @@ public interface StreamTypeService {
     public boolean hasTableTypes();
 
     public boolean isStreamZeroUnambigous();
+
+    public boolean isOptionalStreams();
 }

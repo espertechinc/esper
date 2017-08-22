@@ -86,7 +86,7 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
                 throw new ExprValidationException("Contained-event expressions are not supported with tables");
             }
             TableMetadata tableMetadata = context.getTableService().getTableMetadata(eventName);
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{tableMetadata.getInternalEventType()}, new String[]{optionalStreamName}, new boolean[]{true}, context.getEngineURI(), false);
+            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{tableMetadata.getInternalEventType()}, new String[]{optionalStreamName}, new boolean[]{true}, context.getEngineURI(), false, false);
             List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, context, null, null);
             return new TableQueryStreamSpec(this.getOptionalStreamName(), this.getViewSpecs(), this.getOptions(), eventName, validatedNodes);
         }
@@ -94,7 +94,7 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
         // Could be a named window
         if (context.getNamedWindowMgmtService().isNamedWindow(eventName)) {
             EventType namedWindowType = context.getNamedWindowMgmtService().getProcessor(eventName).getTailView().getEventType();
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{namedWindowType}, new String[]{optionalStreamName}, new boolean[]{true}, context.getEngineURI(), false);
+            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{namedWindowType}, new String[]{optionalStreamName}, new boolean[]{true}, context.getEngineURI(), false, false);
 
             List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, context, null, null);
 
@@ -122,7 +122,7 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
 
         // Validate all nodes, make sure each returns a boolean and types are good;
         // Also decompose all AND super nodes into individual expressions
-        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{super.getOptionalStreamName()}, new boolean[]{true}, context.getEngineURI(), false);
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{super.getOptionalStreamName()}, new boolean[]{true}, context.getEngineURI(), false, false);
 
         FilterSpecCompiled spec = FilterSpecCompiler.makeFilterSpec(eventType, eventName, rawFilterSpec.getFilterExpressions(), rawFilterSpec.getOptionalPropertyEvalSpec(),
                 null, null,  // no tags
