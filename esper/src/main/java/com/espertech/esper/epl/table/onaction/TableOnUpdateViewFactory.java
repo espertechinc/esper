@@ -12,7 +12,7 @@ package com.espertech.esper.epl.table.onaction;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementResultService;
-import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;

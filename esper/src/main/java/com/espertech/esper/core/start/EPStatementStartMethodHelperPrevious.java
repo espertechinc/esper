@@ -11,8 +11,8 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
-import com.espertech.esper.epl.core.ViewResourceDelegateVerified;
-import com.espertech.esper.epl.core.ViewResourceDelegateVerifiedStream;
+import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerified;
+import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerifiedStream;
 import com.espertech.esper.epl.expression.prev.*;
 import com.espertech.esper.view.DataWindowViewWithPrevious;
 import com.espertech.esper.view.ViewFactory;

@@ -19,7 +19,7 @@ import com.espertech.esper.dataflow.interfaces.DataFlowOpOpenContext;
 import com.espertech.esper.dataflow.ops.Emitter;
 import com.espertech.esper.dataflow.runnables.CompletionListener;
 import com.espertech.esper.dataflow.runnables.GraphSourceRunnable;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.util.AuditPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.core.EngineImportException;
+import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.bean.InstanceManufacturerFactory;
 import com.espertech.esper.event.bean.InstanceManufacturerFactoryFactory;

@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;

@@ -11,7 +11,7 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.ConfigurationException;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.util.FileUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.ResourceLoader;

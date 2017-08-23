@@ -13,7 +13,7 @@ package com.espertech.esper.filter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.ExprEvaluatorContextWTableAccess;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.variable.VariableService;

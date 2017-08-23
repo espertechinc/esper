@@ -12,7 +12,7 @@ package com.espertech.esper.epl.join.util;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.annotation.HookType;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 

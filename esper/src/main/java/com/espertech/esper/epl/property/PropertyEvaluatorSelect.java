@@ -12,7 +12,7 @@ package com.espertech.esper.epl.property;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.ArrayDeque;

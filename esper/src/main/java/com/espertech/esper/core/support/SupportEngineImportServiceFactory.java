@@ -12,7 +12,7 @@ package com.espertech.esper.core.support;
 
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
+import com.espertech.esper.epl.core.engineimport.EngineImportServiceImpl;
 import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 
 import java.util.TimeZone;

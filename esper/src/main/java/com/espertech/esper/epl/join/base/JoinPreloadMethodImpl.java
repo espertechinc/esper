@@ -12,7 +12,7 @@ package com.espertech.esper.epl.join.base;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
-import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.view.internal.BufferView;
 

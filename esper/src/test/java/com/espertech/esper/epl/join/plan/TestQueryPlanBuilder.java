@@ -14,7 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.supportunit.bean.SupportBean_S0;

@@ -12,8 +12,6 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
-import com.espertech.esper.epl.core.EngineNoSuchCtorException;
-import com.espertech.esper.epl.core.EngineNoSuchMethodException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,10 +135,10 @@ public class MethodResolver {
      * @param allowEventBeanCollType whether event-bean-collection parameter type is allowed
      * @param allowEventBeanType     whether event-bean parameter type is allowed
      * @return - the Method object for this method
-     * @throws EngineNoSuchMethodException if the method could not be found
+     * @throws MethodResolverNoSuchMethodException if the method could not be found
      */
     public static Method resolveMethod(Class declaringClass, String methodName, Class[] paramTypes, boolean allowInstance, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
-            throws EngineNoSuchMethodException {
+            throws MethodResolverNoSuchMethodException {
         // Get all the methods for this class
         Method[] methods = declaringClass.getMethods();
 
@@ -207,7 +205,7 @@ public class MethodResolver {
                 appendString = ", ";
             }
         }
-        throw new EngineNoSuchMethodException("Unknown method " + declaringClass.getSimpleName() + '.' + methodName + '(' + parameters + ')', conversionFailedMethod);
+        throw new MethodResolverNoSuchMethodException("Unknown method " + declaringClass.getSimpleName() + '.' + methodName + '(' + parameters + ')', conversionFailedMethod);
     }
 
     private static void logWarnBoxedToPrimitiveType(Class declaringClass, String methodName, Method bestMatch, Class[] paramTypes) {
@@ -406,7 +404,7 @@ public class MethodResolver {
 
     }
 
-    public static Constructor resolveCtor(Class declaringClass, Class[] paramTypes) throws EngineNoSuchCtorException {
+    public static Constructor resolveCtor(Class declaringClass, Class[] paramTypes) throws MethodResolverNoSuchCtorException {
         // Get all the methods for this class
         Constructor[] ctors = declaringClass.getConstructors();
 
@@ -470,7 +468,7 @@ public class MethodResolver {
             } else {
                 message += "no parameters";
             }
-            throw new EngineNoSuchCtorException(message, conversionFailedCtor);
+            throw new MethodResolverNoSuchCtorException(message, conversionFailedCtor);
         }
     }
 }

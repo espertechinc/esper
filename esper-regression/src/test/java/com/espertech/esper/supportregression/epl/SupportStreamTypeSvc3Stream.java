@@ -12,7 +12,7 @@ package com.espertech.esper.supportregression.epl;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.core.streamtype.*;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportregression.event.SupportEventBeanFactory;

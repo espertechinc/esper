@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.core.ExprVariableNodeImpl;

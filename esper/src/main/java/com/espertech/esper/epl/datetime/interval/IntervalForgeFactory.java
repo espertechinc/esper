@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.datetime.interval;
 
-import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.ForgeFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;

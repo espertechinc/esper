@@ -14,9 +14,9 @@ import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
-import com.espertech.esper.epl.core.StreamTypeService;
-import com.espertech.esper.epl.core.StreamTypesException;
+import com.espertech.esper.epl.core.streamtype.PropertyResolutionDescriptor;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
+import com.espertech.esper.epl.core.streamtype.StreamTypesException;
 import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
 import com.espertech.esper.util.LevenshteinDistance;
 

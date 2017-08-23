@@ -12,7 +12,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.UpdateDispatchView;
-import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
 import com.espertech.esper.epl.join.base.JoinExecutionStrategy;
 import com.espertech.esper.epl.join.base.JoinSetIndicator;
 import com.espertech.esper.util.StopCallback;

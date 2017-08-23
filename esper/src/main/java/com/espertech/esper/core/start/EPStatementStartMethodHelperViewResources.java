@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.core.start;
 
-import com.espertech.esper.epl.core.ViewResourceDelegateUnverified;
-import com.espertech.esper.epl.core.ViewResourceDelegateVerified;
-import com.espertech.esper.epl.core.ViewResourceDelegateVerifiedStream;
+import com.espertech.esper.epl.core.viewres.ViewResourceDelegateUnverified;
+import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerified;
+import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerifiedStream;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;

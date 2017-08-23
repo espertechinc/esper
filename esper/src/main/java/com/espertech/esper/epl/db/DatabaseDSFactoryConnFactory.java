@@ -12,7 +12,7 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.client.ConfigurationException;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
 
 import javax.sql.DataSource;

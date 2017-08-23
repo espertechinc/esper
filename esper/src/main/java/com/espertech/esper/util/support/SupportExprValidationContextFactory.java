@@ -12,8 +12,8 @@ package com.espertech.esper.util.support;
 
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
-import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.engineimport.EngineImportServiceImpl;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 

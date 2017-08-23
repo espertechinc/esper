@@ -12,7 +12,13 @@ package com.espertech.esper.epl.property;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
-import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.select.SelectExprProcessor;
+import com.espertech.esper.epl.core.select.SelectExprProcessorCompiler;
+import com.espertech.esper.epl.core.select.SelectExprProcessorFactory;
+import com.espertech.esper.epl.core.select.SelectExprProcessorForge;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.parse;
 
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.spec.*;
 import org.antlr.v4.runtime.tree.Tree;

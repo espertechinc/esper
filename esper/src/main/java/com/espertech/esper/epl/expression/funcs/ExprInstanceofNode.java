@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.funcs;
 
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.JavaClassHelper;
 

@@ -15,7 +15,7 @@ import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.datetime.calop.CalendarForge;
 import com.espertech.esper.epl.datetime.calop.CalendarForgeFactory;
 import com.espertech.esper.epl.datetime.interval.IntervalForge;

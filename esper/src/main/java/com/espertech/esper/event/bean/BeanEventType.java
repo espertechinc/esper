@@ -12,8 +12,8 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.EngineNoSuchMethodException;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.util.MethodResolverNoSuchMethodException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.property.*;
 import com.espertech.esper.util.JavaClassHelper;
@@ -747,7 +747,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
             Method setterMethod;
             try {
                 setterMethod = MethodResolver.resolveMethod(clazz, methodName, new Class[]{String.class, Object.class}, true, new boolean[2], new boolean[2]);
-            } catch (EngineNoSuchMethodException e) {
+            } catch (MethodResolverNoSuchMethodException e) {
                 log.info("Failed to find mapped property setter method '" + methodName + "' for writing to property '" + propertyName + "' taking {String, Object} as parameters");
                 return null;
             }
@@ -764,7 +764,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
             Method setterMethod;
             try {
                 setterMethod = MethodResolver.resolveMethod(clazz, methodName, new Class[]{int.class, Object.class}, true, new boolean[2], new boolean[2]);
-            } catch (EngineNoSuchMethodException e) {
+            } catch (MethodResolverNoSuchMethodException e) {
                 log.info("Failed to find indexed property setter method '" + methodName + "' for writing to property '" + propertyName + "' taking {int, Object} as parameters");
                 return null;
             }

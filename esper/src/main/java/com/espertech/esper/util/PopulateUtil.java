@@ -13,7 +13,7 @@ package com.espertech.esper.util;
 import com.espertech.esper.client.dataflow.EPDataFlowOperatorParameterProvider;
 import com.espertech.esper.client.dataflow.EPDataFlowOperatorParameterProviderContext;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.bean.PropertyHelper;

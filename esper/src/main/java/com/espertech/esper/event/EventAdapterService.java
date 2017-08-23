@@ -15,7 +15,7 @@ import com.espertech.esper.client.hook.EventBeanService;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.EPRuntimeEventSender;
 import com.espertech.esper.core.thread.ThreadingService;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.event.avro.EventAdapterAvroHandler;
 import com.espertech.esper.event.bean.BeanEventTypeFactory;
 import com.espertech.esper.event.xml.SchemaModel;

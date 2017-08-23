@@ -14,7 +14,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.core.ViewResourceDelegateVerified;
+import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerified;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;

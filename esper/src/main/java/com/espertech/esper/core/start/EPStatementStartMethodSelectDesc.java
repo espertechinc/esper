@@ -12,8 +12,8 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyCollection;
-import com.espertech.esper.epl.core.ResultSetProcessorFactoryDesc;
-import com.espertech.esper.epl.core.ViewResourceDelegateUnverified;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.viewres.ViewResourceDelegateUnverified;
 
 /**
  * Starts and provides the stop method for EPL statements.

@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;

@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.schedule.ScheduleComputeHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;

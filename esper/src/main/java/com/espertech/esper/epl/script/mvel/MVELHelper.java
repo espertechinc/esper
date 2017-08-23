@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.script.mvel;
 
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.spec.ExpressionScriptCompiled;

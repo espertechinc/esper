@@ -13,7 +13,7 @@ package com.espertech.esper.dataflow.core;
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
 import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
 import com.espertech.esper.dataflow.util.DataFlowSignalManager;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 

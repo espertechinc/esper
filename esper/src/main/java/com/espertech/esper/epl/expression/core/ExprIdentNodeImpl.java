@@ -18,7 +18,7 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
+import com.espertech.esper.epl.core.streamtype.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.epl.parse.ASTUtil;

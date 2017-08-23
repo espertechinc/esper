@@ -11,7 +11,7 @@
 package com.espertech.esper.dataflow.ops.epl;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.core.SelectExprProcessorDeliveryCallback;
+import com.espertech.esper.epl.core.select.SelectExprProcessorDeliveryCallback;
 
 public class EPLSelectDeliveryCallback implements SelectExprProcessorDeliveryCallback {
     private Object[] delivered;

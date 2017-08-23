@@ -12,9 +12,9 @@ package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
-import com.espertech.esper.epl.core.EngineImportException;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.EngineImportUndefinedException;
+import com.espertech.esper.epl.core.engineimport.EngineImportException;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportUndefinedException;
 import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;

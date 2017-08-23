@@ -14,7 +14,7 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;

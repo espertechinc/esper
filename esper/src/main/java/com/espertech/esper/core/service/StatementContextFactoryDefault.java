@@ -24,7 +24,7 @@ import com.espertech.esper.core.service.resource.StatementResourceHolderUtil;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.core.start.EPStatementStartMethodSelectDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.metric.StatementMetricHandle;

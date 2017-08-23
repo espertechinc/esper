@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.variable;
 
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -12,8 +12,8 @@ package com.espertech.esper.view;
 
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;

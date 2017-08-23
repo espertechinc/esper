@@ -19,7 +19,7 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
 import com.espertech.esper.dataflow.util.*;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

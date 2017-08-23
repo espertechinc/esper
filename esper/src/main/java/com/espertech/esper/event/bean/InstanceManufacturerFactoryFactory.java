@@ -11,7 +11,7 @@
 package com.espertech.esper.event.bean;
 
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import net.sf.cglib.reflect.FastConstructor;
 

@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.agg.rollup;
 
-import com.espertech.esper.epl.core.OrderByElement;
-import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.orderby.OrderByElement;
+import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 public class GroupByRollupPerLevelExpression {

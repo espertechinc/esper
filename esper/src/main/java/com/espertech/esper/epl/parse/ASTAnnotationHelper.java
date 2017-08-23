@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.spec.AnnotationDesc;

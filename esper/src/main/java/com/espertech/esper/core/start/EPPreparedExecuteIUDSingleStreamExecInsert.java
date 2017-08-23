@@ -12,7 +12,7 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 

@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

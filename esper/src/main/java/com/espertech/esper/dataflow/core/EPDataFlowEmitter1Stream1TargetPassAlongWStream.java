@@ -11,7 +11,7 @@
 package com.espertech.esper.dataflow.core;
 
 import com.espertech.esper.dataflow.util.DataFlowSignalManager;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 
 import java.lang.reflect.InvocationTargetException;
 

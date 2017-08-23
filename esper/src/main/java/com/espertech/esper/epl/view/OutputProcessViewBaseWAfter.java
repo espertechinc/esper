@@ -15,8 +15,8 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.core.ResultSetProcessor;
-import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
 
 import java.util.Set;
 

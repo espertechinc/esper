@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.epl.core.EngineImportApplicationDotMethod;
+import com.espertech.esper.epl.core.engineimport.EngineImportApplicationDotMethod;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffectorProvider;

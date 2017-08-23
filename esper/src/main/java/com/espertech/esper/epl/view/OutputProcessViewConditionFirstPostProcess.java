@@ -13,14 +13,14 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.core.ResultSetProcessor;
-import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
 
 /**
  * Handles output rate limiting for FIRST, only applicable with a having-clause and no group-by clause.
  * <p>
  * Without having-clause the order of processing won't matter therefore its handled by the
- * {@link OutputProcessViewConditionDefault}. With group-by the {@link com.espertech.esper.epl.core.ResultSetProcessor} handles the per-group first criteria.
+ * {@link OutputProcessViewConditionDefault}. With group-by the {@link ResultSetProcessor} handles the per-group first criteria.
  */
 public class OutputProcessViewConditionFirstPostProcess extends OutputProcessViewConditionFirst {
     private final OutputStrategyPostProcess postProcessor;

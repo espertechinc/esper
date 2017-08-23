@@ -12,7 +12,7 @@ package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.core.streamtype.*;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;

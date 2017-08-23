@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.epl.core.EngineImportException;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportException;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.event.EventBeanManufactureException;
 import com.espertech.esper.util.OnDemandSunReflectionFactory;
 import net.sf.cglib.reflect.FastClass;

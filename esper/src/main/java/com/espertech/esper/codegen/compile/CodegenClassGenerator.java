@@ -15,7 +15,7 @@ import com.espertech.esper.codegen.core.CodegenClass;
 import com.espertech.esper.codegen.core.CodegenIndent;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.core.CodegenMethod;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.HashMap;

@@ -15,7 +15,7 @@ import com.espertech.esper.client.ConfigurationPlugInPatternObject;
 import com.espertech.esper.client.ConfigurationPlugInView;
 import com.espertech.esper.client.ConfigurationPlugInVirtualDataWindow;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 
 import java.io.Serializable;
 import java.util.HashMap;

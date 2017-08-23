@@ -13,7 +13,7 @@ package com.espertech.esper.epl.join.plan;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;

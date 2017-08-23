@@ -12,7 +12,7 @@ package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.ConfigurationPlugInSingleRowFunction;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
+import com.espertech.esper.epl.core.engineimport.EngineImportSingleRowDesc;
 import com.espertech.esper.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.epl.enummethod.dot.ExprDotStaticMethodWrapFactory;
 import com.espertech.esper.epl.expression.core.*;

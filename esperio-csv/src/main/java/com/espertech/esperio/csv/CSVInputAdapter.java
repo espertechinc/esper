@@ -17,7 +17,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.ExecutionPathDebugLog;

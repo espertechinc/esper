@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.ExprDotForgeEnumMethodBase;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParamLambda;

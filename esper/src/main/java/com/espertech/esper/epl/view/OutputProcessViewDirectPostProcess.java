@@ -13,7 +13,7 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.service.UpdateDispatchView;
-import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
 
 public class OutputProcessViewDirectPostProcess extends OutputProcessViewDirect {
     private final OutputStrategyPostProcess postProcessor;

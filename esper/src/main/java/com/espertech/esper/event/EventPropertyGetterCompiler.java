@@ -22,7 +22,7 @@ import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.core.CodegenClass;
 import com.espertech.esper.codegen.core.CodegenClassMethods;
 import com.espertech.esper.codegen.util.CodegenStackGenerator;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 
 import java.util.function.Supplier;
 

@@ -17,7 +17,7 @@ import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.ExprDotDTFactory;
 import com.espertech.esper.epl.datetime.eval.ExprDotDTMethodDesc;

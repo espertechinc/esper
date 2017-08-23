@@ -12,7 +12,7 @@ package com.espertech.esper.epl.table.mgmt;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.StreamTypeServiceImpl;
+import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.lookup.IndexedPropDesc;
 import com.espertech.esper.event.EventTypeMetadata;

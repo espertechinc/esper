@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.script.mvel;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.InvocationTargetException;

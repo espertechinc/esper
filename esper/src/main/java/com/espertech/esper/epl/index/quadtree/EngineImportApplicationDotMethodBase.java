@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.EngineImportApplicationDotMethod;
-import com.espertech.esper.epl.core.EngineImportException;
+import com.espertech.esper.epl.core.engineimport.EngineImportApplicationDotMethod;
+import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;

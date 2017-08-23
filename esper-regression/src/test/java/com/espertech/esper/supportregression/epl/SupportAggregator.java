@@ -11,7 +11,7 @@
 package com.espertech.esper.supportregression.epl;
 
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 
 public class SupportAggregator implements AggregationMethod {
     private int sum;
