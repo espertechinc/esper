@@ -100,8 +100,9 @@
          </para>
 
         <para>
-			Underlying the pattern matching is a state machine that transitions between states based on arriving events and based on time advancing. A single event or advancing time may 
+			Underlying the pattern matching is a hierarchical finite state machine and behavior tree that allocates, transitions and destroys branch and leaf nodes of state based on arriving events and based on time advancing. A single event or advancing time may 
 			cause a reaction in multiple parts of your active pattern state. Patterns are stateful as the engine maintains pattern state.
+			There is a walkthrough of how a sample pattern behaves in <xref linkend="pattern-walkthrough"/>.
          </para>
     </sect1>
 
@@ -2506,4 +2507,179 @@ timer:within(125)</programlisting>
 		</sect2>
 	</sect1>
 
+    <sect1 xml:id="pattern-walkthrough">
+        <title>Event Pattern Walkthrough</title>
+
+		<indexterm><primary>pattern</primary><secondary>walkthrough</secondary></indexterm>
+
+        <para>
+			This walkthrough discusses the following pattern:
+         </para>
+		<programlisting><![CDATA[every a=LoginEvent -> (timer:interval(1 min) and not LogoutEvent(userId=a.userId))]]]></programlisting>
+		
+		<para>
+			This pattern detects when a <literal>LoginEvent</literal> is not followed by a <literal>LogoutEvent</literal> arriving within 1 minute of the <literal>LoginEvent</literal>.
+		</para>
+		
+		<para>
+			The engine parses the pattern expression and builds a expression tree. At the root of the expression tree, for this specific pattern, is the followed-by (<literal>-&gt;</literal>) operator as followed-by has the lowest precedence (see precedence).
+		</para>
+		
+		<para>
+			The pattern expression tree looks like this.
+		</para>
+
+		<programlisting><![CDATA[
+Followed-by operator (->)
+  |
+  | ---- Every
+  |       |
+  |       | ---- a=LoginEvent
+  |
+  | ---- And
+          |
+          | ---- timer:interval(1 min)
+          |                  
+          | ---- Not
+                 |
+                 | ---- LogoutEvent(userId=a.userId)]]></programlisting>
+		
+		<para>
+		  The followed-by  (<literal>-&gt;</literal>) operator has two subexpressions that it manages, the <literal>Every</literal> expression that itself has the <literal>a=LoginEvent</literal> subexpression as a child, and the <literal>And</literal> expression that itself has two subexpressions as children.
+		</para>
+		
+		<para>
+			When the engine activates a pattern or pattern subexpression, it activates it from a top-down direction. In this example the engine activates the followed-by  (<literal>-&gt;</literal>) expression.
+			The followed-by expression activates only its own left-most subexpression, which is the <literal>Every</literal> expression. The <literal>Every</literal> expression in turn activates the <literal>a=LoginEvent</literal> subexpression which registers a filter looking for a <literal>LoginEvent</literal> in the global filter index (see <xref linkend="processingmodel_indexes_filterindexes"/>).
+		</para>
+		
+		<para>
+			In this example, the <literal>And</literal> subexpression and its subexpressions do not get activated. Therefore after this pattern initially activates there is no 
+			filter active time looking for <literal>LogoutEvent</literal> event and there is no time tracking of any kind at this point.
+		</para>
+		
+		<para>
+			Let time t<subscript>0</subscript> be the time of EPL statement creation. As discussed, upon creation of the EPL statement the engine activates the pattern subexpression <literal>every a=LoginEvent</literal> only. At this time there is 1 active subexpression:
+		</para>
+		<orderedlist>
+			<listitem>
+				<para>
+					<literal>every a=LoginEvent</literal>
+				</para>
+			</listitem>
+		</orderedlist>
+		
+		<para>
+		  As you can see, the tree of active subexpressions (the tree of states) is not the same as the tree of expressions. After the pattern activated there are no active subexpressions (no states) for the <literal>And</literal>-part of the example expression tree.
+		</para>
+		
+		<para>
+			Let's assume that at time t<subscript>1</subscript> a <literal>LoginEvent</literal> with user id 10 arrives. 
+			This causes the <literal>a=LoginEvent</literal> subexpression to become true. In turn, this causes the <literal>Every</literal> subexpression to become true. This causes the left-hand-side of the followed-by subexpression to become true. This in turn causes activation of the <literal>And</literal> subexpression.
+		</para>
+		
+		<para>
+			The activation of the <literal>And</literal>-subexpression causes activation of both <literal>timer:interval(1 min)</literal> (from t<subscript>1</subscript>) and the <literal>Not</literal>-subexpression.
+			The activation of the <literal>And</literal>-subexpression registers a filter looking for a <literal>LogoutEvent</literal> that has a user id value of 10 in the global filter index
+			and registers a timer callback for t<subscript>1</subscript>+1 minute.
+		</para>
+
+		<para>
+		  The engine does not terminate the subexpression <literal>a=LoginEvent</literal> as it lives under an <literal>Every</literal> operator which means it should keep looking for 
+		  more <literal>LoginEvent</literal> events.
+		</para>
+		
+		<para>
+			There now are 2 active subexpressions:
+		</para>
+		<orderedlist>
+			<listitem>
+				<para>
+					<literal>every a=LoginEvent</literal>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>timer:interval(t1+1 min) and not LogoutEvent(userId=10)</literal>
+				</para>
+			</listitem>
+		</orderedlist>
+			
+		<para>
+			Let's assume that at time t<subscript>2</subscript> another <literal>LoginEvent</literal> with user id 20 arrives (assume t<subscript>2</subscript> – t<subscript>1</subscript> &lt; 1 min). 
+			This again causes the <literal>a=LoginEvent</literal> subexpression to become true. In turn, this causes the <literal>Every</literal> subexpression to become true. This causes the left-hand-side of the followed-by subexpression to become true. This in turn causes activation of the <literal>And</literal> subexpression.
+		</para>
+		
+		<para>
+			The activation of the <literal>And</literal>-subexpression causes activation of both <literal>timer:interval(1 min)</literal> (from t<subscript>2</subscript>) and the <literal>Not</literal>-subexpression.
+			The activation of the <literal>And</literal>-subexpression registers a filter looking for a <literal>LogoutEvent</literal> that has a user id value of 20 in the global filter index 
+			and registers a timer callback for t<subscript>2</subscript>+1 minute.
+		</para>
+
+		<para>
+			There now are 3 active subexpressions:
+		</para>
+		<orderedlist>
+			<listitem>
+				<para>
+					<literal>every a=LoginEvent</literal>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>timer:interval(t1+1 min) and not LogoutEvent(userId=10)</literal>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>timer:interval(t2+1 min) and not LogoutEvent(userId=20)</literal>
+				</para>
+			</listitem>
+		</orderedlist>
+
+		<para>
+			In this scenario at time t<subscript>3</subscript> one minute has passed since t<subscript>1</subscript> and a matching <literal>LogoutEvent</literal> was not received.
+		</para>
+		
+		<para>
+			The subexpression <literal>timer:interval(t1+1 min)</literal> becomes true. In turn, this causes the <literal>And</literal>-subexpression to become true as the <literal>Not</literal>-subexpression is already true on start. In turn, this causes the followed-by subexpression to become true. In turn, this causes an output of the pattern match. 
+		</para>
+		
+		<para>
+		    The engine terminates the subexpression <literal>not LogoutEvent(userId=10)</literal> which unregisters the filter looking for a <literal>LogoutEvent</literal> that has a user id value of 10 from the global filter index.
+		</para>
+		
+		<para>
+			There now are 2 active subexpressions:
+		</para>
+		<orderedlist>
+			<listitem>
+				<para>
+					<literal>every a=LoginEvent</literal>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>timer:interval(t2+1 min) and not LogoutEvent(userId=20)</literal>
+				</para>
+			</listitem>
+		</orderedlist>
+
+		<para>
+			Let's assume that at time t<subscript>4</subscript> a <literal>LogoutEvent</literal> with user id 20 arrives (assume t<subscript>4</subscript> – t<subscript>2</subscript> &lt; 1 min). 
+			This again causes the <literal>LogoutEvent(userId=20)</literal> subexpression to become true. In turn, this causes the <literal>Not</literal> subexpression to become permanently false (as <literal>Not</literal> reverses the truth value). This causes the <literal>And</literal>-subexpression to become permanently false. 
+			This causes the pattern subexpression <literal>timer:interval(t2+1 min) and not LogoutEvent(userId=20)</literal> to terminate which causes the timer callback t<subscript>2</subscript>+1 minute to unregister.
+		</para>
+
+		<para>
+			Finally there is 1 active subexpression remaining:
+		</para>
+		<orderedlist>
+			<listitem>
+				<para>
+					<literal>every a=LoginEvent</literal>
+				</para>
+			</listitem>
+		</orderedlist>
+	</sect1>
 </chapter>
