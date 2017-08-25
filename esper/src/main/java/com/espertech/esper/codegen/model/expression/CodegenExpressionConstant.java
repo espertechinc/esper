@@ -23,7 +23,7 @@ public class CodegenExpressionConstant implements CodegenExpression {
         this.constant = constant;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         renderConstant(builder, constant, imports);
     }
 

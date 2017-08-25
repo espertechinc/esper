@@ -171,7 +171,7 @@ public class EngineImportApplicationDotMethodRectangeIntersectsRectangle extends
         }
 
         public static CodegenExpression codegen(RectangleIntersectsRectangleForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, RectangleIntersectsRectangleEvaluator.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, RectangleIntersectsRectangleEvaluator.class, codegenClassScope);
 
             CodegenBlock block = methodNode.getBlock();
             CodegenLegoCast.asDoubleNullReturnNull(block, "meX", forge.meXEval, methodNode, exprSymbol, codegenClassScope);

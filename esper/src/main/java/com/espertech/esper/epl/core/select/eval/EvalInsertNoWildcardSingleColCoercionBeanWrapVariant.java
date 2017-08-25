@@ -41,7 +41,7 @@ public class EvalInsertNoWildcardSingleColCoercionBeanWrapVariant extends EvalBa
 
     protected CodegenExpression processFirstColCodegen(Class evaluationType, CodegenExpression expression, CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember processor = codegenClassScope.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
-        CodegenMethodNode method = codegenMethodScope.makeChild(EventBean.class, this.getClass()).addParam(evaluationType, "result").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope).addParam(evaluationType, "result").getBlock()
                 .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForBean", ref("result")))
                 .declareVar(EventBean.class, "variant", exprDotMethod(member(processor.getMemberId()), "getValueAddEventBean", ref("wrappedEvent")))
                 .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedWrapper", ref("variant"), staticMethod(Collections.class, "emptyMap"), member(memberResultEventType.getMemberId())));

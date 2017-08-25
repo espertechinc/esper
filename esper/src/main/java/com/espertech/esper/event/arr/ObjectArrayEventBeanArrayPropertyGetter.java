@@ -44,9 +44,9 @@ public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEvent
     }
 
     private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "oa").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "oa").getBlock()
                 .declareVar(Object.class, "inner", arrayAtIndex(ref("oa"), constant(propertyIndex)))
-                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope), cast(EventBean[].class, ref("inner"))));
+                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope, codegenClassScope), cast(EventBean[].class, ref("inner"))));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {

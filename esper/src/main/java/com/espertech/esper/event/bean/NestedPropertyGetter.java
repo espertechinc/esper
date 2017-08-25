@@ -116,7 +116,7 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
     }
 
     private CodegenMethodNode getBeanPropCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, boolean exists) {
-        CodegenBlock block = codegenMethodScope.makeChild(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), this.getClass()).addParam(getterChain[0].getTargetType(), "value").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), this.getClass(), codegenClassScope).addParam(getterChain[0].getTargetType(), "value").getBlock();
         if (!exists) {
             block.ifRefNullReturnNull("value");
         } else {

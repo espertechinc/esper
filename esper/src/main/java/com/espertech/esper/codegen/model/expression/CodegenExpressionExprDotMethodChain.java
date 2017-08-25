@@ -23,11 +23,11 @@ public class CodegenExpressionExprDotMethodChain implements CodegenExpression {
         this.expression = expression;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        expression.render(builder, imports);
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        expression.render(builder, imports, isInnerClass);
         for (CodegenChainElement element : chain) {
             builder.append(".");
-            element.render(builder, imports);
+            element.render(builder, imports, isInnerClass);
         }
     }
 

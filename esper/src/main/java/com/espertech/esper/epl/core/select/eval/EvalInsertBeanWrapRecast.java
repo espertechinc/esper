@@ -68,7 +68,7 @@ public class EvalInsertBeanWrapRecast implements SelectExprProcessor, SelectExpr
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember memberUnderlyingType = codegenClassScope.makeAddMember(EventType.class, eventType.getUnderlyingEventType());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
                 .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(streamNumber)))

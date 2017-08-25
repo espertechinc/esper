@@ -26,10 +26,10 @@ public class CodegenExpressionLocalCall implements CodegenExpression {
         this.parameters = parameters;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
 
         if (methodNode.getAssignedMethod() == null) {
-            throw new IllegalStateException("Method has no assignment for " + methodNode.getGenerator().getSimpleName());
+            throw new IllegalStateException("Method has no assignment for " + methodNode.getAdditionalDebugInfo());
         }
         builder.append(methodNode.getAssignedMethod().getName()).append("(");
         String delimiter = "";
@@ -37,13 +37,13 @@ public class CodegenExpressionLocalCall implements CodegenExpression {
         // pass explicit parameters first
         for (CodegenExpression expression : parameters) {
             builder.append(delimiter);
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
             delimiter = ",";
         }
 
         // pass pass-thru second
         if (methodNode.getDeepParameters() == null) {
-            throw new IllegalStateException("Method has no parameter assignments, see " + methodNode.getGenerator().getSimpleName());
+            throw new IllegalStateException("Method has no parameter assignments, see " + methodNode.getAdditionalDebugInfo());
         }
         if (methodNode.getOptionalSymbolProvider() == null) {
             for (String name : methodNode.getDeepParameters()) {

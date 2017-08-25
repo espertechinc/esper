@@ -26,15 +26,15 @@ public class CodegenExpressionAndOr implements CodegenExpression {
         this.optionalMore = optionalMore;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        first.render(builder, imports);
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        first.render(builder, imports, isInnerClass);
         builder.append(isAnd ? "&&" : "||");
-        second.render(builder, imports);
+        second.render(builder, imports, isInnerClass);
 
         if (optionalMore != null) {
             for (CodegenExpression expr : optionalMore) {
                 builder.append(isAnd ? "&&" : "||");
-                expr.render(builder, imports);
+                expr.render(builder, imports, isInnerClass);
             }
         }
     }

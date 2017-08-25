@@ -212,7 +212,7 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
         CodegenMember msvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mtype = codegenClassScope.makeAddMember(BeanEventType.class, fragmentEventType);
 
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(getTargetType(), "underlying").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(getTargetType(), "underlying").getBlock()
                 .declareVar(getBeanPropType(), "object", underlyingGetCodegen(ref("underlying"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("object");
 

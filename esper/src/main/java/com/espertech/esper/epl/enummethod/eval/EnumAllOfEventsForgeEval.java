@@ -57,7 +57,7 @@ public class EnumAllOfEventsForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumAllOfEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumAllOfEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumAllOfEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         block.ifConditionReturnConst(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"), true);

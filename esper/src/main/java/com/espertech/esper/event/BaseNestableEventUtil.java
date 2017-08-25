@@ -384,7 +384,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenMethodNode getBeanArrayValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, BeanEventPropertyGetter nestedGetter, int index) {
-        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class).addParam(Object.class, "value").getBlock()
+        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(Object.class, "value").getBlock()
                 .ifRefNullReturnNull("value")
                 .ifConditionReturnConst(not(exprDotMethodChain(ref("value")).add("getClass").add("isArray")), null)
                 .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, constant(index)), null)
@@ -405,7 +405,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenMethodNode getArrayPropertyValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, int index, EventPropertyGetterSPI nestedGetter) {
-        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class).addParam(EventBean[].class, "wrapper").getBlock()
+        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(EventBean[].class, "wrapper").getBlock()
                 .ifRefNullReturnNull("wrapper")
                 .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
                 .declareVar(EventBean.class, "inner", arrayAtIndex(ref("wrapper"), constant(index)))
@@ -424,7 +424,7 @@ public class BaseNestableEventUtil {
     }
 
     public static CodegenMethodNode getArrayPropertyFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, int index, EventPropertyGetterSPI nestedGetter) {
-        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class).addParam(EventBean[].class, "wrapper").getBlock()
+        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(EventBean[].class, "wrapper").getBlock()
                 .ifRefNullReturnNull("wrapper")
                 .ifConditionReturnConst(relational(arrayLength(ref("wrapper")), LE, constant(index)), null)
                 .declareVar(EventBean.class, "inner", arrayAtIndex(ref("wrapper"), constant(index)))
@@ -477,8 +477,8 @@ public class BaseNestableEventUtil {
         return null;
     }
 
-    public static CodegenMethodNode getArrayPropertyAsUnderlyingsArrayCodegen(Class underlyingType, CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class).addParam(EventBean[].class, "wrapper").getBlock()
+    public static CodegenMethodNode getArrayPropertyAsUnderlyingsArrayCodegen(Class underlyingType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(EventBean[].class, "wrapper").getBlock()
                 .ifRefNullReturnNull("wrapper")
                 .declareVar(JavaClassHelper.getArrayType(underlyingType), "array", newArray(underlyingType, arrayLength(ref("wrapper"))))
                 .forLoopIntSimple("i", arrayLength(ref("wrapper")))

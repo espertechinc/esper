@@ -54,7 +54,7 @@ public class EnumAverageScalarForge extends EnumForgeBase implements EnumEval {
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Double.class, EnumAverageScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Double.class, EnumAverageScalarForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .declareVar(double.class, "sum", constant(0d))
                 .declareVar(int.class, "count", constant(0))
                 .forEach(Number.class, "num", EnumForgeCodegenNames.REF_ENUMCOLL)

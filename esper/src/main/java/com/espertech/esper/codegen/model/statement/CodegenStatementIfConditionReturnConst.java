@@ -27,9 +27,9 @@ public class CodegenStatementIfConditionReturnConst extends CodegenStatementBase
         this.constant = constant;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("if (");
-        condition.render(builder, imports);
+        condition.render(builder, imports, isInnerClass);
         builder.append(") return ");
         renderConstant(builder, constant, imports);
     }

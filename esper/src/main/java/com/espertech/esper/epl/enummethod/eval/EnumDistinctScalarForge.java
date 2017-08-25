@@ -49,7 +49,7 @@ public class EnumDistinctScalarForge extends EnumForgeBase implements EnumForge,
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, EnumDistinctScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, EnumDistinctScalarForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifCondition(instanceOf(ref("enumcoll"), Set.class))

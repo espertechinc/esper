@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
  * Test for multithread-safety of insert-into and aggregation per group.
  */
 public class ExecMTStmtInsertInto implements RegressionExecution {
+
     public void run(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().createEPL(
                 "insert into XStream " +

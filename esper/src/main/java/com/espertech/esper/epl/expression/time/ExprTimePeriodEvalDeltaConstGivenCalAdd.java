@@ -67,7 +67,7 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
     }
 
     public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class).addParam(long.class, "fromTime").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class, codegenClassScope).addParam(long.class, "fromTime").getBlock()
                 .declareVar(long.class, "target", addSubtractCodegen(ref("fromTime"), constant(1), codegenMethodScope, codegenClassScope))
                 .methodReturn(op(ref("target"), "-", ref("fromTime")));
         return localMethodBuild(method).pass(reference).call();
@@ -110,7 +110,7 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
 
     private CodegenExpression addSubtractCodegen(CodegenExpressionRef fromTime, CodegenExpression factor, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
-        CodegenBlock block = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class).addParam(long.class, "fromTime").addParam(int.class, "factor").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaConstGivenCalAdd.class, codegenClassScope).addParam(long.class, "fromTime").addParam(int.class, "factor").getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .declareVar(long.class, "remainder", timeAbacus.calendarSetCodegen(ref("fromTime"), ref("cal"), codegenMethodScope, codegenClassScope));
         for (int i = 0; i < adders.length; i++) {

@@ -26,12 +26,12 @@ public class CodegenStatementAssignArrayElement extends CodegenStatementBase {
         this.expression = expression;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
-        array.render(builder, imports);
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        array.render(builder, imports, isInnerClass);
         builder.append("[");
-        index.render(builder, imports);
+        index.render(builder, imports, isInnerClass);
         builder.append("]=");
-        expression.render(builder, imports);
+        expression.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {

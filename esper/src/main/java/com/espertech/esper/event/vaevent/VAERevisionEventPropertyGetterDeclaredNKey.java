@@ -38,8 +38,8 @@ public class VAERevisionEventPropertyGetterDeclaredNKey implements EventProperty
         return key.getKeys()[keyPropertyNumber];
     }
 
-    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "eventBean").getBlock()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "eventBean").getBlock()
                 .declareVar(RevisionEventBeanDeclared.class, "riv", cast(RevisionEventBeanDeclared.class, ref("eventBean")))
                 .declareVar(MultiKeyUntyped.class, "key", cast(MultiKeyUntyped.class, exprDotMethod(ref("riv"), "getKey")))
                 .ifRefNullReturnNull("key")
@@ -55,7 +55,7 @@ public class VAERevisionEventPropertyGetterDeclaredNKey implements EventProperty
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getCodegen(codegenMethodScope), beanExpression);
+        return localMethod(getCodegen(codegenMethodScope, codegenClassScope), beanExpression);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

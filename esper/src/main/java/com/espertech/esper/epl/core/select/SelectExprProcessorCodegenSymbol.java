@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class SelectExprProcessorCodegenSymbol {
 
-    final static String NAME_ISSYNTHESIZE = "isSynthesize";
+    public final static String NAME_ISSYNTHESIZE = "isSynthesize";
     private final static CodegenExpressionRef REF_ISSYNTHESIZE = new CodegenExpressionRef(NAME_ISSYNTHESIZE);
 
     private CodegenExpressionRef optionalSynthesizeRef;

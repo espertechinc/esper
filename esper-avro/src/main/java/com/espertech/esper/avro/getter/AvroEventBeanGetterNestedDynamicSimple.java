@@ -47,8 +47,8 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
         return inner.get(propertyName);
     }
 
-    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .ifRefNullReturnNull("inner")
                 .methodReturn(exprDotMethod(ref("inner"), "get", constant(propertyName)));
@@ -62,8 +62,8 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
         return inner.getSchema().getField(propertyName) != null;
     }
 
-    private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+    private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .ifRefNullReturnFalse("inner")
                 .methodReturn(notEqualsNull(exprDotMethodChain(ref("inner")).add("getSchema").add("getField", constant(propertyName))));
@@ -86,11 +86,11 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(getCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(isExistsPropertyCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(isExistsPropertyCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

@@ -58,7 +58,7 @@ public class RevisionNestedPropertyGetter implements EventPropertyGetterSPI {
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember mgetter = codegenClassScope.makeAddMember(EventPropertyGetter.class, nestedGetter);
         CodegenMember msvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "obj").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "obj").getBlock()
                 .declareVar(Object.class, "result", revisionGetter.eventBeanGetCodegen(ref("obj"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .declareVar(EventBean.class, "theEvent", exprDotMethod(member(msvc.getMemberId()), "adapterForBean", ref("result")))

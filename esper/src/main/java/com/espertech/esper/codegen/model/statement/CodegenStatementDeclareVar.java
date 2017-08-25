@@ -33,12 +33,12 @@ public class CodegenStatementDeclareVar extends CodegenStatementBase {
         this.optionalInitializer = optionalInitializer;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         appendClassName(builder, clazz, optionalTypeVariable, imports);
         builder.append(" ").append(var);
         if (optionalInitializer != null) {
             builder.append("=");
-            optionalInitializer.render(builder, imports);
+            optionalInitializer.render(builder, imports, isInnerClass);
         }
     }
 

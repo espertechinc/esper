@@ -20,7 +20,6 @@ public class CodegenClassMethods {
     public List<CodegenMethod> getPublicMethods() {
         return publicMethods;
     }
-
     public List<CodegenMethod> getPrivateMethods() {
         return privateMethods;
     }

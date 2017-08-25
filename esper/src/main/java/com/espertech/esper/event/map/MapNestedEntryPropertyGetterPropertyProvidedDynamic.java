@@ -50,7 +50,7 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
     }
 
     private CodegenMethodNode handleNestedValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "value").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
                 .ifRefNotTypeReturnConst("value", Map.class, "null");
         if (nestedGetter instanceof MapEventPropertyGetter) {
             return block.methodReturn(((MapEventPropertyGetter) nestedGetter).underlyingGetCodegen(cast(Map.class, ref("value")), codegenMethodScope, codegenClassScope));
@@ -70,7 +70,7 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
     }
 
     private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnFalse("value")
                 .ifRefNotTypeReturnConst("value", Map.class, false);

@@ -103,7 +103,7 @@ public class InstanceManufacturerUtil {
         }
 
         public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, InstanceManufacturerForgeNonArray.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, InstanceManufacturerForgeNonArray.class, codegenClassScope);
 
 
             methodNode.getBlock()
@@ -155,7 +155,7 @@ public class InstanceManufacturerUtil {
 
         public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, InstanceManufacturerForgeArray.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, InstanceManufacturerForgeArray.class, codegenClassScope);
 
             methodNode.getBlock()
                     .declareVar(Object.class, "result", innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))

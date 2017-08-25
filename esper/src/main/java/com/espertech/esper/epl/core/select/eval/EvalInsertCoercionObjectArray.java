@@ -54,7 +54,7 @@ public class EvalInsertCoercionObjectArray implements SelectExprProcessor, Selec
     }
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpression bean = exprDotMethod(cast(ObjectArrayBackedEventBean.class, arrayAtIndex(refEPS, constant(0))), "getProperties");
         methodNode.getBlock().methodReturn(exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", bean, CodegenExpressionBuilder.member(memberResultEventType.getMemberId())));

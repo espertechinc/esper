@@ -139,7 +139,7 @@ public class ExprTimePeriodForge implements ExprForge {
     }
 
     public CodegenExpression evaluateAsSecondsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(double.class, ExprTimePeriodForge.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(double.class, ExprTimePeriodForge.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(double.class, "seconds", constant(0))
@@ -147,7 +147,7 @@ public class ExprTimePeriodForge implements ExprForge {
         for (int i = 0; i < parent.getChildNodes().length; i++) {
             ExprForge forge = parent.getChildNodes()[i].getForge();
             Class evaluationType = forge.getEvaluationType();
-            block.assignRef("result", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDoubleMayNullBoxedIncludeBig(forge.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode));
+            block.assignRef("result", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDoubleMayNullBoxedIncludeBig(forge.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode, codegenClassScope));
             block.ifRefNull("result").blockThrow(staticMethod(ExprTimePeriodForge.class, "makeTimePeriodParamNullException", constant(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this.parent))));
             block.assignRef("seconds", op(ref("seconds"), "+", adders[i].computeCodegen(ref("result"))));
         }
@@ -224,7 +224,7 @@ public class ExprTimePeriodForge implements ExprForge {
     }
 
     public CodegenExpression evaluateGetTimePeriodCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(TimePeriod.class, ExprTimePeriodForge.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(TimePeriod.class, ExprTimePeriodForge.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock();
         int counter = 0;
@@ -257,7 +257,7 @@ public class ExprTimePeriodForge implements ExprForge {
         }
         ExprForge forge = parent.getChildNodes()[counter].getForge();
         Class evaluationType = forge.getEvaluationType();
-        block.declareVar(Integer.class, variable, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType(), codegenMethodScope));
+        block.declareVar(Integer.class, variable, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), forge.getEvaluationType(), codegenMethodScope, codegenClassScope));
         return 1;
     }
 

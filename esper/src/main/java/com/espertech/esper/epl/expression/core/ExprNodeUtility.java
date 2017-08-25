@@ -1786,7 +1786,7 @@ public class ExprNodeUtility {
 
         public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(varargClass);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, VarargOnlyArrayForge.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, VarargOnlyArrayForge.class, codegenClassScope);
 
 
             CodegenBlock block = methodNode.getBlock()

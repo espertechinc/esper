@@ -40,7 +40,7 @@ public class SelectExprProcessorEnumerationSingleToCollEval implements ExprEvalu
     }
 
     public static CodegenExpression codegen(SelectExprProcessorEnumerationSingleToCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationSingleToCollEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationSingleToCollEval.class, codegenClassScope);
 
         methodNode.getBlock()
                 .declareVar(EventBean.class, "event", forge.enumerationForge.evaluateGetEventBeanCodegen(methodNode, exprSymbol, codegenClassScope))

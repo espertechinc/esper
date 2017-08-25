@@ -96,7 +96,7 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     private CodegenMethodNode getAvroFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember mSvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = codegenClassScope.makeAddMember(EventType.class, fragmentEventType);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
                 .methodReturn(exprDotMethod(member(mSvc.getMemberId()), "adapterForTypedAvro", ref("value"), member(mType.getMemberId())));
     }

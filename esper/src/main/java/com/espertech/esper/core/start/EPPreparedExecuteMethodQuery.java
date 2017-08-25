@@ -55,6 +55,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
     private static final Logger log = LoggerFactory.getLogger(EPPreparedExecuteMethodQuery.class);
 
     private final StatementSpecCompiled statementSpec;
+    private final EventType resultEventType;
     private final ResultSetProcessor resultSetProcessor;
     private final FireAndForgetProcessor[] processors;
     private final AgentInstanceContext agentInstanceContext;
@@ -136,14 +137,15 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
 
         ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), true, false);
+        resultEventType = resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();
         resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null, true);
 
         if (statementSpec.getSelectClauseSpec().isDistinct()) {
-            if (resultSetProcessor.getResultEventType() instanceof EventTypeSPI) {
-                eventBeanReader = ((EventTypeSPI) resultSetProcessor.getResultEventType()).getReader();
+            if (resultEventType instanceof EventTypeSPI) {
+                eventBeanReader = ((EventTypeSPI) resultEventType).getReader();
             }
             if (eventBeanReader == null) {
-                eventBeanReader = new EventBeanReaderDefaultImpl(resultSetProcessor.getResultEventType());
+                eventBeanReader = new EventBeanReaderDefaultImpl(resultEventType);
             }
         }
 
@@ -184,7 +186,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
      * @return event type
      */
     public EventType getEventType() {
-        return resultSetProcessor.getResultEventType();
+        return resultEventType;
     }
 
     /**
@@ -244,7 +246,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
                     events.add(results.getFirst());
                 }
             }
-            return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), EventBeanUtility.flatten(events));
+            return new EPPreparedQueryResult(resultEventType, EventBeanUtility.flatten(events));
         } finally {
             if (hasTableAccess) {
                 services.getTableService().getTableExprEvaluatorContext().releaseAcquiredLocks();
@@ -341,7 +343,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
             results.setFirst(EventBeanUtility.getDistinctByProp(results.getFirst(), eventBeanReader));
         }
 
-        return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), results.getFirst());
+        return new EPPreparedQueryResult(resultEventType, results.getFirst());
     }
 
     private Collection<EventBean> getFiltered(Collection<EventBean> snapshot, List<ExprNode> filterExpressions) {

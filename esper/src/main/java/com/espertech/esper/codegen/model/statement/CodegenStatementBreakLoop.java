@@ -16,7 +16,7 @@ import java.util.Set;
 public class CodegenStatementBreakLoop extends CodegenStatementBase {
     public final static CodegenStatementBreakLoop INSTANCE = new CodegenStatementBreakLoop();
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("break");
     }
 

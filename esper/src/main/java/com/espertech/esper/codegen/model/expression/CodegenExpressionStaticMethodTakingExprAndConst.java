@@ -29,12 +29,12 @@ public class CodegenExpressionStaticMethodTakingExprAndConst implements CodegenE
         this.consts = consts;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         appendClassName(builder, target, null, imports);
         builder.append(".");
         builder.append(methodName);
         builder.append("(");
-        expression.render(builder, imports);
+        expression.render(builder, imports, isInnerClass);
         for (Object constant : consts) {
             builder.append(",");
             renderConstant(builder, constant, imports);

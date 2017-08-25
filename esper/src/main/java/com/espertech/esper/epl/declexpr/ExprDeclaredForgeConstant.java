@@ -66,7 +66,7 @@ public class ExprDeclaredForgeConstant implements ExprForge, ExprEvaluator {
         if (!audit) {
             return constant(value);
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDeclaredForgeConstant.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDeclaredForgeConstant.class, codegenClassScope);
 
         methodNode.getBlock()
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))

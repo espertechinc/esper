@@ -45,7 +45,7 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
     }
 
     private CodegenMethodNode handleNestedValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "value").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
             .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)
                     .declareVarWCast(EventBean.class, "bean", "value")
@@ -69,7 +69,7 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
     }
 
     private CodegenMethodNode handleNestedValueFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "value").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "value").getBlock()
                 .ifNotInstanceOf("value", Map.class)
                 .ifInstanceOf("value", EventBean.class)
                 .declareVarWCast(EventBean.class, "bean", "value")

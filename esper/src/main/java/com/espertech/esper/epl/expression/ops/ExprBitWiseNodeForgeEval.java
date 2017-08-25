@@ -60,7 +60,7 @@ public class ExprBitWiseNodeForgeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprBitWiseNodeForge forge, Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprBitWiseNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprBitWiseNodeForgeEval.class, codegenClassScope);
 
         Class leftType = lhs.getForge().getEvaluationType();
         Class rightType = rhs.getForge().getEvaluationType();

@@ -25,7 +25,7 @@ public class CodegenExpressionClass implements CodegenExpression {
         this.target = target;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         appendClassName(builder, target, null, imports);
         builder.append(".");
         builder.append("class");

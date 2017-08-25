@@ -22,12 +22,12 @@ public class CodegenExpressionExprDotName implements CodegenExpression {
         this.name = name;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (lhs instanceof CodegenExpressionRef) {
-            lhs.render(builder, imports);
+            lhs.render(builder, imports, isInnerClass);
         } else {
             builder.append("(");
-            lhs.render(builder, imports);
+            lhs.render(builder, imports, isInnerClass);
             builder.append(")");
         }
         builder.append('.').append(name);

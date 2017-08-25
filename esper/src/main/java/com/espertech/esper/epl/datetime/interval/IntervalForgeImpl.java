@@ -269,7 +269,7 @@ public class IntervalForgeImpl implements IntervalForge {
         }
 
         public static CodegenExpression codegen(IntervalOpDateForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpDateEval.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(Date.class, "parameter");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpDateEval.class, codegenClassScope).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(Date.class, "parameter");
             methodNode.getBlock()
                     .declareVar(long.class, "time", exprDotMethod(ref("parameter"), "getTime"))
                     .methodReturn(forge.intervalComputer.codegen(ref("startTs"), ref("endTs"), ref("time"), ref("time"), methodNode, exprSymbol, codegenClassScope));
@@ -335,7 +335,7 @@ public class IntervalForgeImpl implements IntervalForge {
         }
 
         public static CodegenExpression codegen(IntervalOpCalForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpDateEval.class)
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpDateEval.class, codegenClassScope)
                     .addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(Calendar.class, "parameter");
 
             methodNode.getBlock()
@@ -379,7 +379,7 @@ public class IntervalForgeImpl implements IntervalForge {
 
         public static CodegenExpression codegen(IntervalOpLocalDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpLocalDateTimeEval.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(LocalDateTime.class, "parameter");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpLocalDateTimeEval.class, codegenClassScope).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(LocalDateTime.class, "parameter");
 
             methodNode.getBlock()
                     .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerLocalDateTime.class, "coerceLDTToMilliWTimezone", ref("parameter"), member(tz.getMemberId())))
@@ -415,7 +415,7 @@ public class IntervalForgeImpl implements IntervalForge {
         }
 
         public static CodegenExpression codegen(IntervalOpZonedDateTimeForge forge, CodegenExpression start, CodegenExpression end, CodegenExpression parameter, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpZonedDateTimeEval.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(ZonedDateTime.class, "parameter");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpZonedDateTimeEval.class, codegenClassScope).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(ZonedDateTime.class, "parameter");
 
             methodNode.getBlock()
                     .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("parameter")))
@@ -436,7 +436,7 @@ public class IntervalForgeImpl implements IntervalForge {
         protected abstract CodegenExpression codegenEvaluate(CodegenExpressionRef startTs, CodegenExpressionRef endTs, CodegenExpressionRef paramStartTs, CodegenExpressionRef paramEndTs, CodegenMethodNode parentNode, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope);
 
         public CodegenExpression codegen(CodegenExpression start, CodegenExpression end, CodegenExpression parameter, Class parameterType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpForgeDateWithEndBase.class).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(parameterType, "paramStartTs");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalOpForgeDateWithEndBase.class, codegenClassScope).addParam(long.class, "startTs").addParam(long.class, "endTs").addParam(parameterType, "paramStartTs");
 
             Class evaluationType = forgeEndTimestamp.getEvaluationType();
             methodNode.getBlock().declareVar(evaluationType, "paramEndTs", forgeEndTimestamp.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope));

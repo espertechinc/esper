@@ -13,7 +13,7 @@ package com.espertech.esper.codegen.core;
 import com.espertech.esper.util.UuidGenerator;
 
 public class CodeGenerationIDGenerator {
-    public static String generateClass() {
-        return "c" + UuidGenerator.generateNoDash();
+    public static String generateClassName(Class interfaceClass) {
+        return interfaceClass.getSimpleName() + "_c" + UuidGenerator.generateNoDash();
     }
 }

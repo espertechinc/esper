@@ -75,7 +75,7 @@ public class EnumMinMaxScalarForge extends EnumForgeBase implements EnumForge, E
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerTypeBoxed = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
 
-        CodegenBlock block = codegenMethodScope.makeChild(innerTypeBoxed, EnumMinMaxEventsForgeEval.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(innerTypeBoxed, EnumMinMaxEventsForgeEval.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .declareVar(innerTypeBoxed, "minKey", constantNull());
 
         CodegenBlock forEach = block.forEach(Object.class, "value", EnumForgeCodegenNames.REF_ENUMCOLL)

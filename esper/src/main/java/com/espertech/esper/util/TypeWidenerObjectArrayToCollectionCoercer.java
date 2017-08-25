@@ -27,6 +27,6 @@ public class TypeWidenerObjectArrayToCollectionCoercer implements TypeWidener {
     }
 
     public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenWidenArrayAsListMayNull(expression, Object[].class, codegenMethodScope, TypeWidenerObjectArrayToCollectionCoercer.class);
+        return codegenWidenArrayAsListMayNull(expression, Object[].class, codegenMethodScope, TypeWidenerObjectArrayToCollectionCoercer.class, codegenClassScope);
     }
 }

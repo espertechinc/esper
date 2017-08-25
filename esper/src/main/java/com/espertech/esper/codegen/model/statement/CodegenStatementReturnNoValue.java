@@ -19,7 +19,7 @@ public class CodegenStatementReturnNoValue extends CodegenStatementBase implemen
     private CodegenStatementReturnNoValue() {
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("return");
     }
 

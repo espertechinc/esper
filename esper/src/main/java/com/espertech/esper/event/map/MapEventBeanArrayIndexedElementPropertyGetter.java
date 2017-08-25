@@ -51,7 +51,7 @@ public class MapEventBeanArrayIndexedElementPropertyGetter implements MapEventPr
     }
 
     private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, exprDotMethod(ref("map"), "get", constant(propertyName))))
                 .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyValueCodegen(codegenMethodScope, codegenClassScope, index, nestedGetter), ref("wrapper")));
     }
@@ -75,7 +75,7 @@ public class MapEventBeanArrayIndexedElementPropertyGetter implements MapEventPr
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, exprDotMethod(ref("map"), "get", constant(propertyName))))
                 .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyFragmentCodegen(codegenMethodScope, codegenClassScope, index, nestedGetter), ref("wrapper")));
     }

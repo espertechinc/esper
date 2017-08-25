@@ -62,7 +62,7 @@ public class ReformatEvalForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
-        CodegenMethodNode method = codegenMethodScope.makeChild(int.class, ReformatEvalForge.class).addParam(long.class, "ts");
+        CodegenMethodNode method = codegenMethodScope.makeChild(int.class, ReformatEvalForge.class, codegenClassScope).addParam(long.class, "ts");
         method.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))
                 .expression(timeAbacus.calendarSetCodegen(ref("ts"), ref("cal"), method, codegenClassScope))
@@ -78,7 +78,7 @@ public class ReformatEvalForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatEvalForge.class).addParam(Date.class, "d");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatEvalForge.class, codegenClassScope).addParam(Date.class, "d");
 
 
         methodNode.getBlock()

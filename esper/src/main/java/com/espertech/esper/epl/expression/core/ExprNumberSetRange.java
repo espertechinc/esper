@@ -115,7 +115,7 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge valueLower = this.getChildNodes()[0].getForge();
         ExprForge valueUpper = this.getChildNodes()[1].getForge();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(RangeParameter.class, ExprNumberSetRange.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(RangeParameter.class, ExprNumberSetRange.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(valueLower.getEvaluationType(), "valueLower", valueLower.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .declareVar(valueUpper.getEvaluationType(), "valueUpper", valueUpper.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));

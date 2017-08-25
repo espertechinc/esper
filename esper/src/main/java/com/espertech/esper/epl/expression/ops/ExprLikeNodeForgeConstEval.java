@@ -63,7 +63,7 @@ public class ExprLikeNodeForgeConstEval implements ExprEvaluator {
     public static CodegenMethodNode codegen(ExprLikeNodeForgeConst forge, ExprNode lhs, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember mLikeUtil = codegenClassScope.makeAddMember(LikeUtil.class, forge.getLikeUtil());
 
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprLikeNodeForgeConstEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprLikeNodeForgeConstEval.class, codegenClassScope);
         if (!forge.isNumericValue()) {
             methodNode.getBlock()
                     .declareVar(String.class, "value", lhs.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))

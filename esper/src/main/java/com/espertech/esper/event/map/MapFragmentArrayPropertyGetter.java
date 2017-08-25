@@ -73,7 +73,7 @@ public class MapFragmentArrayPropertyGetter implements MapEventPropertyGetter {
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember mSvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = codegenClassScope.makeAddMember(EventType.class, fragmentEventType);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope))
                 .ifInstanceOf("value", EventBean[].class)
                     .blockReturn(ref("value"))

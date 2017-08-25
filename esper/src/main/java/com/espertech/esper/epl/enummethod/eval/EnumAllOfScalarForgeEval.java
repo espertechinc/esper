@@ -64,7 +64,7 @@ public class EnumAllOfScalarForgeEval implements EnumEval {
         CodegenMember typeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.type);
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumAllOfScalarForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumAllOfScalarForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         block.ifConditionReturnConst(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"), true);

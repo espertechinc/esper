@@ -16,6 +16,7 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.compile.CodegenClassGenerator;
 import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
+import com.espertech.esper.codegen.core.CodeGenerationIDGenerator;
 import com.espertech.esper.codegen.core.CodegenClass;
 import com.espertech.esper.codegen.core.CodegenClassMethods;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
@@ -63,15 +65,15 @@ public class ExprNodeCompiler {
         };
 
         try {
-            CodegenClassScope codegenClassScope = new CodegenClassScope();
+            CodegenClassScope codegenClassScope = new CodegenClassScope(engineImportService.getCodeGeneration().isIncludeComments());
             ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true);
-            CodegenMethodNode topNode = CodegenMethodNode.makeParentNode(Object.class, ExprNodeCompiler.class, exprSymbol).addParam(ExprForgeCodegenNames.PARAMS);
+            CodegenMethodNode topNode = CodegenMethodNode.makeParentNode(Object.class, ExprNodeCompiler.class, exprSymbol, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
 
             // generate expression
             CodegenExpression expression = forge.evaluateCodegen(Object.class, topNode, exprSymbol, codegenClassScope);
 
             // generate code for derived symbols
-            exprSymbol.derivedSymbolsCodegen(topNode, topNode.getBlock());
+            exprSymbol.derivedSymbolsCodegen(topNode, topNode.getBlock(), codegenClassScope);
 
             // add expression to end
             if (forge.getEvaluationType() == void.class) {
@@ -86,7 +88,8 @@ public class ExprNodeCompiler {
             CodegenClassMethods methods = new CodegenClassMethods();
             CodegenStackGenerator.recursiveBuildStack(topNode, "evaluate", methods);
 
-            CodegenClass clazz = new CodegenClass(ExprEvaluator.class, codegenClassScope, engineImportService.getEngineURI(), methods);
+            String className = CodeGenerationIDGenerator.generateClassName(ExprEvaluator.class);
+            CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ExprEvaluator.class, className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
             return CodegenClassGenerator.compile(clazz, engineImportService, ExprEvaluator.class, debugInformationProvider);
         } catch (CodegenCompilerException ex) {
             boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();

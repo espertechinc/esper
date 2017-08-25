@@ -73,7 +73,7 @@ public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
                 if (evaluationType == null) {
                     return forge.evaluateCodegen(requiredType, parentMethod, exprSymbol, codegenClassScope);
                 }
-                CodegenMethodNode methodNode = parentMethod.makeChild(evaluationType, ExprForgeProxy.class);
+                CodegenMethodNode methodNode = parentMethod.makeChild(evaluationType, ExprForgeProxy.class, codegenClassScope);
                 CodegenBlock block = methodNode.getBlock();
                 if (evaluationType == void.class) {
                     block.expression(forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))

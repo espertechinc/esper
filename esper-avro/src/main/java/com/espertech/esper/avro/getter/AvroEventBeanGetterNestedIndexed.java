@@ -51,8 +51,8 @@ public class AvroEventBeanGetterNestedIndexed implements EventPropertyGetterSPI 
         return AvroEventBeanGetterIndexed.getAvroIndexedValue(collection, index);
     }
 
-    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(top))))
                 .ifRefNullReturnNull("inner")
                 .declareVar(Collection.class, "collection", cast(Collection.class, exprDotMethod(ref("inner"), "get", constant(pos))))
@@ -78,7 +78,7 @@ public class AvroEventBeanGetterNestedIndexed implements EventPropertyGetterSPI 
         CodegenMember mSvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = codegenClassScope.makeAddMember(EventType.class, fragmentEventType);
 
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("record"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("value")
                 .methodReturn(exprDotMethod(member(mSvc.getMemberId()), "adapterForTypedAvro", ref("value"), member(mType.getMemberId())));
@@ -97,7 +97,7 @@ public class AvroEventBeanGetterNestedIndexed implements EventPropertyGetterSPI 
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(getCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

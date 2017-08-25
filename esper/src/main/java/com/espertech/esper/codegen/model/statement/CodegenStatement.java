@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface CodegenStatement {
-    void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent);
+    void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent);
 
     void mergeClasses(Set<Class> classes);
 }

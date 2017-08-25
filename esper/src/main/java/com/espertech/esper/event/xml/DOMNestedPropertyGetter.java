@@ -55,7 +55,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
 
     private CodegenMethodNode getValueAsFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember mType = codegenClassScope.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "node").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
                 .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(member(mType.getMemberId()), "getEvent", ref("result")));
@@ -72,7 +72,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethodNode getValueAsNodeArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Node[].class, this.getClass()).addParam(Node.class, "node").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(Node[].class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("node");
@@ -91,7 +91,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethodNode getValueAsNodeCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Node.class, this.getClass()).addParam(Node.class, "node").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(Node.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("node", domGetterChain[i].getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("node");
@@ -130,7 +130,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Node.class, "value").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Node.class, "value").getBlock();
         for (int i = 0; i < domGetterChain.length; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnFalse("value");
@@ -159,7 +159,7 @@ public class DOMNestedPropertyGetter implements EventPropertyGetterSPI, DOMPrope
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "value").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "value").getBlock();
         for (int i = 0; i < domGetterChain.length - 1; i++) {
             block.assignRef("value", domGetterChain[i].getValueAsNodeCodegen(ref("value"), codegenMethodScope, codegenClassScope));
             block.ifRefNullReturnNull("value");

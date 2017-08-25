@@ -58,7 +58,7 @@ public class ReformatGetFieldForge implements ReformatForge, ReformatOp {
     }
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatGetFieldForge.class).addParam(long.class, "ts");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatGetFieldForge.class, codegenClassScope).addParam(long.class, "ts");
 
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
         methodNode.getBlock()
@@ -76,7 +76,7 @@ public class ReformatGetFieldForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatGetFieldForge.class).addParam(Date.class, "d");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(int.class, ReformatGetFieldForge.class, codegenClassScope).addParam(Date.class, "d");
 
         methodNode.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))

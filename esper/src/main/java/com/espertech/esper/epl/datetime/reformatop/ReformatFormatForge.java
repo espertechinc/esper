@@ -65,7 +65,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenLong(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember df = codegenClassScope.makeAddMember(DateFormat.class, dateFormat);
-        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class).addParam(long.class, "ts").getBlock();
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, codegenClassScope).addParam(long.class, "ts").getBlock();
         CodegenBlock syncBlock = blockMethod.synchronizedOn(member(df.getMemberId()));
         if (timeAbacus.getOneSecond() == 1000L) {
             syncBlock.blockReturn(exprDotMethod(member(df.getMemberId()), "format", ref("ts")));
@@ -81,7 +81,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenDate(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember df = codegenClassScope.makeAddMember(DateFormat.class, dateFormat);
-        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class).addParam(Date.class, "d").getBlock()
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, codegenClassScope).addParam(Date.class, "d").getBlock()
                 .synchronizedOn(member(df.getMemberId()))
                 .blockReturn(exprDotMethod(member(df.getMemberId()), "format", ref("d")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();
@@ -93,7 +93,7 @@ public class ReformatFormatForge implements ReformatForge, ReformatOp {
 
     public CodegenExpression codegenCal(CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember df = codegenClassScope.makeAddMember(DateFormat.class, dateFormat);
-        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class).addParam(Calendar.class, "cal").getBlock()
+        CodegenBlock blockMethod = codegenMethodScope.makeChild(String.class, ReformatFormatForge.class, codegenClassScope).addParam(Calendar.class, "cal").getBlock()
                 .synchronizedOn(member(df.getMemberId()))
                 .blockReturn(exprDotMethod(member(df.getMemberId()), "format", exprDotMethod(ref("cal"), "getTime")));
         return localMethodBuild(blockMethod.methodEnd()).pass(inner).call();

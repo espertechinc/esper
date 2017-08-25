@@ -65,7 +65,7 @@ public class ExprDotForgeArrayGetEval implements ExprDotEval {
     }
 
     public static CodegenExpression codegen(ExprDotForgeArrayGet forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EPTypeHelper.getNormalizedClass(forge.getTypeInfo()), ExprDotForgeArrayGetEval.class).addParam(innerType, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EPTypeHelper.getNormalizedClass(forge.getTypeInfo()), ExprDotForgeArrayGetEval.class, codegenClassScope).addParam(innerType, "target");
 
 
         CodegenBlock block = methodNode.getBlock();

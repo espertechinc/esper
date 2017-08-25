@@ -103,7 +103,7 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
         }
         Class returnType = forge.getStaticMethod().getReturnType();
 
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeStaticMethodEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeStaticMethodEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock();
 

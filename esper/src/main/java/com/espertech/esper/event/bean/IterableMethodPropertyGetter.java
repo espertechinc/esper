@@ -110,8 +110,8 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
         }
     }
 
-    protected static CodegenMethodNode getBeanPropCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method) {
-        return codegenMethodScope.makeChild(beanPropType, IterableMethodPropertyGetter.class).addParam(targetType, "object").addParam(int.class, "index").getBlock()
+    protected static CodegenMethodNode getBeanPropCodegen(CodegenMethodScope codegenMethodScope, Class beanPropType, Class targetType, Method method, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(beanPropType, IterableMethodPropertyGetter.class, codegenClassScope).addParam(targetType, "object").addParam(int.class, "index").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("object"), method.getName()))
                 .methodReturn(cast(beanPropType, staticMethod(IterableMethodPropertyGetter.class, "getBeanEventIterableValue", ref("value"), ref("index"))));
     }
@@ -152,7 +152,7 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method), underlyingExpression, constant(index));
+        return localMethod(getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method, codegenClassScope), underlyingExpression, constant(index));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -160,6 +160,6 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method), castUnderlying(getTargetType(), beanExpression), constant(index));
+        return localMethod(getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), method, codegenClassScope), castUnderlying(getTargetType(), beanExpression), constant(index));
     }
 }

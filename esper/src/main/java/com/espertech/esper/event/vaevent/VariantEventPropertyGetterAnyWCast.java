@@ -45,7 +45,7 @@ public class VariantEventPropertyGetterAnyWCast implements EventPropertyGetterSP
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
         CodegenMember mCache = codegenClassScope.makeAddMember(VariantPropertyGetterCache.class, propertyGetterCache);
         CodegenMember mCaster = codegenClassScope.makeAddMember(SimpleTypeCaster.class, caster);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "eventBean").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "eventBean").getBlock()
                 .declareVar(Object.class, "value", staticMethod(VariantEventPropertyGetterAny.class, "variantGet", ref("eventBean"), member(mCache.getMemberId()), constant(assignedPropertyNumber)))
                 .methodReturn(exprDotMethod(member(mCaster.getMemberId()), "cast", ref("value")));
     }

@@ -70,7 +70,7 @@ public class EnumAverageBigDecimalScalarLambdaForgeEval implements EnumEval {
         CodegenMember mathCtxMember = codegenClassScope.makeAddMember(MathContext.class, forge.optionalMathContext);
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(BigDecimal.class, EnumAverageBigDecimalScalarLambdaForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(BigDecimal.class, EnumAverageBigDecimalScalarLambdaForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         block.declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, member(mathCtxMember.getMemberId())))

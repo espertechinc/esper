@@ -38,6 +38,6 @@ public class ExprDotStaticMethodWrapArrayScalar implements ExprDotStaticMethodWr
     }
 
     public CodegenExpression codegenConvertNonNull(CodegenExpression result, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return CollectionUtil.arrayToCollectionAllowNullCodegen(codegenMethodScope, arrayType, result);
+        return CollectionUtil.arrayToCollectionAllowNullCodegen(codegenMethodScope, arrayType, result, codegenClassScope);
     }
 }

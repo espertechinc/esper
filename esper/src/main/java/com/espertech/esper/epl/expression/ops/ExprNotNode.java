@@ -63,7 +63,7 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator, ExprForg
         if (child.getEvaluationType() == boolean.class) {
             not(child.evaluateCodegen(requiredType, codegenMethodScope, exprSymbol, codegenClassScope));
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprNotNode.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprNotNode.class, codegenClassScope);
         methodNode.getBlock()
                 .declareVar(Boolean.class, "b", child.evaluateCodegen(Boolean.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("b")

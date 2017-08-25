@@ -58,7 +58,7 @@ public class EnumAverageBigDecimalScalarForge extends EnumForgeBase implements E
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember memberMathCtx = codegenClassScope.makeAddMember(MathContext.class, optionalMathContext);
-        CodegenMethodNode method = codegenMethodScope.makeChild(BigDecimal.class, EnumAverageScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(BigDecimal.class, EnumAverageScalarForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, member(memberMathCtx.getMemberId())))
                 .forEach(Number.class, "num", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .ifRefNull("num").blockContinue()

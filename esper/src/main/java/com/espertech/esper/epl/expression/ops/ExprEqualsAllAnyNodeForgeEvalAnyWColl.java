@@ -150,7 +150,7 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
         ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
         boolean isNot = forge.getForgeRenderable().isNot();
 
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsAllAnyNodeForgeEvalAnyWColl.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsAllAnyNodeForgeEvalAnyWColl.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock();
         Class leftTypeUncoerced = forges[0].getEvaluationType();

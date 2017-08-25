@@ -32,7 +32,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  */
 public class CodegenLegoPropertyBeanOrUnd {
     public static CodegenMethodNode from(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, Class expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(accessType == EXISTS ? boolean.class : Object.class, generator).addParam(Object.class, "value");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(accessType == EXISTS ? boolean.class : Object.class, generator, codegenClassScope).addParam(Object.class, "value");
         CodegenBlock block = methodNode.getBlock()
                 .ifNotInstanceOf("value", expectedUnderlyingType)
                 .ifInstanceOf("value", EventBean.class)

@@ -47,7 +47,7 @@ public class EnumFirstOfNoPredicateForge extends EnumForgeBase implements EnumFo
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class type = EPTypeHelper.getCodegenReturnType(resultType);
-        CodegenMethodNode method = codegenMethodScope.makeChild(type, EnumFirstOfNoPredicateForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(type, EnumFirstOfNoPredicateForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(or(equalsNull(EnumForgeCodegenNames.REF_ENUMCOLL), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty")))
                 .blockReturn(constantNull())
                 .methodReturn(cast(type, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")));

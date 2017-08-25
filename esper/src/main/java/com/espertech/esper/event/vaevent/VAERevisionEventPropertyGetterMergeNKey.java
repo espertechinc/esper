@@ -35,8 +35,8 @@ public class VAERevisionEventPropertyGetterMergeNKey implements EventPropertyGet
         return mk.getKeys()[keyPropertyNumber];
     }
 
-    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "eventBean").getBlock()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "eventBean").getBlock()
                 .declareVar(RevisionEventBeanMerge.class, "riv", cast(RevisionEventBeanMerge.class, ref("eventBean")))
                 .declareVar(MultiKeyUntyped.class, "mk", cast(MultiKeyUntyped.class, exprDotMethod(ref("riv"), "getKey")))
                 .methodReturn(arrayAtIndex(exprDotMethod(ref("mk"), "getKeys"), constant(keyPropertyNumber)));
@@ -51,7 +51,7 @@ public class VAERevisionEventPropertyGetterMergeNKey implements EventPropertyGet
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getCodegen(codegenMethodScope), beanExpression);
+        return localMethod(getCodegen(codegenMethodScope, codegenClassScope), beanExpression);
     }
 
     public CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

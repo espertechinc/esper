@@ -49,7 +49,7 @@ public class ObjectArrayEventBeanArrayIndexedElementPropertyGetter implements Ob
     }
 
     private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
                 .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyValueCodegen(codegenMethodScope, codegenClassScope, index, nestedGetter), ref("wrapper")));
     }
@@ -72,7 +72,7 @@ public class ObjectArrayEventBeanArrayIndexedElementPropertyGetter implements Ob
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
                 .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyFragmentCodegen(codegenMethodScope, codegenClassScope, index, nestedGetter), ref("wrapper")));
     }

@@ -49,7 +49,7 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "theEvent").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
                 .methodReturn(mapGetter.underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope));
@@ -69,7 +69,7 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "theEvent").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(Map.class, "map", exprDotMethod(ref("wrapperEvent"), "getDecoratingProperties"))
                 .methodReturn(mapGetter.underlyingFragmentCodegen(ref("map"), codegenMethodScope, codegenClassScope));

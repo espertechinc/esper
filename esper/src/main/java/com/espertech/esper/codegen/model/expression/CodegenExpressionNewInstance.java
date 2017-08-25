@@ -24,11 +24,11 @@ public class CodegenExpressionNewInstance implements CodegenExpression {
         this.params = params;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("new ");
         CodeGenerationHelper.appendClassName(builder, clazz, null, imports);
         builder.append("(");
-        CodegenExpressionBuilder.renderExpressions(builder, params, imports);
+        CodegenExpressionBuilder.renderExpressions(builder, params, imports, isInnerClass);
         builder.append(")");
     }
 

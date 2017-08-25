@@ -96,7 +96,7 @@ public class ExprContextPropertyNodeImpl extends ExprNodeBase implements ExprCon
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(getEvaluationType(), ExprContextPropertyNodeImpl.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(getEvaluationType(), ExprContextPropertyNodeImpl.class, codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(EventBean.class, "props", exprDotMethod(refExprEvalCtx, "getContextProperties"))

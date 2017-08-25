@@ -43,7 +43,7 @@ public class SelectExprProcessorTypableSingleEval implements ExprEvaluator {
 
     public static CodegenExpression codegen(SelectExprProcessorTypableSingleForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember factory = codegenClassScope.makeAddMember(EventBeanManufacturer.class, forge.factory);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorTypableSingleEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorTypableSingleEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "row", forge.typable.evaluateTypableSingleCodegen(methodNode, exprSymbol, codegenClassScope))

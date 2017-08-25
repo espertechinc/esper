@@ -51,7 +51,7 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
     }
 
     public CodegenExpression calendarSetCodegen(CodegenExpression startLong, CodegenExpression cal, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(long.class, TimeAbacusMicroseconds.class).addParam(long.class, "fromTime").addParam(Calendar.class, "cal").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(long.class, TimeAbacusMicroseconds.class, codegenClassScope).addParam(long.class, "fromTime").addParam(Calendar.class, "cal").getBlock()
                 .declareVar(long.class, "millis", op(ref("fromTime"), "/", constant(1000)))
                 .expression(exprDotMethod(ref("cal"), "setTimeInMillis", ref("millis")))
                 .methodReturn(op(ref("fromTime"), "-", op(ref("millis"), "*", constant(1000))));

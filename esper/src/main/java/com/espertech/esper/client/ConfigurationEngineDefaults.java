@@ -2302,6 +2302,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         private boolean enablePropertyGetter = false;
         private boolean enableExpression = true;
         private boolean enableSelectClause = true;
+        private boolean enableResultSet = true;
         private boolean enableFallback = true;
         private boolean includeDebugSymbols = false;
         private boolean includeComments = false;
@@ -2324,6 +2325,7 @@ public class ConfigurationEngineDefaults implements Serializable {
             enablePropertyGetter = value;
             enableExpression = value;
             enableSelectClause = value;
+            enableResultSet = value;
             enableFallback = value;
         }
 
@@ -2425,6 +2427,14 @@ public class ConfigurationEngineDefaults implements Serializable {
          */
         public void setIncludeComments(boolean includeComments) {
             this.includeComments = includeComments;
+        }
+
+        public boolean isEnableResultSet() {
+            return enableResultSet;
+        }
+
+        public void setEnableResultSet(boolean enableResultSet) {
+            this.enableResultSet = enableResultSet;
         }
     }
 }

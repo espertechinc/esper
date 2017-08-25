@@ -68,7 +68,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     public static CodegenExpression codegen(ExprDotNodeForgeRootChild forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class innerType = EPTypeHelper.getCodegenReturnType(forge.innerForge.getTypeInfo());
         Class evaluationType = forge.getEvaluationType();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprDotNodeForgeRootChildEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprDotNodeForgeRootChildEval.class, codegenClassScope);
 
 
         CodegenBlock block = methodNode.getBlock()
@@ -103,7 +103,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     }
 
     public static CodegenExpression codegenEvaluateGetROCollectionEvents(ExprDotNodeForgeRootChild forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class, codegenClassScope);
 
         methodNode.getBlock()
                 .declareVar(Collection.class, "inner", forge.innerForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
@@ -130,7 +130,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
     }
 
     public static CodegenExpression codegenEvaluateGetROCollectionScalar(ExprDotNodeForgeRootChild forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class, codegenClassScope);
 
 
         methodNode.getBlock().declareVar(Collection.class, "inner", forge.innerForge.evaluateGetROCollectionScalarCodegen(methodNode, exprSymbol, codegenClassScope))

@@ -34,7 +34,7 @@ class DTLocalDateIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalDateIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateIntervalEval.class).addParam(Date.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateIntervalEval.class, codegenClassScope).addParam(Date.class, "target");
 
         methodNode.getBlock()
                 .declareVar(long.class, "time", exprDotMethod(ref("target"), "getTime"))
@@ -49,7 +49,7 @@ class DTLocalDateIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalDateIntervalForge forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateIntervalEval.class).addParam(Date.class, "start").addParam(Date.class, "end");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalDateIntervalEval.class, codegenClassScope).addParam(Date.class, "start").addParam(Date.class, "end");
 
         methodNode.getBlock().methodReturn(forge.intervalForge.codegen(exprDotMethod(ref("start"), "getTime"), exprDotMethod(ref("end"), "getTime"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);

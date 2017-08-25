@@ -96,7 +96,7 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getBeanPropInternalCode(codegenMethodScope, fastMethod.getJavaMethod()), underlyingExpression, constant(index));
+        return localMethod(getBeanPropInternalCode(codegenMethodScope, fastMethod.getJavaMethod(), codegenClassScope), underlyingExpression, constant(index));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -104,7 +104,7 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getBeanPropInternalCode(codegenMethodScope, fastMethod.getJavaMethod()), castUnderlying(getTargetType(), beanExpression), key);
+        return localMethod(getBeanPropInternalCode(codegenMethodScope, fastMethod.getJavaMethod(), codegenClassScope), castUnderlying(getTargetType(), beanExpression), key);
     }
 
     private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
@@ -121,8 +121,8 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
-    protected static CodegenMethodNode getBeanPropInternalCode(CodegenMethodScope codegenMethodScope, Method method) {
-        return codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayFastPropertyGetter.class).addParam(method.getDeclaringClass(), "obj").addParam(int.class, "index").getBlock()
+    protected static CodegenMethodNode getBeanPropInternalCode(CodegenMethodScope codegenMethodScope, Method method, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), ArrayFastPropertyGetter.class, codegenClassScope).addParam(method.getDeclaringClass(), "obj").addParam(int.class, "index").getBlock()
             .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
             .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, ref("index")), null)
             .methodReturn(arrayAtIndex(ref("array"), ref("index")));

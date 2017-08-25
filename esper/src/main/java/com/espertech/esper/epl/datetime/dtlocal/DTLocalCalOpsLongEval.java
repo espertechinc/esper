@@ -52,7 +52,7 @@ public class DTLocalCalOpsLongEval extends DTLocalEvaluatorCalOpsCalBase impleme
 
     public static CodegenExpression codegen(DTLocalCalOpsLongForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, DTLocalCalOpsLongEval.class).addParam(long.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, DTLocalCalOpsLongEval.class, codegenClassScope).addParam(long.class, "target");
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))

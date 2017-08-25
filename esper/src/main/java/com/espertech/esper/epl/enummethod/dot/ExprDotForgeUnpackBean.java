@@ -44,7 +44,7 @@ public class ExprDotForgeUnpackBean implements ExprDotForge, ExprDotEval {
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class resultType = EPTypeHelper.getCodegenReturnType(returnType);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(resultType, ExprDotForgeUnpackBean.class).addParam(innerType, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(resultType, ExprDotForgeUnpackBean.class, codegenClassScope).addParam(innerType, "target");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("target")

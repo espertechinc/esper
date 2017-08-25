@@ -59,7 +59,7 @@ public class ExprDotNodeForgeVariableEval implements ExprEvaluator {
         } else {
             variableType = metaData.getType();
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeVariableEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgeVariableEval.class, codegenClassScope);
 
 
         CodegenBlock block = methodNode.getBlock()

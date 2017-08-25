@@ -24,13 +24,13 @@ public class CodegenExpressionConditional implements CodegenExpression {
         this.expressionFalse = expressionFalse;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("(");
-        condition.render(builder, imports);
+        condition.render(builder, imports, isInnerClass);
         builder.append(" ? ");
-        expressionTrue.render(builder, imports);
+        expressionTrue.render(builder, imports, isInnerClass);
         builder.append(" : ");
-        expressionFalse.render(builder, imports);
+        expressionFalse.render(builder, imports, isInnerClass);
         builder.append(")");
     }
 

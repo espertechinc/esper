@@ -23,7 +23,7 @@ public class CodegenExpressionIncrementDecrement implements CodegenExpression {
         this.increment = increment;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append(ref).append(increment ? "++" : "--");
     }
 

@@ -49,7 +49,7 @@ public class EnumLastOfNoPredicateForge extends EnumForgeBase implements EnumFor
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class type = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(resultType));
-        CodegenMethodNode method = codegenMethodScope.makeChild(type, EnumLastOfNoPredicateForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(type, EnumLastOfNoPredicateForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .declareVar(Object.class, "result", constantNull())
                 .forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignRef("result", ref("next"))

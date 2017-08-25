@@ -90,7 +90,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
     public static CodegenExpression codegen(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.getEvaluationType() == null ? Map.class : forge.getEvaluationType();
         Class compareType = forge.getOptionalCompareExprNode().getForge().getEvaluationType();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax2.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax2.class, codegenClassScope);
 
         Class checkResultType = compareType == null ? Object.class : compareType;
         CodegenBlock block = methodNode.getBlock()
@@ -101,7 +101,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
             Class lhsType = pair.getFirst().getForge().getEvaluationType();
             Class lhsDeclaredType = lhsType == null ? Object.class : lhsType;
             block.declareVar(lhsDeclaredType, refname, pair.getFirst().getForge().evaluateCodegen(lhsDeclaredType, methodNode, exprSymbol, codegenClassScope));
-            CodegenExpression compareExpression = codegenCompare(ref("checkResult"), compareType, ref(refname), pair.getFirst().getForge().getEvaluationType(), forge, methodNode);
+            CodegenExpression compareExpression = codegenCompare(ref("checkResult"), compareType, ref(refname), pair.getFirst().getForge().getEvaluationType(), forge, methodNode, codegenClassScope);
             block.ifCondition(compareExpression)
                     .blockReturn(codegenToType(forge, pair.getSecond(), methodNode, exprSymbol, codegenClassScope));
             num++;
@@ -132,7 +132,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         }
     }
 
-    private static CodegenExpression codegenCompare(CodegenExpressionRef lhs, Class lhsType, CodegenExpressionRef rhs, Class rhsType, ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope) {
+    private static CodegenExpression codegenCompare(CodegenExpressionRef lhs, Class lhsType, CodegenExpressionRef rhs, Class rhsType, ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         if (lhsType == null) {
             return equalsNull(rhs);
         }
@@ -142,7 +142,7 @@ public class ExprCaseNodeForgeEvalSyntax2 implements ExprEvaluator {
         if (lhsType.isPrimitive() && rhsType.isPrimitive() && !forge.isMustCoerce()) {
             return CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(lhs, lhsType, rhs, rhsType);
         }
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprCaseNodeForgeEvalSyntax2.class).addParam(lhsType, "leftResult").addParam(rhsType, "rightResult").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprCaseNodeForgeEvalSyntax2.class, codegenClassScope).addParam(lhsType, "leftResult").addParam(rhsType, "rightResult").getBlock();
         if (!lhsType.isPrimitive()) {
             CodegenBlock ifBlock = block.ifCondition(equalsNull(ref("leftResult")));
             if (rhsType.isPrimitive()) {

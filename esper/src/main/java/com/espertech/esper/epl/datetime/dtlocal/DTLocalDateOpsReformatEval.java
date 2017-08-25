@@ -46,7 +46,7 @@ public class DTLocalDateOpsReformatEval extends DTLocalEvaluatorCalopReformatBas
     }
 
     public static CodegenExpression codegen(DTLocalDateOpsReformatForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalDateOpsReformatEval.class).addParam(Date.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalDateOpsReformatEval.class, codegenClassScope).addParam(Date.class, "target");
 
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
         CodegenBlock block = methodNode.getBlock()

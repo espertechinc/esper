@@ -39,7 +39,7 @@ public class ExprDeclaredForgeRewrite extends ExprDeclaredForgeBase {
     }
 
     protected CodegenExpression codegenEventsPerStreamRewritten(CodegenExpression eventsPerStream, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewrite.class).addParam(EventBean[].class, "eps").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(EventBean[].class, ExprDeclaredForgeRewrite.class, codegenClassScope).addParam(EventBean[].class, "eps").getBlock()
                 .declareVar(EventBean[].class, "events", newArray(EventBean.class, constant(streamAssignments.length)));
         for (int i = 0; i < streamAssignments.length; i++) {
             block.assignArrayElement("events", constant(i), arrayAtIndex(ref("eps"), constant(streamAssignments[i])));

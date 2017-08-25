@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regression.expr.expr;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -19,6 +20,10 @@ import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
 public class ExecExprAndOrNot implements RegressionExecution {
+    public void configure(Configuration configuration) throws Exception {
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+    }
+
     public void run(EPServiceProvider epService) throws Exception {
         // more extensive testing elsewhere especially as part of filters
         // these tests are for independent select-clause expression tests

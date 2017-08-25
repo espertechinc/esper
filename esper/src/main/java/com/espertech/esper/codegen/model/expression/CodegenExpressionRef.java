@@ -20,7 +20,7 @@ public class CodegenExpressionRef implements CodegenExpression {
         this.ref = ref;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append(ref);
     }
 

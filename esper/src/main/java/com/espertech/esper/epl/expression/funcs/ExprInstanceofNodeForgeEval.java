@@ -82,7 +82,7 @@ public class ExprInstanceofNodeForgeEval implements ExprEvaluator {
     public static CodegenExpression codegen(ExprInstanceofNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember mClasses = codegenClassScope.makeAddMember(Class[].class, forge.getClasses());
         CodegenMember mCache = codegenClassScope.makeAddMember(CopyOnWriteArrayList.class, new CopyOnWriteArrayList<Pair<Class, Boolean>>());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInstanceofNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInstanceofNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object.class, "result", forge.getForgeRenderable().getChildNodes()[0].getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))

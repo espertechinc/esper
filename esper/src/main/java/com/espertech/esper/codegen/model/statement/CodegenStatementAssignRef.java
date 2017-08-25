@@ -24,9 +24,9 @@ public class CodegenStatementAssignRef extends CodegenStatementBase {
         this.assignment = assignment;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append(ref).append("=");
-        assignment.render(builder, imports);
+        assignment.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {

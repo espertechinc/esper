@@ -42,7 +42,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "result", getterChain[0].underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope))
                 .methodReturn(localMethod(handleGetterTrailingChainCodegen(codegenMethodScope, codegenClassScope), ref("result")));
     }
@@ -56,7 +56,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private CodegenMethodNode isMapExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .ifConditionReturnConst(getterChain[0].underlyingExistsCodegen(ref("map"), codegenMethodScope, codegenClassScope), false)
                 .declareVar(Object.class, "result", getterChain[0].underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope))
                 .methodReturn(localMethod(handleIsExistsTrailingChainCodegen(codegenMethodScope, codegenClassScope), ref("result")));
@@ -133,7 +133,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private CodegenMethodNode handleIsExistsTrailingChainCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Object.class, "result").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object.class, "result").getBlock();
         for (int i = 1; i < getterChain.length - 1; i++) {
             block.ifRefNullReturnFalse("result");
             EventPropertyGetterSPI getter = getterChain[i];
@@ -193,7 +193,7 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
     }
 
     private CodegenMethodNode handleGetterTrailingChainCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "result").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "result").getBlock();
         for (int i = 1; i < getterChain.length; i++) {
             block.ifRefNullReturnNull("result");
             EventPropertyGetterSPI getter = getterChain[i];

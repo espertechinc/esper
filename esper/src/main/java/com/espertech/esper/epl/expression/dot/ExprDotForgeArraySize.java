@@ -52,7 +52,7 @@ public class ExprDotForgeArraySize implements ExprDotForge, ExprDotEval {
     }
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Integer.class, ExprDotForgeArraySize.class).addParam(innerType, "target").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Integer.class, ExprDotForgeArraySize.class, codegenClassScope).addParam(innerType, "target").getBlock()
                 .ifRefNullReturnNull("target")
                 .methodReturn(arrayLength(ref("target")));
         return localMethodBuild(method).pass(inner).call();

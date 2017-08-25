@@ -68,7 +68,7 @@ public class ExprCoalesceNodeForgeEval implements ExprEvaluator {
         if (forge.getEvaluationType() == null) {
             return constantNull();
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCoalesceNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCoalesceNodeForgeEval.class, codegenClassScope);
 
 
         CodegenBlock block = methodNode.getBlock();

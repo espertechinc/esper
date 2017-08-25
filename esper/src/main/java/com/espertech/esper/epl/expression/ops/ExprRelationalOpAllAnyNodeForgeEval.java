@@ -233,7 +233,7 @@ public class ExprRelationalOpAllAnyNodeForgeEval implements ExprEvaluator {
             return constant(isAll);
         }
 
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRelationalOpAllAnyNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRelationalOpAllAnyNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(boolean.class, "hasNonNullRow", constantFalse())

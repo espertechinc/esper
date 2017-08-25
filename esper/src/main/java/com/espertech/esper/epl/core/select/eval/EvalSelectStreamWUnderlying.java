@@ -107,7 +107,7 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
     }
 
     protected CodegenExpression processSpecificCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenExpression props, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, EvalSelectStreamWUnderlying.class).addParam(Map.class, "props");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, EvalSelectStreamWUnderlying.class, codegenClassScope).addParam(Map.class, "props");
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);

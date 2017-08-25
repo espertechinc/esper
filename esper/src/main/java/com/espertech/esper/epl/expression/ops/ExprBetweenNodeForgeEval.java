@@ -70,7 +70,7 @@ public class ExprBetweenNodeForgeEval implements ExprEvaluator {
         ExprForge higher = nodes[2].getForge();
         boolean isNot = forge.getForgeRenderable().isNotBetween();
 
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprBetweenNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprBetweenNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock();
 
         Class valueType = value.getEvaluationType();

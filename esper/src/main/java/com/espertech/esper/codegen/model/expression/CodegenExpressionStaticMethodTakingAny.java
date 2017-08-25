@@ -27,12 +27,12 @@ public class CodegenExpressionStaticMethodTakingAny implements CodegenExpression
         this.params = params;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         appendClassName(builder, target, null, imports);
         builder.append(".");
         builder.append(methodName);
         builder.append("(");
-        renderExpressions(builder, params, imports);
+        renderExpressions(builder, params, imports, isInnerClass);
         builder.append(")");
     }
 

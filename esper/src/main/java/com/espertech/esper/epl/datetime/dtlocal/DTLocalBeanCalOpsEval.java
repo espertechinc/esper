@@ -40,7 +40,7 @@ public class DTLocalBeanCalOpsEval implements DTLocalEvaluator {
     }
 
     public static CodegenExpression codegen(DTLocalBeanCalOpsForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.innerReturnType, DTLocalBeanCalOpsEval.class).addParam(EventBean.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.innerReturnType, DTLocalBeanCalOpsEval.class, codegenClassScope).addParam(EventBean.class, "target");
 
         methodNode.getBlock().declareVar(forge.getterReturnType, "timestamp", CodegenLegoCast.castSafeFromObjectType(forge.getterReturnType, forge.getter.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)));
         if (!forge.getterReturnType.isPrimitive()) {

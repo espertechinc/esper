@@ -26,11 +26,11 @@ public class CodegenExpressionInstanceOf implements CodegenExpression {
         this.not = not;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (not) {
             builder.append("!(");
         }
-        lhs.render(builder, imports);
+        lhs.render(builder, imports, isInnerClass);
         builder.append(" ").append("instanceof ");
         appendClassName(builder, clazz, null, imports);
         if (not) {

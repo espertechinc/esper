@@ -108,7 +108,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ListParameter.class, ExprNumberSetList.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ListParameter.class, ExprNumberSetList.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(List.class, "parameters", newInstance(ArrayList.class));
         int count = -1;

@@ -38,7 +38,7 @@ public class VAERevisionEventPropertyGetterDeclaredLast implements EventProperty
     }
 
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "eventBean").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "eventBean").getBlock()
                 .declareVar(RevisionEventBeanDeclared.class, "riv", cast(RevisionEventBeanDeclared.class, ref("eventBean")))
                 .declareVar(EventBean.class, "bean", exprDotMethod(ref("riv"), "getLastBaseEvent"))
                 .ifRefNullReturnNull("bean")

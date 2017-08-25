@@ -352,7 +352,7 @@ public class ExprCastNode extends ExprNodeBase {
             if (inputType.isPrimitive() || JavaClassHelper.isSubclassOrImplementsInterface(inputType, Number.class)) {
                 return numericTypeCaster.codegen(input, inputType, codegenMethodScope, codegenClassScope);
             }
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, NumberCasterComputer.class).addParam(inputType, "input");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, NumberCasterComputer.class, codegenClassScope).addParam(inputType, "input");
 
             methodNode.getBlock()
                     .ifInstanceOf("input", Number.class)
@@ -698,7 +698,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, ExprForge dateFormatForge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode method = codegenMethodScope.makeChild(LocalDateTime.class, StringToLocalDateTimeWDynamicFormatComputerEval.class).addParam(String.class, "input");
+            CodegenMethodNode method = codegenMethodScope.makeChild(LocalDateTime.class, StringToLocalDateTimeWDynamicFormatComputerEval.class, codegenClassScope).addParam(String.class, "input");
             method.getBlock()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", dateFormatForge.evaluateCodegen(Object.class, method, exprSymbol, codegenClassScope)))
                     .methodReturn(staticMethod(StringToLocalDateTimeWStaticFormatComputer.class, "stringToLocalDateTimeWStaticFormatParse", ref("input"), ref("formatter")));
@@ -732,7 +732,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, ExprForge dateFormatForge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode method = codegenMethodScope.makeChild(LocalDate.class, StringToLocalDateWDynamicFormatComputerEval.class).addParam(String.class, "input");
+            CodegenMethodNode method = codegenMethodScope.makeChild(LocalDate.class, StringToLocalDateWDynamicFormatComputerEval.class, codegenClassScope).addParam(String.class, "input");
             method.getBlock()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", dateFormatForge.evaluateCodegen(Object.class, method, exprSymbol, codegenClassScope)))
                     .methodReturn(staticMethod(StringToLocalDateWStaticFormatComputer.class, "stringToLocalDateWStaticFormatParse", ref("input"), ref("formatter")));
@@ -766,7 +766,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, ExprForge dateFormatForge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalTime.class, StringToLocalTimeWDynamicFormatComputerForge.class).addParam(String.class, "input");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalTime.class, StringToLocalTimeWDynamicFormatComputerForge.class, codegenClassScope).addParam(String.class, "input");
 
             methodNode.getBlock()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", dateFormatForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope)))
@@ -801,7 +801,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, ExprForge dateFormatForge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, StringToZonedDateTimeWDynamicFormatComputerEval.class).addParam(String.class, "input");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, StringToZonedDateTimeWDynamicFormatComputerEval.class, codegenClassScope).addParam(String.class, "input");
             methodNode.getBlock()
                     .declareVar(DateTimeFormatter.class, "formatter", staticMethod(ExprCastNode.class, "stringToDateTimeFormatterSafe", dateFormatForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope)))
                     .methodReturn(staticMethod(StringToZonedDateTimeWStaticFormatComputer.class, "stringZonedDateTimeWStaticFormatParse", ref("input"), ref("formatter")));
@@ -1003,7 +1003,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, ExprForge formatExpr, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode method = codegenMethodScope.makeChild(Date.class, StringToDateWDynamicFormatComputerEval.class).addParam(Object.class, "input");
+            CodegenMethodNode method = codegenMethodScope.makeChild(Date.class, StringToDateWDynamicFormatComputerEval.class, codegenClassScope).addParam(Object.class, "input");
             method.getBlock()
                     .declareVar(Object.class, "format", formatExpr.evaluateCodegen(Object.class, method, exprSymbol, codegenClassScope))
                     .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
@@ -1040,7 +1040,7 @@ public class ExprCastNode extends ExprNodeBase {
         }
 
         public static CodegenExpression codegen(CodegenExpression input, ExprForge formatForge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode method = codegenMethodScope.makeChild(Long.class, StringToLongWDynamicFormatComputerEval.class).addParam(Object.class, "input");
+            CodegenMethodNode method = codegenMethodScope.makeChild(Long.class, StringToLongWDynamicFormatComputerEval.class, codegenClassScope).addParam(Object.class, "input");
             method.getBlock()
                     .declareVar(Object.class, "format", formatForge.evaluateCodegen(Object.class, method, exprSymbol, codegenClassScope))
                     .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))
@@ -1084,7 +1084,7 @@ public class ExprCastNode extends ExprNodeBase {
 
         public static CodegenExpression codegen(CodegenExpression input, ExprForge dateFormatForge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, TimeZone timeZone) {
             CodegenMember timezone = codegenClassScope.makeAddMember(TimeZone.class, timeZone);
-            CodegenMethodNode method = codegenMethodScope.makeChild(Calendar.class, StringToCalendarWDynamicFormatComputerEval.class).addParam(Object.class, "input");
+            CodegenMethodNode method = codegenMethodScope.makeChild(Calendar.class, StringToCalendarWDynamicFormatComputerEval.class, codegenClassScope).addParam(Object.class, "input");
             method.getBlock()
                     .declareVar(Object.class, "format", dateFormatForge.evaluateCodegen(Object.class, method, exprSymbol, codegenClassScope))
                     .declareVar(SimpleDateFormat.class, "dateFormat", staticMethod(ExprCastNode.class, "stringToSimpleDateFormatSafe", ref("format")))

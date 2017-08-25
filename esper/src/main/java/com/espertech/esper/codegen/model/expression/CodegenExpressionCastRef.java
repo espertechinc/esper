@@ -24,7 +24,7 @@ public class CodegenExpressionCastRef implements CodegenExpression {
         this.ref = ref;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("((");
         appendClassName(builder, clazz, null, imports);
         builder.append(")").append(ref).append(")");

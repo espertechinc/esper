@@ -84,7 +84,7 @@ public class ExprCaseNodeForgeEvalSyntax1 implements ExprEvaluator {
 
     public static CodegenExpression codegen(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.getEvaluationType() == null ? Map.class : forge.getEvaluationType();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax1.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprCaseNodeForgeEvalSyntax1.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock().declareVar(Boolean.class, "when", constantFalse());
 

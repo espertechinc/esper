@@ -47,7 +47,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenCalendar(CalendarWithDateForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarWithDateForgeOp.class).addParam(Calendar.class, "value");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarWithDateForgeOp.class, codegenClassScope).addParam(Calendar.class, "value");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -65,7 +65,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenLDT(CalendarWithDateForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithDateForgeOp.class).addParam(LocalDateTime.class, "value");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithDateForgeOp.class, codegenClassScope).addParam(LocalDateTime.class, "value");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -82,7 +82,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenZDT(CalendarWithDateForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithDateForgeOp.class).addParam(ZonedDateTime.class, "value");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithDateForgeOp.class, codegenClassScope).addParam(ZonedDateTime.class, "value");
 
         CodegenBlock block = methodNode.getBlock();
         codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
@@ -163,8 +163,8 @@ public class CalendarWithDateForgeOp implements CalendarOp {
         Class yearType = forge.year.getEvaluationType();
         Class monthType = forge.month.getEvaluationType();
         Class dayType = forge.day.getEvaluationType();
-        block.declareVar(Integer.class, "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(yearType, methodNode, exprSymbol, codegenClassScope), yearType, methodNode))
-                .declareVar(Integer.class, "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(monthType, methodNode, exprSymbol, codegenClassScope), monthType, methodNode))
-                .declareVar(Integer.class, "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(dayType, methodNode, exprSymbol, codegenClassScope), dayType, methodNode));
+        block.declareVar(Integer.class, "year", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.year.evaluateCodegen(yearType, methodNode, exprSymbol, codegenClassScope), yearType, methodNode, codegenClassScope))
+                .declareVar(Integer.class, "month", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.month.evaluateCodegen(monthType, methodNode, exprSymbol, codegenClassScope), monthType, methodNode, codegenClassScope))
+                .declareVar(Integer.class, "day", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.day.evaluateCodegen(dayType, methodNode, exprSymbol, codegenClassScope), dayType, methodNode, codegenClassScope));
     }
 }

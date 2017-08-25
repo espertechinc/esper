@@ -28,7 +28,7 @@ public class CodegenStatementIfRefNotTypeReturnConst extends CodegenStatementBas
         this.constant = constant;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("if (!(").append(var).append(" instanceof ");
         appendClassName(builder, type, null, imports).append(")) return ");
         renderConstant(builder, constant, imports);

@@ -24,11 +24,11 @@ public class CodegenExpressionOp implements CodegenExpression {
         this.right = right;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("(");
-        left.render(builder, imports);
+        left.render(builder, imports, isInnerClass);
         builder.append(expressionText);
-        right.render(builder, imports);
+        right.render(builder, imports, isInnerClass);
         builder.append(")");
     }
 

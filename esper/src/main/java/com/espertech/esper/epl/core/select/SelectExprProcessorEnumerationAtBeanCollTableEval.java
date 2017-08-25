@@ -47,7 +47,7 @@ public class SelectExprProcessorEnumerationAtBeanCollTableEval implements ExprEv
 
     public static CodegenExpression codegen(SelectExprProcessorEnumerationAtBeanCollTableForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, forge.tableMetadata.getEventToPublic());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationAtBeanCollTableEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationAtBeanCollTableEval.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);

@@ -55,8 +55,8 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
         return value;
     }
 
-    private CodegenExpression getMapCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, MapEntryPropertyGetter.class).addParam(Map.class, "map").getBlock()
+    private CodegenExpression getMapCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, MapEntryPropertyGetter.class, codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
                 .ifInstanceOf("value", EventBean.class)
                     .blockReturn(exprDotUnderlying(cast(EventBean.class, ref("value"))))
@@ -100,7 +100,7 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return getMapCodegen(underlyingExpression, codegenMethodScope);
+        return getMapCodegen(underlyingExpression, codegenMethodScope, codegenClassScope);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

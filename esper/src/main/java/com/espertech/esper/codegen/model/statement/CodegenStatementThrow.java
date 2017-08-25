@@ -22,9 +22,9 @@ public class CodegenStatementThrow extends CodegenStatementBase implements Codeg
         this.expression = expression;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("throw ");
-        expression.render(builder, imports);
+        expression.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {

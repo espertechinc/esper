@@ -20,10 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CodegenMethodNode implements CodegenMethodScope {
-    private final static boolean DEBUG = false;
-
     private final Class returnType;
-    private final Class generator;
     private final CodegenBlock block;
     private final String additionalDebugInfo;
     private final CodegenSymbolProvider optionalSymbolProvider;
@@ -35,31 +32,30 @@ public class CodegenMethodNode implements CodegenMethodScope {
     private Set<String> deepParameters;
     private CodegenMethod assignedMethod;
 
-    protected CodegenMethodNode(Class returnType, Class generator, CodegenSymbolProvider optionalSymbolProvider) {
+    protected CodegenMethodNode(Class returnType, Class generator, CodegenSymbolProvider optionalSymbolProvider, CodegenClassScope codegenClassScope) {
         this.returnType = returnType;
-        this.generator = generator;
         this.optionalSymbolProvider = optionalSymbolProvider;
         this.block = new CodegenBlock(this);
-        if (DEBUG) {
+        if (codegenClassScope.isDebug()) {
             additionalDebugInfo = getGeneratorDetail(generator);
         } else {
-            additionalDebugInfo = null;
+            additionalDebugInfo = generator.getSimpleName();
         }
     }
 
-    public static CodegenMethodNode makeParentNode(Class returnType, Class generator, CodegenSymbolProvider symbolProvider) {
+    public static CodegenMethodNode makeParentNode(Class returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenClassScope codegenClassScope) {
         if (symbolProvider == null) {
             throw new IllegalArgumentException("No symbol provider");
         }
-        return new CodegenMethodNode(returnType, generator, symbolProvider);
+        return new CodegenMethodNode(returnType, generator, symbolProvider, codegenClassScope);
     }
 
-    public CodegenMethodNode makeChild(Class returnType, Class generator) {
-        return addChild(new CodegenMethodNode(returnType, generator, null));
+    public CodegenMethodNode makeChild(Class returnType, Class generator, CodegenClassScope codegenClassScope) {
+        return addChild(new CodegenMethodNode(returnType, generator, null, codegenClassScope));
     }
 
-    public CodegenMethodNode makeChildWithScope(Class returnType, Class generator, CodegenSymbolProvider symbolProvider) {
-        return addChild(new CodegenMethodNode(returnType, generator, symbolProvider));
+    public CodegenMethodNode makeChildWithScope(Class returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenClassScope codegenClassScope) {
+        return addChild(new CodegenMethodNode(returnType, generator, symbolProvider, codegenClassScope));
     }
 
     public CodegenMethodNode addSymbol(CodegenExpressionRef symbol) {
@@ -91,15 +87,8 @@ public class CodegenMethodNode implements CodegenMethodScope {
         return returnType;
     }
 
-    public Class getGenerator() {
-        return generator;
-    }
-
-    public String getCodeCommentDebugInfo() {
-        if (DEBUG) {
-            return additionalDebugInfo;
-        }
-        return generator.getSimpleName();
+    public String getAdditionalDebugInfo() {
+        return additionalDebugInfo;
     }
 
     public CodegenBlock getBlock() {

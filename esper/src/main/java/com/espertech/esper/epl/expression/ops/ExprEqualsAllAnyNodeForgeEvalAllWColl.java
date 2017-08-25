@@ -143,7 +143,7 @@ public class ExprEqualsAllAnyNodeForgeEvalAllWColl implements ExprEvaluator {
     public static CodegenExpression codegen(ExprEqualsAllAnyNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
         boolean isNot = forge.getForgeRenderable().isNot();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsAllAnyNodeForgeEvalAllWColl.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsAllAnyNodeForgeEvalAllWColl.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock();
 

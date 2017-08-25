@@ -109,7 +109,7 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor, SelectExpr
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember avroSchema = codegenClassScope.makeAddMember(Schema.class, resultEventType.getSchemaAvro());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(GenericData.Record.class, "record", newInstance(GenericData.Record.class, member(avroSchema.getMemberId())));
         for (int i = 0; i < selectExprForgeContext.getColumnNames().length; i++) {

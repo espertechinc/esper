@@ -42,7 +42,7 @@ public class WrapperGetterMapped implements EventPropertyGetterMappedSPI {
     }
 
     public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, WrapperGetterMapped.class).addParam(EventBean.class, "event").addParam(String.class, "key").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, WrapperGetterMapped.class, codegenClassScope).addParam(EventBean.class, "event").addParam(String.class, "key").getBlock()
                 .declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, ref("event")))
                 .declareVar(EventBean.class, "wrapped", exprDotMethod(ref("wrapper"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrapped")

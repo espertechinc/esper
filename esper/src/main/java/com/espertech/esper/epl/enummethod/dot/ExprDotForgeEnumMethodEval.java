@@ -88,7 +88,7 @@ public class ExprDotForgeEnumMethodEval implements ExprDotEval {
 
     public static CodegenExpression codegen(ExprDotForgeEnumMethodBase forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class returnType = EPTypeHelper.getCodegenReturnType(forge.getTypeInfo());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDotForgeEnumMethodEval.class).addParam(innerType, "param");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDotForgeEnumMethodEval.class, codegenClassScope).addParam(innerType, "param");
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);

@@ -43,7 +43,7 @@ class DTLocalLDTIntervalEval extends DTLocalEvaluatorIntervalBase {
 
     public static CodegenExpression codegen(DTLocalLDTIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLDTIntervalEval.class).addParam(LocalDateTime.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLDTIntervalEval.class, codegenClassScope).addParam(LocalDateTime.class, "target");
 
 
         methodNode.getBlock()
@@ -60,7 +60,7 @@ class DTLocalLDTIntervalEval extends DTLocalEvaluatorIntervalBase {
 
     public static CodegenExpression codegen(DTLocalLDTIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLDTIntervalEval.class).addParam(LocalDateTime.class, "startTimestamp").addParam(LocalDateTime.class, "endTimestamp");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalLDTIntervalEval.class, codegenClassScope).addParam(LocalDateTime.class, "startTimestamp").addParam(LocalDateTime.class, "endTimestamp");
 
 
         methodNode.getBlock()

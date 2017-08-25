@@ -46,9 +46,9 @@ public class MapEventBeanArrayPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "mapValue", exprDotMethod(ref("map"), "get", constant(propertyName)))
-                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope), cast(EventBean[].class, ref("mapValue"))));
+                .methodReturn(localMethod(BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArrayCodegen(underlyingType, codegenMethodScope, codegenClassScope), cast(EventBean[].class, ref("mapValue"))));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {

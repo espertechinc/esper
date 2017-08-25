@@ -55,7 +55,7 @@ public class EnumSumEventsForgeEval implements EnumEval {
         Class innerType = forge.innerExpression.getEvaluationType();
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(forge.sumMethodFactory.getValueType(), EnumSumEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(forge.sumMethodFactory.getValueType(), EnumSumEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         forge.sumMethodFactory.codegenDeclare(block);

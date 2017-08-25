@@ -55,7 +55,7 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
     }
 
     private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array");
+        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array");
         method.getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(codegenMethodScope, codegenClassScope, nestedGetter, index), ref("value")));

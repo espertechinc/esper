@@ -52,7 +52,7 @@ public class PropertyDotEventSingleForge implements ExprEnumerationForge, ExprEn
     }
 
     public CodegenExpression evaluateGetEventBeanCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, PropertyDotEventSingleForge.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, PropertyDotEventSingleForge.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()

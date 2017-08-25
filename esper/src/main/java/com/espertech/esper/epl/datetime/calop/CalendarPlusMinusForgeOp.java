@@ -69,7 +69,7 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
     public static CodegenExpression codegenLDT(CalendarPlusMinusForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.param.getEvaluationType();
         if (JavaClassHelper.isNumeric(evaluationType)) {
-            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), evaluationType, codegenMethodScope);
+            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), evaluationType, codegenMethodScope, codegenClassScope);
             return staticMethod(CalendarPlusMinusForgeOp.class, "actionLDTPlusMinusNumber", ldt, constant(forge.factor), longDuration);
         }
         return staticMethod(CalendarPlusMinusForgeOp.class, "actionLDTPlusMinusTimePeriod", ldt, constant(forge.factor), forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));
@@ -87,7 +87,7 @@ public class CalendarPlusMinusForgeOp implements CalendarOp {
     public static CodegenExpression codegenZDT(CalendarPlusMinusForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.param.getEvaluationType();
         if (JavaClassHelper.isNumeric(evaluationType)) {
-            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), evaluationType, codegenMethodScope);
+            CodegenExpression longDuration = SimpleNumberCoercerFactory.SimpleNumberCoercerLong.codegenLongMayNullBox(forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), evaluationType, codegenMethodScope, codegenClassScope);
             return staticMethod(CalendarPlusMinusForgeOp.class, "actionZDTPlusMinusNumber", zdt, constant(forge.factor), longDuration);
         }
         return staticMethod(CalendarPlusMinusForgeOp.class, "actionZDTPlusMinusTimePeriod", zdt, constant(forge.factor), forge.param.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));

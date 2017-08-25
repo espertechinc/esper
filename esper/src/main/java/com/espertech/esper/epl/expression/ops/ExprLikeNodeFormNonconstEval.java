@@ -81,7 +81,7 @@ public class ExprLikeNodeFormNonconstEval implements ExprEvaluator {
     }
 
     public static CodegenMethodNode codegen(ExprLikeNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, ExprNode optionalEscape, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprLikeNodeFormNonconstEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprLikeNodeFormNonconstEval.class, codegenClassScope);
         CodegenBlock blockMethod = methodNode.getBlock()
                 .declareVar(String.class, "pattern", pattern.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("pattern");

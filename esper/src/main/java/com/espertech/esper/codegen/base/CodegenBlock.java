@@ -11,6 +11,7 @@
 package com.espertech.esper.codegen.base;
 
 import com.espertech.esper.codegen.core.CodegenIndent;
+import com.espertech.esper.codegen.core.CodegenCtor;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.statement.*;
@@ -23,19 +24,28 @@ import java.util.Set;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenBlock {
+    private final CodegenCtor parentCtor;
     private final CodegenMethodNode parentMethodNode;
     private final CodegenStatementWBlockBase parentWBlock;
     private boolean closed;
     protected List<CodegenStatement> statements = new ArrayList<>(4);
 
-    public CodegenBlock(CodegenMethodNode parentMethodNode) {
-        this.parentWBlock = null;
+    private CodegenBlock(CodegenCtor parentCtor, CodegenMethodNode parentMethodNode, CodegenStatementWBlockBase parentWBlock) {
+        this.parentCtor = parentCtor;
         this.parentMethodNode = parentMethodNode;
+        this.parentWBlock = parentWBlock;
+    }
+
+    public CodegenBlock(CodegenCtor parentCtor) {
+        this(parentCtor, null, null);
+    }
+
+    public CodegenBlock(CodegenMethodNode parentMethodNode) {
+        this(null, parentMethodNode, null);
     }
 
     public CodegenBlock(CodegenStatementWBlockBase parentWBlock) {
-        this.parentWBlock = parentWBlock;
-        this.parentMethodNode = null;
+        this(null, null, parentWBlock);
     }
 
     public CodegenBlock expression(CodegenExpression expression) {
@@ -269,6 +279,16 @@ public class CodegenBlock {
         return parentWBlock.getParent();
     }
 
+    public CodegenMethodNode methodThrowUnsupported() {
+        if (parentMethodNode == null) {
+            throw new IllegalStateException("No method parent, use 'blockReturn...' instead");
+        }
+        checkClosed();
+        closed = true;
+        statements.add(new CodegenStatementThrow(newInstance(UnsupportedOperationException.class)));
+        return parentMethodNode;
+    }
+
     public CodegenMethodNode methodReturn(CodegenExpression expression) {
         if (parentMethodNode == null) {
             throw new IllegalStateException("No method parent, use 'blockReturn...' instead");
@@ -288,10 +308,18 @@ public class CodegenBlock {
         return parentMethodNode;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+    public void ctorEnd() {
+        if (parentCtor == null) {
+            throw new IllegalStateException("No ctor node parent");
+        }
+        checkClosed();
+        closed = true;
+    }
+
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         for (CodegenStatement statement : statements) {
             indent.indent(builder, level);
-            statement.render(builder, imports, level, indent);
+            statement.render(builder, imports, isInnerClass, level, indent);
         }
     }
 

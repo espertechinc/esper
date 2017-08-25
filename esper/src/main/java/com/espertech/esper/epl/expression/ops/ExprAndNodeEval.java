@@ -58,7 +58,7 @@ public class ExprAndNodeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprAndNodeImpl parent, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprAndNodeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprAndNodeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Boolean.class, "result", constantTrue());
 

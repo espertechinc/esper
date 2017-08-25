@@ -63,7 +63,7 @@ public class PropertyDotScalarCollection implements ExprEnumerationEval, ExprEnu
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarCollection.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarCollection.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock().methodReturn(codegenEvaluateInternal(arrayAtIndex(refEPS, constant(streamId)), codegenClassScope, methodNode));
@@ -123,7 +123,7 @@ public class PropertyDotScalarCollection implements ExprEnumerationEval, ExprEnu
     }
 
     private CodegenExpression codegenEvaluateInternal(CodegenExpression event, CodegenClassScope codegenClassScope, CodegenMethodScope codegenMethodScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarCollection.class).addParam(EventBean.class, "event").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarCollection.class, codegenClassScope).addParam(EventBean.class, "event").getBlock()
                 .methodReturn(CodegenLegoCast.castSafeFromObjectType(Collection.class, getter.eventBeanGetCodegen(ref("event"), codegenMethodScope, codegenClassScope)));
         return localMethodBuild(method).pass(event).call();
     }

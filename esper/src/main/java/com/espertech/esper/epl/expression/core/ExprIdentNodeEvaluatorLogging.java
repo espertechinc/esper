@@ -50,7 +50,7 @@ public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl {
             return constantNull();
         }
         Class castTargetType = getCodegenReturnType(requiredType);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(castTargetType, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(castTargetType, this.getClass(), codegenClassScope);
         methodNode.getBlock()
                 .declareVar(castTargetType, "result", super.codegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))

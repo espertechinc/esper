@@ -15,6 +15,9 @@ import com.espertech.esper.util.FileUtil;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassName;
 
 public class CodeGenerationUtil {
     static void packagedecl(StringBuilder builder, String packageName) {
@@ -32,11 +35,17 @@ public class CodeGenerationUtil {
         }
     }
 
-    static void classimplements(StringBuilder builder, String classname, Class implementedInterface) {
-        builder.append("public class ");
+    static void classimplements(StringBuilder builder, String classname, Class implementedInterface, boolean isPublic, boolean isStatic, Map<Class, String> imports) {
+        if (isPublic) {
+            builder.append("public ");
+        }
+        if (isStatic) {
+            builder.append("static ");
+        }
+        builder.append("class ");
         builder.append(classname);
         builder.append(" implements ");
-        builder.append(implementedInterface.getName());
+        appendClassName(builder, implementedInterface, null, imports);
         builder.append(" {\n");
     }
 

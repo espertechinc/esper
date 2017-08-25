@@ -31,7 +31,7 @@ public class TestCodegenIf extends TestCase {
                 .declareVar(int.class, "b", constant(3));
 
         StringBuilder builder = new StringBuilder();
-        block.render(builder, new HashMap<>(), 1, new CodegenIndent(true));
+        block.render(builder, new HashMap<>(), false, 1, new CodegenIndent(true));
         System.out.println(builder);
     }
 }

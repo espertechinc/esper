@@ -57,7 +57,7 @@ public class ExprCastNodeForgeNonConstEval implements ExprEvaluator {
         }
         ExprNode child = forge.getForgeRenderable().getChildNodes()[0];
         Class childType = child.getForge().getEvaluationType();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCastNodeForgeNonConstEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprCastNodeForgeNonConstEval.class, codegenClassScope);
 
 
         CodegenBlock block = methodNode.getBlock()

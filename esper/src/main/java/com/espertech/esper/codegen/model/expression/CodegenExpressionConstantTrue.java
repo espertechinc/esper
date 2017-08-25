@@ -20,7 +20,7 @@ public class CodegenExpressionConstantTrue implements CodegenExpression {
     private CodegenExpressionConstantTrue() {
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("true");
     }
 

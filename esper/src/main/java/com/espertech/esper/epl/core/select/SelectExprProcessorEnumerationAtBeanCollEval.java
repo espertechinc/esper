@@ -44,7 +44,7 @@ public class SelectExprProcessorEnumerationAtBeanCollEval implements ExprEvaluat
     }
 
     public static CodegenExpression codegen(SelectExprProcessorEnumerationAtBeanCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationAtBeanCollEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean[].class, SelectExprProcessorEnumerationAtBeanCollEval.class, codegenClassScope);
         methodNode.getBlock()
                 .declareVar(Object.class, "result", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(and(notEqualsNull(ref("result")), instanceOf(ref("result"), Collection.class)))

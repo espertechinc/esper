@@ -55,8 +55,8 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
         return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
     }
 
-    private CodegenMethodNode getMapInternalCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").addParam(int.class, "index").getBlock()
+    private CodegenMethodNode getMapInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").addParam(int.class, "index").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), ref("index")));
     }
@@ -88,7 +88,7 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getMapInternalCodegen(codegenMethodScope), underlyingExpression, constant(index));
+        return localMethod(getMapInternalCodegen(codegenMethodScope, codegenClassScope), underlyingExpression, constant(index));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -96,7 +96,7 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getMapInternalCodegen(codegenMethodScope), castUnderlying(Map.class, beanExpression), key);
+        return localMethod(getMapInternalCodegen(codegenMethodScope, codegenClassScope), castUnderlying(Map.class, beanExpression), key);
     }
 
     public Class getTargetType() {

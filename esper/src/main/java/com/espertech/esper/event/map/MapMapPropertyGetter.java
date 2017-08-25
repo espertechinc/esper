@@ -52,7 +52,7 @@ public class MapMapPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode getMapMethodCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
             .declareVar(Object.class, "valueTopObj", exprDotMethod(ref("map"), "get", constant(propertyMap)))
             .ifRefNotTypeReturnConst("valueTopObj", Map.class, null)
             .declareVar(Map.class, "value", castRef(Map.class, "valueTopObj"))
@@ -68,7 +68,7 @@ public class MapMapPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode isMapExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "valueTopObj", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNotTypeReturnConst("valueTopObj", Map.class, false)
                 .declareVar(Map.class, "value", castRef(Map.class, "valueTopObj"))

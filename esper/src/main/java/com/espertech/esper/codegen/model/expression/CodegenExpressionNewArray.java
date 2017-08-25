@@ -25,13 +25,13 @@ public class CodegenExpressionNewArray implements CodegenExpression {
         this.expression = expression;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         int numDimensions = JavaClassHelper.getNumberOfDimensions(component);
         Class outermostType = JavaClassHelper.getComponentTypeOutermost(component);
         builder.append("new ");
         CodeGenerationHelper.appendClassName(builder, outermostType, null, imports);
         builder.append("[");
-        expression.render(builder, imports);
+        expression.render(builder, imports, isInnerClass);
         builder.append("]");
         for (int i = 0; i < numDimensions; i++) {
             builder.append("[]");
