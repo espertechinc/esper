@@ -68,7 +68,7 @@ public abstract class EvalBaseMap extends EvalBase implements SelectExprProcesso
     }
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenBlock block = methodNode.getBlock();
         if (this.context.getExprForges().length == 0) {
             block.declareVar(Map.class, "props", staticMethod(Collections.class, "emptyMap"));

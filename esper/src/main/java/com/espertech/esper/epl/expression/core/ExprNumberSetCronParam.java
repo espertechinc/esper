@@ -135,7 +135,7 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
         }
         ExprForge forge = this.getChildNodes()[0].getForge();
         Class evaluationType = forge.getEvaluationType();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(CronParameter.class, ExprNumberSetCronParam.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(CronParameter.class, ExprNumberSetCronParam.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(evaluationType, "value", forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));

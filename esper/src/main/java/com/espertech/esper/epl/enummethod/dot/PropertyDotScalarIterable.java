@@ -85,7 +85,7 @@ public class PropertyDotScalarIterable implements ExprEnumerationForge, ExprEnum
         if (JavaClassHelper.isImplementsInterface(getterReturnType, Collection.class)) {
             return getter.eventBeanGetCodegen(event, codegenMethodScope, codegenClassScope);
         }
-        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarIterable.class).addParam(EventBean.class, "event").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, PropertyDotScalarIterable.class, codegenClassScope).addParam(EventBean.class, "event").getBlock()
                 .declareVar(getterReturnType, "result", CodegenLegoCast.castSafeFromObjectType(Iterable.class, getter.eventBeanGetCodegen(ref("event"), codegenMethodScope, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(CollectionUtil.class, "iterableToCollection", ref("result")));

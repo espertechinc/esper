@@ -37,7 +37,7 @@ public class InnerDotArrPrimitiveToCollEval implements ExprDotEvalRootChildInner
 
     public static CodegenExpression codegen(InnerDotArrPrimitiveToCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.rootForge.getEvaluationType();
-        return CollectionUtil.arrayToCollectionAllowNullCodegen(codegenMethodScope, evaluationType, forge.rootForge.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope));
+        return CollectionUtil.arrayToCollectionAllowNullCodegen(codegenMethodScope, evaluationType, forge.rootForge.evaluateCodegen(evaluationType, codegenMethodScope, exprSymbol, codegenClassScope), codegenClassScope);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

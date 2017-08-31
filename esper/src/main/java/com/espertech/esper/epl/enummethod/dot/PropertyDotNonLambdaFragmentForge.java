@@ -51,7 +51,7 @@ public class PropertyDotNonLambdaFragmentForge implements ExprForge, ExprEvaluat
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, PropertyDotNonLambdaFragmentForge.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, PropertyDotNonLambdaFragmentForge.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()

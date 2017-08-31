@@ -49,7 +49,7 @@ public class DTLocalLongOpsReformatEval extends DTLocalEvaluatorCalopReformatBas
 
     public static CodegenExpression codegen(DTLocalLongOpsReformatForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalLongOpsReformatEval.class).addParam(long.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalLongOpsReformatEval.class, codegenClassScope).addParam(long.class, "target");
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Calendar.class, "cal", staticMethod(Calendar.class, "getInstance", member(tz.getMemberId())))

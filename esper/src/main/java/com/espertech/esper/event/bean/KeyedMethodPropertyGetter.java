@@ -107,7 +107,7 @@ public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implemen
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(KeyedFastPropertyGetter.getBeanPropInternalCodegen(codegenMethodScope, getTargetType(), method), underlyingExpression, constant(key));
+        return localMethod(KeyedFastPropertyGetter.getBeanPropInternalCodegen(codegenMethodScope, getTargetType(), method, codegenClassScope), underlyingExpression, constant(key));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -115,10 +115,10 @@ public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implemen
     }
 
     public CodegenExpression eventBeanGetMappedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(KeyedFastPropertyGetter.getBeanPropInternalCodegen(codegenMethodScope, getTargetType(), method), castUnderlying(getTargetType(), beanExpression), key);
+        return localMethod(KeyedFastPropertyGetter.getBeanPropInternalCodegen(codegenMethodScope, getTargetType(), method, codegenClassScope), castUnderlying(getTargetType(), beanExpression), key);
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(KeyedFastPropertyGetter.getBeanPropInternalCodegen(codegenMethodScope, getTargetType(), method), castUnderlying(getTargetType(), beanExpression), key);
+        return localMethod(KeyedFastPropertyGetter.getBeanPropInternalCodegen(codegenMethodScope, getTargetType(), method, codegenClassScope), castUnderlying(getTargetType(), beanExpression), key);
     }
 }

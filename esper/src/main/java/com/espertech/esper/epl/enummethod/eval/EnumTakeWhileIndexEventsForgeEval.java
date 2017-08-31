@@ -90,7 +90,7 @@ public class EnumTakeWhileIndexEventsForgeEval implements EnumEval {
         CodegenMember indexTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.indexEventType);
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeWhileIndexEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeWhileIndexEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenExpression innerValue = forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()

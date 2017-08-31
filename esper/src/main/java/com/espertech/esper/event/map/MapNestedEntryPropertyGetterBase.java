@@ -57,7 +57,7 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
     }
 
     private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")
                 .methodReturn(handleNestedValueCodegen(ref("value"), codegenMethodScope, codegenClassScope));
@@ -85,7 +85,7 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")
                 .methodReturn(handleNestedValueFragmentCodegen(ref("value"), codegenMethodScope, codegenClassScope));

@@ -45,7 +45,7 @@ public class ExprDotMethodForgeNoDuckEvalUnderlying extends ExprDotMethodForgeNo
 
     public static CodegenExpression codegenUnderlying(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class underlyingType = forge.getMethod().getDeclaringClass();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(forge.getMethod().getReturnType()), ExprDotMethodForgeNoDuckEvalUnderlying.class).addParam(EventBean.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(forge.getMethod().getReturnType()), ExprDotMethodForgeNoDuckEvalUnderlying.class, codegenClassScope).addParam(EventBean.class, "target");
 
 
         methodNode.getBlock()

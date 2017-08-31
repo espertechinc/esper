@@ -63,7 +63,7 @@ public class DOMConvertingArrayGetter implements EventPropertyGetterSPI {
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember mComponentType = codegenClassScope.makeAddMember(Class.class, componentType);
         CodegenMember mParser = codegenClassScope.makeAddMember(SimpleTypeParser.class, parser);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "node").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
                 .declareVar(Node[].class, "result", getter.getValueAsNodeArrayCodegen(ref("node"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(staticMethod(this.getClass(), "getDOMArrayFromNodes", ref("result"), member(mComponentType.getMemberId()), member(mParser.getMemberId())));

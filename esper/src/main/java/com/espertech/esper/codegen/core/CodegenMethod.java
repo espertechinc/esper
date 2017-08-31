@@ -35,13 +35,13 @@ public class CodegenMethod {
         block.mergeClasses(classes);
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, boolean isPublic, CodegenIndent indent) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isPublic, boolean isInnerClass, CodegenIndent indent, int additionalIndent) {
         if (footprint.getOptionalComment() != null) {
-            indent.indent(builder, 1);
+            indent.indent(builder, 1 + additionalIndent);
             builder.append("// ").append(footprint.getOptionalComment()).append("\n");
         }
 
-        indent.indent(builder, 1);
+        indent.indent(builder, 1 + additionalIndent);
         if (isPublic) {
             builder.append("public ");
         }
@@ -55,8 +55,8 @@ public class CodegenMethod {
             delimiter = ",";
         }
         builder.append("){\n");
-        block.render(builder, imports, 2, indent);
-        indent.indent(builder, 1);
+        block.render(builder, imports, isInnerClass, 2 + additionalIndent, indent);
+        indent.indent(builder, 1 + additionalIndent);
         builder.append("}\n");
     }
 

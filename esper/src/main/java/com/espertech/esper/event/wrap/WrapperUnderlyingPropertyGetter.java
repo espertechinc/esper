@@ -41,7 +41,7 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "theEvent").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrappedEvent")
@@ -65,7 +65,7 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(EventBean.class, "theEvent").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
                 .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
                 .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrappedEvent")

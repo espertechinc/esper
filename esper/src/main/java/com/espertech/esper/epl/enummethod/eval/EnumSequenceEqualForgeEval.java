@@ -47,7 +47,7 @@ public class EnumSequenceEqualForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumSequenceEqualForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumSequenceEqualForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(boolean.class, EnumSequenceEqualForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         methodNode.getBlock().methodReturn(staticMethod(EnumSequenceEqualForgeEval.class, "enumSequenceEqualsCompare", EnumForgeCodegenNames.REF_ENUMCOLL, forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope)));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());

@@ -67,7 +67,7 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
     }
 
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "node").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
                 .declareVar(Object.class, "value", getter.underlyingGetCodegen(ref("node"), codegenMethodScope, codegenClassScope))
                 .methodReturn(staticMethod(this.getClass(), "getXPathNodeListWCheck", ref("value"), constant(index)));
     }
@@ -85,7 +85,7 @@ public class XPathPropertyArrayItemGetter implements EventPropertyGetterSPI {
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember member = codegenClassScope.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "node").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
                 .declareVar(Node.class, "result", cast(Node.class, underlyingGetCodegen(ref("node"), codegenMethodScope, codegenClassScope)))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(member(member.getMemberId()), "getEvent", ref("result")));

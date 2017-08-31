@@ -57,7 +57,7 @@ public class EnumLastOfPredicateEventsForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumLastOfPredicateEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(EventBean.class, EnumLastOfPredicateEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(EventBean.class, EnumLastOfPredicateEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(EventBean.class, "result", constantNull());

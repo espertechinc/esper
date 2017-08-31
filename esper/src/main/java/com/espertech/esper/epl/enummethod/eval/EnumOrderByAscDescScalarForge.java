@@ -56,7 +56,7 @@ public class EnumOrderByAscDescScalarForge extends EnumForgeBase implements Enum
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, EnumOrderByAscDescScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, EnumOrderByAscDescScalarForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(or(equalsNull(EnumForgeCodegenNames.REF_ENUMCOLL), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty")))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .declareVar(List.class, "list", newInstance(ArrayList.class, EnumForgeCodegenNames.REF_ENUMCOLL));

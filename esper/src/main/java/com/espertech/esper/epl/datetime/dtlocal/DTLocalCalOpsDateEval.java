@@ -49,7 +49,7 @@ public class DTLocalCalOpsDateEval extends DTLocalEvaluatorCalOpsCalBase impleme
     }
 
     public static CodegenExpression codegen(DTLocalCalOpsDateForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Date.class, DTLocalCalOpsDateEval.class).addParam(innerType, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Date.class, DTLocalCalOpsDateEval.class, codegenClassScope).addParam(innerType, "target");
 
 
         CodegenMember tz = codegenClassScope.makeAddMember(TimeZone.class, forge.timeZone);

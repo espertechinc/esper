@@ -141,7 +141,7 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprFo
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(eventType.getUnderlyingType(), ExprStreamUnderlyingNodeImpl.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(eventType.getUnderlyingType(), ExprStreamUnderlyingNodeImpl.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
                 .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))

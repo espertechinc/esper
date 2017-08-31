@@ -13,7 +13,7 @@ package com.espertech.esper.codegen.base;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
 public interface CodegenMethodScope {
-    CodegenMethodNode makeChild(Class returnType, Class generator);
-    CodegenMethodNode makeChildWithScope(Class returnType, Class generator, CodegenSymbolProvider symbolProvider);
+    CodegenMethodNode makeChild(Class returnType, Class generator, CodegenClassScope codegenClassScope);
+    CodegenMethodNode makeChildWithScope(Class returnType, Class generator, CodegenSymbolProvider symbolProvider, CodegenClassScope codegenClassScope);
     CodegenMethodScope addSymbol(CodegenExpressionRef symbol);
 }

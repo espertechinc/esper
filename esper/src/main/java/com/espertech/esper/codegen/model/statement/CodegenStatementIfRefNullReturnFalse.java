@@ -23,7 +23,7 @@ public class CodegenStatementIfRefNullReturnFalse implements CodegenStatement {
         this.var = var;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         builder.append("if (").append(var).append("== null) { return false;}\n");
     }
 

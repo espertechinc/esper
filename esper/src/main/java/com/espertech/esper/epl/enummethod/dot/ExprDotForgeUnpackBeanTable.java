@@ -49,7 +49,7 @@ public class ExprDotForgeUnpackBeanTable implements ExprDotForge, ExprDotEval {
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprDotForgeUnpackBeanTable.class).addParam(EventBean.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprDotForgeUnpackBeanTable.class, codegenClassScope).addParam(EventBean.class, "target");
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);

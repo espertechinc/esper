@@ -98,7 +98,7 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
     private CodegenExpression addSubtractCodegen(CodegenExpression reference, CodegenExpression constant, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember calMember = codegenClassScope.makeAddMember(Calendar.class, cal);
 
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaNonConstCalAdd.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaNonConstCalAdd.class, codegenClassScope);
         methodNode.addParam(long.class, "currentTime");
         methodNode.addParam(int.class, "factor");
 

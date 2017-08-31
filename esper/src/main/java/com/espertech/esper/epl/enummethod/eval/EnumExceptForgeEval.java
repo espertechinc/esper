@@ -54,7 +54,7 @@ public class EnumExceptForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumExceptForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumIntersectForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumIntersectForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         if (forge.scalar) {

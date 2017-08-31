@@ -37,7 +37,7 @@ public class ExprTypeofNodeForgeInnerEval extends ExprTypeofNodeForge {
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeInnerEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprTypeofNodeForgeInnerEval.class, codegenClassScope);
         methodNode.getBlock()
                 .declareVar(Object.class, "result", parent.getChildNodes()[0].getForge().evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")

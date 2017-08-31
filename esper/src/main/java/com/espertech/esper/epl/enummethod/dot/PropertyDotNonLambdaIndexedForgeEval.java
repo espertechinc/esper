@@ -42,7 +42,7 @@ public class PropertyDotNonLambdaIndexedForgeEval implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(PropertyDotNonLambdaIndexedForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), PropertyDotNonLambdaIndexedForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), PropertyDotNonLambdaIndexedForgeEval.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         Class evaluationType = forge.getParamForge().getEvaluationType();

@@ -57,7 +57,7 @@ public class MapArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNativeProper
     }
 
     private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(codegenMethodScope, codegenClassScope, nestedGetter, index), ref("value")));
     }

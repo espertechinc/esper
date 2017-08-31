@@ -50,7 +50,7 @@ public class ExprDotNodeForgePropertyExprEvalIndexed implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprDotNodeForgePropertyExpr forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgePropertyExprEvalIndexed.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprDotNodeForgePropertyExprEvalIndexed.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()

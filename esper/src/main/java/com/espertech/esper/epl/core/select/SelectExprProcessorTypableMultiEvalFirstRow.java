@@ -46,7 +46,7 @@ public class SelectExprProcessorTypableMultiEvalFirstRow implements ExprEvaluato
     }
 
     public static CodegenExpression codegen(SelectExprProcessorTypableMultiForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableMultiEvalFirstRow.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableMultiEvalFirstRow.class, codegenClassScope);
 
         CodegenMember factory = codegenClassScope.makeAddMember(EventBeanManufacturer.class, forge.factory);
         CodegenBlock block = methodNode.getBlock()

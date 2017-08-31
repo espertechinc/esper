@@ -69,7 +69,7 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
     public static CodegenExpression codegen(ExprDotMethodForgeDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember mCache = codegenClassScope.makeAddMember(Map.class, new HashMap());
         CodegenMember mForge = codegenClassScope.makeAddMember(ExprDotMethodForgeDuck.class, forge);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object.class, ExprDotMethodForgeDuckEval.class).addParam(innerType, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object.class, ExprDotMethodForgeDuckEval.class, codegenClassScope).addParam(innerType, "target");
 
         CodegenBlock block = methodNode.getBlock()
                 .ifRefNullReturnNull("target")

@@ -41,7 +41,7 @@ public class WrapperGetterIndexed implements EventPropertyGetterIndexedSPI {
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, WrapperGetterIndexed.class).addParam(EventBean.class, "event").addParam(int.class, "index").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, WrapperGetterIndexed.class, codegenClassScope).addParam(EventBean.class, "event").addParam(int.class, "index").getBlock()
                 .declareVar(DecoratingEventBean.class, "wrapper", cast(DecoratingEventBean.class, ref("event")))
                 .declareVar(EventBean.class, "wrapped", exprDotMethod(ref("wrapper"), "getUnderlyingEvent"))
                 .ifRefNullReturnNull("wrapped")

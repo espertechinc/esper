@@ -210,7 +210,7 @@ public class SimpleTypeCasterFactory {
         }
 
         public CodegenExpression codegen(CodegenExpression input, Class inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode method = codegenMethodScope.makeChild(Character.class, CharacterCaster.class).addParam(Object.class, "object").getBlock()
+            CodegenMethodNode method = codegenMethodScope.makeChild(Character.class, CharacterCaster.class, codegenClassScope).addParam(Object.class, "object").getBlock()
                     .declareVar(String.class, "value", exprDotMethod(ref("object"), "toString"))
                     .ifCondition(equalsIdentity(exprDotMethod(ref("value"), "length"), constant(0)))
                     .blockReturn(constantNull())

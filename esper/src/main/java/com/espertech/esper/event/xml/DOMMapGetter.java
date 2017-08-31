@@ -130,7 +130,7 @@ public class DOMMapGetter implements EventPropertyGetterSPI, DOMPropertyGetter {
 
     private CodegenMethodNode getValueAsFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember mType = codegenClassScope.makeAddMember(FragmentFactory.class, fragmentFactory);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Node.class, "node").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Node.class, "node").getBlock()
                 .declareVar(Node.class, "result", getValueAsNodeCodegen(ref("node"), codegenMethodScope, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(member(mType.getMemberId()), "getEvent", ref("result")));

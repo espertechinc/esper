@@ -243,7 +243,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         }
 
         public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompString.class).addParam(String.class, "value").addParam(String.class, "lower").addParam(String.class, "upper").getBlock()
+            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompString.class, codegenClassScope).addParam(String.class, "value").addParam(String.class, "lower").addParam(String.class, "upper").getBlock()
                     .ifCondition(relational(exprDotMethod(ref("upper"), "compareTo", ref("lower")), LT, constant(0)))
                     .declareVar(String.class, "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
@@ -303,7 +303,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         }
 
         public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompDouble.class).addParam(double.class, "value").addParam(double.class, "lower").addParam(double.class, "upper").getBlock()
+            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompDouble.class, codegenClassScope).addParam(double.class, "value").addParam(double.class, "lower").addParam(double.class, "upper").getBlock()
                     .ifCondition(relational(ref("lower"), GT, ref("upper")))
                     .declareVar(double.class, "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
@@ -367,7 +367,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         }
 
         public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompLong.class).addParam(long.class, "value").addParam(long.class, "lower").addParam(long.class, "upper").getBlock()
+            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompLong.class, codegenClassScope).addParam(long.class, "value").addParam(long.class, "lower").addParam(long.class, "upper").getBlock()
                     .ifCondition(relational(ref("lower"), GT, ref("upper")))
                     .declareVar(long.class, "temp", ref("upper"))
                     .assignRef("upper", ref("lower"))
@@ -437,7 +437,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         }
 
         public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompBigDecimal.class).addParam(BigDecimal.class, "value").addParam(BigDecimal.class, "lower").addParam(BigDecimal.class, "upper").getBlock()
+            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompBigDecimal.class, codegenClassScope).addParam(BigDecimal.class, "value").addParam(BigDecimal.class, "lower").addParam(BigDecimal.class, "upper").getBlock()
                     .ifRefNullReturnFalse("value")
                     .ifRefNullReturnFalse("lower")
                     .ifRefNullReturnFalse("upper")
@@ -514,7 +514,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         }
 
         public CodegenExpression codegenNoNullCheck(CodegenExpressionRef value, Class valueType, CodegenExpressionRef lower, Class lowerType, CodegenExpressionRef higher, Class higherType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompBigInteger.class).addParam(BigInteger.class, "value").addParam(BigInteger.class, "lower").addParam(BigInteger.class, "upper").getBlock()
+            CodegenBlock block = codegenMethodScope.makeChild(boolean.class, ExprBetweenCompBigInteger.class, codegenClassScope).addParam(BigInteger.class, "value").addParam(BigInteger.class, "lower").addParam(BigInteger.class, "upper").getBlock()
                     .ifRefNullReturnFalse("value")
                     .ifRefNullReturnFalse("lower")
                     .ifRefNullReturnFalse("upper")

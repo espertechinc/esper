@@ -53,7 +53,7 @@ public class SelectExprProcessorEvalByGetter implements ExprForge, ExprEvaluator
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, SelectExprProcessorEvalByGetter.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, SelectExprProcessorEvalByGetter.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()

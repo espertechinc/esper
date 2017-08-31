@@ -51,7 +51,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenCalendar(CalendarWithTimeForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarWithTimeForgeOp.class).addParam(Calendar.class, "cal");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarWithTimeForgeOp.class, codegenClassScope).addParam(Calendar.class, "cal");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -69,7 +69,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenLDT(CalendarWithTimeForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithTimeForgeOp.class).addParam(LocalDateTime.class, "ldt");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, CalendarWithTimeForgeOp.class, codegenClassScope).addParam(LocalDateTime.class, "ldt");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -87,7 +87,7 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     }
 
     public static CodegenExpression codegenZDT(CalendarWithTimeForge forge, CodegenExpression zdt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithTimeForgeOp.class).addParam(ZonedDateTime.class, "zdt");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, CalendarWithTimeForgeOp.class, codegenClassScope).addParam(ZonedDateTime.class, "zdt");
 
 
         CodegenBlock block = methodNode.getBlock();
@@ -174,9 +174,9 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
         Class minType = forge.min.getEvaluationType();
         Class secType = forge.sec.getEvaluationType();
         Class msecType = forge.msec.getEvaluationType();
-        block.declareVar(Integer.class, "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(hourType, methodNode, exprSymbol, codegenClassScope), hourType, methodNode))
-                .declareVar(Integer.class, "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(minType, methodNode, exprSymbol, codegenClassScope), minType, methodNode))
-                .declareVar(Integer.class, "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(secType, methodNode, exprSymbol, codegenClassScope), secType, methodNode))
-                .declareVar(Integer.class, "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(msecType, methodNode, exprSymbol, codegenClassScope), msecType, methodNode));
+        block.declareVar(Integer.class, "hour", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.hour.evaluateCodegen(hourType, methodNode, exprSymbol, codegenClassScope), hourType, methodNode, codegenClassScope))
+                .declareVar(Integer.class, "minute", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.min.evaluateCodegen(minType, methodNode, exprSymbol, codegenClassScope), minType, methodNode, codegenClassScope))
+                .declareVar(Integer.class, "second", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.sec.evaluateCodegen(secType, methodNode, exprSymbol, codegenClassScope), secType, methodNode, codegenClassScope))
+                .declareVar(Integer.class, "msec", SimpleNumberCoercerFactory.SimpleNumberCoercerInt.coerceCodegenMayNull(forge.msec.evaluateCodegen(msecType, methodNode, exprSymbol, codegenClassScope), msecType, methodNode, codegenClassScope));
     }
 }

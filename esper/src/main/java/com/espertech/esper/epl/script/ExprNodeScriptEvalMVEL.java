@@ -56,7 +56,7 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase implements Ex
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprNodeScriptEvalMVEL.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprNodeScriptEvalMVEL.class, codegenClassScope);
 
         CodegenMember member = codegenClassScope.makeAddMember(ExprNodeScriptEvalMVEL.class, this);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);

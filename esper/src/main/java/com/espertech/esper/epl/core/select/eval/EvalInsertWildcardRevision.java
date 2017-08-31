@@ -46,7 +46,7 @@ public class EvalInsertWildcardRevision extends EvalBase implements SelectExprPr
     }
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenMember vae = codegenClassScope.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
         methodNode.getBlock().methodReturn(exprDotMethod(member(vae.getMemberId()), "getValueAddEventBean", arrayAtIndex(refEPS, constant(0))));

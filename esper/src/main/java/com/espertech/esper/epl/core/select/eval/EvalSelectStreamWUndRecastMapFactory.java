@@ -135,7 +135,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
         }
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenExpression value = exprDotMethod(cast(MappedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))), "getProperties");
             methodNode.getBlock().methodReturn(exprDotMethod(CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), "adapterForTypedMap", value, CodegenExpressionBuilder.member(memberResultEventType.getMemberId())));
@@ -194,7 +194,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMember member = codegenClassScope.makeAddMember(EventBeanManufacturer.class, manufacturer);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(MappedEventBean.class, "theEvent", cast(MappedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))

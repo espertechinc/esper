@@ -65,7 +65,7 @@ public class EnumGroupByKeyValueSelectorEventsForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumGroupByKeyValueSelectorEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Map.class, EnumGroupByKeyValueSelectorEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Map.class, EnumGroupByKeyValueSelectorEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))

@@ -19,23 +19,32 @@ public class CodegenClass {
     private final String packageName;
     private final String className;
     private final Class interfaceImplemented;
-    private final IdentityHashMap<Object, CodegenMember> members;
+    private final CodegenCtor optionalCtor;
+    private final List<CodegenNamedParam> explicitMembers;
+    private final IdentityHashMap<Object, CodegenMember> implicitMembers;
     private final CodegenClassMethods methods;
+    private final List<CodegenInnerClass> innerClasses;
 
-    public CodegenClass(Class interfaceClass, CodegenClassScope codegenClassScope, String engineURI, CodegenClassMethods methods) {
+    public CodegenClass(String engineURI, Class interfaceClass, String className, CodegenClassScope codegenClassScope, List<CodegenNamedParam> explicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
         this("com.espertech.esper.generated.uri_" + engineURI,
-                interfaceClass.getSimpleName() + "_" + CodeGenerationIDGenerator.generateClass(),
+                className,
                 interfaceClass,
+                explicitMembers,
                 codegenClassScope.getMembers(),
-                methods);
+                optionalCtor,
+                methods,
+                innerClasses);
     }
 
-    private CodegenClass(String packageName, String className, Class interfaceImplemented, IdentityHashMap<Object, CodegenMember> members, CodegenClassMethods methods) {
+    private CodegenClass(String packageName, String className, Class interfaceImplemented, List<CodegenNamedParam> explicitMembers, IdentityHashMap<Object, CodegenMember> implicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceImplemented = interfaceImplemented;
-        this.members = members;
+        this.explicitMembers = explicitMembers;
+        this.implicitMembers = implicitMembers;
+        this.optionalCtor = optionalCtor;
         this.methods = methods;
+        this.innerClasses = innerClasses;
     }
 
     public String getPackageName() {
@@ -50,8 +59,12 @@ public class CodegenClass {
         return interfaceImplemented;
     }
 
-    public IdentityHashMap<Object, CodegenMember> getMembers() {
-        return members;
+    public List<CodegenNamedParam> getExplicitMembers() {
+        return explicitMembers;
+    }
+
+    public IdentityHashMap<Object, CodegenMember> getImplicitMembers() {
+        return implicitMembers;
     }
 
     public List<CodegenMethod> getPublicMethods() {
@@ -62,8 +75,32 @@ public class CodegenClass {
         return methods.getPrivateMethods();
     }
 
+    public List<CodegenInnerClass> getInnerClasses() {
+        return innerClasses;
+    }
+
+    public CodegenCtor getOptionalCtor() {
+        return optionalCtor;
+    }
+
     public Set<Class> getReferencedClasses() {
         Set<Class> classes = new HashSet<>();
+        addReferencedClasses(interfaceImplemented, implicitMembers, methods, classes);
+        addReferencedClasses(explicitMembers, classes);
+        if (optionalCtor != null) {
+            optionalCtor.mergeClasses(classes);
+        }
+
+        for (CodegenInnerClass inner : innerClasses) {
+            addReferencedClasses(inner.getInterfaceImplemented(), inner.getImplicitMembers(), inner.getMethods(), classes);
+            if (inner.getCtor() != null) {
+                inner.getCtor().mergeClasses(classes);
+            }
+        }
+        return classes;
+    }
+
+    private static void addReferencedClasses(Class interfaceImplemented, Map<Object, CodegenMember> members, CodegenClassMethods methods, Set<Class> classes) {
         classes.add(interfaceImplemented);
         for (Map.Entry<Object, CodegenMember> memberEntry : members.entrySet()) {
             memberEntry.getValue().mergeClasses(classes);
@@ -74,6 +111,11 @@ public class CodegenClass {
         for (CodegenMethod privateMethod : methods.getPrivateMethods()) {
             privateMethod.mergeClasses(classes);
         }
-        return classes;
+    }
+
+    private static void addReferencedClasses(List<CodegenNamedParam> names, Set<Class> classes) {
+        for (CodegenNamedParam param : names) {
+            param.mergeClasses(classes);
+        }
     }
 }

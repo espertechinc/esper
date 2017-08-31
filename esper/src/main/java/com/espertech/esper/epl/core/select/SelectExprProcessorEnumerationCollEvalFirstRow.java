@@ -43,7 +43,7 @@ public class SelectExprProcessorEnumerationCollEvalFirstRow implements ExprEvalu
     }
 
     public static CodegenExpression codegen(SelectExprProcessorEnumerationCollForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorEnumerationCollEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorEnumerationCollEval.class, codegenClassScope);
 
         methodNode.getBlock()
                 .declareVar(Collection.class, EventBean.class, "events", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))

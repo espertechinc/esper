@@ -16,7 +16,7 @@ import java.util.Set;
 public class CodegenStatementContinue extends CodegenStatementBase {
     public final static CodegenStatementContinue INSTANCE = new CodegenStatementContinue();
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("continue");
     }
 

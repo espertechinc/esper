@@ -25,7 +25,7 @@ public class CodegenLegoMayVoid {
         if (forge.getEvaluationType() != void.class) {
             return forge.evaluateCodegen(requiredType, parentNode, exprSymbol, codegenClassScope);
         }
-        CodegenMethodNode methodNode = parentNode.makeChild(Object.class, CodegenLegoMayVoid.class);
+        CodegenMethodNode methodNode = parentNode.makeChild(Object.class, CodegenLegoMayVoid.class, codegenClassScope);
         methodNode.getBlock().expression(forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .methodReturn(constantNull());
         return localMethod(methodNode);

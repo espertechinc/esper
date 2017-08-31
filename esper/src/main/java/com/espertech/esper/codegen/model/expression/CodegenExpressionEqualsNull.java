@@ -22,8 +22,8 @@ public class CodegenExpressionEqualsNull implements CodegenExpression {
         this.not = not;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        lhs.render(builder, imports);
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        lhs.render(builder, imports, isInnerClass);
         builder.append(" ");
         builder.append(not ? "!=" : "==");
         builder.append(" null");

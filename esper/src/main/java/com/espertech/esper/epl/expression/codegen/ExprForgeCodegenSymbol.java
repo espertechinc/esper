@@ -12,10 +12,7 @@ package com.espertech.esper.epl.expression.codegen;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.base.CodegenBlock;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.codegen.base.CodegenSymbolProvider;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -100,7 +97,7 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
         }
     }
 
-    public void derivedSymbolsCodegen(CodegenMethodNode parent, CodegenBlock processBlock) {
+    public void derivedSymbolsCodegen(CodegenMethodNode parent, CodegenBlock processBlock, CodegenClassScope codegenClassScope) {
         for (Map.Entry<Integer, EventTypeWithOptionalFlag> underlying : underlyingStreamNums.entrySet()) {
             Class underlyingType = underlying.getValue().getEventType().getUnderlyingType();
             String name = underlying.getValue().getRef().getRef();
@@ -109,7 +106,7 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
             if (!underlying.getValue().isOptionalEvent()) {
                 processBlock.declareVar(underlyingType, name, cast(underlyingType, exprDotUnderlying(arrayAtIndex)));
             } else {
-                CodegenMethodNode methodNode = parent.makeChild(underlyingType, ExprForgeCodegenSymbol.class).addParam(EventBean[].class, ExprForgeCodegenNames.NAME_EPS);
+                CodegenMethodNode methodNode = parent.makeChild(underlyingType, ExprForgeCodegenSymbol.class, codegenClassScope).addParam(EventBean[].class, ExprForgeCodegenNames.NAME_EPS);
                 methodNode.getBlock()
                         .declareVar(EventBean.class, "event", arrayAtIndex)
                         .ifRefNullReturnNull("event")

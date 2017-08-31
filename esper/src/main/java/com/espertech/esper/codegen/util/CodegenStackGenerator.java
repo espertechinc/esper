@@ -28,7 +28,7 @@ public class CodegenStackGenerator {
         Map<String, Class> currentSymbols = new HashMap<>();
         methodNode.getOptionalSymbolProvider().provide(currentSymbols);
 
-        CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), methodNode.getLocalParams(), methodNode.getCodeCommentDebugInfo());
+        CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), methodNode.getLocalParams(), methodNode.getAdditionalDebugInfo());
         CodegenMethod method = new CodegenMethod(name, footprint, methodNode.getBlock(), true);
         methodNode.setAssignedMethod(method);
         methods.getPublicMethods().add(method);
@@ -54,7 +54,7 @@ public class CodegenStackGenerator {
             for (String name : namesPassed) {
                 Class symbolType = currentSymbols.get(name);
                 if (symbolType == null) {
-                    throw new IllegalStateException("Failed to find named parameter '" + name + "' for method from " + methodNode.getGenerator().getSimpleName());
+                    throw new IllegalStateException("Failed to find named parameter '" + name + "' for method from " + methodNode.getAdditionalDebugInfo());
                 }
                 paramset.add(new CodegenNamedParam(symbolType, name));
             }
@@ -64,7 +64,7 @@ public class CodegenStackGenerator {
         }
 
         String name = "m" + privateMethods.size();
-        CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), paramset, methodNode.getCodeCommentDebugInfo());
+        CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), paramset, methodNode.getAdditionalDebugInfo());
         CodegenMethod method = new CodegenMethod(name, footprint, methodNode.getBlock(), false);
         methodNode.setAssignedMethod(method);
         privateMethods.add(method);

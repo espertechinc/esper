@@ -107,7 +107,7 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod()), underlyingExpression, constant(index));
+        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod(), codegenClassScope), underlyingExpression, constant(index));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -115,6 +115,6 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod()), castUnderlying(getTargetType(), beanExpression), key);
+        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(codegenMethodScope, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod(), codegenClassScope), castUnderlying(getTargetType(), beanExpression), key);
     }
 }

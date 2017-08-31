@@ -53,7 +53,7 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
     }
 
     private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope)  {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .declareVarWCast(EventBean.class, "theEvent", "value")
@@ -86,7 +86,7 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope)  {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .declareVarWCast(EventBean.class, "theEvent", "value")

@@ -70,7 +70,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     public static CodegenExpression codegenDate(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).addParam(Date.class, "d");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(Date.class, "d");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("d")
@@ -86,7 +86,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     public static CodegenExpression codegenCal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).addParam(Calendar.class, "cal");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(Calendar.class, "cal");
 
         methodNode.getBlock()
                 .ifRefNullReturnNull("cal")
@@ -191,7 +191,7 @@ public class ReformatBetweenNonConstantParamsForgeOp implements ReformatOp {
     }
 
     private static CodegenExpression codegenLongInternal(ReformatBetweenNonConstantParamsForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class).addParam(long.class, "ts");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ReformatBetweenNonConstantParamsForgeOp.class, codegenClassScope).addParam(long.class, "ts");
 
         CodegenBlock block = methodNode.getBlock();
         codegenLongCoercion(block, "first", forge.start, forge.startCoercer, methodNode, exprSymbol, codegenClassScope);

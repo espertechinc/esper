@@ -60,7 +60,7 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements 
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember member = codegenClassScope.makeAddMember(ExprNodeScriptEvalJSR223.class, this);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprNodeScriptEvalJSR223.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprNodeScriptEvalJSR223.class, codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         CodegenBlock block = methodNode.getBlock()

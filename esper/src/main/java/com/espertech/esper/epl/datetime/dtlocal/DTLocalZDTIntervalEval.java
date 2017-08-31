@@ -36,7 +36,7 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class).addParam(ZonedDateTime.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class, codegenClassScope).addParam(ZonedDateTime.class, "target");
 
         methodNode.getBlock()
                 .declareVar(long.class, "time", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("target")))
@@ -51,7 +51,7 @@ class DTLocalZDTIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalZDTIntervalForge forge, CodegenExpression start, CodegenExpression end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class).addParam(ZonedDateTime.class, "startTimestamp").addParam(ZonedDateTime.class, "endTimestamp");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalZDTIntervalEval.class, codegenClassScope).addParam(ZonedDateTime.class, "startTimestamp").addParam(ZonedDateTime.class, "endTimestamp");
 
         methodNode.getBlock()
                 .declareVar(long.class, "start", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("startTimestamp")))

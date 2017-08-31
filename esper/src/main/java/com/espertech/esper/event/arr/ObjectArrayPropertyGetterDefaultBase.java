@@ -69,7 +69,7 @@ public abstract class ObjectArrayPropertyGetterDefaultBase implements ObjectArra
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenExpression value, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "oa").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "oa").getBlock()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("oa"), codegenMethodScope, codegenClassScope))
                 .methodReturn(handleCreateFragmentCodegen(ref("value"), codegenClassScope));
     }

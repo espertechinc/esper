@@ -52,7 +52,7 @@ public class EnumReverseForge implements EnumEval, EnumForge {
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, EnumReverseForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, EnumReverseForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .declareVar(ArrayList.class, "result", newInstance(ArrayList.class, EnumForgeCodegenNames.REF_ENUMCOLL))

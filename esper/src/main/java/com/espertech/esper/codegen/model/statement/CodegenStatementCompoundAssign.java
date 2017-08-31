@@ -26,9 +26,9 @@ public class CodegenStatementCompoundAssign extends CodegenStatementBase {
         this.rhs = rhs;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append(ref).append(" ").append(op).append("=");
-        rhs.render(builder, imports);
+        rhs.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {

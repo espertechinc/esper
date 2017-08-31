@@ -26,7 +26,7 @@ public class CodegenStatementDeclareVarWCast extends CodegenStatementBase {
         this.rhsName = rhsName;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         appendClassName(builder, clazz, null, imports);
         builder.append(" ").append(var).append("=").append("(");
         appendClassName(builder, clazz, null, imports);

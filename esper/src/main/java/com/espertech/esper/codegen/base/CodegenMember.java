@@ -32,8 +32,9 @@ public class CodegenMember {
         this.object = object;
     }
 
-    public Class getClazz() {
-        return clazz;
+    public Class getMemberClass() {
+        // returns the actual implementation may safe a virtual call
+        return object == null ? clazz : object.getClass();
     }
 
     public Class getOptionalTypeParam() {
@@ -62,7 +63,7 @@ public class CodegenMember {
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(clazz);
+        classes.add(getMemberClass());
         if (optionalTypeParam != null) {
             classes.add(optionalTypeParam);
         }

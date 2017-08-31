@@ -11,17 +11,12 @@
 package com.espertech.esper.codegen.compile;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.codegen.core.CodegenClass;
-import com.espertech.esper.codegen.core.CodegenIndent;
+import com.espertech.esper.codegen.core.*;
 import com.espertech.esper.codegen.base.CodegenMember;
-import com.espertech.esper.codegen.core.CodegenMethod;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.codegen.compile.CodeGenerationUtil.*;
@@ -33,12 +28,12 @@ public class CodegenClassGenerator {
 
     public static <T> T compile(CodegenClass clazz, EngineImportService engineImportService, Class<T> interfaceClass, Supplier<String> debugInformation) throws CodegenCompilerException {
         // build members and imports
-        Set<CodegenMember> memberSet = new LinkedHashSet<>(clazz.getMembers().values());
+        Set<CodegenMember> memberSet = new LinkedHashSet<>(clazz.getImplicitMembers().values());
         Set<Class> classes = clazz.getReferencedClasses();
         Map<Class, String> imports = compileImports(classes);
 
         // generate code
-        String code = generateCode(imports, clazz, memberSet, null);
+        String code = generateCode(imports, clazz, memberSet);
         String fullyQualifiedClassName = clazz.getPackageName() + "." + clazz.getClassName();
 
         // compiler
@@ -63,7 +58,7 @@ public class CodegenClassGenerator {
         Map<Class, String> imports = new HashMap<>();
         Map<String, Class> assignments = new HashMap<>();
         for (Class clazz : classes) {
-            if (clazz == null) {
+            if (clazz == null || clazz.getEnclosingClass() != null) {
                 continue;
             }
             if (clazz.isArray()) {
@@ -96,61 +91,36 @@ public class CodegenClassGenerator {
         assignments.put(clazz.getSimpleName(), clazz);
     }
 
-    private static String generateCode(Map<Class, String> imports, CodegenClass clazz, Set<CodegenMember> memberSet, String classLevelComment) {
+    private static String generateCode(Map<Class, String> imports, CodegenClass clazz, Set<CodegenMember> implicitMemberSet) {
         StringBuilder builder = new StringBuilder();
 
         packagedecl(builder, clazz.getPackageName());
         importsdecl(builder, imports.keySet());
-        if (classLevelComment != null) {
-            builder.append("// ").append(classLevelComment).append("\n");
-        }
-        classimplements(builder, clazz.getClassName(), clazz.getInterfaceImplemented());
+        classimplements(builder, clazz.getClassName(), clazz.getInterfaceImplemented(), true, false, imports);
 
         // members
-        for (CodegenMember member : memberSet) {
-            INDENT.indent(builder, 1);
-            appendClassName(builder, getMemberClass(member), member.getOptionalTypeParam(), imports);
-            builder.append(" ");
-            member.getMemberId().render(builder);
-            builder.append(";\n");
-        }
-        builder.append("\n");
+        generateCodeMembers(builder, clazz.getExplicitMembers(), clazz.getOptionalCtor(), implicitMemberSet, imports, 1);
 
         // ctor
-        INDENT.indent(builder, 1);
-        builder.append("public ").append(clazz.getClassName()).append("(");
-        String delimiter = "";
-        for (CodegenMember member : memberSet) {
-            builder.append(delimiter);
-            appendClassName(builder, getMemberClass(member), member.getOptionalTypeParam(), imports);
-            builder.append(" ");
-            member.getMemberId().renderPrefixed(builder, 'p');
-            delimiter = ",";
-        }
-        builder.append("){\n");
-        for (CodegenMember member : memberSet) {
-            INDENT.indent(builder, 2);
-            builder.append("this.");
-            member.getMemberId().render(builder);
-            builder.append("=");
-            member.getMemberId().renderPrefixed(builder, 'p');
-            builder.append(";\n");
-        }
-        INDENT.indent(builder, 1);
-        builder.append("}\n");
-        builder.append("\n");
+        generateCodeCtor(builder, clazz.getClassName(), false, clazz.getOptionalCtor(), implicitMemberSet, imports, 0);
 
-        // public methods
-        for (CodegenMethod publicMethod : clazz.getPublicMethods()) {
-            publicMethod.render(builder, imports, true, INDENT);
-            builder.append("\n");
-        }
+        // methods
+        generateCodeMethods(builder, false, clazz.getPublicMethods(), clazz.getPrivateMethods(), imports, 0);
 
-        // private methods
-        Set<CodegenMethod> methodSet = new LinkedHashSet<>(clazz.getPrivateMethods());
-        for (CodegenMethod method : methodSet) {
-            method.render(builder, imports, false, INDENT);
+        // inner classes
+        for (CodegenInnerClass inner : clazz.getInnerClasses()) {
             builder.append("\n");
+            INDENT.indent(builder, 1);
+            classimplements(builder, inner.getClassName(), inner.getInterfaceImplemented(), false, true, imports);
+
+            Set<CodegenMember> innerMembers = new LinkedHashSet<>(inner.getImplicitMembers().values());
+            generateCodeMembers(builder, inner.getExplicitMembers(), inner.getCtor(), innerMembers, imports, 2);
+
+            generateCodeCtor(builder, inner.getClassName(), true, inner.getCtor(), innerMembers, imports, 1);
+
+            generateCodeMethods(builder, true, inner.getMethods().getPublicMethods(), inner.getMethods().getPrivateMethods(), imports, 1);
+            INDENT.indent(builder, 1);
+            builder.append("}\n");
         }
 
         // close
@@ -158,7 +128,94 @@ public class CodegenClassGenerator {
         return builder.toString();
     }
 
-    private static Class getMemberClass(CodegenMember member) {
-        return member.getObject() == null ? member.getClazz() : member.getObject().getClass();
+    private static void generateCodeMethods(StringBuilder builder, boolean isInnerClass, List<CodegenMethod> publicMethods, List<CodegenMethod> privateMethods, Map<Class, String> imports, int additionalIndent) {
+        // public methods
+        String delimiter = "";
+        for (CodegenMethod publicMethod : publicMethods) {
+            builder.append(delimiter);
+            publicMethod.render(builder, imports, true, isInnerClass, INDENT, additionalIndent);
+            delimiter = "\n";
+        }
+
+        // private methods
+        for (CodegenMethod method : privateMethods) {
+            builder.append(delimiter);
+            method.render(builder, imports, false, isInnerClass, INDENT, additionalIndent);
+            delimiter = "\n";
+        }
+    }
+
+    private static void generateCodeCtor(StringBuilder builder, String className, boolean isInnerClass, CodegenCtor optionalCtor, Set<CodegenMember> memberSet, Map<Class, String> imports, int additionalIndent) {
+        INDENT.indent(builder, 1 + additionalIndent);
+        builder.append("public ").append(className).append("(");
+        String delimiter = "";
+
+        // parameters
+        if (optionalCtor != null) {
+            for (CodegenCtorParam param : optionalCtor.getParams()) {
+                builder.append(delimiter);
+                param.renderAsParameter(builder, imports);
+                delimiter = ",";
+            }
+        }
+        for (CodegenMember member : memberSet) {
+            builder.append(delimiter);
+            appendClassName(builder, member.getMemberClass(), member.getOptionalTypeParam(), imports);
+            builder.append(" ");
+            member.getMemberId().renderPrefixed(builder, 'p');
+            delimiter = ",";
+        }
+
+        builder.append("){\n");
+
+        // code assigning parameters
+        if (optionalCtor != null) {
+            for (CodegenCtorParam param : optionalCtor.getParams()) {
+                INDENT.indent(builder, 2 + additionalIndent);
+                builder.append("this.").append(param.getName()).append("=").append(param.getName()).append(";\n");
+            }
+        }
+        for (CodegenMember member : memberSet) {
+            INDENT.indent(builder, 2 + additionalIndent);
+            builder.append("this.");
+            member.getMemberId().render(builder);
+            builder.append("=");
+            member.getMemberId().renderPrefixed(builder, 'p');
+            builder.append(";\n");
+        }
+        if (optionalCtor != null) {
+            optionalCtor.getBlock().render(builder, imports, isInnerClass, 2 + additionalIndent, INDENT);
+        }
+
+        INDENT.indent(builder, 1 + additionalIndent);
+        builder.append("}\n");
+        builder.append("\n");
+    }
+
+    private static void generateCodeMembers(StringBuilder builder, List<CodegenNamedParam> explicitMembers, CodegenCtor optionalCtor, Set<CodegenMember> memberSet, Map<Class, String> imports, int indent) {
+        if (optionalCtor != null) {
+            for (CodegenCtorParam param : optionalCtor.getParams()) {
+                INDENT.indent(builder, indent);
+                builder.append("final ");
+                param.renderAsMember(builder, imports);
+                builder.append(";\n");
+            }
+        }
+        for (CodegenMember member : memberSet) {
+            INDENT.indent(builder, indent);
+            builder.append("final ");
+            appendClassName(builder, member.getMemberClass(), member.getOptionalTypeParam(), imports);
+            builder.append(" ");
+            member.getMemberId().render(builder);
+            builder.append(";\n");
+        }
+        for (CodegenNamedParam param : explicitMembers) {
+            INDENT.indent(builder, indent);
+            builder.append("final ");
+            appendClassName(builder, param.getType(), null, imports);
+            builder.append(" ").append(param.getName());
+            builder.append(";\n");
+        }
+        builder.append("\n");
     }
 }

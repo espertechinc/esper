@@ -52,7 +52,7 @@ public class EvalInsertWildcardJoinRevision extends EvalBase implements SelectEx
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember processor = codegenClassScope.makeAddMember(ValueAddEventProcessor.class, vaeProcessor);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenMethodNode jw = joinWildcardProcessorForge.processCodegen(memberResultEventType, memberEventAdapterService, methodNode, selectSymbol, exprSymbol, codegenClassScope);
         methodNode.getBlock().methodReturn(exprDotMethod(CodegenExpressionBuilder.member(processor.getMemberId()), "getValueAddEventBean", localMethod(jw)));
         return methodNode;

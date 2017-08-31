@@ -57,7 +57,7 @@ public class SelectExprProcessorWDeliveryCallback implements SelectExprProcessor
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember memberCallback = codegenClassScope.makeAddMember(SelectExprProcessorDeliveryCallback.class, selectExprProcessorCallback);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenMethodNode bindMethod = bindProcessorForge.processCodegen(methodNode, exprSymbol, codegenClassScope);
         methodNode.getBlock().methodReturn(exprDotMethod(CodegenExpressionBuilder.member(memberCallback.getMemberId()), "selected", localMethod(bindMethod)));
         return methodNode;

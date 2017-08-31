@@ -83,7 +83,7 @@ public class EnumMinMaxScalarLambdaForgeEval implements EnumEval {
         Class innerTypeBoxed = JavaClassHelper.getBoxedType(innerType);
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(innerTypeBoxed, EnumMinMaxScalarLambdaForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(innerTypeBoxed, EnumMinMaxScalarLambdaForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(innerTypeBoxed, "minKey", constantNull())

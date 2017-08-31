@@ -22,13 +22,13 @@ public class CodegenChainElement {
         this.optionalParams = optionalParams;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append(method).append("(");
         if (optionalParams != null) {
             String delimiter = "";
             for (CodegenExpression param : optionalParams) {
                 builder.append(delimiter);
-                param.render(builder, imports);
+                param.render(builder, imports, isInnerClass);
                 delimiter = ",";
             }
         }

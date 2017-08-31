@@ -64,7 +64,7 @@ public class EnumMostLeastFrequentScalarForge extends EnumForgeBase implements E
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(returnType), EnumMostLeastFrequentScalarForge.class).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(JavaClassHelper.getBoxedType(returnType), EnumMostLeastFrequentScalarForge.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(constantNull())
                 .declareVar(Map.class, "items", newInstance(LinkedHashMap.class));

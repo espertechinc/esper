@@ -41,7 +41,7 @@ public class DTLocalZonedDateTimeOpsReformatEval extends DTLocalEvaluatorCalopRe
     }
 
     public static CodegenExpression codegen(DTLocalZonedDateTimeOpsReformatForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalZonedDateTimeOpsReformatEval.class).addParam(ZonedDateTime.class, "zdt");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalZonedDateTimeOpsReformatEval.class, codegenClassScope).addParam(ZonedDateTime.class, "zdt");
 
 
         CodegenBlock block = methodNode.getBlock();

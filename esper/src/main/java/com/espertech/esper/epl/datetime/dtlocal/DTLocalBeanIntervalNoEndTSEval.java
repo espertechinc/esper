@@ -41,7 +41,7 @@ public class DTLocalBeanIntervalNoEndTSEval implements DTLocalEvaluator {
     }
 
     public static CodegenExpression codegen(DTLocalBeanIntervalNoEndTSForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.returnType, DTLocalBeanIntervalNoEndTSEval.class).addParam(EventBean.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.returnType, DTLocalBeanIntervalNoEndTSEval.class, codegenClassScope).addParam(EventBean.class, "target");
 
         methodNode.getBlock()
                 .declareVar(forge.getterResultType, "timestamp", CodegenLegoCast.castSafeFromObjectType(forge.getterResultType, forge.getter.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)))

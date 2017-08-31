@@ -53,20 +53,20 @@ public class CodegenStatementIf extends CodegenStatementWBlockBase {
         return optionalElse;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
 
         Iterator<CodegenStatementIfConditionBlock> it = blocks.iterator();
         CodegenStatementIfConditionBlock first = it.next();
-        first.render(builder, imports, level, indent);
+        first.render(builder, imports, isInnerClass, level, indent);
 
         while (it.hasNext()) {
             builder.append(" else ");
-            it.next().render(builder, imports, level, indent);
+            it.next().render(builder, imports, isInnerClass, level, indent);
         }
 
         if (optionalElse != null) {
             builder.append(" else {\n");
-            optionalElse.render(builder, imports, level + 1, indent);
+            optionalElse.render(builder, imports, isInnerClass, level + 1, indent);
             indent.indent(builder, level);
             builder.append("}");
         }

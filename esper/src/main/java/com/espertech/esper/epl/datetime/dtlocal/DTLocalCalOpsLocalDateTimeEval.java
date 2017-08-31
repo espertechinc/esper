@@ -37,7 +37,7 @@ public class DTLocalCalOpsLocalDateTimeEval extends DTLocalEvaluatorCalOpsCalBas
     }
 
     public static CodegenExpression codegen(DTLocalCalOpsLocalDateTimeForge forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, DTLocalCalOpsLocalDateTimeEval.class).addParam(LocalDateTime.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(LocalDateTime.class, DTLocalCalOpsLocalDateTimeEval.class, codegenClassScope).addParam(LocalDateTime.class, "target");
         CodegenBlock block = methodNode.getBlock();
         DTLocalUtil.evaluateCalOpsLDTCodegen(block, "target", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);
         block.methodReturn(ref("target"));

@@ -47,7 +47,7 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
     }
 
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(fieldTop))))
                 .methodReturn(conditional(equalsNull(ref("inner")), constantNull(), getter.underlyingGetCodegen(ref("inner"), codegenMethodScope, codegenClassScope)));
     }
@@ -65,7 +65,7 @@ public class AvroEventBeanGetterNestedDynamicPoly implements EventPropertyGetter
     }
 
     private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(Schema.Field.class, "field", exprDotMethodChain(ref("record")).add("getSchema").add("getField", constant(fieldTop)))
                 .ifRefNullReturnFalse("field")
                 .declareVar(Object.class, "inner", exprDotMethod(ref("record"), "get", constant(fieldTop)))

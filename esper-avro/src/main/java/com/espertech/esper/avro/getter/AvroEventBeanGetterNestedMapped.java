@@ -44,8 +44,8 @@ public class AvroEventBeanGetterNestedMapped implements EventPropertyGetterSPI {
         return AvroEventBeanGetterMapped.getAvroMappedValueWNullCheck(map, key);
     }
 
-    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+    private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(top))))
                 .ifRefNullReturnNull("inner")
                 .declareVar(Map.class, "map", cast(Map.class, exprDotMethod(ref("inner"), "get", constant(pos))))
@@ -73,7 +73,7 @@ public class AvroEventBeanGetterNestedMapped implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(getCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

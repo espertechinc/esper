@@ -230,7 +230,7 @@ public enum MinMaxTypeEnum {
                 return constantNull();
             }
 
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigInteger.class, ComputerBigIntCoerce.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigInteger.class, ComputerBigIntCoerce.class, codegenClassScope);
             CodegenBlock block = methodNode.getBlock();
 
             block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(r0Type, methodNode, exprSymbol, codegenClassScope));
@@ -328,7 +328,7 @@ public enum MinMaxTypeEnum {
             if (r0Type == null || r1Type == null) {
                 return constantNull();
             }
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigDecimal.class, ComputerBigDecCoerce.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(BigDecimal.class, ComputerBigDecCoerce.class, codegenClassScope);
             CodegenBlock block = methodNode.getBlock();
 
             block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(r0Type, methodNode, exprSymbol, codegenClassScope));
@@ -373,7 +373,7 @@ public enum MinMaxTypeEnum {
         if (r0Type == null || r1Type == null) {
             return constantNull();
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, MaxComputerDoubleCoerce.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, MaxComputerDoubleCoerce.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock();
 
         block.declareVar(r0Type, "r0", nodes[0].getForge().evaluateCodegen(r0Type, methodNode, exprSymbol, codegenClassScope));

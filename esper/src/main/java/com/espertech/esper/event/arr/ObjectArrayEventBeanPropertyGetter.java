@@ -42,8 +42,8 @@ public class ObjectArrayEventBeanPropertyGetter implements ObjectArrayEventPrope
         return theEvent.getUnderlying();
     }
 
-    private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(underlyingType, this.getClass()).addParam(Object[].class, "array").getBlock()
+    private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(underlyingType, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "eventBean", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("eventBean")
                 .methodReturn(cast(underlyingType, exprDotUnderlying(cast(EventBean.class, ref("eventBean")))));
@@ -78,7 +78,7 @@ public class ObjectArrayEventBeanPropertyGetter implements ObjectArrayEventPrope
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getObjectArrayCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(getObjectArrayCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

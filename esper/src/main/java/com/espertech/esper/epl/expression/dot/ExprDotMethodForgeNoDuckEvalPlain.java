@@ -67,7 +67,7 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
     public static CodegenExpression codegenPlain(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class returnType = JavaClassHelper.getBoxedType(forge.getMethod().getReturnType());
         CodegenMember methodMember = codegenClassScope.makeAddMember(Method.class, forge.getMethod().getJavaMethod());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDotMethodForgeNoDuckEvalPlain.class).addParam(forge.getMethod().getDeclaringClass(), "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDotMethodForgeNoDuckEvalPlain.class, codegenClassScope).addParam(forge.getMethod().getDeclaringClass(), "target");
 
         CodegenBlock block = methodNode.getBlock();
 

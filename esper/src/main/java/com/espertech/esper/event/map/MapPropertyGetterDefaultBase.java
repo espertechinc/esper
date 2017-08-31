@@ -70,7 +70,7 @@ public abstract class MapPropertyGetterDefaultBase implements MapEventPropertyGe
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) throws PropertyAccessException {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "underlying").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "underlying").getBlock()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("underlying"), codegenMethodScope, codegenClassScope))
                 .methodReturn(handleCreateFragmentCodegen(ref("value"), codegenClassScope));
     }

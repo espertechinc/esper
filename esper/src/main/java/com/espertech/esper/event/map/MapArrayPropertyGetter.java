@@ -72,8 +72,8 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
         return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
     }
 
-    private CodegenMethodNode getMapInternalCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").addParam(int.class, "index").getBlock()
+    private CodegenMethodNode getMapInternalCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").addParam(int.class, "index").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", ref("value"), ref("index")));
     }
@@ -90,7 +90,7 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember mSvc = codegenClassScope.makeAddMember(EventAdapterService.class, eventAdapterService);
         CodegenMember mType = codegenClassScope.makeAddMember(EventType.class, fragmentType);
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNFragmentNonPojo", ref("value"), member(mType.getMemberId()), member(mSvc.getMemberId())));
     }
@@ -108,7 +108,7 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getMapInternalCodegen(codegenMethodScope), underlyingExpression, constant(index));
+        return localMethod(getMapInternalCodegen(codegenMethodScope, codegenClassScope), underlyingExpression, constant(index));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -120,6 +120,6 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
     }
 
     public CodegenExpression eventBeanGetIndexedCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpression beanExpression, CodegenExpression key) {
-        return localMethod(getMapInternalCodegen(codegenMethodScope), castUnderlying(Map.class, beanExpression), key);
+        return localMethod(getMapInternalCodegen(codegenMethodScope, codegenClassScope), castUnderlying(Map.class, beanExpression), key);
     }
 }

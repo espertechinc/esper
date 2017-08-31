@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface CodegenExpression {
-    void render(StringBuilder builder, Map<Class, String> imports);
+    void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass);
 
     void mergeClasses(Set<Class> classes);
 }

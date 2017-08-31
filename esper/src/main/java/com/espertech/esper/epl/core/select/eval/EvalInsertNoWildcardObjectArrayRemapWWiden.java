@@ -74,7 +74,7 @@ public class EvalInsertNoWildcardObjectArrayRemapWWiden implements SelectExprPro
     }
 
     public static CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprForge[] forges, String[] propertyNames, int[] remapped, TypeWidener[] optionalWideners) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, EvalInsertNoWildcardObjectArrayRemap.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, EvalInsertNoWildcardObjectArrayRemap.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "result", newArray(Object.class, constant(propertyNames.length)));
         for (int i = 0; i < forges.length; i++) {

@@ -51,9 +51,9 @@ public class CodegenStatementTryCatch extends CodegenStatementWBlockBase {
         return finallyBlock;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         builder.append("try {\n");
-        tryBlock.render(builder, imports, level + 1, indent);
+        tryBlock.render(builder, imports, isInnerClass, level + 1, indent);
         indent.indent(builder, level);
         builder.append("}");
 
@@ -65,7 +65,7 @@ public class CodegenStatementTryCatch extends CodegenStatementWBlockBase {
             builder.append(' ');
             builder.append(pair.getName());
             builder.append(") {\n");
-            pair.getBlock().render(builder, imports, level + 1, indent);
+            pair.getBlock().render(builder, imports, isInnerClass, level + 1, indent);
             indent.indent(builder, level);
             builder.append("}");
             delimiter = "\n";
@@ -74,7 +74,7 @@ public class CodegenStatementTryCatch extends CodegenStatementWBlockBase {
             builder.append("\n");
             indent.indent(builder, level);
             builder.append("finally {\n");
-            finallyBlock.render(builder, imports, level + 1, indent);
+            finallyBlock.render(builder, imports, isInnerClass, level + 1, indent);
             indent.indent(builder, level);
             builder.append("}");
         }

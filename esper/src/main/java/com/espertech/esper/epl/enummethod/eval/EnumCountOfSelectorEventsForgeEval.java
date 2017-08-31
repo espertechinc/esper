@@ -56,7 +56,7 @@ public class EnumCountOfSelectorEventsForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumCountOfSelectorEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(int.class, EnumCountOfSelectorEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(int.class, EnumCountOfSelectorEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(int.class, "count", constant(0));

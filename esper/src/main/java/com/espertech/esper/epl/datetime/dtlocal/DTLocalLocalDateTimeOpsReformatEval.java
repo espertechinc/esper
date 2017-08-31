@@ -40,7 +40,7 @@ public class DTLocalLocalDateTimeOpsReformatEval extends DTLocalEvaluatorCalopRe
     }
 
     public static CodegenExpression codegen(DTLocalLocalDateTimeOpsReformatForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalLocalDateTimeOpsReformatEval.class).addParam(LocalDateTime.class, "ldt");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.reformatForge.getReturnType(), DTLocalLocalDateTimeOpsReformatEval.class, codegenClassScope).addParam(LocalDateTime.class, "ldt");
 
         CodegenBlock block = methodNode.getBlock();
         DTLocalUtil.evaluateCalOpsLDTCodegen(block, "ldt", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);

@@ -51,7 +51,7 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
     }
 
     public static CodegenExpression codegen(ExprNewStructNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Map.class, ExprNewStructNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Map.class, ExprNewStructNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Map.class, "props", newInstance(HashMap.class));
@@ -75,7 +75,7 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
     }
 
     public static CodegenExpression codegenTypeableSingle(ExprNewStructNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprNewStructNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprNewStructNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "rows", newArray(Object.class, constant(forge.getForgeRenderable().getColumnNames().length)));

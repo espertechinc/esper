@@ -64,7 +64,7 @@ public class EnumCountOfSelectorScalarForgeEval implements EnumEval {
         CodegenMember typeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.type);
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(int.class, EnumCountOfSelectorScalarForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(int.class, EnumCountOfSelectorScalarForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(int.class, "count", constant(0))

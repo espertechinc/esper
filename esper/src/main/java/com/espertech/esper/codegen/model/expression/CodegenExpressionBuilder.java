@@ -162,6 +162,10 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionNewInstance(clazz, params);
     }
 
+    public static CodegenExpression newInstanceInnerClass(String name, CodegenExpression... params) {
+        return new CodegenExpressionNewInstanceInnerClass(name, params);
+    }
+
     public static CodegenExpression relational(CodegenExpression lhs, CodegenExpressionRelational.CodegenRelational op, CodegenExpression rhs) {
         return new CodegenExpressionRelational(lhs, op, rhs);
     }
@@ -170,11 +174,11 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionNewArray(component, expression);
     }
 
-    public static void renderExpressions(StringBuilder builder, CodegenExpression[] expressions, Map<Class, String> imports) {
+    public static void renderExpressions(StringBuilder builder, CodegenExpression[] expressions, Map<Class, String> imports, boolean isInnerClass) {
         String delimiter = "";
         for (CodegenExpression expression : expressions) {
             builder.append(delimiter);
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
             delimiter = ",";
         }
     }

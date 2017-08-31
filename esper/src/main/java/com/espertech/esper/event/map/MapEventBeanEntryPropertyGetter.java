@@ -56,7 +56,7 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value");
         return block.declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")))
@@ -91,7 +91,7 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")
                 .declareVar(EventBean.class, "theEvent", cast(EventBean.class, ref("value")))

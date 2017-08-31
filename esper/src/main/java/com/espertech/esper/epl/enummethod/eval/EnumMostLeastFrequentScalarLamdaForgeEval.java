@@ -77,7 +77,7 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
         Class returnType = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(returnType, EnumMostLeastFrequentScalarLamdaForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(returnType, EnumMostLeastFrequentScalarLamdaForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))

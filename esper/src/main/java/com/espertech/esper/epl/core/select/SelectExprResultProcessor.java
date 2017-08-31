@@ -100,7 +100,7 @@ public class SelectExprResultProcessor implements SelectExprProcessor, SelectExp
     }
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode processMethod = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode processMethod = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenExpressionRef isSythesize = selectSymbol.getAddSynthesize(processMethod);
 
         CodegenMethodNode syntheticMethod = syntheticProcessorForge.processCodegen(memberResultEventType, memberEventAdapterService, processMethod, selectSymbol, exprSymbol, codegenClassScope);

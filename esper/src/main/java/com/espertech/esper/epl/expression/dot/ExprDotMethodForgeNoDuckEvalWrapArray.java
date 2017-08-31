@@ -48,12 +48,12 @@ public class ExprDotMethodForgeNoDuckEvalWrapArray extends ExprDotMethodForgeNoD
     }
 
     public static CodegenExpression codegenWrapArray(ExprDotMethodForgeNoDuck forge, CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDotMethodForgeNoDuckEvalWrapArray.class).addParam(innerType, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDotMethodForgeNoDuckEvalWrapArray.class, codegenClassScope).addParam(innerType, "target");
 
         Class returnType = forge.getMethod().getReturnType();
         methodNode.getBlock()
                 .declareVar(JavaClassHelper.getBoxedType(returnType), "array", ExprDotMethodForgeNoDuckEvalPlain.codegenPlain(forge, ref("target"), innerType, methodNode, exprSymbol, codegenClassScope))
-                .methodReturn(CollectionUtil.arrayToCollectionAllowNullCodegen(methodNode, returnType, ref("array")));
+                .methodReturn(CollectionUtil.arrayToCollectionAllowNullCodegen(methodNode, returnType, ref("array"), codegenClassScope));
         return localMethod(methodNode, inner);
     }
 }

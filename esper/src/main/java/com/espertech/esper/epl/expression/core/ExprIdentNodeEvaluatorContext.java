@@ -50,7 +50,7 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
     }
 
     public CodegenExpression codegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(resultType, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(resultType, this.getClass(), codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         methodNode.getBlock()

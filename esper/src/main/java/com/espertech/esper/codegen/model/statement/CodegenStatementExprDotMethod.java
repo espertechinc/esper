@@ -30,16 +30,16 @@ public class CodegenStatementExprDotMethod extends CodegenStatementBase {
         this.params = params;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (expression instanceof CodegenExpressionRef) {
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
         } else {
             builder.append("(");
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
             builder.append(")");
         }
         builder.append('.').append(method).append("(");
-        renderExpressions(builder, params, imports);
+        renderExpressions(builder, params, imports, isInnerClass);
         builder.append(")");
     }
 

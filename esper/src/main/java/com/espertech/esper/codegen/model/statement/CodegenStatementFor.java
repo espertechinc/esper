@@ -40,17 +40,17 @@ public class CodegenStatementFor extends CodegenStatementWBlockBase {
         this.block = block;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         builder.append("for (");
         appendClassName(builder, type, null, imports);
         builder.append(" ").append(name).append("=");
-        initialization.render(builder, imports);
+        initialization.render(builder, imports, isInnerClass);
         builder.append("; ");
-        termination.render(builder, imports);
+        termination.render(builder, imports, isInnerClass);
         builder.append("; ");
-        increment.render(builder, imports);
+        increment.render(builder, imports, isInnerClass);
         builder.append(") {\n");
-        block.render(builder, imports, level + 1, indent);
+        block.render(builder, imports, isInnerClass, level + 1, indent);
         indent.indent(builder, level);
         builder.append("}\n");
     }

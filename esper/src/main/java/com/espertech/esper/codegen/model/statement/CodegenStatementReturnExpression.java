@@ -25,9 +25,9 @@ public class CodegenStatementReturnExpression extends CodegenStatementBase imple
         this.expression = expression;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("return ");
-        expression.render(builder, imports);
+        expression.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {

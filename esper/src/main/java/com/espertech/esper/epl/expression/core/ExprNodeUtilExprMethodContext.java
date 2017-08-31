@@ -50,7 +50,7 @@ public class ExprNodeUtilExprMethodContext implements ExprForge, ExprEvaluator, 
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EPLMethodInvocationContext.class, ExprNodeUtilExprMethodContext.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EPLMethodInvocationContext.class, ExprNodeUtilExprMethodContext.class, codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         CodegenExpression stmtName = exprDotMethod(refExprEvalCtx, "getStatementName");

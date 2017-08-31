@@ -39,7 +39,7 @@ public class DTLocalCalOpsZonedDateTimeEval extends DTLocalEvaluatorCalOpsCalBas
     }
 
     public static CodegenExpression codegen(DTLocalCalOpsZonedDateTimeForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, DTLocalCalOpsZonedDateTimeEval.class).addParam(ZonedDateTime.class, "zdt");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(ZonedDateTime.class, DTLocalCalOpsZonedDateTimeEval.class, codegenClassScope).addParam(ZonedDateTime.class, "zdt");
 
         CodegenBlock block = methodNode.getBlock();
         evaluateCalOpsZDTCodegen(block, "zdt", forge.calendarForges, methodNode, exprSymbol, codegenClassScope);

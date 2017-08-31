@@ -35,7 +35,7 @@ public class DTLocalCalIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalCalIntervalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalCalIntervalEval.class).addParam(Calendar.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalCalIntervalEval.class, codegenClassScope).addParam(Calendar.class, "target");
 
         methodNode.getBlock()
                 .declareVar(long.class, "time", exprDotMethod(ref("target"), "getTimeInMillis"))
@@ -50,7 +50,7 @@ public class DTLocalCalIntervalEval extends DTLocalEvaluatorIntervalBase {
     }
 
     public static CodegenExpression codegen(DTLocalCalIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalCalIntervalEval.class).addParam(Calendar.class, "start").addParam(Calendar.class, "end");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, DTLocalCalIntervalEval.class, codegenClassScope).addParam(Calendar.class, "start").addParam(Calendar.class, "end");
 
         methodNode.getBlock().methodReturn(forge.intervalForge.codegen(exprDotMethod(ref("start"), "getTimeInMillis"), exprDotMethod(ref("end"), "getTimeInMillis"), methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, start, end);

@@ -24,7 +24,7 @@ public class CodegenStatementDeclareVarNull extends CodegenStatementBase {
         this.var = var;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         appendClassName(builder, clazz, null, imports);
         builder.append(" ").append(var).append("=null");
     }

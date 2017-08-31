@@ -89,7 +89,7 @@ public class ExprRegexpNodeForgeNonconstEval implements ExprEvaluator {
     }
 
     public static CodegenMethodNode codegen(ExprRegexpNodeForgeNonconst forge, ExprNode lhs, ExprNode pattern, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRegexpNodeForgeNonconstEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRegexpNodeForgeNonconstEval.class, codegenClassScope);
         CodegenBlock blockMethod = methodNode.getBlock()
                 .declareVar(String.class, "patternText", pattern.getForge().evaluateCodegen(String.class, methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("patternText");

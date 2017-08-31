@@ -75,7 +75,7 @@ public class ExprRelationalOpNodeForgeEval implements ExprEvaluator {
             return constantNull();
         }
 
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRelationalOpNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRelationalOpNodeForgeEval.class, codegenClassScope);
 
 
         CodegenBlock block = methodNode.getBlock()

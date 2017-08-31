@@ -104,7 +104,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEnume
     }
 
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprNodeScriptEvalBase.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprNodeScriptEvalBase.class, codegenClassScope);
 
         methodNode.getBlock()
                 .declareVar(Object.class, "result", evaluateCodegen(Collection.class, methodNode, exprSymbol, codegenClassScope))

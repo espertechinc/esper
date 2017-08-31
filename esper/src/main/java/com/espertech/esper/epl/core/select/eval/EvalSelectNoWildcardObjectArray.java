@@ -63,7 +63,7 @@ public class EvalSelectNoWildcardObjectArray implements SelectExprProcessor, Sel
     }
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Object[].class, "props", newArray(Object.class, constant(this.context.getExprForges().length)));
         for (int i = 0; i < this.context.getExprForges().length; i++) {

@@ -61,7 +61,7 @@ public class ExprConcatNodeForgeEvalWNew implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprConcatNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprConcatNodeForgeEvalWNew.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(String.class, ExprConcatNodeForgeEvalWNew.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
             .declareVar(StringBuffer.class, "buf", newInstance(StringBuffer.class))

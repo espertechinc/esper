@@ -59,7 +59,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode isMapExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .ifConditionReturnConst(not(mapGetterChain[0].underlyingExistsCodegen(ref("map"), codegenMethodScope, codegenClassScope)), false)
                 .declareVar(Object.class, "result", mapGetterChain[0].underlyingGetCodegen(ref("map"), codegenMethodScope, codegenClassScope))
                 .methodReturn(localMethod(handleIsExistsTrailingChainCodegen(codegenMethodScope, codegenClassScope), ref("result")));
@@ -140,7 +140,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode handleIsExistsTrailingChainCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Object.class, "result").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object.class, "result").getBlock();
         for (int i = 1; i < mapGetterChain.length; i++) {
             block.ifRefNullReturnFalse("result");
             MapEventPropertyGetter getter = mapGetterChain[i];
@@ -188,7 +188,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
     }
 
     private CodegenMethodNode handleGetterTrailingChainCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object.class, "result").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "result").getBlock();
         for (int i = 1; i < mapGetterChain.length; i++) {
             block.ifRefNullReturnNull("result");
             MapEventPropertyGetter getter = mapGetterChain[i];

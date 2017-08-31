@@ -51,7 +51,7 @@ public class ExprCaseNodeForgeEvalTypable implements ExprTypableReturnEval {
     }
 
     public static CodegenExpression codegenTypeableSingle(ExprCaseNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprCaseNodeForgeEvalTypable.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprCaseNodeForgeEvalTypable.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Map.class, "map", cast(Map.class, forge.evaluateCodegen(Map.class, methodNode, exprSymbol, codegenClassScope)))

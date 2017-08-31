@@ -61,7 +61,7 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
     }
 
     private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .ifInstanceOf("value", EventBean.class)
@@ -98,7 +98,7 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
     }
 
     private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
                 .ifInstanceOf("value", EventBean.class)

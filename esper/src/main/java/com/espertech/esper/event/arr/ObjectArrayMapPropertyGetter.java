@@ -50,7 +50,7 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
     }
 
     private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "valueTopObj", arrayAtIndex(ref("array"), constant(index)))
                 .ifRefNotTypeReturnConst("valueTopObj", Map.class, null)
                 .methodReturn(getter.underlyingGetCodegen(cast(Map.class, ref("valueTopObj")), codegenMethodScope, codegenClassScope));
@@ -65,7 +65,7 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
     }
 
     private CodegenMethodNode isObjectArrayExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "valueTopObj", arrayAtIndex(ref("array"), constant(index)))
                 .ifRefNotTypeReturnConst("valueTopObj", Map.class, false)
                 .methodReturn(getter.underlyingExistsCodegen(cast(Map.class, ref("valueTopObj")), codegenMethodScope, codegenClassScope));

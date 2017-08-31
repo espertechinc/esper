@@ -136,7 +136,7 @@ public class AvroRecastFactory {
         }
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenExpression theEvent = cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber)));
             methodNode.getBlock().methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedAvro", exprDotMethod(theEvent, "getProperties"), member(memberResultEventType.getMemberId())));
@@ -197,7 +197,7 @@ public class AvroRecastFactory {
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMember schemaMember = codegenClassScope.makeAddMember(Schema.class, resultSchema);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(AvroGenericDataBackedEventBean.class, "theEvent", cast(AvroGenericDataBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))

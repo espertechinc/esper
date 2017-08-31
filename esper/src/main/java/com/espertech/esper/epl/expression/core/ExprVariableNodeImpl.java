@@ -188,7 +188,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprForge, Exp
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(variableType, ExprVariableNodeImpl.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(variableType, ExprVariableNodeImpl.class, codegenClassScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         CodegenExpression readerExpression;

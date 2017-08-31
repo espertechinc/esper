@@ -67,7 +67,7 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
     }
 
     public static CodegenExpression codegen(ExprArrayNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprArrayNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprArrayNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(forge.getEvaluationType(), "array", newArray(forge.getArrayReturnType(), constant(forge.getForgeRenderable().getChildNodes().length)));
         for (int i = 0; i < forge.getForgeRenderable().getChildNodes().length; i++) {
@@ -127,7 +127,7 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
         if (children.length == 0) {
             return staticMethod(Collections.class, "emptyList");
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprArrayNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprArrayNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(ArrayDeque.class, "resultList", newInstance(ArrayDeque.class, constant(children.length)));
         int count = -1;

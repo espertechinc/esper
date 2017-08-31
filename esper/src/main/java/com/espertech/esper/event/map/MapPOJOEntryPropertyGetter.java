@@ -61,7 +61,7 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
     }
 
     private CodegenMethodNode getMapCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Map.class, "map").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Map.class, "map").getBlock()
                 .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
                 .ifRefNullReturnNull("value")
                 .ifInstanceOf("value", EventBean.class)

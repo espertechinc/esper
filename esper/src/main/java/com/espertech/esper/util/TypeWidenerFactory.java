@@ -136,7 +136,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, byte[].class, codegenMethodScope, TypeWidenerByteArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, byte[].class, codegenMethodScope, TypeWidenerByteArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -146,7 +146,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, short[].class, codegenMethodScope, TypeWidenerShortArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, short[].class, codegenMethodScope, TypeWidenerShortArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -156,7 +156,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, int[].class, codegenMethodScope, TypeWidenerIntArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, int[].class, codegenMethodScope, TypeWidenerIntArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -166,7 +166,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, long[].class, codegenMethodScope, TypeWidenerLongArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, long[].class, codegenMethodScope, TypeWidenerLongArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -176,7 +176,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, float[].class, codegenMethodScope, TypeWidenerFloatArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, float[].class, codegenMethodScope, TypeWidenerFloatArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -186,7 +186,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, double[].class, codegenMethodScope, TypeWidenerDoubleArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, double[].class, codegenMethodScope, TypeWidenerDoubleArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -196,7 +196,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, boolean[].class, codegenMethodScope, TypeWidenerBooleanArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, boolean[].class, codegenMethodScope, TypeWidenerBooleanArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -206,7 +206,7 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenWidenArrayAsListMayNull(expression, char[].class, codegenMethodScope, TypeWidenerCharArrayToCollectionCoercer.class);
+            return codegenWidenArrayAsListMayNull(expression, char[].class, codegenMethodScope, TypeWidenerCharArrayToCollectionCoercer.class, codegenClassScope);
         }
     }
 
@@ -216,15 +216,15 @@ public class TypeWidenerFactory {
         }
 
         public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode method = codegenMethodScope.makeChild(ByteBuffer.class, TypeWidenerByteArrayToByteBufferCoercer.class).addParam(Object.class, "input").getBlock()
+            CodegenMethodNode method = codegenMethodScope.makeChild(ByteBuffer.class, TypeWidenerByteArrayToByteBufferCoercer.class, codegenClassScope).addParam(Object.class, "input").getBlock()
                     .ifRefNullReturnNull("input")
                     .methodReturn(staticMethod(ByteBuffer.class, "wrap", cast(byte[].class, ref("input"))));
             return localMethodBuild(method).pass(expression).call();
         }
     }
 
-    protected static CodegenExpression codegenWidenArrayAsListMayNull(CodegenExpression expression, Class arrayType, CodegenMethodScope codegenMethodScope, Class generator) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, generator).addParam(Object.class, "input").getBlock()
+    protected static CodegenExpression codegenWidenArrayAsListMayNull(CodegenExpression expression, Class arrayType, CodegenMethodScope codegenMethodScope, Class generator, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode method = codegenMethodScope.makeChild(Collection.class, generator, codegenClassScope).addParam(Object.class, "input").getBlock()
                 .ifRefNullReturnNull("input")
                 .methodReturn(staticMethod(Arrays.class, "asList", cast(arrayType, ref("input"))));
         return localMethodBuild(method).pass(expression).call();

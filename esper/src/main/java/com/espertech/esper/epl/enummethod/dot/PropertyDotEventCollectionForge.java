@@ -59,7 +59,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope);
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
@@ -134,7 +134,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
 
     private CodegenExpression codegenEvaluateInternal(CodegenExpressionRef event, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         if (disablePropertyExpressionEventCollCache) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class).addParam(EventBean.class, "event");
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope).addParam(EventBean.class, "event");
 
             methodNode.getBlock()
                     .declareVar(EventBean[].class, "events", cast(EventBean[].class, getter.eventBeanFragmentCodegen(ref("event"), methodNode, codegenClassScope)))
@@ -142,7 +142,7 @@ public class PropertyDotEventCollectionForge implements ExprEnumerationForge, Ex
                     .methodReturn(staticMethod(Arrays.class, "asList", ref("events")));
             return localMethod(methodNode, event);
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class).addParam(EventBean.class, "event");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, PropertyDotEventCollectionForge.class, codegenClassScope).addParam(EventBean.class, "event");
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         methodNode.getBlock()

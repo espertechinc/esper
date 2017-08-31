@@ -22,7 +22,10 @@ public class CodegenExpressionMember implements CodegenExpression {
         this.memberId = memberId;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        if (isInnerClass) {
+            builder.append("o.");
+        }
         memberId.render(builder);
     }
 

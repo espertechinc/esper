@@ -146,14 +146,14 @@ public class SimpleNumberCoercerFactory {
         }
 
         public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", param, type, codegenMethodScope, SimpleNumberCoercerDouble.class);
+            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", param, type, codegenMethodScope, SimpleNumberCoercerDouble.class, codegenClassScope);
         }
 
-        public static CodegenExpression codegenDoubleMayNullBoxedIncludeBig(CodegenExpression value, Class valueType, CodegenMethodScope codegenMethodScope) {
+        public static CodegenExpression codegenDoubleMayNullBoxedIncludeBig(CodegenExpression value, Class valueType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
             if (valueType == BigInteger.class || valueType == BigDecimal.class) {
                 return exprDotMethod(value, "doubleValue");
             }
-            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", value, valueType, codegenMethodScope, SimpleNumberCoercerDouble.class);
+            return codegenCoerceMayNull(double.class, Double.class, "doubleValue", value, valueType, codegenMethodScope, SimpleNumberCoercerDouble.class, codegenClassScope);
         }
     }
 
@@ -170,8 +170,8 @@ public class SimpleNumberCoercerFactory {
             return codegenCoerceNonNull(long.class, Long.class, "longValue", param, type);
         }
 
-        public static CodegenExpression codegenLongMayNullBox(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope) {
-            return codegenCoerceMayNull(long.class, Long.class, "longValue", param, type, codegenMethodScope, SimpleNumberCoercerLong.class);
+        public static CodegenExpression codegenLongMayNullBox(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(long.class, Long.class, "longValue", param, type, codegenMethodScope, SimpleNumberCoercerLong.class, codegenClassScope);
         }
 
         public CodegenExpression coerceCodegen(CodegenExpression value, Class valueType) {
@@ -179,7 +179,7 @@ public class SimpleNumberCoercerFactory {
         }
 
         public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenLongMayNullBox(param, type, codegenMethodScope);
+            return codegenLongMayNullBox(param, type, codegenMethodScope, codegenClassScope);
         }
     }
 
@@ -201,11 +201,11 @@ public class SimpleNumberCoercerFactory {
         }
 
         public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, type, codegenMethodScope, SimpleNumberCoercerInt.class);
+            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, type, codegenMethodScope, SimpleNumberCoercerInt.class, codegenClassScope);
         }
 
-        public static CodegenExpression coerceCodegenMayNull(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope) {
-            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, type, codegenMethodScope, SimpleNumberCoercerInt.class);
+        public static CodegenExpression coerceCodegenMayNull(CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return codegenCoerceMayNull(int.class, Integer.class, "intValue", param, type, codegenMethodScope, SimpleNumberCoercerInt.class, codegenClassScope);
         }
     }
 
@@ -227,7 +227,7 @@ public class SimpleNumberCoercerFactory {
         }
 
         public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(float.class, Float.class, "floatValue", value, valueType, codegenMethodScope, SimpleNumberCoercerFloat.class);
+            return codegenCoerceMayNull(float.class, Float.class, "floatValue", value, valueType, codegenMethodScope, SimpleNumberCoercerFloat.class, codegenClassScope);
         }
     }
 
@@ -245,7 +245,7 @@ public class SimpleNumberCoercerFactory {
         }
 
         public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(short.class, Short.class, "shortValue", value, valueType, codegenMethodScope, SimpleNumberCoercerShort.class);
+            return codegenCoerceMayNull(short.class, Short.class, "shortValue", value, valueType, codegenMethodScope, SimpleNumberCoercerShort.class, codegenClassScope);
         }
 
         public static CodegenExpression codegenShort(CodegenExpression input, Class inputType) {
@@ -267,7 +267,7 @@ public class SimpleNumberCoercerFactory {
         }
 
         public CodegenExpression coerceCodegenMayNullBoxed(CodegenExpression value, Class valueType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-            return codegenCoerceMayNull(byte.class, Byte.class, "bteValue", value, valueType, codegenMethodScope, SimpleNumberCoercerByte.class);
+            return codegenCoerceMayNull(byte.class, Byte.class, "bteValue", value, valueType, codegenMethodScope, SimpleNumberCoercerByte.class, codegenClassScope);
         }
 
         public static CodegenExpression codegenByte(CodegenExpression input, Class inputType) {
@@ -306,7 +306,7 @@ public class SimpleNumberCoercerFactory {
             if (valueType == BigInteger.class) {
                 return value;
             }
-            CodegenMethodNode method = codegenMethodScope.makeChild(BigInteger.class, SimpleNumberCoercerBigInt.class).addParam(valueType, "value").getBlock()
+            CodegenMethodNode method = codegenMethodScope.makeChild(BigInteger.class, SimpleNumberCoercerBigInt.class, codegenClassScope).addParam(valueType, "value").getBlock()
                     .ifRefNullReturnNull("value")
                     .methodReturn(codegenBigInt(ref("value"), valueType));
             return localMethod(method, value);
@@ -357,7 +357,7 @@ public class SimpleNumberCoercerFactory {
             if (valueType == BigDecimal.class) {
                 return value;
             }
-            CodegenMethodNode method = codegenMethodScope.makeChild(BigDecimal.class, SimpleNumberCoercerBigDecLong.class).addParam(valueType, "value").getBlock()
+            CodegenMethodNode method = codegenMethodScope.makeChild(BigDecimal.class, SimpleNumberCoercerBigDecLong.class, codegenClassScope).addParam(valueType, "value").getBlock()
                     .ifRefNullReturnNull("value")
                     .methodReturn(codegenBigDec(ref("value"), valueType));
             return localMethod(method, value);
@@ -408,7 +408,7 @@ public class SimpleNumberCoercerFactory {
             if (valueType == BigDecimal.class) {
                 return value;
             }
-            CodegenMethodNode method = codegenMethodScope.makeChild(BigDecimal.class, SimpleNumberCoercerBigDecDouble.class).addParam(valueType, "value").getBlock()
+            CodegenMethodNode method = codegenMethodScope.makeChild(BigDecimal.class, SimpleNumberCoercerBigDecDouble.class, codegenClassScope).addParam(valueType, "value").getBlock()
                     .ifRefNullReturnNull("value")
                     .methodReturn(codegenBigDec(ref("value"), valueType));
             return localMethod(method, value);
@@ -490,7 +490,7 @@ public class SimpleNumberCoercerFactory {
         return exprDotMethod(param, numberValueMethodName);
     }
 
-    private static CodegenExpression codegenCoerceMayNull(Class primitive, Class boxed, String numberValueMethodName, CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, Class generator) {
+    private static CodegenExpression codegenCoerceMayNull(Class primitive, Class boxed, String numberValueMethodName, CodegenExpression param, Class type, CodegenMethodScope codegenMethodScope, Class generator, CodegenClassScope codegenClassScope) {
         if (type == primitive || type == boxed) {
             return param;
         }
@@ -500,7 +500,7 @@ public class SimpleNumberCoercerFactory {
         if (type.isPrimitive()) {
             return cast(primitive, param);
         }
-        CodegenMethodNode method = codegenMethodScope.makeChild(boxed, generator).addParam(type, "value").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(boxed, generator, codegenClassScope).addParam(type, "value").getBlock()
                 .ifRefNullReturnNull("value")
                 .methodReturn(exprDotMethod(ref("value"), numberValueMethodName));
         return localMethod(method, param);

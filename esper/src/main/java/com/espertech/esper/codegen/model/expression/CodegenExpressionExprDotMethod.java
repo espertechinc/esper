@@ -27,16 +27,16 @@ public class CodegenExpressionExprDotMethod implements CodegenExpression {
         this.params = params;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (expression instanceof CodegenExpressionRef) {
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
         } else {
             builder.append("(");
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
             builder.append(")");
         }
         builder.append('.').append(method).append("(");
-        renderExpressions(builder, params, imports);
+        renderExpressions(builder, params, imports, isInnerClass);
         builder.append(")");
     }
 

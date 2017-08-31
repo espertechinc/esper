@@ -22,8 +22,8 @@ public class CodegenStatementExpression extends CodegenStatementBase {
         this.expression = expression;
     }
 
-    public void renderStatement(StringBuilder builder, Map<Class, String> imports) {
-        expression.render(builder, imports);
+    public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        expression.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {

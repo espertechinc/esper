@@ -81,7 +81,7 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
             return CodegenLegoCast.castSafeFromObjectType(castTargetType, propertyGetter.underlyingGetCodegen(underlying, codegenMethodScope, codegenClassScope));
         }
 
-        CodegenMethodNode method = codegenMethodScope.makeChild(castTargetType, this.getClass());
+        CodegenMethodNode method = codegenMethodScope.makeChild(castTargetType, this.getClass(), codegenClassScope);
         CodegenBlock block = method.getBlock();
 
         if (useUnderlying) {

@@ -51,7 +51,7 @@ public class SelectExprJoinWildcardProcessorAvro implements SelectExprProcessor,
 
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember schemaMember = codegenClassScope.makeAddMember(Schema.class, schema);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock().methodReturn(staticMethod(SelectExprJoinWildcardProcessorAvro.class, "processSelectExprJoinWildcardAvro", refEPS, CodegenExpressionBuilder.member(schemaMember.getMemberId()), CodegenExpressionBuilder.member(memberEventAdapterService.getMemberId()), CodegenExpressionBuilder.member(memberResultEventType.getMemberId())));
         return methodNode;

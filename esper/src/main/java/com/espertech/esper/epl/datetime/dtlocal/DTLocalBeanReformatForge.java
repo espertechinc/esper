@@ -40,7 +40,7 @@ public class DTLocalBeanReformatForge implements DTLocalForge {
     }
 
     public CodegenExpression codegen(CodegenExpression target, Class targetType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, DTLocalBeanReformatForge.class).addParam(EventBean.class, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, DTLocalBeanReformatForge.class, codegenClassScope).addParam(EventBean.class, "target");
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(getterResultType, "timestamp", getter.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope));

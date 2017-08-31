@@ -45,7 +45,7 @@ public class IntervalDeltaExprTimePeriodNonConstForge implements IntervalDeltaEx
     }
 
     public CodegenExpression codegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, IntervalDeltaExprTimePeriodNonConstForge.class).addParam(long.class, "reference");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, IntervalDeltaExprTimePeriodNonConstForge.class, codegenClassScope).addParam(long.class, "reference");
 
 
         methodNode.getBlock().declareVar(double.class, "sec", timePeriod.evaluateAsSecondsCodegen(methodNode, exprSymbol, codegenClassScope))

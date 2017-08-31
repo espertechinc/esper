@@ -282,7 +282,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerAfterWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerAfterWithDeltaExprEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerAfterWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
@@ -384,7 +384,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerBeforeWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerBeforeWithDeltaExprEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerBeforeWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "rangeStartDelta", forge.start.codegen(IntervalForgeCodegenNames.REF_LEFTEND, methodNode, exprSymbol, codegenClassScope))
@@ -500,7 +500,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerCoincidesWithDeltaExprForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerCoincidesWithDeltaExprEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerCoincidesWithDeltaExprEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "startValue", forge.start.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
@@ -621,7 +621,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerDuringAndIncludesThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "thresholdValue", forge.threshold.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope));
@@ -685,7 +685,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerDuringAndIncludesMinMax forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesMinMaxEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringAndIncludesMinMaxEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "min", forge.minEval.codegen(IntervalForgeCodegenNames.REF_LEFTSTART, methodNode, exprSymbol, codegenClassScope))
@@ -781,7 +781,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerDuringMinMaxStartEndForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringMinMaxStartEndEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerDuringMinMaxStartEndEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "minStart", forge.minStartEval.codegen(IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
@@ -864,7 +864,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerFinishesThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishesThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishesThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
@@ -942,7 +942,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerFinishedByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishedByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerFinishedByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_RIGHTEND, IntervalForgeCodegenNames.REF_LEFTEND), methodNode, exprSymbol, codegenClassScope))
@@ -1019,7 +1019,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerMeetsThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMeetsThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMeetsThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
@@ -1097,7 +1097,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerMetByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMetByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerMetByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
@@ -1174,7 +1174,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerOverlapsAndByThreshold forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope));
@@ -1259,7 +1259,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerOverlapsAndByMinMaxForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByMinMaxEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(boolean.class, IntervalComputerOverlapsAndByMinMaxEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(long.class, "minThreshold", forge.minEval.codegen(forge.overlaps ? IntervalForgeCodegenNames.REF_LEFTSTART : IntervalForgeCodegenNames.REF_RIGHTSTART, methodNode, exprSymbol, codegenClassScope))
@@ -1363,7 +1363,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerStartsThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartsThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartsThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
@@ -1441,7 +1441,7 @@ public class IntervalComputerForgeFactory {
         }
 
         public static CodegenExpression codegen(IntervalComputerStartedByThresholdForge forge, CodegenExpression leftStart, CodegenExpression leftEnd, CodegenExpression rightStart, CodegenExpression rightEnd, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartedByThresholdEval.class).addParam(IntervalForgeCodegenNames.PARAMS);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, IntervalComputerStartedByThresholdEval.class, codegenClassScope).addParam(IntervalForgeCodegenNames.PARAMS);
 
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))

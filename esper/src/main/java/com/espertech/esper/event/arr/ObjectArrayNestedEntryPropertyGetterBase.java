@@ -65,7 +65,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnNull("value")
                 .methodReturn(handleNestedValueCodegen(ref("value"), codegenMethodScope, codegenClassScope));
@@ -81,7 +81,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     private CodegenMethodNode isExistsPropertyCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(boolean.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(boolean.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
                 .methodReturn(handleNestedValueExistsCodegen(ref("value"), codegenMethodScope, codegenClassScope));
@@ -97,7 +97,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
                 .ifRefNullReturnFalse("value")
                 .methodReturn(handleNestedValueFragmentCodegen(ref("value"), codegenMethodScope, codegenClassScope));

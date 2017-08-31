@@ -35,7 +35,7 @@ public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDe
     }
 
     public CodegenExpression deltaAddCodegen(CodegenExpression reference, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaNonConstMsec.class).addParam(long.class, "currentTime");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(long.class, ExprTimePeriodEvalDeltaNonConstMsec.class, codegenClassScope).addParam(long.class, "currentTime");
 
         methodNode.getBlock()
                 .declareVar(double.class, "d", forge.evaluateAsSecondsCodegen(methodNode, exprSymbol, codegenClassScope))

@@ -209,7 +209,7 @@ public class SelectExprInsertEventBeanFactory {
                             }
 
                             public CodegenExpression widenCodegen(CodegenExpression expression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-                                CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, TypeWidener.class).addParam(Object.class, "input").getBlock()
+                                CodegenMethodNode method = codegenMethodScope.makeChild(Object.class, TypeWidener.class, codegenClassScope).addParam(Object.class, "input").getBlock()
                                         .ifCondition(instanceOf(ref("input"), EventBean.class))
                                         .blockReturn(exprDotMethod(cast(EventBean.class, ref("input")), "getUnderlying"))
                                         .methodReturn(ref("input"));
@@ -420,7 +420,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenExpression expr = exprForge.evaluateCodegen(Map.class, methodNode, exprSymbol, codegenClassScope);
             if (!JavaClassHelper.isSubclassOrImplementsInterface(exprForge.getEvaluationType(), Map.class)) {
                 expr = cast(Map.class, expr);
@@ -446,7 +446,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             methodNode.getBlock()
                     .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
@@ -469,7 +469,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             methodNode.getBlock()
                     .declareVar(Object[].class, "result", exprForge.evaluateCodegen(Object[].class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
@@ -492,7 +492,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             methodNode.getBlock()
                     .declareVar(Object.class, "result", exprForge.evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope))
                     .ifRefNullReturnNull("result")
@@ -553,7 +553,7 @@ public class SelectExprInsertEventBeanFactory {
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMember manufacturer = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
@@ -596,7 +596,7 @@ public class SelectExprInsertEventBeanFactory {
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMember manufacturer = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
@@ -631,7 +631,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenMember member = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
             methodNode.getBlock().methodReturn(exprDotMethod(member(member.getMemberId()), "make", publicConstValue(CollectionUtil.class, "OBJECTARRAY_EMPTY")));
             return methodNode;
@@ -664,7 +664,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprForgeJoinWildcard.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprForgeJoinWildcard.class, codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
                     .declareVar(EventBean.class, "bean", arrayAtIndex(refEPS, constant(streamNum)))
@@ -709,7 +709,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, this.getClass(), codegenClassScope);
 
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
@@ -771,7 +771,7 @@ public class SelectExprInsertEventBeanFactory {
 
         public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             Class arrayType = JavaClassHelper.getArrayType(componentReturnType);
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, this.getClass());
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(arrayType, this.getClass(), codegenClassScope);
 
 
             methodNode.getBlock()
@@ -815,7 +815,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object.class, ExprForgeStreamWithGetter.class);
+            CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object.class, ExprForgeStreamWithGetter.class, codegenClassScope);
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             methodNode.getBlock()
                     .declareVar(EventBean.class, "theEvent", arrayAtIndex(refEPS, constant(0)))

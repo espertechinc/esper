@@ -47,7 +47,7 @@ public class SelectExprProcessorTypableMapEval implements ExprEvaluator {
     public static CodegenExpression codegen(SelectExprProcessorTypableMapForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember eventAdapterService = codegenClassScope.makeAddMember(EventAdapterService.class, forge.eventAdapterService);
         CodegenMember mapType = codegenClassScope.makeAddMember(EventType.class, forge.mapType);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableMapEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, SelectExprProcessorTypableMapEval.class, codegenClassScope);
 
         methodNode.getBlock()
                 .declareVar(Map.class, "values", forge.innerForge.evaluateCodegen(Map.class, methodNode, exprSymbol, codegenClassScope))

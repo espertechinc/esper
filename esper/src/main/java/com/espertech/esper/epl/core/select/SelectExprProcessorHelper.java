@@ -1157,7 +1157,7 @@ public class SelectExprProcessorHelper {
     }
 
     protected static CodegenExpression applyWidenersCodegen(CodegenExpressionRef row, TypeWidener[] wideners, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenBlock block = codegenMethodScope.makeChild(void.class, SelectExprProcessorHelper.class).addParam(Object[].class, "row").getBlock();
+        CodegenBlock block = codegenMethodScope.makeChild(void.class, SelectExprProcessorHelper.class, codegenClassScope).addParam(Object[].class, "row").getBlock();
         for (int i = 0; i < wideners.length; i++) {
             if (wideners[i] != null) {
                 block.assignArrayElement("row", constant(i), wideners[i].widenCodegen(arrayAtIndex(ref("row"), constant(i)), codegenMethodScope, codegenClassScope));
@@ -1173,7 +1173,7 @@ public class SelectExprProcessorHelper {
     }
 
     protected static CodegenExpression applyWidenersCodegenMultirow(CodegenExpressionRef rows, TypeWidener[] wideners, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode method = codegenMethodScope.makeChild(void.class, SelectExprProcessorHelper.class).addParam(Object[][].class, "rows").getBlock()
+        CodegenMethodNode method = codegenMethodScope.makeChild(void.class, SelectExprProcessorHelper.class, codegenClassScope).addParam(Object[][].class, "rows").getBlock()
                 .forEach(Object[].class, "row", rows)
                 .expression(applyWidenersCodegen(ref("row"), wideners, codegenMethodScope, codegenClassScope))
                 .blockEnd()

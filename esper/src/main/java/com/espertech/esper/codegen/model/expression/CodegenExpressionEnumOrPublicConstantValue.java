@@ -24,7 +24,7 @@ public class CodegenExpressionEnumOrPublicConstantValue implements CodegenExpres
         this.enumValue = enumValue;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         appendClassName(builder, enumType, null, imports);
         builder.append(".");
         builder.append(enumValue);

@@ -26,13 +26,13 @@ public class CodegenExpressionNot implements CodegenExpression {
         return expression;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (isNot) {
             builder.append("!(");
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
             builder.append(")");
         } else {
-            expression.render(builder, imports);
+            expression.render(builder, imports, isInnerClass);
         }
     }
 

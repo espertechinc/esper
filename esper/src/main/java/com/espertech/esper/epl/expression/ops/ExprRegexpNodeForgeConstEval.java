@@ -65,7 +65,7 @@ public class ExprRegexpNodeForgeConstEval implements ExprEvaluator {
 
     public static CodegenMethodNode codegen(ExprRegexpNodeForgeConst forge, ExprNode lhs, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember mPattern = codegenClassScope.makeAddMember(Pattern.class, forge.getPattern());
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRegexpNodeForgeConstEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprRegexpNodeForgeConstEval.class, codegenClassScope);
 
         if (!forge.isNumericValue()) {
             methodNode.getBlock()

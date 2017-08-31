@@ -22,10 +22,10 @@ public class CodegenExpressionArrayAtIndex implements CodegenExpression {
         this.index = index;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        expression.render(builder, imports);
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        expression.render(builder, imports, isInnerClass);
         builder.append("[");
-        index.render(builder, imports);
+        index.render(builder, imports, isInnerClass);
         builder.append("]");
     }
 

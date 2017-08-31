@@ -64,7 +64,7 @@ public class EnumAverageBigDecimalEventsForgeEval implements EnumEval {
         CodegenMember mathCtxMember = codegenClassScope.makeAddMember(MathContext.class, forge.optionalMathContext);
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(BigDecimal.class, EnumAverageBigDecimalEventsForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(BigDecimal.class, EnumAverageBigDecimalEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();
         block.declareVar(AggregatorAvgBigDecimal.class, "agg", newInstance(AggregatorAvgBigDecimal.class, CodegenExpressionBuilder.member(mathCtxMember.getMemberId())));

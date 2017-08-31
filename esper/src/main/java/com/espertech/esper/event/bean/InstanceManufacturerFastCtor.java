@@ -62,7 +62,7 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
     }
 
     public static CodegenExpression codegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, Class targetClass, ExprForge[] forges) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(targetClass, InstanceManufacturerFastCtor.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(targetClass, InstanceManufacturerFastCtor.class, codegenClassScope);
 
         CodegenExpression[] params = new CodegenExpression[forges.length];
         for (int i = 0; i < forges.length; i++) {

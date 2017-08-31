@@ -16,8 +16,18 @@ import java.util.IdentityHashMap;
 
 public class CodegenClassScope {
 
+    private final boolean debug;
     private final IdentityHashMap<Object, CodegenMember> members = new IdentityHashMap<>();
     private int currentMemberNumber;
+
+    public CodegenClassScope(boolean debug) {
+        this.debug = debug;
+    }
+
+    public CodegenClassScope(boolean debug, int currentMemberNumber) {
+        this.debug = debug;
+        this.currentMemberNumber = currentMemberNumber;
+    }
 
     public <T> CodegenMember makeAddMember(Class<? extends T> clazz, T object) {
         CodegenMember existing = members.get(object);
@@ -33,5 +43,9 @@ public class CodegenClassScope {
 
     public IdentityHashMap<Object, CodegenMember> getMembers() {
         return members;
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 }

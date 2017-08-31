@@ -16,10 +16,10 @@ import java.util.Map;
 
 public abstract class CodegenStatementBase implements CodegenStatement {
 
-    public abstract void renderStatement(StringBuilder builder, Map<Class, String> imports);
+    public abstract void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass);
 
-    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
-        renderStatement(builder, imports);
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
+        renderStatement(builder, imports, isInnerClass);
         builder.append(";\n");
     }
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.NullIterator;
@@ -474,11 +475,11 @@ public class CollectionUtil {
         return dq;
     }
 
-    public static CodegenExpression arrayToCollectionAllowNullCodegen(CodegenMethodScope codegenMethodScope, Class arrayType, CodegenExpression array) {
+    public static CodegenExpression arrayToCollectionAllowNullCodegen(CodegenMethodScope codegenMethodScope, Class arrayType, CodegenExpression array, CodegenClassScope codegenClassScope) {
         if (!arrayType.isArray()) {
             throw new IllegalArgumentException("Expected array type and received " + arrayType);
         }
-        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, CollectionUtil.class).addParam(arrayType, "array").getBlock()
+        CodegenBlock block = codegenMethodScope.makeChild(Collection.class, CollectionUtil.class, codegenClassScope).addParam(arrayType, "array").getBlock()
                 .ifRefNullReturnNull("array");
         if (!arrayType.getComponentType().isPrimitive()) {
             return localMethodBuild(block.methodReturn(staticMethod(Arrays.class, "asList", ref("array")))).pass(array).call();

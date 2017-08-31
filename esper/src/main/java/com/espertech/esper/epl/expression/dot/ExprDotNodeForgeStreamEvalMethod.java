@@ -66,7 +66,7 @@ public class ExprDotNodeForgeStreamEvalMethod implements ExprEvaluator {
     public static CodegenExpression codegen(ExprDotNodeForgeStream forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         Class evaluationType = forge.getEvaluationType();
         Class eventUndType = forge.getEventType().getUnderlyingType();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprDotNodeForgeStreamEvalMethod.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprDotNodeForgeStreamEvalMethod.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         CodegenBlock block = methodNode.getBlock()

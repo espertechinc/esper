@@ -65,7 +65,7 @@ public class ExprDotForgeProperty implements ExprDotEval, ExprDotForge {
         if (innerType == EventBean.class) {
             return CodegenLegoCast.castSafeFromObjectType(type, getter.eventBeanGetCodegen(inner, codegenMethodScope, codegenClassScope));
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(type, ExprDotForgeProperty.class).addParam(innerType, "target");
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(type, ExprDotForgeProperty.class, codegenClassScope).addParam(innerType, "target");
 
         methodNode.getBlock()
                 .ifInstanceOf("target", EventBean.class)

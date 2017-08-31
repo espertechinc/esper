@@ -68,7 +68,7 @@ public class EnumLastOfPredicateScalarForgeEval implements EnumEval {
         Class resultType = JavaClassHelper.getBoxedType(EPTypeHelper.getCodegenReturnType(forge.resultType));
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(resultType, EnumLastOfPredicateScalarForgeEval.class, scope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(resultType, EnumLastOfPredicateScalarForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block;
         block = methodNode.getBlock()

@@ -61,7 +61,7 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
     }
 
     private CodegenMethodNode getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(GenericData.Record.class, "inner", staticMethod(this.getClass(), "getAtIndex", ref("record"), constant(posTop), constant(index)))
                 .ifRefNullReturnNull("inner")
                 .methodReturn(nested.underlyingGetCodegen(ref("inner"), codegenMethodScope, codegenClassScope));
@@ -82,7 +82,7 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
     }
 
     private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(Collection.class, "values", cast(Collection.class, exprDotMethod(ref("record"), "get", constant(posTop))))
                 .declareVar(Object.class, "value", staticMethod(AvroEventBeanGetterIndexed.class, "getAvroIndexedValue", ref("values"), constant(index)))
                 .ifRefNullReturnNull("value")

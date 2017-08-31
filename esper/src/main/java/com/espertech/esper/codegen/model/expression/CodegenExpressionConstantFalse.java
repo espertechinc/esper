@@ -20,7 +20,7 @@ public class CodegenExpressionConstantFalse implements CodegenExpression {
     private CodegenExpressionConstantFalse() {
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("false");
     }
 

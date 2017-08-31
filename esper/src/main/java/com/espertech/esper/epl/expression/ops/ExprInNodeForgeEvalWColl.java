@@ -136,7 +136,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
     public static CodegenExpression codegen(ExprInNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
         boolean isNot = forge.getForgeRenderable().isNotIn();
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInNodeForgeEvalWColl.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInNodeForgeEvalWColl.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
             .declareVar(boolean.class, "hasNullRow", constantFalse());

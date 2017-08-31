@@ -44,8 +44,8 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
         return BaseNestableEventUtil.getBNArrayPropertyUnderlying(wrapper, index);
     }
 
-    private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+    private CodegenMethodNode getObjectArrayCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayPropertyUnderlying", ref("wrapper"), constant(index)));
     }
@@ -69,8 +69,8 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
         return BaseNestableEventUtil.getBNArrayPropertyBean(wrapper, index);
     }
 
-    private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(Object[].class, "array").getBlock()
+    private CodegenMethodNode getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object[].class, "array").getBlock()
                 .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
                 .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayPropertyBean", ref("wrapper"), constant(index)));
     }
@@ -88,7 +88,7 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getObjectArrayCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(getObjectArrayCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -96,6 +96,6 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
     }
 
     public CodegenExpression underlyingFragmentCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getFragmentCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(getFragmentCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 }

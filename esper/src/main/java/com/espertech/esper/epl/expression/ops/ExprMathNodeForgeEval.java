@@ -65,7 +65,7 @@ public class ExprMathNodeForgeEval implements ExprEvaluator {
     }
 
     public static CodegenMethodNode codegen(ExprMathNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, ExprNode lhs, ExprNode rhs) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprMathNodeForgeEval.class);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprMathNodeForgeEval.class, codegenClassScope);
         Class lhsType = lhs.getForge().getEvaluationType();
         Class rhsType = rhs.getForge().getEvaluationType();
         CodegenBlock block = methodNode.getBlock()

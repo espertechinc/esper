@@ -27,11 +27,11 @@ public class CodegenExpressionCastExpression implements CodegenExpression {
         this.expression = expression;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("((");
         appendClassName(builder, clazz, null, imports);
         builder.append(")");
-        expression.render(builder, imports);
+        expression.render(builder, imports, isInnerClass);
         builder.append(")");
     }
 

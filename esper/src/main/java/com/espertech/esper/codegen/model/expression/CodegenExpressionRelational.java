@@ -24,10 +24,10 @@ public class CodegenExpressionRelational implements CodegenExpression {
         this.rhs = rhs;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports) {
-        lhs.render(builder, imports);
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        lhs.render(builder, imports, isInnerClass);
         builder.append(op.getOp());
-        rhs.render(builder, imports);
+        rhs.render(builder, imports, isInnerClass);
     }
 
     public void mergeClasses(Set<Class> classes) {

@@ -26,11 +26,11 @@ public class CodegenStatementSynchronized extends CodegenStatementWBlockBase {
         this.expression = expression;
     }
 
-    public void render(StringBuilder builder, Map<Class, String> imports, int level, CodegenIndent indent) {
+    public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
         builder.append("synchronized (");
-        expression.render(builder, imports);
+        expression.render(builder, imports, isInnerClass);
         builder.append(") {\n");
-        block.render(builder, imports, level + 1, indent);
+        block.render(builder, imports, isInnerClass, level + 1, indent);
         indent.indent(builder, level);
         builder.append("}\n");
     }

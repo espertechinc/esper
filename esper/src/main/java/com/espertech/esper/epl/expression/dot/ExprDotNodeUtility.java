@@ -263,7 +263,7 @@ public class ExprDotNodeUtility {
         }
         ExprDotForge last = forges[forges.length - 1];
         Class lastType = EPTypeHelper.getCodegenReturnType(last.getTypeInfo());
-        CodegenMethodNode methodNode = parent.makeChild(lastType, ExprDotNodeUtility.class).addParam(innerType, "inner");
+        CodegenMethodNode methodNode = parent.makeChild(lastType, ExprDotNodeUtility.class, codegenClassScope).addParam(innerType, "inner");
 
         CodegenBlock block = methodNode.getBlock();
         String currentTarget = "wrapped";

@@ -43,8 +43,8 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
         return getAvroMappedValueWNullCheck(values, key);
     }
 
-    private CodegenMethodNode getAvroFieldValueCodegen(CodegenMethodScope codegenMethodScope) {
-        return codegenMethodScope.makeChild(Object.class, this.getClass()).addParam(GenericData.Record.class, "record").getBlock()
+    private CodegenMethodNode getAvroFieldValueCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(GenericData.Record.class, "record").getBlock()
                 .declareVar(Map.class, "values", cast(Map.class, exprDotMethod(ref("record"), "get", constant(pos))))
                 .ifRefNullReturnNull("values")
                 .methodReturn(exprDotMethod(ref("values"), "get", constant(key)));
@@ -79,7 +79,7 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return localMethod(getAvroFieldValueCodegen(codegenMethodScope), underlyingExpression);
+        return localMethod(getAvroFieldValueCodegen(codegenMethodScope, codegenClassScope), underlyingExpression);
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
