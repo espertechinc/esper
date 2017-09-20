@@ -147,7 +147,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped 
         for (Object key : removed) {
             aggregatorsPerGroup.remove(key);
             internalHandleRemoved(key);
-            removedCallback.removed(key);
+            removedCallback.removedAggregationGroupKey(key);
         }
     }
 

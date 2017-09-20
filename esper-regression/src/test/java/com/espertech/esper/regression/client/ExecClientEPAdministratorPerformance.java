@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regression.client;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.supportregression.bean.SupportBean;
@@ -19,6 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ExecClientEPAdministratorPerformance implements RegressionExecution {
+
+    public void configure(Configuration configuration) throws Exception {
+        configuration.getEngineDefaults().getCodeGeneration().disableAll();
+    }
+
     public void run(EPServiceProvider epService) throws Exception {
         runAssertion1kValidStmtsPerformance(epService);
         runAssertion1kInvalidStmts(epService);

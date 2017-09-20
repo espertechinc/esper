@@ -69,7 +69,7 @@ public class ExprArrayNodeForgeEval implements ExprEvaluator, ExprEnumerationEva
     public static CodegenExpression codegen(ExprArrayNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(forge.getEvaluationType(), ExprArrayNodeForgeEval.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(forge.getEvaluationType(), "array", newArray(forge.getArrayReturnType(), constant(forge.getForgeRenderable().getChildNodes().length)));
+                .declareVar(forge.getEvaluationType(), "array", newArrayByLength(forge.getArrayReturnType(), constant(forge.getForgeRenderable().getChildNodes().length)));
         for (int i = 0; i < forge.getForgeRenderable().getChildNodes().length; i++) {
             ExprForge child = forge.getForgeRenderable().getChildNodes()[i].getForge();
             Class childType = child.getEvaluationType();

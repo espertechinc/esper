@@ -49,7 +49,7 @@ public class SelectExprProcessorEnumerationAtBeanCollEval implements ExprEvaluat
                 .declareVar(Object.class, "result", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(and(notEqualsNull(ref("result")), instanceOf(ref("result"), Collection.class)))
                 .declareVar(Collection.class, EventBean.class, "events", cast(Collection.class, ref("result")))
-                .blockReturn(cast(EventBean[].class, exprDotMethod(ref("events"), "toArray", newArray(EventBean.class, exprDotMethod(ref("events"), "size")))))
+                .blockReturn(cast(EventBean[].class, exprDotMethod(ref("events"), "toArray", newArrayByLength(EventBean.class, exprDotMethod(ref("events"), "size")))))
                 .methodReturn(cast(EventBean[].class, ref("result")));
         return localMethod(methodNode);
     }

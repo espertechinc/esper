@@ -71,7 +71,7 @@ public class SelectExprJoinWildcardProcessorTableRows implements SelectExprProce
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
-        methodNode.getBlock().declareVar(EventBean[].class, "eventsPerStreamWTableRows", newArray(EventBean.class, constant(types.length)));
+        methodNode.getBlock().declareVar(EventBean[].class, "eventsPerStreamWTableRows", newArrayByLength(EventBean.class, constant(types.length)));
         for (int i = 0; i < types.length; i++) {
             if (tables[i] == null) {
                 methodNode.getBlock().assignArrayElement("eventsPerStreamWTableRows", constant(i), arrayAtIndex(refEPS, constant(i)));

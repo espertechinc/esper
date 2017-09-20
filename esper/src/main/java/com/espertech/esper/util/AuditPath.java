@@ -24,6 +24,7 @@ import java.io.StringWriter;
 public class AuditPath {
 
     private static final Logger AUDIT_LOG_DESTINATION = LoggerFactory.getLogger(AuditPath.AUDIT_LOG);
+    public final static String METHOD_AUDITLOG = "auditLog";
 
     private volatile static AuditCallback auditCallback;
 

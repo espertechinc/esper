@@ -78,7 +78,7 @@ public class ExprNewStructNodeForgeEval implements ExprTypableReturnEval {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, ExprNewStructNodeForgeEval.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "rows", newArray(Object.class, constant(forge.getForgeRenderable().getColumnNames().length)));
+                .declareVar(Object[].class, "rows", newArrayByLength(Object.class, constant(forge.getForgeRenderable().getColumnNames().length)));
         for (int i = 0; i < forge.getForgeRenderable().getColumnNames().length; i++) {
             block.assignArrayElement("rows", constant(i), forge.getForgeRenderable().getChildNodes()[i].getForge().evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
         }

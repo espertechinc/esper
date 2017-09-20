@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regression.resultset.querytype;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -23,12 +24,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class ExecQuerytypeRollupDimensionality implements RegressionExecution {
+
+    public void configure(Configuration configuration) throws Exception {
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+    }
+
     public void run(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
 
-        runAssertionOutputWhenTerminated(epService);
         runAssertionGroupByWithComputation(epService);
+        runAssertionOutputWhenTerminated(epService);
         runAssertionContextPartitionAlsoRollup(epService);
         runAssertionOnSelect(epService);
         runAssertionUnboundRollupUnenclosed(epService);

@@ -98,10 +98,10 @@ public class EnumTakeWhileIndexScalarForgeEval implements EnumEval {
         CodegenBlock block = methodNode.getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL);
-        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), CodegenExpressionBuilder.member(evalTypeMember.getMemberId())))
+        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), CodegenExpressionBuilder.member(evalTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("evalEvent"))
                 .declareVar(Object[].class, "evalProps", exprDotMethod(ref("evalEvent"), "getProperties"))
-                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), CodegenExpressionBuilder.member(indexTypeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), CodegenExpressionBuilder.member(indexTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda + 1), ref("indexEvent"))
                 .declareVar(Object[].class, "indexProps", exprDotMethod(ref("indexEvent"), "getProperties"));
 

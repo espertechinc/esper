@@ -61,9 +61,9 @@ public class EnumOrderByAscDescScalarForge extends EnumForgeBase implements Enum
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .declareVar(List.class, "list", newInstance(ArrayList.class, EnumForgeCodegenNames.REF_ENUMCOLL));
         if (descending) {
-            block.expression(staticMethod(Collections.class, "sort", ref("list"), staticMethod(Collections.class, "reverseOrder")));
+            block.staticMethod(Collections.class, "sort", ref("list"), staticMethod(Collections.class, "reverseOrder"));
         } else {
-            block.expression(staticMethod(Collections.class, "sort", ref("list")));
+            block.staticMethod(Collections.class, "sort", ref("list"));
         }
         CodegenMethodNode method = block.methodReturn(ref("list"));
         return localMethod(method, args.getExpressions());

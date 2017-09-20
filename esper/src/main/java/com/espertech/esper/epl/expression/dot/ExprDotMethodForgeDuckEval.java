@@ -75,7 +75,7 @@ public class ExprDotMethodForgeDuckEval implements ExprDotEval {
                 .ifRefNullReturnNull("target")
                 .declareVar(FastMethod.class, "method", staticMethod(ExprDotMethodForgeDuckEval.class, "dotMethodDuckGetMethod", exprDotMethod(ref("target"), "getClass"), member(mCache.getMemberId()), member(mForge.getMemberId())))
                 .ifRefNullReturnNull("method")
-                .declareVar(Object[].class, "args", newArray(Object.class, constant(forge.getParameters().length)));
+                .declareVar(Object[].class, "args", newArrayByLength(Object.class, constant(forge.getParameters().length)));
         for (int i = 0; i < forge.getParameters().length; i++) {
             block.assignArrayElement("args", constant(i), forge.getParameters()[i].evaluateCodegen(Object.class, methodNode, exprSymbol, codegenClassScope));
         }

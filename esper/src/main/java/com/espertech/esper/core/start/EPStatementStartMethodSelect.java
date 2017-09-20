@@ -133,7 +133,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase {
                 }
             }
 
-            ContextMergeView mergeView = new ContextMergeView(selectDesc.getResultSetProcessorPrototypeDesc().getResultSetProcessorFactory().getResultEventType());
+            ContextMergeView mergeView = new ContextMergeView(selectDesc.getResultSetProcessorPrototypeDesc().getResultEventType());
             finalViewable = mergeView;
 
             ContextManagedStatementSelectDesc statement = new ContextManagedStatementSelectDesc(statementSpec, statementContext, mergeView, selectDesc.getStatementAgentInstanceFactorySelect(),

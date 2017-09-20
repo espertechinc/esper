@@ -20,7 +20,7 @@ import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.select.eval.SelectExprStreamDesc;
-import com.espertech.esper.epl.core.resultset.GroupByRollupInfo;
+import com.espertech.esper.epl.core.resultset.core.GroupByRollupInfo;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.core.start;
 
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 

@@ -30,6 +30,8 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
     private static final Logger log = LoggerFactory.getLogger(ExprDotMethodForgeNoDuckEvalPlain.class);
 
+    public final static String METHOD_HANDLETARGETEXCEPTION = "handleTargetException";
+
     protected final ExprDotMethodForgeNoDuck forge;
     private final ExprEvaluator[] parameters;
 
@@ -90,12 +92,12 @@ public class ExprDotMethodForgeNoDuckEvalPlain implements ExprDotEval {
             tryCatch = tryBlock.tryReturn(invocation);
         }
         CodegenBlock catchBlock = tryCatch.addCatch(Throwable.class, "t");
-        catchBlock.declareVar(Object[].class, "args", newArray(Object.class, constant(forge.getParameters().length)));
+        catchBlock.declareVar(Object[].class, "args", newArrayByLength(Object.class, constant(forge.getParameters().length)));
         for (int i = 0; i < forge.getParameters().length; i++) {
             catchBlock.assignArrayElement("args", constant(i), args[i]);
         }
-        catchBlock.expression(staticMethod(ExprDotMethodForgeNoDuckEvalPlain.class, "handleTargetException", constant(forge.getStatementName()), member(methodMember.getMemberId()),
-                exprDotMethodChain(ref("target")).add("getClass").add("getName"), ref("args"), ref("t")));
+        catchBlock.staticMethod(ExprDotMethodForgeNoDuckEvalPlain.class, METHOD_HANDLETARGETEXCEPTION, constant(forge.getStatementName()), member(methodMember.getMemberId()),
+                exprDotMethodChain(ref("target")).add("getClass").add("getName"), ref("args"), ref("t"));
         if (returnType == void.class) {
             block.methodEnd();
         } else {

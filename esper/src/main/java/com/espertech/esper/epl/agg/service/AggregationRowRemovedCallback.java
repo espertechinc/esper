@@ -11,5 +11,5 @@
 package com.espertech.esper.epl.agg.service;
 
 public interface AggregationRowRemovedCallback {
-    public void removed(Object groupRowKey);
+    void removedAggregationGroupKey(Object groupRowKey);
 }

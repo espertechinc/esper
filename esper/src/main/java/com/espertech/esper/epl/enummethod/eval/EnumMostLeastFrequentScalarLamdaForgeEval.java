@@ -83,7 +83,7 @@ public class EnumMostLeastFrequentScalarLamdaForgeEval implements EnumEval {
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(constantNull())
                 .declareVar(Map.class, "items", newInstance(LinkedHashMap.class))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 

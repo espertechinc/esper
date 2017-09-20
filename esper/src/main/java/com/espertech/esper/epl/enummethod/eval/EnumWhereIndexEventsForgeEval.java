@@ -81,7 +81,7 @@ public class EnumWhereIndexEventsForgeEval implements EnumEval {
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL);
         block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class))
-                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(indexTypeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(indexTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda + 1), ref("indexEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("indexEvent"), "getProperties"))
                 .declareVar(int.class, "count", constant(-1));

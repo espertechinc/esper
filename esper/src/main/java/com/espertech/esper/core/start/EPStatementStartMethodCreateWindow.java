@@ -21,8 +21,8 @@ import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -127,7 +127,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                     statementSpec, statementContext, typeService, null, new boolean[0], true, null, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, false);
 
             // obtain factory for output limiting
-            OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
+            OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototype.getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
 
             // create context factory
             // Factory for statement-context instances

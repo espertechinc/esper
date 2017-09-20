@@ -27,8 +27,8 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerified;
@@ -332,7 +332,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 }
 
                 // last, for aggregation we need to send the current join results to the result set processor
-                if (hasNamedWindow && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.getResultSetProcessorFactory().hasAggregation()) {
+                if (hasNamedWindow && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.isHasAggregation()) {
                     preloadList.add(new StatementAgentInstancePreload() {
                         public void executePreload(ExprEvaluatorContext exprEvaluatorContext) {
                             joinPreloadMethod.preloadAggregation(resultSetProcessor);

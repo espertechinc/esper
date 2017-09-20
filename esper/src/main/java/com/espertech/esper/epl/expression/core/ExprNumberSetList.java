@@ -35,6 +35,9 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  */
 public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetList.class);
+    private final static String METHOD_HANDLEEXPRNUMBERSETLISTADD = "handleExprNumberSetListAdd";
+    private final static String METHOD_HANDLEEXPRNUMBERSETLISTEMPTY = "handleExprNumberSetListEmpty";
+
     private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = 4941618470342360450L;
 
@@ -118,9 +121,9 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
             Class evaluationType = forge.getEvaluationType();
             String refname = "value" + count;
             block.declareVar(evaluationType, refname, forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
-                    .expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListAdd", ref(refname), ref("parameters")));
+                    .staticMethod(ExprNumberSetList.class, METHOD_HANDLEEXPRNUMBERSETLISTADD, ref(refname), ref("parameters"));
         }
-        block.expression(staticMethod(ExprNumberSetList.class, "handleExprNumberSetListEmpty", ref("parameters")))
+        block.staticMethod(ExprNumberSetList.class, METHOD_HANDLEEXPRNUMBERSETLISTEMPTY, ref("parameters"))
                 .methodReturn(newInstance(ListParameter.class, ref("parameters")));
         return localMethod(methodNode);
     }

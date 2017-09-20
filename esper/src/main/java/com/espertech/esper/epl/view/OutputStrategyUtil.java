@@ -18,7 +18,7 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultListener;
 import com.espertech.esper.core.service.UpdateDispatchView;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.join.base.JoinExecutionStrategy;
 import com.espertech.esper.view.Viewable;
 

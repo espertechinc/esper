@@ -480,7 +480,7 @@ public class BaseNestableEventUtil {
     public static CodegenMethodNode getArrayPropertyAsUnderlyingsArrayCodegen(Class underlyingType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return codegenMethodScope.makeChild(Object.class, BaseNestableEventUtil.class, codegenClassScope).addParam(EventBean[].class, "wrapper").getBlock()
                 .ifRefNullReturnNull("wrapper")
-                .declareVar(JavaClassHelper.getArrayType(underlyingType), "array", newArray(underlyingType, arrayLength(ref("wrapper"))))
+                .declareVar(JavaClassHelper.getArrayType(underlyingType), "array", newArrayByLength(underlyingType, arrayLength(ref("wrapper"))))
                 .forLoopIntSimple("i", arrayLength(ref("wrapper")))
                     .assignArrayElement("array", ref("i"), cast(underlyingType, exprDotMethod(arrayAtIndex(ref("wrapper"), ref("i")), "getUnderlying")))
                     .blockEnd()

@@ -34,7 +34,7 @@ import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.engineimport.EngineImportServiceImpl;
 import com.espertech.esper.epl.core.engineimport.EngineSettingsService;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactoryImpl;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactoryImpl;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;

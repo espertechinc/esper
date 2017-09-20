@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.util.AuditPath.METHOD_AUDITLOG;
 
 public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableReturnForge, ExprTypableReturnEval, ExprEnumerationForge, ExprEnumerationEval {
     private final ExprDeclaredNodeImpl parent;
@@ -152,7 +153,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         methodNode.getBlock()
                 .declareVar(innerForge.getEvaluationType(), "result", evaluateCodegenNoAudit(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
-                .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(parent.getPrototype().getName() + " result "), "+", ref("result"))))
+                .staticMethod(AuditPath.class, METHOD_AUDITLOG, constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(parent.getPrototype().getName() + " result "), "+", ref("result")))
                 .blockEnd()
                 .methodReturn(ref("result"));
         return localMethod(methodNode);

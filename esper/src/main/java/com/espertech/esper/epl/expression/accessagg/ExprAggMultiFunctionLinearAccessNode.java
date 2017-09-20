@@ -414,7 +414,11 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     }
 
     protected boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
-        return false;
+        if (!(node instanceof ExprAggMultiFunctionLinearAccessNode)) {
+            return false;
+        }
+        ExprAggMultiFunctionLinearAccessNode other = (ExprAggMultiFunctionLinearAccessNode) node;
+        return stateType == other.stateType && containedType == other.containedType && scalarCollectionComponentType == other.scalarCollectionComponentType;
     }
 
     private static ExprValidationException makeUnboundValidationEx(AggregationStateType stateType) {

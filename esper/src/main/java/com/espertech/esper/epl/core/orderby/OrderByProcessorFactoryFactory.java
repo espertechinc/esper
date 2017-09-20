@@ -38,7 +38,7 @@ public class OrderByProcessorFactoryFactory {
      * Returns processor for order-by clauses.
      *
      * @param selectionList       is a list of select expressions
-     * @param groupByNodeEvals        is a list of group-by expressions
+     * @param groupByNodes        is a list of group-by expressions
      * @param orderByList         is a list of order-by expressions
      * @param rowLimitSpec        specification for row limit, or null if no row limit is defined
      * @param variableService     for retrieving variable state for use with row limiting
@@ -51,7 +51,7 @@ public class OrderByProcessorFactoryFactory {
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when validation of expressions fails
      */
     public static OrderByProcessorFactory getProcessor(List<SelectClauseExprCompiledSpec> selectionList,
-                                                       ExprEvaluator[] groupByNodeEvals,
+                                                       ExprNode[] groupByNodes,
                                                        List<OrderByItem> orderByList,
                                                        RowLimitSpec rowLimitSpec,
                                                        VariableService variableService,
@@ -96,6 +96,7 @@ public class OrderByProcessorFactoryFactory {
         boolean needsGroupByKeys = !selectionList.isEmpty() && !orderAggNodes.isEmpty();
 
         log.debug(".getProcessor Using OrderByProcessorImpl");
+        ExprEvaluator[] groupByNodeEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupByNodes, engineImportService, OrderByProcessorFactory.class, onDemandQuery, statementName);
         OrderByProcessorFactoryImpl orderByProcessorFactory = new OrderByProcessorFactoryImpl(orderByList, groupByNodeEvals, needsGroupByKeys, isSortUsingCollator, engineImportService, onDemandQuery, statementName);
         if (rowLimitSpec == null) {
             return orderByProcessorFactory;

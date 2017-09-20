@@ -32,4 +32,6 @@ public interface ExprAggregateNode extends ExprEvaluator, ExprForge, ExprNode {
     public void validatePositionals() throws ExprValidationException;
 
     public ExprNode[] getPositionalParams();
+
+    public ExprNode getOptionalFilter();
 }

@@ -56,8 +56,8 @@ public class AggregationServiceFactoryFactory {
      * @param numStreams                number of streams
      * @param measureExprNodesPerStream measure nodes
      * @param typesPerStream            type information
-     * @param statementName statement name
-     * @param engineImportService engine imports
+     * @param statementName             statement name
+     * @param engineImportService       engine imports
      * @return service
      * @throws ExprValidationException for validation errors
      */
@@ -504,6 +504,9 @@ public class AggregationServiceFactoryFactory {
                 continue;
             }
             if (!ExprNodeUtility.deepEquals(aggNode.getPositionalParams(), aggNodeToAdd.getPositionalParams(), false)) {
+                continue;
+            }
+            if (!ExprNodeUtility.deepEqualsNullChecked(aggNode.getOptionalFilter(), aggNodeToAdd.getOptionalFilter(), false)) {
                 continue;
             }
             if (aggNode.getOptionalLocalGroupBy() != null || aggNodeToAdd.getOptionalLocalGroupBy() != null) {

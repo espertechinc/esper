@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.join.base;
 
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.view.internal.BufferView;
 

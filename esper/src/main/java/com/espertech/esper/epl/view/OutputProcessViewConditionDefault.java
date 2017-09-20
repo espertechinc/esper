@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -205,7 +205,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         boolean isGenerateNatural = parent.getStatementResultService().isMakeNatural();
 
         // Process the events and get the result
-        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(deltaSet.getViewEventsSet(), isGenerateSynthetic, parent.getOutputLimitLimitType());
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(deltaSet.getViewEventsSet(), isGenerateSynthetic);
 
         if (parent.isDistinct() && newOldEvents != null) {
             newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
@@ -271,7 +271,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         boolean isGenerateNatural = parent.getStatementResultService().isMakeNatural();
 
         // Process the events and get the result
-        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(deltaSet.getJoinEventsSet(), isGenerateSynthetic, parent.getOutputLimitLimitType());
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(deltaSet.getJoinEventsSet(), isGenerateSynthetic);
 
         if (parent.isDistinct() && newOldEvents != null) {
             newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));

@@ -15,8 +15,9 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementVariableRef;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorType;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputConditionType;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorType;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
@@ -81,9 +82,7 @@ public class OutputProcessViewFactoryFactory {
                 boolean isStartConditionOnCreation = hasOnlyTables(statementSpec.getStreamSpecs());
                 OutputConditionFactory outputConditionFactory = OutputConditionFactoryFactory.createCondition(outputLimitSpec, statementContext, isGrouped, isWithHavingClause, isStartConditionOnCreation, resultSetProcessorHelperFactory);
                 boolean hasOrderBy = statementSpec.getOrderByList() != null && statementSpec.getOrderByList().length > 0;
-                OutputProcessViewConditionFactory.ConditionType conditionType;
                 boolean hasAfter = outputLimitSpec.getAfterNumberOfEvents() != null || outputLimitSpec.getAfterTimePeriodExpr() != null;
-                boolean isUnaggregatedUngrouped = resultSetProcessorType == ResultSetProcessorType.HANDTHROUGH || resultSetProcessorType == ResultSetProcessorType.UNAGGREGATED_UNGROUPED;
 
                 // hint checking with order-by
                 boolean hasOptHint = HintEnum.ENABLE_OUTPUTLIMIT_OPT.getHint(statementSpec.getAnnotations()) != null;
@@ -91,26 +90,11 @@ public class OutputProcessViewFactoryFactory {
                     throw new ExprValidationException("The " + HintEnum.ENABLE_OUTPUTLIMIT_OPT + " hint is not supported with order-by");
                 }
 
-                if (outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.SNAPSHOT) {
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.SNAPSHOT;
-                } else if (outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST && statementSpec.getGroupByExpressions() == null) {
-                    // For FIRST without groups we are using a special logic that integrates the first-flag, in order to still conveniently use all sorts of output conditions.
-                    // FIRST with group-by is handled by setting the output condition to null (OutputConditionNull) and letting the ResultSetProcessor handle first-per-group.
-                    // Without having-clause there is no required order of processing, thus also use regular policy.
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_FIRST;
-                } else if (isUnaggregatedUngrouped && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST) {
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
-                } else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL && !hasOrderBy) {
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
-                } else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST && !hasOrderBy) {
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
-                } else {
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_NONFIRST;
-                }
+                ResultSetProcessorOutputConditionType conditionType = ResultSetProcessorOutputConditionType.getConditionType(outputLimitSpec.getDisplayLimit(), resultSetProcessorType.isAggregated(), hasOrderBy, hasOptHint, resultSetProcessorType.isGrouped());
 
                 SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum = statementSpec.getSelectStreamSelectorEnum();
                 boolean terminable = outputLimitSpec.getRateType() == OutputLimitRateType.TERM || outputLimitSpec.isAndAfterTerminate();
-                outputProcessViewFactory = new OutputProcessViewConditionFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType, outputConditionFactory, streamCount, conditionType, outputLimitSpec.getDisplayLimit(), terminable, hasAfter, isUnaggregatedUngrouped, selectClauseStreamSelectorEnum, resultSetProcessorHelperFactory);
+                outputProcessViewFactory = new OutputProcessViewConditionFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType, outputConditionFactory, streamCount, conditionType, outputLimitSpec.getDisplayLimit(), terminable, hasAfter, resultSetProcessorType.isUnaggregatedUngrouped(), selectClauseStreamSelectorEnum, resultSetProcessorHelperFactory);
             } catch (Exception ex) {
                 throw new ExprValidationException("Error in the output rate limiting clause: " + ex.getMessage(), ex);
             }

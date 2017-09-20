@@ -38,6 +38,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 
 public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPropertyGetter {
     private static final Logger log = LoggerFactory.getLogger(ExprDotNodeForgeStaticMethodEval.class);
+    public final static String METHOD_STATICMETHODEVALHANDLEINVOCATIONEXCEPTION = "staticMethodEvalHandleInvocationException";
 
     private final ExprDotNodeForgeStaticMethod forge;
     private final ExprEvaluator[] childEvals;
@@ -150,12 +151,12 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
 
         // exception handling
         CodegenBlock catchBlock = tryBlock.tryEnd().addCatch(Throwable.class, "t")
-                .declareVar(Object[].class, "argArray", newArray(Object.class, constant(args.length)));
+                .declareVar(Object[].class, "argArray", newArrayByLength(Object.class, constant(args.length)));
         for (int i = 0; i < args.length; i++) {
             catchBlock.assignArrayElement("argArray", constant(i), args[i]);
         }
-        catchBlock.expression(staticMethod(ExprDotNodeForgeStaticMethodEval.class, "staticMethodEvalHandleInvocationException",
-                constant(forge.getStatementName()), member(methodMember.getMemberId()), constant(forge.getClassOrPropertyName()), ref("argArray"), ref("t"), constant(forge.isRethrowExceptions())));
+        catchBlock.staticMethod(ExprDotNodeForgeStaticMethodEval.class, METHOD_STATICMETHODEVALHANDLEINVOCATIONEXCEPTION,
+                constant(forge.getStatementName()), member(methodMember.getMemberId()), constant(forge.getClassOrPropertyName()), ref("argArray"), ref("t"), constant(forge.isRethrowExceptions()));
 
         // end method
         if (returnType == void.class) {

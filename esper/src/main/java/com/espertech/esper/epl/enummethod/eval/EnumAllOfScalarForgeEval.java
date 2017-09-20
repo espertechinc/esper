@@ -68,7 +68,7 @@ public class EnumAllOfScalarForgeEval implements EnumEval {
 
         CodegenBlock block = methodNode.getBlock();
         block.ifConditionReturnConst(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"), true);
-        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
+        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(typeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("evalEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("evalEvent"), "getProperties"));
 

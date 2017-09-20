@@ -57,11 +57,11 @@ public class SelectExprProcessorTypableMultiEval implements ExprEvaluator {
                 .declareVar(Object[][].class, "rows", forge.typable.evaluateTypableMultiCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("rows")
                 .ifCondition(equalsIdentity(arrayLength(ref("rows")), constant(0)))
-                .blockReturn(newArray(EventBean.class, constant(0)));
+                .blockReturn(newArrayByLength(EventBean.class, constant(0)));
         if (forge.hasWideners) {
             block.expression(SelectExprProcessorHelper.applyWidenersCodegenMultirow(ref("rows"), forge.wideners, methodNode, codegenClassScope));
         }
-        block.declareVar(EventBean[].class, "events", newArray(EventBean.class, arrayLength(ref("rows"))))
+        block.declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, arrayLength(ref("rows"))))
                 .forLoopIntSimple("i", arrayLength(ref("events")))
                 .assignArrayElement("events", ref("i"), exprDotMethod(member(factory.getMemberId()), "make", arrayAtIndex(ref("rows"), ref("i"))))
                 .blockEnd()

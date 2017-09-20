@@ -49,7 +49,7 @@ public class BindProcessor {
     protected static CodegenMethodNode processCodegen(BindProcessorForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Object[].class, BindProcessor.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "parameters", newArray(Object.class, constant(forge.getExpressionForges().length)));
+                .declareVar(Object[].class, "parameters", newArrayByLength(Object.class, constant(forge.getExpressionForges().length)));
         for (int i = 0; i < forge.getExpressionForges().length; i++) {
             block.assignArrayElement("parameters", constant(i), CodegenLegoMayVoid.expressionMayVoid(Object.class, forge.getExpressionForges()[i], methodNode, exprSymbol, codegenClassScope));
         }

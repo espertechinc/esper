@@ -18,8 +18,8 @@ public class TestSuiteOutputLimit extends TestCase {
         RegressionRunner.run(new ExecOutputLimitAfter());
     }
 
-    public void testExecOutputLimitAggregateAll() {
-        RegressionRunner.run(new ExecOutputLimitAggregateAll());
+    public void testExecOutputLimitRowPerEvent() {
+        RegressionRunner.run(new ExecOutputLimitRowPerEvent());
     }
 
     public void testExecOutputLimitChangeSetOpt() {
@@ -30,12 +30,12 @@ public class TestSuiteOutputLimit extends TestCase {
         RegressionRunner.run(new ExecOutputLimitCrontabWhen());
     }
 
-    public void testExecOutputLimitGroupByEventPerGroup() {
-        RegressionRunner.run(new ExecOutputLimitGroupByEventPerGroup());
+    public void testExecOutputLimitRowPerGroup() {
+        RegressionRunner.run(new ExecOutputLimitRowPerGroup());
     }
 
-    public void testExecOutputLimitGroupByEventPerRow() {
-        RegressionRunner.run(new ExecOutputLimitGroupByEventPerRow());
+    public void testExecOutputLimitAggregateGrouped() {
+        RegressionRunner.run(new ExecOutputLimitAggregateGrouped());
     }
 
     public void testExecOutputLimitFirstHaving() {
@@ -62,4 +62,7 @@ public class TestSuiteOutputLimit extends TestCase {
         RegressionRunner.run(new ExecOutputLimitSimple());
     }
 
+    public void testExecQuerytypeRollupOutputRate() {
+        RegressionRunner.run(new ExecOutputLimitRowPerGroupRollup());
+    }
 }

@@ -42,32 +42,28 @@ public class TestSuiteQuerytype extends TestCase {
         RegressionRunner.run(new ExecQuerytypeRollupHavingAndOrderBy());
     }
 
-    public void testExecQuerytypeRollupOutputRate() {
-        RegressionRunner.run(new ExecQuerytypeRollupOutputRate());
-    }
-
     public void testExecQuerytypeRollupPlanningAndSODA() {
         RegressionRunner.run(new ExecQuerytypeRollupPlanningAndSODA());
     }
 
-    public void testExecQuerytypeGroupByEventPerGroup() {
-        RegressionRunner.run(new ExecQuerytypeGroupByEventPerGroup());
+    public void testExecQuerytypeRowPerGroup() {
+        RegressionRunner.run(new ExecQuerytypeRowPerGroup());
     }
 
-    public void testExecQuerytypeGroupByEventPerGroupHaving() {
-        RegressionRunner.run(new ExecQuerytypeGroupByEventPerGroupHaving());
+    public void testExecQuerytypeRowPerGroupHaving() {
+        RegressionRunner.run(new ExecQuerytypeRowPerGroupHaving());
     }
 
-    public void testExecQuerytypeGroupByEventPerRow() {
-        RegressionRunner.run(new ExecQuerytypeGroupByEventPerRow());
+    public void testExecQuerytypeAggregateGrouped() {
+        RegressionRunner.run(new ExecQuerytypeAggregateGrouped());
     }
 
-    public void testExecQuerytypeGroupByEventPerRowHaving() {
-        RegressionRunner.run(new ExecQuerytypeGroupByEventPerRowHaving());
+    public void testExecQuerytypeAggregateGroupedHaving() {
+        RegressionRunner.run(new ExecQuerytypeAggregateGroupedHaving());
     }
 
     public void testExecQuerytypeGroupByReclaimMicrosecondResolution() {
-        RegressionRunner.run(new ExecQuerytypeGroupByReclaimMicrosecondResolution());
+        RegressionRunner.run(new ExecQuerytypeRowPerGroupReclaimMicrosecondResolution());
     }
 
     public void testExecQuerytypeWTimeBatch() {

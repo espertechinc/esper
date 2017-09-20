@@ -29,8 +29,8 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.core.poll.MethodPollingViewableFactory;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.select.SelectExprProcessorDeliveryCallback;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
@@ -330,7 +330,7 @@ public class EPStatementStartMethodSelectUtil {
         }
 
         // obtain factory for output limiting
-        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService(), resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
+        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultEventType(), optionalOutputProcessViewCallback, services.getTableService(), resultSetProcessorPrototypeDesc.getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
 
         // Factory for statement-context instances
         StatementAgentInstanceFactorySelect factory = new StatementAgentInstanceFactorySelect(

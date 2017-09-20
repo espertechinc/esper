@@ -199,7 +199,7 @@ public class EvalSelectStreamWUndRecastObjectArrayFactory {
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(ObjectArrayBackedEventBean.class, "theEvent", cast(ObjectArrayBackedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
-                    .declareVar(Object[].class, "props", newArray(Object.class, constant(items.length)));
+                    .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(items.length)));
             for (Item item : items) {
                 if (item.getOptionalFromIndex() != -1) {
                     block.assignArrayElement("props", constant(item.getToIndex()), arrayAtIndex(exprDotMethod(ref("theEvent"), "getProperties"), constant(item.getOptionalFromIndex())));

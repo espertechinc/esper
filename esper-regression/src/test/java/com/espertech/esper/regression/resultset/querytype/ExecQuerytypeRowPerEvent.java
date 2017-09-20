@@ -31,10 +31,10 @@ public class ExecQuerytypeRowPerEvent implements RegressionExecution {
     private final static String JOIN_KEY = "KEY";
 
     public void run(EPServiceProvider epService) throws Exception {
-        runAssertionAggregatedSelectTriggerEvent(epService);
-        runAssertionAggregatedSelectUnaggregatedHaving(epService);
         runAssertionSumOneView(epService);
         runAssertionSumJoin(epService);
+        runAssertionAggregatedSelectTriggerEvent(epService);
+        runAssertionAggregatedSelectUnaggregatedHaving(epService);
         runAssertionSumAvgWithWhere(epService);
     }
 

@@ -13,10 +13,10 @@ package com.espertech.esper.util;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.NullIterator;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
@@ -30,6 +30,19 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  * Utility for handling collection or array tasks.
  */
 public class CollectionUtil {
+    public final static String METHOD_SHRINKARRAYEVENTS = "shrinkArrayEvents";
+    public final static String METHOD_SHRINKARRAYEVENTARRAY = "shrinkArrayEventArray";
+    public final static String METHOD_SHRINKARRAYOBJECTS = "shrinkArrayObjects";
+    public final static String METHOD_TOARRAYEVENTS = "toArrayEvents";
+    public final static String METHOD_TOARRAYOBJECTS = "toArrayObjects";
+    public final static String METHOD_TOARRAYEVENTSARRAY = "toArrayEventsArray";
+    public final static String METHOD_TOARRAYNULLFOREMPTYEVENTS = "toArrayNullForEmptyEvents";
+    public final static String METHOD_TOARRAYNULLFOREMPTYOBJECTS = "toArrayNullForEmptyObjects";
+    public final static String METHOD_TOARRAYNULLFOREMPTYVALUEEVENTS = "toArrayNullForEmptyValueEvents";
+    public final static String METHOD_TOARRAYNULLFOREMPTYVALUEVALUES = "toArrayNullForEmptyValueValues";
+    public final static String METHOD_TOARRAYMAYNULL = "toArrayMayNull";
+    public final static String METHOD_ITERATORTOARRAYEVENTS = "iteratorToArrayEvents";
+
     public final static Iterator<EventBean> NULL_EVENT_ITERATOR = new NullIterator<EventBean>();
     public final static Iterable<EventBean> NULL_EVENT_ITERABLE = new Iterable<EventBean>() {
         public Iterator<EventBean> iterator() {
@@ -38,6 +51,7 @@ public class CollectionUtil {
     };
     public final static SortedMap EMPTY_SORTED_MAP = new TreeMap();
     public final static EventBean[] EVENTBEANARRAY_EMPTY = new EventBean[0];
+    public final static EventBean[][] EVENTBEANARRAYARRAY_EMPTY = new EventBean[0][];
     public final static Set<EventBean> SINGLE_NULL_ROW_EVENT_SET = new HashSet<EventBean>();
     public final static String[] STRINGARRAY_EMPTY = new String[0];
     private static final int MAX_POWER_OF_TWO = 1 << (Integer.SIZE - 2);
@@ -332,6 +346,26 @@ public class CollectionUtil {
         return dest;
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param events events
+     * @return array or null
+     */
+    public static EventBean[] toArrayNullForEmptyEvents(Collection<EventBean> events) {
+        return events.isEmpty() ? null : events.toArray(new EventBean[events.size()]);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param values values
+     * @return array or null
+     */
+    public static Object[] toArrayNullForEmptyObjects(Collection<Object> values) {
+        return values.isEmpty() ? null : values.toArray(new Object[values.size()]);
+    }
+
     public static EventBean[] addArrayWithSetSemantics(EventBean[] arrayOne, EventBean[] arrayTwo) {
         if (arrayOne.length == 0) {
             return arrayTwo;
@@ -371,6 +405,42 @@ public class CollectionUtil {
             return STRINGARRAY_EMPTY;
         }
         return strings.toArray(new String[strings.size()]);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param events values
+     * @return array
+     */
+    public static EventBean[] toArrayEvents(Collection<EventBean> events) {
+        if (events.isEmpty()) {
+            return EVENTBEANARRAY_EMPTY;
+        }
+        return events.toArray(new EventBean[events.size()]);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param values values
+     * @return array
+     */
+    public static Object[] toArrayObjects(List<Object> values) {
+        if (values.isEmpty()) {
+            return OBJECTARRAY_EMPTY;
+        }
+        return values.toArray(new Object[values.size()]);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param arrays values
+     * @return array
+     */
+    public static EventBean[][] toArrayEventsArray(ArrayDeque<EventBean[]> arrays) {
+        if (arrays.isEmpty()) {
+            return EVENTBEANARRAYARRAY_EMPTY;
+        }
+        return arrays.toArray(new EventBean[arrays.size()][]);
     }
 
     public static <T> int searchArray(T[] array, T item) {
@@ -522,5 +592,92 @@ public class CollectionUtil {
             return (int) ((float) expectedSize / 0.75F + 1.0F);
         }
         return Integer.MAX_VALUE; // any large value
+    }
+
+    public static EventBean[] toArrayMayNull(EventBean event) {
+        return event != null ? new EventBean[]{event} : null;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param collection collection
+     * @return array or null
+     */
+    public static EventBean[] toArrayMayNull(Collection<EventBean> collection) {
+        if (collection != null) {
+            return collection.toArray(new EventBean[collection.size()]);
+        }
+        return null;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param count cnt
+     * @param events events
+     * @return shrank array
+     */
+    public static EventBean[] shrinkArrayEvents(int count, EventBean[] events) {
+        EventBean[] outEvents = new EventBean[count];
+        System.arraycopy(events, 0, outEvents, 0, count);
+        return outEvents;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param count cnt
+     * @param keys values
+     * @return shrank array
+     */
+    public static Object[] shrinkArrayObjects(int count, Object[] keys) {
+        Object[] outKeys = new Object[count];
+        System.arraycopy(keys, 0, outKeys, 0, count);
+        return outKeys;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param count cnt
+     * @param eventArrays events
+     * @return shrank array
+     */
+    public static EventBean[][] shrinkArrayEventArray(int count, EventBean[][] eventArrays) {
+        EventBean[][] outGens = new EventBean[count][];
+        System.arraycopy(eventArrays, 0, outGens, 0, count);
+        return outGens;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param events events
+     * @return null or array
+     */
+    public static EventBean[] toArrayNullForEmptyValueEvents(Map<Object, EventBean> events) {
+        return events.isEmpty() ? null : events.values().toArray(new EventBean[events.size()]);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param values events
+     * @return null or array
+     */
+    public static Object[] toArrayNullForEmptyValueValues(Map<Object, Object> values) {
+        return values.isEmpty() ? null : values.values().toArray(new Object[values.size()]);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param iterator iterator
+     * @return array of events
+     */
+    public static EventBean[] iteratorToArrayEvents(Iterator<EventBean> iterator) {
+        if (iterator == null) {
+            return null;
+        }
+        ArrayList<EventBean> events = new ArrayList<EventBean>();
+        for (; iterator.hasNext(); ) {
+            events.add(iterator.next());
+        }
+        return events.toArray(new EventBean[events.size()]);
     }
 }

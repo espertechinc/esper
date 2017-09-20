@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
+import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenMemberId;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenNamedParam;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,12 +65,12 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionExprDotUnderlying(expression);
     }
 
-    public static CodegenLocalCallBuilder localMethodBuild(CodegenMethodNode methodNode) {
-        return new CodegenLocalCallBuilder(methodNode);
+    public static CodegenLocalMethodBuilder localMethodBuild(CodegenMethodNode methodNode) {
+        return new CodegenLocalMethodBuilder(methodNode);
     }
 
-    public static CodegenExpressionLocalCall localMethod(CodegenMethodNode methodNode, CodegenExpression ... parameters) {
-        return new CodegenExpressionLocalCall(methodNode, Arrays.asList(parameters));
+    public static CodegenExpressionLocalMethod localMethod(CodegenMethodNode methodNode, CodegenExpression ... parameters) {
+        return new CodegenExpressionLocalMethod(methodNode, Arrays.asList(parameters));
     }
 
     public static CodegenExpression constantTrue() {
@@ -84,6 +87,10 @@ public class CodegenExpressionBuilder {
 
     public static CodegenExpression constant(Object constant) {
         return new CodegenExpressionConstant(constant);
+    }
+
+    public static CodegenExpressionNewAnonymousClass newAnonymousClass(CodegenBlock parentBlock, Class interfaceClass, Class returnType, String methodName, List<CodegenNamedParam> params) {
+        return new CodegenExpressionNewAnonymousClass(parentBlock, interfaceClass, returnType, methodName, params);
     }
 
     public static CodegenExpression noop() {
@@ -143,7 +150,7 @@ public class CodegenExpressionBuilder {
     }
 
     public static CodegenExpression staticMethod(Class clazz, String method, CodegenExpression... params) {
-        return new CodegenExpressionStaticMethodTakingAny(clazz, method, params);
+        return new CodegenExpressionStaticMethod(clazz, method, params);
     }
 
     public static CodegenExpression clazz(Class clazz) {
@@ -170,8 +177,12 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionRelational(lhs, op, rhs);
     }
 
-    public static CodegenExpression newArray(Class component, CodegenExpression expression) {
-        return new CodegenExpressionNewArray(component, expression);
+    public static CodegenExpression newArrayByLength(Class component, CodegenExpression expression) {
+        return new CodegenExpressionNewArrayByLength(component, expression);
+    }
+
+    public static CodegenExpression newArrayWithInit(Class component, CodegenExpression expression) {
+        return new CodegenExpressionNewArrayWithInit(component, expression);
     }
 
     public static void renderExpressions(StringBuilder builder, CodegenExpression[] expressions, Map<Class, String> imports, boolean isInnerClass) {

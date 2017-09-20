@@ -72,7 +72,7 @@ public abstract class EvalSelectStreamBaseObjectArray extends EvalSelectStreamBa
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
 
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "props", newArray(Object.class, constant(size)));
+                .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(size)));
         int count = 0;
         for (ExprForge forge : this.context.getExprForges()) {
             block.assignArrayElement(ref("props"), constant(count), CodegenLegoMayVoid.expressionMayVoid(Object.class, forge, methodNode, exprSymbol, codegenClassScope));

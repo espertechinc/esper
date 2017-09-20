@@ -75,7 +75,7 @@ public class EnumAggregateEventsForgeEval implements EnumEval {
         block.declareVar(initType, "value", forge.initialization.evaluateCodegen(initType, methodNode, scope, codegenClassScope))
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(ref("value"));
-        block.declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
+        block.declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(typeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
         block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)

@@ -26,9 +26,9 @@ public class ExprForgeCodegenNames {
     public final static String NAME_ISNEWDATA = "isNewData";
     public final static String NAME_EXPREVALCONTEXT = "exprEvalCtx";
 
-    final static CodegenExpressionRef REF_EPS = ref(NAME_EPS);
-    final static CodegenExpressionRef REF_ISNEWDATA = ref(NAME_ISNEWDATA);
-    final static CodegenExpressionRef REF_EXPREVALCONTEXT = ref(NAME_EXPREVALCONTEXT);
+    public final static CodegenExpressionRef REF_EPS = ref(NAME_EPS);
+    public final static CodegenExpressionRef REF_ISNEWDATA = ref(NAME_ISNEWDATA);
+    public final static CodegenExpressionRef REF_EXPREVALCONTEXT = ref(NAME_EXPREVALCONTEXT);
 
     public final static CodegenNamedParam FP_EPS = new CodegenNamedParam(EventBean[].class, NAME_EPS);
     public final static CodegenNamedParam FP_ISNEWDATA = new CodegenNamedParam(boolean.class, NAME_ISNEWDATA);

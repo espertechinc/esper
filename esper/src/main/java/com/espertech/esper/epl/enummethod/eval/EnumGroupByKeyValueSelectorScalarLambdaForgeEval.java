@@ -79,7 +79,7 @@ public class EnumGroupByKeyValueSelectorScalarLambdaForgeEval implements EnumEva
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(staticMethod(Collections.class, "emptyMap"))
                 .declareVar(Map.class, "result", newInstance(LinkedHashMap.class))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 

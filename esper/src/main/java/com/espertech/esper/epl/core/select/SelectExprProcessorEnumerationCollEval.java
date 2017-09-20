@@ -47,7 +47,7 @@ public class SelectExprProcessorEnumerationCollEval implements ExprEvaluator {
         methodNode.getBlock()
                 .declareVar(Collection.class, EventBean.class, "events", forge.enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("events")
-                .methodReturn(cast(EventBean[].class, exprDotMethod(ref("events"), "toArray", newArray(EventBean.class, exprDotMethod(ref("events"), "size")))));
+                .methodReturn(cast(EventBean[].class, exprDotMethod(ref("events"), "toArray", newArrayByLength(EventBean.class, exprDotMethod(ref("events"), "size")))));
         return localMethod(methodNode);
     }
 

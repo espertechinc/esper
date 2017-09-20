@@ -555,7 +555,7 @@ public class SelectExprInsertEventBeanFactory {
             CodegenMember manufacturer = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
+                    .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
                 CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(exprForges[i].getEvaluationType(), exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 if (wideners[i] == null) {
@@ -598,7 +598,7 @@ public class SelectExprInsertEventBeanFactory {
             CodegenMember manufacturer = codegenClassScope.makeAddMember(EventBeanManufacturer.class, eventManufacturer);
             CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(Object[].class, "values", newArray(Object.class, constant(exprForges.length)));
+                    .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(exprForges.length)));
             for (int i = 0; i < exprForges.length; i++) {
                 CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, exprForges[i], methodNode, exprSymbol, codegenClassScope);
                 block.assignArrayElement("values", constant(i), expression);
@@ -777,7 +777,7 @@ public class SelectExprInsertEventBeanFactory {
             methodNode.getBlock()
                     .declareVar(EventBean[].class, "events", cast(EventBean[].class, inner.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
                     .ifRefNullReturnNull("events")
-                    .declareVar(arrayType, "values", newArray(componentReturnType, arrayLength(ref("events"))))
+                    .declareVar(arrayType, "values", newArrayByLength(componentReturnType, arrayLength(ref("events"))))
                     .forLoopIntSimple("i", arrayLength(ref("events")))
                     .assignArrayElement("values", ref("i"), cast(componentReturnType, exprDotUnderlying(arrayAtIndex(ref("events"), ref("i")))))
                     .blockEnd()

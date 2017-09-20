@@ -13,14 +13,59 @@ package com.espertech.esper.regression.resultset.orderby;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.client.scopetest.SupportUpdateListener;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanString;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
 import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
 import java.util.Collections;
 
+import static junit.framework.TestCase.assertFalse;
+
 public class ExecOrderByRowForAll implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
+        runAssertionNoOutputRateNonJoin(epService);
+        runAssertionNoOutputRateJoin(epService);
+        runAssertionOutputDefault(epService, false);
+        runAssertionOutputDefault(epService, true);
+    }
+
+    private void runAssertionOutputDefault(EPServiceProvider epService, boolean join) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_A.class);
+        String epl = "select irstream sum(intPrimitive) as c0, last(theString) as c1 from SupportBean#length(2) " +
+                (join ? ",SupportBean_A#keepall " : "") +
+                "output every 3 events order by sum(intPrimitive) desc";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean_A("A1"));
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 11));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 12));
+
+        String[] fields = "c0,c1".split(",");
+        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][] {{23, "E3"}, {21, "E2"}, {10, "E1"}});
+        EPAssertionUtil.assertPropsPerRow(listener.getLastOldData(), fields, new Object[][] {{21, "E2"}, {10, "E1"}, {null, null}});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionNoOutputRateNonJoin(EPServiceProvider epService) {
+        // JIRA ESPER-644 Infinite loop when restarting a statement
+        epService.getEPAdministrator().getConfiguration().addEventType("FB", Collections.<String, Object>singletonMap("timeTaken", double.class));
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select avg(timeTaken) as timeTaken from FB order by timeTaken desc");
+        stmt.stop();
+        stmt.start();
+        stmt.destroy();
+    }
+
+    private void runAssertionNoOutputRateJoin(EPServiceProvider epService) {
         String[] fields = new String[]{"sumPrice"};
         String statementString = "select sum(price) as sumPrice from " +
                 SupportMarketDataBean.class.getName() + "#length(10) as one, " +
@@ -38,11 +83,7 @@ public class ExecOrderByRowForAll implements RegressionExecution {
         sendEvent(epService, "KGB", 75);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), fields, new Object[][]{{289d}});
 
-        // JIRA ESPER-644 Infinite loop when restarting a statement
-        epService.getEPAdministrator().getConfiguration().addEventType("FB", Collections.<String, Object>singletonMap("timeTaken", double.class));
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select avg(timeTaken) as timeTaken from FB order by timeTaken desc");
-        stmt.stop();
-        stmt.start();
+        statement.destroy();
     }
 
     private void sendEvent(EPServiceProvider epService, String symbol, double price) {

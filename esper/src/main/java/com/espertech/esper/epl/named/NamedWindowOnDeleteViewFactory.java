@@ -13,7 +13,7 @@ package com.espertech.esper.epl.named;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementResultService;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
 
 /**

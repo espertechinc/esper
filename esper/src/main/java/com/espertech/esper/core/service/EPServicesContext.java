@@ -24,7 +24,7 @@ import com.espertech.esper.dispatch.DispatchServiceProvider;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.engineimport.EngineSettingsService;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;

@@ -152,7 +152,7 @@ public class CodegenClassGenerator {
 
         // parameters
         if (optionalCtor != null) {
-            for (CodegenCtorParam param : optionalCtor.getParams()) {
+            for (CodegenCtorParam param : optionalCtor.getCtorParams()) {
                 builder.append(delimiter);
                 param.renderAsParameter(builder, imports);
                 delimiter = ",";
@@ -170,7 +170,7 @@ public class CodegenClassGenerator {
 
         // code assigning parameters
         if (optionalCtor != null) {
-            for (CodegenCtorParam param : optionalCtor.getParams()) {
+            for (CodegenCtorParam param : optionalCtor.getCtorParams()) {
                 INDENT.indent(builder, 2 + additionalIndent);
                 builder.append("this.").append(param.getName()).append("=").append(param.getName()).append(";\n");
             }
@@ -194,7 +194,7 @@ public class CodegenClassGenerator {
 
     private static void generateCodeMembers(StringBuilder builder, List<CodegenNamedParam> explicitMembers, CodegenCtor optionalCtor, Set<CodegenMember> memberSet, Map<Class, String> imports, int indent) {
         if (optionalCtor != null) {
-            for (CodegenCtorParam param : optionalCtor.getParams()) {
+            for (CodegenCtorParam param : optionalCtor.getCtorParams()) {
                 INDENT.indent(builder, indent);
                 builder.append("final ");
                 param.renderAsMember(builder, imports);

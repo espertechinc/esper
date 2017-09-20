@@ -10,16 +10,12 @@
  */
 package com.espertech.esper.codegen.base;
 
-import com.espertech.esper.codegen.core.CodegenIndent;
 import com.espertech.esper.codegen.core.CodegenCtor;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.codegen.core.CodegenIndent;
+import com.espertech.esper.codegen.model.expression.*;
 import com.espertech.esper.codegen.model.statement.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
@@ -182,15 +178,30 @@ public class CodegenBlock {
         return assignArrayElement(ref(ref), index, assignment);
     }
 
+    public CodegenBlock assignArrayElement2Dim(String ref, CodegenExpression indexOne, CodegenExpression indexTwo, CodegenExpression assignment) {
+        checkClosed();
+        statements.add(new CodegenStatementAssignArrayElement2Dim(ref(ref), indexOne, indexTwo, assignment));
+        return this;
+    }
+
     public CodegenBlock assignArrayElement(CodegenExpression ref, CodegenExpression index, CodegenExpression assignment) {
         checkClosed();
         statements.add(new CodegenStatementAssignArrayElement(ref, index, assignment));
         return this;
     }
 
-    public CodegenBlock exprDotMethod(CodegenExpression expression, String method, CodegenExpression ... params) {
-        checkClosed();
-        statements.add(new CodegenStatementExprDotMethod(expression, method, params));
+    public CodegenBlock exprDotMethod(CodegenExpression expression, String method, CodegenExpression... params) {
+        expression(new CodegenExpressionExprDotMethod(expression, method, params));
+        return this;
+    }
+
+    public CodegenBlock staticMethod(Class clazz, String method, CodegenExpression... params) {
+        expression(new CodegenExpressionStaticMethod(clazz, method, params));
+        return this;
+    }
+
+    public CodegenBlock localMethod(CodegenMethodNode methodNode, CodegenExpression... parameters) {
+        expression(new CodegenExpressionLocalMethod(methodNode, Arrays.asList(parameters)));
         return this;
     }
 
@@ -380,5 +391,22 @@ public class CodegenBlock {
         }
         statements.add(CodegenStatementContinue.INSTANCE);
         return parentWBlock.getParent();
+    }
+
+    public CodegenBlock whileLoop(CodegenExpression expression) {
+        checkClosed();
+        CodegenStatementWhile whileStmt = new CodegenStatementWhile(this, expression);
+        CodegenBlock block = new CodegenBlock(whileStmt);
+        whileStmt.setBlock(block);
+        statements.add(whileStmt);
+        return block;
+    }
+
+    public void returnMethodOrBlock(CodegenExpression expression) {
+        if (parentMethodNode != null) {
+            methodReturn(expression);
+        } else {
+            blockReturn(expression);
+        }
     }
 }

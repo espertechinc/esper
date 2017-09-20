@@ -42,7 +42,6 @@ public class ExprNodeCompiler {
         if (!engineImportService.getCodeGeneration().isEnableExpression() || onDemandQuery || forge.getComplexity() != ExprForgeComplexityEnum.INTER) {
             return forge.getExprEvaluator();
         }
-        boolean includeCodeComments = engineImportService.getCodeGeneration().isIncludeComments();
 
         Supplier<String> debugInformationProvider = new Supplier<String>() {
             public String get() {

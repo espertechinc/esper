@@ -22,14 +22,14 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionIteratorAggregateRowPerEvent(epService);
         runAssertionAliases(epService);
-        runAssertionAggregateAllJoinOrderFunction(epService);
-        runAssertionAggregateAllOrderFunction(epService);
-        runAssertionAggregateAllSum(epService);
-        runAssertionAggregateAllMaxSum(epService);
-        runAssertionAggregateAllSumHaving(epService);
+        runAssertionRowPerEventJoinOrderFunction(epService);
+        runAssertionRowPerEventOrderFunction(epService);
+        runAssertionRowPerEventSum(epService);
+        runAssertionRowPerEventMaxSum(epService);
+        runAssertionRowPerEventSumHaving(epService);
         runAssertionAggOrderWithSum(epService);
-        runAssertionAggregateAllJoin(epService);
-        runAssertionAggregateAllJoinMax(epService);
+        runAssertionRowPerEventJoin(epService);
+        runAssertionRowPerEventJoinMax(epService);
         runAssertionAggHaving(epService);
     }
 
@@ -95,7 +95,7 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
         statement.destroy();
     }
 
-    private void runAssertionAggregateAllJoinOrderFunction(EPServiceProvider epService) {
+    private void runAssertionRowPerEventJoinOrderFunction(EPServiceProvider epService) {
         String statementString = "select symbol, sum(price) from " +
                 SupportMarketDataBean.class.getName() + "#length(10) as one, " +
                 SupportBeanString.class.getName() + "#length(100) as two " +
@@ -126,7 +126,7 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
         statement.destroy();
     }
 
-    private void runAssertionAggregateAllOrderFunction(EPServiceProvider epService) {
+    private void runAssertionRowPerEventOrderFunction(EPServiceProvider epService) {
         String statementString = "select symbol, sum(price) from " +
                 SupportMarketDataBean.class.getName() + "#length(10) " +
                 "output every 6 events " +
@@ -150,7 +150,7 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
         statement.destroy();
     }
 
-    private void runAssertionAggregateAllSum(EPServiceProvider epService) {
+    private void runAssertionRowPerEventSum(EPServiceProvider epService) {
         String statementString = "select symbol, sum(price) from " +
                 SupportMarketDataBean.class.getName() + "#length(10) " +
                 "output every 6 events " +
@@ -174,7 +174,7 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
         statement.destroy();
     }
 
-    private void runAssertionAggregateAllMaxSum(EPServiceProvider epService) {
+    private void runAssertionRowPerEventMaxSum(EPServiceProvider epService) {
         String statementString = "select symbol, max(sum(price)) from " +
                 SupportMarketDataBean.class.getName() + "#length(10) " +
                 "output every 6 events " +
@@ -198,7 +198,7 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
         statement.destroy();
     }
 
-    private void runAssertionAggregateAllSumHaving(EPServiceProvider epService) {
+    private void runAssertionRowPerEventSumHaving(EPServiceProvider epService) {
         String statementString = "select symbol, sum(price) from " +
                 SupportMarketDataBean.class.getName() + "#length(10) " +
                 "having sum(price) > 0 " +
@@ -247,7 +247,7 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
         statement.destroy();
     }
 
-    private void runAssertionAggregateAllJoin(EPServiceProvider epService) {
+    private void runAssertionRowPerEventJoin(EPServiceProvider epService) {
         String statementString = "select symbol, sum(price) from " +
                 SupportMarketDataBean.class.getName() + "#length(10) as one, " +
                 SupportBeanString.class.getName() + "#length(100) as two " +
@@ -277,7 +277,7 @@ public class ExecOrderByRowPerEvent implements RegressionExecution {
         statement.destroy();
     }
 
-    private void runAssertionAggregateAllJoinMax(EPServiceProvider epService) {
+    private void runAssertionRowPerEventJoinMax(EPServiceProvider epService) {
         String statementString = "select symbol, max(sum(price)) from " +
                 SupportMarketDataBean.class.getName() + "#length(10) as one, " +
                 SupportBeanString.class.getName() + "#length(100) as two " +

@@ -76,7 +76,7 @@ public class EnumDistinctScalarLambdaForgeEval implements EnumEval {
                 .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(typeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 

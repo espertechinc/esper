@@ -17,9 +17,9 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperAssignExpr;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -81,7 +81,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
             ResultSetProcessor resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null, false);
 
             // Attach output view
-            OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), agentInstanceContext.getStatementContext(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
+            OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), agentInstanceContext.getStatementContext(), resultSetProcessorPrototype.getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
             outputViewBase = outputViewFactory.makeView(resultSetProcessor, agentInstanceContext);
             createView.addView(outputViewBase);
         } catch (ExprValidationException ex) {

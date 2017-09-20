@@ -57,7 +57,7 @@ public class EvalInsertNoWildcardObjectArray extends EvalBase implements SelectE
     public CodegenMethodNode processCodegen(CodegenMember memberResultEventType, CodegenMember memberEventAdapterService, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(Object[].class, "result", newArray(Object.class, constant(this.context.getExprForges().length)));
+                .declareVar(Object[].class, "result", newArrayByLength(Object.class, constant(this.context.getExprForges().length)));
         for (int i = 0; i < this.context.getExprForges().length; i++) {
             CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(Object.class, this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
             block.assignArrayElement("result", constant(i), expression);

@@ -55,7 +55,7 @@ public class ExprCaseNodeForgeEvalTypable implements ExprTypableReturnEval {
 
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(Map.class, "map", cast(Map.class, forge.evaluateCodegen(Map.class, methodNode, exprSymbol, codegenClassScope)))
-                .declareVar(Object[].class, "row", newArray(Object.class, exprDotMethod(ref("map"), "size")));
+                .declareVar(Object[].class, "row", newArrayByLength(Object.class, exprDotMethod(ref("map"), "size")));
         int index = -1;
         for (Map.Entry<String, Object> entry : forge.mapResultType.entrySet()) {
             index++;

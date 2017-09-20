@@ -32,6 +32,7 @@ import java.util.Collections;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GE;
+import static com.espertech.esper.epl.enummethod.eval.EnumTakeWhileLastIndexScalarForgeEval.METHOD_TAKEWHILELASTSCALARTOARRAY;
 import static com.espertech.esper.epl.enummethod.eval.EnumTakeWhileLastIndexScalarForgeEval.takeWhileLastScalarToArray;
 
 public class EnumTakeWhileLastScalarForgeEval implements EnumEval {
@@ -91,7 +92,7 @@ public class EnumTakeWhileLastScalarForgeEval implements EnumEval {
         CodegenBlock block = methodNode.getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL);
-        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(typeMember.getMemberId())))
+        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(typeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("evalEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("evalEvent"), "getProperties"));
 
@@ -102,7 +103,7 @@ public class EnumTakeWhileLastScalarForgeEval implements EnumEval {
         blockSingle.blockReturn(staticMethod(Collections.class, "singletonList", ref("item")));
 
         block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class))
-                .declareVar(Object[].class, "all", staticMethod(EnumTakeWhileLastIndexScalarForgeEval.class, "takeWhileLastScalarToArray", EnumForgeCodegenNames.REF_ENUMCOLL));
+                .declareVar(Object[].class, "all", staticMethod(EnumTakeWhileLastIndexScalarForgeEval.class, METHOD_TAKEWHILELASTSCALARTOARRAY, EnumForgeCodegenNames.REF_ENUMCOLL));
 
         CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrement("i"))
                 .assignArrayElement("props", constant(0), arrayAtIndex(ref("all"), ref("i")));

@@ -10,32 +10,21 @@
  */
 package com.espertech.esper.codegen.core;
 
-import com.espertech.esper.codegen.base.CodegenBlock;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenSymbolProviderEmpty;
 
 import java.util.List;
-import java.util.Set;
 
-public class CodegenCtor {
-    private final CodegenBlock block;
+public class CodegenCtor extends CodegenMethodNode {
     private final List<CodegenCtorParam> params;
 
-    public CodegenCtor(List<CodegenCtorParam> params) {
-        this.block = new CodegenBlock(this);
+    public CodegenCtor(Class generator, CodegenClassScope classScope, List<CodegenCtorParam> params) {
+        super(null, generator, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         this.params = params;
     }
 
-    public CodegenBlock getBlock() {
-        return block;
-    }
-
-    public List<CodegenCtorParam> getParams() {
+    public List<CodegenCtorParam> getCtorParams() {
         return params;
-    }
-
-    public void mergeClasses(Set<Class> classes) {
-        block.mergeClasses(classes);
-        for (CodegenCtorParam param : params) {
-            param.mergeClasses(classes);
-        }
     }
 }

@@ -29,6 +29,7 @@ import java.util.Calendar;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class CalendarWithTimeForgeOp implements CalendarOp {
+    public final static String METHOD_ACTIONSETHMSMCALENDAR = "actionSetHMSMCalendar";
 
     private ExprEvaluator hour;
     private ExprEvaluator min;
@@ -53,10 +54,9 @@ public class CalendarWithTimeForgeOp implements CalendarOp {
     public static CodegenExpression codegenCalendar(CalendarWithTimeForge forge, CodegenExpression cal, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(void.class, CalendarWithTimeForgeOp.class, codegenClassScope).addParam(Calendar.class, "cal");
 
-
         CodegenBlock block = methodNode.getBlock();
         codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
-        block.expression(staticMethod(CalendarWithTimeForgeOp.class, "actionSetHMSMCalendar", ref("cal"), ref("hour"), ref("minute"), ref("second"), ref("msec")));
+        block.staticMethod(CalendarWithTimeForgeOp.class, METHOD_ACTIONSETHMSMCALENDAR, ref("cal"), ref("hour"), ref("minute"), ref("second"), ref("msec"));
         return localMethod(methodNode, cal);
     }
 

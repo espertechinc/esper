@@ -11,16 +11,12 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.base.CodegenBlock;
-import com.espertech.esper.codegen.base.CodegenClassScope;
-import com.espertech.esper.codegen.base.CodegenMember;
-import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
 import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
@@ -34,6 +30,8 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GE;
 
 public class EnumTakeWhileLastIndexScalarForgeEval implements EnumEval {
+
+    public final static String METHOD_TAKEWHILELASTSCALARTOARRAY = "takeWhileLastScalarToArray";
 
     private final EnumTakeWhileLastIndexScalarForge forge;
     private final ExprEvaluator innerExpression;
@@ -97,10 +95,10 @@ public class EnumTakeWhileLastIndexScalarForgeEval implements EnumEval {
         CodegenBlock block = methodNode.getBlock()
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL);
-        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(evalTypeMember.getMemberId())))
+        block.declareVar(ObjectArrayEventBean.class, "evalEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(evalTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("evalEvent"))
                 .declareVar(Object[].class, "evalProps", exprDotMethod(ref("evalEvent"), "getProperties"))
-                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(indexTypeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "indexEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(indexTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda + 1), ref("indexEvent"))
                 .declareVar(Object[].class, "indexProps", exprDotMethod(ref("indexEvent"), "getProperties"));
 
@@ -112,7 +110,7 @@ public class EnumTakeWhileLastIndexScalarForgeEval implements EnumEval {
         blockSingle.blockReturn(staticMethod(Collections.class, "singletonList", ref("item")));
 
         block.declareVar(ArrayDeque.class, "result", newInstance(ArrayDeque.class))
-                .declareVar(Object[].class, "all", staticMethod(EnumTakeWhileLastIndexScalarForgeEval.class, "takeWhileLastScalarToArray", EnumForgeCodegenNames.REF_ENUMCOLL))
+                .declareVar(Object[].class, "all", staticMethod(EnumTakeWhileLastIndexScalarForgeEval.class, METHOD_TAKEWHILELASTSCALARTOARRAY, EnumForgeCodegenNames.REF_ENUMCOLL))
                 .declareVar(int.class, "index", constant(0));
         CodegenBlock forEach = block.forLoop(int.class, "i", op(arrayLength(ref("all")), "-", constant(1)), relational(ref("i"), GE, constant(0)), decrement("i"))
                 .assignArrayElement("evalProps", constant(0), arrayAtIndex(ref("all"), ref("i")))

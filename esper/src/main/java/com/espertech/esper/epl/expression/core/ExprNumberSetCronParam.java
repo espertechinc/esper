@@ -36,6 +36,8 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetCronParam.class);
 
+    public final static String METHOD_HANDLENUMBERSETCRONPARAMNULLVALUE = "handleNumberSetCronParamNullValue";
+
     private final CronOperatorEnum cronOperator;
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -1315999998249935318L;
@@ -141,7 +143,7 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprForge, E
                 .declareVar(evaluationType, "value", forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
         if (!evaluationType.isPrimitive()) {
             block.ifRefNull("value")
-                    .expression(staticMethod(ExprNumberSetCronParam.class, "handleNumberSetCronParamNullValue"))
+                    .staticMethod(ExprNumberSetCronParam.class, METHOD_HANDLENUMBERSETCRONPARAMNULLVALUE)
                     .blockReturn(defaultValue);
         }
         block.methodReturn(newInstance(CronParameter.class, enumValue, SimpleNumberCoercerFactory.SimpleNumberCoercerInt.codegenInt(ref("value"), evaluationType)));

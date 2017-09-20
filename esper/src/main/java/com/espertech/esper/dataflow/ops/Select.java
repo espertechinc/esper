@@ -252,7 +252,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
         // assign strategies to expression nodes
         EPStatementStartMethodHelperAssignExpr.assignExpressionStrategies(selectDesc, selectResult.getOptionalAggegationService(), selectResult.getSubselectStrategies(), selectResult.getPriorNodeStrategies(), selectResult.getPreviousNodeStrategies(), null, null, selectResult.getTableAccessEvalStrategies());
 
-        EventType outputEventType = selectDesc.getResultSetProcessorPrototypeDesc().getResultSetProcessorFactory().getResultEventType();
+        EventType outputEventType = selectDesc.getResultSetProcessorPrototypeDesc().getResultEventType();
         this.agentInstanceContext = agentInstanceContext;
         return new DataFlowOpInitializeResult(new GraphTypeDesc[]{new GraphTypeDesc(false, true, outputEventType)});
     }

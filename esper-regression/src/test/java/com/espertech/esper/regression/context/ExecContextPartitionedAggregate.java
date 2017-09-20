@@ -37,11 +37,11 @@ public class ExecContextPartitionedAggregate implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionAccessOnly(epService);
         runAssertionSegmentedSubqueryWithAggregation(epService);
-        runAssertionGroupByEventPerGroupStream(epService);
-        runAssertionGroupByEventPerGroupBatchContextProp(epService);
-        runAssertionGroupByEventPerGroupWithAccess(epService);
-        runAssertionGroupByEventForAll(epService);
-        runAssertionGroupByEventPerGroupUnidirectionalJoin(epService);
+        runAssertionRowPerGroupStream(epService);
+        runAssertionRowPerGroupBatchContextProp(epService);
+        runAssertionRowPerGroupWithAccess(epService);
+        runAssertionRowForAll(epService);
+        runAssertionRowPerGroupUnidirectionalJoin(epService);
     }
 
     private void runAssertionAccessOnly(EPServiceProvider epService) {
@@ -88,7 +88,7 @@ public class ExecContextPartitionedAggregate implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionGroupByEventPerGroupStream(EPServiceProvider epService) {
+    private void runAssertionRowPerGroupStream(EPServiceProvider epService) {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
         String[] fieldsOne = "intPrimitive,count(*)".split(",");
@@ -142,7 +142,7 @@ public class ExecContextPartitionedAggregate implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionGroupByEventPerGroupBatchContextProp(EPServiceProvider epService) {
+    private void runAssertionRowPerGroupBatchContextProp(EPServiceProvider epService) {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
         String[] fieldsOne = "intPrimitive,count(*)".split(",");
@@ -206,7 +206,7 @@ public class ExecContextPartitionedAggregate implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionGroupByEventPerGroupWithAccess(EPServiceProvider epService) {
+    private void runAssertionRowPerGroupWithAccess(EPServiceProvider epService) {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
         String[] fieldsOne = "intPrimitive,col1,col2,col3".split(",");
@@ -233,7 +233,7 @@ public class ExecContextPartitionedAggregate implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionGroupByEventForAll(EPServiceProvider epService) {
+    private void runAssertionRowForAll(EPServiceProvider epService) {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
         // test aggregation-only (no access)
@@ -322,7 +322,7 @@ public class ExecContextPartitionedAggregate implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionGroupByEventPerGroupUnidirectionalJoin(EPServiceProvider epService) {
+    private void runAssertionRowPerGroupUnidirectionalJoin(EPServiceProvider epService) {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
         String[] fieldsOne = "intPrimitive,col1".split(",");

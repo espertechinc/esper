@@ -35,6 +35,7 @@ public class ExecOutputLimitSimple implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
         configuration.addEventType("MarketData", SupportMarketDataBean.class);
         configuration.addEventType("SupportBean", SupportBean.class);
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

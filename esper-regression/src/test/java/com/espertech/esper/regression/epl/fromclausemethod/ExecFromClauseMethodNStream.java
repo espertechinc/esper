@@ -24,6 +24,9 @@ import static org.junit.Assert.assertFalse;
 public class ExecFromClauseMethodNStream implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getLogging().setEnableQueryPlan(true);
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+
         configuration.addEventType(SupportBeanInt.class);
         configuration.addImport(SupportJoinMethods.class.getName());
         configuration.addVariable("var1", Integer.class, 0);

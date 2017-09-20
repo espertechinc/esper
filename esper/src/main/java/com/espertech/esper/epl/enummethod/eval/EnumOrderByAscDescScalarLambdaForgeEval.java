@@ -86,7 +86,7 @@ public class EnumOrderByAscDescScalarLambdaForgeEval implements EnumEval {
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(TreeMap.class, "sort", newInstance(TreeMap.class))
                 .declareVar(boolean.class, "hasColl", constantFalse())
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), member(resultTypeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 

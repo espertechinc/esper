@@ -28,8 +28,8 @@ import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
@@ -135,7 +135,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
             contextFactoryResult = handleContextFactorySplitStream(statementSpec, statementContext, services, desc, streamSpec, contextPropertyRegistry, subSelectStreamDesc, activatorResult);
         }
         statementContext.setStatementAgentInstanceFactory(contextFactoryResult.getContextFactory());
-        EventType resultEventType = contextFactoryResult.getResultSetProcessorPrototype() == null ? null : contextFactoryResult.getResultSetProcessorPrototype().getResultSetProcessorFactory().getResultEventType();
+        EventType resultEventType = contextFactoryResult.getResultSetProcessorPrototype() == null ? null : contextFactoryResult.getResultSetProcessorPrototype().getResultEventType();
 
         // perform start of hook-up to start
         Viewable finalViewable;
@@ -315,7 +315,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{outputEventType}, new String[]{"trigger_stream"}, new boolean[]{true}, services.getEngineURI(), false, false);
         ResultSetProcessorFactoryDesc outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
 
-        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, null, null, services.getTableService(), outputResultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
+        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, null, null, services.getTableService(), outputResultSetProcessorPrototype.getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
         StatementAgentInstanceFactoryOnTriggerSetVariable contextFactory = new StatementAgentInstanceFactoryOnTriggerSetVariable(statementContext, statementSpec, services, activatorResult.activator, subSelectStrategyCollection, onSetVariableViewFactory, outputResultSetProcessorPrototype, outputViewFactory);
         return new ContextFactoryResult(contextFactory, subSelectStrategyCollection, null);
     }
@@ -415,7 +415,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
             addToFront = statementContext.getNamedWindowMgmtService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
         }
         boolean isDistinct = statementSpec.getSelectClauseSpec().isDistinct();
-        EventType selectResultEventType = validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();
+        EventType selectResultEventType = validationResult.resultSetProcessorPrototype.getResultEventType();
         StatementMetricHandle createNamedWindowMetricsHandle = processor.getCreateNamedWindowMetricsHandle();
 
         NamedWindowOnExprFactory onExprFactory = NamedWindowOnExprFactoryFactory.make(namedWindowType, onTriggerDesc.getWindowName(), validationResult.zeroStreamAliasName,
@@ -435,8 +435,8 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
             outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
         }
 
-        EventType resultEventType = validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();
-        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultEventType, null, services.getTableService(), validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
+        EventType resultEventType = validationResult.resultSetProcessorPrototype.getResultEventType();
+        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultEventType, null, services.getTableService(), validationResult.resultSetProcessorPrototype.getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
 
         StatementAgentInstanceFactoryOnTriggerNamedWindow contextFactory = new StatementAgentInstanceFactoryOnTriggerNamedWindow(statementContext, statementSpec, services, activatorResult.activator, validationResult.subSelectStrategyCollection, validationResult.resultSetProcessorPrototype, validationResult.validatedJoin, outputResultSetProcessorPrototype, onExprFactory, outputViewFactory, activatorResult.activatorResultEventType, processor, stopCallbacks);
         return new ContextFactoryResult(contextFactory, validationResult.subSelectStrategyCollection, validationResult.resultSetProcessorPrototype);
@@ -558,8 +558,8 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
             outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
         }
 
-        EventType resultEventType = validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();
-        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultEventType, null, services.getTableService(), validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
+        EventType resultEventType = validationResult.resultSetProcessorPrototype.getResultEventType();
+        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultEventType, null, services.getTableService(), validationResult.resultSetProcessorPrototype.getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
 
         StatementAgentInstanceFactoryOnTriggerTable contextFactory = new StatementAgentInstanceFactoryOnTriggerTable(statementContext, statementSpec, services, activatorResult.activator, validationResult.getSubSelectStrategyCollection(), validationResult.getResultSetProcessorPrototype(), validationResult.validatedJoin, onExprFactory, activatorResult.activatorResultEventType, metadata, outputResultSetProcessorPrototype, outputViewFactory);
 

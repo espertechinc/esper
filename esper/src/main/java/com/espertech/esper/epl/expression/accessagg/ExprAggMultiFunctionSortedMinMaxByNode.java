@@ -306,9 +306,12 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         return false;
     }
 
-    @Override
     protected boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
-        return false;
+        if (!(node instanceof ExprAggMultiFunctionSortedMinMaxByNode)) {
+            return false;
+        }
+        ExprAggMultiFunctionSortedMinMaxByNode other = (ExprAggMultiFunctionSortedMinMaxByNode) node;
+        return max == other.max && containedType == other.containedType && sortedwin == other.sortedwin && ever == other.ever;
     }
 
     private String getErrorPrefix() {

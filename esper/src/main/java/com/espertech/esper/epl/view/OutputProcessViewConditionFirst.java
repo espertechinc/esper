@@ -14,10 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
@@ -91,7 +90,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
 
             // Process the events and get the result
             viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
-            UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(viewEventsList, isGenerateSynthetic, OutputLimitLimitType.FIRST);
+            UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(viewEventsList, isGenerateSynthetic);
             viewEventsList.clear();
 
             if (!hasRelevantResults(newOldEvents)) {
@@ -116,7 +115,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
             output(true, newOldEvents);
         } else {
             viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
-            resultSetProcessor.processOutputLimitedView(viewEventsList, false, OutputLimitLimitType.FIRST);
+            resultSetProcessor.processOutputLimitedView(viewEventsList, false);
             viewEventsList.clear();
         }
 
@@ -153,7 +152,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
         if (!witnessedFirst) {
             addToChangeSet(joinEventsSet, newEvents, oldEvents);
             boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
-            UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(joinEventsSet, isGenerateSynthetic, OutputLimitLimitType.FIRST);
+            UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(joinEventsSet, isGenerateSynthetic);
             joinEventsSet.clear();
 
             if (!hasRelevantResults(newOldEvents)) {
@@ -180,7 +179,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
             addToChangeSet(joinEventsSet, newEvents, oldEvents);
 
             // Process the events and get the result
-            resultSetProcessor.processOutputLimitedJoin(joinEventsSet, false, OutputLimitLimitType.FIRST);
+            resultSetProcessor.processOutputLimitedJoin(joinEventsSet, false);
             joinEventsSet.clear();
         }
 

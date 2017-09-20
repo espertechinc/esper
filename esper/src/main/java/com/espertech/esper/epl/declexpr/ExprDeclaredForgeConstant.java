@@ -23,6 +23,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.AuditPath;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.util.AuditPath.METHOD_AUDITLOG;
 
 public class ExprDeclaredForgeConstant implements ExprForge, ExprEvaluator {
     private final ExprDeclaredNodeImpl parent;
@@ -70,7 +71,7 @@ public class ExprDeclaredForgeConstant implements ExprForge, ExprEvaluator {
 
         methodNode.getBlock()
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
-                .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(prototype.getName() + " result "), "+", constant(value))))
+                .staticMethod(AuditPath.class, METHOD_AUDITLOG, constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(prototype.getName() + " result "), "+", constant(value)))
                 .blockEnd()
                 .methodReturn(constant(value));
         return localMethod(methodNode);

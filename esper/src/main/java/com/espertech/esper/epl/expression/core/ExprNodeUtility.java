@@ -1486,6 +1486,13 @@ public class ExprNodeUtility {
         return true;
     }
 
+    public static boolean deepEqualsNullChecked(ExprNode nodeOne, ExprNode nodeTwo, boolean ignoreStreamPrefix) {
+        if (nodeOne == null) {
+            return nodeTwo == null;
+        }
+        return nodeTwo != null && deepEquals(nodeOne, nodeTwo, ignoreStreamPrefix);
+    }
+
     /**
      * Compares two expression nodes via deep comparison, considering all
      * child nodes of either side.
@@ -1790,7 +1797,7 @@ public class ExprNodeUtility {
 
 
             CodegenBlock block = methodNode.getBlock()
-                    .declareVar(arrayType, "array", newArray(varargClass, constant(forges.length)));
+                    .declareVar(arrayType, "array", newArrayByLength(varargClass, constant(forges.length)));
             for (int i = 0; i < forges.length; i++) {
                 CodegenExpression expression = forges[i].evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope);
                 CodegenExpression assignment;

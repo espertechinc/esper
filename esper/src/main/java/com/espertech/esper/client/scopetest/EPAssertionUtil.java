@@ -910,13 +910,8 @@ public class EPAssertionUtil {
     public static EventBean[] iteratorToArray(Iterator<EventBean> iterator) {
         if (iterator == null) {
             ScopeTestHelper.fail("Null iterator");
-            return null;
         }
-        ArrayList<EventBean> events = new ArrayList<EventBean>();
-        for (; iterator.hasNext(); ) {
-            events.add(iterator.next());
-        }
-        return events.toArray(new EventBean[events.size()]);
+        return CollectionUtil.iteratorToArrayEvents(iterator);
     }
 
     /**

@@ -14,10 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
@@ -33,14 +32,12 @@ import java.util.Set;
 public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBaseWAfter {
     private final OutputProcessViewConditionFactory parent;
     private final OutputCondition outputCondition;
-    private final boolean isAll;
 
     private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionLastAllUnord.class);
 
     public OutputProcessViewConditionLastAllUnord(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
         super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
-        this.isAll = parent.getOutputLimitLimitType() == OutputLimitLimitType.ALL;
 
         OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
         this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
@@ -70,7 +67,7 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         }
 
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
-        resultSetProcessor.processOutputLimitedLastAllNonBufferedView(newData, oldData, isGenerateSynthetic, isAll);
+        resultSetProcessor.processOutputLimitedLastAllNonBufferedView(newData, oldData, isGenerateSynthetic);
 
         if (!super.checkAfterCondition(newData, parent.getStatementContext())) {
             if (InstrumentationHelper.ENABLED) {
@@ -105,7 +102,7 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         }
 
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
-        resultSetProcessor.processOutputLimitedLastAllNonBufferedJoin(newEvents, oldEvents, isGenerateSynthetic, isAll);
+        resultSetProcessor.processOutputLimitedLastAllNonBufferedJoin(newEvents, oldEvents, isGenerateSynthetic);
 
         if (!super.checkAfterCondition(newEvents, parent.getStatementContext())) {
             if (InstrumentationHelper.ENABLED) {
@@ -140,7 +137,7 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         }
 
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
-        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.continueOutputLimitedLastAllNonBufferedView(isGenerateSynthetic, isAll);
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.continueOutputLimitedLastAllNonBufferedView(isGenerateSynthetic);
 
         continueOutputProcessingViewAndJoin(doOutput, forceUpdate, newOldEvents);
     }
@@ -166,7 +163,7 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         }
 
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
-        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.continueOutputLimitedLastAllNonBufferedJoin(isGenerateSynthetic, isAll);
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.continueOutputLimitedLastAllNonBufferedJoin(isGenerateSynthetic);
 
         continueOutputProcessingViewAndJoin(doOutput, forceUpdate, newOldEvents);
     }

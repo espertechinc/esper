@@ -12,7 +12,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;

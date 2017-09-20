@@ -31,6 +31,9 @@ import java.util.*;
  * Method to getSelectListEvents events in collections to other collections or other event types.
  */
 public class EventBeanUtility {
+    public final static String METHOD_FLATTENBATCHJOIN = "flattenBatchJoin";
+    public final static String METHOD_FLATTENBATCHSTREAM = "flattenBatchStream";
+
     public static EventBean[] allocatePerStreamShift(EventBean[] eventsPerStream) {
         EventBean[] evalEvents = new EventBean[eventsPerStream.length + 1];
         System.arraycopy(eventsPerStream, 0, evalEvents, 1, eventsPerStream.length);
@@ -194,6 +197,7 @@ public class EventBeanUtility {
     }
 
     /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
      * Flatten the vector of arrays to an array. Return null if an empty vector was passed, else
      * return an array containing all the events.
      *
@@ -446,6 +450,7 @@ public class EventBeanUtility {
     }
 
     /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
      * Flattens a list of pairs of join result sets.
      *
      * @param joinPostings is the list
@@ -453,11 +458,11 @@ public class EventBeanUtility {
      */
     public static UniformPair<Set<MultiKey<EventBean>>> flattenBatchJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinPostings) {
         if (joinPostings.isEmpty()) {
-            return new UniformPair<Set<MultiKey<EventBean>>>(null, null);
+            return new UniformPair<>(null, null);
         }
 
         if (joinPostings.size() == 1) {
-            return new UniformPair<Set<MultiKey<EventBean>>>(joinPostings.get(0).getFirst(), joinPostings.get(0).getSecond());
+            return new UniformPair<>(joinPostings.get(0).getFirst(), joinPostings.get(0).getSecond());
         }
 
         Set<MultiKey<EventBean>> newEvents = new LinkedHashSet<MultiKey<EventBean>>();
@@ -475,7 +480,7 @@ public class EventBeanUtility {
             }
         }
 
-        return new UniformPair<Set<MultiKey<EventBean>>>(newEvents, oldEvents);
+        return new UniformPair<>(newEvents, oldEvents);
     }
 
     /**

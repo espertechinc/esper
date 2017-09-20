@@ -28,6 +28,7 @@ import java.util.Calendar;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class CalendarWithDateForgeOp implements CalendarOp {
+    public final static String METHOD_ACTIONSETYMDCALENDAR = "actionSetYMDCalendar";
 
     private ExprEvaluator year;
     private ExprEvaluator month;
@@ -52,7 +53,7 @@ public class CalendarWithDateForgeOp implements CalendarOp {
 
         CodegenBlock block = methodNode.getBlock();
         codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
-        block.expression(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDCalendar", ref("value"), ref("year"), ref("month"), ref("day")))
+        block.staticMethod(CalendarWithDateForgeOp.class, METHOD_ACTIONSETYMDCALENDAR, ref("value"), ref("year"), ref("month"), ref("day"))
                 .methodEnd();
         return localMethod(methodNode, cal);
     }

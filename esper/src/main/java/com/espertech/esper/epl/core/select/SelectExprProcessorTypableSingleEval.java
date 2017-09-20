@@ -51,7 +51,7 @@ public class SelectExprProcessorTypableSingleEval implements ExprEvaluator {
         if (forge.hasWideners) {
             block.expression(SelectExprProcessorHelper.applyWidenersCodegen(ref("row"), forge.wideners, methodNode, codegenClassScope));
         }
-        block.declareVar(EventBean[].class, "events", newArray(EventBean.class, constant(1)))
+        block.declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))
                 .assignArrayElement("events", constant(0), exprDotMethod(member(factory.getMemberId()), "make", ref("row")))
                 .methodReturn(ref("events"));
         return localMethod(methodNode);

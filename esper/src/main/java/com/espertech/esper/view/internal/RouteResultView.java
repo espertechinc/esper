@@ -16,7 +16,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPStatementHandle;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.start.EPStatementStartMethodOnTriggerItem;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;

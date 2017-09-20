@@ -24,7 +24,7 @@ import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.select.eval.*;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.epl.core.resultset.GroupByRollupInfo;
+import com.espertech.esper.epl.core.resultset.core.GroupByRollupInfo;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;

@@ -198,7 +198,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
             CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
             CodegenBlock block = methodNode.getBlock()
                     .declareVar(MappedEventBean.class, "theEvent", cast(MappedEventBean.class, arrayAtIndex(refEPS, constant(underlyingStreamNumber))))
-                    .declareVar(Object[].class, "props", newArray(Object.class, constant(items.length)));
+                    .declareVar(Object[].class, "props", newArrayByLength(Object.class, constant(items.length)));
             for (Item item : items) {
                 CodegenExpression value;
                 if (item.getOptionalPropertyName() != null) {

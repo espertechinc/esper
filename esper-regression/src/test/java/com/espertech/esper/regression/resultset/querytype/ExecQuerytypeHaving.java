@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regression.resultset.querytype;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -28,6 +29,10 @@ import static org.junit.Assert.*;
 
 public class ExecQuerytypeHaving implements RegressionExecution {
     private final static String SYMBOL_DELL = "DELL";
+
+    public void configure(Configuration configuration) throws Exception {
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
+    }
 
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionHavingWildcardSelect(epService);

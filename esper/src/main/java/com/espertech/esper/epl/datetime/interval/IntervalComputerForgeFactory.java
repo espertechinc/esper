@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.interval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
@@ -20,7 +21,6 @@ import com.espertech.esper.epl.datetime.interval.deltaexpr.IntervalDeltaExprMSec
 import com.espertech.esper.epl.datetime.interval.deltaexpr.IntervalDeltaExprTimePeriodConstForge;
 import com.espertech.esper.epl.datetime.interval.deltaexpr.IntervalDeltaExprTimePeriodNonConstForge;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
@@ -478,6 +478,7 @@ public class IntervalComputerForgeFactory {
     public static class IntervalComputerCoincidesWithDeltaExprEval implements IntervalComputerEval {
 
         private static final Logger log = LoggerFactory.getLogger(IntervalComputerCoincidesWithDeltaExprForge.class);
+        public final static String METHOD_WARNCOINCIDESTARTENDLESSZERO = "warnCoincideStartEndLessZero";
 
         private final IntervalDeltaExprEvaluator start;
         private final IntervalDeltaExprEvaluator finish;
@@ -506,7 +507,7 @@ public class IntervalComputerForgeFactory {
                     .declareVar(long.class, "startValue", forge.start.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .declareVar(long.class, "endValue", forge.finish.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope));
             block.ifCondition(or(relational(ref("startValue"), LT, constant(0)), relational(ref("endValue"), LT, constant(0))))
-                    .expression(staticMethod(IntervalComputerCoincidesWithDeltaExprEval.class, "warnCoincideStartEndLessZero"))
+                    .staticMethod(IntervalComputerCoincidesWithDeltaExprEval.class, METHOD_WARNCOINCIDESTARTENDLESSZERO)
                     .blockReturn(constantNull());
             block.methodReturn(staticMethod(IntervalComputerConstantCoincides.class, "computeIntervalCoincides", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART, IntervalForgeCodegenNames.REF_RIGHTEND, ref("startValue"), ref("endValue")));
             return localMethod(methodNode, leftStart, leftEnd, rightStart, rightEnd);
@@ -833,6 +834,7 @@ public class IntervalComputerForgeFactory {
 
     public static class IntervalComputerFinishesThresholdEval implements IntervalComputerEval {
         private static final Logger log = LoggerFactory.getLogger(IntervalComputerFinishesThresholdForge.class);
+        public final static String METHOD_LOGWARNINGINTERVALFINISHTHRESHOLD = "logWarningIntervalFinishThreshold";
 
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
@@ -869,7 +871,7 @@ public class IntervalComputerForgeFactory {
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
-                    .expression(staticMethod(IntervalComputerFinishesThresholdEval.class, "logWarningIntervalFinishThreshold"))
+                    .staticMethod(IntervalComputerFinishesThresholdEval.class, METHOD_LOGWARNINGINTERVALFINISHTHRESHOLD)
                     .blockReturn(constantNull())
                     .ifConditionReturnConst(relational(IntervalForgeCodegenNames.REF_RIGHTSTART, GE, IntervalForgeCodegenNames.REF_LEFTSTART), false)
                     .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
@@ -916,6 +918,8 @@ public class IntervalComputerForgeFactory {
     public static class IntervalComputerFinishedByThresholdEval implements IntervalComputerEval {
 
         private static final Logger log = LoggerFactory.getLogger(IntervalComputerFinishedByThresholdForge.class);
+        public final static String METHOD_LOGWARNINGINTERVALFINISHEDBYTHRESHOLD = "logWarningIntervalFinishedByThreshold";
+
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
         public IntervalComputerFinishedByThresholdEval(IntervalDeltaExprEvaluator thresholdExpr) {
@@ -947,7 +951,7 @@ public class IntervalComputerForgeFactory {
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_RIGHTEND, IntervalForgeCodegenNames.REF_LEFTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
-                    .expression(staticMethod(IntervalComputerFinishedByThresholdEval.class, "logWarningIntervalFinishedByThreshold"))
+                    .staticMethod(IntervalComputerFinishedByThresholdEval.class, METHOD_LOGWARNINGINTERVALFINISHEDBYTHRESHOLD)
                     .blockReturn(constantNull())
                     .ifConditionReturnConst(relational(IntervalForgeCodegenNames.REF_LEFTSTART, GE, IntervalForgeCodegenNames.REF_RIGHTSTART), false)
                     .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTEND, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
@@ -994,6 +998,8 @@ public class IntervalComputerForgeFactory {
     public static class IntervalComputerMeetsThresholdEval implements IntervalComputerEval {
 
         private static final Logger log = LoggerFactory.getLogger(IntervalComputerMeetsThresholdForge.class);
+        public final static String METHOD_LOGWARNINGINTERVALMEETSTHRESHOLD = "logWarningIntervalMeetsThreshold";
+
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
         public IntervalComputerMeetsThresholdEval(IntervalDeltaExprEvaluator thresholdExpr) {
@@ -1024,7 +1030,7 @@ public class IntervalComputerForgeFactory {
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTEND, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
-                    .expression(staticMethod(IntervalComputerMeetsThresholdEval.class, "logWarningIntervalMeetsThreshold"))
+                    .staticMethod(IntervalComputerMeetsThresholdEval.class, METHOD_LOGWARNINGINTERVALMEETSTHRESHOLD)
                     .blockReturn(constantNull())
                     .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_RIGHTSTART, "-", IntervalForgeCodegenNames.REF_LEFTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
@@ -1070,6 +1076,7 @@ public class IntervalComputerForgeFactory {
     public static class IntervalComputerMetByThresholdEval implements IntervalComputerEval {
 
         private static final Logger log = LoggerFactory.getLogger(IntervalComputerMetByThresholdForge.class);
+        public final static String METHOD_LOGWARNINGINTERVALMETBYTHRESHOLD = "logWarningIntervalMetByThreshold";
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
         public IntervalComputerMetByThresholdEval(IntervalDeltaExprEvaluator thresholdExpr) {
@@ -1102,7 +1109,7 @@ public class IntervalComputerForgeFactory {
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTEND), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
-                    .expression(staticMethod(IntervalComputerMetByThresholdEval.class, "logWarningIntervalMetByThreshold"))
+                    .staticMethod(IntervalComputerMetByThresholdEval.class, METHOD_LOGWARNINGINTERVALMETBYTHRESHOLD)
                     .blockReturn(constantNull())
                     .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTEND)))
                     .methodReturn(relational(ref("delta"), LE, ref("threshold")));
@@ -1336,7 +1343,7 @@ public class IntervalComputerForgeFactory {
     public static class IntervalComputerStartsThresholdEval implements IntervalComputerEval {
 
         private static final Logger log = LoggerFactory.getLogger(IntervalComputerStartsThresholdEval.class);
-
+        public final static String METHOD_LOGWARNINGINTERVALSTARTSTHRESHOLD = "logWarningIntervalStartsThreshold";
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
         public IntervalComputerStartsThresholdEval(IntervalDeltaExprEvaluator thresholdExpr) {
@@ -1368,7 +1375,7 @@ public class IntervalComputerForgeFactory {
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
-                    .expression(staticMethod(IntervalComputerStartsThresholdEval.class, "logWarningIntervalStartsThreshold"))
+                    .staticMethod(IntervalComputerStartsThresholdEval.class, METHOD_LOGWARNINGINTERVALSTARTSTHRESHOLD)
                     .blockReturn(constantNull())
                     .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
                     .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(IntervalForgeCodegenNames.REF_LEFTEND, LT, IntervalForgeCodegenNames.REF_RIGHTEND)));
@@ -1414,6 +1421,7 @@ public class IntervalComputerForgeFactory {
     public static class IntervalComputerStartedByThresholdEval implements IntervalComputerEval {
 
         private static final Logger log = LoggerFactory.getLogger(IntervalComputerStartedByThresholdForge.class);
+        public final static String METHOD_LOGWARNINGINTERVALSTARTEDBYTHRESHOLD = "logWarningIntervalStartedByThreshold";
 
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
@@ -1446,7 +1454,7 @@ public class IntervalComputerForgeFactory {
             methodNode.getBlock()
                     .declareVar(long.class, "threshold", forge.thresholdExpr.codegen(staticMethod(Math.class, "min", IntervalForgeCodegenNames.REF_LEFTSTART, IntervalForgeCodegenNames.REF_RIGHTSTART), methodNode, exprSymbol, codegenClassScope))
                     .ifCondition(relational(ref("threshold"), LT, constant(0)))
-                    .expression(staticMethod(IntervalComputerStartedByThresholdEval.class, "logWarningIntervalStartedByThreshold"))
+                    .staticMethod(IntervalComputerStartedByThresholdEval.class, METHOD_LOGWARNINGINTERVALSTARTEDBYTHRESHOLD)
                     .blockReturn(constantNull())
                     .declareVar(long.class, "delta", staticMethod(Math.class, "abs", op(IntervalForgeCodegenNames.REF_LEFTSTART, "-", IntervalForgeCodegenNames.REF_RIGHTSTART)))
                     .methodReturn(and(relational(ref("delta"), LE, ref("threshold")), relational(IntervalForgeCodegenNames.REF_LEFTEND, GT, IntervalForgeCodegenNames.REF_RIGHTEND)));

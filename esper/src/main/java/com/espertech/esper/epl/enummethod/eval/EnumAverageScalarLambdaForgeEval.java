@@ -78,7 +78,7 @@ public class EnumAverageScalarLambdaForgeEval implements EnumEval {
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(double.class, "sum", constant(0d))
                 .declareVar(int.class, "count", constant(0))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArray(Object.class, constant(1)), CodegenExpressionBuilder.member(typeMember.getMemberId())))
+                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), CodegenExpressionBuilder.member(typeMember.getMemberId())))
                 .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
                 .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 

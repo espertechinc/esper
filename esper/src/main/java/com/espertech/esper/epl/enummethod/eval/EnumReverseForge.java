@@ -56,7 +56,7 @@ public class EnumReverseForge implements EnumEval, EnumForge {
                 .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
                 .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
                 .declareVar(ArrayList.class, "result", newInstance(ArrayList.class, EnumForgeCodegenNames.REF_ENUMCOLL))
-                .expression(staticMethod(Collections.class, "reverse", ref("result")))
+                .staticMethod(Collections.class, "reverse", ref("result"))
                 .methodReturn(ref("result"));
         return localMethod(method, args.getExpressions());
     }

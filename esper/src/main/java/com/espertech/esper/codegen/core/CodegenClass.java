@@ -93,6 +93,7 @@ public class CodegenClass {
 
         for (CodegenInnerClass inner : innerClasses) {
             addReferencedClasses(inner.getInterfaceImplemented(), inner.getImplicitMembers(), inner.getMethods(), classes);
+            addReferencedClasses(inner.getExplicitMembers(), classes);
             if (inner.getCtor() != null) {
                 inner.getCtor().mergeClasses(classes);
             }

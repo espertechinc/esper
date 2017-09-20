@@ -29,16 +29,16 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         runAssertionOrderByWildcard(epService);
         runAssertionOrderByProps(epService);
         runAssertionFilter(epService);
-        runAssertionGroupByRowPerGroupOrdered(epService);
-        runAssertionGroupByRowPerGroup(epService);
-        runAssertionGroupByRowPerGroupHaving(epService);
-        runAssertionGroupByComplex(epService);
-        runAssertionGroupByRowPerEventOrdered(epService);
-        runAssertionGroupByRowPerEvent(epService);
-        runAssertionGroupByRowPerEventHaving(epService);
-        runAssertionAggregateAll(epService);
-        runAssertionAggregateAllOrdered(epService);
-        runAssertionAggregateAllHaving(epService);
+        runAssertionRowPerGroupOrdered(epService);
+        runAssertionRowPerGroup(epService);
+        runAssertionRowPerGroupHaving(epService);
+        runAssertionRowPerGroupComplex(epService);
+        runAssertionAggregateGroupedOrdered(epService);
+        runAssertionAggregateGrouped(epService);
+        runAssertionAggregateGroupedHaving(epService);
+        runAssertionRowPerEvent(epService);
+        runAssertionRowPerEventOrdered(epService);
+        runAssertionRowPerEventHaving(epService);
         runAssertionRowForAll(epService);
         runAssertionRowForAllHaving(epService);
     }
@@ -182,7 +182,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionGroupByRowPerGroupOrdered(EPServiceProvider epService) {
+    private void runAssertionRowPerGroupOrdered(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
@@ -213,7 +213,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionGroupByRowPerGroup(EPServiceProvider epService) {
+    private void runAssertionRowPerGroup(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
@@ -249,7 +249,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionGroupByRowPerGroupHaving(EPServiceProvider epService) {
+    private void runAssertionRowPerGroupHaving(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
@@ -285,7 +285,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionGroupByComplex(EPServiceProvider epService) {
+    private void runAssertionRowPerGroupComplex(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "msg"};
         String stmtText = "insert into Cutoff " +
                 "select symbol, (String.valueOf(count(*)) || 'x1000.0') as msg " +
@@ -306,7 +306,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionGroupByRowPerEventOrdered(EPServiceProvider epService) {
+    private void runAssertionAggregateGroupedOrdered(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "price", "sumVol"};
         String stmtText = "select symbol, price, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
@@ -342,7 +342,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionGroupByRowPerEvent(EPServiceProvider epService) {
+    private void runAssertionAggregateGrouped(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "price", "sumVol"};
         String stmtText = "select symbol, price, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
@@ -377,7 +377,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionGroupByRowPerEventHaving(EPServiceProvider epService) {
+    private void runAssertionAggregateGroupedHaving(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "price", "sumVol"};
         String stmtText = "select symbol, price, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
@@ -412,7 +412,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionAggregateAll(EPServiceProvider epService) {
+    private void runAssertionRowPerEvent(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(3) ";
@@ -435,9 +435,9 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionAggregateAllOrdered(EPServiceProvider epService) {
+    private void runAssertionRowPerEventOrdered(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "sumVol"};
-        String stmtText = "select symbol, sum(volume) as sumVol " +
+        String stmtText = "select irstream symbol, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                 " order by symbol asc";
 
@@ -459,7 +459,7 @@ public class ExecQuerytypeIterator implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionAggregateAllHaving(EPServiceProvider epService) {
+    private void runAssertionRowPerEventHaving(EPServiceProvider epService) {
         String[] fields = new String[]{"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(3) having sum(volume) > 100";

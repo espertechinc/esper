@@ -18,9 +18,9 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.mgr.ContextPropertyRegistryImpl;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.*;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryDesc;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessorFactoryFactory;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
@@ -137,7 +137,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
 
         ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), true, false);
-        resultEventType = resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();
+        resultEventType = resultSetProcessorPrototype.getResultEventType();
         resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null, true);
 
         if (statementSpec.getSelectClauseSpec().isDistinct()) {
@@ -339,11 +339,13 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
             results = resultSetProcessor.processJoinResult(result.getFirst(), null, true);
         }
 
-        if (statementSpec.getSelectClauseSpec().isDistinct()) {
-            results.setFirst(EventBeanUtility.getDistinctByProp(results.getFirst(), eventBeanReader));
+        EventBean[] queryResult = results == null ? null : results.getFirst();
+
+        if (queryResult != null && statementSpec.getSelectClauseSpec().isDistinct()) {
+            queryResult = EventBeanUtility.getDistinctByProp(queryResult, eventBeanReader);
         }
 
-        return new EPPreparedQueryResult(resultEventType, results.getFirst());
+        return new EPPreparedQueryResult(resultEventType, queryResult);
     }
 
     private Collection<EventBean> getFiltered(Collection<EventBean> snapshot, List<ExprNode> filterExpressions) {

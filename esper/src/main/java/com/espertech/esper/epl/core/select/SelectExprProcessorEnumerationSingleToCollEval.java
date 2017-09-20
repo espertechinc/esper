@@ -45,7 +45,7 @@ public class SelectExprProcessorEnumerationSingleToCollEval implements ExprEvalu
         methodNode.getBlock()
                 .declareVar(EventBean.class, "event", forge.enumerationForge.evaluateGetEventBeanCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("event")
-                .declareVar(EventBean[].class, "events", newArray(EventBean.class, constant(1)))
+                .declareVar(EventBean[].class, "events", newArrayByLength(EventBean.class, constant(1)))
                 .assignArrayElement(ref("events"), constant(0), ref("event"))
                 .methodReturn(ref("events"));
         return localMethod(methodNode);

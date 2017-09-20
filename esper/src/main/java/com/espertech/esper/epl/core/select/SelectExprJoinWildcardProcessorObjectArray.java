@@ -56,8 +56,8 @@ public class SelectExprJoinWildcardProcessorObjectArray implements SelectExprPro
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, this.getClass(), codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
         methodNode.getBlock()
-                .declareVar(Object[].class, "tuple", newArray(Object.class, constant(streamNames.length)))
-                .expression(staticMethod(System.class, "arraycopy", refEPS, constant(0), ref("tuple"), constant(0), constant(streamNames.length)))
+                .declareVar(Object[].class, "tuple", newArrayByLength(Object.class, constant(streamNames.length)))
+                .staticMethod(System.class, "arraycopy", refEPS, constant(0), ref("tuple"), constant(0), constant(streamNames.length))
                 .methodReturn(exprDotMethod(member(memberEventAdapterService.getMemberId()), "adapterForTypedObjectArray", ref("tuple"), member(memberResultEventType.getMemberId())));
         return methodNode;
     }

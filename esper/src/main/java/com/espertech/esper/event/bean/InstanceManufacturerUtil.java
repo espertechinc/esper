@@ -162,7 +162,7 @@ public class InstanceManufacturerUtil {
                     .ifCondition(not(instanceOf(ref("result"), EventBean[].class)))
                     .blockReturn(constantNull())
                     .declareVar(EventBean[].class, "events", cast(EventBean[].class, ref("result")))
-                    .declareVar(arrayType, "values", newArray(componentReturnType, arrayLength(ref("events"))))
+                    .declareVar(arrayType, "values", newArrayByLength(componentReturnType, arrayLength(ref("events"))))
                     .forLoopIntSimple("i", arrayLength(ref("events")))
                     .assignArrayElement("values", ref("i"), cast(componentReturnType, exprDotMethod(arrayAtIndex(ref("events"), ref("i")), "getUnderlying")))
                     .blockEnd()

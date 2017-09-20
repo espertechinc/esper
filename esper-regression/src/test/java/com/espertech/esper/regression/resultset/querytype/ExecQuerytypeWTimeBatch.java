@@ -29,8 +29,8 @@ public class ExecQuerytypeWTimeBatch implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionTimeBatchRowForAllNoJoin(epService);
         runAssertionTimeBatchRowForAllJoin(epService);
-        runAssertionTimeBatchAggregateAllNoJoin(epService);
-        runAssertionTimeBatchAggregateAllJoin(epService);
+        runAssertionTimeBatchRowPerEventNoJoin(epService);
+        runAssertionTimeBatchRowPerEventJoin(epService);
         runAssertionTimeBatchRowPerGroupNoJoin(epService);
         runAssertionTimeBatchRowPerGroupJoin(epService);
         runAssertionTimeBatchAggrGroupedNoJoin(epService);
@@ -104,7 +104,7 @@ public class ExecQuerytypeWTimeBatch implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionTimeBatchAggregateAllNoJoin(EPServiceProvider epService) {
+    private void runAssertionTimeBatchRowPerEventNoJoin(EPServiceProvider epService) {
         sendTimer(epService, 0);
         String stmtText = "select irstream symbol, sum(price) as sumPrice from MarketData#time_batch(1 sec)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -140,7 +140,7 @@ public class ExecQuerytypeWTimeBatch implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionTimeBatchAggregateAllJoin(EPServiceProvider epService) {
+    private void runAssertionTimeBatchRowPerEventJoin(EPServiceProvider epService) {
         sendTimer(epService, 0);
         String stmtText = "select irstream symbol, sum(price) as sumPrice from MarketData#time_batch(1 sec) as S0, SupportBean#keepall as S1 where S0.symbol = S1.theString";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);

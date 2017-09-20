@@ -18,12 +18,12 @@ public class TestSuiteOrderBy extends TestCase {
         RegressionRunner.run(new ExecOrderByRowPerEvent());
     }
 
-    public void testExecOrderByGroupByEventPerGroup() {
-        RegressionRunner.run(new ExecOrderByGroupByEventPerGroup());
+    public void testExecOrderByRowPerGroup() {
+        RegressionRunner.run(new ExecOrderByRowPerGroup());
     }
 
-    public void testExecOrderByGroupByEventPerRow() {
-        RegressionRunner.run(new ExecOrderByGroupByEventPerRow());
+    public void testExecOrderByAggregateGrouped() {
+        RegressionRunner.run(new ExecOrderByAggregateGrouped());
     }
 
     public void testExecOrderByRowForAll() {
@@ -40,5 +40,9 @@ public class TestSuiteOrderBy extends TestCase {
 
     public void testExecOrderBySimple() {
         RegressionRunner.run(new ExecOrderBySimple());
+    }
+
+    public void testExecOrderByAggregationResult() {
+        RegressionRunner.run(new ExecOrderByAggregationResult());
     }
 }

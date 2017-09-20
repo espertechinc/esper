@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.util.AuditPath.METHOD_AUDITLOG;
 
 public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
 
@@ -78,13 +79,13 @@ public class ExprForgeProxy implements java.lang.reflect.InvocationHandler {
                 if (evaluationType == void.class) {
                     block.expression(forge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                             .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
-                            .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), constant(expressionToString)))
+                            .staticMethod(AuditPath.class, METHOD_AUDITLOG, constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), constant(expressionToString))
                             .blockEnd()
                             .methodEnd();
                 } else {
                     block.declareVar(evaluationType, "result", forge.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope))
                             .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
-                            .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), op(constant(expressionToString + " result "), "+", ref("result"))))
+                            .staticMethod(AuditPath.class, METHOD_AUDITLOG, constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRESSION"), op(constant(expressionToString + " result "), "+", ref("result")))
                             .blockEnd()
                             .methodReturn(ref("result"));
                 }

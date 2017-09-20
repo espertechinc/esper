@@ -44,8 +44,7 @@ public class CodegenCtorParam {
     public void renderAsParameter(StringBuilder builder, Map<Class, String> imports) {
         if (type != null) {
             appendClassName(builder, type, null, imports);
-        }
-        else {
+        } else {
             builder.append(typeName);
         }
         builder.append(" ").append(name);
@@ -60,8 +59,7 @@ public class CodegenCtorParam {
     public void renderAsMember(StringBuilder builder, Map<Class, String> imports) {
         if (type != null) {
             appendClassName(builder, type, null, imports);
-        }
-        else {
+        } else {
             builder.append(typeName);
         }
         builder.append(" ").append(name);

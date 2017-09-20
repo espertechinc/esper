@@ -22,6 +22,7 @@ import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.AuditPath;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.util.AuditPath.METHOD_AUDITLOG;
 
 public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl {
     private final String engineURI;
@@ -54,7 +55,7 @@ public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl {
         methodNode.getBlock()
                 .declareVar(castTargetType, "result", super.codegen(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
-                .expression(staticMethod(AuditPath.class, "auditLog", constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "PROPERTY"), op(constant(propertyName + " value "), "+", ref("result"))))
+                .staticMethod(AuditPath.class, METHOD_AUDITLOG, constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "PROPERTY"), op(constant(propertyName + " value "), "+", ref("result")))
                 .blockEnd()
                 .methodReturn(ref("result"));
         return localMethod(methodNode);

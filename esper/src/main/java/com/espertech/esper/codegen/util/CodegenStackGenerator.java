@@ -11,10 +11,7 @@
 package com.espertech.esper.codegen.util;
 
 import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.codegen.core.CodegenClassMethods;
-import com.espertech.esper.codegen.core.CodegenMethod;
-import com.espertech.esper.codegen.core.CodegenMethodFootprint;
-import com.espertech.esper.codegen.core.CodegenNamedParam;
+import com.espertech.esper.codegen.core.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
 import java.util.*;
@@ -25,13 +22,16 @@ public class CodegenStackGenerator {
         if (methodNode.getOptionalSymbolProvider() == null) {
             throw new IllegalArgumentException("Method node does not have symbol provider");
         }
+
         Map<String, Class> currentSymbols = new HashMap<>();
         methodNode.getOptionalSymbolProvider().provide(currentSymbols);
 
-        CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), methodNode.getLocalParams(), methodNode.getAdditionalDebugInfo());
-        CodegenMethod method = new CodegenMethod(name, footprint, methodNode.getBlock(), true);
-        methodNode.setAssignedMethod(method);
-        methods.getPublicMethods().add(method);
+        if (!(methodNode instanceof CodegenCtor)) {
+            CodegenMethodFootprint footprint = new CodegenMethodFootprint(methodNode.getReturnType(), methodNode.getLocalParams(), methodNode.getAdditionalDebugInfo());
+            CodegenMethod method = new CodegenMethod(name, footprint, methodNode.getBlock(), true);
+            methodNode.setAssignedMethod(method);
+            methods.getPublicMethods().add(method);
+        }
 
         for (CodegenMethodNode child : methodNode.getChildren()) {
             recursiveAdd(child, currentSymbols, methods.getPrivateMethods());

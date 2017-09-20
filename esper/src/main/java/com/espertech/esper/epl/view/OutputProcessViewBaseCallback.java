@@ -13,7 +13,7 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
-import com.espertech.esper.epl.core.resultset.ResultSetProcessor;
+import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Iterator;
@@ -60,7 +60,7 @@ public class OutputProcessViewBaseCallback extends OutputProcessViewBase {
 
     public void update(EventBean[] newData, EventBean[] oldData) {
         UniformPair<EventBean[]> pair = resultSetProcessor.processViewResult(newData, oldData, false);
-        callback.outputViaCallback(pair.getFirst());
+        callback.outputViaCallback(pair == null ? null : pair.getFirst());
     }
 
     public void stop() {

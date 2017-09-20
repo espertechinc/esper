@@ -34,6 +34,9 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  */
 public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetRange.class);
+    public final static String METHOD_HANDLENUMBERSETRANGELOWERNULL = "handleNumberSetRangeLowerNull";
+    public final static String METHOD_HANDLENUMBERSETRANGEUPPERNULL = "handleNumberSetRangeUpperNull";
+
     private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = -3777415170380735662L;
 
@@ -121,14 +124,14 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
                 .declareVar(valueUpper.getEvaluationType(), "valueUpper", valueUpper.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope));
         if (!valueLower.getEvaluationType().isPrimitive()) {
             block.ifRefNull("valueLower")
-                    .expression(staticMethod(ExprNumberSetRange.class, "handleNumberSetRangeLowerNull"))
+                    .staticMethod(ExprNumberSetRange.class, METHOD_HANDLENUMBERSETRANGELOWERNULL)
                     .assignRef("valueLower", constant(0))
                     .blockEnd();
 
         }
         if (!valueUpper.getEvaluationType().isPrimitive()) {
             block.ifRefNull("valueUpper")
-                    .expression(staticMethod(ExprNumberSetRange.class, "handleNumberSetRangeUpperNull"))
+                    .staticMethod(ExprNumberSetRange.class, METHOD_HANDLENUMBERSETRANGEUPPERNULL)
                     .assignRef("valueUpper", enumValue(Integer.class, "MAX_VALUE"))
                     .blockEnd();
         }
