@@ -41,13 +41,13 @@ public class ResultSetProcessorUtil {
     }
 
     public static void applyAggJoinResult(AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext, Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
-        if (!newEvents.isEmpty()) {
+        if (newEvents != null && !newEvents.isEmpty()) {
             // apply new data to aggregates
             for (MultiKey<EventBean> events : newEvents) {
                 aggregationService.applyEnter(events.getArray(), null, exprEvaluatorContext);
             }
         }
-        if (!oldEvents.isEmpty()) {
+        if (oldEvents != null && !oldEvents.isEmpty()) {
             // apply old data to aggregates
             for (MultiKey<EventBean> events : oldEvents) {
                 aggregationService.applyLeave(events.getArray(), null, exprEvaluatorContext);
