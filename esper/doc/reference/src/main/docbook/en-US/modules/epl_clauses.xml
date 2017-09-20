@@ -2505,10 +2505,9 @@ c
 
 			   <table frame="topbot">
 					<title>Equivalent <literal>Group-By</literal>-Clause Expressions</title>
-					<tgroup cols="3">
+					<tgroup cols="2">
 						<colspec colwidth="0.8*"/>
 						<colspec colwidth="0.8*"/>
-						<colspec colwidth="2*"/>
 						<thead>
 							<row>
 								<entry>Expression</entry>

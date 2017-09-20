@@ -18,6 +18,7 @@ import com.espertech.esper.client.soda.*;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.epl.SupportMethodInvocationJoinInvalid;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
@@ -50,7 +51,35 @@ public class ExecFromClauseMethod implements RegressionExecution {
         runAssertionObjectNoArg(epService);
         runAssertionObjectWithArg(epService);
         runAssertionInvocationTargetEx(epService);
-        runAssertionInvalid(epService);
+        runAssertionStreamNameWContext(epService);
+        runAssertionWithMethodResultParam(epService);
+        runAssertionInvalid(epService);    }
+
+    private void runAssertionWithMethodResultParam(EPServiceProvider epService) {
+        String epl = "@name('stmt0') select * from SupportBean as e,\n" +
+                "method:" + this.getClass().getName() + ".getWithMethodResultParam('somevalue', e, "
+                + this.getClass().getName() + ".getWithMethodResultParamCompute(true)) as s";
+        SupportUpdateListener listener = new SupportUpdateListener();
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "s.p00,s.p01,s.p02".split(","), new Object[] {"somevalue", "E1", "stmt0"});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionStreamNameWContext(EPServiceProvider epService) {
+        String epl = "@name('stmt0') select * from SupportBean as e,\n" +
+                "method:" + this.getClass().getName() + ".getStreamNameWContext('somevalue', e) as s";
+        SupportUpdateListener listener = new SupportUpdateListener();
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "s.p00,s.p01,s.p02".split(","), new Object[] {"somevalue", "E1", "stmt0"});
+
+        stmt.destroy();
     }
 
     private void runAssertionUDFAndScriptReturningEvents(EPServiceProvider epService) {
@@ -591,6 +620,8 @@ public class ExecFromClauseMethod implements RegressionExecution {
         } catch (EPException ex) {
             // fine
         }
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void runAssertionInvalid(EPServiceProvider epService) {
@@ -697,5 +728,17 @@ public class ExecFromClauseMethod implements RegressionExecution {
             events[count++] = context.getEventBeanService().adapterForMap(Collections.singletonMap("id", id), "ItemEvent");
         }
         return events;
+    }
+
+    public static SupportBean_S0 getStreamNameWContext(String a, SupportBean bean, EPLMethodInvocationContext context) {
+        return new SupportBean_S0(1, a, bean.getTheString(), context.getStatementName());
+    }
+
+    public static SupportBean_S0 getWithMethodResultParam(String a, SupportBean bean, String b) {
+        return new SupportBean_S0(1, a, bean.getTheString(), b);
+    }
+
+    public static String getWithMethodResultParamCompute(boolean param, EPLMethodInvocationContext context) {
+        return context.getStatementName();
     }
 }
