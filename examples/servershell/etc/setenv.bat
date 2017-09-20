@@ -18,14 +18,14 @@ set IOLIB=..\..\..\esperio\lib
 
 set CLASSPATH=.
 set CLASSPATH=%CLASSPATH%;..\target\classes
-set CLASSPATH=%CLASSPATH%;..\..\..\esper-7.0.0-beta1.jar
+set CLASSPATH=%CLASSPATH%;..\..\..\esper-7.0.0-beta2.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\cglib-nodep-3.2.5.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-api-1.7.25.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-log4j12-1.7.25.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\log4j-1.2.17.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.7.jar
 set CLASSPATH=%CLASSPATH%;%EXLIB%\jms.jar
-set CLASSPATH=%CLASSPATH%;%IOLIB%\apache-activemq-7.0.0-beta1-incubator.jar
+set CLASSPATH=%CLASSPATH%;%IOLIB%\apache-activemq-7.0.0-beta2-incubator.jar
 
 goto EOF
 
