@@ -159,5 +159,5 @@ public class EPAdministratorHelper {
         }
     }
 
-    private static Logger log = LoggerFactory.getLogger(EPAdministratorHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(EPAdministratorHelper.class);
 }

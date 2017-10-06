@@ -12,11 +12,15 @@ package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.hook.*;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class ExecClientExceptionHandlerNoHandler implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
@@ -49,6 +53,35 @@ public class ExecClientExceptionHandlerNoHandler implements RegressionExecution 
         public AggregationMethod newAggregator() {
             return new InvalidAggTest();
         }
+
+        public AggregationFunctionFactoryCodegenType getCodegenType() {
+            return AggregationFunctionFactoryCodegenType.CODEGEN_MANAGED;
+        }
+
+        public void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+            // no members
+        }
+
+        public void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+            InvalidAggTest.applyEnterCodegenManaged(context);
+        }
+
+        public void applyLeaveCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+            // no code
+        }
+
+        public void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+        }
+
+        public void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+        }
+
+        public void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+        }
+
+        public void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+            context.getMethod().getBlock().methodReturn(constantNull());
+        }
     }
 
     public static class InvalidAggTest implements AggregationMethod {
@@ -56,6 +89,10 @@ public class ExecClientExceptionHandlerNoHandler implements RegressionExecution 
         @Override
         public void enter(Object value) {
             throw new RuntimeException("Sample exception");
+        }
+
+        public static void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+            context.getMethod().getBlock().methodThrow(newInstance(RuntimeException.class, constant("Sample exception")));
         }
 
         @Override

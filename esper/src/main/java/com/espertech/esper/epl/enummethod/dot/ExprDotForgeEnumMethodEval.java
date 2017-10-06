@@ -91,7 +91,7 @@ public class ExprDotForgeEnumMethodEval implements ExprDotEval {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(returnType, ExprDotForgeEnumMethodEval.class, codegenClassScope).addParam(innerType, "param");
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         CodegenMember forgeMember = codegenClassScope.makeAddMember(ExprDotForgeEnumMethodBase.class, forge);

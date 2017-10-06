@@ -15,7 +15,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPlanDesc;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportregression.epl.SupportGroupRollupPlanHook;
 import com.espertech.esper.supportregression.execution.RegressionExecution;

@@ -12,7 +12,7 @@ package com.espertech.esper.core.context.factory;
 
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationServiceTable;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceTable;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;

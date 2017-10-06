@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.agg.rollup;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
 
 public class GroupByRollupKey {
     private final EventBean[] generator;

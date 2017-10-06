@@ -16,7 +16,7 @@ import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.epl.agg.service.AggregationResultFuture;
+import com.espertech.esper.epl.agg.service.common.AggregationResultFuture;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 
@@ -47,7 +47,7 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, returnType, codegenMethodScope, exprSymbol, codegenClassScope);
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(requiredType, this, returnType, codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public ExprForgeComplexityEnum getComplexity() {

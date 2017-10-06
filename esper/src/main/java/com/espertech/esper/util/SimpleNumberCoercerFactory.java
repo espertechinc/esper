@@ -11,9 +11,9 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,18 +24,6 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  * Factory for conversion/coercion and widening implementations for numbers.
  */
 public class SimpleNumberCoercerFactory {
-    private static SimpleNumberCoercerNull nullCoerce = new SimpleNumberCoercerNull();
-    private static SimpleNumberCoercerDouble doubleCoerce = new SimpleNumberCoercerDouble();
-    private static SimpleNumberCoercerLong longCoerce = new SimpleNumberCoercerLong();
-    private static SimpleNumberCoercerFloat floatCoerce = new SimpleNumberCoercerFloat();
-    private static SimpleNumberCoercerInt intCoerce = new SimpleNumberCoercerInt();
-    private static SimpleNumberCoercerShort shortCoerce = new SimpleNumberCoercerShort();
-    private static SimpleNumberCoercerByte byteCoerce = new SimpleNumberCoercerByte();
-    private static SimpleNumberCoercerBigInt bigIntCoerce = new SimpleNumberCoercerBigInt();
-    private static SimpleNumberCoercerBigIntNull bigIntCoerceNull = new SimpleNumberCoercerBigIntNull();
-    private static SimpleNumberCoercerBigDecLong bigDecCoerceLong = new SimpleNumberCoercerBigDecLong();
-    private static SimpleNumberCoercerBigDecDouble bigDecCoerceDouble = new SimpleNumberCoercerBigDecDouble();
-    private static SimpleNumberCoercerBigDecNull bigDecCoerceNull = new SimpleNumberCoercerBigDecNull();
 
     /**
      * Returns a coercer/widener to BigDecimal for a given type.
@@ -45,12 +33,12 @@ public class SimpleNumberCoercerFactory {
      */
     public static SimpleNumberBigDecimalCoercer getCoercerBigDecimal(Class fromType) {
         if (fromType == BigDecimal.class) {
-            return bigDecCoerceNull;
+            return SimpleNumberCoercerBigDecNull.INSTANCE;
         }
         if (JavaClassHelper.isFloatingPointClass(fromType)) {
-            return bigDecCoerceDouble;
+            return SimpleNumberCoercerBigDecDouble.INSTANCE;
         }
-        return bigDecCoerceLong;
+        return SimpleNumberCoercerBigDecLong.INSTANCE;
     }
 
     /**
@@ -61,9 +49,9 @@ public class SimpleNumberCoercerFactory {
      */
     public static SimpleNumberBigIntegerCoercer getCoercerBigInteger(Class fromType) {
         if (fromType == BigInteger.class) {
-            return bigIntCoerceNull;
+            return SimpleNumberCoercerBigIntNull.INSTANCE;
         }
-        return bigIntCoerce;
+        return SimpleNumberCoercerBigInt.INSTANCE;
     }
 
     /**
@@ -75,42 +63,47 @@ public class SimpleNumberCoercerFactory {
      */
     public static SimpleNumberCoercer getCoercer(Class fromType, Class resultBoxedType) {
         if (fromType == resultBoxedType) {
-            return nullCoerce;
+            return SimpleNumberCoercerNull.INSTANCE;
         }
         if (resultBoxedType == Double.class) {
-            return doubleCoerce;
+            return SimpleNumberCoercerDouble.INSTANCE;
         }
         if (resultBoxedType == Long.class) {
-            return longCoerce;
+            return SimpleNumberCoercerLong.INSTANCE;
         }
         if (resultBoxedType == Float.class) {
-            return floatCoerce;
+            return SimpleNumberCoercerFloat.INSTANCE;
         }
         if (resultBoxedType == Integer.class) {
-            return intCoerce;
+            return SimpleNumberCoercerInt.INSTANCE;
         }
         if (resultBoxedType == Short.class) {
-            return shortCoerce;
+            return SimpleNumberCoercerShort.INSTANCE;
         }
         if (resultBoxedType == Byte.class) {
-            return byteCoerce;
+            return SimpleNumberCoercerByte.INSTANCE;
         }
         if (resultBoxedType == BigInteger.class) {
-            return bigIntCoerce;
+            return SimpleNumberCoercerBigInt.INSTANCE;
         }
         if (resultBoxedType == BigDecimal.class) {
             if (JavaClassHelper.isFloatingPointClass(fromType)) {
-                return bigDecCoerceDouble;
+                return SimpleNumberCoercerBigDecDouble.INSTANCE;
             }
-            return bigDecCoerceLong;
+            return SimpleNumberCoercerBigDecLong.INSTANCE;
         }
         if (resultBoxedType == Object.class || resultBoxedType == Number.class) {
-            return nullCoerce;
+            return SimpleNumberCoercerNull.INSTANCE;
         }
         throw new IllegalArgumentException("Cannot coerce to number subtype " + resultBoxedType.getName());
     }
 
     private static class SimpleNumberCoercerNull implements SimpleNumberCoercer {
+        public static final SimpleNumberCoercerNull INSTANCE = new SimpleNumberCoercerNull();
+
+        private SimpleNumberCoercerNull() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce;
         }
@@ -129,6 +122,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerDouble implements SimpleNumberCoercer {
+        public static final SimpleNumberCoercerDouble INSTANCE = new SimpleNumberCoercerDouble();
+
+        private SimpleNumberCoercerDouble() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.doubleValue();
         }
@@ -158,6 +156,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerLong implements SimpleNumberCoercer {
+        public final static SimpleNumberCoercerLong INSTANCE = new SimpleNumberCoercerLong();
+
+        private SimpleNumberCoercerLong() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.longValue();
         }
@@ -184,6 +187,12 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerInt implements SimpleNumberCoercer {
+
+        public static final SimpleNumberCoercerInt INSTANCE = new SimpleNumberCoercerInt();
+
+        private SimpleNumberCoercerInt() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.intValue();
         }
@@ -214,6 +223,11 @@ public class SimpleNumberCoercerFactory {
             return numToCoerce.floatValue();
         }
 
+        public final static SimpleNumberCoercerFloat INSTANCE = new SimpleNumberCoercerFloat();
+
+        private SimpleNumberCoercerFloat() {
+        }
+
         public Class getReturnType() {
             return Float.class;
         }
@@ -232,6 +246,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerShort implements SimpleNumberCoercer {
+        public final static SimpleNumberCoercerShort INSTANCE = new SimpleNumberCoercerShort();
+
+        private SimpleNumberCoercerShort() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.shortValue();
         }
@@ -254,6 +273,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerByte implements SimpleNumberCoercer {
+        public final static SimpleNumberCoercerByte INSTANCE = new SimpleNumberCoercerByte();
+
+        private SimpleNumberCoercerByte() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce.byteValue();
         }
@@ -276,6 +300,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerBigInt implements SimpleNumberCoercer, SimpleNumberBigIntegerCoercer {
+        public final static SimpleNumberCoercerBigInt INSTANCE = new SimpleNumberCoercerBigInt();
+
+        private SimpleNumberCoercerBigInt() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return BigInteger.valueOf(numToCoerce.longValue());
         }
@@ -327,6 +356,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerBigDecLong implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
+        public final static SimpleNumberCoercerBigDecLong INSTANCE = new SimpleNumberCoercerBigDecLong();
+
+        private SimpleNumberCoercerBigDecLong() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return new BigDecimal(numToCoerce.longValue());
         }
@@ -378,6 +412,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     public static class SimpleNumberCoercerBigDecDouble implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
+        public final static SimpleNumberCoercerBigDecDouble INSTANCE = new SimpleNumberCoercerBigDecDouble();
+
+        private SimpleNumberCoercerBigDecDouble() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return new BigDecimal(numToCoerce.doubleValue());
         }
@@ -429,6 +468,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     private static class SimpleNumberCoercerBigIntNull implements SimpleNumberCoercer, SimpleNumberBigIntegerCoercer {
+        public final static SimpleNumberCoercerBigIntNull INSTANCE = new SimpleNumberCoercerBigIntNull();
+
+        private SimpleNumberCoercerBigIntNull() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce;
         }
@@ -455,6 +499,11 @@ public class SimpleNumberCoercerFactory {
     }
 
     private static class SimpleNumberCoercerBigDecNull implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer {
+        public final static SimpleNumberCoercerBigDecNull INSTANCE = new SimpleNumberCoercerBigDecNull();
+
+        private SimpleNumberCoercerBigDecNull() {
+        }
+
         public Number coerceBoxed(Number numToCoerce) {
             return numToCoerce;
         }

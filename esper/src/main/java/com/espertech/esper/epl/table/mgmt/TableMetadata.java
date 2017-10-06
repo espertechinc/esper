@@ -16,7 +16,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceService;
-import com.espertech.esper.epl.agg.service.AggregationServiceTable;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceTable;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;

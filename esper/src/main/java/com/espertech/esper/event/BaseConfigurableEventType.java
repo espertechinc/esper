@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public abstract class BaseConfigurableEventType implements EventTypeSPI {
 
-    private static Logger log = LoggerFactory.getLogger(BaseConfigurableEventType.class);
+    private final static Logger log = LoggerFactory.getLogger(BaseConfigurableEventType.class);
 
     private EventAdapterService eventAdapterService;
     private final int eventTypeId;

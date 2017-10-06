@@ -13,7 +13,7 @@ import java.util.Locale;
 
 public class SupportHTTPServerReqestHandler implements HttpRequestHandler {
 
-    private static Logger log = LoggerFactory.getLogger(SupportHTTPServerReqestHandler.class);
+    private final static Logger log = LoggerFactory.getLogger(SupportHTTPServerReqestHandler.class);
 
     private static List<String> targets = new ArrayList<String>();
 

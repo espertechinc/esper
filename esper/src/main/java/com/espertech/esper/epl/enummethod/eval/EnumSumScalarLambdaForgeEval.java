@@ -62,7 +62,7 @@ public class EnumSumScalarLambdaForgeEval implements EnumEval {
         Class innerType = forge.innerExpression.getEvaluationType();
         CodegenMember resultTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(forge.sumMethodFactory.getValueType(), EnumSumEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock();

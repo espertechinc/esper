@@ -77,7 +77,7 @@ public class EnumWhereScalarIndexForgeEval implements EnumEval {
         CodegenMember evalTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.evalEventType);
         CodegenMember indexTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.indexEventType);
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumWhereScalarIndexForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
@@ -92,7 +92,7 @@ public class EnumWhereScalarIndexForgeEval implements EnumEval {
                 .declareVar(Object[].class, "indexProps", exprDotMethod(ref("indexEvent"), "getProperties"))
                 .declareVar(int.class, "count", constant(-1));
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .expression(increment("count"))
+                .increment("count")
                 .assignArrayElement("evalProps", constant(0), ref("next"))
                 .assignArrayElement("indexProps", constant(0), ref("count"));
         CodegenLegoBooleanExpression.codegenContinueIfNullOrNotPass(forEach, forge.innerExpression.getEvaluationType(), forge.innerExpression.evaluateCodegen(Boolean.class, methodNode, scope, codegenClassScope));

@@ -12,7 +12,7 @@ package com.espertech.esper.core.context.stmt;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.ArrayWrap;
-import com.espertech.esper.epl.agg.service.*;
+import com.espertech.esper.epl.agg.service.common.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;

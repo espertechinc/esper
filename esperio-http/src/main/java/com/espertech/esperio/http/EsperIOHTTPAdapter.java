@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class EsperIOHTTPAdapter {
-    private static Logger log = LoggerFactory.getLogger(EsperIOHTTPAdapter.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIOHTTPAdapter.class);
 
     private final ConfigurationHTTPAdapter config;
     private final String engineURI;

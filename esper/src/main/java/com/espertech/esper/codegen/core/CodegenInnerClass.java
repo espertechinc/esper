@@ -19,11 +19,11 @@ public class CodegenInnerClass {
     private final String className;
     private final Class interfaceImplemented;
     private final CodegenCtor ctor;
-    private final List<CodegenNamedParam> explicitMembers;
+    private final List<CodegenTypedParam> explicitMembers;
     private final Map<Object, CodegenMember> implicitMembers;
     private final CodegenClassMethods methods;
 
-    public CodegenInnerClass(String className, Class interfaceImplemented, CodegenCtor ctor, List<CodegenNamedParam> explicitMembers, Map<Object, CodegenMember> implicitMembers, CodegenClassMethods methods) {
+    public CodegenInnerClass(String className, Class interfaceImplemented, CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, Map<Object, CodegenMember> implicitMembers, CodegenClassMethods methods) {
         this.className = className;
         this.interfaceImplemented = interfaceImplemented;
         this.ctor = ctor;
@@ -52,7 +52,7 @@ public class CodegenInnerClass {
         return ctor;
     }
 
-    public List<CodegenNamedParam> getExplicitMembers() {
+    public List<CodegenTypedParam> getExplicitMembers() {
         return explicitMembers;
     }
 }

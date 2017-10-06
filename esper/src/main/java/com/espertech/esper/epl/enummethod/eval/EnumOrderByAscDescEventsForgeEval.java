@@ -71,7 +71,7 @@ public class EnumOrderByAscDescEventsForgeEval implements EnumEval {
     public static CodegenExpression codegen(EnumOrderByAscDescEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerBoxedType = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumOrderByAscDescEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()

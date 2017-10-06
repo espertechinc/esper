@@ -21,9 +21,11 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
+import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
@@ -378,11 +380,13 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
         index = 0;
         for (TableColumnDescAgg column : accessAggColumns) {
             AggregationMethodFactory factory = aggregationFactories.get(column);
-            stateFactories[index] = factory.getAggregationStateFactory(false);
-            AggregationAccessorSlotPair pair = new AggregationAccessorSlotPair(index, factory.getAccessor());
+            AggregationStateFactoryForge forge = factory.getAggregationStateFactory(false);
+            stateFactories[index] = forge.makeFactory(statementContext.getEngineImportService(), false, statementContext.getStatementName());
+            AggregationAccessor accessor = factory.getAccessorForge() == null ? null : factory.getAccessorForge().getAccessor(statementContext.getEngineImportService(), false, statementContext.getStatementName());
+            AggregationAccessorSlotPair pair = new AggregationAccessorSlotPair(index, accessor);
             EPType optionalEnumerationType = EPTypeHelper.optionalFromEnumerationExpr(statementContext.getStatementId(), statementContext.getEventAdapterService(), column.getAggregation());
             columnMetadata.put(column.getColumnName(), new TableMetadataColumnAggregation(column.getColumnName(), factory, -1, pair, optionalEnumerationType, column.getOptionalAssociatedType()));
-            assignPairsAccess[index] = new TableMetadataColumnPairAggAccess(column.getPositionInDeclaration(), factory.getAccessor());
+            assignPairsAccess[index] = new TableMetadataColumnPairAggAccess(column.getPositionInDeclaration(), accessor);
             index++;
         }
 

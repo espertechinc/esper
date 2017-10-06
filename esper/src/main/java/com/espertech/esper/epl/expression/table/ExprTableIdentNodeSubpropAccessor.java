@@ -18,8 +18,8 @@ import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationRowPair;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationRowPair;
 import com.espertech.esper.epl.expression.accessagg.ExprAggregateAccessMultiValueNode;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
@@ -55,12 +55,12 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         ExprAggregateAccessMultiValueNode mfNode = (ExprAggregateAccessMultiValueNode) aggregateAccessMultiValueNode;
         mfNode.validatePositionals();
         accessorFactory = mfNode.validateAggregationParamsWBinding(validationContext, tableAccessColumn);
-        accessor = accessorFactory.getAccessor();
+        accessor = accessorFactory.getAccessorForge().getAccessor(validationContext.getEngineImportService(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
         return null;
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
+        return CodegenLegoEvaluateSelf.evaluateSelfPlainWithCast(requiredType, this, getEvaluationType(), codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public Class getEvaluationType() {

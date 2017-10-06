@@ -11,7 +11,7 @@
 package com.espertech.esper.client.hook;
 
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 
 /**
  * Interface to implement for factories of aggregation functions.
@@ -47,4 +47,54 @@ public interface AggregationFunctionFactory {
      * @return type of value returned by the aggregation methods
      */
     public Class getValueType();
+
+    /**
+     * Returns the code generation control enum
+     * @return enum
+     */
+    default AggregationFunctionFactoryCodegenType getCodegenType() {
+        return AggregationFunctionFactoryCodegenType.CODEGEN_NONE;
+    }
+
+    /**
+     * Generate code for row-members.
+     * @param context context
+     */
+    default void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {}
+
+    /**
+     * Generate code for apply-enter, applicable only for {@link AggregationFunctionFactoryCodegenType#CODEGEN_MANAGED}
+     * @param context context
+     */
+    default void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {}
+
+    /**
+     * Generate code for apply-leave, applicable only for {@link AggregationFunctionFactoryCodegenType#CODEGEN_MANAGED}
+     * @param context context
+     */
+    default void applyLeaveCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {}
+
+    /**
+     * Generate code for apply-enter, applicable only for {@link AggregationFunctionFactoryCodegenType#CODEGEN_UNMANAGED}
+     * @param context context
+     */
+    default void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {}
+
+    /**
+     * Generate code for apply-leave, applicable only for {@link AggregationFunctionFactoryCodegenType#CODEGEN_UNMANAGED}
+     * @param context context
+     */
+    default void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {}
+
+    /**
+     * Generate code for clear
+     * @param context context
+     */
+    default void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {}
+
+    /**
+     * Generate code for get-value
+     * @param context context
+     */
+    default void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {}
 }

@@ -11,11 +11,16 @@
 package com.espertech.esper.epl.agg.access;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
+import com.espertech.esper.epl.agg.factory.AggregationStateLinearForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 import java.util.Collections;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Represents the aggregation accessor that provides the result for the "first" aggregation function without index.
@@ -23,7 +28,6 @@ import java.util.Collections;
 public class AggregationAccessorFirstWEval implements AggregationAccessor {
     private final int streamNum;
     private final ExprEvaluator childNode;
-    private final EventBean[] eventsPerStream;
 
     /**
      * Ctor.
@@ -34,7 +38,6 @@ public class AggregationAccessorFirstWEval implements AggregationAccessor {
     public AggregationAccessorFirstWEval(int streamNum, ExprEvaluator childNode) {
         this.streamNum = streamNum;
         this.childNode = childNode;
-        this.eventsPerStream = new EventBean[streamNum + 1];
     }
 
     public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -42,8 +45,19 @@ public class AggregationAccessorFirstWEval implements AggregationAccessor {
         if (bean == null) {
             return null;
         }
-        this.eventsPerStream[streamNum] = bean;
-        return childNode.evaluate(this.eventsPerStream, true, null);
+        EventBean[] eventsPerStreamBuf = new EventBean[streamNum + 1];
+        eventsPerStreamBuf[streamNum] = bean;
+        return childNode.evaluate(eventsPerStreamBuf, true, null);
+    }
+
+
+    public static void getValueCodegen(AggregationAccessorFirstWEvalForge forge, AggregationStateLinearForge accessStateFactory, AggregationAccessorForgeGetCodegenContext context) {
+        CodegenMethodNode childExpr = CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope());
+        context.getMethod().getBlock().declareVar(EventBean.class, "bean", accessStateFactory.getFirstValueCodegen(context.getColumn(), context.getClassScope(), context.getMethod()))
+                .ifRefNullReturnNull("bean")
+                .declareVar(EventBean[].class, "eventsPerStreamBuf", newArrayByLength(EventBean.class, constant(forge.getStreamNum() + 1)))
+                .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
+                .methodReturn(localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), constantNull()));
     }
 
     public Collection<EventBean> getEnumerableEvents(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -54,6 +68,12 @@ public class AggregationAccessorFirstWEval implements AggregationAccessor {
         return Collections.singletonList(bean);
     }
 
+    public static void getEnumerableEventsCodegen(AggregationAccessorFirstWEvalForge forge, AggregationStateLinearForge stateForge, AggregationAccessorForgeGetCodegenContext context) {
+        context.getMethod().getBlock().declareVar(EventBean.class, "bean", stateForge.getFirstValueCodegen(context.getColumn(), context.getClassScope(), context.getMethod()))
+                .ifRefNullReturnNull("bean")
+                .methodReturn(staticMethod(Collections.class, "singletonList", ref("bean")));
+    }
+
     public Collection<Object> getEnumerableScalar(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Object value = getValue(state, eventsPerStream, isNewData, exprEvaluatorContext);
         if (value == null) {
@@ -62,7 +82,22 @@ public class AggregationAccessorFirstWEval implements AggregationAccessor {
         return Collections.singletonList(value);
     }
 
+    public static void getEnumerableScalarCodegen(AggregationAccessorFirstWEvalForge forge, AggregationStateLinearForge accessStateFactory, AggregationAccessorForgeGetCodegenContext context) {
+        CodegenMethodNode childExpr = CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope());
+        context.getMethod().getBlock().declareVar(EventBean.class, "bean", accessStateFactory.getFirstValueCodegen(context.getColumn(), context.getClassScope(), context.getMethod()))
+                .ifRefNullReturnNull("bean")
+                .declareVar(EventBean[].class, "eventsPerStreamBuf", newArrayByLength(EventBean.class, constant(forge.getStreamNum() + 1)))
+                .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
+                .declareVar(Object.class, "value", localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), constantNull()))
+                .ifRefNullReturnNull("value")
+                .methodReturn(staticMethod(Collections.class, "singletonList", ref("value")));
+    }
+
     public EventBean getEnumerableEvent(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return ((AggregationStateLinear) state).getFirstValue();
+    }
+
+    public static void getEnumerableEventCodegen(AggregationAccessorFirstWEvalForge forge, AggregationStateLinearForge stateForge, AggregationAccessorForgeGetCodegenContext context) {
+        context.getMethod().getBlock().methodReturn(stateForge.getFirstValueCodegen(context.getColumn(), context.getClassScope(), context.getMethod()));
     }
 }

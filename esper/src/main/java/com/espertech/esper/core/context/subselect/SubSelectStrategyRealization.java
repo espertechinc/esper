@@ -11,7 +11,7 @@
 package com.espertech.esper.core.context.subselect;
 
 import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoad;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;

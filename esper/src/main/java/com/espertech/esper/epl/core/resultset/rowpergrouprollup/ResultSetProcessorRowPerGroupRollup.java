@@ -11,10 +11,10 @@
 package com.espertech.esper.epl.core.resultset.rowpergrouprollup;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
-import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationRowRemovedCallback;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 

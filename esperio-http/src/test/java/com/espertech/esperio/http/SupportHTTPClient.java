@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.net.URI;
 
 public class SupportHTTPClient {
-    private static Logger log = LoggerFactory.getLogger(SupportHTTPClient.class);
+    private final static Logger log = LoggerFactory.getLogger(SupportHTTPClient.class);
 
     private final int port;
     private HttpClient httpclient;

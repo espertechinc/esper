@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RunnableUpsertContext {
-    private static Logger log = LoggerFactory.getLogger(RunnableUpsertContext.class);
+    private final static Logger log = LoggerFactory.getLogger(RunnableUpsertContext.class);
 
     private final String name;
     private final DatabaseConnectionFactory connectionFactory;

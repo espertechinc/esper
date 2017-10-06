@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class NamedWindowConsumerMgmtServiceImpl implements NamedWindowConsumerMgmtService {
 
-    private static Logger log = LoggerFactory.getLogger(NamedWindowConsumerMgmtServiceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(NamedWindowConsumerMgmtServiceImpl.class);
 
     public final static NamedWindowConsumerMgmtServiceImpl INSTANCE = new NamedWindowConsumerMgmtServiceImpl();
 

@@ -64,7 +64,7 @@ public class EnumAggregateScalarForgeEval implements EnumEval {
         CodegenMember resultTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.resultEventType);
         CodegenMember evalTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.evalEventType);
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(forge.initialization.getEvaluationType(), EnumAggregateScalarForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         Class initializationEvalType = forge.initialization.getEvaluationType();

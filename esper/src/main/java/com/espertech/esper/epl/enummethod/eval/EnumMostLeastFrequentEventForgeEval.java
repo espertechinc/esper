@@ -66,7 +66,7 @@ public class EnumMostLeastFrequentEventForgeEval implements EnumEval {
 
     public static CodegenExpression codegen(EnumMostLeastFrequentEventForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class returnType = JavaClassHelper.getBoxedType(forge.innerExpression.getEvaluationType());
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(returnType, EnumMostLeastFrequentEventForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
@@ -80,7 +80,7 @@ public class EnumMostLeastFrequentEventForgeEval implements EnumEval {
                 .ifCondition(equalsNull(ref("existing")))
                 .assignRef("existing", constant(1))
                 .ifElse()
-                .expression(increment("existing"))
+                .increment("existing")
                 .blockEnd()
                 .exprDotMethod(ref("items"), "put", ref("item"), ref("existing"));
         block.methodReturn(cast(returnType, staticMethod(EnumMostLeastFrequentEventForgeEval.class, "getEnumMostLeastFrequentResult", ref("items"), constant(forge.isMostFrequent))));

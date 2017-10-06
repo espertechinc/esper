@@ -27,7 +27,7 @@ import com.espertech.esper.core.context.util.ContextMergeViewForwarding;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;

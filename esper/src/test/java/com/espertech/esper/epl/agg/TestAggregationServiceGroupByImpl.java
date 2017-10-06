@@ -13,7 +13,7 @@ package com.espertech.esper.epl.agg;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.epl.agg.service.AggSvcGroupByNoAccessImpl;
+import com.espertech.esper.epl.agg.service.groupby.AggSvcGroupByNoReclaimNoAccessImpl;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.supportunit.epl.SupportAggregatorFactory;
@@ -21,7 +21,7 @@ import com.espertech.esper.supportunit.epl.SupportExprNode;
 import junit.framework.TestCase;
 
 public class TestAggregationServiceGroupByImpl extends TestCase {
-    private AggSvcGroupByNoAccessImpl service;
+    private AggSvcGroupByNoReclaimNoAccessImpl service;
     private MultiKeyUntyped groupOneKey;
     private MultiKeyUntyped groupTwoKey;
 
@@ -32,7 +32,7 @@ public class TestAggregationServiceGroupByImpl extends TestCase {
         }
         ExprEvaluator[] evaluators = new ExprEvaluator[]{new SupportExprNode(5).getForge().getExprEvaluator(), new SupportExprNode(2).getForge().getExprEvaluator()};
 
-        service = new AggSvcGroupByNoAccessImpl(evaluators, aggregators);
+        service = new AggSvcGroupByNoReclaimNoAccessImpl(evaluators, aggregators);
 
         groupOneKey = new MultiKeyUntyped(new Object[]{"x", "y1"});
         groupTwoKey = new MultiKeyUntyped(new Object[]{"x", "y2"});
@@ -40,7 +40,7 @@ public class TestAggregationServiceGroupByImpl extends TestCase {
 
     public void testGetValue() {
         ExprEvaluatorContext exprEvaluatorContext = SupportStatementContextFactory.makeEvaluatorContext();
-        // apply 3 rows to group key 1, all aggregators evaluated their sub-expressions(constants 5 and 2)
+        // apply 3 rows to group key 1, all methodFactories evaluated their sub-expressions(constants 5 and 2)
         service.applyEnter(new EventBean[1], groupOneKey, exprEvaluatorContext);
         service.applyEnter(new EventBean[1], groupOneKey, exprEvaluatorContext);
         service.applyEnter(new EventBean[1], groupTwoKey, exprEvaluatorContext);

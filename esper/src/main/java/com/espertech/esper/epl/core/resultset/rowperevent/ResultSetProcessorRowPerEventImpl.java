@@ -16,14 +16,14 @@ import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
 import com.espertech.esper.collection.ArrayEventIterator;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputHelperVisitor;
@@ -40,7 +40,7 @@ import java.util.*;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.*;
 import static com.espertech.esper.epl.core.resultset.core.ResultSetProcessorUtil.*;
-import static com.espertech.esper.util.CollectionUtil.*;
+import static com.espertech.esper.util.CollectionUtil.METHOD_TOARRAYMAYNULL;
 
 /**
  * Result set processor for the case: aggregation functions used in the select clause, and no group-by,
@@ -153,7 +153,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         return new UniformPair<>(selectNewEvents, selectOldEvents);
     }
 
-    public static void processJoinResultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processJoinResultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         method.getBlock().declareVar(EventBean[].class, "selectOldEvents", constantNull())
                 .declareVarNoInit(EventBean[].class, "selectNewEvents");
 
@@ -219,7 +219,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         return new UniformPair<>(selectNewEvents, selectOldEvents);
     }
 
-    public static void processViewResultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processViewResultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         method.getBlock().declareVar(EventBean[].class, "selectOldEvents", constantNull())
                 .declareVarNoInit(EventBean[].class, "selectNewEvents")
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
@@ -343,7 +343,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         return new ArrayEventIterator(result);
     }
 
-    public static void getIteratorJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void getIteratorJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (forge.getOptionalHavingNode() == null) {
             if (!forge.isSorting()) {
                 method.getBlock().declareVar(EventBean[].class, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), REF_AGENTINSTANCECONTEXT));
@@ -378,7 +378,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         }
     }
 
-    public static void processOutputLimitedJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (forge.isOutputLast()) {
             processOutputLimitedJoinLastCodegen(forge, classScope, method, instance);
         } else {
@@ -394,7 +394,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         }
     }
 
-    public static void processOutputLimitedViewCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedViewCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (forge.isOutputLast()) {
             processOutputLimitedViewLastCodegen(forge, classScope, method, instance);
         } else {
@@ -410,7 +410,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         }
     }
 
-    public static void processOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         processOutputLimitedLastAllNonBufferedCodegen(forge, "processView", classScope, method, instance);
     }
 
@@ -422,18 +422,20 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         }
     }
 
-    public static void processOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         processOutputLimitedLastAllNonBufferedCodegen(forge, "processJoin", classScope, method, instance);
     }
 
-    private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorRowPerEventForge forge, String methodName, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorRowPerEventForge forge, String methodName, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
 
         if (forge.isOutputAll()) {
-            instance.addMember(NAME_OUTPUTALLUNORDHELPER, ResultSetProcessorRowPerEventOutputAllHelper.class, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerEventOutputAll", ref("this"), REF_AGENTINSTANCECONTEXT));
+            instance.addMember(NAME_OUTPUTALLUNORDHELPER, ResultSetProcessorRowPerEventOutputAllHelper.class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLUNORDHELPER, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerEventOutputAll", ref("this"), REF_AGENTINSTANCECONTEXT));
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTALLUNORDHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.isOutputLast()) {
-            instance.addMember(NAME_OUTPUTLASTUNORDHELPER, ResultSetProcessorRowPerEventOutputLastHelper.class, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerEventOutputLast", ref("this"), REF_AGENTINSTANCECONTEXT));
+            instance.addMember(NAME_OUTPUTLASTUNORDHELPER, ResultSetProcessorRowPerEventOutputLastHelper.class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTUNORDHELPER, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerEventOutputLast", ref("this"), REF_AGENTINSTANCECONTEXT));
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTUNORDHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }
@@ -481,7 +483,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         }
     }
 
-    static void stopCodegen(CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void stopCodegen(CodegenMethodNode method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTUNORDHELPER)) {
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTUNORDHELPER), "destroy");
         }
@@ -553,7 +555,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         return ResultSetProcessorUtil.finalizeOutputMaySortMayRStream(newEvents, newEventsSortKey, oldEvents, oldEventsSortKey, prototype.isSelectRStream(), orderByProcessor, exprEvaluatorContext);
     }
 
-    private static void processOutputLimitedJoinDefaultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void processOutputLimitedJoinDefaultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorUtil.prefixCodegenNewOldEvents(method.getBlock(), forge.isSorting(), forge.isSelectRStream());
 
         {
@@ -653,7 +655,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         return new UniformPair<>(lastNew, lastOld);
     }
 
-    private static void processOutputLimitedJoinLastCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void processOutputLimitedJoinLastCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         method.getBlock().declareVar(EventBean.class, "lastOldEvent", constantNull())
                 .declareVar(EventBean.class, "lastNewEvent", constantNull());
 
@@ -757,13 +759,14 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         return ResultSetProcessorUtil.finalizeOutputMaySortMayRStream(newEvents, newEventsSortKey, oldEvents, oldEventsSortKey, prototype.isSelectRStream(), orderByProcessor, exprEvaluatorContext);
     }
 
-    private static void processOutputLimitedViewDefaultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void processOutputLimitedViewDefaultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorUtil.prefixCodegenNewOldEvents(method.getBlock(), forge.isSorting(), forge.isSelectRStream());
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.class, "pair", REF_VIEWEVENTSLIST);
             forEach.declareVar(EventBean[].class, "newData", cast(EventBean[].class, exprDotMethod(ref("pair"), "getFirst")))
                     .declareVar(EventBean[].class, "oldData", cast(EventBean[].class, exprDotMethod(ref("pair"), "getSecond")))
+                    .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
                     .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"));
 
             // generate old events using select expressions
@@ -851,7 +854,7 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         return new UniformPair<>(lastNew, lastOld);
     }
 
-    private static void processOutputLimitedViewLastCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void processOutputLimitedViewLastCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         method.getBlock().declareVar(EventBean.class, "lastOldEvent", constantNull())
                 .declareVar(EventBean.class, "lastNewEvent", constantNull())
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)));
@@ -902,12 +905,12 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
         }
     }
 
-    public static void acceptHelperVisitorCodegen(CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void acceptHelperVisitorCodegen(CodegenMethodNode method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTUNORDHELPER)) {
-            method.getBlock().exprDotMethod(REF_VISITOR, "visit", ref(NAME_OUTPUTLASTUNORDHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTLASTUNORDHELPER));
         }
         if (instance.hasMember(NAME_OUTPUTALLUNORDHELPER)) {
-            method.getBlock().exprDotMethod(REF_VISITOR, "visit", ref(NAME_OUTPUTALLUNORDHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTALLUNORDHELPER));
         }
     }
 

@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class EsperHttpServiceNIO extends EsperHttpServiceBase {
-    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceNIO.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperHttpServiceNIO.class);
 
     private EsperHttpServiceNIORunnable runnable;
     private Thread reactorThread;

@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EPServiceProviderJMX implements EPServiceProviderJMXMBean {
-    private static Logger log = LoggerFactory.getLogger(EPServiceProviderJMX.class);
+    private final static Logger log = LoggerFactory.getLogger(EPServiceProviderJMX.class);
     private EPServiceProvider engine;
 
     public EPServiceProviderJMX(EPServiceProvider engine) {

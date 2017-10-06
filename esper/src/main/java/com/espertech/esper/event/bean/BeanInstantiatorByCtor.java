@@ -17,7 +17,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class BeanInstantiatorByCtor implements BeanInstantiator {
-    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByCtor.class);
+    private final static Logger log = LoggerFactory.getLogger(BeanInstantiatorByCtor.class);
 
     private final Constructor ctor;
 

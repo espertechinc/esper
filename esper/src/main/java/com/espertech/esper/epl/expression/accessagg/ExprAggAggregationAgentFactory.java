@@ -12,24 +12,23 @@ package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 
 public class ExprAggAggregationAgentFactory {
-    public static AggregationAgent make(int streamNum, ExprNode optionalFilter, EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
-        ExprEvaluator evaluator = optionalFilter == null ? null : ExprNodeCompiler.allocateEvaluator(optionalFilter.getForge(), engineImportService, ExprAggAggregationAgentFactory.class, isFireAndForget, statementName);
+    public static AggregationAgentForge make(int streamNum, ExprNode optionalFilter, EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        ExprForge evaluator = optionalFilter == null ? null : optionalFilter.getForge();
         if (streamNum == 0) {
             if (optionalFilter == null) {
                 return AggregationAgentDefault.INSTANCE;
             } else {
-                return new AggregationAgentDefaultWFilter(evaluator);
+                return new AggregationAgentDefaultWFilterForge(evaluator);
             }
         } else {
             if (optionalFilter == null) {
                 return new AggregationAgentRewriteStream(streamNum);
             } else {
-                return new AggregationAgentRewriteStreamWFilter(streamNum, evaluator);
+                return new AggregationAgentRewriteStreamWFilterForge(streamNum, evaluator);
             }
         }
     }

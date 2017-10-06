@@ -32,7 +32,7 @@ import java.util.Arrays;
  * of the update method.
  */
 public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy {
-    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyImpl.class);
     private final EPStatement statement;
     private final Object subscriber;
     private final FastMethod updateMethodFast;

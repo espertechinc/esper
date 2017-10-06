@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
  * for use in wildcard selection.
  */
 public class ResultDeliveryStrategyTypeArr implements ResultDeliveryStrategy {
-    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyImpl.class);
     protected final EPStatement statement;
     protected final Object subscriber;
     protected final FastMethod fastMethod;

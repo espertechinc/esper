@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class TriviaMain {
 
-    private static Logger log = LoggerFactory.getLogger(TriviaMain.class);
+    private final static Logger log = LoggerFactory.getLogger(TriviaMain.class);
 
     public static void main(String[] args) {
 

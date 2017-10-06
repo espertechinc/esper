@@ -38,18 +38,22 @@ public class CodegenLegoEvaluateSelf {
 
     private static CodegenExpression call(ExprEnumerationEval provider, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, String methodName) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
         CodegenMember member = codegenClassScope.makeAddMember(ExprEnumerationEval.class, provider);
         return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, refEPS, refIsNewData, refExprEvalCtx);
     }
 
-    public static CodegenExpression evaluateSelfPlainWithCast(ExprEvaluator provider, Class returnType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+    public static CodegenExpression evaluateSelfPlainWithCast(Class requiredType, ExprEvaluator provider, Class returnType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
         CodegenMember member = codegenClassScope.makeAddMember(ExprEvaluator.class, provider);
-        return CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), "evaluate", refEPS, refIsNewData, refExprEvalCtx));
+        CodegenExpression eval = exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), "evaluate", refEPS, refIsNewData, refExprEvalCtx);
+        if (requiredType == Object.class) {
+            return eval;
+        }
+        return CodegenLegoCast.castSafeFromObjectType(returnType, eval);
     }
 
     public static CodegenExpression evaluateSelfTypableMulti(ExprTypableReturnEval typableEval, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
@@ -62,7 +66,7 @@ public class CodegenLegoEvaluateSelf {
 
     private static CodegenExpression evaluateSelfTypable(ExprTypableReturnEval typableEval, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, String methodName) {
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
         CodegenMember member = codegenClassScope.makeAddMember(ExprTypableReturnEval.class, typableEval);
         return exprDotMethod(CodegenExpressionBuilder.member(member.getMemberId()), methodName, refEPS, refIsNewData, refExprEvalCtx);

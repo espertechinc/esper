@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EsperIOKafkaInputAdapterPlugin implements PluginLoader {
-    private static Logger log = LoggerFactory.getLogger(EsperIOKafkaInputAdapterPlugin.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIOKafkaInputAdapterPlugin.class);
 
     private EsperIOKafkaInputAdapter kafkaInputAdapter;
     private PluginLoaderInitContext context;

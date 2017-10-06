@@ -16,9 +16,9 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.view.Viewable;
@@ -64,7 +64,7 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
         }
     }
 
-    public static void applyViewResultCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void applyViewResultCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeyViewSingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
 
         method.getBlock().declareVar(EventBean[].class, NAME_EPS, newArrayByLength(EventBean.class, constant(1)));
@@ -128,7 +128,7 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
         return ResultSetProcessorUtil.toPairNullIfAllNull(selectNewEvents, selectOldEvents);
     }
 
-    static void processViewResultUnboundCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void processViewResultUnboundCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeysKeepEvent = generateGroupKeysKeepEventCodegen(forge, classScope, instance);
         CodegenMethodNode generateOutputEventsView = generateOutputEventsViewCodegen(forge, classScope, instance);
 
@@ -170,7 +170,7 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
         return getIteratorSorted(groupReps.valueIterator());
     }
 
-    public static void getIteratorViewUnboundedCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void getIteratorViewUnboundedCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (!forge.isSorting()) {
             method.getBlock().declareVar(Iterator.class, "it", exprDotMethod(ref("groupReps"), "valueIterator"))
                     .methodReturn(newInstance(ResultSetProcessorRowPerGroupIterator.class, ref("it"), ref("this"), REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT));
@@ -186,8 +186,8 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
         groupReps.destroy();
     }
 
-    public static void stopMethodCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
-        ResultSetProcessorRowPerGroupImpl.stopMethodCodegen(method, instance);
-        exprDotMethod(ref("groupReps"), "destroy");
+    public static void stopMethodCodegenUnbound(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
+        ResultSetProcessorRowPerGroupImpl.stopMethodCodegenBound(method, instance);
+        method.getBlock().exprDotMethod(ref("groupReps"), "destroy");
     }
 }

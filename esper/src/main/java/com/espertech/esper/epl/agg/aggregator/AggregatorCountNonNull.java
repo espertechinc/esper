@@ -14,33 +14,32 @@ package com.espertech.esper.epl.agg.aggregator;
  * Count all non-null values.
  */
 public class AggregatorCountNonNull implements AggregationMethod {
-    protected long numDataPoints;
+    protected long cnt;
 
     public AggregatorCountNonNull() {
-    }
-
-    public void clear() {
-        numDataPoints = 0;
     }
 
     public void enter(Object object) {
         if (object == null) {
             return;
         }
-        numDataPoints++;
+        cnt++;
     }
 
     public void leave(Object object) {
         if (object == null) {
             return;
         }
-        if (numDataPoints > 0) {
-            numDataPoints--;
+        if (cnt > 0) {
+            cnt--;
         }
     }
 
-    public Object getValue() {
-        return numDataPoints;
+    public void clear() {
+        cnt = 0;
     }
 
+    public Object getValue() {
+        return cnt;
+    }
 }

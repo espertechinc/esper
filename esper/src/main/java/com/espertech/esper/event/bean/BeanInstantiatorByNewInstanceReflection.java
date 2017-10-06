@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BeanInstantiatorByNewInstanceReflection implements BeanInstantiator {
-    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByNewInstanceReflection.class);
+    private final static Logger log = LoggerFactory.getLogger(BeanInstantiatorByNewInstanceReflection.class);
 
     private final Class clazz;
 

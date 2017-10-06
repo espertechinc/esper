@@ -14,7 +14,7 @@ import com.espertech.esper.core.context.factory.StatementAgentInstanceFactory;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyCollection;
 import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.agg.service.AggregationServiceAggExpressionDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceAggExpressionDesc;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 
 import java.util.List;

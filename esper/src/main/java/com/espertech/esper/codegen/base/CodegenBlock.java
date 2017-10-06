@@ -16,6 +16,7 @@ import com.espertech.esper.codegen.model.expression.*;
 import com.espertech.esper.codegen.model.statement.*;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
@@ -30,6 +31,10 @@ public class CodegenBlock {
         this.parentCtor = parentCtor;
         this.parentMethodNode = parentMethodNode;
         this.parentWBlock = parentWBlock;
+    }
+
+    public CodegenBlock() {
+        this(null, null, null);
     }
 
     public CodegenBlock(CodegenCtor parentCtor) {
@@ -50,9 +55,27 @@ public class CodegenBlock {
         return this;
     }
 
-    public CodegenBlock compoundAssignment(String ref, String op, CodegenExpression rhs) {
+    public CodegenBlock decrement(CodegenExpressionRef expression) {
         checkClosed();
-        statements.add(new CodegenStatementCompoundAssign(ref, op, rhs));
+        statements.add(new CodegenStatementExpression(CodegenExpressionBuilder.decrement(expression)));
+        return this;
+    }
+
+    public CodegenBlock decrement(String ref) {
+        checkClosed();
+        statements.add(new CodegenStatementExpression(CodegenExpressionBuilder.decrement(ref)));
+        return this;
+    }
+
+    public CodegenBlock increment(CodegenExpressionRef expression) {
+        checkClosed();
+        statements.add(new CodegenStatementExpression(CodegenExpressionBuilder.increment(expression)));
+        return this;
+    }
+
+    public CodegenBlock increment(String ref) {
+        checkClosed();
+        statements.add(new CodegenStatementExpression(CodegenExpressionBuilder.increment(ref)));
         return this;
     }
 
@@ -76,6 +99,10 @@ public class CodegenBlock {
 
     public CodegenBlock ifRefNull(String ref) {
         return ifCondition(equalsNull(ref(ref)));
+    }
+
+    public CodegenBlock ifRefNull(CodegenExpressionRef ref) {
+        return ifCondition(equalsNull(ref));
     }
 
     public CodegenBlock ifRefNotNull(String ref) {
@@ -144,6 +171,12 @@ public class CodegenBlock {
         return this;
     }
 
+    public CodegenBlock declareVar(String typeName, String var, CodegenExpression initializer) {
+        checkClosed();
+        statements.add(new CodegenStatementDeclareVar(typeName, null, var, initializer));
+        return this;
+    }
+
     public CodegenBlock declareVar(Class clazz, Class optionalTypeVariable, String var, CodegenExpression initializer) {
         checkClosed();
         statements.add(new CodegenStatementDeclareVar(clazz, optionalTypeVariable, var, initializer));
@@ -163,6 +196,12 @@ public class CodegenBlock {
     }
 
     public CodegenBlock assignRef(String ref, CodegenExpression assignment) {
+        checkClosed();
+        statements.add(new CodegenStatementAssignNamed(ref, assignment));
+        return this;
+    }
+
+    public CodegenBlock assignRef(CodegenExpressionRef ref, CodegenExpression assignment) {
         checkClosed();
         statements.add(new CodegenStatementAssignRef(ref, assignment));
         return this;
@@ -219,12 +258,14 @@ public class CodegenBlock {
 
     public CodegenBlock ifRefNullReturnNull(String ref) {
         checkClosed();
-        statements.add(new CodegenStatementIfRefNullReturnNull(ref));
+        statements.add(new CodegenStatementIfRefNullReturnNull(ref(ref)));
         return this;
     }
 
     public CodegenBlock ifRefNullReturnNull(CodegenExpressionRef ref) {
-        return ifRefNullReturnNull(ref.getRef());
+        checkClosed();
+        statements.add(new CodegenStatementIfRefNullReturnNull(ref));
+        return this;
     }
 
     public CodegenBlock blockReturn(CodegenExpression expression) {
@@ -297,6 +338,16 @@ public class CodegenBlock {
         checkClosed();
         closed = true;
         statements.add(new CodegenStatementThrow(newInstance(UnsupportedOperationException.class)));
+        return parentMethodNode;
+    }
+
+    public CodegenMethodNode methodThrow(CodegenExpression expression) {
+        if (parentMethodNode == null) {
+            throw new IllegalStateException("No method parent, use 'blockReturn...' instead");
+        }
+        checkClosed();
+        closed = true;
+        statements.add(new CodegenStatementThrow(expression));
         return parentMethodNode;
     }
 
@@ -408,5 +459,41 @@ public class CodegenBlock {
         } else {
             blockReturn(expression);
         }
+    }
+
+    public CodegenBlock[] switchBlockOfLength(String ref, int length) {
+        checkClosed();
+        CodegenStatementSwitch switchStmt = new CodegenStatementSwitch(this, ref, length);
+        statements.add(switchStmt);
+        return switchStmt.getBlocks();
+    }
+
+    public CodegenBlock apply(Consumer<CodegenBlock> consumer) {
+        checkClosed();
+        consumer.accept(this);
+        return this;
+    }
+
+    public CodegenBlock applyConditional(boolean flag, Consumer<CodegenBlock> consumer) {
+        if (flag) {
+            apply(consumer);
+        }
+        return this;
+    }
+
+    public CodegenBlock assignCompound(CodegenExpressionRef expressionRef, String operator, CodegenExpression assignment) {
+        checkClosed();
+        statements.add(new CodegenStatementAssignCompound(expressionRef, operator, assignment));
+        return this;
+    }
+
+    public CodegenBlock assignCompound(String ref, String operator, CodegenExpression assignment) {
+        return assignCompound(ref(ref), operator, assignment);
+    }
+
+    public CodegenBlock commentFullLine(String comment) {
+        checkClosed();
+        statements.add(new CodegenStatementCommentFullLine(comment));
+        return this;
     }
 }

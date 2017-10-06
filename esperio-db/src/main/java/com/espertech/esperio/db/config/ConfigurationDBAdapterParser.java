@@ -326,5 +326,5 @@ public class ConfigurationDBAdapterParser {
         return valueNode.getTextContent();
     }
 
-    private static Logger log = LoggerFactory.getLogger(ConfigurationDBAdapterParser.class);
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationDBAdapterParser.class);
 }

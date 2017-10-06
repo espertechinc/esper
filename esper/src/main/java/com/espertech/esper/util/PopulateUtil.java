@@ -34,7 +34,7 @@ public class PopulateUtil {
     private final static String CLASS_PROPERTY_NAME = "class";
     private final static String SYSTEM_PROPETIES_NAME = "systemProperties".toLowerCase(Locale.ENGLISH);
 
-    private static Logger log = LoggerFactory.getLogger(PopulateUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(PopulateUtil.class);
 
     public static Object instantiatePopulateObject(Map<String, Object> objectProperties, Class topClass, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext) throws ExprValidationException {
 

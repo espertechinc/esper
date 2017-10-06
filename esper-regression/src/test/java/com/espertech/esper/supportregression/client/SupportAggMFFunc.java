@@ -12,15 +12,14 @@ package com.espertech.esper.supportregression.client;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForgeGetCodegenContext;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
+import com.espertech.esper.plugin.*;
 
 public enum SupportAggMFFunc {
     SINGLE_EVENT_1("se1", null),
@@ -118,5 +117,93 @@ public enum SupportAggMFFunc {
             };
         }
         throw new RuntimeException("Return type not supported for " + this);
+    }
+
+    public void rowMemberCodegen(PlugInAggregationMultiFunctionStateForgeCodegenRowMemberContext context) {
+        switch(this) {
+            case SCALAR: SupportAggMFStatePlainScalarFactory.rowMemberCodegen(context); return;
+            case ARR_SCALAR:
+            case COLL_SCALAR: SupportAggMFStateArrayCollScalarFactory.rowMemberCodegen(context); return;
+            case ENUM_EVENT: SupportAggMFStateEnumerableEvents.rowMemberCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
+    }
+
+    public void applyEnterCodegen(PlugInAggregationMultiFunctionValidationContext validationContext, PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        switch(this) {
+            case SCALAR: {
+                ExprForge forge = validationContext.getParameterExpressions()[0].getForge();
+                SupportAggMFStatePlainScalarFactory.applyEnterCodegen(forge, context);
+                return;
+            }
+            case ARR_SCALAR:
+            case COLL_SCALAR: {
+                ExprForge forge = validationContext.getParameterExpressions()[0].getForge();
+                SupportAggMFStateArrayCollScalarFactory.applyEnterCodegen(forge, context);
+                return;
+            }
+            case ENUM_EVENT: SupportAggMFStateEnumerableEvents.applyEnterCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
+    }
+
+    public void applyLeaveCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        switch(this) {
+            case SCALAR: SupportAggMFStatePlainScalarFactory.applyLeaveCodegen(context); return;
+            case ARR_SCALAR:
+            case COLL_SCALAR: SupportAggMFStateArrayCollScalarFactory.applyLeaveCodegen(context); return;
+            case ENUM_EVENT: SupportAggMFStateEnumerableEvents.applyLeaveCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
+    }
+
+    public void clearCodegen(PlugInAggregationMultiFunctionStateForgeCodegenClearContext context) {
+        switch(this) {
+            case SCALAR: SupportAggMFStatePlainScalarFactory.clearCodegen(context); return;
+            case ARR_SCALAR:
+            case COLL_SCALAR: SupportAggMFStateArrayCollScalarFactory.clearCodegen(context); return;
+            case ENUM_EVENT: SupportAggMFStateEnumerableEvents.clearCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
+    }
+
+    public void getValueCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        switch(this) {
+            case SCALAR: SupportAggMFAccessorPlainScalar.getValueCodegen(context); return;
+            case ARR_SCALAR: SupportAggMFAccessorArrScalar.getValueCodegen(context); return;
+            case COLL_SCALAR: SupportAggMFAccessorCollScalar.getValueCodegen(context); return;
+            case ENUM_EVENT: SupportAggMFAccessorEnumerableEvents.getValueCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
+    }
+
+    public void getEnumerableEventsCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        switch(this) {
+            case SCALAR: SupportAggMFAccessorPlainScalar.getEnumerableEventsCodegen(context); return;
+            case ARR_SCALAR: SupportAggMFAccessorArrScalar.getEnumerableEventsCodegen(context); return;
+            case COLL_SCALAR: SupportAggMFAccessorCollScalar.getEnumerableEventsCodegen(context); return;
+            case ENUM_EVENT: SupportAggMFAccessorEnumerableEvents.getEnumerableEventsCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
+    }
+
+    public void getEnumerableEventCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        switch(this) {
+            case SCALAR: SupportAggMFAccessorPlainScalar.getEnumerableEventCodegen(context); return;
+            case ARR_SCALAR: SupportAggMFAccessorArrScalar.getEnumerableEventCodegen(context); return;
+            case COLL_SCALAR: SupportAggMFAccessorCollScalar.getEnumerableEventCodegen(context); return;
+            case ENUM_EVENT: SupportAggMFAccessorEnumerableEvents.getEnumerableEventCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
+    }
+
+    public void getEnumerableScalarCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        switch(this) {
+            case SCALAR: SupportAggMFAccessorPlainScalar.getEnumerableScalarCodegen(context); return;
+            case ARR_SCALAR: SupportAggMFAccessorArrScalar.getEnumerableScalarCodegen(context); return;
+            case COLL_SCALAR: SupportAggMFAccessorCollScalar.getEnumerableScalarCodegen(context); return;
+            case ENUM_EVENT: SupportAggMFAccessorEnumerableEvents.getEnumerableScalarCodegen(context); return;
+        }
+        throw new RuntimeException("Not supported for " + this);
     }
 }

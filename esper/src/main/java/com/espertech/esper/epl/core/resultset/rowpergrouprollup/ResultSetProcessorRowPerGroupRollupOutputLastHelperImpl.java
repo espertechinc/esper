@@ -13,7 +13,7 @@ package com.espertech.esper.epl.core.resultset.rowpergrouprollup;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
 
 import java.util.*;
 

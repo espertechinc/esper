@@ -13,10 +13,12 @@ package com.espertech.esper.epl.core.resultset.agggrouped;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.codegen.core.CodegenTypedParam;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.resultset.core.*;
 import com.espertech.esper.epl.core.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.epl.core.resultset.rowforall.ResultSetProcessorRowForAll;
@@ -33,6 +35,7 @@ import com.espertech.esper.epl.spec.OutputLimitSpec;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 import java.util.Collections;
+import java.util.List;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.*;
@@ -170,12 +173,12 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         return ResultSetProcessorAggregateGrouped.class;
     }
 
-    public void instanceCodegen(ResultSetProcessorCodegenInstance instance, CodegenClassScope classScope) {
-        instance.addMethod(SelectExprProcessor.class, "getSelectExprProcessor", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_SELECTEXPRPROCESSOR));
-        instance.addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGGREGATIONSVC));
-        instance.addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
-        instance.addMethod(boolean.class, "hasHavingClause", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(constant(optionalHavingNode != null)));
-        instance.addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
+    public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
+        instance.getMethods().addMethod(SelectExprProcessor.class, "getSelectExprProcessor", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_SELECTEXPRPROCESSOR));
+        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGGREGATIONSVC));
+        instance.getMethods().addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
+        instance.getMethods().addMethod(boolean.class, "hasHavingClause", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(constant(optionalHavingNode != null)));
+        instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
         ResultSetProcessorUtil.evaluateHavingClauseCodegen(optionalHavingNode, classScope, instance);
         ResultSetProcessorAggregateGroupedImpl.removedAggregationGroupKeyCodegen(classScope, instance);
 
@@ -190,59 +193,59 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         ResultSetProcessorAggregateGroupedImpl.generateOutputBatchedViewPerKeyCodegen(this, classScope, instance);
     }
 
-    public void processViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.processViewResultCodegen(this, classScope, method, instance);
     }
 
-    public void processJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.processJoinResultCodegen(this, classScope, method, instance);
     }
 
-    public void getIteratorViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void getIteratorViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.getIteratorViewCodegen(this, classScope, method, instance);
     }
 
-    public void getIteratorJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void getIteratorJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.getIteratorJoinCodegen(this, classScope, method, instance);
     }
 
-    public void processOutputLimitedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.processOutputLimitedViewCodegen(this, classScope, method, instance);
     }
 
-    public void processOutputLimitedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.processOutputLimitedJoinCodegen(this, classScope, method, instance);
     }
 
-    public void applyViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void applyViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.applyViewResultCodegen(this, classScope, method, instance);
     }
 
-    public void applyJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void applyJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.applyJoinResultCodegen(this, classScope, method, instance);
     }
 
-    public void continueOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void continueOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.continueOutputLimitedLastAllNonBufferedViewCodegen(this, method);
     }
 
-    public void continueOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void continueOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.continueOutputLimitedLastAllNonBufferedJoinCodegen(this, method);
     }
 
-    public void processOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.processOutputLimitedLastAllNonBufferedViewCodegen(this, classScope, method, instance);
     }
 
-    public void processOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.processOutputLimitedLastAllNonBufferedJoinCodegen(this, classScope, method, instance);
     }
 
-    public void acceptHelperVisitorCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void acceptHelperVisitorCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.acceptHelperVisitorCodegen(method, instance);
     }
 
-    public void stopMethodCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void stopMethodCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorAggregateGroupedImpl.stopMethodCodegen(method, instance);
     }
 

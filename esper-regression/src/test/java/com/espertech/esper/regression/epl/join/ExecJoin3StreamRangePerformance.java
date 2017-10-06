@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ExecJoin3StreamRangePerformance implements RegressionExecution {
-    private static Logger log = LoggerFactory.getLogger(ExecJoin3StreamRangePerformance.class);
+    private final static Logger log = LoggerFactory.getLogger(ExecJoin3StreamRangePerformance.class);
 
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getLogging().setEnableQueryPlan(true);

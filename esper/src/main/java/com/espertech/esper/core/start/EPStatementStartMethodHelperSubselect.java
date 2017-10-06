@@ -22,9 +22,8 @@ import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
+import com.espertech.esper.epl.agg.codegen.AggregationServiceFactoryCompiler;
+import com.espertech.esper.epl.agg.service.common.*;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.viewres.ViewResourceDelegateUnverified;
@@ -719,7 +718,9 @@ public class EPStatementStartMethodHelperSubselect {
                 }   // end of for loop
             }
 
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, aggExpressionNodesHaving, Collections.<ExprAggregateNode>emptyList(), groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService(), statementContext.getStatementName());
+            AggregationServiceForgeDesc forge = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, aggExpressionNodesHaving, Collections.<ExprAggregateNode>emptyList(), groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService(), statementContext.getStatementName(), statementContext.getTimeAbacus());
+            AggregationServiceFactory aggregationServiceFactory = AggregationServiceFactoryCompiler.allocate(forge.getAggregationServiceFactoryForge(), statementContext, false);
+            aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(aggregationServiceFactory, forge.getExpressions(), forge.getGroupKeyExpressions());
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {

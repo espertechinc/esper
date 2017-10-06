@@ -17,7 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class BeanInstantiatorByFactoryReflection implements BeanInstantiator {
-    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByFactoryReflection.class);
+    private final static Logger log = LoggerFactory.getLogger(BeanInstantiatorByFactoryReflection.class);
 
     private final Method method;
 

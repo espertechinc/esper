@@ -291,5 +291,5 @@ public class EPAdministratorImpl implements EPAdministratorSPI {
         return new EPContextPartitionAdminImpl(services);
     }
 
-    private static Logger log = LoggerFactory.getLogger(EPAdministratorImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(EPAdministratorImpl.class);
 }

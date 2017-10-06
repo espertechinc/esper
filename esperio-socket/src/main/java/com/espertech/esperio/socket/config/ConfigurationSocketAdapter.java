@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigurationSocketAdapter {
-    private static Logger log = LoggerFactory.getLogger(ConfigurationSocketAdapter.class);
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationSocketAdapter.class);
 
     private Map<String, SocketConfig> sockets;
 

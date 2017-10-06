@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MultiKeyMultiValueTable {
-    private static Logger log = LoggerFactory.getLogger(MultiKeyMultiValueTable.class);
+    private final static Logger log = LoggerFactory.getLogger(MultiKeyMultiValueTable.class);
     private final String tableName;
     private final String[] keyFieldNames;
     private final int[] keyTypes;    // java.sql.Types

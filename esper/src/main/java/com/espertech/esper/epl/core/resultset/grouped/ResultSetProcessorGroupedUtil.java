@@ -19,8 +19,8 @@ import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.epl.core.resultset.rowperevent.ResultSetProcessorRowPerEventImpl;
 import com.espertech.esper.epl.core.resultset.rowpergroup.ResultSetProcessorRowPerGroup;
@@ -95,7 +95,7 @@ public class ResultSetProcessorGroupedUtil {
         }
     }
 
-    public static CodegenMethodNode generateGroupKeySingleCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode generateGroupKeySingleCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             if (groupKeyExpressions.length == 1) {
                 CodegenMethodNode expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[0].getForge(), methodNode, classScope);
@@ -111,10 +111,10 @@ public class ResultSetProcessorGroupedUtil {
             methodNode.getBlock().methodReturn(newInstance(MultiKeyUntyped.class, ref("keys")));
         };
 
-        return instance.addMethod(Object.class, "generateGroupKeySingle", CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA), ResultSetProcessorUtil.class, classScope, code);
+        return instance.getMethods().addMethod(Object.class, "generateGroupKeySingle", CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA), ResultSetProcessorUtil.class, classScope, code);
     }
 
-    public static CodegenMethodNode generateGroupKeyArrayViewCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode generateGroupKeyArrayViewCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(groupKeyExpressions, classScope, instance);
 
         Consumer<CodegenMethodNode> code = method -> {
@@ -128,10 +128,10 @@ public class ResultSetProcessorGroupedUtil {
             }
             method.getBlock().methodReturn(ref("keys"));
         };
-        return instance.addMethod(Object[].class, "generateGroupKeyArrayView", CodegenNamedParam.from(EventBean[].class, "events", boolean.class, NAME_ISNEWDATA), ResultSetProcessorRowPerGroup.class, classScope, code);
+        return instance.getMethods().addMethod(Object[].class, "generateGroupKeyArrayView", CodegenNamedParam.from(EventBean[].class, "events", boolean.class, NAME_ISNEWDATA), ResultSetProcessorRowPerGroup.class, classScope, code);
     }
 
-    public static CodegenMethodNode generateGroupKeyArrayJoinCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode generateGroupKeyArrayJoinCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(groupKeyExpressions, classScope, instance);
         Consumer<CodegenMethodNode> code = method -> {
             method.getBlock().ifCondition(exprDotMethod(ref("resultSet"), "isEmpty")).blockReturn(constantNull())
@@ -139,10 +139,10 @@ public class ResultSetProcessorGroupedUtil {
                     .declareVar(int.class, "count", constant(0))
                     .forEach(MultiKey.class, "eventsPerStream", ref("resultSet"))
                     .assignArrayElement("keys", ref("count"), localMethod(generateGroupKeySingle, cast(EventBean[].class, exprDotMethod(ref("eventsPerStream"), "getArray")), REF_ISNEWDATA))
-                    .expression(increment("count"))
+                    .increment("count")
                     .blockEnd()
                     .methodReturn(ref("keys"));
         };
-        return instance.addMethod(Object[].class, "generateGroupKeyArrayJoin", CodegenNamedParam.from(Set.class, "resultSet", boolean.class, "isNewData"), ResultSetProcessorRowPerEventImpl.class, classScope, code);
+        return instance.getMethods().addMethod(Object[].class, "generateGroupKeyArrayJoin", CodegenNamedParam.from(Set.class, "resultSet", boolean.class, "isNewData"), ResultSetProcessorRowPerEventImpl.class, classScope, code);
     }
 }

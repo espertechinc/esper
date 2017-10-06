@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 
 public class ClientSideUpdateListener implements Serializable, UpdateListener {
-    private static Logger log = LoggerFactory.getLogger(ClientSideUpdateListener.class);
+    private final static Logger log = LoggerFactory.getLogger(ClientSideUpdateListener.class);
 
     public void update(EventBean[] newEvents, EventBean[] oldEvents) {
         log.info("Single duration over 9.9: IPAddress: " + newEvents[0].get("ipAddress") +

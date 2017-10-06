@@ -31,7 +31,7 @@ import java.util.*;
 
 public class EsperHttpRequestHandler implements HttpRequestHandler {
 
-    private static Logger log = LoggerFactory.getLogger(EsperHttpRequestHandler.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperHttpRequestHandler.class);
 
     private final EPServiceProviderSPI engineSPI;
     private final Map<String, EsperHttpRequestCacheEntry> streamCache = new HashMap<String, EsperHttpRequestCacheEntry>();

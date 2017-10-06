@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 public class SupportHTTPServer {
-    private static Logger log = LoggerFactory.getLogger(SupportHTTPServer.class);
+    private final static Logger log = LoggerFactory.getLogger(SupportHTTPServer.class);
 
     private final int port;
     private ServerSocket serversocket;

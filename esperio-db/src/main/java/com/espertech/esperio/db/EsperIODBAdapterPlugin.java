@@ -20,7 +20,7 @@ import java.io.File;
 import java.net.URL;
 
 public class EsperIODBAdapterPlugin implements PluginLoader {
-    private static Logger log = LoggerFactory.getLogger(EsperIODBAdapterPlugin.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIODBAdapterPlugin.class);
 
     private static final String ESPERIO_DB_CONFIG_FILE = "esperio.db.configuration.file";
 

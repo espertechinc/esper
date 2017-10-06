@@ -30,7 +30,7 @@ import java.util.*;
 
 public class WorkerThread extends Thread {
 
-    private static Logger log = LoggerFactory.getLogger(WorkerThread.class);
+    private final static Logger log = LoggerFactory.getLogger(WorkerThread.class);
 
     private final EPServiceProviderSPI engine;
     private final EsperSocketServiceRunnable runnable;

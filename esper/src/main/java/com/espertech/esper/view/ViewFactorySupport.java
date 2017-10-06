@@ -31,7 +31,7 @@ import java.util.List;
  * not share view resources with expression nodes.
  */
 public abstract class ViewFactorySupport implements ViewFactory {
-    private static Logger log = LoggerFactory.getLogger(ViewFactorySupport.class);
+    private final static Logger log = LoggerFactory.getLogger(ViewFactorySupport.class);
 
     public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;

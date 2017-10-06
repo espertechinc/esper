@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.core.context.subselect;
 
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 

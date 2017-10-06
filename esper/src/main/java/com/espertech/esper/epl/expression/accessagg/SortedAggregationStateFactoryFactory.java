@@ -11,13 +11,12 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
-import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
-import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpecForge;
+import com.espertech.esper.epl.agg.access.AggregationStateSortedSpecForge;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.CollectionUtil;
 
 import java.util.Comparator;
@@ -27,36 +26,35 @@ public class SortedAggregationStateFactoryFactory {
     private final EngineImportService engineImportService;
     private final StatementExtensionSvcContext statementExtensionSvcContext;
     private final ExprNode[] expressions;
-    private final ExprEvaluator[] evaluators;
     private final boolean[] sortDescending;
     private final boolean ever;
     private final int streamNum;
     private final ExprAggMultiFunctionSortedMinMaxByNode parent;
-    private final ExprEvaluator optionalFilter;
+    private final ExprForge optionalFilter;
+    private final boolean join;
 
-    public SortedAggregationStateFactoryFactory(EngineImportService engineImportService, StatementExtensionSvcContext statementExtensionSvcContext, ExprNode[] expressions, ExprEvaluator[] evaluators, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprEvaluator optionalFilter) {
+    public SortedAggregationStateFactoryFactory(EngineImportService engineImportService, StatementExtensionSvcContext statementExtensionSvcContext, ExprNode[] expressions, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprForge optionalFilter, boolean join) {
         this.engineImportService = engineImportService;
         this.statementExtensionSvcContext = statementExtensionSvcContext;
         this.expressions = expressions;
-        this.evaluators = evaluators;
         this.sortDescending = sortDescending;
         this.ever = ever;
         this.streamNum = streamNum;
         this.parent = parent;
         this.optionalFilter = optionalFilter;
+        this.join = join;
     }
 
-    public AggregationStateFactory makeFactory() {
+    public AggregationStateFactoryForge makeForge() {
         boolean sortUsingCollator = engineImportService.isSortUsingCollator();
-        Comparator<Object> comparator = CollectionUtil.getComparator(expressions, evaluators, sortUsingCollator, sortDescending);
-        Class[] criteraTypes = ExprNodeUtility.getExprResultTypes(expressions);
+        Comparator<Object> comparator = CollectionUtil.getComparator(expressions, sortUsingCollator, sortDescending);
 
         if (ever) {
-            AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, criteraTypes, parent.isMax(), comparator, null, optionalFilter);
+            AggregationStateMinMaxByEverSpecForge spec = new AggregationStateMinMaxByEverSpecForge(streamNum, expressions, parent.isMax(), comparator, null, optionalFilter);
             return engineImportService.getAggregationFactoryFactory().makeMinMaxEver(statementExtensionSvcContext, parent, spec);
         }
 
-        AggregationStateSortedSpec spec = new AggregationStateSortedSpec(streamNum, evaluators, criteraTypes, comparator, null, optionalFilter);
+        AggregationStateSortedSpecForge spec = new AggregationStateSortedSpecForge(streamNum, expressions, comparator, null, optionalFilter, join);
         return engineImportService.getAggregationFactoryFactory().makeSorted(statementExtensionSvcContext, parent, spec);
     }
 }

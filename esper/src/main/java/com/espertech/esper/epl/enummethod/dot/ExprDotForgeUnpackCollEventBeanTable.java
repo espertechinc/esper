@@ -50,7 +50,7 @@ public class ExprDotForgeUnpackCollEventBeanTable implements ExprDotForge, ExprD
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMember eventToPublic = codegenClassScope.makeAddMember(TableMetadataInternalEventToPublic.class, tableMetadata.getEventToPublic());
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(codegenMethodScope);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(codegenMethodScope);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
         return staticMethod(ExprDotForgeUnpackCollEventBeanTable.class, "convertToTableUnderling", inner, CodegenExpressionBuilder.member(eventToPublic.getMemberId()), refEPS, refIsNewData, refExprEvalCtx);
     }

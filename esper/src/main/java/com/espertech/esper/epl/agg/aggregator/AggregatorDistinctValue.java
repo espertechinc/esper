@@ -30,11 +30,6 @@ public class AggregatorDistinctValue implements AggregationMethod {
         this.valueSet = new RefCountedSet<Object>();
     }
 
-    public void clear() {
-        valueSet.clear();
-        inner.clear();
-    }
-
     public void enter(Object value) {
         // if value not already encountered, enter into aggregate
         if (valueSet.add(value)) {
@@ -47,6 +42,11 @@ public class AggregatorDistinctValue implements AggregationMethod {
         if (valueSet.remove(value)) {
             inner.leave(value);
         }
+    }
+
+    public void clear() {
+        valueSet.clear();
+        inner.clear();
     }
 
     public Object getValue() {

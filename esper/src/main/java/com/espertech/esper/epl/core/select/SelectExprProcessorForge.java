@@ -19,7 +19,7 @@ import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 
 /**
- * Interface for forges for processors of select-clause items, implementors produce a processor for computing results based on matching events.
+ * Interface for methodForges for processors of select-clause items, implementors produce a processor for computing results based on matching events.
  */
 public interface SelectExprProcessorForge {
     /**

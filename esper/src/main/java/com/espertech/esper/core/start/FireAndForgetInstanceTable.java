@@ -12,7 +12,7 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationRowPair;
+import com.espertech.esper.epl.agg.service.common.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;

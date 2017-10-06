@@ -44,7 +44,7 @@ public class CodegenLegoMethodExpression {
 
     public static CodegenMethodNode codegenExpression(ExprForge forge, CodegenMethodNode parent, CodegenClassScope classScope) {
         Class evaluationType = forge.getEvaluationType();
-        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true);
+        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
         CodegenMethodNode exprMethod = parent.makeChildWithScope(evaluationType, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression expression = forge.evaluateCodegen(evaluationType, exprMethod, exprSymbol, classScope);
         exprSymbol.derivedSymbolsCodegen(parent, exprMethod.getBlock(), classScope);
@@ -54,7 +54,7 @@ public class CodegenLegoMethodExpression {
 
     private static CodegenMethodNode codegenBooleanExpressionBoxedToPrimitive(ExprForge forge, CodegenMethodNode parent, CodegenClassScope classScope) {
         Class evaluationType = forge.getEvaluationType();
-        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true);
+        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
         CodegenMethodNode exprMethod = parent.makeChildWithScope(boolean.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
 
         CodegenExpression expression = forge.evaluateCodegen(evaluationType, exprMethod, exprSymbol, classScope);

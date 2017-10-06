@@ -64,7 +64,7 @@ public class ExecTableAccessCore implements RegressionExecution {
         String eplInto = "into table varaggIIP select window(*) as myevents from SupportBean#length(3) group by intPrimitive";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplInto);
 
-        String eplSelect = "select varaggIIP[1] as c0, varaggIIP[1].myevents as c1, varaggIIP[1].myevents.last(*) as c2 from SupportBean_S0";
+        String eplSelect = "select varaggIIP[1] as c0, varaggIIP[1].myevents as c1, varaggIIP[1].myevents.last(*) as c2, varaggIIP[1].myevents.last(*,1) as c3 from SupportBean_S0";
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, eplSelect);
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
@@ -82,6 +82,7 @@ public class ExecTableAccessCore implements RegressionExecution {
         EPAssertionUtil.assertEqualsExactOrder(events, (Object[]) event.get("c0.myevents"));
         EPAssertionUtil.assertEqualsExactOrder(events, (Object[]) event.get("c1"));
         assertSame(events[events.length - 1], event.get("c2"));
+        assertSame(events[events.length - 2], event.get("c3"));
     }
 
     private void runAssertionFilterBehavior(EPServiceProvider epService) {

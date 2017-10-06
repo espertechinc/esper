@@ -20,8 +20,7 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
 import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class ExecQuerytypeRowPerGroup implements RegressionExecution {
     private final static String SYMBOL_DELL = "DELL";
@@ -29,7 +28,6 @@ public class ExecQuerytypeRowPerGroup implements RegressionExecution {
 
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getViewResources().setAllowMultipleExpiryPolicies(true);
-        configuration.getEngineDefaults().getLogging().setEnableCode(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {
@@ -45,6 +43,41 @@ public class ExecQuerytypeRowPerGroup implements RegressionExecution {
         runAssertionSumOneView(epService);
         runAssertionSumJoin(epService);
         runAssertionUniqueInBatch(epService);
+        runAssertionSelectAvgExprGroupBy(epService);
+    }
+
+    private void runAssertionSelectAvgExprGroupBy(EPServiceProvider epService) {
+        String stmtText = "select istream avg(price) as aprice, symbol from " + SupportMarketDataBean.class.getName()
+                + "#length(2) group by symbol";
+        EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        statement.addListener(listener);
+
+        sendEvent(epService, "A", 1);
+        assertTrue(listener.getAndClearIsInvoked());
+        assertEquals(1.0, listener.getLastNewData()[0].get("aprice"));
+        assertEquals("A", listener.getLastNewData()[0].get("symbol"));
+        sendEvent(epService, "B", 3);
+        //there is no A->1 as we already got it out
+        assertTrue(listener.getAndClearIsInvoked());
+        assertEquals(1, listener.getLastNewData().length);
+        assertEquals(3.0, listener.getLastNewData()[0].get("aprice"));
+        assertEquals("B", listener.getLastNewData()[0].get("symbol"));
+        sendEvent(epService, "B", 5);
+        // there is NOW a A->null entry
+        assertTrue(listener.getAndClearIsInvoked());
+        assertEquals(2, listener.getLastNewData().length);
+        assertEquals(null, listener.getLastNewData()[0].get("aprice"));
+        assertEquals(4.0, listener.getLastNewData()[1].get("aprice"));
+        assertEquals("B", listener.getLastNewData()[1].get("symbol"));
+        sendEvent(epService, "A", 10);
+        sendEvent(epService, "A", 20);
+        assertTrue(listener.getAndClearIsInvoked());
+        assertEquals(2, listener.getLastNewData().length);
+        assertEquals(15.0, listener.getLastNewData()[0].get("aprice")); //A
+        assertEquals(null, listener.getLastNewData()[1].get("aprice")); //B
+
+        statement.destroy();
     }
 
     private void runAssertionCriteriaByDotMethod(EPServiceProvider epService) {
@@ -62,9 +95,9 @@ public class ExecQuerytypeRowPerGroup implements RegressionExecution {
 
     private void runAssertionUnboundStreamIterate(EPServiceProvider epService) {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        String[] fields = "c0,c1".split(",");
 
         // with output snapshot
-        String[] fields = "c0,c1".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("select theString as c0, sum(intPrimitive) as c1 from SupportBean group by theString " +
                 "output snapshot every 3 events");
         SupportUpdateListener listener = new SupportUpdateListener();

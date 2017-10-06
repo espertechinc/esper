@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.core.resultset.core;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.core.orderby.OrderByProcessorFactory;
 
 /**
@@ -21,15 +21,13 @@ import com.espertech.esper.epl.core.orderby.OrderByProcessorFactory;
 public class ResultSetProcessorFactoryDesc {
     private final ResultSetProcessorFactory resultSetProcessorFactory;
     private final ResultSetProcessorType resultSetProcessorType;
-    private final boolean hasAggregation;
     private final EventType resultEventType;
     private final OrderByProcessorFactory orderByProcessorFactory;
     private final AggregationServiceFactoryDesc aggregationServiceFactoryDesc;
 
-    public ResultSetProcessorFactoryDesc(ResultSetProcessorFactory resultSetProcessorFactory, ResultSetProcessorType resultSetProcessorType, boolean hasAggregation, EventType resultEventType, OrderByProcessorFactory orderByProcessorFactory, AggregationServiceFactoryDesc aggregationServiceFactoryDesc) {
+    public ResultSetProcessorFactoryDesc(ResultSetProcessorFactory resultSetProcessorFactory, ResultSetProcessorType resultSetProcessorType, EventType resultEventType, OrderByProcessorFactory orderByProcessorFactory, AggregationServiceFactoryDesc aggregationServiceFactoryDesc) {
         this.resultSetProcessorFactory = resultSetProcessorFactory;
         this.resultSetProcessorType = resultSetProcessorType;
-        this.hasAggregation = hasAggregation;
         this.resultEventType = resultEventType;
         this.orderByProcessorFactory = orderByProcessorFactory;
         this.aggregationServiceFactoryDesc = aggregationServiceFactoryDesc;
@@ -49,10 +47,6 @@ public class ResultSetProcessorFactoryDesc {
 
     public ResultSetProcessorType getResultSetProcessorType() {
         return resultSetProcessorType;
-    }
-
-    public boolean isHasAggregation() {
-        return hasAggregation;
     }
 
     public EventType getResultEventType() {

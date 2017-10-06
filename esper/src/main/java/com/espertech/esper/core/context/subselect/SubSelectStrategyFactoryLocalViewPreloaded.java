@@ -20,8 +20,8 @@ import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContex
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperPrevious;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperPrior;
-import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerified;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -59,7 +59,7 @@ import java.util.*;
  * Entry holding lookup resource references for use by {@link SubSelectActivationCollection}.
  */
 public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStrategyFactory {
-    private static Logger log = LoggerFactory.getLogger(SubSelectStrategyFactoryLocalViewPreloaded.class);
+    private final static Logger log = LoggerFactory.getLogger(SubSelectStrategyFactoryLocalViewPreloaded.class);
     private final static SubordTableLookupStrategyNullRow NULL_ROW_STRATEGY = new SubordTableLookupStrategyNullRow();
 
     private final int subqueryNumber;

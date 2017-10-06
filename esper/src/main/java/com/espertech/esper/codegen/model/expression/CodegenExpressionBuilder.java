@@ -25,6 +25,10 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionRef(ref);
     }
 
+    public static CodegenExpressionRefWCol refCol(String ref, int column) {
+        return new CodegenExpressionRefWCol(ref, column);
+    }
+
     public static CodegenExpressionMember member(CodegenMemberId memberId) {
         return new CodegenExpressionMember(memberId);
     }
@@ -114,11 +118,19 @@ public class CodegenExpressionBuilder {
     }
 
     public static CodegenExpression increment(String ref) {
-        return new CodegenExpressionIncrementDecrement(ref, true);
+        return new CodegenExpressionIncrementDecrementName(ref, true);
+    }
+
+    public static CodegenExpression increment(CodegenExpressionRef ref) {
+        return new CodegenExpressionIncrementDecrementRef(ref, true);
     }
 
     public static CodegenExpression decrement(String ref) {
-        return new CodegenExpressionIncrementDecrement(ref, false);
+        return new CodegenExpressionIncrementDecrementName(ref, false);
+    }
+
+    public static CodegenExpression decrement(CodegenExpressionRef ref) {
+        return new CodegenExpressionIncrementDecrementRef(ref, false);
     }
 
     public static CodegenExpression conditional(CodegenExpression condition, CodegenExpression expressionTrue, CodegenExpression expressionFalse) {
@@ -135,6 +147,10 @@ public class CodegenExpressionBuilder {
 
     public static CodegenExpression cast(Class clazz, CodegenExpression expression) {
         return new CodegenExpressionCastExpression(clazz, expression);
+    }
+
+    public static CodegenExpression cast(String typeName, CodegenExpression expression) {
+        return new CodegenExpressionCastExpression(typeName, expression);
     }
 
     public static CodegenExpression notEqualsNull(CodegenExpression lhs) {

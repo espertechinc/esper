@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class EsperIOKafkaInputProcessorDefault implements EsperIOKafkaInputProcessor {
 
-    private static Logger log = LoggerFactory.getLogger(EsperIOKafkaInputProcessorDefault.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIOKafkaInputProcessorDefault.class);
 
     private EPServiceProvider engine;
     private EsperIOKafkaInputTimestampExtractor timestampExtractor;

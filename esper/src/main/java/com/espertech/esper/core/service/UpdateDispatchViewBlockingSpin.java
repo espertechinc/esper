@@ -59,5 +59,5 @@ public class UpdateDispatchViewBlockingSpin extends UpdateDispatchViewBase {
         }
     }
 
-    private static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBlockingSpin.class);
+    private final static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBlockingSpin.class);
 }

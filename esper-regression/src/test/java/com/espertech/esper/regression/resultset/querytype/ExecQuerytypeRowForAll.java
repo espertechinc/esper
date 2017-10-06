@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regression.resultset.querytype;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -35,7 +36,6 @@ public class ExecQuerytypeRowForAll implements RegressionExecution {
         runAssertionSelectExprStdGroupBy(epService);
         runAssertionSelectAvgExprStdGroupBy(epService);
         runAssertionSelectAvgStdGroupByUni(epService);
-        runAssertionSelectAvgExprGroupBy(epService);
     }
 
     private void runAssertionSumOneView(EPServiceProvider epService) {
@@ -215,40 +215,6 @@ public class ExecQuerytypeRowForAll implements RegressionExecution {
         assertTrue(listener.getAndClearIsInvoked());
         assertEquals(1, listener.getLastNewData().length);
         assertEquals(15.0, listener.getLastNewData()[0].get("aprice"));
-
-        statement.destroy();
-    }
-
-    private void runAssertionSelectAvgExprGroupBy(EPServiceProvider epService) {
-        String stmtText = "select istream avg(price) as aprice, symbol from " + SupportMarketDataBean.class.getName()
-                + "#length(2) group by symbol";
-        EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
-        SupportUpdateListener listener = new SupportUpdateListener();
-        statement.addListener(listener);
-
-        sendEvent(epService, "A", 1);
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1.0, listener.getLastNewData()[0].get("aprice"));
-        assertEquals("A", listener.getLastNewData()[0].get("symbol"));
-        sendEvent(epService, "B", 3);
-        //there is no A->1 as we already got it out
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1, listener.getLastNewData().length);
-        assertEquals(3.0, listener.getLastNewData()[0].get("aprice"));
-        assertEquals("B", listener.getLastNewData()[0].get("symbol"));
-        sendEvent(epService, "B", 5);
-        // there is NOW a A->null entry
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(2, listener.getLastNewData().length);
-        assertEquals(null, listener.getLastNewData()[0].get("aprice"));
-        assertEquals(4.0, listener.getLastNewData()[1].get("aprice"));
-        assertEquals("B", listener.getLastNewData()[1].get("symbol"));
-        sendEvent(epService, "A", 10);
-        sendEvent(epService, "A", 20);
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(2, listener.getLastNewData().length);
-        assertEquals(15.0, listener.getLastNewData()[0].get("aprice")); //A
-        assertEquals(null, listener.getLastNewData()[1].get("aprice")); //B
 
         statement.destroy();
     }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.codegen.core;
 
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,10 @@ public class CodegenNamedParam {
         }
         this.type = type;
         this.name = name;
+    }
+
+    public CodegenNamedParam(Class type, CodegenExpressionRef name) {
+        this(type, name.getRef());
     }
 
     public Class getType() {

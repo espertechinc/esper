@@ -11,16 +11,17 @@
 package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.hook.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_A;
 import com.espertech.esper.supportregression.client.MyConcatAggregationFunction;
 import com.espertech.esper.supportregression.client.MyConcatAggregationFunctionFactory;
+import com.espertech.esper.supportregression.client.MyConcatNoCodegenAggFunctionFactory;
 import com.espertech.esper.supportregression.client.MyConcatTwoAggFunctionFactory;
 import com.espertech.esper.supportregression.epl.SupportPluginAggregationMethodOneFactory;
 import com.espertech.esper.supportregression.epl.SupportPluginAggregationMethodThree;
@@ -31,6 +32,7 @@ import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
 import com.espertech.esper.util.SerializableObjectCopier;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -38,6 +40,7 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
     public void configure(Configuration configuration) throws Exception {
         configuration.addPlugInAggregationFunctionFactory("concatstring", MyConcatAggregationFunctionFactory.class.getName());
         configuration.addPlugInAggregationFunctionFactory("concatstringTwo", MyConcatTwoAggFunctionFactory.class.getName());
+        configuration.addPlugInAggregationFunctionFactory("concatstringNoCodegen", MyConcatNoCodegenAggFunctionFactory.class.getName());
         configuration.addPlugInAggregationFunctionFactory("concat", SupportPluginAggregationMethodTwoFactory.class.getName());
         configuration.addPlugInAggregationFunctionFactory("xxx", String.class.getName());
         configuration.addPlugInAggregationFunctionFactory("yyy", "com.NoSuchClass");
@@ -56,6 +59,24 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
         runAssertionInvalidUse(epService);
         runAssertionInvalidConfigure(epService);
         runAssertionInvalid(epService);
+        runAssertionNoCodegeneration(epService);
+    }
+
+    private void runAssertionNoCodegeneration(EPServiceProvider epService) {
+        String epl = "select concatstringNoCodegen(theString) as c0 from " + SupportBean.class.getName() + "#length(2)";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+        String[] fields = "c0".split(",");
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1"});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 0));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1 E2"});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 0));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E2 E3"});
     }
 
     private void runAssertionGrouped(EPServiceProvider epService) throws Exception {
@@ -337,6 +358,10 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
             return instanceCount;
         }
 
+        public static void incInstanceCount() {
+            instanceCount++;
+        }
+
         public void setFunctionName(String functionName) {
         }
 
@@ -350,6 +375,37 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
 
         public Class getValueType() {
             return SupportBean.class;
+        }
+
+        public AggregationFunctionFactoryCodegenType getCodegenType() {
+            return AggregationFunctionFactoryCodegenType.CODEGEN_UNMANAGED;
+        }
+
+        public void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+            context.getCtor().getBlock().staticMethod(MyAggFuncFactory.class, "incInstanceCount");
+            MyAggFuncMethod.rowMemberCodegen(context);
+        }
+
+        public void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        }
+
+        public void applyLeaveCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        }
+
+        public void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            MyAggFuncMethod.applyEnterCodegenUnmanaged(context);
+        }
+
+        public void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            MyAggFuncMethod.applyLeaveCodegenUnmanaged(context);
+        }
+
+        public void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+            MyAggFuncMethod.clearCodegen(context);
+        }
+
+        public void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+            MyAggFuncMethod.getValueCodegen(context);
         }
     }
 
@@ -365,12 +421,32 @@ public class ExecClientAggregationFunctionPlugIn implements RegressionExecution 
             count--;
         }
 
+        public void clear() {
+            count = 0;
+        }
+
         public Object getValue() {
             return new SupportBean("XX", count);
         }
 
-        public void clear() {
-            count = 0;
+        public static void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+            context.getMembersColumnized().addMember(context.getColumn(), int.class, "count");
+        }
+
+        public static void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            context.getMethod().getBlock().increment(refCol("count", context.getColumn()));
+        }
+
+        public static void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            context.getMethod().getBlock().decrement(refCol("count", context.getColumn()));
+        }
+
+        public static void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+            context.getMethod().getBlock().assignRef(refCol("count", context.getColumn()), constant(0));
+        }
+
+        public static void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+            context.getMethod().getBlock().methodReturn(newInstance(SupportBean.class, constant("XX"), refCol("count", context.getColumn())));
         }
     }
 }

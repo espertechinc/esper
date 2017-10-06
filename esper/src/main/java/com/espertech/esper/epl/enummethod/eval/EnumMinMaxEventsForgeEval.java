@@ -73,7 +73,7 @@ public class EnumMinMaxEventsForgeEval implements EnumEval {
         Class innerType = forge.innerExpression.getEvaluationType();
         Class innerTypeBoxed = JavaClassHelper.getBoxedType(innerType);
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(innerTypeBoxed, EnumMinMaxEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()

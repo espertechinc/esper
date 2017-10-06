@@ -11,15 +11,20 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMembersColumnized;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
+import com.espertech.esper.epl.agg.access.AggregationAgentForge;
 import com.espertech.esper.epl.agg.factory.AggregationStateFactoryCountMinSketch;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.approx.CountMinSketchAggAccessorDefault;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -37,11 +42,11 @@ public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketch
         return null;
     }
 
-    public AggregationAccessor getAccessor() {
+    public AggregationAccessorForge getAccessorForge() {
         return CountMinSketchAggAccessorDefault.INSTANCE;
     }
 
-    public AggregationStateFactory getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
         // For match-recognize we don't allow
         if (isMatchRecognize) {
             throw new IllegalStateException("Count-min-sketch is not supported for match-recognize");
@@ -49,7 +54,7 @@ public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketch
         return stateFactory;
     }
 
-    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
+    public AggregationAgentForge getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         throw new UnsupportedOperationException();
     }
 
@@ -70,7 +75,22 @@ public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketch
         }
     }
 
-    public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
+    public ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {
         return null;
+    }
+
+    public void rowMemberCodegen(int column, CodegenCtor ctor, CodegenMembersColumnized membersColumnized, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void applyEnterCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void applyLeaveCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void clearCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
+    }
+
+    public void getValueCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
     }
 }

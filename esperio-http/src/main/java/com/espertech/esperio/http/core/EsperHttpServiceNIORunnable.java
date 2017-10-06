@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 
 public class EsperHttpServiceNIORunnable implements Runnable {
-    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceNIORunnable.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperHttpServiceNIORunnable.class);
 
     private final String serviceName;
     private final int port;

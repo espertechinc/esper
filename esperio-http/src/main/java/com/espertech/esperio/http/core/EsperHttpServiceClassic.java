@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 public class EsperHttpServiceClassic extends EsperHttpServiceBase {
-    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceClassic.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperHttpServiceClassic.class);
 
     private ServerSocket serversocket;
     private HttpParams parameters;

@@ -56,5 +56,5 @@ public class UpdateDispatchViewBlockingWait extends UpdateDispatchViewBase {
         }
     }
 
-    private static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBlockingWait.class);
+    private final static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBlockingWait.class);
 }

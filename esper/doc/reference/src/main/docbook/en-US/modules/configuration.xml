@@ -1609,6 +1609,14 @@ class MyOwnDataSourceFactory {
 			<title>Engine Settings related to Code Generation and Compilation</title>
 			
 			<para>
+			  The setting <literal>enable-resultset</literal> is true by default and controls whether the engine generates code for all of result-set-processing including the select-clause, having-clause and group-by expressions.
+			</para>
+
+			<para>
+			  The setting <literal>enable-aggregation</literal> is true by default and controls whether the engine generates code for all of aggregation-processing.
+			</para>
+
+			<para>
 			  The setting <literal>enable-selectclause</literal> is true by default and controls whether the engine generates code for the entire select-clause.
 			</para>
 
@@ -1644,10 +1652,12 @@ class MyOwnDataSourceFactory {
 			</para>
 			<programlisting><![CDATA[Configuration configuration = new Configuration();
 ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
-codegen.setEnableSelectClause(true);
+codegen.setEnableResultSet(true);
+codegen.setEnableAggregation(true);
 codegen.setEnableExpression(true);
 codegen.setEnableFallback(true);
-codegen.setEnablePropertyGetter(false);
+codegen.setEnableSelectClause(false); // since included in result set
+codegen.setEnablePropertyGetter(false); // since included in expressions
 codegen.setIncludeDebugSymbols(false);
 codegen.setIncludeComments(false);]]></programlisting>
 				
@@ -1656,8 +1666,11 @@ codegen.setIncludeComments(false);]]></programlisting>
 			</para>
 			<programlisting><![CDATA[<engine-settings>
   <defaults>
-    <codegen enable-selectclause="true" 
+    <codegen 
+      enable-resultset="true" 
+      enable-aggregation="true" 
       enable-expression="true" 
+      enable-selectclause="false" 
       enable-fallback="true" 
       enable-propertygetter="false" 
       include-comments="false" 

@@ -173,5 +173,5 @@ public class ConfigurationHTTPAdapterParser {
         return valueNode.getTextContent();
     }
 
-    private static Logger log = LoggerFactory.getLogger(ConfigurationHTTPAdapterParser.class);
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationHTTPAdapterParser.class);
 }

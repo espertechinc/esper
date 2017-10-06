@@ -67,6 +67,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
      * @param isIStreamOnly     true for no datawindow for stream
      * @param engineURI         - engine URI
      * @param isOnDemandStreams - true to indicate that all streams are on-demand pull-based
+     * @param optionalStreams - if there are any streams that may not provide events, applicable to outer joins
      */
     public StreamTypeServiceImpl(EventType[] eventTypes, String[] streamNames, boolean[] isIStreamOnly, String engineURI, boolean isOnDemandStreams, boolean optionalStreams) {
         this.eventTypes = eventTypes;

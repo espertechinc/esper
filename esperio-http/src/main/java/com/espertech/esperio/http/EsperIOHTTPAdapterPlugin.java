@@ -20,7 +20,7 @@ import java.io.File;
 import java.net.URL;
 
 public class EsperIOHTTPAdapterPlugin implements PluginLoader {
-    private static Logger log = LoggerFactory.getLogger(EsperIOHTTPAdapterPlugin.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIOHTTPAdapterPlugin.class);
 
     private static final String ESPERIO_HTTP_CONFIG_FILE = "esperio.http.configuration.file";
 

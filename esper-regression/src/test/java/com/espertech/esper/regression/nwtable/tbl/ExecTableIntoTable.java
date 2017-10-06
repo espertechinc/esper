@@ -101,7 +101,7 @@ public class ExecTableIntoTable implements RegressionExecution {
 
         // invalid: bound aggregation into unbound max
         SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select last(*) as lasteveru from SupportBean#length(2)",
-                "Error starting statement: Failed to validate select-clause expression 'last(*)': For into-table use 'window(*)' or ''window(stream.*)' instead [");
+                "Error starting statement: Failed to validate select-clause expression 'last(*)': For into-table use 'window(*)' or 'window(stream.*)' instead [");
         // invalid: unbound aggregation into bound max
         SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select lastever(*) as windowb from SupportBean#length(2)",
                 "Error starting statement: Incompatible aggregation function for table 'varagg' column 'windowb', expecting 'window(*)' and received 'lastever(*)': Not a 'window' aggregation [");

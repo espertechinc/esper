@@ -20,12 +20,12 @@ public class CodegenClass {
     private final String className;
     private final Class interfaceImplemented;
     private final CodegenCtor optionalCtor;
-    private final List<CodegenNamedParam> explicitMembers;
+    private final List<CodegenTypedParam> explicitMembers;
     private final IdentityHashMap<Object, CodegenMember> implicitMembers;
     private final CodegenClassMethods methods;
     private final List<CodegenInnerClass> innerClasses;
 
-    public CodegenClass(String engineURI, Class interfaceClass, String className, CodegenClassScope codegenClassScope, List<CodegenNamedParam> explicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
+    public CodegenClass(String engineURI, Class interfaceClass, String className, CodegenClassScope codegenClassScope, List<CodegenTypedParam> explicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
         this("com.espertech.esper.generated.uri_" + engineURI,
                 className,
                 interfaceClass,
@@ -36,7 +36,7 @@ public class CodegenClass {
                 innerClasses);
     }
 
-    private CodegenClass(String packageName, String className, Class interfaceImplemented, List<CodegenNamedParam> explicitMembers, IdentityHashMap<Object, CodegenMember> implicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
+    private CodegenClass(String packageName, String className, Class interfaceImplemented, List<CodegenTypedParam> explicitMembers, IdentityHashMap<Object, CodegenMember> implicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceImplemented = interfaceImplemented;
@@ -59,7 +59,7 @@ public class CodegenClass {
         return interfaceImplemented;
     }
 
-    public List<CodegenNamedParam> getExplicitMembers() {
+    public List<CodegenTypedParam> getExplicitMembers() {
         return explicitMembers;
     }
 
@@ -102,7 +102,9 @@ public class CodegenClass {
     }
 
     private static void addReferencedClasses(Class interfaceImplemented, Map<Object, CodegenMember> members, CodegenClassMethods methods, Set<Class> classes) {
-        classes.add(interfaceImplemented);
+        if (interfaceImplemented != null) {
+            classes.add(interfaceImplemented);
+        }
         for (Map.Entry<Object, CodegenMember> memberEntry : members.entrySet()) {
             memberEntry.getValue().mergeClasses(classes);
         }
@@ -114,8 +116,8 @@ public class CodegenClass {
         }
     }
 
-    private static void addReferencedClasses(List<CodegenNamedParam> names, Set<Class> classes) {
-        for (CodegenNamedParam param : names) {
+    private static void addReferencedClasses(List<CodegenTypedParam> names, Set<Class> classes) {
+        for (CodegenTypedParam param : names) {
             param.mergeClasses(classes);
         }
     }

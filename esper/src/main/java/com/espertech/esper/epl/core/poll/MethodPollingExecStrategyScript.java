@@ -24,7 +24,7 @@ import java.util.List;
 
 public class MethodPollingExecStrategyScript implements PollExecStrategy {
 
-    private static Logger log = LoggerFactory.getLogger(MethodPollingExecStrategyScript.class);
+    private final static Logger log = LoggerFactory.getLogger(MethodPollingExecStrategyScript.class);
 
     private final ExprNodeScriptEvaluator eval;
 

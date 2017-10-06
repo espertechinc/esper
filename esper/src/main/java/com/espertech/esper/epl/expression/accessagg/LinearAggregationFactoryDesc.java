@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 
 public class LinearAggregationFactoryDesc {
 

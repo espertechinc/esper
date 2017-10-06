@@ -12,22 +12,26 @@ package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.util.CountMinSketchTopK;
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMembersColumnized;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
+import com.espertech.esper.epl.agg.access.AggregationAgentForge;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.approx.*;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNodeFactoryBase {
-    private final ExprEvaluator addOrFrequencyEvaluator;
+    private final ExprForge addOrFrequencyEvaluator;
     private final Class addOrFrequencyEvaluatorReturnType;
 
-    public ExprAggCountMinSketchNodeFactoryUse(ExprAggCountMinSketchNode parent, ExprEvaluator addOrFrequencyEvaluator, Class addOrFrequencyEvaluatorReturnType) {
+    public ExprAggCountMinSketchNodeFactoryUse(ExprAggCountMinSketchNode parent, ExprForge addOrFrequencyEvaluator, Class addOrFrequencyEvaluatorReturnType) {
         super(parent);
         this.addOrFrequencyEvaluator = addOrFrequencyEvaluator;
         this.addOrFrequencyEvaluatorReturnType = addOrFrequencyEvaluatorReturnType;
@@ -49,28 +53,25 @@ public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNo
         throw new UnsupportedOperationException();
     }
 
-    public AggregationStateFactory getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
         throw new UnsupportedOperationException();
     }
 
-    public AggregationAccessor getAccessor() {
+    public AggregationAccessorForge getAccessorForge() {
         if (parent.getAggType() == CountMinSketchAggType.ADD) {
             // modifications handled by agent
             return CountMinSketchAggAccessorDefault.INSTANCE;
         } else if (parent.getAggType() == CountMinSketchAggType.FREQ) {
-            return new CountMinSketchAggAccessorFrequency(addOrFrequencyEvaluator);
+            return new CountMinSketchAggAccessorFrequencyForge(addOrFrequencyEvaluator);
         } else if (parent.getAggType() == CountMinSketchAggType.TOPK) {
             return CountMinSketchAggAccessorTopk.INSTANCE;
         }
         throw new IllegalStateException("Aggregation accessor not available for this function '" + parent.getAggregationFunctionName() + "'");
     }
 
-    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
+    public AggregationAgentForge getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         if (parent.getAggType() == CountMinSketchAggType.ADD) {
-            if (parent.getOptionalFilter() == null) {
-                return new CountMinSketchAggAgentAdd(addOrFrequencyEvaluator);
-            }
-            return new CountMinSketchAggAgentAddFilter(addOrFrequencyEvaluator, ExprNodeCompiler.allocateEvaluator(parent.getOptionalFilter().getForge(), engineImportService, this.getClass(), false, statementName));
+            return new CountMinSketchAggAgentAddForge(addOrFrequencyEvaluator, parent.getOptionalFilter() == null ? null : parent.getOptionalFilter().getForge());
         }
         throw new IllegalStateException("Aggregation agent not available for this function '" + parent.getAggregationFunctionName() + "'");
     }
@@ -83,7 +84,22 @@ public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNo
         return addOrFrequencyEvaluatorReturnType;
     }
 
-    public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
+    public ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {
         return null;
+    }
+
+    public void rowMemberCodegen(int column, CodegenCtor ctor, CodegenMembersColumnized membersColumnized, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void applyEnterCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void applyLeaveCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void clearCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
+    }
+
+    public void getValueCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
     }
 }

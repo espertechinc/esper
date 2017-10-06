@@ -22,7 +22,7 @@ public class EPPreparedExecuteTableHelper {
         if (optionalTableNodes == null) {
             return;
         }
-        Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> strategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, optionalTableNodes);
+        Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> strategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, optionalTableNodes, true);
         for (Map.Entry<ExprTableAccessNode, ExprTableAccessEvalStrategy> strategyEntry : strategies.entrySet()) {
             strategyEntry.getKey().setStrategy(strategyEntry.getValue());
         }

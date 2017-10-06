@@ -18,7 +18,6 @@ import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenSymbolProvider;
 import com.espertech.esper.codegen.compile.CodegenClassGenerator;
-import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
 import com.espertech.esper.codegen.core.CodeGenerationIDGenerator;
 import com.espertech.esper.codegen.core.CodegenClass;
@@ -40,7 +39,7 @@ import java.util.function.Supplier;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 public class SelectExprProcessorCompiler {
-    private static Logger log = LoggerFactory.getLogger(SelectExprProcessorCompiler.class);
+    private final static Logger log = LoggerFactory.getLogger(SelectExprProcessorCompiler.class);
 
     public static SelectExprProcessor allocateSelectExprEvaluator(EventAdapterService eventAdapterService, SelectExprProcessorForge forge, EngineImportService engineImportService, Class compiledByClass, boolean onDemandQuery, String statementName) {
         if (!engineImportService.getCodeGeneration().isEnableSelectClause() || onDemandQuery) {
@@ -71,22 +70,20 @@ public class SelectExprProcessorCompiler {
             String className = CodeGenerationIDGenerator.generateClassName(SelectExprProcessor.class);
             CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), SelectExprProcessor.class, className, result.getCodegenClassScope(), Collections.emptyList(), null, methods, Collections.emptyList());
             return CodegenClassGenerator.compile(clazz, engineImportService, SelectExprProcessor.class, debugInformationProvider);
-        } catch (CodegenCompilerException ex) {
-            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
-            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(ex, debugInformationProvider, fallback);
-            if (fallback) {
-                log.warn(message, ex);
-            } else {
-                log.error(message, ex);
-            }
-            return handleThrowable(engineImportService, ex, forge, debugInformationProvider, onDemandQuery, statementName);
         } catch (Throwable t) {
+            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
+            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInformationProvider, fallback);
+            if (fallback) {
+                log.warn(message, t);
+            } else {
+                log.error(message, t);
+            }
             return handleThrowable(engineImportService, t, forge, debugInformationProvider, onDemandQuery, statementName);
         }
     }
 
     public static SelectExprProcessorCompilerResult generate(CodegenClassScope codegenClassScope, SelectExprProcessorForge forge, EngineImportService engineImportService, EventAdapterService eventAdapterService) {
-        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true);
+        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
         SelectExprProcessorCodegenSymbol selectEnv = new SelectExprProcessorCodegenSymbol();
         CodegenSymbolProvider symbolProvider = new CodegenSymbolProvider() {
             public void provide(Map<String, Class> symbols) {

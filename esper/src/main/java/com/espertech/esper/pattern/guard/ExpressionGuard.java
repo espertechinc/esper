@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * letting all {@link com.espertech.esper.pattern.MatchedEventMap} instances pass until then.
  */
 public class ExpressionGuard implements Guard {
-    private static Logger log = LoggerFactory.getLogger(ExpressionGuard.class);
+    private final static Logger log = LoggerFactory.getLogger(ExpressionGuard.class);
 
     private final Quitable quitable;
     private final MatchedEventConvertor convertor;

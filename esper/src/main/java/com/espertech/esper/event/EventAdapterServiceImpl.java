@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * In summary, names A and B point to the same underlying event type and therefore event type id.
  */
 public class EventAdapterServiceImpl implements EventAdapterService {
-    private static Logger log = LoggerFactory.getLogger(EventAdapterServiceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(EventAdapterServiceImpl.class);
 
     private final ConcurrentHashMap<Class, BeanEventType> typesPerJavaBean;
     private final Map<String, EventType> nameToTypeMap;

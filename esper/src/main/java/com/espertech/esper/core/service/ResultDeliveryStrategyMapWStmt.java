@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class ResultDeliveryStrategyMapWStmt extends ResultDeliveryStrategyMap {
 
-    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyMapWStmt.class);
+    private final static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyMapWStmt.class);
 
     public ResultDeliveryStrategyMapWStmt(EPStatement statement, Object subscriber, Method method, String[] columnNames, EngineImportService engineImportService) {
         super(statement, subscriber, method, columnNames, engineImportService);

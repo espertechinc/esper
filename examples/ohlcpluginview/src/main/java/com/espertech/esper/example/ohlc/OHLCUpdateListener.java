@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 public class OHLCUpdateListener implements StatementAwareUpdateListener {
-    private static Logger log = LoggerFactory.getLogger(OHLCUpdateListener.class);
+    private final static Logger log = LoggerFactory.getLogger(OHLCUpdateListener.class);
 
     public void update(EventBean[] newData, EventBean[] oldData, EPStatement epStatement, EPServiceProvider epServiceProvider) {
         for (int i = 0; i < newData.length; i++) {

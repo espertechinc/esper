@@ -16,7 +16,7 @@
 		</para>
 		
 		<para>
-			Code generation can significantly speed up processing as it eliminates virtual calls and especially megamorphic calls (a callsite with 3 or more possible implementations is megamorphic).
+			Code generation can significantly speed up processing as it eliminates many virtual calls and especially megamorphic calls (a callsite with 3 or more possible implementations is megamorphic) as well as casts and branching.
 			Code generation allows the runtime to optimize the generated code and allows the hardware to execute faster.
 		</para>
 		
@@ -49,7 +49,7 @@
 		</orderedlist>
 		
 		<para>
-			Without code generation, in order to evaluate the expression <literal>a + b</literal> the engine needs to make at least 3 virtual calls: One to obtain the value of field <literal>a</literal>, one to obtain the value of field <literal>b</literal> and one to perform the <literal>+</literal> plus-operation.
+			Without code generation, for example, in order to evaluate the expression <literal>a + b</literal> the VM makes 3 virtual calls: One to obtain the value of field <literal>a</literal>, one to obtain the value of field <literal>b</literal> and one to perform the <literal>+</literal> plus-operation.
 		</para>
 			 
 		<para>
@@ -73,7 +73,7 @@
 			<itemizedlist>
 				<ns:listitem>
 					<para>
-						The entire select-clause including all expressions.
+						The result-set-processing including the select-clause, aggregation processing and all expressions therein, and including the having-clause and group-by-clause.
 					</para>
 				</ns:listitem>
 				<ns:listitem>

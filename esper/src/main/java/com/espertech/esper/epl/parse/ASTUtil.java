@@ -29,7 +29,7 @@ import java.util.*;
  * Utility class for AST node handling.
  */
 public class ASTUtil {
-    private static Logger log = LoggerFactory.getLogger(ASTUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(ASTUtil.class);
 
     private final static String PROPERTY_ENABLED_AST_DUMP = "ENABLE_AST_DUMP";
 

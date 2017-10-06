@@ -11,13 +11,26 @@
 package com.espertech.esper.epl.agg.access;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.plugin.PlugInAggregationMultiFunctionCodegenType;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public class AggregationAccessorLastNoEval implements AggregationAccessor {
+public class AggregationAccessorLastNoEval implements AggregationAccessor, AggregationAccessorForge {
     public final static AggregationAccessorLastNoEval INSTANCE = new AggregationAccessorLastNoEval();
+
+    private AggregationAccessorLastNoEval() {
+    }
+
+    public AggregationAccessor getAccessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        return this;
+    }
+
+    public PlugInAggregationMultiFunctionCodegenType getPluginCodegenType() {
+        return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL; // not currently applicable as table-related only
+    }
 
     public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean bean = ((AggregationStateLinear) state).getLastValue();
@@ -45,5 +58,21 @@ public class AggregationAccessorLastNoEval implements AggregationAccessor {
 
     public EventBean getEnumerableEvent(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return ((AggregationStateLinear) state).getLastValue();
+    }
+
+    public void getValueCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getEnumerableEventsCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getEnumerableEventCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getEnumerableScalarCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
     }
 }

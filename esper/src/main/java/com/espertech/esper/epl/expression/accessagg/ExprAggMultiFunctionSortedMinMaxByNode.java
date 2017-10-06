@@ -19,13 +19,12 @@ import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.access.*;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateKeyWStream;
-import com.espertech.esper.epl.agg.service.AggregationStateTypeWStream;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateKeyWStream;
+import com.espertech.esper.epl.agg.service.common.AggregationStateTypeWStream;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
@@ -111,7 +110,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
 
         Class componentType = containedType.getUnderlyingType();
         Class accessorResultType = componentType;
-        AggregationAccessor accessor;
+        AggregationAccessorForge accessor;
         TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(containedType);
         if (!sortedwin) {
             if (tableMetadata != null) {
@@ -138,11 +137,11 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         }
         AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, type, criteriaExpressions.getFirst(), optionalFilter);
 
-        ExprEvaluator optionalFilterEval = optionalFilter == null ? null : ExprNodeCompiler.allocateEvaluator(optionalFilter.getForge(), validationContext.getEngineImportService(), this.getClass(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
-        ExprEvaluator[] criteriaExpressionEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteriaExpressions.getFirst(), validationContext.getEngineImportService(), this.getClass(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
+        ExprForge optionalFilterForge = optionalFilter == null ? null : optionalFilter.getForge();
+        boolean join = validationContext.getStreamTypeService().getEventTypes().length > 1;
         SortedAggregationStateFactoryFactory stateFactoryFactory = new
-                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(), criteriaExpressions.getFirst(), criteriaExpressionEvals,
-                criteriaExpressions.getSecond(), ever, streamNum, this, optionalFilterEval);
+                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(), criteriaExpressions.getFirst(),
+                criteriaExpressions.getSecond(), ever, streamNum, this, optionalFilterForge, join);
 
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, stateKey, stateFactoryFactory, AggregationAgentDefault.INSTANCE);
     }
@@ -165,7 +164,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
         Class componentType = containedType.getUnderlyingType();
         Class accessorResultType = componentType;
-        AggregationAccessor accessor;
+        AggregationAccessorForge accessor;
         if (!sortedwin) {
             accessor = new AggregationAccessorMinMaxByNonTable(max);
         } else {
@@ -173,7 +172,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
 
-        AggregationAgent agent = ExprAggAggregationAgentFactory.make(streamNum, optionalFilter, validationContext.getEngineImportService(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
+        AggregationAgentForge agent = ExprAggAggregationAgentFactory.make(streamNum, optionalFilter, validationContext.getEngineImportService(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, null, null, agent);
     }
 
@@ -194,17 +193,17 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         Class componentType = containedType.getUnderlyingType();
         Pair<ExprNode[], boolean[]> criteriaExpressions = getCriteriaExpressions();
         Class accessorResultType = componentType;
-        AggregationAccessor accessor;
+        AggregationAccessorForge accessor;
         if (!sortedwin) {
             accessor = new AggregationAccessorMinMaxByNonTable(max);
         } else {
             accessor = new AggregationAccessorSortedNonTable(max, componentType);
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
-        ExprEvaluator[] criteriaExpressionEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteriaExpressions.getFirst(), validationContext.getEngineImportService(), this.getClass(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
+        boolean join = validationContext.getStreamTypeService().getEventTypes().length > 1;
         SortedAggregationStateFactoryFactory stateFactoryFactory = new
-                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(), criteriaExpressions.getFirst(), criteriaExpressionEvals,
-                criteriaExpressions.getSecond(), ever, 0, this, null);
+                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(), criteriaExpressions.getFirst(),
+                criteriaExpressions.getSecond(), ever, 0, this, null, join);
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, null, stateFactoryFactory, null);
     }
 
@@ -223,12 +222,12 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
                 }
             }
         }
-        return new Pair<ExprNode[], boolean[]>(criteriaExpressions, sortDescending);
+        return new Pair<>(criteriaExpressions, sortDescending);
     }
 
     private ExprAggMultiFunctionSortedMinMaxByNodeFactory handleTableAccess(TableMetadataColumnAggregation tableAccess) {
         ExprAggMultiFunctionSortedMinMaxByNodeFactory factory = (ExprAggMultiFunctionSortedMinMaxByNodeFactory) tableAccess.getFactory();
-        AggregationAccessor accessor;
+        AggregationAccessorForge accessor;
         Class componentType = factory.getContainedEventType().getUnderlyingType();
         Class accessorResultType = componentType;
         if (!sortedwin) {

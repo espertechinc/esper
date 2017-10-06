@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.core.context.stmt;
 
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 
 public interface AIRegistryAggregation extends AggregationService {
     public void assignService(int serviceId, AggregationService aggregationService);

@@ -20,7 +20,7 @@ import java.io.File;
 import java.net.URL;
 
 public class EsperIOSocketAdapterPlugin implements PluginLoader {
-    private static Logger log = LoggerFactory.getLogger(EsperIOSocketAdapterPlugin.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIOSocketAdapterPlugin.class);
 
     private static final String ESPERIO_SOCKET_CONFIG_FILE = "esperio.socket.configuration.file";
 

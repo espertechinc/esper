@@ -14,12 +14,12 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.collection.ArrayEventIterator;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.epl.core.resultset.grouped.ResultSetProcessorGroupedUtil;
@@ -50,8 +50,8 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
         unboundHelper.destroy();
     }
 
-    static void stopMethodUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
-        ResultSetProcessorRowPerGroupRollupImpl.stopMethodCodegen(method, instance);
+    static void stopMethodUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
+        ResultSetProcessorRowPerGroupRollupImpl.stopMethodCodegenBound(method, instance);
         method.getBlock().exprDotMethod(ref(NAME_UNBOUNDHELPER), "destroy");
     }
 
@@ -63,7 +63,7 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
         ResultSetProcessorGroupedUtil.applyAggViewResultKeyedView(aggregationService, agentInstanceContext, newData, newDataMultiKey, oldData, oldDataMultiKey, eventsPerStream);
     }
 
-    static void applyViewResultUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void applyViewResultUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeysView = generateGroupKeysViewCodegen(forge, classScope, instance);
 
         method.getBlock()
@@ -99,10 +99,11 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
         return ResultSetProcessorUtil.toPairNullIfAllNull(selectNewEvents, selectOldEvents);
     }
 
-    static void processViewResultUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void processViewResultUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
         CodegenMember groupKeyTypes = classScope.makeAddMember(Class[].class, forge.getGroupKeyTypes());
-        instance.addMember(NAME_UNBOUNDHELPER, ResultSetProcessorRowPerGroupRollupUnboundHelper.class, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerGroupRollupSnapshotUnbound", REF_AGENTINSTANCECONTEXT, ref("this"), member(groupKeyTypes.getMemberId()), constant(forge.getNumStreams())));
+        instance.addMember(NAME_UNBOUNDHELPER, ResultSetProcessorRowPerGroupRollupUnboundHelper.class);
+        instance.getServiceCtor().getBlock().assignRef(NAME_UNBOUNDHELPER, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerGroupRollupSnapshotUnbound", REF_AGENTINSTANCECONTEXT, ref("this"), member(groupKeyTypes.getMemberId()), constant(forge.getNumStreams())));
 
         CodegenMethodNode generateGroupKeysView = generateGroupKeysViewCodegen(forge, classScope, instance);
         CodegenMethodNode generateOutputEventsView = generateOutputEventsViewCodegen(forge, classScope, instance);
@@ -123,7 +124,7 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
         return new ArrayEventIterator(output);
     }
 
-    static void getIteratorViewUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void getIteratorViewUnboundCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateOutputEventsView = generateOutputEventsViewCodegen(forge, classScope, instance);
 
         method.getBlock().declareVar(EventBean[].class, "output", localMethod(generateOutputEventsView, exprDotMethod(ref(NAME_UNBOUNDHELPER), "getBuffer"), constantTrue(), constantTrue()))

@@ -18,17 +18,21 @@ import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenSymbolProviderEmpty;
 import com.espertech.esper.codegen.compile.CodegenClassGenerator;
-import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
 import com.espertech.esper.codegen.core.*;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.util.CodegenStackGenerator;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.codegen.AggregationServiceCodegenNames;
+import com.espertech.esper.epl.agg.codegen.AggregationServiceFactoryCompiler;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceForgeDesc;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
+import com.espertech.esper.epl.core.orderby.OrderByProcessorFactory;
 import com.espertech.esper.epl.core.resultset.core.*;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCompiler;
@@ -47,15 +51,21 @@ import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorC
 import static com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputConditionType.POLICY_LASTALL_UNORDERED;
 
 public class ResultSetProcessorFactoryCompiler {
-    private final static String INNER_CLASS_NAME = "RSP";
+    private final static Logger log = LoggerFactory.getLogger(ResultSetProcessorFactoryCompiler.class);
 
-    private static Logger log = LoggerFactory.getLogger(ResultSetProcessorFactoryCompiler.class);
+    private final static String CLASSNAME_RESULTSETPROCESSORFACTORY = "RSPFactory";
+    private final static String CLASSNAME_RESULTSETPROCESSOR = "RSP";
+    private final static String MEMBERNAME_RESULTSETPROCESSORFACTORY = "rspFactory";
+    private final static String MEMBERNAME_AGGREGATIONSVCFACTORY = "aggFactory";
 
-    public static ResultSetProcessorFactory allocate(ResultSetProcessorFactoryForge forge, EventType resultEventType, StatementContext stmtContext, boolean isFireAndForget, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, SelectExprProcessorForge[] selectExprProcessorForge, boolean rollup) {
+    public static ResultSetProcessorFactoryDesc allocate(ResultSetProcessorFactoryForge forge, ResultSetProcessorType resultSetProcessorType, EventType resultEventType, StatementContext stmtContext, boolean isFireAndForget, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, SelectExprProcessorForge[] selectExprProcessorForge, boolean rollup, AggregationServiceForgeDesc aggregationServiceForgeDesc, OrderByProcessorFactory orderByProcessorFactory) {
         EngineImportService engineImportService = stmtContext.getEngineImportService();
 
         if (!engineImportService.getCodeGeneration().isEnableResultSet() || isFireAndForget) {
-            return forge.getResultSetProcessorFactory(stmtContext, isFireAndForget);
+            AggregationServiceFactory aggregationServiceFactory = AggregationServiceFactoryCompiler.allocate(aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), stmtContext, isFireAndForget);
+            ResultSetProcessorFactory resultSetProcessorFactory = forge.getResultSetProcessorFactory(stmtContext, isFireAndForget);
+            AggregationServiceFactoryDesc aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(aggregationServiceFactory, aggregationServiceForgeDesc.getExpressions(), aggregationServiceForgeDesc.getGroupKeyExpressions());
+            return new ResultSetProcessorFactoryDesc(resultSetProcessorFactory, resultSetProcessorType, resultEventType, orderByProcessorFactory, aggregationServiceFactoryDesc);
         }
 
         Supplier<String> debugInformationProvider = new Supplier<String>() {
@@ -72,54 +82,95 @@ public class ResultSetProcessorFactoryCompiler {
         };
 
         try {
-            String className = CodeGenerationIDGenerator.generateClassName(ResultSetProcessorFactory.class);
-
             CodegenClassScope classScope = new CodegenClassScope(engineImportService.getCodeGeneration().isIncludeComments());
-
-            CodegenMethodNode instantiateMethod = CodegenMethodNode.makeParentNode(ResultSetProcessor.class, ResultSetProcessorFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                    .addParam(OrderByProcessor.class, NAME_ORDERBYPROCESSOR)
-                    .addParam(AggregationService.class, NAME_AGGREGATIONSVC)
-                    .addParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT);
-            instantiateMethod.getBlock().methodReturn(newInstanceInnerClass(INNER_CLASS_NAME, ref("this"), REF_ORDERBYPROCESSOR, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT));
-            CodegenClassMethods methods = new CodegenClassMethods();
-            CodegenStackGenerator.recursiveBuildStack(instantiateMethod, "instantiate", methods);
-
-            // ctor instantiates select expression processor
-            CodegenCtor factoryCtor = new CodegenCtor(ResultSetProcessorFactoryCompiler.class, classScope, Collections.emptyList());
-            List<CodegenNamedParam> factoryExplicitMembers = new ArrayList<>(2);
-
             List<CodegenInnerClass> innerClasses = new ArrayList<>();
-            makeSelectExprProcessors(rollup, innerClasses, factoryCtor, factoryExplicitMembers, className, classScope, selectExprProcessorForge, stmtContext);
-            innerClasses.add(makeResultSetProcessor(factoryCtor, factoryExplicitMembers, className, classScope, forge, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType));
+            CodegenCtor providerCtor = new CodegenCtor(ResultSetProcessorFactoryCompiler.class, classScope, Collections.emptyList());
+            List<CodegenTypedParam> providerExplicitMembers = new ArrayList<>(2);
+            String providerClassName = CodeGenerationIDGenerator.generateClassName(ResultSetProcessorFactoryProvider.class);
 
-            CodegenStackGenerator.recursiveBuildStack(factoryCtor, "ctor", methods);
+            makeResultSetProcessorFactory(classScope, innerClasses, providerExplicitMembers, providerCtor, providerClassName);
+
+            makeResultSetProcessor(classScope, innerClasses, providerExplicitMembers, providerCtor, providerClassName, forge, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType);
+
+            providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.class, MEMBERNAME_AGGREGATIONSVCFACTORY));
+            if (!engineImportService.getCodeGeneration().isEnableAggregation()) {
+                AggregationServiceFactory factory = aggregationServiceForgeDesc.getAggregationServiceFactoryForge().getAggregationServiceFactory(stmtContext, isFireAndForget);
+                CodegenMember memberAggFactory = classScope.makeAddMember(AggregationServiceFactory.class, factory);
+                providerCtor.getBlock().assignRef(MEMBERNAME_AGGREGATIONSVCFACTORY, member(memberAggFactory.getMemberId()));
+            } else {
+                AggregationServiceFactoryCompiler.makeInnerClasses(aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), classScope, innerClasses, providerClassName, stmtContext, isFireAndForget);
+                providerCtor.getBlock().assignRef(MEMBERNAME_AGGREGATIONSVCFACTORY, newInstanceInnerClass(AggregationServiceCodegenNames.CLASSNAME_AGGREGATIONSERVICEFACTORY, ref("this")));
+            }
+
+            makeSelectExprProcessors(classScope, innerClasses, providerExplicitMembers, providerCtor, providerClassName, rollup, selectExprProcessorForge, stmtContext);
+
+            // make provider methods
+            CodegenMethodNode getResultSetProcessorFactoryMethod = CodegenMethodNode.makeParentNode(ResultSetProcessorFactory.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            getResultSetProcessorFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_RESULTSETPROCESSORFACTORY));
+
+            CodegenMethodNode getAggregationServiceFactoryMethod = CodegenMethodNode.makeParentNode(AggregationServiceFactory.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            getAggregationServiceFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_AGGREGATIONSVCFACTORY));
+
+            CodegenClassMethods methods = new CodegenClassMethods();
+            CodegenStackGenerator.recursiveBuildStack(providerCtor, "ctor", methods);
+            CodegenStackGenerator.recursiveBuildStack(getResultSetProcessorFactoryMethod, "getResultSetProcessorFactory", methods);
+            CodegenStackGenerator.recursiveBuildStack(getAggregationServiceFactoryMethod, "getAggregationServiceFactory", methods);
 
             // render and compile
-            CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ResultSetProcessorFactory.class, className, classScope, factoryExplicitMembers, factoryCtor, methods, innerClasses);
-            return CodegenClassGenerator.compile(clazz, engineImportService, ResultSetProcessorFactory.class, debugInformationProvider);
-        } catch (CodegenCompilerException ex) {
-            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
-            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(ex, debugInformationProvider, fallback);
-            if (fallback) {
-                log.warn(message, ex);
-            } else {
-                log.error(message, ex);
-            }
-            return handleThrowable(stmtContext, ex, forge, debugInformationProvider, isFireAndForget, stmtContext.getStatementName());
+            CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ResultSetProcessorFactoryProvider.class, providerClassName, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            ResultSetProcessorFactoryProvider factoryProvider = CodegenClassGenerator.compile(clazz, engineImportService, ResultSetProcessorFactoryProvider.class, debugInformationProvider);
+            AggregationServiceFactoryDesc aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(factoryProvider.getAggregationServiceFactory(), aggregationServiceForgeDesc.getExpressions(), aggregationServiceForgeDesc.getGroupKeyExpressions());
+            return new ResultSetProcessorFactoryDesc(factoryProvider.getResultSetProcessorFactory(), resultSetProcessorType, resultEventType, orderByProcessorFactory, aggregationServiceFactoryDesc);
         } catch (Throwable t) {
-            return handleThrowable(stmtContext, t, forge, debugInformationProvider, isFireAndForget, stmtContext.getStatementName());
+            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
+            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInformationProvider, fallback);
+            if (fallback) {
+                log.warn(message, t);
+            } else {
+                log.error(message, t);
+            }
+            return handleThrowable(stmtContext, t, forge, debugInformationProvider, isFireAndForget, stmtContext.getStatementName(), resultEventType, orderByProcessorFactory, aggregationServiceForgeDesc, resultSetProcessorType);
         }
     }
 
-    private static CodegenInnerClass makeResultSetProcessor(CodegenCtor factoryCtor, List<CodegenNamedParam> factoryExplicitMembers, String classNameParent, CodegenClassScope classScope, ResultSetProcessorFactoryForge forge, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, EventType resultEventType) {
+    private static void makeResultSetProcessorFactory(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> providerExplicitMembers, CodegenCtor providerCtor, String providerClassName) {
+        CodegenMethodNode instantiateMethod = CodegenMethodNode.makeParentNode(ResultSetProcessor.class, ResultSetProcessorFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
+                .addParam(OrderByProcessor.class, NAME_ORDERBYPROCESSOR)
+                .addParam(AggregationService.class, NAME_AGGREGATIONSVC)
+                .addParam(AgentInstanceContext.class, NAME_AGENTINSTANCECONTEXT);
+        instantiateMethod.getBlock().methodReturn(newInstanceInnerClass(CLASSNAME_RESULTSETPROCESSOR, ref("o"), REF_ORDERBYPROCESSOR, REF_AGGREGATIONSVC, REF_AGENTINSTANCECONTEXT));
+        CodegenClassMethods methods = new CodegenClassMethods();
+        CodegenStackGenerator.recursiveBuildStack(instantiateMethod, "instantiate", methods);
+
+        List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(providerClassName, "o"));
+        CodegenCtor ctor = new CodegenCtor(ResultSetProcessorFactoryCompiler.class, classScope, ctorParams);
+
+        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_RESULTSETPROCESSORFACTORY, ResultSetProcessorFactory.class, ctor, Collections.emptyList(), Collections.emptyMap(), methods);
+        innerClasses.add(innerClass);
+
+        providerExplicitMembers.add(new CodegenTypedParam(ResultSetProcessorFactory.class, "rspFactory"));
+        providerCtor.getBlock().assignRef(MEMBERNAME_RESULTSETPROCESSORFACTORY, newInstanceInnerClass(CLASSNAME_RESULTSETPROCESSORFACTORY, ref("this")));
+    }
+
+    private static void makeResultSetProcessor(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> factoryExplicitMembers, CodegenCtor factoryCtor, String classNameParent, ResultSetProcessorFactoryForge forge, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, EventType resultEventType) {
+
+        List<CodegenTypedParam> ctorParams = new ArrayList<>();
+        ctorParams.add(new CodegenTypedParam(classNameParent, "o"));
+        ctorParams.add(new CodegenTypedParam(OrderByProcessor.class, "orderByProcessor"));
+        ctorParams.add(new CodegenTypedParam(AggregationService.class, "aggregationService"));
+        ctorParams.add(new CodegenTypedParam(AgentInstanceContext.class, "agentInstanceContext"));
+
+        // make ctor code
+        CodegenCtor serviceCtor = new CodegenCtor(ResultSetProcessorFactoryCompiler.class, classScope, ctorParams);
+
         // Get-Result-Type Method
         CodegenMethodNode getResultEventTypeMethod = CodegenMethodNode.makeParentNode(EventType.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         CodegenMember memberResultType = classScope.makeAddMember(EventType.class, resultEventType);
         getResultEventTypeMethod.getBlock().methodReturn(member(memberResultType.getMemberId()));
 
         // Instance members and methods
-        ResultSetProcessorCodegenInstance instance = new ResultSetProcessorCodegenInstance(factoryCtor, factoryExplicitMembers);
-        forge.instanceCodegen(instance, classScope);
+        CodegenInstanceAux instance = new CodegenInstanceAux(serviceCtor);
+        forge.instanceCodegen(instance, classScope, factoryCtor, factoryExplicitMembers);
 
         // Process-View-Result Method
         CodegenMethodNode processViewResultMethod = CodegenMethodNode.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
@@ -138,10 +189,6 @@ public class ResultSetProcessorFactoryCompiler {
         } else {
             forge.processJoinResultCodegen(classScope, processJoinResultMethod, instance);
         }
-
-        // Stop-Method
-        CodegenMethodNode stopMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        forge.stopMethodCodegen(classScope, stopMethod, instance);
 
         // Clear-Method
         CodegenMethodNode clearMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
@@ -165,6 +212,7 @@ public class ResultSetProcessorFactoryCompiler {
             forge.getIteratorJoinCodegen(classScope, getIteratorMethodJoin, instance);
         }
 
+        // Process-output-rate-buffered-view
         CodegenMethodNode processOutputLimitedViewMethod = CodegenMethodNode.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(List.class, NAME_VIEWEVENTSLIST).addParam(boolean.class, NAME_ISSYNTHESIZE);
         if (!join && hasOutputLimit && !hasOutputLimitSnapshot) {
@@ -173,6 +221,7 @@ public class ResultSetProcessorFactoryCompiler {
             processOutputLimitedViewMethod.getBlock().methodThrowUnsupported();
         }
 
+        // Process-output-rate-buffered-join
         CodegenMethodNode processOutputLimitedJoinMethod = CodegenMethodNode.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(List.class, NAME_JOINEVENTSSET).addParam(boolean.class, NAME_ISSYNTHESIZE);
         if (!join || !hasOutputLimit || hasOutputLimitSnapshot) {
@@ -181,11 +230,13 @@ public class ResultSetProcessorFactoryCompiler {
             forge.processOutputLimitedJoinCodegen(classScope, processOutputLimitedJoinMethod, instance);
         }
 
+        // Set-Agent-Instance is supported for fire-and-forget queries only
         CodegenMethodNode setAgentInstanceContextMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(AgentInstanceContext.class, "context");
         // not supported as used only for fire-and-forget queries
         setAgentInstanceContextMethod.getBlock().methodThrowUnsupported();
 
+        // Apply-view
         CodegenMethodNode applyViewResultMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(EventBean[].class, NAME_NEWDATA).addParam(EventBean[].class, NAME_OLDDATA);
         if (!join && hasOutputLimit && hasOutputLimitSnapshot) {
@@ -194,6 +245,7 @@ public class ResultSetProcessorFactoryCompiler {
             applyViewResultMethod.getBlock().methodThrowUnsupported();
         }
 
+        // Apply-join
         CodegenMethodNode applyJoinResultMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(Set.class, NAME_NEWDATA).addParam(Set.class, NAME_OLDDATA);
         if (!join || !hasOutputLimit || !hasOutputLimitSnapshot) {
@@ -202,6 +254,7 @@ public class ResultSetProcessorFactoryCompiler {
             forge.applyJoinResultCodegen(classScope, applyJoinResultMethod, instance);
         }
 
+        // Process-output-unbuffered-view
         CodegenMethodNode processOutputLimitedLastAllNonBufferedViewMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(EventBean[].class, NAME_NEWDATA).addParam(EventBean[].class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
         if (!join && hasOutputLimit && outputConditionType == POLICY_LASTALL_UNORDERED) {
@@ -210,6 +263,7 @@ public class ResultSetProcessorFactoryCompiler {
             processOutputLimitedLastAllNonBufferedViewMethod.getBlock().methodThrowUnsupported();
         }
 
+        // Process-output-unbuffered-join
         CodegenMethodNode processOutputLimitedLastAllNonBufferedJoinMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(Set.class, NAME_NEWDATA).addParam(Set.class, NAME_OLDDATA).addParam(boolean.class, NAME_ISSYNTHESIZE);
         if (!join || !hasOutputLimit || outputConditionType != POLICY_LASTALL_UNORDERED) {
@@ -218,6 +272,7 @@ public class ResultSetProcessorFactoryCompiler {
             forge.processOutputLimitedLastAllNonBufferedJoinCodegen(classScope, processOutputLimitedLastAllNonBufferedJoinMethod, instance);
         }
 
+        // Continue-output-unbuffered-view
         CodegenMethodNode continueOutputLimitedLastAllNonBufferedViewMethod = CodegenMethodNode.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(boolean.class, NAME_ISSYNTHESIZE);
         if (!join && hasOutputLimit && outputConditionType == POLICY_LASTALL_UNORDERED) {
@@ -226,6 +281,7 @@ public class ResultSetProcessorFactoryCompiler {
             continueOutputLimitedLastAllNonBufferedViewMethod.getBlock().methodThrowUnsupported();
         }
 
+        // Continue-output-unbuffered-join
         CodegenMethodNode continueOutputLimitedLastAllNonBufferedJoinMethod = CodegenMethodNode.makeParentNode(UniformPair.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(boolean.class, NAME_ISSYNTHESIZE);
         if (!join || !hasOutputLimit || outputConditionType != POLICY_LASTALL_UNORDERED) {
@@ -234,9 +290,14 @@ public class ResultSetProcessorFactoryCompiler {
             forge.continueOutputLimitedLastAllNonBufferedJoinCodegen(classScope, continueOutputLimitedLastAllNonBufferedJoinMethod, instance);
         }
 
+        // Accept-Helper-Visitor
         CodegenMethodNode acceptHelperVisitorMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope)
-                .addParam(ResultSetProcessorOutputHelperVisitor.class, NAME_VISITOR);
+                .addParam(ResultSetProcessorOutputHelperVisitor.class, NAME_RESULTSETVISITOR);
         forge.acceptHelperVisitorCodegen(classScope, acceptHelperVisitorMethod, instance);
+
+        // Stop-Method (generates last as other methods may allocate members)
+        CodegenMethodNode stopMethod = CodegenMethodNode.makeParentNode(void.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+        forge.stopMethodCodegen(classScope, stopMethod, instance);
 
         CodegenClassMethods innerMethods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(getResultEventTypeMethod, "getResultEventType", innerMethods);
@@ -256,39 +317,19 @@ public class ResultSetProcessorFactoryCompiler {
         CodegenStackGenerator.recursiveBuildStack(continueOutputLimitedLastAllNonBufferedViewMethod, "continueOutputLimitedLastAllNonBufferedView", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(continueOutputLimitedLastAllNonBufferedJoinMethod, "continueOutputLimitedLastAllNonBufferedJoin", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(acceptHelperVisitorMethod, "acceptHelperVisitor", innerMethods);
-        for (Map.Entry<String, CodegenMethodNode> methodEntry : instance.getMethods().entrySet()) {
+        for (Map.Entry<String, CodegenMethodNode> methodEntry : instance.getMethods().getMethods().entrySet()) {
             CodegenStackGenerator.recursiveBuildStack(methodEntry.getValue(), methodEntry.getKey(), innerMethods);
         }
 
-        // compile explicit members
-        List<CodegenNamedParam> explicitMembers = instance.getMembers().isEmpty() ? Collections.emptyList() : new ArrayList<>(instance.getMembers().size());
-        for (ResultSetProcessorMemberEntry member : instance.getMembers()) {
-            explicitMembers.add(new CodegenNamedParam(member.getClazz(), member.getName()));
-        }
-
-        List<CodegenCtorParam> ctorParams = new ArrayList<>();
-        ctorParams.add(new CodegenCtorParam(classNameParent, "o"));
-        ctorParams.add(new CodegenCtorParam(OrderByProcessor.class, "orderByProcessor"));
-        ctorParams.add(new CodegenCtorParam(AggregationService.class, "aggregationService"));
-        ctorParams.add(new CodegenCtorParam(AgentInstanceContext.class, "agentInstanceContext"));
-
-        // make ctor code
-        CodegenCtor ctor = new CodegenCtor(ResultSetProcessorFactoryCompiler.class, classScope, ctorParams);
-        for (ResultSetProcessorMemberEntry member : instance.getMembers()) {
-            ctor.getBlock().assignRef(member.getName(), member.getInitializer());
-        }
-        for (CodegenExpression ctorCode : instance.getCtorExpressions()) {
-            ctor.getBlock().expression(ctorCode);
-        }
-
-        return new CodegenInnerClass(INNER_CLASS_NAME, forge.getInterfaceClass(), ctor, explicitMembers, Collections.emptyMap(), innerMethods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_RESULTSETPROCESSOR, forge.getInterfaceClass(), serviceCtor, instance.getMembers(), Collections.emptyMap(), innerMethods);
+        innerClasses.add(innerClass);
     }
 
-    private static void makeSelectExprProcessors(boolean rollup, List<CodegenInnerClass> innerClasses, CodegenCtor outerClassCtor, List<CodegenNamedParam> explicitMembers, String classNameParent, CodegenClassScope classScope, SelectExprProcessorForge[] forges, StatementContext stmtContext) {
+    private static void makeSelectExprProcessors(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> explicitMembers, CodegenCtor outerClassCtor, String classNameParent, boolean rollup, SelectExprProcessorForge[] forges, StatementContext stmtContext) {
         // handle single-select
         if (!rollup) {
             String name = "SelectExprProcessorImpl";
-            explicitMembers.add(new CodegenNamedParam(SelectExprProcessor.class, "selectExprProcessor"));
+            explicitMembers.add(new CodegenTypedParam(SelectExprProcessor.class, "selectExprProcessor"));
             outerClassCtor.getBlock().assignRef("selectExprProcessor", newInstanceInnerClass(name, ref("this")));
             CodegenInnerClass innerClass = makeSelectExprProcessor(name, classNameParent, classScope, forges[0], stmtContext);
             innerClasses.add(innerClass);
@@ -302,7 +343,7 @@ public class ResultSetProcessorFactoryCompiler {
             CodegenInnerClass innerClass = makeSelectExprProcessor(name, classNameParent, classScope, forge, stmtContext);
             innerClasses.add(innerClass);
         }
-        explicitMembers.add(new CodegenNamedParam(SelectExprProcessor[].class, "selectExprProcessorArray"));
+        explicitMembers.add(new CodegenTypedParam(SelectExprProcessor[].class, "selectExprProcessorArray"));
         outerClassCtor.getBlock().assignRef("selectExprProcessorArray", newArrayByLength(SelectExprProcessor.class, constant(forges.length)));
         for (int i = 0; i < forges.length; i++) {
             outerClassCtor.getBlock().assignArrayElement("selectExprProcessorArray", constant(i), newInstanceInnerClass("SelectExprProcessorImpl" + i, ref("this")));
@@ -313,14 +354,17 @@ public class ResultSetProcessorFactoryCompiler {
         SelectExprProcessorCompilerResult selectClassCode = SelectExprProcessorCompiler.generate(classScope, forge, stmtContext.getEngineImportService(), stmtContext.getEventAdapterService());
         CodegenClassMethods selectClassMethods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(selectClassCode.getTopNode(), "process", selectClassMethods);
-        List<CodegenCtorParam> selectExprCtorParams = Collections.singletonList(new CodegenCtorParam(classNameParent, "o"));
+        List<CodegenTypedParam> selectExprCtorParams = Collections.singletonList(new CodegenTypedParam(classNameParent, "o"));
         CodegenCtor selectExprCtor = new CodegenCtor(ResultSetProcessorFactoryCompiler.class, classScope, selectExprCtorParams);
         return new CodegenInnerClass(className, SelectExprProcessor.class, selectExprCtor, Collections.emptyList(), Collections.emptyMap(), selectClassMethods);
     }
 
-    private static ResultSetProcessorFactory handleThrowable(StatementContext statementContext, Throwable t, ResultSetProcessorFactoryForge forge, Supplier<String> debugInformationProvider, boolean isFireAndForget, String statementName) {
+    private static ResultSetProcessorFactoryDesc handleThrowable(StatementContext statementContext, Throwable t, ResultSetProcessorFactoryForge forge, Supplier<String> debugInformationProvider, boolean isFireAndForget, String statementName, EventType resultEventType, OrderByProcessorFactory orderByProcessorFactory, AggregationServiceForgeDesc aggregationServiceForgeDesc, ResultSetProcessorType resultSetProcessorType) {
         if (statementContext.getEngineImportService().getCodeGeneration().isEnableFallback()) {
-            return forge.getResultSetProcessorFactory(statementContext, isFireAndForget);
+            AggregationServiceFactory aggregationServiceFactory = aggregationServiceForgeDesc.getAggregationServiceFactoryForge().getAggregationServiceFactory(statementContext, isFireAndForget);
+            ResultSetProcessorFactory resultSetProcessorFactory = forge.getResultSetProcessorFactory(statementContext, isFireAndForget);
+            AggregationServiceFactoryDesc aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(aggregationServiceFactory, aggregationServiceForgeDesc.getExpressions(), aggregationServiceForgeDesc.getGroupKeyExpressions());
+            return new ResultSetProcessorFactoryDesc(resultSetProcessorFactory, resultSetProcessorType, resultEventType, orderByProcessorFactory, aggregationServiceFactoryDesc);
         }
         throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " (see error log for further details): " + t.getMessage(), t);
     }

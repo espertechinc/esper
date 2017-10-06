@@ -16,14 +16,11 @@ import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.client.util.ClassLoaderProvider;
 import com.espertech.esper.codegen.compile.CodegenCompiler;
-import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
-import com.espertech.esper.util.MethodResolverNoSuchCtorException;
-import com.espertech.esper.util.MethodResolverNoSuchMethodException;
 import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
@@ -39,9 +36,7 @@ import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
 import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.type.MinMaxTypeEnum;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MethodResolver;
-import com.espertech.esper.util.TransientConfigurationResolver;
+import com.espertech.esper.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -729,13 +724,11 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     }
 
     private void logCodegenGetter(Throwable t, Supplier<String> debugInfo) {
-        if (t instanceof CodegenCompilerException) {
-            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode((CodegenCompilerException) t, debugInfo, codeGeneration.isEnableFallback());
-            if (codeGeneration.isEnableFallback()) {
-                log.warn(message, t);
-            } else {
-                log.error(message, t);
-            }
+        String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInfo, codeGeneration.isEnableFallback());
+        if (codeGeneration.isEnableFallback()) {
+            log.warn(message, t);
+        } else {
+            log.error(message, t);
         }
     }
 

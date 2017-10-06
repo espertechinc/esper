@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.agg.util;
 
-import com.espertech.esper.epl.agg.service.AggregationServiceAggExpressionDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceAggExpressionDesc;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.util.List;

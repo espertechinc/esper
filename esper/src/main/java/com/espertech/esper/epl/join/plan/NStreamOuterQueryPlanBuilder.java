@@ -657,5 +657,5 @@ public class NStreamOuterQueryPlanBuilder {
         return buf.toString();
     }
 
-    private static Logger log = LoggerFactory.getLogger(NStreamOuterQueryPlanBuilder.class);
+    private final static Logger log = LoggerFactory.getLogger(NStreamOuterQueryPlanBuilder.class);
 }

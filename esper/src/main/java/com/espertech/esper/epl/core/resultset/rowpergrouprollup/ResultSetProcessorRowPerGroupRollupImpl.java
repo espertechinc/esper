@@ -16,6 +16,7 @@ import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.core.CodegenNamedParam;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.ArrayEventIterator;
@@ -24,12 +25,11 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.orderby.OrderByElement;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputHelperVisitor;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorUtil;
@@ -179,7 +179,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return ResultSetProcessorUtil.toPairNullIfAllNull(selectNewEvents, selectOldEvents);
     }
 
-    static void processJoinResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void processJoinResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         addEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFJOIN, forge, instance, method, classScope);
         CodegenMethodNode resetEventPerGroupJoinBuf = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFJOIN, classScope, instance);
         CodegenMethodNode generateGroupKeysJoin = generateGroupKeysJoinCodegen(forge, classScope, instance);
@@ -223,7 +223,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return ResultSetProcessorUtil.toPairNullIfAllNull(selectNewEvents, selectOldEvents);
     }
 
-    static void processViewResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void processViewResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         addEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFVIEW, forge, instance, method, classScope);
         CodegenMethodNode resetEventPerGroupBufView = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFVIEW, classScope, instance);
         CodegenMethodNode generateGroupKeysView = generateGroupKeysViewCodegen(forge, classScope, instance);
@@ -239,10 +239,11 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                 .methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
-    private static void addEventPerGroupBufCodegen(String memberName, ResultSetProcessorRowPerGroupRollupForge forge, ResultSetProcessorCodegenInstance instance, CodegenMethodNode method, CodegenClassScope classScope) {
+    private static void addEventPerGroupBufCodegen(String memberName, ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenMethodNode method, CodegenClassScope classScope) {
         if (!instance.hasMember(memberName)) {
             CodegenMethodNode init = method.makeChild(LinkedHashMap[].class, ResultSetProcessorRowPerGroupRollupImpl.class, classScope);
-            instance.addMember(memberName, LinkedHashMap[].class, localMethod(init));
+            instance.addMember(memberName, LinkedHashMap[].class);
+            instance.getServiceCtor().getBlock().assignRef(memberName, localMethod(init));
             int levelCount = forge.getGroupByRollupDesc().getLevels().length;
             init.getBlock().declareVar(LinkedHashMap[].class, memberName, newArrayByLength(LinkedHashMap.class, constant(levelCount)))
                     .forLoopIntSimple("i", constant(levelCount))
@@ -303,7 +304,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return outgoing;
     }
 
-    static CodegenMethodNode generateOutputEventsViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    static CodegenMethodNode generateOutputEventsViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMember orderByElements = classScope.makeAddMember(OrderByElement[][].class, forge.getPerLevelForges().getOptionalOrderByElements());
 
         Consumer<CodegenMethodNode> code = methodNode -> {
@@ -344,7 +345,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("outgoing"));
         };
 
-        return instance.addMethod(EventBean[].class, "generateOutputEventsView",
+        return instance.getMethods().addMethod(EventBean[].class, "generateOutputEventsView",
                 CodegenNamedParam.from(Map[].class, "keysAndEvents", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
@@ -396,7 +397,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return outgoing;
     }
 
-    private static CodegenMethodNode generateOutputEventsJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode generateOutputEventsJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMember orderByElements = classScope.makeAddMember(OrderByElement[][].class, forge.getPerLevelForges().getOptionalOrderByElements());
 
         Consumer<CodegenMethodNode> code = methodNode -> {
@@ -435,7 +436,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("outgoing"));
         };
 
-        return instance.addMethod(EventBean[].class, "generateOutputEventsJoin",
+        return instance.getMethods().addMethod(EventBean[].class, "generateOutputEventsJoin",
                 CodegenNamedParam.from(Map[].class, "eventPairs", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
@@ -464,7 +465,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return deque.iterator();
     }
 
-    static void getIteratorViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void getIteratorViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (!forge.isHistoricalOnly()) {
             method.getBlock().methodReturn(localMethod(obtainIteratorCodegen(forge, classScope, method, instance), REF_VIEWABLE));
             return;
@@ -502,7 +503,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return new ArrayEventIterator(output);
     }
 
-    private static CodegenMethodNode obtainIteratorCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode parent, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode obtainIteratorCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode parent, CodegenInstanceAux instance) {
         CodegenMethodNode resetEventPerGroupBufView = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFVIEW, classScope, instance);
         CodegenMethodNode generateGroupKeysView = generateGroupKeysViewCodegen(forge, classScope, instance);
         CodegenMethodNode generateOutputEventsView = generateOutputEventsViewCodegen(forge, classScope, instance);
@@ -523,7 +524,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return new ArrayEventIterator(output);
     }
 
-    static void getIteratorJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void getIteratorJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeysJoin = generateGroupKeysJoinCodegen(forge, classScope, instance);
         CodegenMethodNode generateOutputEventsJoin = generateOutputEventsJoinCodegen(forge, classScope, instance);
         CodegenMethodNode resetEventPerGroupBuf = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFJOIN, classScope, instance);
@@ -553,7 +554,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return handleOutputLimitLastJoin(joinEventsSet, generateSynthetic);
     }
 
-    public static void processOutputLimitedJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         OutputLimitLimitType outputLimitLimitType = forge.getOutputLimitSpec().getDisplayLimit();
         if (outputLimitLimitType == OutputLimitLimitType.DEFAULT) {
             handleOutputLimitDefaultJoinCodegen(forge, classScope, method, instance);
@@ -580,7 +581,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return handleOutputLimitLastView(viewEventsList, generateSynthetic);
     }
 
-    static void processOutputLimitedViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void processOutputLimitedViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         OutputLimitLimitType outputLimitLimitType = forge.getOutputLimitSpec().getDisplayLimit();
         if (outputLimitLimitType == OutputLimitLimitType.DEFAULT) {
             handleOutputLimitDefaultViewCodegen(forge, classScope, method, instance);
@@ -609,16 +610,16 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    static void acceptHelperVisitorCodegen(CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void acceptHelperVisitorCodegen(CodegenMethodNode method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
-            method.getBlock().exprDotMethod(REF_VISITOR, "visit", ref(NAME_OUTPUTLASTHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTLASTHELPER));
         }
         if (instance.hasMember(NAME_OUTPUTALLHELPER)) {
-            method.getBlock().exprDotMethod(REF_VISITOR, "visit", ref(NAME_OUTPUTALLHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTALLHELPER));
         }
         if (instance.hasMember(NAME_OUTPUTFIRSTHELPERS)) {
             method.getBlock().forEach(ResultSetProcessorGroupedOutputFirstHelper.class, "helper", ref(NAME_OUTPUTFIRSTHELPERS))
-                    .exprDotMethod(REF_VISITOR, "visit", ref("helper"));
+                    .exprDotMethod(REF_RESULTSETVISITOR, "visit", ref("helper"));
         }
     }
 
@@ -640,8 +641,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, count);
     }
 
-    private static void handleOutputLimitFirstViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
+    private static void handleOutputLimitFirstViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
+        initGroupRepsPerLevelBufCodegen(instance, forge);
         CodegenMethodNode generateAndSort = generateAndSortCodegen(forge, classScope, instance);
 
         method.getBlock().forEach(Map.class, "aGroupRepsView", ref(NAME_GROUPREPSPERLEVELBUF))
@@ -679,8 +680,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, count);
     }
 
-    private static void handleOutputLimitFirstJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
+    private static void handleOutputLimitFirstJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
+        initGroupRepsPerLevelBufCodegen(instance, forge);
         CodegenMethodNode generateAndSort = generateAndSortCodegen(forge, classScope, instance);
 
         method.getBlock().forEach(Map.class, "aGroupRepsView", ref(NAME_GROUPREPSPERLEVELBUF))
@@ -804,18 +805,14 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return count;
     }
 
-    private static CodegenMethodNode handleOutputLimitFirstViewHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode handleOutputLimitFirstViewHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
-        instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
-
-        CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
-        CodegenMember groupKeyTypes = classScope.makeAddMember(Class[].class, forge.getGroupKeyTypes());
+        initGroupRepsPerLevelBufCodegen(instance, forge);
+        initRStreamEventsSortArrayBufCodegen(instance, forge);
         CodegenMember outputFactory = classScope.makeAddMember(OutputConditionPolledFactory.class, forge.getOptionalOutputFirstConditionFactory());
-        instance.addMember(NAME_OUTPUTFIRSTHELPERS, ResultSetProcessorGroupedOutputFirstHelper[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, "initializeOutputFirstHelpers", member(factory.getMemberId()),
-                REF_AGENTINSTANCECONTEXT, member(groupKeyTypes.getMemberId()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), member(outputFactory.getMemberId())));
+        initOutputFirstHelpers(instance, forge, classScope, outputFactory);
 
         Consumer<CodegenMethodNode> code = methodNode -> {
 
@@ -871,7 +868,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                     }
@@ -892,7 +889,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                     }
@@ -902,7 +899,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("count"));
         };
 
-        return instance.addMethod(int.class, "handleOutputLimitFirstViewHaving",
+        return instance.getMethods().addMethod(int.class, "handleOutputLimitFirstViewHaving",
                 CodegenNamedParam.from(List.class, "viewEventsList", boolean.class, NAME_ISSYNTHESIZE, List[].class, "oldEventsPerLevel", List[].class, "oldEventsSortKeyPerLevel"),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -967,18 +964,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return oldEventCount;
     }
 
-    private static CodegenMethodNode handleOutputLimitFirstJoinNoHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode handleOutputLimitFirstJoinNoHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
-        instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+        initGroupRepsPerLevelBufCodegen(instance, forge);
+        initRStreamEventsSortArrayBufCodegen(instance, forge);
 
-        CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
-        CodegenMember groupKeyTypes = classScope.makeAddMember(Class[].class, forge.getGroupKeyTypes());
         CodegenMember outputFactory = classScope.makeAddMember(OutputConditionPolledFactory.class, forge.getOptionalOutputFirstConditionFactory());
-        instance.addMember(NAME_OUTPUTFIRSTHELPERS, ResultSetProcessorGroupedOutputFirstHelper[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, "initializeOutputFirstHelpers", member(factory.getMemberId()),
-                REF_AGENTINSTANCECONTEXT, member(groupKeyTypes.getMemberId()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), member(outputFactory.getMemberId())));
+        initOutputFirstHelpers(instance, forge, classScope, outputFactory);
 
         Consumer<CodegenMethodNode> code = methodNode -> {
 
@@ -1007,7 +1001,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                         forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1028,7 +1022,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                         forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1039,7 +1033,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("count"));
         };
 
-        return instance.addMethod(int.class, "handleOutputLimitFirstJoinNoHaving",
+        return instance.getMethods().addMethod(int.class, "handleOutputLimitFirstJoinNoHaving",
                 CodegenNamedParam.from(List.class, NAME_JOINEVENTSSET, boolean.class, NAME_ISSYNTHESIZE, List[].class, "oldEventsPerLevel", List[].class, "oldEventsSortKeyPerLevel"),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -1146,18 +1140,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return count;
     }
 
-    private static CodegenMethodNode handleOutputLimitFirstJoinHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode handleOutputLimitFirstJoinHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
-        instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+        initGroupRepsPerLevelBufCodegen(instance, forge);
+        initRStreamEventsSortArrayBufCodegen(instance, forge);
 
-        CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
-        CodegenMember groupKeyTypes = classScope.makeAddMember(Class[].class, forge.getGroupKeyTypes());
         CodegenMember outputFactory = classScope.makeAddMember(OutputConditionPolledFactory.class, forge.getOptionalOutputFirstConditionFactory());
-        instance.addMember(NAME_OUTPUTFIRSTHELPERS, ResultSetProcessorGroupedOutputFirstHelper[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, "initializeOutputFirstHelpers", member(factory.getMemberId()),
-                REF_AGENTINSTANCECONTEXT, member(groupKeyTypes.getMemberId()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), member(outputFactory.getMemberId())));
+        initOutputFirstHelpers(instance, forge, classScope, outputFactory);
 
         Consumer<CodegenMethodNode> code = methodNode -> {
 
@@ -1212,7 +1203,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                     }
@@ -1233,7 +1224,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                     }
@@ -1243,7 +1234,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("count"));
         };
 
-        return instance.addMethod(int.class, "handleOutputLimitFirstJoinHaving",
+        return instance.getMethods().addMethod(int.class, "handleOutputLimitFirstJoinHaving",
                 CodegenNamedParam.from(List.class, NAME_JOINEVENTSSET, boolean.class, NAME_ISSYNTHESIZE, List[].class, "oldEventsPerLevel", List[].class, "oldEventsSortKeyPerLevel"),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -1308,18 +1299,15 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return count;
     }
 
-    private static CodegenMethodNode handleOutputLimitFirstViewNoHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode handleOutputLimitFirstViewNoHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
-        instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+        initGroupRepsPerLevelBufCodegen(instance, forge);
+        initRStreamEventsSortArrayBufCodegen(instance, forge);
 
-        CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
-        CodegenMember groupKeyTypes = classScope.makeAddMember(Class[].class, forge.getGroupKeyTypes());
         CodegenMember outputFactory = classScope.makeAddMember(OutputConditionPolledFactory.class, forge.getOptionalOutputFirstConditionFactory());
-        instance.addMember(NAME_OUTPUTFIRSTHELPERS, ResultSetProcessorGroupedOutputFirstHelper[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, "initializeOutputFirstHelpers", member(factory.getMemberId()),
-                REF_AGENTINSTANCECONTEXT, member(groupKeyTypes.getMemberId()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), member(outputFactory.getMemberId())));
+        initOutputFirstHelpers(instance, forge, classScope, outputFactory);
 
         Consumer<CodegenMethodNode> code = methodNode -> {
 
@@ -1348,7 +1336,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                         forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1369,7 +1357,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                             CodegenBlock putBlock = passBlock.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                             if (forge.isSelectRStream()) {
                                 putBlock.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEventsPerLevel"), ref("oldEventsSortKeyPerLevel"))
-                                        .expression(increment("count"));
+                                        .increment("count");
                             }
                         }
                         forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1380,7 +1368,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("count"));
         };
 
-        return instance.addMethod(int.class, "handleOutputLimitFirstNoViewHaving",
+        return instance.getMethods().addMethod(int.class, "handleOutputLimitFirstNoViewHaving",
                 CodegenNamedParam.from(List.class, "viewEventsList", boolean.class, NAME_ISSYNTHESIZE, List[].class, "oldEventsPerLevel", List[].class, "oldEventsSortKeyPerLevel"),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -1423,7 +1411,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return ResultSetProcessorUtil.finalizeOutputMaySortMayRStream(newEvents, newEventsSortKey, oldEvents, oldEventsSortKey, prototype.isSelectRStream(), orderByProcessor, agentInstanceContext);
     }
 
-    private static void handleOutputLimitDefaultViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void handleOutputLimitDefaultViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateOutputBatchedCollectView = generateOutputBatchedCollectViewCodegen(forge, classScope, instance);
         CodegenMethodNode generateGroupKeysView = generateGroupKeysViewCodegen(forge, classScope, instance);
         CodegenMethodNode resetEventPerGroupBufView = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFVIEW, classScope, instance);
@@ -1487,7 +1475,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return ResultSetProcessorUtil.finalizeOutputMaySortMayRStream(newEvents, newEventsSortKey, oldEvents, oldEventsSortKey, prototype.isSelectRStream(), orderByProcessor, agentInstanceContext);
     }
 
-    private static void handleOutputLimitDefaultJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void handleOutputLimitDefaultJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateOutputBatchedCollectJoin = generateOutputBatchedCollectJoinCodegen(forge, classScope, instance);
         CodegenMethodNode generateGroupKeysJoin = generateGroupKeysJoinCodegen(forge, classScope, instance);
         CodegenMethodNode resetEventPerGroupBufJoin = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFJOIN, classScope, instance);
@@ -1517,9 +1505,9 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         throw new UnsupportedOperationException();
     }
 
-    static void removedAggregationGroupKeyCodegen(CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    static void removedAggregationGroupKeyCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = method -> method.getBlock().methodThrowUnsupported();
-        instance.addMethod(void.class, "removedAggregationGroupKey", CodegenNamedParam.from(Object.class, "key"), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
+        instance.getMethods().addMethod(void.class, "removedAggregationGroupKey", CodegenNamedParam.from(Object.class, "key"), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
     }
 
     public Object generateGroupKeySingle(EventBean[] eventsPerStream, boolean isNewData) {
@@ -1559,7 +1547,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         generateOutputBatched(join, mk, level, eventsPerStream, isNewData, isSynthesize, resultList, sortKeys);
     }
 
-    private static CodegenMethodNode generateOutputBatchedGivenArrayCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode generateOutputBatchedGivenArrayCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateOutputBatched = generateOutputBatchedCodegen(forge, instance, classScope);
         Consumer<CodegenMethodNode> code = methodNode -> methodNode.getBlock().declareVar(List.class, "resultList", arrayAtIndex(ref("resultEvents"), exprDotMethod(ref("level"), "getLevelNumber")))
                 .declareVarNoInit(List.class, "sortKeys")
@@ -1569,7 +1557,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                 .assignRef("sortKeys", arrayAtIndex(ref("optSortKeys"), exprDotMethod(ref("level"), "getLevelNumber")))
                 .blockEnd()
                 .localMethod(generateOutputBatched, ref("join"), ref("mk"), ref("level"), ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, ref("resultList"), ref("sortKeys"));
-        return instance.addMethod(void.class, "generateOutputBatchedGivenArrayCodegen",
+        return instance.getMethods().addMethod(void.class, "generateOutputBatchedGivenArrayCodegen",
                 CodegenNamedParam.from(boolean.class, "join", Object.class, "mk", AggregationGroupByRollupLevel.class, "level", EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List[].class, "resultEvents", List[].class, "optSortKeys"),
                 ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
@@ -1599,7 +1587,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    static CodegenMethodNode generateOutputBatchedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, ResultSetProcessorCodegenInstance instance, CodegenClassScope classScope) {
+    static CodegenMethodNode generateOutputBatchedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenClassScope classScope) {
         CodegenMember orderByElements = classScope.makeAddMember(OrderByElement[][].class, forge.getPerLevelForges().getOptionalOrderByElements());
 
         Consumer<CodegenMethodNode> code = methodNode -> {
@@ -1617,7 +1605,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                 methodNode.getBlock().exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, orderByEle));
             }
         };
-        return instance.addMethod(void.class, "generateOutputBatched",
+        return instance.getMethods().addMethod(void.class, "generateOutputBatched",
                 CodegenNamedParam.from(boolean.class, "join", Object.class, "mk", AggregationGroupByRollupLevel.class, "level", EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "resultEvents", List.class, "optSortKeys"),
                 ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
@@ -1643,7 +1631,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         resultEvents.put(mk, prototype.getPerLevelExpression().getSelectExprProcessor()[level.getLevelNumber()].process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext));
     }
 
-    static void generateOutputBatchedMapUnsortedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, ResultSetProcessorCodegenInstance instance, CodegenClassScope classScope) {
+    static void generateOutputBatchedMapUnsortedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenClassScope classScope) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"));
 
@@ -1656,7 +1644,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().exprDotMethod(ref("resultEvents"), "put", ref("mk"), exprDotMethod(selectExprProcessor, "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
         };
 
-        instance.addMethod(void.class, "generateOutputBatchedMapUnsorted",
+        instance.getMethods().addMethod(void.class, "generateOutputBatchedMapUnsorted",
                 CodegenNamedParam.from(boolean.class, "join", Object.class, "mk", AggregationGroupByRollupLevel.class, "level", EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, Map.class, "resultEvents"),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -1718,11 +1706,11 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, count);
     }
 
-    private static void handleOutputLimitLastViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void handleOutputLimitLastViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (forge.isSelectRStream()) {
-            instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+            initRStreamEventsSortArrayBufCodegen(instance, forge);
         }
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
+        initGroupRepsPerLevelBufCodegen(instance, forge);
 
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
@@ -1757,7 +1745,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1775,7 +1763,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1843,11 +1831,11 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, count);
     }
 
-    private static void handleOutputLimitLastJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void handleOutputLimitLastJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (forge.isSelectRStream()) {
-            instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+            initRStreamEventsSortArrayBufCodegen(instance, forge);
         }
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
+        initGroupRepsPerLevelBufCodegen(instance, forge);
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
@@ -1881,7 +1869,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1899,7 +1887,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -1971,13 +1959,13 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, count);
     }
 
-    private static void handleOutputLimitAllViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
+    private static void handleOutputLimitAllViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
+        initGroupRepsPerLevelBufCodegen(instance, forge);
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         if (forge.isSelectRStream()) {
-            instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+            initRStreamEventsSortArrayBufCodegen(instance, forge);
         }
         CodegenMethodNode generateAndSort = generateAndSortCodegen(forge, classScope, instance);
 
@@ -1988,7 +1976,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                     .declareVar(Map.class, "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
                     .forEach(Map.Entry.class, "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
                     .localMethod(generateOutputBatchedGivenArray, constantFalse(), exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("entry"), "getValue")), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                    .expression(increment("count"));
+                    .increment("count");
         }
 
         {
@@ -2011,7 +1999,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -2029,7 +2017,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -2102,13 +2090,13 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, count);
     }
 
-    private static void handleOutputLimitAllJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void handleOutputLimitAllJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
-        instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
+        initGroupRepsPerLevelBufCodegen(instance, forge);
         if (forge.isSelectRStream()) {
-            instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+            initRStreamEventsSortArrayBufCodegen(instance, forge);
         }
         CodegenMethodNode generateAndSort = generateAndSortCodegen(forge, classScope, instance);
 
@@ -2119,7 +2107,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                     .declareVar(Map.class, "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
                     .forEach(Map.Entry.class, "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
                     .localMethod(generateOutputBatchedGivenArray, constantFalse(), exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("entry"), "getValue")), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                    .expression(increment("count"));
+                    .increment("count");
         }
 
         {
@@ -2142,7 +2130,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantTrue(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forNew.exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -2160,7 +2148,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         CodegenBlock ifNullPut = forLevel.ifCondition(equalsNull(exprDotMethod(arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), levelNumber), "put", ref("groupKey"), ref("eventsPerStream"))));
                         if (forge.isSelectRStream()) {
                             ifNullPut.localMethod(generateOutputBatchedGivenArray, constantFalse(), ref("groupKey"), ref("level"), ref("eventsPerStream"), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
-                                    .expression(increment("count"));
+                                    .increment("count");
                         }
                     }
                     forOld.exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("groupKeysPerLevel"), REF_AGENTINSTANCECONTEXT);
@@ -2183,7 +2171,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    private static CodegenMethodNode generateOutputBatchedCollectViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode generateOutputBatchedCollectViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
 
         CodegenMethodNode generateOutputBatched = generateOutputBatchedCodegen(forge, instance, classScope);
 
@@ -2198,7 +2186,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             }
         };
 
-        return instance.addMethod(void.class, "generateOutputBatchedCollectView",
+        return instance.getMethods().addMethod(void.class, "generateOutputBatchedCollectView",
                 CodegenNamedParam.from(Map[].class, "eventPairs", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "events", List.class, "sortKey", EventBean[].class, "eventsPerStream"),
                 ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
@@ -2214,7 +2202,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    private static CodegenMethodNode generateOutputBatchedCollectJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode generateOutputBatchedCollectJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
 
         CodegenMethodNode generateOutputBatched = generateOutputBatchedCodegen(forge, instance, classScope);
 
@@ -2228,7 +2216,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             }
         };
 
-        return instance.addMethod(void.class, "generateOutputBatchedCollectJoin",
+        return instance.getMethods().addMethod(void.class, "generateOutputBatchedCollectJoin",
                 CodegenNamedParam.from(Map[].class, "eventPairs", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "events", List.class, "sortKey"),
                 ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
@@ -2239,11 +2227,11 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    private static CodegenMethodNode resetEventPerGroupBufCodegen(String memberName, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode resetEventPerGroupBufCodegen(String memberName, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> methodNode.getBlock().forEach(LinkedHashMap.class, "anEventPerGroupBuf", ref(memberName))
                 .exprDotMethod(ref("anEventPerGroupBuf"), "clear");
 
-        return instance.addMethod(void.class, "resetEventPerGroupBuf", Collections.emptyList(), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
+        return instance.getMethods().addMethod(void.class, "resetEventPerGroupBuf", Collections.emptyList(), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
     private void resetEventPerGroupBufJoin() {
@@ -2275,7 +2263,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return result;
     }
 
-    static CodegenMethodNode generateGroupKeysViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    static CodegenMethodNode generateGroupKeysViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().ifRefNullReturnNull("events")
@@ -2298,7 +2286,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("result"));
         };
 
-        return instance.addMethod(Object[][].class, "generateGroupKeysView",
+        return instance.getMethods().addMethod(Object[][].class, "generateGroupKeysView",
                 CodegenNamedParam.from(EventBean[].class, "events", Map[].class, "eventPerKey", boolean.class, NAME_ISNEWDATA), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
@@ -2326,7 +2314,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return result;
     }
 
-    private static CodegenMethodNode generateGroupKeysJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode generateGroupKeysJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().ifCondition(or(equalsNull(ref("events")), exprDotMethod(ref("events"), "isEmpty"))).blockReturn(constantNull())
@@ -2335,7 +2323,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                     .declareVar(int.class, "count", constant(-1));
             {
                 CodegenBlock forLoop = methodNode.getBlock().forEach(MultiKey.class, "eventrow", ref("events"));
-                forLoop.expression(increment("count"))
+                forLoop.increment("count")
                         .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("eventrow"), "getArray")))
                         .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), REF_ISNEWDATA))
                         .assignArrayElement("result", ref("count"), newArrayByLength(Object.class, arrayLength(ref("levels"))));
@@ -2350,7 +2338,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(ref("result"));
         };
 
-        return instance.addMethod(Object[][].class, "generateGroupKeysJoin",
+        return instance.getMethods().addMethod(Object[][].class, "generateGroupKeysJoin",
                 CodegenNamedParam.from(Set.class, "events", Map[].class, "eventPerKey", boolean.class, NAME_ISNEWDATA), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
@@ -2389,7 +2377,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return ResultSetProcessorUtil.toPairNullIfAllNull(newEventsArr, oldEventsArr);
     }
 
-    private static CodegenMethodNode generateAndSortCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode generateAndSortCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateOutputBatched = generateOutputBatchedCodegen(forge, instance, classScope);
 
         Consumer<CodegenMethodNode> code = methodNode -> {
@@ -2424,7 +2412,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("newEventsArr"), ref("oldEventsArr")));
         };
 
-        return instance.addMethod(UniformPair.class, "generateAndSort",
+        return instance.getMethods().addMethod(UniformPair.class, "generateAndSort",
                 CodegenNamedParam.from(Map[].class, "outputLimitGroupRepsPerLevel", boolean.class, NAME_ISSYNTHESIZE, int.class, "oldEventCount"),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -2447,7 +2435,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    static void applyViewResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void applyViewResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeysRow = generateGroupKeysRowCodegen(forge, classScope, instance);
 
         method.getBlock().declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)));
@@ -2489,7 +2477,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    public static void applyJoinResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void applyJoinResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeysRow = generateGroupKeysRowCodegen(forge, classScope, instance);
 
         method.getBlock().declareVarNoInit(EventBean[].class, "eventsPerStream");
@@ -2521,19 +2509,21 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    static void processOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void processOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         processOutputLimitedLastAllNonBufferedCodegen(forge, "processView", classScope, method, instance);
     }
 
-    private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, String methodName, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, String methodName, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
         CodegenMember groupKeyTypes = classScope.makeAddMember(Class[].class, forge.getGroupKeyTypes());
 
         if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
-            instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorRowPerGroupRollupOutputAllHelper.class, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerGroupRollupAll", REF_AGENTINSTANCECONTEXT, ref("this"), member(groupKeyTypes.getMemberId()), constant(forge.getNumStreams())));
+            instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorRowPerGroupRollupOutputAllHelper.class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerGroupRollupAll", REF_AGENTINSTANCECONTEXT, ref("this"), member(groupKeyTypes.getMemberId()), constant(forge.getNumStreams())));
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
-            instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorRowPerGroupRollupOutputLastHelper.class, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerGroupRollupLast", REF_AGENTINSTANCECONTEXT, ref("this"), member(groupKeyTypes.getMemberId()), constant(forge.getNumStreams())));
+            instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorRowPerGroupRollupOutputLastHelper.class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(member(factory.getMemberId()), "makeRSRowPerGroupRollupLast", REF_AGENTINSTANCECONTEXT, ref("this"), member(groupKeyTypes.getMemberId()), constant(forge.getNumStreams())));
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }
@@ -2546,7 +2536,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    public static void processOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         processOutputLimitedLastAllNonBufferedCodegen(forge, "processJoin", classScope, method, instance);
     }
 
@@ -2598,7 +2588,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
     }
 
-    static void stopMethodCodegen(CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    static void stopMethodCodegenBound(CodegenMethodNode method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "destroy");
         }
@@ -2622,7 +2612,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         return result;
     }
 
-    private static CodegenMethodNode generateGroupKeysRowCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    private static CodegenMethodNode generateGroupKeysRowCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
 
         Consumer<CodegenMethodNode> code = methodNode -> methodNode.getBlock().declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), REF_ISNEWDATA))
@@ -2634,7 +2624,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                 .blockEnd()
                 .methodReturn(ref("result"));
 
-        return instance.addMethod(Object[].class, "generateGroupKeysRow", CodegenNamedParam.from(EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA), ResultSetProcessorUtil.class, classScope, code);
+        return instance.getMethods().addMethod(Object[].class, "generateGroupKeysRow", CodegenNamedParam.from(EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA), ResultSetProcessorUtil.class, classScope, code);
     }
 
     public ExprEvaluatorContext getAgentInstanceContext() {
@@ -2647,5 +2637,29 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
 
     public AggregationGroupByRollupDesc getGroupByRollupDesc() {
         return prototype.getGroupByRollupDesc();
+    }
+
+    private static void initGroupRepsPerLevelBufCodegen(CodegenInstanceAux instance, ResultSetProcessorRowPerGroupRollupForge forge) {
+        if (!instance.hasMember(NAME_GROUPREPSPERLEVELBUF)) {
+            instance.addMember(NAME_GROUPREPSPERLEVELBUF, Map[].class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_GROUPREPSPERLEVELBUF, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKEGROUPREPSPERLEVELBUF, constant(forge.getGroupByRollupDesc().getLevels().length)));
+        }
+    }
+
+    private static void initRStreamEventsSortArrayBufCodegen(CodegenInstanceAux instance, ResultSetProcessorRowPerGroupRollupForge forge) {
+        if (!instance.hasMember(NAME_RSTREAMEVENTSORTARRAYBUF)) {
+            instance.addMember(NAME_RSTREAMEVENTSORTARRAYBUF, EventArrayAndSortKeyArray.class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_RSTREAMEVENTSORTARRAYBUF, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, METHOD_MAKERSTREAMSORTEDARRAYBUF, constant(forge.getGroupByRollupDesc().getLevels().length), constant(forge.isSorting())));
+        }
+    }
+
+    private static void initOutputFirstHelpers(CodegenInstanceAux instance, ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMember outputFactory) {
+        if (!instance.hasMember(NAME_OUTPUTFIRSTHELPERS)) {
+            CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
+            CodegenMember groupKeyTypes = classScope.makeAddMember(Class[].class, forge.getGroupKeyTypes());
+            instance.addMember(NAME_OUTPUTFIRSTHELPERS, ResultSetProcessorGroupedOutputFirstHelper[].class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPERS, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, "initializeOutputFirstHelpers", member(factory.getMemberId()),
+                    REF_AGENTINSTANCECONTEXT, member(groupKeyTypes.getMemberId()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), member(outputFactory.getMemberId())));
+        }
     }
 }

@@ -17,7 +17,6 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.NullIterator;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.io.StringWriter;
@@ -72,10 +71,10 @@ public class CollectionUtil {
         };
     }
 
-    public static Comparator<Object> getComparator(ExprNode[] sortCriteria, ExprEvaluator[] sortCriteriaEvaluators, boolean isSortUsingCollator, boolean[] isDescendingValues) {
+    public static Comparator<Object> getComparator(ExprNode[] sortCriteria, boolean isSortUsingCollator, boolean[] isDescendingValues) {
         // determine string-type sorting
         boolean hasStringTypes = false;
-        boolean[] stringTypes = new boolean[sortCriteriaEvaluators.length];
+        boolean[] stringTypes = new boolean[sortCriteria.length];
 
         int count = 0;
         for (int i = 0; i < sortCriteria.length; i++) {
@@ -86,7 +85,7 @@ public class CollectionUtil {
             count++;
         }
 
-        if (sortCriteriaEvaluators.length > 1) {
+        if (sortCriteria.length > 1) {
             if ((!hasStringTypes) || (!isSortUsingCollator)) {
                 MultiKeyComparator comparatorMK = new MultiKeyComparator(isDescendingValues);
                 return new MultiKeyCastingComparator(comparatorMK);
@@ -409,6 +408,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param events values
      * @return array
      */
@@ -421,6 +421,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param values values
      * @return array
      */
@@ -433,6 +434,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param arrays values
      * @return array
      */
@@ -613,7 +615,8 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param count cnt
+     *
+     * @param count  cnt
      * @param events events
      * @return shrank array
      */
@@ -625,8 +628,9 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param count cnt
-     * @param keys values
+     * @param keys  values
      * @return shrank array
      */
     public static Object[] shrinkArrayObjects(int count, Object[] keys) {
@@ -637,7 +641,8 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param count cnt
+     *
+     * @param count       cnt
      * @param eventArrays events
      * @return shrank array
      */
@@ -649,6 +654,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param events events
      * @return null or array
      */
@@ -658,6 +664,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param values events
      * @return null or array
      */
@@ -667,6 +674,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param iterator iterator
      * @return array of events
      */

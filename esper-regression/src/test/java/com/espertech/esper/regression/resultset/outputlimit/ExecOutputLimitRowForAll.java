@@ -11,14 +11,14 @@
 package com.espertech.esper.regression.resultset.outputlimit;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.hook.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
@@ -28,6 +28,7 @@ import com.espertech.esper.supportregression.patternassert.ResultAssertExecution
 import com.espertech.esper.supportregression.patternassert.ResultAssertTestResult;
 import com.espertech.esper.util.SerializableObjectCopier;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static org.junit.Assert.*;
 
 public class ExecOutputLimitRowForAll implements RegressionExecution {
@@ -847,6 +848,36 @@ public class ExecOutputLimitRowForAll implements RegressionExecution {
         public Class getValueType() {
             return int.class;
         }
+
+        public AggregationFunctionFactoryCodegenType getCodegenType() {
+            return AggregationFunctionFactoryCodegenType.CODEGEN_UNMANAGED;
+        }
+
+        public void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+            MyContextAggFunc.rowMemberCodegen(context);
+        }
+
+        public void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        }
+
+        public void applyLeaveCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        }
+
+        public void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            MyContextAggFunc.applyEnterCodegen(context);
+        }
+
+        public void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            // no code
+        }
+
+        public void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+            // no code
+        }
+
+        public void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+            MyContextAggFunc.getValueCodegen(context);
+        }
     }
 
     public static class MyContextAggFunc implements AggregationMethod {
@@ -857,24 +888,42 @@ public class ExecOutputLimitRowForAll implements RegressionExecution {
             return getValueInvocationCount;
         }
 
+        public static void incGetValueInvocationCount() {
+            getValueInvocationCount++;
+        }
+
         public static void resetGetValueInvocationCount() {
             getValueInvocationCount = 0;
         }
 
         private int sum;
 
+        public static void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+            context.getMembersColumnized().addMember(context.getColumn(), int.class, "sum");
+        }
+
         public void enter(Object value) {
             int amount = (Integer) value;
             sum += amount;
         }
 
-        public void leave(Object value) {
+        public static void applyEnterCodegen(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            context.getMethod().getBlock().declareVar(int.class, "amount", cast(Integer.class, context.getForges()[0].evaluateCodegen(Integer.class, context.getMethod(), context.getSymbols(), context.getClassScope())))
+                    .assignCompound(refCol("sum", context.getColumn()), "+", ref("amount"));
+        }
 
+        public void leave(Object value) {
         }
 
         public Object getValue() {
             getValueInvocationCount++;
             return sum;
+        }
+
+        public static void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+            context.getMethod().getBlock()
+                    .staticMethod(MyContextAggFunc.class, "incGetValueInvocationCount")
+                    .methodReturn(refCol("sum", context.getColumn()));
         }
 
         public void clear() {

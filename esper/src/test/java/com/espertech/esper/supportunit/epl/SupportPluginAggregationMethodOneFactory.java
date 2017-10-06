@@ -12,7 +12,7 @@ package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 
 public class SupportPluginAggregationMethodOneFactory implements AggregationFunctionFactory {
     public void setFunctionName(String functionName) {

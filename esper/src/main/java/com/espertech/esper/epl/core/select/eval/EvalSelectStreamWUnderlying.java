@@ -110,7 +110,7 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(EventBean.class, EvalSelectStreamWUnderlying.class, codegenClassScope).addParam(Map.class, "props");
 
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
 
         CodegenBlock block = methodNode.getBlock();

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 
 public class BeanInstantiatorByFactoryFastClass implements BeanInstantiator {
-    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByFactoryFastClass.class);
+    private final static Logger log = LoggerFactory.getLogger(BeanInstantiatorByFactoryFastClass.class);
 
     private final FastMethod method;
 

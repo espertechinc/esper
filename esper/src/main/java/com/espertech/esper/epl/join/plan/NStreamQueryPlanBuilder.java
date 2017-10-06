@@ -605,5 +605,5 @@ public class NStreamQueryPlanBuilder {
         }
     }
 
-    private static Logger log = LoggerFactory.getLogger(NStreamQueryPlanBuilder.class);
+    private final static Logger log = LoggerFactory.getLogger(NStreamQueryPlanBuilder.class);
 }

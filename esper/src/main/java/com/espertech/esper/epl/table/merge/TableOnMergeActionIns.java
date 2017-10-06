@@ -14,7 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPStatementHandle;
 import com.espertech.esper.core.service.InternalEventRouteDest;
 import com.espertech.esper.core.service.InternalEventRouter;
-import com.espertech.esper.epl.agg.service.AggregationRowPair;
+import com.espertech.esper.epl.agg.service.common.AggregationRowPair;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;

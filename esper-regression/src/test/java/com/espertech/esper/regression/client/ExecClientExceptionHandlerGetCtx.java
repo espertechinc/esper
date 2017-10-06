@@ -36,6 +36,9 @@ public class ExecClientExceptionHandlerGetCtx implements RegressionExecution {
     }
 
     public void run(EPServiceProvider epService) throws Exception {
+        SupportExceptionHandlerFactory.getFactoryContexts().clear();
+        SupportExceptionHandlerFactory.getHandlers().clear();
+        epService.initialize();
 
         String epl = "@Name('ABCName') select myinvalidagg() from SupportBean";
         epService.getEPAdministrator().createEPL(epl);

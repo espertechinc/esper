@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.agg.util;
 
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 public class AggregationLocalGroupByLevel {

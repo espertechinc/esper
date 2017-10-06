@@ -20,7 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class RunnableUpsert implements Runnable {
-    private static Logger log = LoggerFactory.getLogger(RunnableUpsert.class);
+    private final static Logger log = LoggerFactory.getLogger(RunnableUpsert.class);
 
     private final RunnableUpsertContext context;
     private final EventBean theEvent;

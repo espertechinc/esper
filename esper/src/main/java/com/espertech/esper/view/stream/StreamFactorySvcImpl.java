@@ -54,7 +54,7 @@ import java.util.IdentityHashMap;
  * (C) joins statements do not participate in filter and view reuse
  */
 public class StreamFactorySvcImpl implements StreamFactoryService {
-    private static Logger log = LoggerFactory.getLogger(StreamFactorySvcImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(StreamFactorySvcImpl.class);
 
     // Using identify hash map - ignoring the equals semantics on filter specs
     // Thus two filter specs objects are always separate entries in the map

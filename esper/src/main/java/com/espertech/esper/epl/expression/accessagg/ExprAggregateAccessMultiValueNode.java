@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.accessagg;
 
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.core.ExprEnumerationEval;
 import com.espertech.esper.epl.expression.core.ExprEnumerationForge;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;

@@ -11,14 +11,13 @@
 package com.espertech.esper.example.cycledetect;
 
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
+import com.espertech.esper.epl.agg.access.AggregationAgentForge;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionAgentContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionHandler;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
+import com.espertech.esper.plugin.*;
 
 import java.util.Locale;
 
@@ -39,15 +38,28 @@ public class CycleDetectorAggregationHandler implements PlugInAggregationMultiFu
         return CYCLE_KEY;   // Share the same provider
     }
 
-    public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
-        return new CycleDetectorAggregationStateFactory(factory.getFromExpression().getExprEvaluator(), factory.getToExpression().getExprEvaluator());
+    @Override
+    public PlugInAggregationMultiFunctionCodegenType getCodegenType() {
+        return PlugInAggregationMultiFunctionCodegenType.CODEGEN_NONE;
     }
 
-    public AggregationAccessor getAccessor() {
-        if (validationContext.getFunctionName().toLowerCase(Locale.ENGLISH).equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
-            return new CycleDetectorAggregationAccessorOutput();
-        }
-        return new CycleDetectorAggregationAccessorDetect();
+    public PlugInAggregationMultiFunctionStateForge getStateForge() {
+        return new PlugInAggregationMultiFunctionStateForge() {
+            public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
+                return new CycleDetectorAggregationStateFactory(factory.getFromExpression().getExprEvaluator(), factory.getToExpression().getExprEvaluator());
+            }
+        };
+    }
+
+    public AggregationAccessorForge getAccessorForge() {
+        return new AggregationAccessorForge() {
+            public AggregationAccessor getAccessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+                if (validationContext.getFunctionName().toLowerCase(Locale.ENGLISH).equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
+                    return new CycleDetectorAggregationAccessorOutput();
+                }
+                return new CycleDetectorAggregationAccessorDetect();
+            }
+        };
     }
 
     public EPType getReturnType() {
@@ -57,7 +69,7 @@ public class CycleDetectorAggregationHandler implements PlugInAggregationMultiFu
         return EPTypeHelper.singleValue(Boolean.class);
     }
 
-    public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
+    public AggregationAgentForge getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
         return null;
     }
 }

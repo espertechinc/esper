@@ -1,0 +1,7 @@
+Keeps this directory here for easy debugging of generated code.
+For testing in an IDE, generated code optimally ends up in this directory.
+
+Define symbols as below.
+
+-Dorg.codehaus.janino.source_debugging.dir=C:\PATH\com\espertech\esper\generated\uri_default
+-Dorg.codehaus.janino.source_debugging.enable=true

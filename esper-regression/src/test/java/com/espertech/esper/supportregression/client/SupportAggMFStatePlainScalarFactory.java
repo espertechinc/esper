@@ -12,8 +12,8 @@ package com.espertech.esper.supportregression.client;
 
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
+import com.espertech.esper.epl.expression.core.ExprForge;
+import com.espertech.esper.plugin.*;
 
 public class SupportAggMFStatePlainScalarFactory implements PlugInAggregationMultiFunctionStateFactory {
 
@@ -29,5 +29,21 @@ public class SupportAggMFStatePlainScalarFactory implements PlugInAggregationMul
 
     public ExprEvaluator getEvaluator() {
         return evaluator;
+    }
+
+    public static void rowMemberCodegen(PlugInAggregationMultiFunctionStateForgeCodegenRowMemberContext context) {
+        SupportAggMFStatePlainScalar.rowMemberCodegen(context);
+    }
+
+    public static void applyEnterCodegen(ExprForge forge, PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        SupportAggMFStatePlainScalar.applyEnterCodegen(forge, context);
+    }
+
+    public static void applyLeaveCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        // no code
+    }
+
+    public static void clearCodegen(PlugInAggregationMultiFunctionStateForgeCodegenClearContext context) {
+        SupportAggMFStatePlainScalar.clearCodegen(context);
     }
 }

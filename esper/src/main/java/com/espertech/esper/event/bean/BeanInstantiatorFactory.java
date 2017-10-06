@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class BeanInstantiatorFactory {
-    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(BeanInstantiatorFactory.class);
 
     private static final Constructor<Object> SUN_JVM_OBJECT_CONSTRUCTOR;
 

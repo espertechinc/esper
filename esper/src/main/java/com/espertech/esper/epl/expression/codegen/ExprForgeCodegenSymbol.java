@@ -25,6 +25,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 
 public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
     private final boolean allowUnderlyingReferences;
+    private final Boolean newDataValue;
 
     private int currentParamNum;
     private Map<Integer, EventTypeWithOptionalFlag> underlyingStreamNums = Collections.emptyMap();
@@ -32,8 +33,9 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
     private CodegenExpressionRef optionalIsNewDataRef;
     private CodegenExpressionRef optionalExprEvalCtxRef;
 
-    public ExprForgeCodegenSymbol(boolean allowUnderlyingReferences) {
+    public ExprForgeCodegenSymbol(boolean allowUnderlyingReferences, Boolean newDataValue) {
         this.allowUnderlyingReferences = allowUnderlyingReferences;
+        this.newDataValue = newDataValue;
     }
 
     public boolean isAllowUnderlyingReferences() {
@@ -48,7 +50,11 @@ public class ExprForgeCodegenSymbol implements CodegenSymbolProvider {
         return optionalEPSRef;
     }
 
-    public CodegenExpressionRef getAddIsNewData(CodegenMethodScope scope) {
+    public CodegenExpression getAddIsNewData(CodegenMethodScope scope) {
+        if (newDataValue != null) {  // new-data can be a const
+            return constant(newDataValue);
+        }
+
         if (optionalIsNewDataRef == null) {
             optionalIsNewDataRef = ExprForgeCodegenNames.REF_ISNEWDATA;
         }

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EsperSocketServiceRunnable implements Runnable {
-    private static Logger log = LoggerFactory.getLogger(EsperSocketServiceRunnable.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperSocketServiceRunnable.class);
 
     private String serviceName;
     private SocketConfig serviceConfig;

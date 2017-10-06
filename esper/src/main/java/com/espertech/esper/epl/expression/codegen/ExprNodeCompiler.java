@@ -14,7 +14,6 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.compile.CodegenClassGenerator;
-import com.espertech.esper.codegen.compile.CodegenCompilerException;
 import com.espertech.esper.codegen.compile.CodegenMessageUtil;
 import com.espertech.esper.codegen.core.CodeGenerationIDGenerator;
 import com.espertech.esper.codegen.core.CodegenClass;
@@ -36,7 +35,7 @@ import java.util.function.Supplier;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
 
 public class ExprNodeCompiler {
-    private static Logger log = LoggerFactory.getLogger(ExprNodeCompiler.class);
+    private final static Logger log = LoggerFactory.getLogger(ExprNodeCompiler.class);
 
     public static ExprEvaluator allocateEvaluator(ExprForge forge, EngineImportService engineImportService, Class compiledByClass, boolean onDemandQuery, String statementName) {
         if (!engineImportService.getCodeGeneration().isEnableExpression() || onDemandQuery || forge.getComplexity() != ExprForgeComplexityEnum.INTER) {
@@ -65,7 +64,7 @@ public class ExprNodeCompiler {
 
         try {
             CodegenClassScope codegenClassScope = new CodegenClassScope(engineImportService.getCodeGeneration().isIncludeComments());
-            ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true);
+            ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
             CodegenMethodNode topNode = CodegenMethodNode.makeParentNode(Object.class, ExprNodeCompiler.class, exprSymbol, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
 
             // generate expression
@@ -90,16 +89,14 @@ public class ExprNodeCompiler {
             String className = CodeGenerationIDGenerator.generateClassName(ExprEvaluator.class);
             CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ExprEvaluator.class, className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
             return CodegenClassGenerator.compile(clazz, engineImportService, ExprEvaluator.class, debugInformationProvider);
-        } catch (CodegenCompilerException ex) {
-            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
-            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(ex, debugInformationProvider, fallback);
-            if (fallback) {
-                log.warn(message, ex);
-            } else {
-                log.error(message, ex);
-            }
-            return handleThrowable(engineImportService, ex, forge, debugInformationProvider);
         } catch (Throwable t) {
+            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
+            String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInformationProvider, fallback);
+            if (fallback) {
+                log.warn(message, t);
+            } else {
+                log.error(message, t);
+            }
             return handleThrowable(engineImportService, t, forge, debugInformationProvider);
         }
     }

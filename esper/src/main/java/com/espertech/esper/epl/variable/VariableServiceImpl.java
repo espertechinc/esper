@@ -86,7 +86,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * to obtain the current value from persistence, if any.
  */
 public class VariableServiceImpl implements VariableService {
-    private static Logger log = LoggerFactory.getLogger(VariableServiceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(VariableServiceImpl.class);
 
     /**
      * Sets the boundary above which a reader considers the high-version list of variable values.

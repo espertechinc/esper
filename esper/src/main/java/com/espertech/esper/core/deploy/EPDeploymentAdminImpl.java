@@ -35,7 +35,7 @@ import java.util.*;
  * Deployment administrative implementation.
  */
 public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
-    private static Logger log = LoggerFactory.getLogger(EPDeploymentAdminImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(EPDeploymentAdminImpl.class);
 
     private final EPAdministratorSPI epService;
     private final ManagedReadWriteLock eventProcessingRWLock;

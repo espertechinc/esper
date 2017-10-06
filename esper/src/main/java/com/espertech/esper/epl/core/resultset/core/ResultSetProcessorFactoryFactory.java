@@ -23,10 +23,10 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPerLevelForge;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPlanDesc;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPlanHook;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceForgeDesc;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.core.orderby.OrderByElement;
 import com.espertech.esper.epl.core.orderby.OrderByProcessorFactory;
@@ -311,11 +311,11 @@ public class ResultSetProcessorFactoryFactory {
 
         // Construct the appropriate aggregation service
         boolean hasGroupBy = groupByNodesValidated.length > 0;
-        AggregationServiceFactoryDesc aggregationServiceFactory = AggregationServiceFactoryFactory.getService(
+        AggregationServiceForgeDesc aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(
                 selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy, statementSpec.getAnnotations(), stmtContext.getVariableService(), typeService.getEventTypes().length > 1, false,
                 statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(),
                 stmtContext.getAggregationServiceFactoryService(), typeService.getEventTypes(), groupByRollupDesc,
-                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect, stmtContext.getEngineImportService(), stmtContext.getStatementName());
+                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect, stmtContext.getEngineImportService(), stmtContext.getStatementName(), stmtContext.getTimeAbacus());
 
         // Compare local-aggregation versus group-by
         boolean localGroupByMatchesGroupBy = analyzeLocalGroupBy(groupByNodesValidated, selectAggregateExprNodes, havingAggregateExprNodes, orderByAggregateExprNodes);
@@ -383,8 +383,7 @@ public class ResultSetProcessorFactoryFactory {
             if (orderByNodes.isEmpty() && optionalHavingNode == null && !isOutputLimitingNoSnapshot && statementSpec.getRowLimitSpec() == null) {
                 log.debug(".getProcessor Using no result processor");
                 ResultSetProcessorHandThroughFactoryForge forge = new ResultSetProcessorHandThroughFactoryForge(resultEventType, selectExprProcessorForge, isSelectRStream);
-                ResultSetProcessorFactory factory = ResultSetProcessorFactoryCompiler.allocate(forge, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false);
-                return new ResultSetProcessorFactoryDesc(factory, ResultSetProcessorType.HANDTHROUGH, false, resultEventType, orderByProcessorFactory, aggregationServiceFactory);
+                return ResultSetProcessorFactoryCompiler.allocate(forge, ResultSetProcessorType.HANDTHROUGH, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false, aggregationServiceForgeDesc, orderByProcessorFactory);
             }
 
             // (1b)
@@ -393,8 +392,7 @@ public class ResultSetProcessorFactoryFactory {
             // There might be some order-by expressions.
             log.debug(".getProcessor Using ResultSetProcessorSimple");
             ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, resultSetProcessorHelperFactory, hasOrderBy, numStreams);
-            ResultSetProcessorFactory factory = ResultSetProcessorFactoryCompiler.allocate(forge, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false);
-            return new ResultSetProcessorFactoryDesc(factory, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, false, resultEventType, orderByProcessorFactory, aggregationServiceFactory);
+            return ResultSetProcessorFactoryCompiler.allocate(forge, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false, aggregationServiceForgeDesc, orderByProcessorFactory);
         }
 
         // (2)
@@ -404,8 +402,7 @@ public class ResultSetProcessorFactoryFactory {
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst) {
             log.debug(".getProcessor Using ResultSetProcessorSimple");
             ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, resultSetProcessorHelperFactory, hasOrderBy, numStreams);
-            ResultSetProcessorFactory factory = ResultSetProcessorFactoryCompiler.allocate(forge, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false);
-            return new ResultSetProcessorFactoryDesc(factory, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, false, resultEventType, orderByProcessorFactory, aggregationServiceFactory);
+            return ResultSetProcessorFactoryCompiler.allocate(forge, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false, aggregationServiceForgeDesc, orderByProcessorFactory);
         }
 
         if ((groupByNodesValidated.length == 0) && isAggregated) {
@@ -416,8 +413,7 @@ public class ResultSetProcessorFactoryFactory {
             if ((nonAggregatedPropsSelect.isEmpty()) && !hasStreamSelect && !isUsingWildcard && !isUsingStreamSelect && localGroupByMatchesGroupBy && (viewResourceDelegate == null || viewResourceDelegate.getPreviousRequests().isEmpty())) {
                 log.debug(".getProcessor Using ResultSetProcessorRowForAll");
                 ResultSetProcessorRowForAllForge forge = new ResultSetProcessorRowForAllForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, resultSetProcessorHelperFactory, hasOrderBy, outputConditionType);
-                ResultSetProcessorFactory factory = ResultSetProcessorFactoryCompiler.allocate(forge, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false);
-                return new ResultSetProcessorFactoryDesc(factory, ResultSetProcessorType.FULLYAGGREGATED_UNGROUPED, true, resultEventType, orderByProcessorFactory, aggregationServiceFactory);
+                return ResultSetProcessorFactoryCompiler.allocate(forge, ResultSetProcessorType.FULLYAGGREGATED_UNGROUPED, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false, aggregationServiceForgeDesc, orderByProcessorFactory);
             }
 
             // (4)
@@ -425,8 +421,7 @@ public class ResultSetProcessorFactoryFactory {
             // or having clause and not all event properties are aggregated (some properties are not under aggregation functions).
             log.debug(".getProcessor Using ResultSetProcessorRowPerEventImpl");
             ResultSetProcessorRowPerEventForge forge = new ResultSetProcessorRowPerEventForge(selectExprProcessorForge.getResultEventType(), selectExprProcessorForge, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, outputConditionType, resultSetProcessorHelperFactory, hasOrderBy);
-            ResultSetProcessorFactory factory = ResultSetProcessorFactoryCompiler.allocate(forge, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false);
-            return new ResultSetProcessorFactoryDesc(factory, ResultSetProcessorType.AGGREGATED_UNGROUPED, true, resultEventType, orderByProcessorFactory, aggregationServiceFactory);
+            return ResultSetProcessorFactoryCompiler.allocate(forge, ResultSetProcessorType.AGGREGATED_UNGROUPED, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false, aggregationServiceForgeDesc, orderByProcessorFactory);
         }
 
         // Handle group-by cases
@@ -491,8 +486,7 @@ public class ResultSetProcessorFactoryFactory {
                 selectExprProcessorForges = new SelectExprProcessorForge[]{selectExprProcessorForge};
                 rollup = false;
             }
-            ResultSetProcessorFactory factory = ResultSetProcessorFactoryCompiler.allocate(forge, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, selectExprProcessorForges, rollup);
-            return new ResultSetProcessorFactoryDesc(factory, type, true, resultEventType, orderByProcessorFactory, aggregationServiceFactory);
+            return ResultSetProcessorFactoryCompiler.allocate(forge, type, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, selectExprProcessorForges, rollup, aggregationServiceForgeDesc, orderByProcessorFactory);
         }
 
         if (groupByRollupDesc != null) {
@@ -504,8 +498,7 @@ public class ResultSetProcessorFactoryFactory {
         // function are not listed in the group-by clause (output one row per event, not one row per group)
         log.debug(".getProcessor Using ResultSetProcessorAggregateGrouped");
         ResultSetProcessorAggregateGroupedForge forge = new ResultSetProcessorAggregateGroupedForge(resultEventType, selectExprProcessorForge, groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, isHistoricalOnly, resultSetProcessorHelperFactory, optionalOutputFirstConditionFactory, outputConditionType, numStreams);
-        ResultSetProcessorFactory factory = ResultSetProcessorFactoryCompiler.allocate(forge, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false);
-        return new ResultSetProcessorFactoryDesc(factory, ResultSetProcessorType.AGGREGATED_GROUPED, true, resultEventType, orderByProcessorFactory, aggregationServiceFactory);
+        return ResultSetProcessorFactoryCompiler.allocate(forge, ResultSetProcessorType.AGGREGATED_GROUPED, resultEventType, stmtContext, isFireAndForget, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, new SelectExprProcessorForge[]{selectExprProcessorForge}, false, aggregationServiceForgeDesc, orderByProcessorFactory);
     }
 
     private static void validateOutputLimit(OutputLimitSpec outputLimitSpec, StatementContext statementContext) throws ExprValidationException {

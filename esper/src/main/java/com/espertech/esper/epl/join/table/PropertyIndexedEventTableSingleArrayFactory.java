@@ -75,5 +75,5 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
                 " propertyNames=" + Arrays.toString(propertyNames);
     }
 
-    private static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableSingleArrayFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableSingleArrayFactory.class);
 }

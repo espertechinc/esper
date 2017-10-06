@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 
 /**
  * An order-by processor that sorts events according to the expressions

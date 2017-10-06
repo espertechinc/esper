@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RunnableDMLContext {
-    private static Logger log = LoggerFactory.getLogger(RunnableDMLContext.class);
+    private final static Logger log = LoggerFactory.getLogger(RunnableDMLContext.class);
 
     private final String name;
     private final DatabaseConnectionFactory connectionFactory;

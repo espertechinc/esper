@@ -38,7 +38,7 @@ import java.util.*;
  */
 public class Configuration implements ConfigurationOperations, ConfigurationInformation, Serializable {
     private static final long serialVersionUID = -220881974438617882L;
-    private static Logger log = LoggerFactory.getLogger(Configuration.class);
+    private final static Logger log = LoggerFactory.getLogger(Configuration.class);
 
     /**
      * Import name of the package that hosts the annotation classes.

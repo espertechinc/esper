@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.supportregression.epl;
 
-import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.hook.*;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 
 public class SupportPluginAggregationMethodOneFactory implements AggregationFunctionFactory {
     public void setFunctionName(String functionName) {
@@ -27,5 +27,35 @@ public class SupportPluginAggregationMethodOneFactory implements AggregationFunc
 
     public Class getValueType() {
         return int.class;
+    }
+
+    public AggregationFunctionFactoryCodegenType getCodegenType() {
+        return AggregationFunctionFactoryCodegenType.CODEGEN_MANAGED;
+    }
+
+    public void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+        SupportPluginAggregationMethodOne.rowMemberCodegen(context);
+    }
+
+    public void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        SupportPluginAggregationMethodOne.applyEnterCodegenManaged(context);
+    }
+
+    public void applyLeaveCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        SupportPluginAggregationMethodOne.applyLeaveCodegenManaged(context);
+    }
+
+    public void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+    }
+
+    public void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+    }
+
+    public void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+        SupportPluginAggregationMethodOne.clearCodegen(context);
+    }
+
+    public void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+        SupportPluginAggregationMethodOne.getValueCodegen(context);
     }
 }

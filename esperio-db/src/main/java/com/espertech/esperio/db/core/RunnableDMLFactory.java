@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RunnableDMLFactory implements RunnableFactory {
-    private static Logger log = LoggerFactory.getLogger(RunnableDMLFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(RunnableDMLFactory.class);
 
     private final RunnableDMLContext context;
 

@@ -30,7 +30,7 @@ import java.util.Iterator;
  * Statement implementation for EPL statements.
  */
 public class EPStatementImpl implements EPStatementSPI {
-    private static Logger log = LoggerFactory.getLogger(EPStatementImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(EPStatementImpl.class);
 
     private final EPStatementListenerSet statementListenerSet;
     private final String expressionNoAnnotations;

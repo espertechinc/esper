@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.agg.aggregator;
 
-import com.espertech.esper.epl.agg.service.AggregatorUtil;
+import com.espertech.esper.epl.agg.service.common.AggregatorUtil;
 
 /**
  * Standard deviation always generates double-types numbers.

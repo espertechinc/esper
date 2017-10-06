@@ -163,5 +163,5 @@ public class ConfigurationSocketAdapterParser {
         return valueNode.getTextContent();
     }
 
-    private static Logger log = LoggerFactory.getLogger(ConfigurationSocketAdapterParser.class);
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationSocketAdapterParser.class);
 }

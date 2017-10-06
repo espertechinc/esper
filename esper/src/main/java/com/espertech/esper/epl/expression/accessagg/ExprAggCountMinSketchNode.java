@@ -19,14 +19,13 @@ import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.factory.AggregationStateFactoryCountMinSketch;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
 import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.approx.CountMinSketchSpecHashes;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.event.EventAdapterService;
@@ -171,11 +170,11 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         }
 
         // obtain evaluator
-        ExprEvaluator addOrFrequencyEvaluator = null;
+        ExprForge addOrFrequencyEvaluator = null;
         Class addOrFrequencyEvaluatorReturnType = null;
         if (aggType == CountMinSketchAggType.ADD || aggType == CountMinSketchAggType.FREQ) {
-            addOrFrequencyEvaluator = ExprNodeCompiler.allocateEvaluator(getChildNodes()[0].getForge(), context.getEngineImportService(), this.getClass(), context.getStreamTypeService().isOnDemandStreams(), context.getStatementName());
-            addOrFrequencyEvaluatorReturnType = getChildNodes()[0].getForge().getEvaluationType();
+            addOrFrequencyEvaluator = getChildNodes()[0].getForge();
+            addOrFrequencyEvaluatorReturnType = addOrFrequencyEvaluator.getEvaluationType();
         }
 
         return new ExprAggCountMinSketchNodeFactoryUse(this, addOrFrequencyEvaluator, addOrFrequencyEvaluatorReturnType);

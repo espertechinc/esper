@@ -30,7 +30,7 @@ import java.util.List;
  * wins.
  */
 public class EventSenderImpl implements EventSender {
-    private static Logger log = LoggerFactory.getLogger(EventSenderImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(EventSenderImpl.class);
     private final List<EventSenderURIDesc> handlingFactories;
     private final EPRuntimeEventSender epRuntime;
     private final ThreadingService threadingService;

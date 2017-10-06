@@ -18,7 +18,7 @@ import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.engineimport.EngineSettingsService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;

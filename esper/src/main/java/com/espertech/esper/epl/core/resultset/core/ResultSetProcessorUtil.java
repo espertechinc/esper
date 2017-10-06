@@ -21,9 +21,9 @@ import com.espertech.esper.collection.ArrayEventIterator;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -59,7 +59,7 @@ public class ResultSetProcessorUtil {
     public final static String METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY = "getSelectEventsNoHavingWithOrderBy";
     public final static String METHOD_ORDEROUTGOINGGETITERATOR = "orderOutgoingGetIterator";
 
-    public static void evaluateHavingClauseCodegen(ExprForge optionalHavingClause, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static void evaluateHavingClauseCodegen(ExprForge optionalHavingClause, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = method -> {
             if (optionalHavingClause == null) {
                 method.getBlock().methodReturn(constantTrue());
@@ -67,7 +67,7 @@ public class ResultSetProcessorUtil {
                 method.getBlock().methodReturn(CodegenLegoMethodExpression.codegenBooleanExpressionReturnTrueFalse(optionalHavingClause, classScope, method, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
         };
-        instance.addMethod(boolean.class, "evaluateHavingClause",
+        instance.getMethods().addMethod(boolean.class, "evaluateHavingClause",
                 CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -231,7 +231,7 @@ public class ResultSetProcessorUtil {
         return null;
     }
 
-    public static CodegenMethodNode getSelectEventsHavingWithOrderByCodegen(CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode getSelectEventsHavingWithOrderByCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().ifRefNullReturnNull("events")
                     .declareVar(ArrayDeque.class, "result", constantNull())
@@ -240,7 +240,7 @@ public class ResultSetProcessorUtil {
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(NAME_EPS, constant(0), ref("theEvent"));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "generated", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
@@ -260,7 +260,7 @@ public class ResultSetProcessorUtil {
                     .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT));
         };
 
-        return instance.addMethod(EventBean[].class, "getSelectEventsHavingWithOrderBy",
+        return instance.getMethods().addMethod(EventBean[].class, "getSelectEventsHavingWithOrderBy",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -319,7 +319,7 @@ public class ResultSetProcessorUtil {
     }
 
     public static CodegenMethodNode getSelectEventsHavingCodegen(CodegenClassScope classScope,
-                                                                 ResultSetProcessorCodegenInstance instance) {
+                                                                 CodegenInstanceAux instance) {
 
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock()
@@ -330,7 +330,7 @@ public class ResultSetProcessorUtil {
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "generated", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
@@ -340,7 +340,7 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().methodReturn(staticMethod(CollectionUtil.class, METHOD_TOARRAYMAYNULL, ref("result")));
         };
 
-        return instance.addMethod(EventBean[].class, "getSelectEventsHaving",
+        return instance.getMethods().addMethod(EventBean[].class, "getSelectEventsHaving",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -452,7 +452,7 @@ public class ResultSetProcessorUtil {
     }
 
     public static CodegenMethodNode getSelectJoinEventsHavingCodegen(CodegenClassScope classScope,
-                                                                     ResultSetProcessorCodegenInstance instance) {
+                                                                     CodegenInstanceAux instance) {
 
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock()
@@ -462,7 +462,7 @@ public class ResultSetProcessorUtil {
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "generated", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("generated")))
                         .ifCondition(equalsNull(ref("result")))
@@ -472,7 +472,7 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().methodReturn(staticMethod(CollectionUtil.class, METHOD_TOARRAYMAYNULL, ref("result")));
         };
 
-        return instance.addMethod(EventBean[].class, "getSelectJoinEventsHaving",
+        return instance.getMethods().addMethod(EventBean[].class, "getSelectJoinEventsHaving",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -531,7 +531,7 @@ public class ResultSetProcessorUtil {
         return null;
     }
 
-    public static CodegenMethodNode getSelectJoinEventsHavingWithOrderByCodegen(CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode getSelectJoinEventsHavingWithOrderByCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock()
                     .ifCondition(or(equalsNull(ref("events")), exprDotMethod(ref("events"), "isEmpty"))).blockReturn(constantNull())
@@ -541,7 +541,7 @@ public class ResultSetProcessorUtil {
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .ifCondition(equalsNull(ref("result")))
@@ -558,7 +558,7 @@ public class ResultSetProcessorUtil {
                     .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT));
         };
 
-        return instance.addMethod(EventBean[].class, "getSelectJoinEventsHavingWithOrderBy",
+        return instance.getMethods().addMethod(EventBean[].class, "getSelectJoinEventsHavingWithOrderBy",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -623,7 +623,7 @@ public class ResultSetProcessorUtil {
         }
     }
 
-    public static CodegenMethodNode populateSelectEventsHavingCodegen(CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode populateSelectEventsHavingCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock()
                     .ifRefNull("events").blockReturnNoValue()
@@ -632,14 +632,14 @@ public class ResultSetProcessorUtil {
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"));
             }
         };
 
-        return instance.addMethod(void.class, "populateSelectEventsHaving",
+        return instance.getMethods().addMethod(void.class, "populateSelectEventsHaving",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -672,7 +672,7 @@ public class ResultSetProcessorUtil {
         }
     }
 
-    public static CodegenMethodNode populateSelectEventsHavingWithOrderByCodegen(CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode populateSelectEventsHavingWithOrderByCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock()
                     .ifRefNull("events").blockReturnNoValue()
@@ -681,7 +681,7 @@ public class ResultSetProcessorUtil {
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(EventBean.class, "theEvent", ref("events"));
                 forEach.assignArrayElement(REF_EPS, constant(0), ref("theEvent"));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"))
@@ -689,7 +689,7 @@ public class ResultSetProcessorUtil {
             }
         };
 
-        return instance.addMethod(void.class, "populateSelectEventsHavingWithOrderBy",
+        return instance.getMethods().addMethod(void.class, "populateSelectEventsHavingWithOrderBy",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", List.class, "optSortKeys", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -720,21 +720,21 @@ public class ResultSetProcessorUtil {
         }
     }
 
-    public static CodegenMethodNode populateSelectJoinEventsHavingCodegen(CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode populateSelectJoinEventsHavingCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().ifRefNull("events").blockReturnNoValue();
 
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"));
             }
         };
 
-        return instance.addMethod(void.class, "populateSelectJoinEventsHavingCodegen",
+        return instance.getMethods().addMethod(void.class, "populateSelectJoinEventsHavingCodegen",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -766,14 +766,14 @@ public class ResultSetProcessorUtil {
         }
     }
 
-    public static CodegenMethodNode populateSelectJoinEventsHavingWithOrderByCodegen(CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance) {
+    public static CodegenMethodNode populateSelectJoinEventsHavingWithOrderByCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().ifRefNull("events").blockReturnNoValue();
 
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
-                forEach.ifCondition(not(localMethod(instance.getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
+                forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
                         .ifCondition(notEqualsNull(ref("resultEvent")))
                         .exprDotMethod(ref("result"), "add", ref("resultEvent"))
@@ -781,7 +781,7 @@ public class ResultSetProcessorUtil {
             }
         };
 
-        return instance.addMethod(void.class, "populateSelectJoinEventsHavingWithOrderBy",
+        return instance.getMethods().addMethod(void.class, "populateSelectJoinEventsHavingWithOrderBy",
                 CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "result", List.class, "sortKeys", ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
@@ -855,7 +855,7 @@ public class ResultSetProcessorUtil {
         return null;
     }
 
-    public static void processViewResultCodegen(CodegenMethodNode method, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance, boolean hasHaving, boolean selectRStream, boolean hasOrderBy, boolean outputNullIfBothNull) {
+    public static void processViewResultCodegen(CodegenMethodNode method, CodegenClassScope classScope, CodegenInstanceAux instance, boolean hasHaving, boolean selectRStream, boolean hasOrderBy, boolean outputNullIfBothNull) {
         // generate new events using select expressions
         if (!hasHaving) {
             if (selectRStream) {
@@ -897,7 +897,7 @@ public class ResultSetProcessorUtil {
         method.getBlock().methodReturn(newInstance(UniformPair.class, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
-    public static void processJoinResultCodegen(CodegenMethodNode method, CodegenClassScope classScope, ResultSetProcessorCodegenInstance instance, boolean hasHaving, boolean selectRStream, boolean hasOrderBy, boolean outputNullIfBothNull) {
+    public static void processJoinResultCodegen(CodegenMethodNode method, CodegenClassScope classScope, CodegenInstanceAux instance, boolean hasHaving, boolean selectRStream, boolean hasOrderBy, boolean outputNullIfBothNull) {
         if (!hasHaving) {
             if (selectRStream) {
                 if (!hasOrderBy) {

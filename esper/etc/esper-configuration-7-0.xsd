@@ -465,6 +465,8 @@
 	</xs:element>
 	<xs:element name="codegen">
 		<xs:complexType>
+			<xs:attribute name="enable-resultset" type="xs:boolean" use="optional"/>
+			<xs:attribute name="enable-aggregation" type="xs:boolean" use="optional"/>
 			<xs:attribute name="enable-selectclause" type="xs:boolean" use="optional"/>
 			<xs:attribute name="enable-expression" type="xs:boolean" use="optional"/>
 			<xs:attribute name="enable-propertygetter" type="xs:boolean" use="optional"/>

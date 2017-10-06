@@ -29,7 +29,7 @@ import java.util.Map;
  * A result delivery strategy that uses an "update" method that accepts a pair of map array.
  */
 public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy {
-    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyMap.class);
+    private final static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyMap.class);
     protected final EPStatement statement;
     protected final Object subscriber;
     protected final FastMethod fastMethod;

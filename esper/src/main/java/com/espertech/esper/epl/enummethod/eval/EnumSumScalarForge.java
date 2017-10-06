@@ -50,7 +50,7 @@ public class EnumSumScalarForge extends EnumForgeBase implements EnumForge, Enum
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(sumMethodFactory.getValueType(), EnumSumScalarForge.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
         CodegenBlock block = methodNode.getBlock();
 

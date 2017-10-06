@@ -107,5 +107,5 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory {
                 streamNum, propertyNames, EventTableOrganizationType.HASH);
     }
 
-    private static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableFactory.class);
 }

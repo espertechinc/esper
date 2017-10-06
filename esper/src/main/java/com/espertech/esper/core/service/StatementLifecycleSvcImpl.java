@@ -71,7 +71,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Provides statement lifecycle services.
  */
 public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
-    private static Logger log = LoggerFactory.getLogger(StatementLifecycleSvcImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(StatementLifecycleSvcImpl.class);
 
     /**
      * Services context for statement lifecycle management.

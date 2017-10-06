@@ -149,9 +149,10 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         if (!audit) {
             return evaluateCodegenNoAudit(requiredType, codegenMethodScope, exprSymbol, codegenClassScope);
         }
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class, codegenClassScope);
+        Class evaluationType = requiredType == Object.class ? Object.class : innerForge.getEvaluationType();
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprDeclaredForgeBase.class, codegenClassScope);
         methodNode.getBlock()
-                .declareVar(innerForge.getEvaluationType(), "result", evaluateCodegenNoAudit(requiredType, methodNode, exprSymbol, codegenClassScope))
+                .declareVar(evaluationType, "result", evaluateCodegenNoAudit(requiredType, methodNode, exprSymbol, codegenClassScope))
                 .ifCondition(staticMethod(AuditPath.class, "isInfoEnabled"))
                 .staticMethod(AuditPath.class, METHOD_AUDITLOG, constant(engineURI), constant(statementName), enumValue(AuditEnum.class, "EXPRDEF"), op(constant(parent.getPrototype().getName() + " result "), "+", ref("result")))
                 .blockEnd()
@@ -160,9 +161,10 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
     }
 
     private CodegenExpression evaluateCodegenNoAudit(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethodNode methodNode = codegenMethodScope.makeChild(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class, codegenClassScope);
+        Class evaluationType = requiredType == Object.class ? Object.class : innerForge.getEvaluationType();
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(evaluationType, ExprDeclaredForgeBase.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
                 .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
@@ -172,9 +174,10 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
 
     private CodegenMethodNode evaluateCodegenRewritten(Class requiredType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember prototype = codegenClassScope.makeAddMember(ExpressionDeclItem.class, this.parent.getPrototype());
+        Class evaluationType = requiredType == Object.class ? Object.class : innerForge.getEvaluationType();
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true);
-        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(innerForge.getEvaluationType(), ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true, null);
+        CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(evaluationType, ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression refEPS = scope.getAddEPS(methodNode);
         CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);
 
@@ -186,14 +189,18 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
         scope.derivedSymbolsCodegen(methodNode, block, codegenClassScope);
 
         if (isCache) {
+            CodegenExpression eval = exprDotMethod(ref("entry"), "getResult");
+            if (evaluationType != Object.class) {
+                eval = cast(JavaClassHelper.getBoxedType(innerForge.getEvaluationType()), eval);
+            }
             block.declareVar(ExpressionResultCacheForDeclaredExprLastValue.class, "cache", exprDotMethodChain(refExprEvalCtx).add("getExpressionResultCacheService").add("getAllocateDeclaredExprLastValue"))
                     .declareVar(ExpressionResultCacheEntryEventBeanArrayAndObj.class, "entry", exprDotMethod(ref("cache"), "getDeclaredExpressionLastValue", member(prototype.getMemberId()), refEPS))
                     .ifCondition(notEqualsNull(ref("entry")))
-                    .blockReturn(cast(JavaClassHelper.getBoxedType(innerForge.getEvaluationType()), exprDotMethod(ref("entry"), "getResult")))
-                    .declareVar(innerForge.getEvaluationType(), "result", innerValue)
+                    .blockReturn(eval)
+                    .declareVar(evaluationType, "result", innerValue)
                     .expression(exprDotMethod(ref("cache"), "saveDeclaredExpressionLastValue", member(prototype.getMemberId()), refEPS, ref("result")));
         } else {
-            block.declareVar(innerForge.getEvaluationType(), "result", innerValue);
+            block.declareVar(evaluationType, "result", innerValue);
         }
         block.methodReturn(ref("result"));
         return methodNode;
@@ -226,7 +233,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDeclaredForgeBase.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
                 .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
@@ -237,7 +244,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
     private CodegenMethodNode evaluateGetROCollectionEventsCodegenRewritten(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember prototype = codegenClassScope.makeAddMember(ExpressionDeclItem.class, parent.getPrototype());
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression refEPS = scope.getAddEPS(methodNode);
         CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);
@@ -289,7 +296,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
     public CodegenExpression evaluateGetROCollectionScalarCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Collection.class, ExprDeclaredForgeBase.class, codegenClassScope);
         CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
-        CodegenExpressionRef refIsNewData = exprSymbol.getAddIsNewData(methodNode);
+        CodegenExpression refIsNewData = exprSymbol.getAddIsNewData(methodNode);
         CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(methodNode);
         methodNode.getBlock()
                 .declareVar(EventBean[].class, "rewritten", codegenEventsPerStreamRewritten(refEPS, methodNode, codegenClassScope))
@@ -300,7 +307,7 @@ public abstract class ExprDeclaredForgeBase implements ExprForge, ExprTypableRet
     private CodegenMethodNode evaluateGetROCollectionScalarCodegenRewritten(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMember prototype = codegenClassScope.makeAddMember(ExpressionDeclItem.class, parent.getPrototype());
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(true, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, ExprDeclaredForgeBase.class, scope, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression refEPS = scope.getAddEPS(methodNode);
         CodegenExpression refExprEvalCtx = scope.getAddExprEvalCtx(methodNode);

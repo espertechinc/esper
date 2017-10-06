@@ -10,23 +10,29 @@
  */
 package com.espertech.esper.epl.agg.aggregator;
 
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.epl.agg.aggregator.AggregatorCodegenUtil.cntRefCol;
+import static com.espertech.esper.epl.agg.aggregator.AggregatorCodegenUtil.sumRefCol;
+
 /**
  * Average that generates double-typed numbers.
  */
 public class AggregatorAvg implements AggregationMethod {
     protected double sum;
-    protected long numDataPoints;
+    protected long cnt;
 
     public void clear() {
         sum = 0;
-        numDataPoints = 0;
+        cnt = 0;
     }
 
     public void enter(Object object) {
         if (object == null) {
             return;
         }
-        numDataPoints++;
+        cnt++;
         sum += ((Number) object).doubleValue();
     }
 
@@ -34,18 +40,25 @@ public class AggregatorAvg implements AggregationMethod {
         if (object == null) {
             return;
         }
-        if (numDataPoints <= 1) {
+        if (cnt <= 1) {
             clear();
         } else {
-            numDataPoints--;
+            cnt--;
             sum -= ((Number) object).doubleValue();
         }
     }
 
     public Object getValue() {
-        if (numDataPoints == 0) {
+        if (cnt == 0) {
             return null;
         }
-        return sum / numDataPoints;
+        return sum / cnt;
+    }
+
+    public static void getValueCodegen(int column, CodegenMethodNode method) {
+        method.getBlock()
+                .ifCondition(equalsIdentity(cntRefCol(column), constant(0)))
+                .blockReturn(constantNull())
+                .methodReturn(op(sumRefCol(column), "/", cntRefCol(column)));
     }
 }

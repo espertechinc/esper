@@ -11,7 +11,7 @@
 package com.espertech.esper.core.context.factory;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationServiceTable;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceTable;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.mgmt.TableStateViewablePublic;

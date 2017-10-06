@@ -19,10 +19,8 @@ import com.espertech.esper.plugin.PlugInAggregationMultiFunctionDeclarationConte
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
 import com.espertech.esper.supportregression.bean.SupportBean;
-import com.espertech.esper.supportregression.client.SupportAggMFFactory;
-import com.espertech.esper.supportregression.client.SupportAggMFFactorySingleEvent;
-import com.espertech.esper.supportregression.client.SupportAggMFFunc;
-import com.espertech.esper.supportregression.client.SupportAggMFHandler;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.client.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
@@ -33,15 +31,65 @@ import static org.junit.Assert.*;
 
 public class ExecClientAggregationMultiFunctionPlugIn implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
-        ConfigurationPlugInAggregationMultiFunction config = new ConfigurationPlugInAggregationMultiFunction(SupportAggMFFunc.getFunctionNames(), SupportAggMFFactory.class.getName());
-        configuration.addPlugInAggregationMultiFunction(config);
+        ConfigurationPlugInAggregationMultiFunction configGeneral = new ConfigurationPlugInAggregationMultiFunction(SupportAggMFFunc.getFunctionNames(), SupportAggMFFactory.class.getName());
+        configuration.addPlugInAggregationMultiFunction(configGeneral);
+
+        ConfigurationPlugInAggregationMultiFunction codegenTestAccum = new ConfigurationPlugInAggregationMultiFunction("codegenTestAccum".split(","), SupportAggMFEventsAsListFactory.class.getName());
+        configuration.addPlugInAggregationMultiFunction(codegenTestAccum);
+
         configuration.addEventType(SupportBean.class);
     }
 
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionDifferentReturnTypes(epService);
         runAssertionSameProviderGroupedReturnSingleEvent(epService);
+        runAssertionNoCodegen(epService);
+        runAssertionNoCodegenWithTable(epService);
         runAssertionInvalid(epService);
+    }
+
+    private void runAssertionNoCodegenWithTable(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
+        epService.getEPAdministrator().createEPL("create table MyTable(col codegenTestAccum())");
+        epService.getEPAdministrator().createEPL("into table MyTable select codegenTestAccum(*) as col from SupportBean#length(2)");
+
+        EPStatement statement = epService.getEPAdministrator().createEPL("on SupportBean_S0 select col as c0 from MyTable");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        statement.addListener(listener);
+
+        SupportBean e1 = new SupportBean("E1", 1);
+        epService.getEPRuntime().sendEvent(e1);
+        sendAssertList(epService, listener, e1);
+
+        SupportBean e2 = new SupportBean("E2", 2);
+        epService.getEPRuntime().sendEvent(e2);
+        sendAssertList(epService, listener, e1, e2);
+
+        SupportBean e3 = new SupportBean("E3", 3);
+        epService.getEPRuntime().sendEvent(e3);
+        sendAssertList(epService, listener, e2, e3);
+
+        statement.destroy();
+    }
+
+    private void runAssertionNoCodegen(EPServiceProvider epService) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select codegenTestAccum(*) as c0 from SupportBean#length(2)");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        SupportBean e1 = new SupportBean("E1", 1);
+        epService.getEPRuntime().sendEvent(e1);
+        assertList(listener, e1);
+
+        SupportBean e2 = new SupportBean("E2", 2);
+        epService.getEPRuntime().sendEvent(e2);
+        assertList(listener, e1, e2);
+
+        SupportBean e3 = new SupportBean("E3", 3);
+        epService.getEPRuntime().sendEvent(e3);
+        assertList(listener, e2, e3);
+
+        stmt.destroy();
     }
 
     private void runAssertionDifferentReturnTypes(EPServiceProvider epService) {
@@ -226,23 +274,29 @@ public class ExecClientAggregationMultiFunctionPlugIn implements RegressionExecu
             assertNotNull(contextValid.getStatementName());
         }
         assertEquals(2, SupportAggMFHandler.getProviderKeys().size());
-        assertEquals(2, SupportAggMFHandler.getAccessors().size());
-        assertEquals(1, SupportAggMFHandler.getProviderFactories().size());
+        if (!SupportAggMFHandler.getAccessors().isEmpty()) {
+            assertEquals(2, SupportAggMFHandler.getAccessors().size());
+            assertEquals(1, SupportAggMFHandler.getProviderFactories().size());
+        }
         assertEquals(0, SupportAggMFFactorySingleEvent.getStateContexts().size());
 
         // group 1
         SupportBean eventOne = new SupportBean("E1", 1);
         epService.getEPRuntime().sendEvent(eventOne);
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{eventOne, eventOne});
-        assertEquals(1, SupportAggMFFactorySingleEvent.getStateContexts().size());
-        PlugInAggregationMultiFunctionStateContext context = SupportAggMFFactorySingleEvent.getStateContexts().get(0);
-        assertEquals("E1", context.getGroupKey());
+        if (!SupportAggMFFactorySingleEvent.getStateContexts().isEmpty()) {
+            assertEquals(1, SupportAggMFFactorySingleEvent.getStateContexts().size());
+            PlugInAggregationMultiFunctionStateContext context = SupportAggMFFactorySingleEvent.getStateContexts().get(0);
+            assertEquals("E1", context.getGroupKey());
+        }
 
         // group 2
         SupportBean eventTwo = new SupportBean("E2", 2);
         epService.getEPRuntime().sendEvent(eventTwo);
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{eventTwo, eventTwo});
-        assertEquals(2, SupportAggMFFactorySingleEvent.getStateContexts().size());
+        if (!SupportAggMFFactorySingleEvent.getStateContexts().isEmpty()) {
+            assertEquals(2, SupportAggMFFactorySingleEvent.getStateContexts().size());
+        }
 
         stmt.destroy();
     }
@@ -283,5 +337,16 @@ public class ExecClientAggregationMultiFunctionPlugIn implements RegressionExecu
         } catch (ConfigurationException ex) {
             assertEquals("Invalid class name for aggregation multi-function factory 'x y z'", ex.getMessage());
         }
+    }
+
+    private void assertList(SupportUpdateListener listener, SupportBean ... events) {
+        Object[] out = ((Collection) listener.assertOneGetNewAndReset().get("c0")).toArray();
+        EPAssertionUtil.assertEqualsExactOrder(out, events);
+    }
+
+    private void sendAssertList(EPServiceProvider epService, SupportUpdateListener listener, SupportBean... events) {
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
+        Object[] out = ((Collection) listener.assertOneGetNewAndReset().get("c0")).toArray();
+        EPAssertionUtil.assertEqualsExactOrder(out, events);
     }
 }

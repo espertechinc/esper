@@ -31,7 +31,7 @@ import java.rmi.registry.LocateRegistry;
 import java.util.Properties;
 
 public class ServerShellMain {
-    private static Logger log = LoggerFactory.getLogger(ServerShellMain.class);
+    private final static Logger log = LoggerFactory.getLogger(ServerShellMain.class);
 
     private boolean isShutdown;
 

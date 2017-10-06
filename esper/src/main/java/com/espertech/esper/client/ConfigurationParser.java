@@ -44,6 +44,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Parser for configuration XML.
@@ -1261,38 +1262,16 @@ class ConfigurationParser {
         }
     }
 
-    private static void handleCodegen(Configuration configuration, Element parentElement) {
+    private static void handleCodegen(Configuration configuration, Element element) {
         ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
-
-        String enableSelectClauseStr = getOptionalAttribute(parentElement, "enable-selectclause");
-        if (enableSelectClauseStr != null) {
-            codegen.setEnableSelectClause(Boolean.parseBoolean(enableSelectClauseStr));
-        }
-
-        String enableExprStr = getOptionalAttribute(parentElement, "enable-expression");
-        if (enableExprStr != null) {
-            codegen.setEnableExpression(Boolean.parseBoolean(enableExprStr));
-        }
-
-        String enablePropertyGetterStr = getOptionalAttribute(parentElement, "enable-propertygetter");
-        if (enablePropertyGetterStr != null) {
-            codegen.setEnablePropertyGetter(Boolean.parseBoolean(enablePropertyGetterStr));
-        }
-
-        String enableFallbackStr = getOptionalAttribute(parentElement, "enable-fallback");
-        if (enableFallbackStr != null) {
-            codegen.setEnableFallback(Boolean.parseBoolean(enableFallbackStr));
-        }
-
-        String includeDebugSymbolsStr = getOptionalAttribute(parentElement, "include-debugsymbols");
-        if (includeDebugSymbolsStr != null) {
-            codegen.setIncludeDebugSymbols(Boolean.parseBoolean(includeDebugSymbolsStr));
-        }
-
-        String includeCommentsStr = getOptionalAttribute(parentElement, "include-comments");
-        if (includeCommentsStr != null) {
-            codegen.setIncludeComments(Boolean.parseBoolean(includeCommentsStr));
-        }
+        parseOptionalBoolean(element, "enable-aggregation", codegen::setEnableAggregation);
+        parseOptionalBoolean(element, "enable-resultset", codegen::setEnableResultSet);
+        parseOptionalBoolean(element, "enable-selectclause", codegen::setEnableSelectClause);
+        parseOptionalBoolean(element, "enable-expression", codegen::setEnableExpression);
+        parseOptionalBoolean(element, "enable-propertygetter", codegen::setEnablePropertyGetter);
+        parseOptionalBoolean(element, "enable-fallback", codegen::setEnableFallback);
+        parseOptionalBoolean(element, "include-debugsymbols", codegen::setIncludeDebugSymbols);
+        parseOptionalBoolean(element, "include-comments", codegen::setIncludeComments);
     }
 
     private static void handleExecution(Configuration configuration, Element parentElement) {
@@ -1527,5 +1506,12 @@ class ConfigurationParser {
         }
     }
 
-    private static Logger log = LoggerFactory.getLogger(ConfigurationParser.class);
+    private static void parseOptionalBoolean(Element element, String name, Consumer<Boolean> func) {
+        String str = getOptionalAttribute(element, name);
+        if (str != null) {
+            func.accept(Boolean.parseBoolean(str));
+        }
+    }
+
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationParser.class);
 }

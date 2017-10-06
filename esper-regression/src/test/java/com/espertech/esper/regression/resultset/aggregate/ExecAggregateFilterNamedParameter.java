@@ -12,18 +12,18 @@ package com.espertech.esper.regression.resultset.aggregate;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.deploy.DeploymentResult;
-import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.hook.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.epl.agg.access.AggregationStateKey;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.plugin.*;
@@ -36,6 +36,7 @@ import com.espertech.esper.supportregression.util.SupportModelHelper;
 
 import java.util.Collection;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -47,6 +48,8 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
         configuration.addEventType(SupportBean.class);
         configuration.addEventType(SupportBean_S0.class);
         configuration.addEventType(SupportBean_S1.class);
+        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getLogging().setEnableCode(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {
@@ -59,8 +62,8 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
         runAssertionMethodAggNth(epService);
         runAssertionMethodAggRateUnbound(epService);
         runAssertionMethodAggRateBound(epService);
-        runAssertionMethodPlugIn(epService);
 
+        runAssertionMethodPlugIn(epService);
         runAssertionAccessAggLinearBound(epService, false);
         runAssertionAccessAggLinearBound(epService, true);
         runAssertionAccessAggLinearUnbound(epService, false);
@@ -301,6 +304,7 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
                         "sorted(sb, filter: theString like 'B%') as sortedB\n" +
                         "from " + (join ? "SupportBean_S1#lastevent, SupportBean#keepall as sb;\n" : "SupportBean as sb;\n") +
                         "@name('stmt') select MyTable.totalA as ta, MyTable.totalB as tb, MyTable.winA as wa, MyTable.winB as wb, MyTable.sortedA as sa, MyTable.sortedB as sb from SupportBean_S0";
+
         DeploymentResult deploymentResult = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
         SupportUpdateListener listener = new SupportUpdateListener();
         epService.getEPAdministrator().getStatement("stmt").addListener(listener);
@@ -671,10 +675,45 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
         public Class getValueType() {
             return String.class;
         }
+
+        public AggregationFunctionFactoryCodegenType getCodegenType() {
+            return AggregationFunctionFactoryCodegenType.CODEGEN_UNMANAGED;
+        }
+
+        public void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+            MyMethodAggMethod.rowMemberCodegen(context);
+        }
+
+        public void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        }
+
+        public void applyLeaveCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        }
+
+        public void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            MyMethodAggMethod.applyEnterCodegen(context);
+        }
+
+        public void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            // no code
+        }
+
+        public void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+            MyMethodAggMethod.clearCodegen(context);
+        }
+
+        public void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+            MyMethodAggMethod.getValueCodegen(context);
+        }
     }
 
     public static class MyMethodAggMethod implements AggregationMethod {
         StringBuffer buffer = new StringBuffer();
+
+        public static void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+            context.getMembersColumnized().addMember(context.getColumn(), StringBuffer.class, "buffer");
+            context.getCtor().getBlock().assignRef(refCol("buffer", context.getColumn()), newInstance(StringBuffer.class));
+        }
 
         public void enter(Object value) {
             Object[] arr = (Object[]) value;
@@ -682,6 +721,13 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
             if (pass != null && pass) {
                 buffer.append(arr[0].toString());
             }
+        }
+
+        public static void applyEnterCodegen(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+            CodegenExpression filter = context.getParent().getOptionalFilter().getForge().evaluateCodegen(boolean.class, context.getMethod(), context.getSymbols(), context.getClassScope());
+            CodegenExpression value = context.getForges()[0].evaluateCodegen(boolean.class, context.getMethod(), context.getSymbols(), context.getClassScope());
+            context.getMethod().getBlock().ifCondition(filter)
+                    .exprDotMethod(refCol("buffer", context.getColumn()), "append", value);
         }
 
         public void leave(Object value) {
@@ -692,8 +738,16 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
             return buffer.toString();
         }
 
+        public static void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+            context.getMethod().getBlock().methodReturn(exprDotMethod(refCol("buffer", context.getColumn()), "toString"));
+        }
+
         public void clear() {
             buffer = new StringBuffer();
+        }
+
+        public static void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+            context.getMethod().getBlock().assignRef(refCol("buffer", context.getColumn()), newInstance(StringBuffer.class));
         }
     }
 
@@ -704,38 +758,67 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
 
         public PlugInAggregationMultiFunctionHandler validateGetHandler(PlugInAggregationMultiFunctionValidationContext validationContext) {
             assertNotNull(validationContext.getNamedParameters().get("filter").iterator().next());
-            ExprEvaluator valueEval = validationContext.getParameterExpressions()[0].getForge().getExprEvaluator();
-            ExprEvaluator filterEval = validationContext.getNamedParameters().get("filter").get(0).getForge().getExprEvaluator();
-            return new MyAccessAggHandler(valueEval, filterEval);
+            ExprForge valueForge = validationContext.getParameterExpressions()[0].getForge();
+            ExprForge filterForge = validationContext.getNamedParameters().get("filter").get(0).getForge();
+            return new MyAccessAggHandler(valueForge, filterForge);
         }
     }
 
     public static class MyAccessAggHandler implements PlugInAggregationMultiFunctionHandler {
 
-        private final ExprEvaluator valueEval;
-        private final ExprEvaluator filterEval;
+        private final ExprForge valueForge;
+        private final ExprForge filterForge;
 
-        public MyAccessAggHandler(ExprEvaluator valueEval, ExprEvaluator filterEval) {
-            this.valueEval = valueEval;
-            this.filterEval = filterEval;
+        public MyAccessAggHandler(ExprForge valueForge, ExprForge filterForge) {
+            this.valueForge = valueForge;
+            this.filterForge = filterForge;
         }
 
-        public AggregationAccessor getAccessor() {
-            return new AggregationAccessor() {
-                public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-                    return ((MyAccessAggState) state).getBuffer().toString();
+        @Override
+        public PlugInAggregationMultiFunctionCodegenType getCodegenType() {
+            return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL;
+        }
+
+        public AggregationAccessorForge getAccessorForge() {
+            return new AggregationAccessorForge() {
+                public AggregationAccessor getAccessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+                    return new AggregationAccessor() {
+                        public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+                            return ((MyAccessAggState) state).getBuffer().toString();
+                        }
+
+                        public Collection<EventBean> getEnumerableEvents(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+                            return null;
+                        }
+
+                        public EventBean getEnumerableEvent(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+                            return null;
+                        }
+
+                        public Collection<Object> getEnumerableScalar(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+                            return null;
+                        }
+                    };
                 }
 
-                public Collection<EventBean> getEnumerableEvents(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-                    return null;
+                public PlugInAggregationMultiFunctionCodegenType getPluginCodegenType() {
+                    return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL;
                 }
 
-                public EventBean getEnumerableEvent(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-                    return null;
+                public void getValueCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                    context.getMethod().getBlock().methodReturn(exprDotMethod(refCol("buffer", context.getColumn()), "toString"));
                 }
 
-                public Collection<Object> getEnumerableScalar(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-                    return null;
+                public void getEnumerableEventsCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                    context.getMethod().getBlock().methodReturn(constantNull());
+                }
+
+                public void getEnumerableEventCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                    context.getMethod().getBlock().methodReturn(constantNull());
+                }
+
+                public void getEnumerableScalarCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                    context.getMethod().getBlock().methodReturn(constantNull());
                 }
             };
         }
@@ -749,15 +832,36 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
             };
         }
 
-        public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
-            return new PlugInAggregationMultiFunctionStateFactory() {
-                public AggregationState makeAggregationState(PlugInAggregationMultiFunctionStateContext stateContext) {
-                    return new MyAccessAggState(valueEval, filterEval);
+        public PlugInAggregationMultiFunctionStateForge getStateForge() {
+            return new PlugInAggregationMultiFunctionStateForge() {
+                public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
+                    ExprEvaluator valueEval = valueForge.getExprEvaluator();
+                    ExprEvaluator filterEval = filterForge.getExprEvaluator();
+                    return new PlugInAggregationMultiFunctionStateFactory() {
+                        public AggregationState makeAggregationState(PlugInAggregationMultiFunctionStateContext stateContext) {
+                            return new MyAccessAggState(valueEval, filterEval);
+                        }
+                    };
                 }
+
+                public void rowMemberCodegen(PlugInAggregationMultiFunctionStateForgeCodegenRowMemberContext context) {
+                    MyAccessAggState.rowMemberCodegen(context);
+                }
+
+                public void applyEnterCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+                    MyAccessAggState.applyEnterCodegen(valueForge, filterForge, context);
+                }
+
+                public void applyLeaveCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+                    // no code
+                }
+
+                public void clearCodegen(PlugInAggregationMultiFunctionStateForgeCodegenClearContext context) {
+                    MyAccessAggState.clearCodegen(context);                }
             };
         }
 
-        public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
+        public AggregationAgentForge getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
             return null;
         }
     }
@@ -773,6 +877,11 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
             this.filterEval = filterEval;
         }
 
+        public static void rowMemberCodegen(PlugInAggregationMultiFunctionStateForgeCodegenRowMemberContext context) {
+            context.getMembersColumnized().addMember(context.getColumn(), StringBuffer.class, "buffer");
+            context.getCtor().getBlock().assignRef(refCol("buffer", context.getColumn()), newInstance(StringBuffer.class));
+        }
+
         public StringBuffer getBuffer() {
             return buffer;
         }
@@ -785,12 +894,23 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
             }
         }
 
+        public static void applyEnterCodegen(ExprForge valueForge, ExprForge filterForge, PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+            CodegenExpression filter = filterForge.evaluateCodegen(boolean.class, context.getMethod(), context.getSymbols(), context.getClassScope());
+            CodegenExpression value = valueForge.evaluateCodegen(boolean.class, context.getMethod(), context.getSymbols(), context.getClassScope());
+            context.getMethod().getBlock().ifCondition(filter)
+                    .exprDotMethod(refCol("buffer", context.getColumn()), "append", value);
+        }
+
         public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
             // no need
         }
 
         public void clear() {
             buffer = new StringBuffer();
+        }
+
+        public static void clearCodegen(PlugInAggregationMultiFunctionStateForgeCodegenClearContext context) {
+            context.getMethod().getBlock().assignRef(refCol("buffer", context.getColumn()), newInstance(StringBuffer.class));
         }
     }
 }

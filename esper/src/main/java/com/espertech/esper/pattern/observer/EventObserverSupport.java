@@ -17,5 +17,5 @@ import org.slf4j.LoggerFactory;
  * Abstract class for applications to extend to implement a pattern observer.
  */
 public abstract class EventObserverSupport implements EventObserver {
-    private static Logger log = LoggerFactory.getLogger(EventObserverSupport.class);
+    private final static Logger log = LoggerFactory.getLogger(EventObserverSupport.class);
 }

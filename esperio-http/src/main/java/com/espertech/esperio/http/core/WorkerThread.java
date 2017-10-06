@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class WorkerThread extends Thread {
 
-    private static Logger log = LoggerFactory.getLogger(WorkerThread.class);
+    private final static Logger log = LoggerFactory.getLogger(WorkerThread.class);
 
     private final HttpService httpservice;
     private final HttpServerConnection conn;

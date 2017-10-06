@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class ExecutorServices {
-    private static Logger log = LoggerFactory.getLogger(ExecutorServices.class);
+    private final static Logger log = LoggerFactory.getLogger(ExecutorServices.class);
 
     private static final java.util.concurrent.Executor EXEC_SAME_THREAD = new ExecutorSameThread();
 

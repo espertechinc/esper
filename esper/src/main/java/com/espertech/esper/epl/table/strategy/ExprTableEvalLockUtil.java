@@ -17,6 +17,11 @@ import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalLockUtil {
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param lock lock
+     * @param exprEvaluatorContext ctx
+     */
     public static void obtainLockUnless(Lock lock, ExprEvaluatorContext exprEvaluatorContext) {
         obtainLockUnless(lock, exprEvaluatorContext.getTableExprEvaluatorContext());
     }

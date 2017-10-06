@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.expression.methodagg;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionUtil;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;

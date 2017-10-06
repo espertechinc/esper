@@ -30,7 +30,7 @@ import java.util.Random;
 
 public class AutoIdSimMain implements Runnable {
 
-    private static Logger log = LoggerFactory.getLogger(AutoIdSimMain.class);
+    private final static Logger log = LoggerFactory.getLogger(AutoIdSimMain.class);
 
     private final static Random RANDOM = new Random(System.currentTimeMillis());
     private final static String[] SENSOR_IDS = {"urn:epc:1:4.16.30", "urn:epc:1:4.16.32", "urn:epc:1:4.16.36", "urn:epc:1:4.16.38"};

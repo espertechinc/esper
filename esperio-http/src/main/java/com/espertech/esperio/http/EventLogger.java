@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class EventLogger implements EventListener {
 
-    private static Logger log = LoggerFactory.getLogger(EventLogger.class);
+    private final static Logger log = LoggerFactory.getLogger(EventLogger.class);
 
     public void connectionOpen(final NHttpConnection conn) {
         if (log.isInfoEnabled()) {

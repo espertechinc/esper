@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SampleStatement {
-    private static Logger log = LoggerFactory.getLogger(SampleStatement.class);
+    private final static Logger log = LoggerFactory.getLogger(SampleStatement.class);
 
     public static void createStatement(EPAdministrator admin) {
         EPStatement statement = admin.createEPL("select istream ipAddress, avg(duration) from SampleEvent#time(10 sec) group by ipAddress output snapshot every 2 seconds order by ipAddress asc");

@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RunnableUpsertFactory implements RunnableFactory {
-    private static Logger log = LoggerFactory.getLogger(RunnableUpsertFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(RunnableUpsertFactory.class);
 
     private final RunnableUpsertContext context;
 

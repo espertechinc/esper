@@ -12,7 +12,7 @@ package com.espertech.esper.epl.core.resultset.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
 import com.espertech.esper.epl.core.resultset.agggrouped.ResultSetProcessorAggregateGrouped;
 import com.espertech.esper.epl.core.resultset.agggrouped.ResultSetProcessorAggregateGroupedOutputAllHelper;
 import com.espertech.esper.epl.core.resultset.agggrouped.ResultSetProcessorAggregateGroupedOutputLastHelper;

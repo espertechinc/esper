@@ -34,7 +34,7 @@ public class TestSortWindowView extends TestCase {
         factory.sortCriteriaExpressions = expressions;
         factory.sortCriteriaEvaluators = ExprNodeUtility.getEvaluatorsNoCompile(expressions);
         factory.isDescendingValues = new boolean[]{false};
-        factory.comparator = CollectionUtil.getComparator(factory.sortCriteriaExpressions, factory.sortCriteriaEvaluators, false, factory.isDescendingValues);
+        factory.comparator = CollectionUtil.getComparator(factory.sortCriteriaExpressions, false, factory.isDescendingValues);
         myView = new SortWindowView(factory, 5, null, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
@@ -97,7 +97,7 @@ public class TestSortWindowView extends TestCase {
         factory.sortCriteriaExpressions = expressions;
         factory.sortCriteriaEvaluators = ExprNodeUtility.getEvaluatorsNoCompile(expressions);
         factory.isDescendingValues = new boolean[]{false, true};
-        factory.comparator = CollectionUtil.getComparator(factory.sortCriteriaExpressions, factory.sortCriteriaEvaluators, false, factory.isDescendingValues);
+        factory.comparator = CollectionUtil.getComparator(factory.sortCriteriaExpressions, false, factory.isDescendingValues);
         myView = new SortWindowView(factory, 5, null, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);

@@ -11,29 +11,34 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMembersColumnized;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
+import com.espertech.esper.epl.agg.access.AggregationAgentForge;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationUtil;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 public class ExprAggMultiFunctionSortedMinMaxByNodeFactory implements AggregationMethodFactory {
     private final ExprAggMultiFunctionSortedMinMaxByNode parent;
-    private final AggregationAccessor accessor;
+    private final AggregationAccessorForge accessor;
     private final Class accessorResultType;
     private final EventType containedEventType;
 
     private final AggregationStateKey optionalStateKey;
     private final SortedAggregationStateFactoryFactory optionalStateFactory;
-    private final AggregationAgent optionalAgent;
+    private final AggregationAgentForge optionalAgent;
 
-    public ExprAggMultiFunctionSortedMinMaxByNodeFactory(ExprAggMultiFunctionSortedMinMaxByNode parent, AggregationAccessor accessor, Class accessorResultType, EventType containedEventType, AggregationStateKey optionalStateKey, SortedAggregationStateFactoryFactory optionalStateFactory, AggregationAgent optionalAgent) {
+    public ExprAggMultiFunctionSortedMinMaxByNodeFactory(ExprAggMultiFunctionSortedMinMaxByNode parent, AggregationAccessorForge accessor, Class accessorResultType, EventType containedEventType, AggregationStateKey optionalStateKey, SortedAggregationStateFactoryFactory optionalStateFactory, AggregationAgentForge optionalAgent) {
         this.parent = parent;
         this.accessor = accessor;
         this.accessorResultType = accessorResultType;
@@ -59,14 +64,14 @@ public class ExprAggMultiFunctionSortedMinMaxByNodeFactory implements Aggregatio
         return optionalStateKey;
     }
 
-    public AggregationStateFactory getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
         if (isMatchRecognize || optionalStateFactory == null) {
             return null;
         }
-        return optionalStateFactory.makeFactory();
+        return optionalStateFactory.makeForge();
     }
 
-    public AggregationAccessor getAccessor() {
+    public AggregationAccessorForge getAccessorForge() {
         return accessor;
     }
 
@@ -81,7 +86,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNodeFactory implements Aggregatio
         AggregationValidationUtil.validateAggFuncName(parent.getAggregationFunctionName(), other.getParent().getAggregationFunctionName());
     }
 
-    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
+    public AggregationAgentForge getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         return optionalAgent;
     }
 
@@ -93,7 +98,27 @@ public class ExprAggMultiFunctionSortedMinMaxByNodeFactory implements Aggregatio
         return parent;
     }
 
-    public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
+    public ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {
         return null;
+    }
+
+    public void rowMemberCodegen(int column, CodegenCtor ctor, CodegenMembersColumnized membersColumnized, ExprForge[] forges, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void applyEnterCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void applyLeaveCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void clearCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getValueCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
     }
 }

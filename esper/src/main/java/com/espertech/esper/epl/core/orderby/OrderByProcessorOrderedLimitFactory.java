@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 
 /**
  * Sorter and row limiter in one: sorts using a sorter and row limits

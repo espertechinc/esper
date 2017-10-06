@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.plugin;
 
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.agg.access.AggregationStateKey;
+import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.rettype.EPType;
 
 /**
@@ -23,7 +21,7 @@ import com.espertech.esper.epl.rettype.EPType;
  * information.
  * <p>
  * Note the information returned by {@link #getReturnType()} must match the
- * value objects returned by {@link #getAccessor()}.
+ * value objects returned by accessors provided by {@link #getAccessorForge()}.
  * </p>
  * <p>
  * For example, assuming you have an EPL statement such as <code>select search(), query() from MyEvent</code>
@@ -33,7 +31,7 @@ import com.espertech.esper.epl.rettype.EPType;
 public interface PlugInAggregationMultiFunctionHandler {
 
     /**
-     * Returns the read function (an 'accessor').
+     * Returns the forge for the read function (an 'accessor').
      * <p>
      * Typically your application creates one accessor class
      * for each aggregation function name. So if you have two aggregation
@@ -51,9 +49,9 @@ public interface PlugInAggregationMultiFunctionHandler {
      * return type declared through {@link #getReturnType()}.
      * </p>
      *
-     * @return accessor
+     * @return accessor forge
      */
-    public AggregationAccessor getAccessor();
+    public AggregationAccessorForge getAccessorForge();
 
     /**
      * Provide return type.
@@ -122,15 +120,11 @@ public interface PlugInAggregationMultiFunctionHandler {
      */
     public AggregationStateKey getAggregationStateUniqueKey();
 
-    /**
-     * Return the state factory for the sharable aggregation function state.
-     * <p>
-     * The engine only obtains a state factory once for all shared aggregation state.
-     * </p>
-     *
-     * @return state factory
-     */
-    public PlugInAggregationMultiFunctionStateFactory getStateFactory();
+    public PlugInAggregationMultiFunctionStateForge getStateForge();
 
-    public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext);
+    public AggregationAgentForge getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext);
+
+    default PlugInAggregationMultiFunctionCodegenType getCodegenType() {
+        return PlugInAggregationMultiFunctionCodegenType.CODEGEN_NONE;
+    }
 }

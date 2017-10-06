@@ -13,16 +13,19 @@ package com.espertech.esper.regression.nwtable.tbl;
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.hook.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.epl.agg.access.AggregationStateKey;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.plugin.*;
@@ -36,6 +39,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static org.junit.Assert.assertEquals;
 
 public class ExecTablePlugInAggregation implements RegressionExecution {
@@ -120,6 +124,10 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
         public Class getValueType() {
             return String.class;
         }
+
+        public AggregationFunctionFactoryCodegenType getCodegenType() {
+            return AggregationFunctionFactoryCodegenType.CODEGEN_NONE;
+        }
     }
 
     public static class SimpleWordCSVMethod implements AggregationMethod {
@@ -183,6 +191,31 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
         }
     }
 
+    public static class RefCountedMapUpdateAgentForge implements AggregationAgentForge {
+
+        private final ExprForge forge;
+
+        public RefCountedMapUpdateAgentForge(ExprForge forge) {
+            this.forge = forge;
+        }
+
+        public AggregationAgent makeAgent(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+            return new RefCountedMapUpdateAgent(forge.getExprEvaluator());
+        }
+
+        public CodegenExpression applyEnterCodegen(CodegenMethodScope parent, AggregationAgentCodegenSymbols symbols, CodegenClassScope classScope) {
+            return RefCountedMapUpdateAgent.applyEnterCodegen(forge, parent, symbols, classScope);
+        }
+
+        public CodegenExpression applyLeaveCodegen(CodegenMethodScope parent, AggregationAgentCodegenSymbols symbols, CodegenClassScope classScope) {
+            return RefCountedMapUpdateAgent.applyLeaveCodegen(forge, parent, symbols, classScope);
+        }
+
+        public ExprForge getOptionalFilter() {
+            return null;
+        }
+    }
+
     public static class RefCountedMapUpdateAgent implements AggregationAgent {
 
         private final ExprEvaluator evaluator;
@@ -202,6 +235,22 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
             RefCountedMapState themap = (RefCountedMapState) aggregationState;
             themap.leave(value);
         }
+
+        public static CodegenExpression applyEnterCodegen(ExprForge forge, CodegenMethodScope parent, AggregationAgentCodegenSymbols symbols, CodegenClassScope classScope) {
+            return applyCodegen(forge, true, parent, symbols, classScope);
+        }
+
+        public static CodegenExpression applyLeaveCodegen(ExprForge forge, CodegenMethodScope parent, AggregationAgentCodegenSymbols symbols, CodegenClassScope classScope) {
+            return applyCodegen(forge, false, parent, symbols, classScope);
+        }
+
+        private static CodegenExpression applyCodegen(ExprForge forge, boolean enter, CodegenMethodScope parent, AggregationAgentCodegenSymbols symbols, CodegenClassScope classScope) {
+            CodegenMethodNode method = parent.makeChild(void.class, RefCountedMapUpdateAgent.class, classScope);
+            method.getBlock().declareVar(Object.class, "value", forge.evaluateCodegen(Object.class, method, symbols, classScope))
+                    .declareVar(RefCountedMapState.class, "themap", cast(RefCountedMapState.class, symbols.getAddState(method)))
+                    .exprDotMethod(ref("themap"), enter ? "enter" : "leave", ref("value"));
+            return localMethod(method);
+        }
     }
 
     public static class ReferenceCountedMapFunctionHandler implements PlugInAggregationMultiFunctionHandler {
@@ -211,7 +260,12 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
             this.sharedStateKey = sharedStateKey;
         }
 
-        public AggregationAccessor getAccessor() {
+        @Override
+        public PlugInAggregationMultiFunctionCodegenType getCodegenType() {
+            return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL;
+        }
+
+        public AggregationAccessorForge getAccessorForge() {
             return null;
         }
 
@@ -223,16 +277,20 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
             return sharedStateKey;
         }
 
-        public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
-            return new PlugInAggregationMultiFunctionStateFactory() {
-                public AggregationState makeAggregationState(PlugInAggregationMultiFunctionStateContext stateContext) {
-                    return new RefCountedMapState();
+        public PlugInAggregationMultiFunctionStateForge getStateForge() {
+            return new PlugInAggregationMultiFunctionStateForge() {
+                public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
+                    return new PlugInAggregationMultiFunctionStateFactory() {
+                        public AggregationState makeAggregationState(PlugInAggregationMultiFunctionStateContext stateContext) {
+                            return new RefCountedMapState();
+                        }
+                    };
                 }
             };
         }
 
-        public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
-            return new RefCountedMapUpdateAgent(agentContext.getChildNodes()[0].getForge().getExprEvaluator());
+        public AggregationAgentForge getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
+            return new RefCountedMapUpdateAgentForge(agentContext.getChildNodes()[0].getForge());
         }
     }
 
@@ -245,8 +303,17 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
             this.exprEvaluator = exprEvaluator;
         }
 
-        public AggregationAccessor getAccessor() {
-            return new ReferenceCountLookupAccessor(exprEvaluator);
+        @Override
+        public PlugInAggregationMultiFunctionCodegenType getCodegenType() {
+            return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL;
+        }
+
+        public AggregationAccessorForge getAccessorForge() {
+            return new AggregationAccessorForge() {
+                public AggregationAccessor getAccessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+                    return new ReferenceCountLookupAccessor(exprEvaluator);
+                }
+            };
         }
 
         public EPType getReturnType() {
@@ -257,11 +324,11 @@ public class ExecTablePlugInAggregation implements RegressionExecution {
             return sharedStateKey;
         }
 
-        public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
+        public PlugInAggregationMultiFunctionStateForge getStateForge() {
             throw new IllegalStateException("Getter does not provide the state");
         }
 
-        public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
+        public AggregationAgentForge getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
             return null;
         }
     }

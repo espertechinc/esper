@@ -11,18 +11,23 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMembersColumnized;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenCtor;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
+import com.espertech.esper.epl.agg.access.AggregationAgentForge;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationUtil;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -55,12 +60,12 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
         return handlerPlugin.getAggregationStateUniqueKey();
     }
 
-    public AggregationStateFactory getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
         return aggregationFactoryFactory.makePlugInAccess(statementExtensionSvcContext, this);
     }
 
-    public AggregationAccessor getAccessor() {
-        return handlerPlugin.getAccessor();
+    public AggregationAccessorForge getAccessorForge() {
+        return handlerPlugin.getAccessorForge();
     }
 
     public Class getResultType() {
@@ -105,12 +110,28 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
         }
     }
 
-    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
+    public AggregationAgentForge getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         PlugInAggregationMultiFunctionAgentContext ctx = new PlugInAggregationMultiFunctionAgentContext(parent.getChildNodes(), parent.getOptionalFilter());
         return handlerPlugin.getAggregationAgent(ctx);
     }
 
-    public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
+    public ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {
         return null;
+    }
+
+    public void rowMemberCodegen(int column, CodegenCtor ctor, CodegenMembersColumnized membersColumnized, ExprForge[] forges, CodegenClassScope classScope) {
+        // handled by AggregationMethodFactoryPlugIn
+    }
+
+    public void applyEnterCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void applyLeaveCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+    }
+
+    public void clearCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
+    }
+
+    public void getValueCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
     }
 }

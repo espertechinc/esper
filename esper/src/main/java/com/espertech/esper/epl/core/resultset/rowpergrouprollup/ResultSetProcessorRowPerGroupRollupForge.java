@@ -14,16 +14,17 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.codegen.core.CodegenNamedParam;
+import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.codegen.core.CodegenTypedParam;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPerLevelExpression;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPerLevelForge;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
-import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.resultset.core.*;
 import com.espertech.esper.epl.core.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.epl.core.resultset.rowforall.ResultSetProcessorRowForAll;
@@ -41,6 +42,7 @@ import com.espertech.esper.epl.spec.OutputLimitSpec;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 import java.util.Collections;
+import java.util.List;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.*;
@@ -188,13 +190,13 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         return ResultSetProcessorRowPerGroupRollup.class;
     }
 
-    public void instanceCodegen(ResultSetProcessorCodegenInstance instance, CodegenClassScope classScope) {
-        instance.addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGGREGATIONSVC));
-        instance.addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
-        instance.addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
+    public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
+        instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGGREGATIONSVC));
+        instance.getMethods().addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
+        instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
 
         CodegenMember rollupDesc = classScope.makeAddMember(AggregationGroupByRollupDesc.class, groupByRollupDesc);
-        instance.addMethod(AggregationGroupByRollupDesc.class, "getGroupByRollupDesc", Collections.emptyList(), ResultSetProcessorRowPerGroupRollup.class, classScope, methodNode -> methodNode.getBlock().methodReturn(member(rollupDesc.getMemberId())));
+        instance.getMethods().addMethod(AggregationGroupByRollupDesc.class, "getGroupByRollupDesc", Collections.emptyList(), ResultSetProcessorRowPerGroupRollup.class, classScope, methodNode -> methodNode.getBlock().methodReturn(member(rollupDesc.getMemberId())));
 
         ResultSetProcessorRowPerGroupRollupImpl.removedAggregationGroupKeyCodegen(classScope, instance);
         ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(getGroupKeyNodeExpressions(), classScope, instance);
@@ -204,17 +206,17 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         // generate having clauses
         ExprForge[] havingForges = perLevelForges.getOptionalHavingForges();
         if (havingForges != null) {
-            instance.getFactoryExplicitMembers().add(new CodegenNamedParam(HavingClauseEvaluator[].class, NAME_HAVINGEVALUATOR_ARRAYNONMEMBER));
-            instance.getFactoryCtor().getBlock().assignRef(NAME_HAVINGEVALUATOR_ARRAYNONMEMBER, newArrayByLength(HavingClauseEvaluator.class, constant(havingForges.length)));
+            factoryMembers.add(new CodegenTypedParam(HavingClauseEvaluator[].class, NAME_HAVINGEVALUATOR_ARRAYNONMEMBER));
+            factoryCtor.getBlock().assignRef(NAME_HAVINGEVALUATOR_ARRAYNONMEMBER, newArrayByLength(HavingClauseEvaluator.class, constant(havingForges.length)));
             for (int i = 0; i < havingForges.length; i++) {
-                CodegenExpressionNewAnonymousClass impl = newAnonymousClass(instance.getFactoryCtor().getBlock(), HavingClauseEvaluator.class, boolean.class, "evaluateHaving", ExprForgeCodegenNames.PARAMS);
-                impl.getBlock().blockReturn(CodegenLegoMethodExpression.codegenBooleanExpressionReturnTrueFalse(havingForges[i], classScope, instance.getFactoryCtor(), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
-                instance.getFactoryCtor().getBlock().assignArrayElement(NAME_HAVINGEVALUATOR_ARRAYNONMEMBER, constant(i), impl);
+                CodegenExpressionNewAnonymousClass impl = newAnonymousClass(factoryCtor.getBlock(), HavingClauseEvaluator.class, boolean.class, "evaluateHaving", ExprForgeCodegenNames.PARAMS);
+                impl.getBlock().blockReturn(CodegenLegoMethodExpression.codegenBooleanExpressionReturnTrueFalse(havingForges[i], classScope, factoryCtor, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+                factoryCtor.getBlock().assignArrayElement(NAME_HAVINGEVALUATOR_ARRAYNONMEMBER, constant(i), impl);
             }
         }
     }
 
-    public void processViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (unbounded) {
             ResultSetProcessorRowPerGroupRollupUnbound.processViewResultUnboundCodegen(this, classScope, method, instance);
         } else {
@@ -222,11 +224,11 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         }
     }
 
-    public void processJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.processJoinResultCodegen(this, classScope, method, instance);
     }
 
-    public void getIteratorViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void getIteratorViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (unbounded) {
             ResultSetProcessorRowPerGroupRollupUnbound.getIteratorViewUnboundCodegen(this, classScope, method, instance);
         } else {
@@ -234,19 +236,19 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         }
     }
 
-    public void getIteratorJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void getIteratorJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.getIteratorJoinCodegen(this, classScope, method, instance);
     }
 
-    public void processOutputLimitedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.processOutputLimitedViewCodegen(this, classScope, method, instance);
     }
 
-    public void processOutputLimitedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.processOutputLimitedJoinCodegen(this, classScope, method, instance);
     }
 
-    public void applyViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void applyViewResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (unbounded) {
             ResultSetProcessorRowPerGroupRollupUnbound.applyViewResultUnboundCodegen(this, classScope, method, instance);
         } else {
@@ -254,35 +256,35 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         }
     }
 
-    public void applyJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void applyJoinResultCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.applyJoinResultCodegen(this, classScope, method, instance);
     }
 
-    public void continueOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void continueOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.continueOutputLimitedLastAllNonBufferedViewCodegen(this, method);
     }
 
-    public void continueOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void continueOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.continueOutputLimitedLastAllNonBufferedJoinCodegen(this, method);
     }
 
-    public void processOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.processOutputLimitedLastAllNonBufferedViewCodegen(this, classScope, method, instance);
     }
 
-    public void processOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void processOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.processOutputLimitedLastAllNonBufferedJoinCodegen(this, classScope, method, instance);
     }
 
-    public void acceptHelperVisitorCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void acceptHelperVisitorCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         ResultSetProcessorRowPerGroupRollupImpl.acceptHelperVisitorCodegen(method, instance);
     }
 
-    public void stopMethodCodegen(CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public void stopMethodCodegen(CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (unbounded) {
             ResultSetProcessorRowPerGroupRollupUnbound.stopMethodUnboundCodegen(this, classScope, method, instance);
         } else {
-            ResultSetProcessorRowPerGroupRollupImpl.stopMethodCodegen(method, instance);
+            ResultSetProcessorRowPerGroupRollupImpl.stopMethodCodegenBound(method, instance);
         }
     }
 

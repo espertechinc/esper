@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigurationDBAdapter {
-    private static Logger log = LoggerFactory.getLogger(ConfigurationDBAdapter.class);
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationDBAdapter.class);
 
     private Map<String, ConfigurationDBRef> jdbcConnections;
     private List<DMLQuery> dmlQueries;

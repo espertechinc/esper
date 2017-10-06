@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.supportregression.client;
 
+import com.espertech.esper.codegen.core.CodegenTypedParam;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
+import com.espertech.esper.plugin.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
 
 public class SupportAggMFFactorySingleEvent implements PlugInAggregationMultiFunctionStateFactory {
 
@@ -35,7 +38,23 @@ public class SupportAggMFFactorySingleEvent implements PlugInAggregationMultiFun
 
     public AggregationState makeAggregationState(PlugInAggregationMultiFunctionStateContext stateContext) {
         stateContexts.add(stateContext);
-        ;
+
         return new SupportAggMFStateSingleEvent();
+    }
+
+    public static void rowMemberCodegen(PlugInAggregationMultiFunctionStateForgeCodegenRowMemberContext context) {
+        SupportAggMFStateSingleEvent.rowMemberCodegen(context);
+    }
+
+    public static void applyEnterCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        SupportAggMFStateSingleEvent.applyEnterCodegen(context);
+    }
+
+    public static void applyLeaveCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        SupportAggMFStateSingleEvent.applyLeaveCodegen(context);
+    }
+
+    public static void clearCodegen(PlugInAggregationMultiFunctionStateForgeCodegenClearContext context) {
+        SupportAggMFStateSingleEvent.clearCodegen(context);
     }
 }

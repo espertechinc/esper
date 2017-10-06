@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.BitSet;
 
 public class Antlr4ErrorListener implements ANTLRErrorListener {
-    private static Logger log = LoggerFactory.getLogger(Antlr4ErrorListener.class);
+    private final static Logger log = LoggerFactory.getLogger(Antlr4ErrorListener.class);
 
     public final static Antlr4ErrorListener INSTANCE = new Antlr4ErrorListener();
 

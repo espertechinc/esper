@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.core.resultset.rowforall;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 

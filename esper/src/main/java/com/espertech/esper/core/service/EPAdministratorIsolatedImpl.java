@@ -28,7 +28,7 @@ import java.util.*;
  * Implementation for the admin interface.
  */
 public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI {
-    private static Logger log = LoggerFactory.getLogger(EPAdministratorIsolatedImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(EPAdministratorIsolatedImpl.class);
 
     private final String isolatedServiceName;
     private final EPIsolationUnitServices services;

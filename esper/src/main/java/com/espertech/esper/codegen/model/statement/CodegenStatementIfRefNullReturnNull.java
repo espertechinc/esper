@@ -11,20 +11,23 @@
 package com.espertech.esper.codegen.model.statement;
 
 import com.espertech.esper.codegen.core.CodegenIndent;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
 import java.util.Map;
 import java.util.Set;
 
 public class CodegenStatementIfRefNullReturnNull implements CodegenStatement {
 
-    private final String var;
+    private final CodegenExpressionRef ref;
 
-    public CodegenStatementIfRefNullReturnNull(String var) {
-        this.var = var;
+    public CodegenStatementIfRefNullReturnNull(CodegenExpressionRef ref) {
+        this.ref = ref;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass, int level, CodegenIndent indent) {
-        builder.append("if (").append(var).append(" == null) {return null;}\n");
+        builder.append("if (");
+        ref.render(builder, imports, isInnerClass);
+        builder.append(" == null) {return null;}\n");
     }
 
     public void mergeClasses(Set<Class> classes) {

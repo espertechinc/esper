@@ -63,5 +63,5 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
                 " propertyName=" + propertyName;
     }
 
-    private static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableSingleFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableSingleFactory.class);
 }

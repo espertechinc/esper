@@ -17,14 +17,14 @@ import com.espertech.esper.codegen.base.CodegenSymbolProviderEmpty;
 import java.util.List;
 
 public class CodegenCtor extends CodegenMethodNode {
-    private final List<CodegenCtorParam> params;
+    private final List<CodegenTypedParam> params;
 
-    public CodegenCtor(Class generator, CodegenClassScope classScope, List<CodegenCtorParam> params) {
+    public CodegenCtor(Class generator, CodegenClassScope classScope, List<CodegenTypedParam> params) {
         super(null, generator, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         this.params = params;
     }
 
-    public List<CodegenCtorParam> getCtorParams() {
+    public List<CodegenTypedParam> getCtorParams() {
         return params;
     }
 }

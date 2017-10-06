@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigurationHTTPAdapter {
-    private static Logger log = LoggerFactory.getLogger(ConfigurationHTTPAdapter.class);
+    private final static Logger log = LoggerFactory.getLogger(ConfigurationHTTPAdapter.class);
 
     private Map<String, Service> services;
     private List<GetHandler> getHandlers;

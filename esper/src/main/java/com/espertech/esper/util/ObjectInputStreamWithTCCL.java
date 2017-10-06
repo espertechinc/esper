@@ -20,7 +20,7 @@ import java.io.ObjectStreamClass;
 
 public class ObjectInputStreamWithTCCL extends ObjectInputStream {
 
-    private static Logger log = LoggerFactory.getLogger(ObjectInputStreamWithTCCL.class);
+    private final static Logger log = LoggerFactory.getLogger(ObjectInputStreamWithTCCL.class);
 
     public ObjectInputStreamWithTCCL(InputStream input) throws IOException {
         super(input);

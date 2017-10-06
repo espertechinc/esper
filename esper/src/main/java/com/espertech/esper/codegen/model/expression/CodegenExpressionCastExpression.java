@@ -17,6 +17,7 @@ import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassN
 
 public class CodegenExpressionCastExpression implements CodegenExpression {
     private final Class clazz;
+    private final String typeName;
     private final CodegenExpression expression;
 
     public CodegenExpressionCastExpression(Class clazz, CodegenExpression expression) {
@@ -24,19 +25,35 @@ public class CodegenExpressionCastExpression implements CodegenExpression {
             throw new IllegalArgumentException("Cast-to class is a null value");
         }
         this.clazz = clazz;
+        this.typeName = null;
+        this.expression = expression;
+    }
+
+    public CodegenExpressionCastExpression(String typeName, CodegenExpression expression) {
+        if (typeName == null) {
+            throw new IllegalArgumentException("Cast-to class is a null value");
+        }
+        this.clazz = null;
+        this.typeName = typeName;
         this.expression = expression;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("((");
-        appendClassName(builder, clazz, null, imports);
+        if (clazz != null) {
+            appendClassName(builder, clazz, null, imports);
+        } else {
+            builder.append(typeName);
+        }
         builder.append(")");
         expression.render(builder, imports, isInnerClass);
         builder.append(")");
     }
 
     public void mergeClasses(Set<Class> classes) {
-        classes.add(clazz);
+        if (clazz != null) {
+            classes.add(clazz);
+        }
         expression.mergeClasses(classes);
     }
 }

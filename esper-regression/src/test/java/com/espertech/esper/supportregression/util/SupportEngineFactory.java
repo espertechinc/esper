@@ -13,8 +13,6 @@ package com.espertech.esper.supportregression.util;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 import java.util.HashMap;
@@ -28,12 +26,6 @@ public class SupportEngineFactory {
         engines.put(TimeUnit.MILLISECONDS, setupEngine("default_millis", TimeUnit.MILLISECONDS));
         engines.put(TimeUnit.MICROSECONDS, setupEngine("default_micros", TimeUnit.MICROSECONDS));
         return engines;
-    }
-
-    public static EPServiceProvider setupEngineDefault(TimeUnit timeUnit, long startTime) {
-        EPServiceProvider epService = setupEngine(EPServiceProviderSPI.DEFAULT_ENGINE_URI, timeUnit);
-        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
-        return epService;
     }
 
     private static EPServiceProvider setupEngine(String engineURI, TimeUnit timeUnit) {

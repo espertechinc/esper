@@ -41,7 +41,7 @@ import java.util.*;
  * are attached and/or 0 or 1 subscriber (such as iteration-only statement).
  */
 public class StatementResultServiceImpl implements StatementResultService {
-    private static Logger log = LoggerFactory.getLogger(StatementResultServiceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(StatementResultServiceImpl.class);
 
     private final String statementName;
     private final StatementLifecycleSvc statementLifecycleSvc;

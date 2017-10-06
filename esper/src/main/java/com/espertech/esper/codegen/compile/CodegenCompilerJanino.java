@@ -34,6 +34,9 @@ import static com.espertech.esper.codegen.compile.CodeGenerationUtil.codeWithLin
  * <p>
  * Janino cannot handle compilation error "result = method()" with method returning void. This results in "operand stack underflow".
  * </p>
+ * <p>
+ * Define "-Dorg.codehaus.janino.source_debugging.dir=....." and "-Dorg.codehaus.janino.source_debugging.enable=true" for debugging
+ * </p>
  */
 public class CodegenCompilerJanino implements CodegenCompiler {
 

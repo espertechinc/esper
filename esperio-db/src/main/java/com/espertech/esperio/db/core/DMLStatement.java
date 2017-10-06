@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 public class DMLStatement {
-    private static Logger log = LoggerFactory.getLogger(DMLStatement.class);
+    private final static Logger log = LoggerFactory.getLogger(DMLStatement.class);
 
     private final StoreExceptionHandler storeExceptionHandler;
     private final String dmlSQL;

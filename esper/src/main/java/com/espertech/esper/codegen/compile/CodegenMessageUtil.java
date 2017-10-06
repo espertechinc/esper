@@ -16,7 +16,16 @@ import java.util.function.Supplier;
 import static com.espertech.esper.codegen.compile.CodeGenerationUtil.codeWithLineNum;
 
 public class CodegenMessageUtil {
-    public static String getFailedCompileLogMessageWithCode(CodegenCompilerException ex, Supplier<String> debugInformationProvider, boolean enableFallback) {
+    public static String getFailedCompileLogMessageWithCode(Throwable t, Supplier<String> debugInformationProvider, boolean enableFallback) {
+        if (!(t instanceof CodegenCompilerException)) {
+            StringWriter message = new StringWriter();
+            message.append("Failed to code-generate for ")
+                    .append(debugInformationProvider.get())
+                    .append(": ").append(t.getMessage());
+            return message.toString();
+        }
+
+        CodegenCompilerException ex = (CodegenCompilerException) t;
         StringWriter message = new StringWriter();
         message.append("Failed to code-generate for ")
                 .append(debugInformationProvider.get())

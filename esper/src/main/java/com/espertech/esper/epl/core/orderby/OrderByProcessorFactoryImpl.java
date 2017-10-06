@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
@@ -93,14 +93,12 @@ public class OrderByProcessorFactoryImpl implements OrderByProcessorFactory {
      */
     protected static Comparator<Object> getComparator(OrderByElement[] orderBy, boolean isSortUsingCollator) throws ExprValidationException {
         ExprNode[] nodes = new ExprNode[orderBy.length];
-        ExprEvaluator[] evaluators = new ExprEvaluator[orderBy.length];
         boolean[] descending = new boolean[orderBy.length];
         for (int i = 0; i < orderBy.length; i++) {
             nodes[i] = orderBy[i].getExprNode();
-            evaluators[i] = orderBy[i].getExpr();
             descending[i] = orderBy[i].isDescending();
         }
-        return CollectionUtil.getComparator(nodes, evaluators, isSortUsingCollator, descending);
+        return CollectionUtil.getComparator(nodes, isSortUsingCollator, descending);
     }
 
     private OrderByElement[] toElementArray(List<OrderByItem> orderByList, EngineImportService engineImportService, boolean onDemandQuery, String statementName) {

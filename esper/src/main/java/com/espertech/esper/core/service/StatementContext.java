@@ -16,7 +16,7 @@ import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryService;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.engineimport.EngineSettingsService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;

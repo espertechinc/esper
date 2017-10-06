@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 public class DBUtil {
-    private static Logger log = LoggerFactory.getLogger(DBUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(DBUtil.class);
 
     /**
      * Returns the object value for a given column and type.

@@ -33,7 +33,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 public class EsperIOHTTPSubscription extends BaseSubscription {
-    private static Logger log = LoggerFactory.getLogger(EsperIOHTTPSubscription.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIOHTTPSubscription.class);
 
     private String uuid = UUID.randomUUID().toString();
 

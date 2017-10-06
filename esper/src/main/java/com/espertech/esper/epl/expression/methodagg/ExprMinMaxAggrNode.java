@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.expression.methodagg;
 
 import com.espertech.esper.core.service.StatementType;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprNode;

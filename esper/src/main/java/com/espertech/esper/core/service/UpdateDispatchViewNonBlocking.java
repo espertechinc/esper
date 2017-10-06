@@ -43,5 +43,5 @@ public class UpdateDispatchViewNonBlocking extends UpdateDispatchViewBase {
         }
     }
 
-    private static Logger log = LoggerFactory.getLogger(UpdateDispatchViewNonBlocking.class);
+    private final static Logger log = LoggerFactory.getLogger(UpdateDispatchViewNonBlocking.class);
 }

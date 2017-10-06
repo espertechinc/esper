@@ -29,7 +29,7 @@ import java.util.List;
  * Factory for {@link GroupByView} instances.
  */
 public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker {
-    private static Logger log = LoggerFactory.getLogger(GroupByViewFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(GroupByViewFactory.class);
 
     /**
      * View parameters.

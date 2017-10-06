@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.supportregression.client;
 
-import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.hook.*;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationContext;
 
 import java.io.Serializable;
 
@@ -32,4 +32,35 @@ public class MyConcatAggregationFunctionFactory implements AggregationFunctionFa
         return String.class;
     }
 
+    public AggregationFunctionFactoryCodegenType getCodegenType() {
+        return AggregationFunctionFactoryCodegenType.CODEGEN_MANAGED;
+    }
+
+    public void rowMemberCodegen(AggregationFunctionFactoryCodegenRowMemberContext context) {
+        MyConcatAggregationFunction.rowMemberCodegen(context);
+    }
+
+    public void applyEnterCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        MyConcatAggregationFunction.applyEnterCodegen(context);
+    }
+
+    public void applyLeaveCodegenManaged(AggregationFunctionFactoryCodegenRowApplyContextManaged context) {
+        MyConcatAggregationFunction.applyLeaveCodegen(context);
+    }
+
+    public void applyEnterCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+        throw new IllegalStateException();
+    }
+
+    public void applyLeaveCodegenUnmanaged(AggregationFunctionFactoryCodegenRowApplyContextUnmanaged context) {
+        throw new IllegalStateException();
+    }
+
+    public void clearCodegen(AggregationFunctionFactoryCodegenRowClearContext context) {
+        MyConcatAggregationFunction.clearCodegen(context);
+    }
+
+    public void getValueCodegen(AggregationFunctionFactoryCodegenRowGetValueContext context) {
+        MyConcatAggregationFunction.getValueCodegen(context);
+    }
 }

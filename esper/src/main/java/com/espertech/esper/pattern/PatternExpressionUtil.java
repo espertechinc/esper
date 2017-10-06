@@ -29,7 +29,7 @@ import java.util.List;
  * Utility for evaluating pattern expressions.
  */
 public class PatternExpressionUtil {
-    private static Logger log = LoggerFactory.getLogger(PatternExpressionUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(PatternExpressionUtil.class);
 
     public static Object getKeys(MatchedEventMap matchEvent, MatchedEventConvertor convertor, ExprEvaluator[] expressions, AgentInstanceContext agentInstanceContext) {
         EventBean[] eventsPerStream = convertor.convert(matchEvent);

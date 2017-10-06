@@ -11,5 +11,5 @@
 package com.espertech.esper.epl.agg.util;
 
 public interface AggregationLocalLevelHook {
-    public void planned(AggregationGroupByLocalGroupDesc localGroupDesc, AggregationLocalGroupByPlan localGroupByPlan);
+    public void planned(AggregationGroupByLocalGroupDesc localGroupDesc, AggregationLocalGroupByPlanForge localGroupByPlan);
 }

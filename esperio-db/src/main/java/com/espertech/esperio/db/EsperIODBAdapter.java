@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EsperIODBAdapter {
-    private static Logger log = LoggerFactory.getLogger(EsperIODBAdapter.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIODBAdapter.class);
 
     private final ConfigurationDBAdapter config;
     private final String engineURI;

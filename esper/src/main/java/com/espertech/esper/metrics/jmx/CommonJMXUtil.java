@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class CommonJMXUtil {
-    private static Logger log = LoggerFactory.getLogger(CommonJMXUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(CommonJMXUtil.class);
 
     private static final Object LOCK = new Object();
 

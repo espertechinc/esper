@@ -152,7 +152,7 @@ public class CodegenClassGenerator {
 
         // parameters
         if (optionalCtor != null) {
-            for (CodegenCtorParam param : optionalCtor.getCtorParams()) {
+            for (CodegenTypedParam param : optionalCtor.getCtorParams()) {
                 builder.append(delimiter);
                 param.renderAsParameter(builder, imports);
                 delimiter = ",";
@@ -170,7 +170,7 @@ public class CodegenClassGenerator {
 
         // code assigning parameters
         if (optionalCtor != null) {
-            for (CodegenCtorParam param : optionalCtor.getCtorParams()) {
+            for (CodegenTypedParam param : optionalCtor.getCtorParams()) {
                 INDENT.indent(builder, 2 + additionalIndent);
                 builder.append("this.").append(param.getName()).append("=").append(param.getName()).append(";\n");
             }
@@ -192,9 +192,9 @@ public class CodegenClassGenerator {
         builder.append("\n");
     }
 
-    private static void generateCodeMembers(StringBuilder builder, List<CodegenNamedParam> explicitMembers, CodegenCtor optionalCtor, Set<CodegenMember> memberSet, Map<Class, String> imports, int indent) {
+    private static void generateCodeMembers(StringBuilder builder, List<CodegenTypedParam> explicitMembers, CodegenCtor optionalCtor, Set<CodegenMember> memberSet, Map<Class, String> imports, int indent) {
         if (optionalCtor != null) {
-            for (CodegenCtorParam param : optionalCtor.getCtorParams()) {
+            for (CodegenTypedParam param : optionalCtor.getCtorParams()) {
                 INDENT.indent(builder, indent);
                 builder.append("final ");
                 param.renderAsMember(builder, imports);
@@ -209,10 +209,10 @@ public class CodegenClassGenerator {
             member.getMemberId().render(builder);
             builder.append(";\n");
         }
-        for (CodegenNamedParam param : explicitMembers) {
+        for (CodegenTypedParam param : explicitMembers) {
             INDENT.indent(builder, indent);
             builder.append("final ");
-            appendClassName(builder, param.getType(), null, imports);
+            param.renderType(builder, imports);
             builder.append(" ").append(param.getName());
             builder.append(";\n");
         }

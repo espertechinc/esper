@@ -23,7 +23,7 @@ import java.util.Set;
  * Dispatchable for dispatching events to update listeners.
  */
 public class PatternListenerDispatch implements Dispatchable {
-    private static Logger log = LoggerFactory.getLogger(PatternListenerDispatch.class);
+    private final static Logger log = LoggerFactory.getLogger(PatternListenerDispatch.class);
     private final Set<UpdateListener> listeners;
 
     private EventBean singleEvent;

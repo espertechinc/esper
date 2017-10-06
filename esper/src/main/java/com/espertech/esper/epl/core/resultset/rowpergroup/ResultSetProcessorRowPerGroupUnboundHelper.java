@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.core.resultset.rowpergroup;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
+import com.espertech.esper.epl.agg.service.common.AggregationRowRemovedCallback;
 
 import java.util.Iterator;
 

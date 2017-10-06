@@ -31,7 +31,7 @@ import java.io.*;
 import java.util.*;
 
 public class EPLModuleUtil {
-    private static Logger log = LoggerFactory.getLogger(EPLModuleUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(EPLModuleUtil.class);
 
     /**
      * Newline character.

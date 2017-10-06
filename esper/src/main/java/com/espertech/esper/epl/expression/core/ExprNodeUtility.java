@@ -84,6 +84,7 @@ public class ExprNodeUtility {
     private static final Logger log = LoggerFactory.getLogger(ExprNodeUtility.class);
 
     public static final ExprNode[] EMPTY_EXPR_ARRAY = new ExprNode[0];
+    public static final ExprForge[] EMPTY_FORGE_ARRAY = new ExprForge[0];
     public static final ExprDeclaredNode[] EMPTY_DECLARED_ARR = new ExprDeclaredNode[0];
     public static final ExpressionScriptProvided[] EMPTY_SCRIPTS = new ExpressionScriptProvided[0];
 
@@ -941,7 +942,15 @@ public class ExprNodeUtility {
         return types;
     }
 
-    public static ExprEvaluator makeUnderlyingEvaluator(final int streamNum, final Class resultType, TableMetadata tableMetadata) {
+    public static Class[] getExprResultTypes(ExprForge[] nodes) {
+        Class[] types = new Class[nodes.length];
+        for (int i = 0; i < types.length; i++) {
+            types[i] = nodes[i].getEvaluationType();
+        }
+        return types;
+    }
+
+    public static ExprForge makeUnderlyingForge(final int streamNum, final Class resultType, TableMetadata tableMetadata) {
         if (tableMetadata != null) {
             return new ExprNodeUtilUnderlyingEvaluatorTable(streamNum, resultType, tableMetadata);
         }
@@ -1298,6 +1307,37 @@ public class ExprNodeUtility {
             }
         }
         return eval;
+    }
+
+    public static ExprEvaluator[] getEvaluatorsMayCompileWMultiValue(ExprForge[][] forges, EngineImportService engineImportService, Class requestor, boolean isFireAndForget, String statementName) {
+        if (forges == null) {
+            return null;
+        }
+        ExprEvaluator[] eval = new ExprEvaluator[forges.length];
+        for (int i = 0; i < forges.length; i++) {
+            eval[i] = getEvaluatorMayCompileWMultiValue(forges[i], engineImportService, requestor, isFireAndForget, statementName);
+        }
+        return eval;
+    }
+
+    public static ExprEvaluator getEvaluatorMayCompileWMultiValue(ExprForge[] forges, EngineImportService engineImportService, Class requestor, boolean isFireAndForget, String statementName) {
+        if (forges.length == 1) {
+            return ExprNodeCompiler.allocateEvaluator(forges[0], engineImportService, requestor, isFireAndForget, statementName);
+        }
+        ExprEvaluator[] evals = getEvaluatorsMayCompile(forges, engineImportService, requestor, isFireAndForget, statementName);
+        return getEvaluatorMultiValue(evals);
+    }
+
+    public static ExprEvaluator getEvaluatorMultiValue(ExprEvaluator[] evaluators) {
+        return new ExprEvaluator() {
+            public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+                Object[] values = new Object[evaluators.length];
+                for (int i = 0; i < evaluators.length; i++) {
+                    values[i] = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+                }
+                return values;
+            }
+        };
     }
 
     public static ExprEvaluator[] getEvaluatorsNoCompile(ExprNode[] exprNodes) {

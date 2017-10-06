@@ -15,28 +15,20 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.*;
 
 public class ExprMethodAggUtil {
-    public static ExprEvaluator getDefaultEvaluator(ExprNode[] childNodes, boolean join, EventType[] typesPerStream)
-            throws ExprValidationException {
-        ExprEvaluator evaluator;
-        if (childNodes.length > 1) {
-            evaluator = getMultiNodeEvaluator(childNodes, join, typesPerStream);
-        } else if (childNodes.length > 0) {
-            if (childNodes[0] instanceof ExprWildcard) {
-                evaluator = getWildcardEvaluator(typesPerStream, join);
-            } else {
-                // Use the evaluation node under the aggregation node to obtain the aggregation value
-                evaluator = childNodes[0].getForge().getExprEvaluator();
-            }
-        } else {
-            // For aggregation that doesn't evaluate any particular sub-expression, return null on evaluation
-            evaluator = new ExprEvaluator() {
-                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-                    return null;
-                }
-
-            };
+    public static ExprForge[] getDefaultForges(ExprNode[] childNodes, boolean join, EventType[] typesPerStream) throws ExprValidationException {
+        if (childNodes.length == 0) {
+            return ExprNodeUtility.EMPTY_FORGE_ARRAY;
         }
-        return evaluator;
+        ExprForge[] forges = new ExprForge[childNodes.length];
+        for (int i = 0; i < childNodes.length; i++) {
+            if (childNodes[i] instanceof ExprWildcard) {
+                validateWildcard(typesPerStream, join);
+                forges[i] = new ExprForgeWildcard(typesPerStream[0].getUnderlyingType());
+            } else {
+                forges[i] = childNodes[i].getForge();
+            }
+        }
+        return forges;
     }
 
     public static ExprEvaluator getMultiNodeEvaluator(ExprNode[] childNodes, boolean join, EventType[] typesPerStream) throws ExprValidationException {
@@ -61,24 +53,18 @@ public class ExprMethodAggUtil {
                 }
                 return values;
             }
-
         };
     }
 
     private static ExprEvaluator getWildcardEvaluator(EventType[] typesPerStream, boolean isJoin) throws ExprValidationException {
+        validateWildcard(typesPerStream, isJoin);
+        return ExprEvaluatorWildcard.INSTANCE;
+    }
+
+    private static void validateWildcard(EventType[] typesPerStream, boolean isJoin) throws ExprValidationException {
         final Class returnType = typesPerStream != null && typesPerStream.length > 0 ? typesPerStream[0].getUnderlyingType() : null;
         if (isJoin || returnType == null) {
             throw new ExprValidationException("Invalid use of wildcard (*) for stream selection in a join or an empty from-clause, please use the stream-alias syntax to select a specific stream instead");
         }
-        return new ExprEvaluator() {
-            public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-                EventBean event = eventsPerStream[0];
-                if (event == null) {
-                    return null;
-                }
-                return event.getUnderlying();
-            }
-
-        };
     }
 }

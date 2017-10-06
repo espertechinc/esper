@@ -11,8 +11,18 @@
 package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 
-public class ExprNodeUtilUnderlyingEvaluator implements ExprEvaluator {
+import java.io.StringWriter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class ExprNodeUtilUnderlyingEvaluator implements ExprEvaluator, ExprForge {
     private final int streamNum;
     private final Class resultType;
 
@@ -22,10 +32,43 @@ public class ExprNodeUtilUnderlyingEvaluator implements ExprEvaluator {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        if ((eventsPerStream == null) || (eventsPerStream[streamNum] == null)) {
+        if (eventsPerStream == null) {
             return null;
         }
-        return eventsPerStream[streamNum].getUnderlying();
+        EventBean event = eventsPerStream[streamNum];
+        if (event == null) {
+            return null;
+        }
+        return event.getUnderlying();
     }
 
+    public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenMethodNode methodNode = codegenMethodScope.makeChild(resultType, this.getClass(), codegenClassScope);
+        CodegenExpressionRef refEPS = exprSymbol.getAddEPS(methodNode);
+        methodNode.getBlock().ifRefNullReturnNull(refEPS)
+                .declareVar(EventBean.class, "event", arrayAtIndex(refEPS, constant(streamNum)))
+                .ifRefNullReturnNull("event")
+                .methodReturn(cast(requiredType, exprDotMethod(ref("event"), "getUnderlying")));
+        return localMethod(methodNode);
+    }
+
+    public Class getEvaluationType() {
+        return resultType;
+    }
+
+    public ExprForgeComplexityEnum getComplexity() {
+        return ExprForgeComplexityEnum.NONE;
+    }
+
+    public ExprNodeRenderable getForgeRenderable() {
+        return new ExprNodeRenderable() {
+            public void toEPL(StringWriter writer, ExprPrecedenceEnum parentPrecedence) {
+                writer.append(this.getClass().getSimpleName());
+            }
+        };
+    }
 }

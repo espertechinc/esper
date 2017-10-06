@@ -265,5 +265,5 @@ public class SchemaXMLPropertyParser {
         return property instanceof MappedProperty ? ((MappedProperty) property).getKey() : ((DynamicMappedProperty) property).getKey();
     }
 
-    private static Logger log = LoggerFactory.getLogger(SchemaXMLPropertyParser.class);
+    private final static Logger log = LoggerFactory.getLogger(SchemaXMLPropertyParser.class);
 }

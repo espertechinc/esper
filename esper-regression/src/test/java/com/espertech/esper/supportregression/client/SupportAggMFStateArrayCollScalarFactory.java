@@ -13,8 +13,7 @@ package com.espertech.esper.supportregression.client;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
+import com.espertech.esper.plugin.*;
 
 public class SupportAggMFStateArrayCollScalarFactory implements PlugInAggregationMultiFunctionStateFactory {
     private final ExprForge forge;
@@ -23,6 +22,22 @@ public class SupportAggMFStateArrayCollScalarFactory implements PlugInAggregatio
     public SupportAggMFStateArrayCollScalarFactory(ExprForge forge) {
         this.forge = forge;
         this.evaluator = forge.getExprEvaluator();
+    }
+
+    public static void rowMemberCodegen(PlugInAggregationMultiFunctionStateForgeCodegenRowMemberContext context) {
+        SupportAggMFStateArrayCollScalar.rowMemberCodegen(context);
+    }
+
+    public static void applyEnterCodegen(ExprForge forge, PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        SupportAggMFStateArrayCollScalar.applyEnterCodegen(forge, context);
+    }
+
+    public static void applyLeaveCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+        SupportAggMFStateArrayCollScalar.applyLeaveCodegen(context);
+    }
+
+    public static void clearCodegen(PlugInAggregationMultiFunctionStateForgeCodegenClearContext context) {
+        SupportAggMFStateArrayCollScalar.clearCodegen(context);
     }
 
     public AggregationState makeAggregationState(PlugInAggregationMultiFunctionStateContext stateContext) {

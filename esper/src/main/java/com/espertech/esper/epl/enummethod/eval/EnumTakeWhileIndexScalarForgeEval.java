@@ -91,7 +91,7 @@ public class EnumTakeWhileIndexScalarForgeEval implements EnumEval {
         CodegenMember evalTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.evalEventType);
         CodegenMember indexTypeMember = codegenClassScope.makeAddMember(ObjectArrayEventType.class, forge.indexEventType);
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumTakeWhileIndexScalarForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
         CodegenExpression innerValue = forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope);
 
@@ -116,7 +116,7 @@ public class EnumTakeWhileIndexScalarForgeEval implements EnumEval {
                 .declareVar(int.class, "count", constant(-1));
 
         CodegenBlock forEach = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .expression(increment("count"))
+                .increment("count")
                 .assignArrayElement("evalProps", constant(0), ref("next"))
                 .assignArrayElement("indexProps", constant(0), ref("count"));
         CodegenLegoBooleanExpression.codegenBreakIfNullOrNotPass(forEach, forge.innerExpression.getEvaluationType(), innerValue);

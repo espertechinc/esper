@@ -117,5 +117,5 @@ public abstract class ConnectionCache {
         return new Pair<Connection, PreparedStatement>(connection, preparedStatement);
     }
 
-    private static Logger log = LoggerFactory.getLogger(ConnectionCache.class);
+    private final static Logger log = LoggerFactory.getLogger(ConnectionCache.class);
 }

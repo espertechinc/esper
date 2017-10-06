@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class EsperHttpServiceBase {
-    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceBase.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperHttpServiceBase.class);
 
     private final String serviceName;
     private final Service serviceConfig;

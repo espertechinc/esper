@@ -44,8 +44,10 @@ public class CodeGenerationUtil {
         }
         builder.append("class ");
         builder.append(classname);
-        builder.append(" implements ");
-        appendClassName(builder, implementedInterface, null, imports);
+        if (implementedInterface != null) {
+            builder.append(" implements ");
+            appendClassName(builder, implementedInterface, null, imports);
+        }
         builder.append(" {\n");
     }
 

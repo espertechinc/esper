@@ -90,13 +90,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"));
-            block.compoundAssignment("sum", "+", value);
+            block.increment("cnt");
+            block.assignCompound("sum", "+", value);
         }
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"));
-            block.compoundAssignment("sum", "+", cast(Double.class, value));
+            block.increment("cnt");
+            block.assignCompound("sum", "+", cast(Double.class, value));
         }
 
         public void codegenReturn(CodegenBlock block) {
@@ -145,12 +145,12 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"))
+            block.increment("cnt")
                     .assignRef("sum", exprDotMethod(ref("sum"), "add", value));
         }
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"))
+            block.increment("cnt")
                     .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(BigDecimal.class, value)));
         }
 
@@ -204,12 +204,12 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"))
+            block.increment("cnt")
                     .assignRef("sum", exprDotMethod(ref("sum"), "add", value));
         }
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"))
+            block.increment("cnt")
                     .assignRef("sum", exprDotMethod(ref("sum"), "add", cast(BigInteger.class, value)));
         }
 
@@ -263,13 +263,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"));
-            block.compoundAssignment("sum", "+", value);
+            block.increment("cnt");
+            block.assignCompound("sum", "+", value);
         }
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"));
-            block.compoundAssignment("sum", "+", cast(Long.class, value));
+            block.increment("cnt");
+            block.assignCompound("sum", "+", cast(Long.class, value));
         }
 
         public void codegenReturn(CodegenBlock block) {
@@ -318,13 +318,13 @@ public class ExprDotForgeSumOf extends ExprDotForgeEnumMethodBase {
         }
 
         public void codegenEnterNumberTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"));
-            block.compoundAssignment("sum", "+", value);
+            block.increment("cnt");
+            block.assignCompound("sum", "+", value);
         }
 
         public void codegenEnterObjectTypedNonNull(CodegenBlock block, CodegenExpressionRef value) {
-            block.expression(increment("cnt"));
-            block.compoundAssignment("sum", "+", cast(Integer.class, value));
+            block.increment("cnt");
+            block.assignCompound("sum", "+", cast(Integer.class, value));
         }
 
         public void codegenReturn(CodegenBlock block) {

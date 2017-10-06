@@ -20,7 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class RunnableDML implements Runnable {
-    private static Logger log = LoggerFactory.getLogger(RunnableDML.class);
+    private final static Logger log = LoggerFactory.getLogger(RunnableDML.class);
 
     private final RunnableDMLContext context;
     private final EventBean theEvent;

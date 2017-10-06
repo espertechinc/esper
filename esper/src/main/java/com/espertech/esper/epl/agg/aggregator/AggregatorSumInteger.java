@@ -15,18 +15,18 @@ package com.espertech.esper.epl.agg.aggregator;
  */
 public class AggregatorSumInteger implements AggregationMethod {
     protected int sum;
-    protected long numDataPoints;
+    protected long cnt;
 
     public void clear() {
         sum = 0;
-        numDataPoints = 0;
+        cnt = 0;
     }
 
     public void enter(Object object) {
         if (object == null) {
             return;
         }
-        numDataPoints++;
+        cnt++;
         sum += (Integer) object;
     }
 
@@ -34,17 +34,17 @@ public class AggregatorSumInteger implements AggregationMethod {
         if (object == null) {
             return;
         }
-        if (numDataPoints <= 1) {
+        if (cnt <= 1) {
             clear();
         } else {
-            numDataPoints--;
+            cnt--;
             sum -= (Integer) object;
         }
     }
 
 
     public Object getValue() {
-        if (numDataPoints == 0) {
+        if (cnt == 0) {
             return null;
         }
         return sum;

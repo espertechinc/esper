@@ -16,6 +16,9 @@ import java.util.Set;
 public class CodegenExpressionNoOp implements CodegenExpression {
     public final static CodegenExpressionNoOp INSTANCE = new CodegenExpressionNoOp();
 
+    private CodegenExpressionNoOp() {
+    }
+
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append(";");
     }

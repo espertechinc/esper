@@ -10,14 +10,10 @@
  */
 package com.espertech.esper.supportregression.client;
 
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.agg.access.AggregationStateKey;
+import com.espertech.esper.epl.agg.access.*;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.rettype.EPType;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionAgentContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionHandler;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
+import com.espertech.esper.plugin.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +28,11 @@ public class SupportAggMFHandler implements PlugInAggregationMultiFunctionHandle
 
     public SupportAggMFHandler(PlugInAggregationMultiFunctionValidationContext validationContext) {
         this.validationContext = validationContext;
+    }
+
+    @Override
+    public PlugInAggregationMultiFunctionCodegenType getCodegenType() {
+        return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL;
     }
 
     public static void reset() {
@@ -64,25 +65,112 @@ public class SupportAggMFHandler implements PlugInAggregationMultiFunctionHandle
         };
     }
 
-    public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
+    public PlugInAggregationMultiFunctionStateForge getStateForge() {
+        return new PlugInAggregationMultiFunctionStateForge() {
+            public PlugInAggregationMultiFunctionStateFactory getStateFactory() {
+                // for single-event tracking factories for assertions
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFFactorySingleEvent factory = new SupportAggMFFactorySingleEvent();
+                    providerFactories.add(factory);
+                    return factory;
+                }
+                return SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getStateFactory(validationContext);
+            }
 
-        // for single-event tracking factories for assertions
-        if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
-            SupportAggMFFactorySingleEvent factory = new SupportAggMFFactorySingleEvent();
-            providerFactories.add(factory);
-            return factory;
-        }
-        return SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getStateFactory(validationContext);
+            public void rowMemberCodegen(PlugInAggregationMultiFunctionStateForgeCodegenRowMemberContext context) {
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFFactorySingleEvent.rowMemberCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).rowMemberCodegen(context);
+                }
+            }
+
+            public void applyEnterCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFFactorySingleEvent.applyEnterCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).applyEnterCodegen(validationContext, context);
+                }
+            }
+
+            public void applyLeaveCodegen(PlugInAggregationMultiFunctionStateForgeCodegenApplyContext context) {
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFFactorySingleEvent.applyLeaveCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).applyLeaveCodegen(context);
+                }
+            }
+
+            public void clearCodegen(PlugInAggregationMultiFunctionStateForgeCodegenClearContext context) {
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFFactorySingleEvent.clearCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).clearCodegen(context);
+                }
+            }
+        };
     }
 
-    public AggregationAccessor getAccessor() {
-        // for single-event tracking accessors for assertions
-        if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
-            SupportAggMFAccessorSingleEvent accessorEvent = new SupportAggMFAccessorSingleEvent();
-            accessors.add(accessorEvent);
-            return accessorEvent;
-        }
-        return SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getAccessor();
+    public AggregationAccessorForge getAccessorForge() {
+        return new AggregationAccessorForge() {
+            public AggregationAccessor getAccessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+                // for single-event tracking accessAccessors for assertions
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFAccessorSingleEvent accessorEvent = new SupportAggMFAccessorSingleEvent();
+                    accessors.add(accessorEvent);
+                    return accessorEvent;
+                }
+                return SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getAccessor();
+            }
+
+            public PlugInAggregationMultiFunctionCodegenType getPluginCodegenType() {
+                return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL;
+            }
+
+            public void getValueCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                // for single-event tracking accessAccessors for assertions
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFAccessorSingleEvent.getValueCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getValueCodegen(context);
+                }
+            }
+
+            public void getEnumerableEventsCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                // for single-event tracking accessAccessors for assertions
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFAccessorSingleEvent.getEnumerableEventsCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getEnumerableEventsCodegen(context);
+                }
+            }
+
+            public void getEnumerableEventCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                // for single-event tracking accessAccessors for assertions
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFAccessorSingleEvent.getEnumerableEventCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getEnumerableEventCodegen(context);
+                }
+            }
+
+            public void getEnumerableScalarCodegen(AggregationAccessorForgeGetCodegenContext context) {
+                // for single-event tracking accessAccessors for assertions
+                if (SupportAggMFFunc.isSingleEvent(validationContext.getFunctionName())) {
+                    SupportAggMFAccessorSingleEvent.getEnumerableScalarCodegen(context);
+                }
+                else {
+                    SupportAggMFFunc.fromFunctionName(validationContext.getFunctionName()).getEnumerableScalarCodegen(context);
+                }
+            }
+        };
     }
 
     public EPType getReturnType() {
@@ -90,7 +178,7 @@ public class SupportAggMFHandler implements PlugInAggregationMultiFunctionHandle
                 getReturnType(validationContext.getEventTypes()[0], validationContext.getParameterExpressions());
     }
 
-    public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
+    public AggregationAgentForge getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {
         return null;
     }
 

@@ -13,13 +13,13 @@ package com.espertech.esper.epl.agg.factory;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
-import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
-import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpecForge;
+import com.espertech.esper.epl.agg.access.AggregationStateSortedSpecForge;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.expression.accessagg.*;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
@@ -94,23 +94,23 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
         return new AggregationMethodFactoryFirstLastUnbound(parent, containedType, accessorResultType, streamNum, hasFilter);
     }
 
-    public AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum, ExprEvaluator optionalFilter) {
-        return new AggregationStateFactoryLinear(expr, streamNum, optionalFilter);
+    public AggregationStateFactoryForge makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum, ExprForge optionalFilter, boolean join) {
+        return new AggregationStateLinearForge(expr, streamNum, optionalFilter, join);
     }
 
     public AggregationStateFactoryCountMinSketch makeCountMinSketch(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggCountMinSketchNode expr, CountMinSketchSpec specification) {
         return new AggregationStateFactoryCountMinSketch(expr, specification);
     }
 
-    public AggregationStateFactory makeMinMaxEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec) {
-        return new AggregationStateFactoryMinMaxByEver(expr, spec);
+    public AggregationStateFactoryForge makeMinMaxEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpecForge spec) {
+        return new AggregationStateMinMaxByEverForge(expr, spec);
     }
 
-    public AggregationStateFactory makePlugInAccess(StatementExtensionSvcContext statementExtensionSvcContext, ExprPlugInAggMultiFunctionNodeFactory factory) {
-        return new AggregationStateFactoryPlugin(factory);
+    public AggregationStateFactoryForge makePlugInAccess(StatementExtensionSvcContext statementExtensionSvcContext, ExprPlugInAggMultiFunctionNodeFactory factory) {
+        return new AggregationStatePluginForge(factory);
     }
 
-    public AggregationStateFactory makeSorted(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpec spec) {
-        return new AggregationStateFactorySorted(expr, spec);
+    public AggregationStateFactoryForge makeSorted(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpecForge spec) {
+        return new AggregationStateSortedForge(expr, spec);
     }
 }

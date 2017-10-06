@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.epl.agg.util;
 
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationServiceAggExpressionDesc;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
+import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPairForge;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceAggExpressionDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
@@ -28,21 +28,21 @@ import java.util.List;
  */
 public class AggregationGroupByLocalGroupByAnalyzer {
 
-    public static AggregationLocalGroupByPlan analyze(ExprEvaluator[] evaluators, AggregationMethodFactory[] prototypes, AggregationStateFactory[] accessAggregations, AggregationGroupByLocalGroupDesc localGroupDesc, ExprNode[] groupByExpressions, AggregationAccessorSlotPair[] accessors, EngineImportService engineImportService, boolean fireAndForget, String statementName) {
+    public static AggregationLocalGroupByPlanForge analyze(ExprForge[][] methodForges, AggregationMethodFactory[] methodFactories, AggregationStateFactoryForge[] accessAggregations, AggregationGroupByLocalGroupDesc localGroupDesc, ExprNode[] groupByExpressions, AggregationAccessorSlotPairForge[] accessors, EngineImportService engineImportService, boolean fireAndForget, String statementName) {
 
         if (groupByExpressions == null) {
             groupByExpressions = ExprNodeUtility.EMPTY_EXPR_ARRAY;
         }
 
-        AggregationLocalGroupByColumn[] columns = new AggregationLocalGroupByColumn[localGroupDesc.getNumColumns()];
-        List<AggregationLocalGroupByLevel> levelsList = new ArrayList<AggregationLocalGroupByLevel>();
-        AggregationLocalGroupByLevel optionalTopLevel = null;
+        AggregationLocalGroupByColumnForge[] columns = new AggregationLocalGroupByColumnForge[localGroupDesc.getNumColumns()];
+        List<AggregationLocalGroupByLevelForge> levelsList = new ArrayList<>();
+        AggregationLocalGroupByLevelForge optionalTopLevel = null;
 
         // determine optional top level (level number is -1)
         for (int i = 0; i < localGroupDesc.getLevels().length; i++) {
             AggregationGroupByLocalGroupLevel levelDesc = localGroupDesc.getLevels()[i];
             if (levelDesc.getPartitionExpr().length == 0) {
-                optionalTopLevel = getLevel(-1, levelDesc, evaluators, prototypes, accessAggregations, columns, groupByExpressions.length == 0, accessors, engineImportService, fireAndForget, statementName);
+                optionalTopLevel = getLevel(-1, levelDesc, methodForges, methodFactories, accessAggregations, columns, groupByExpressions.length == 0, accessors, engineImportService, fireAndForget, statementName);
             }
         }
 
@@ -55,7 +55,7 @@ public class AggregationGroupByLocalGroupByAnalyzer {
             }
             boolean isDefaultLevel = groupByExpressions != null && ExprNodeUtility.deepEqualsIgnoreDupAndOrder(groupByExpressions, levelDesc.getPartitionExpr());
             if (isDefaultLevel) {
-                AggregationLocalGroupByLevel level = getLevel(0, levelDesc, evaluators, prototypes, accessAggregations, columns, isDefaultLevel, accessors, engineImportService, fireAndForget, statementName);
+                AggregationLocalGroupByLevelForge level = getLevel(0, levelDesc, methodForges, methodFactories, accessAggregations, columns, isDefaultLevel, accessors, engineImportService, fireAndForget, statementName);
                 levelsList.add(level);
                 levelNumber++;
                 break;
@@ -72,7 +72,7 @@ public class AggregationGroupByLocalGroupByAnalyzer {
             if (isDefaultLevel) {
                 continue;
             }
-            AggregationLocalGroupByLevel level = getLevel(levelNumber, levelDesc, evaluators, prototypes, accessAggregations, columns, isDefaultLevel, accessors, engineImportService, fireAndForget, statementName);
+            AggregationLocalGroupByLevelForge level = getLevel(levelNumber, levelDesc, methodForges, methodFactories, accessAggregations, columns, isDefaultLevel, accessors, engineImportService, fireAndForget, statementName);
             levelsList.add(level);
             levelNumber++;
         }
@@ -82,56 +82,55 @@ public class AggregationGroupByLocalGroupByAnalyzer {
         int numAccesses = 0;
         if (optionalTopLevel != null) {
             numMethods += optionalTopLevel.getMethodFactories().length;
-            numAccesses += optionalTopLevel.getStateFactories().length;
+            numAccesses += optionalTopLevel.getAccessStateForges().length;
         }
-        for (AggregationLocalGroupByLevel level : levelsList) {
+        for (AggregationLocalGroupByLevelForge level : levelsList) {
             numMethods += level.getMethodFactories().length;
-            numAccesses += level.getStateFactories().length;
+            numAccesses += level.getAccessStateForges().length;
         }
 
-        AggregationLocalGroupByLevel[] levels = levelsList.toArray(new AggregationLocalGroupByLevel[levelsList.size()]);
-        return new AggregationLocalGroupByPlan(numMethods, numAccesses, columns, optionalTopLevel, levels);
+        AggregationLocalGroupByLevelForge[] levels = levelsList.toArray(new AggregationLocalGroupByLevelForge[levelsList.size()]);
+        return new AggregationLocalGroupByPlanForge(numMethods, numAccesses, columns, optionalTopLevel, levels);
     }
 
     // Obtain those method and state factories for each level
-    private static AggregationLocalGroupByLevel getLevel(int levelNumber, AggregationGroupByLocalGroupLevel level, ExprEvaluator[] methodEvaluatorsAll, AggregationMethodFactory[] methodFactoriesAll, AggregationStateFactory[] stateFactoriesAll, AggregationLocalGroupByColumn[] columns, boolean defaultLevel, AggregationAccessorSlotPair[] accessors, EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+    private static AggregationLocalGroupByLevelForge getLevel(int levelNumber, AggregationGroupByLocalGroupLevel level, ExprForge[][] methodForgesAll, AggregationMethodFactory[] methodFactoriesAll, AggregationStateFactoryForge[] accessForges, AggregationLocalGroupByColumnForge[] columns, boolean defaultLevel, AggregationAccessorSlotPairForge[] accessors, EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
 
         ExprNode[] partitionExpr = level.getPartitionExpr();
-        ExprEvaluator[] partitionEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(partitionExpr, engineImportService, AggregationGroupByLocalGroupByAnalyzer.class, isFireAndForget, statementName);
-        Class[] partitionEvaluatorTypes = ExprNodeUtility.getExprResultTypes(partitionExpr);
+        ExprForge[] partitionForges = ExprNodeUtility.getForges(partitionExpr);
 
-        List<ExprEvaluator> methodEvaluators = new ArrayList<ExprEvaluator>();
-        List<AggregationMethodFactory> methodFactories = new ArrayList<AggregationMethodFactory>();
-        List<AggregationStateFactory> stateFactories = new ArrayList<AggregationStateFactory>();
+        List<ExprForge[]> methodForges = new ArrayList<>();
+        List<AggregationMethodFactory> methodFactories = new ArrayList<>();
+        List<AggregationStateFactoryForge> stateFactories = new ArrayList<>();
 
         for (AggregationServiceAggExpressionDesc expr : level.getExpressions()) {
             int column = expr.getColumnNum();
             int methodOffset = -1;
             boolean methodAgg = true;
-            AggregationAccessorSlotPair pair = null;
+            AggregationAccessorSlotPairForge pair = null;
 
-            if (column < methodEvaluatorsAll.length) {
-                methodEvaluators.add(methodEvaluatorsAll[column]);
+            if (column < methodForgesAll.length) {
+                methodForges.add(methodForgesAll[column]);
                 methodFactories.add(methodFactoriesAll[column]);
                 methodOffset = methodFactories.size() - 1;
             } else {
                 // slot gives us the number of the state factory
-                int absoluteSlot = accessors[column - methodEvaluatorsAll.length].getSlot();
-                AggregationAccessor accessor = accessors[column - methodEvaluatorsAll.length].getAccessor();
-                AggregationStateFactory factory = stateFactoriesAll[absoluteSlot];
+                int absoluteSlot = accessors[column - methodForgesAll.length].getSlot();
+                AggregationAccessorForge accessor = accessors[column - methodForgesAll.length].getAccessorForge();
+                AggregationStateFactoryForge factory = accessForges[absoluteSlot];
                 int relativeSlot = stateFactories.indexOf(factory);
                 if (relativeSlot == -1) {
                     stateFactories.add(factory);
                     relativeSlot = stateFactories.size() - 1;
                 }
                 methodAgg = false;
-                pair = new AggregationAccessorSlotPair(relativeSlot, accessor);
+                pair = new AggregationAccessorSlotPairForge(relativeSlot, accessor);
             }
-            columns[column] = new AggregationLocalGroupByColumn(defaultLevel, partitionEvaluators, methodOffset, methodAgg, pair, levelNumber);
+            columns[column] = new AggregationLocalGroupByColumnForge(defaultLevel, partitionForges, methodOffset, methodAgg, pair, levelNumber);
         }
 
-        return new AggregationLocalGroupByLevel(methodEvaluators.toArray(new ExprEvaluator[methodEvaluators.size()]),
+        return new AggregationLocalGroupByLevelForge(methodForges.toArray(new ExprForge[methodForges.size()][]),
                 methodFactories.toArray(new AggregationMethodFactory[methodFactories.size()]),
-                stateFactories.toArray(new AggregationStateFactory[stateFactories.size()]), partitionEvaluators, partitionEvaluatorTypes, defaultLevel);
+                stateFactories.toArray(new AggregationStateFactoryForge[stateFactories.size()]), partitionForges, defaultLevel);
     }
 }

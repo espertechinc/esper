@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EPStatementStartMethodHelperTableAccess {
-    public static Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> attachTableAccess(EPServicesContext services, AgentInstanceContext agentInstanceContext, ExprTableAccessNode[] tableNodes) {
+    public static Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> attachTableAccess(EPServicesContext services, AgentInstanceContext agentInstanceContext, ExprTableAccessNode[] tableNodes, boolean isFireAndForget) {
         if (tableNodes == null || tableNodes.length == 0) {
             return Collections.emptyMap();
         }
@@ -33,7 +33,7 @@ public class EPStatementStartMethodHelperTableAccess {
             boolean writesToTables = agentInstanceContext.getStatementContext().isWritesToTables();
             TableAndLockProvider provider = services.getTableService().getStateProvider(tableNode.getTableName(), agentInstanceContext.getAgentInstanceId(), writesToTables);
             TableMetadata tableMetadata = services.getTableService().getTableMetadata(tableNode.getTableName());
-            ExprTableAccessEvalStrategy strategy = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(tableNode, provider, tableMetadata);
+            ExprTableAccessEvalStrategy strategy = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(tableNode, provider, tableMetadata, isFireAndForget);
             strategies.put(tableNode, strategy);
         }
 

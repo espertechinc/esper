@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  * Factory for event beans created and populate anew from a set of values.
  */
 public class EventBeanManufacturerBean implements EventBeanManufacturer {
-    private static Logger log = LoggerFactory.getLogger(EventBeanManufacturerBean.class);
+    private final static Logger log = LoggerFactory.getLogger(EventBeanManufacturerBean.class);
 
     private final BeanInstantiator beanInstantiator;
     private final BeanEventType beanEventType;

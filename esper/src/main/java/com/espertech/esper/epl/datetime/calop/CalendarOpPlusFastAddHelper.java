@@ -21,7 +21,7 @@ import java.util.Calendar;
 public class CalendarOpPlusFastAddHelper {
 
     private final static boolean DEBUG = false;
-    private static Logger log = LoggerFactory.getLogger(CalendarOpPlusFastAddHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(CalendarOpPlusFastAddHelper.class);
 
     public static CalendarOpPlusFastAddResult computeNextDue(long currentTime, TimePeriod timePeriod, Calendar reference, TimeAbacus timeAbacus, long remainder) {
         if (timeAbacus.calendarGet(reference, remainder) > currentTime) {

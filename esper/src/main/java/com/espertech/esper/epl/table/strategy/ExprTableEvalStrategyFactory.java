@@ -29,7 +29,7 @@ public class ExprTableEvalStrategyFactory {
         }
     }
 
-    public static ExprTableAccessEvalStrategy getTableAccessEvalStrategy(ExprTableAccessNode tableNode, TableAndLockProvider provider, TableMetadata tableMetadata) {
+    public static ExprTableAccessEvalStrategy getTableAccessEvalStrategy(ExprTableAccessNode tableNode, TableAndLockProvider provider, TableMetadata tableMetadata, boolean isFireAndForget) {
         ExprEvaluator[] groupKeyEvals = tableNode.getGroupKeyEvaluators();
 
         TableAndLockProviderUngrouped ungrouped;
@@ -65,16 +65,16 @@ public class ExprTableEvalStrategyFactory {
             return new ExprTableEvalStrategyGroupByKeys(grouped);
         }
 
-        // handle access-aggregator accessors
+        // handle access-aggregator accessAccessors
         if (tableNode instanceof ExprTableAccessNodeSubpropAccessor) {
             ExprTableAccessNodeSubpropAccessor accessorProvider = (ExprTableAccessNodeSubpropAccessor) tableNode;
             TableMetadataColumnAggregation column = (TableMetadataColumnAggregation) tableMetadata.getTableColumns().get(accessorProvider.getSubpropName());
             if (ungrouped != null) {
                 AggregationAccessorSlotPair pair = column.getAccessAccessorSlotPair();
-                return new ExprTableEvalStrategyUngroupedAccess(ungrouped, pair.getSlot(), accessorProvider.getAccessor());
+                return new ExprTableEvalStrategyUngroupedAccess(ungrouped, pair.getSlot(), accessorProvider.getAccessor(tableMetadata.getStatementContextCreateTable(), isFireAndForget));
             }
 
-            AggregationAccessorSlotPair pair = new AggregationAccessorSlotPair(column.getAccessAccessorSlotPair().getSlot(), accessorProvider.getAccessor());
+            AggregationAccessorSlotPair pair = new AggregationAccessorSlotPair(column.getAccessAccessorSlotPair().getSlot(), accessorProvider.getAccessor(tableMetadata.getStatementContextCreateTable(), isFireAndForget));
             if (tableNode.getGroupKeyEvaluators().length > 1) {
                 return new ExprTableEvalStrategyGroupByAccessMulti(grouped, pair, groupKeyEvals);
             }

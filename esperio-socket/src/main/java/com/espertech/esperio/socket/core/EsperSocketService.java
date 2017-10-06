@@ -21,7 +21,7 @@ import java.net.ServerSocket;
 
 public class EsperSocketService {
 
-    private static Logger log = LoggerFactory.getLogger(EsperSocketService.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperSocketService.class);
 
     private final String serviceName;
     private final SocketConfig serviceConfig;

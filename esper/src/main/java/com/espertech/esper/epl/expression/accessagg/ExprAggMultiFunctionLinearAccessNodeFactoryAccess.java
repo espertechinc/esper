@@ -11,30 +11,35 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
+import com.espertech.esper.epl.agg.access.AggregationAgentForge;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.codegen.base.CodegenMembersColumnized;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
+import com.espertech.esper.epl.agg.service.common.AggregationValidationUtil;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 public class ExprAggMultiFunctionLinearAccessNodeFactoryAccess implements AggregationMethodFactory {
 
     private final ExprAggMultiFunctionLinearAccessNode parent;
-    private final AggregationAccessor accessor;
+    private final AggregationAccessorForge accessor;
     private final Class accessorResultType;
     private final EventType containedEventType;
 
     private final AggregationStateKey optionalStateKey;
-    private final AggregationStateFactory optionalStateFactory;
-    private final AggregationAgent optionalAgent;
+    private final AggregationStateFactoryForge optionalStateFactory;
+    private final AggregationAgentForge optionalAgent;
 
-    public ExprAggMultiFunctionLinearAccessNodeFactoryAccess(ExprAggMultiFunctionLinearAccessNode parent, AggregationAccessor accessor, Class accessorResultType, EventType containedEventType, AggregationStateKey optionalStateKey, AggregationStateFactory optionalStateFactory, AggregationAgent optionalAgent) {
+    public ExprAggMultiFunctionLinearAccessNodeFactoryAccess(ExprAggMultiFunctionLinearAccessNode parent, AggregationAccessorForge accessor, Class accessorResultType, EventType containedEventType, AggregationStateKey optionalStateKey, AggregationStateFactoryForge optionalStateFactory, AggregationAgentForge optionalAgent) {
         this.parent = parent;
         this.accessor = accessor;
         this.accessorResultType = accessorResultType;
@@ -60,11 +65,11 @@ public class ExprAggMultiFunctionLinearAccessNodeFactoryAccess implements Aggreg
         return optionalStateKey;
     }
 
-    public AggregationStateFactory getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
         return optionalStateFactory;
     }
 
-    public AggregationAccessor getAccessor() {
+    public AggregationAccessorForge getAccessorForge() {
         return accessor;
     }
 
@@ -78,7 +83,7 @@ public class ExprAggMultiFunctionLinearAccessNodeFactoryAccess implements Aggreg
         AggregationValidationUtil.validateEventType(this.containedEventType, other.getContainedEventType());
     }
 
-    public AggregationAgent getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
+    public AggregationAgentForge getAggregationStateAgent(EngineImportService engineImportService, String statementName) {
         return optionalAgent;
     }
 
@@ -86,7 +91,27 @@ public class ExprAggMultiFunctionLinearAccessNodeFactoryAccess implements Aggreg
         return containedEventType;
     }
 
-    public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
+    public ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {
         return null;
+    }
+
+    public void rowMemberCodegen(int column, CodegenCtor ctor, CodegenMembersColumnized membersColumnized, ExprForge[] forges, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void applyEnterCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void applyLeaveCodegen(int column, CodegenMethodNode method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void clearCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getValueCodegen(int column, CodegenMethodNode method, CodegenClassScope classScope) {
+        throw new UnsupportedOperationException();
     }
 }

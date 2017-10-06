@@ -397,5 +397,5 @@ public class ParseHelper {
         }
     }
 
-    private static Logger log = LoggerFactory.getLogger(ParseHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(ParseHelper.class);
 }

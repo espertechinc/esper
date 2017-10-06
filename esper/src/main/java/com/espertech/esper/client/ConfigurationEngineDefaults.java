@@ -2301,8 +2301,9 @@ public class ConfigurationEngineDefaults implements Serializable {
     public static class CodeGeneration implements Serializable {
         private boolean enablePropertyGetter = false;
         private boolean enableExpression = true;
-        private boolean enableSelectClause = true;
+        private boolean enableSelectClause = false;
         private boolean enableResultSet = true;
+        private boolean enableAggregation = true;
         private boolean enableFallback = true;
         private boolean includeDebugSymbols = false;
         private boolean includeComments = false;
@@ -2326,7 +2327,7 @@ public class ConfigurationEngineDefaults implements Serializable {
             enableExpression = value;
             enableSelectClause = value;
             enableResultSet = value;
-            enableFallback = value;
+            enableAggregation = value;
         }
 
         /**
@@ -2348,7 +2349,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Returns indicator whether to enable code generation for expressions (true by default).
+         * Returns indicator whether to enable code generation for expressions.
          * @return indicator
          */
         public boolean isEnableExpression() {
@@ -2356,7 +2357,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Sets indicator whether to enable code generation for expressions (true by default).
+         * Sets indicator whether to enable code generation for expressions.
          * @param enableExpression indicator
          */
         public void setEnableExpression(boolean enableExpression) {
@@ -2364,7 +2365,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Returns indicator whether to enable code generation for the select-clause (true by default).
+         * Returns indicator whether to enable code generation for the select-clause.
          * @return indicator
          */
         public boolean isEnableSelectClause() {
@@ -2372,7 +2373,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Sets indicator whether to enable code generation for the select-clause (true by default).
+         * Sets indicator whether to enable code generation for the select-clause.
          * @param enableSelectClause indicator
          */
         public void setEnableSelectClause(boolean enableSelectClause) {
@@ -2381,7 +2382,7 @@ public class ConfigurationEngineDefaults implements Serializable {
 
         /**
          * Returns indicator whether to fall back to non-generated evaluation
-         * in the case that code generation failed (true by default).
+         * in the case that code generation failed .
          * @return indicator
          */
         public boolean isEnableFallback() {
@@ -2389,9 +2390,25 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
+         * Returns indicator whether to enable code generation for the all of result-set processing.
+         * @return indicator
+         */
+        public boolean isEnableResultSet() {
+            return enableResultSet;
+        }
+
+        /**
+         * Sets indicator whether to enable code generation for the all of result-set processing.
+         * @param enableResultSet flag
+         */
+        public void setEnableResultSet(boolean enableResultSet) {
+            this.enableResultSet = enableResultSet;
+        }
+
+        /**
          * Sets indicator whether to fall back to non-generated evaluation
-         * in the case that code generation failed (true by default).
-         * @param  enableFallback indicator
+         * in the case that code generation failed.
+         * @param enableFallback indicator
          */
         public void setEnableFallback(boolean enableFallback) {
             this.enableFallback = enableFallback;
@@ -2429,12 +2446,20 @@ public class ConfigurationEngineDefaults implements Serializable {
             this.includeComments = includeComments;
         }
 
-        public boolean isEnableResultSet() {
-            return enableResultSet;
+        /**
+         * Returns indicator whether to enable code generation for aggregation processing.
+         * @return indicator
+         */
+        public boolean isEnableAggregation() {
+            return enableAggregation;
         }
 
-        public void setEnableResultSet(boolean enableResultSet) {
-            this.enableResultSet = enableResultSet;
+        /**
+         * Sets indicator whether to enable code generation for aggregation processing.
+         * @return indicator
+         */
+        public void setEnableAggregation(boolean enableAggregation) {
+            this.enableAggregation = enableAggregation;
         }
     }
 }

@@ -26,7 +26,7 @@ import com.espertech.esper.core.service.EPStatementDispatch;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.core.start.*;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
@@ -231,7 +231,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks, isRecoveringResilient);
 
             // plan table access
-            tableAccessStrategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, statementSpec.getTableNodes());
+            tableAccessStrategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, statementSpec.getTableNodes(), false);
 
             // obtain result set processor and aggregation services
             Pair<ResultSetProcessor, AggregationService> processorPair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorFactoryDesc, agentInstanceContext, false, null);
@@ -332,7 +332,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 }
 
                 // last, for aggregation we need to send the current join results to the result set processor
-                if (hasNamedWindow && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.isHasAggregation()) {
+                if (hasNamedWindow && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.getResultSetProcessorType().isAggregated()) {
                     preloadList.add(new StatementAgentInstancePreload() {
                         public void executePreload(ExprEvaluatorContext exprEvaluatorContext) {
                             joinPreloadMethod.preloadAggregation(resultSetProcessor);

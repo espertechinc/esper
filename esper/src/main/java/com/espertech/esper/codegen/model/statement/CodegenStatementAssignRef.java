@@ -11,21 +11,23 @@
 package com.espertech.esper.codegen.model.statement;
 
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
 import java.util.Map;
 import java.util.Set;
 
 public class CodegenStatementAssignRef extends CodegenStatementBase {
-    private final String ref;
+    private final CodegenExpressionRef ref;
     private final CodegenExpression assignment;
 
-    public CodegenStatementAssignRef(String ref, CodegenExpression assignment) {
+    public CodegenStatementAssignRef(CodegenExpressionRef ref, CodegenExpression assignment) {
         this.ref = ref;
         this.assignment = assignment;
     }
 
     public void renderStatement(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        builder.append(ref).append("=");
+        ref.render(builder, imports, isInnerClass);
+        builder.append("=");
         assignment.render(builder, imports, isInnerClass);
     }
 

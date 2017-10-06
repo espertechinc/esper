@@ -12,16 +12,22 @@ package com.espertech.esper.epl.approx;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
+import com.espertech.esper.epl.agg.access.AggregationAccessorForge;
 import com.espertech.esper.epl.agg.access.AggregationState;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 
-public class CountMinSketchAggAccessorTopk implements AggregationAccessor {
+public class CountMinSketchAggAccessorTopk implements AggregationAccessor, AggregationAccessorForge {
 
     public final static CountMinSketchAggAccessorTopk INSTANCE = new CountMinSketchAggAccessorTopk();
 
     private CountMinSketchAggAccessorTopk() {
+    }
+
+    public AggregationAccessor getAccessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        return this;
     }
 
     public Object getValue(AggregationState aggregationState, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

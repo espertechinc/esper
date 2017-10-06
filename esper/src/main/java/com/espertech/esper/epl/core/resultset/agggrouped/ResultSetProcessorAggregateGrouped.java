@@ -12,8 +12,8 @@ package com.espertech.esper.epl.core.resultset.agggrouped;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
-import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
-import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.agg.service.common.AggregationRowRemovedCallback;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;

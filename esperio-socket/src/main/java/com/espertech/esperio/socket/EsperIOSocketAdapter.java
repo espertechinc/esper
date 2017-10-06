@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class EsperIOSocketAdapter {
-    private static Logger log = LoggerFactory.getLogger(EsperIOSocketAdapter.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIOSocketAdapter.class);
 
     private final ConfigurationSocketAdapter config;
     private final String engineURI;

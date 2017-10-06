@@ -108,7 +108,7 @@ public class SubordinateQueryPlannerUtil {
 
     /**
      * Given an index with a defined set of hash(equals) and range(btree) props and uniqueness flag,
-     * and given a list of indexable properties and accessors for both hash and range,
+     * and given a list of indexable properties and accessAccessors for both hash and range,
      * return the ordered keys and coercion information.
      *
      * @param indexMultiKey           index definition

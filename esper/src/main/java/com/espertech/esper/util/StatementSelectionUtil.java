@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class StatementSelectionUtil {
-    private static Logger log = LoggerFactory.getLogger(StatementSelectionUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(StatementSelectionUtil.class);
 
     private static final BeanEventType STATEMENT_META_EVENT_TYPE;
 

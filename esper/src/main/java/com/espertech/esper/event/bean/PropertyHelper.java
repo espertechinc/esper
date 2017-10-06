@@ -44,7 +44,7 @@ public class PropertyHelper {
                 fastMethod = fastClass.getMethod(method);
             }
         } catch (Throwable ex) {
-            log.warn(".getAccessors Unable to obtain CGLib fast method implementation, msg=" + ex.getMessage());
+            log.warn(".getAccessAccessorsForges Unable to obtain CGLib fast method implementation, msg=" + ex.getMessage());
         }
 
         // Construct the appropriate property getter CGLib or reflect

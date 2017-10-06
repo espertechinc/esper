@@ -21,7 +21,7 @@ import java.util.Iterator;
  * Dispatcher for statement lifecycle events to service provider statement state listeners.
  */
 public class StatementEventDispatcherUnthreaded implements StatementLifecycleObserver {
-    private static Logger log = LoggerFactory.getLogger(StatementEventDispatcherUnthreaded.class);
+    private final static Logger log = LoggerFactory.getLogger(StatementEventDispatcherUnthreaded.class);
     private final EPServiceProvider serviceProvider;
     private final Iterable<EPStatementStateListener> statementListeners;
 

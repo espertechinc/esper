@@ -13,8 +13,11 @@ package com.espertech.esper.view.window;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
+import com.espertech.esper.epl.agg.codegen.AggregationServiceFactoryCompiler;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationServiceForgeDesc;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
@@ -76,7 +79,9 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         ExprAggregateNodeUtil.getAggregatesBottomUp(expiryExpression, aggregateNodes);
         if (!aggregateNodes.isEmpty()) {
             try {
-                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, statementContext.getAggregationServiceFactoryService(), streamTypeService.getEventTypes(), null, statementContext.getContextName(), null, null, false, false, false, statementContext.getEngineImportService(), statementContext.getStatementName());
+                AggregationServiceForgeDesc forge = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, statementContext.getAggregationServiceFactoryService(), streamTypeService.getEventTypes(), null, statementContext.getContextName(), null, null, false, false, false, statementContext.getEngineImportService(), statementContext.getStatementName(), statementContext.getTimeAbacus());
+                AggregationServiceFactory factory = AggregationServiceFactoryCompiler.allocate(forge.getAggregationServiceFactoryForge(), statementContext, false);
+                aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(factory, forge.getExpressions(), forge.getGroupKeyExpressions());
             } catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);
             }

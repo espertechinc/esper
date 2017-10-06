@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
  * A result delivery strategy that uses an "update" method that accepts a pair of object array array.
  */
 public class ResultDeliveryStrategyObjectArrWStmt extends ResultDeliveryStrategyObjectArr {
-    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyObjectArrWStmt.class);
+    private final static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyObjectArrWStmt.class);
 
     public ResultDeliveryStrategyObjectArrWStmt(EPStatement statement, Object subscriber, Method method, EngineImportService engineImportService) {
         super(statement, subscriber, method, engineImportService);

@@ -20,7 +20,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 
 public class SampleJMSMessageListener implements MessageListener {
-    private static Logger log = LoggerFactory.getLogger(SampleJMSMessageListener.class);
+    private final static Logger log = LoggerFactory.getLogger(SampleJMSMessageListener.class);
     private EPRuntime engine;
     private int count;
 

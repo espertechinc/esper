@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.agg.rollup;
 
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
 
 public class GroupByRollupLevelKeyPair {
     private final AggregationGroupByRollupLevel level;

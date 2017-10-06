@@ -84,5 +84,5 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
         return statementResultService;
     }
 
-    private static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBase.class);
+    private final static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBase.class);
 }

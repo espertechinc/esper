@@ -40,7 +40,7 @@ import java.util.Iterator;
  */
 public class OHLCBarPlugInView extends ViewSupport implements CloneableView {
     private final static int LATE_EVENT_SLACK_SECONDS = 5;
-    private static Logger log = LoggerFactory.getLogger(OHLCBarPlugInView.class);
+    private final static Logger log = LoggerFactory.getLogger(OHLCBarPlugInView.class);
 
     private final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final long scheduleSlot;

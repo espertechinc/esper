@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.core.resultset.core;
 
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 public class GroupByRollupInfo {

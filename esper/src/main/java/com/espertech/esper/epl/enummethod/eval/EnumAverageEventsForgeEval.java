@@ -62,7 +62,7 @@ public class EnumAverageEventsForgeEval implements EnumEval {
     public static CodegenExpression codegen(EnumAverageEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         Class innerType = forge.innerExpression.getEvaluationType();
 
-        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false);
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
         CodegenMethodNode methodNode = codegenMethodScope.makeChildWithScope(Double.class, EnumAverageEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
@@ -74,7 +74,7 @@ public class EnumAverageEventsForgeEval implements EnumEval {
         if (!innerType.isPrimitive()) {
             forEach.ifRefNull("num").blockContinue();
         }
-        forEach.expression(increment("count"))
+        forEach.increment("count")
                 .assignRef("sum", op(ref("sum"), "+", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDouble(ref("num"), innerType)))
                 .blockEnd();
         block.ifCondition(equalsIdentity(ref("count"), constant(0))).blockReturn(constantNull())

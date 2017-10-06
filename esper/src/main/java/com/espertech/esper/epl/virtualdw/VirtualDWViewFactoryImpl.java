@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 public class VirtualDWViewFactoryImpl implements ViewFactory, DataWindowViewFactory, VirtualDWViewFactory {
-    private static Logger log = LoggerFactory.getLogger(VirtualDWViewFactoryImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(VirtualDWViewFactoryImpl.class);
 
     private Serializable customConfiguration;
     private ViewFactoryContext viewFactoryContext;

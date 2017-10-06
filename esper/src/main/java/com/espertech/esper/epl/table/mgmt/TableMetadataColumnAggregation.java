@@ -12,7 +12,7 @@ package com.espertech.esper.epl.table.mgmt;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.rettype.EPType;
 
 public class TableMetadataColumnAggregation extends TableMetadataColumn {

@@ -21,7 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ResultDeliveryStrategyTypeArrWStmt extends ResultDeliveryStrategyTypeArr {
-    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyTypeArrWStmt.class);
+    private final static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyTypeArrWStmt.class);
 
     public ResultDeliveryStrategyTypeArrWStmt(EPStatement statement, Object subscriber, Method method, Class componentType, EngineImportService engineImportService) {
         super(statement, subscriber, method, componentType, engineImportService);

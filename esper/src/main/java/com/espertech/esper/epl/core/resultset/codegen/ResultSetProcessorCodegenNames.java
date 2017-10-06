@@ -30,7 +30,7 @@ public class ResultSetProcessorCodegenNames {
     public final static String NAME_VIEWABLE = "viewable";
     public final static String NAME_VIEWEVENTSLIST = "viewEventsList";
     public final static String NAME_JOINEVENTSSET = "joinEventsSet";
-    public final static String NAME_VISITOR = "visitor";
+    public final static String NAME_RESULTSETVISITOR = "visitor";
     public final static String NAME_HAVINGEVALUATOR_ARRAYNONMEMBER = "havingEvaluatorArray";
     public final static String NAME_HAVINGEVALUATOR_ARRAY_MEMBER = "o." + NAME_HAVINGEVALUATOR_ARRAYNONMEMBER;
 
@@ -49,5 +49,5 @@ public class ResultSetProcessorCodegenNames {
     public final static CodegenExpression REF_VIEWABLE = ref(NAME_VIEWABLE);
     public final static CodegenExpression REF_VIEWEVENTSLIST = ref(NAME_VIEWEVENTSLIST);
     public final static CodegenExpression REF_JOINEVENTSSET = ref(NAME_JOINEVENTSSET);
-    public final static CodegenExpression REF_VISITOR = ref(NAME_VISITOR);
+    public final static CodegenExpression REF_RESULTSETVISITOR = ref(NAME_RESULTSETVISITOR);
 }

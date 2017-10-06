@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.Random;
 
 public class ServerShellClientMain {
-    private static Logger log = LoggerFactory.getLogger(ServerShellClientMain.class);
+    private final static Logger log = LoggerFactory.getLogger(ServerShellClientMain.class);
 
     public static void main(String[] args) throws Exception {
         try {

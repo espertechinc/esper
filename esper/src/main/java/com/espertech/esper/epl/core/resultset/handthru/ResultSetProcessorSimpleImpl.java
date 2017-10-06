@@ -16,13 +16,13 @@ import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.collection.ArrayEventIterator;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.TransformEventIterator;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
-import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenInstance;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputHelperVisitor;
@@ -125,7 +125,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         return new UniformPair<>(selectNewEvents, selectOldEvents); // we return a pair even if both are null
     }
 
-    public static void processJoinResultCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processJoinResultCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         method.getBlock().declareVar(EventBean[].class, "selectOldEvents", constantNull())
                 .declareVarNoInit(EventBean[].class, "selectNewEvents");
         ResultSetProcessorUtil.processJoinResultCodegen(method, classScope, instance, forge.getOptionalHavingNode() != null, forge.isSelectRStream(), forge.isSorting(), false);
@@ -173,7 +173,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         return new UniformPair<>(selectNewEvents, selectOldEvents);  // we return a pair even if both are null
     }
 
-    public static void processViewResultCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processViewResultCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         method.getBlock().declareVar(EventBean[].class, "selectOldEvents", constantNull())
                 .declareVarNoInit(EventBean[].class, "selectNewEvents");
         ResultSetProcessorUtil.processViewResultCodegen(method, classScope, instance, forge.getOptionalHavingNode() != null, forge.isSelectRStream(), forge.isSorting(), false);
@@ -219,7 +219,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         return new ArrayEventIterator(orderedEvents);
     }
 
-    public static void getIteratorViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void getIteratorViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (!forge.isSorting()) {
             // Return an iterator that gives row-by-row a result
             method.getBlock().methodReturn(newInstance(TransformEventIterator.class, exprDotMethod(REF_VIEWABLE, "iterator"), newInstance(ResultSetProcessorHandtruTransform.class, ref("this"))));
@@ -265,7 +265,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         return new ArrayEventIterator(result.getFirst());
     }
 
-    public static void getIteratorJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void getIteratorJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         method.getBlock().declareVar(UniformPair.class, "result", exprDotMethod(ref("this"), "processJoinResult", REF_JOINSET, staticMethod(Collections.class, "emptySet"), constantTrue()))
                 .ifRefNull("result")
                 .blockReturn(staticMethod(Collections.class, "emptyIterator"))
@@ -290,18 +290,20 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         }
     }
 
-    public static void processOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         processOutputLimitedLastAllNonBufferedCodegen(forge, "processView", classScope, method, instance);
     }
 
-    private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorSimpleForge forge, String methodName, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorSimpleForge forge, String methodName, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMember factory = classScope.makeAddMember(ResultSetProcessorHelperFactory.class, forge.getResultSetProcessorHelperFactory());
 
         if (forge.isOutputAll()) {
-            instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorSimpleOutputAllHelper.class, exprDotMethod(member(factory.getMemberId()), "makeRSSimpleOutputAll", ref("this"), REF_AGENTINSTANCECONTEXT, constant(forge.getNumStreams())));
+            instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorSimpleOutputAllHelper.class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(member(factory.getMemberId()), "makeRSSimpleOutputAll", ref("this"), REF_AGENTINSTANCECONTEXT, constant(forge.getNumStreams())));
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         } else if (forge.isOutputLast()) {
-            instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorSimpleOutputLastHelper.class, exprDotMethod(member(factory.getMemberId()), "makeRSSimpleOutputLast", ref("this"), REF_AGENTINSTANCECONTEXT, constant(forge.getNumStreams())));
+            instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorSimpleOutputLastHelper.class);
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(member(factory.getMemberId()), "makeRSSimpleOutputLast", ref("this"), REF_AGENTINSTANCECONTEXT, constant(forge.getNumStreams())));
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         }
     }
@@ -314,7 +316,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         }
     }
 
-    public static void processOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void processOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         processOutputLimitedLastAllNonBufferedCodegen(forge, "processJoin", classScope, method, instance);
     }
 
@@ -325,7 +327,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         return outputLastHelper.outputView(isSynthesize);
     }
 
-    public static void continueOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void continueOutputLimitedLastAllNonBufferedViewCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (forge.isOutputAll()) {
             method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTALLHELPER), "outputView", REF_ISSYNTHESIZE));
         } else if (forge.isOutputLast()) {
@@ -342,7 +344,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         return outputLastHelper.outputJoin(isSynthesize);
     }
 
-    public static void continueOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void continueOutputLimitedLastAllNonBufferedJoinCodegen(ResultSetProcessorSimpleForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         if (forge.isOutputAll()) {
             method.getBlock().methodReturn(exprDotMethod(ref(NAME_OUTPUTALLHELPER), "outputJoin", REF_ISSYNTHESIZE));
         } else if (forge.isOutputLast()) {
@@ -361,7 +363,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         }
     }
 
-    public static void stopMethodCodegen(CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void stopMethodCodegen(CodegenMethodNode method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
             method.getBlock().exprDotMethod(ref(NAME_OUTPUTLASTHELPER), "destroy");
         }
@@ -379,12 +381,12 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         }
     }
 
-    public static void acceptHelperVisitorCodegen(CodegenMethodNode method, ResultSetProcessorCodegenInstance instance) {
+    public static void acceptHelperVisitorCodegen(CodegenMethodNode method, CodegenInstanceAux instance) {
         if (instance.hasMember(NAME_OUTPUTLASTHELPER)) {
-            method.getBlock().exprDotMethod(REF_VISITOR, "visit", ref(NAME_OUTPUTLASTHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTLASTHELPER));
         }
         if (instance.hasMember(NAME_OUTPUTALLHELPER)) {
-            method.getBlock().exprDotMethod(REF_VISITOR, "visit", ref(NAME_OUTPUTALLHELPER));
+            method.getBlock().exprDotMethod(REF_RESULTSETVISITOR, "visit", ref(NAME_OUTPUTALLHELPER));
         }
     }
 

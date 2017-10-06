@@ -21,7 +21,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.util.AggregationGroupByLocalGroupDesc;
-import com.espertech.esper.epl.agg.util.AggregationLocalGroupByPlan;
+import com.espertech.esper.epl.agg.util.AggregationLocalGroupByPlanForge;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
@@ -147,9 +147,9 @@ public class ExecAggregateLocalGroupBy implements RegressionExecution {
         // prove there is one shared state factory
         String theEpl = PLAN_CALLBACK_HOOK + "select window(*, group_by:theString), last(*, group_by:theString) from SupportBean#length(2)";
         epService.getEPAdministrator().createEPL(theEpl);
-        Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlan> plan = SupportAggLevelPlanHook.getAndReset();
-        assertEquals(1, plan.getSecond().getAllLevels().length);
-        assertEquals(1, plan.getSecond().getAllLevels()[0].getStateFactories().length);
+        Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlanForge> plan = SupportAggLevelPlanHook.getAndReset();
+        assertEquals(1, plan.getSecond().getAllLevelsForges().length);
+        assertEquals(1, plan.getSecond().getAllLevelsForges()[0].getAccessStateForges().length);
     }
 
     private void runAssertionFullyVersusNotFullyAgg(EPServiceProvider epService) throws Exception {
@@ -832,7 +832,7 @@ public class ExecAggregateLocalGroupBy implements RegressionExecution {
     private void assertCountColsAndLevels(EPServiceProvider epService, String epl, int colCount, int lvlCount) {
         String theEpl = PLAN_CALLBACK_HOOK + epl;
         epService.getEPAdministrator().createEPL(theEpl);
-        Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlan> plan = SupportAggLevelPlanHook.getAndReset();
+        Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlanForge> plan = SupportAggLevelPlanHook.getAndReset();
         assertEquals(colCount, plan.getFirst().getNumColumns());
         assertEquals(lvlCount, plan.getFirst().getLevels().length);
     }

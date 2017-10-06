@@ -11,7 +11,9 @@
 package com.espertech.esper.epl.agg.access;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.plugin.PlugInAggregationMultiFunctionCodegenType;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -22,11 +24,19 @@ import java.util.List;
 /**
  * Represents the aggregation accessor that provides the result for the "window" aggregation function.
  */
-public class AggregationAccessorWindowNoEval implements AggregationAccessor {
+public class AggregationAccessorWindowNoEval implements AggregationAccessor, AggregationAccessorForge {
     private final Class componentType;
 
     public AggregationAccessorWindowNoEval(Class componentType) {
         this.componentType = componentType;
+    }
+
+    public AggregationAccessor getAccessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
+        return this;
+    }
+
+    public PlugInAggregationMultiFunctionCodegenType getPluginCodegenType() {
+        return PlugInAggregationMultiFunctionCodegenType.CODEGEN_ALL; // not currently applicable as table-related only
     }
 
     public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -68,5 +78,21 @@ public class AggregationAccessorWindowNoEval implements AggregationAccessor {
 
     public EventBean getEnumerableEvent(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return null;
+    }
+
+    public void getValueCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getEnumerableEventsCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getEnumerableEventCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void getEnumerableScalarCodegen(AggregationAccessorForgeGetCodegenContext context) {
+        throw new UnsupportedOperationException();
     }
 }

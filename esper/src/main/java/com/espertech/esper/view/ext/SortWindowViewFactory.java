@@ -91,7 +91,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
             useCollatorSort = statementContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
         }
 
-        comparator = CollectionUtil.getComparator(sortCriteriaExpressions, sortCriteriaEvaluators, useCollatorSort, isDescendingValues);
+        comparator = CollectionUtil.getComparator(sortCriteriaExpressions, useCollatorSort, isDescendingValues);
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {

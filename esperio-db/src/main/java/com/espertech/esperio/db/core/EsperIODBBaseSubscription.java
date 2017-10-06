@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 
 public class EsperIODBBaseSubscription extends BaseSubscription {
-    private static Logger log = LoggerFactory.getLogger(EsperIODBBaseSubscription.class);
+    private final static Logger log = LoggerFactory.getLogger(EsperIODBBaseSubscription.class);
 
     private final RunnableFactory runnableFactory;
     private final Executor executor;

@@ -20,20 +20,15 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 
 public class IntervalForgeCodegenNames {
 
-    private final static String NAME_LEFTSTART = "leftStart";
-    private final static String NAME_LEFTEND = "leftEnd";
-    private final static String NAME_RIGHTSTART = "rightStart";
-    private final static String NAME_RIGHTEND = "rightEnd";
+    final static CodegenExpressionRef REF_LEFTSTART = ref("leftStart");
+    final static CodegenExpressionRef REF_LEFTEND = ref("leftEnd");
+    final static CodegenExpressionRef REF_RIGHTSTART = ref("rightStart");
+    final static CodegenExpressionRef REF_RIGHTEND = ref("rightEnd");
 
-    private final static CodegenNamedParam FP_LEFTSTART = new CodegenNamedParam(long.class, NAME_LEFTSTART);
-    private final static CodegenNamedParam FP_LEFTEND = new CodegenNamedParam(long.class, NAME_LEFTEND);
-    private final static CodegenNamedParam FP_RIGHTSTART = new CodegenNamedParam(long.class, NAME_RIGHTSTART);
-    private final static CodegenNamedParam FP_RIGHTEND = new CodegenNamedParam(long.class, NAME_RIGHTEND);
-
-    final static CodegenExpressionRef REF_LEFTSTART = ref(NAME_LEFTSTART);
-    final static CodegenExpressionRef REF_LEFTEND = ref(NAME_LEFTEND);
-    final static CodegenExpressionRef REF_RIGHTSTART = ref(NAME_RIGHTSTART);
-    final static CodegenExpressionRef REF_RIGHTEND = ref(NAME_RIGHTEND);
+    private final static CodegenNamedParam FP_LEFTSTART = new CodegenNamedParam(long.class, REF_LEFTSTART);
+    private final static CodegenNamedParam FP_LEFTEND = new CodegenNamedParam(long.class, REF_LEFTEND);
+    private final static CodegenNamedParam FP_RIGHTSTART = new CodegenNamedParam(long.class, REF_RIGHTSTART);
+    private final static CodegenNamedParam FP_RIGHTEND = new CodegenNamedParam(long.class, REF_RIGHTEND);
 
     final static List<CodegenNamedParam> PARAMS = Arrays.asList(FP_LEFTSTART, FP_LEFTEND, FP_RIGHTSTART, FP_RIGHTEND);
 }
