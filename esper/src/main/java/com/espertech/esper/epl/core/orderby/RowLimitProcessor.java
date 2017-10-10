@@ -44,7 +44,7 @@ public class RowLimitProcessor {
      * @param outgoingEvents unlimited
      * @return limited
      */
-    protected EventBean[] determineLimitAndApply(EventBean[] outgoingEvents) {
+    public EventBean[] determineLimitAndApply(EventBean[] outgoingEvents) {
         if (outgoingEvents == null) {
             return null;
         }
@@ -52,7 +52,7 @@ public class RowLimitProcessor {
         return applyLimit(outgoingEvents);
     }
 
-    protected void determineCurrentLimit() {
+    public void determineCurrentLimit() {
         if (numRowsVariableReader != null) {
             Number varValue = (Number) numRowsVariableReader.getValue();
             if (varValue != null) {
@@ -78,7 +78,7 @@ public class RowLimitProcessor {
         }
     }
 
-    protected EventBean[] applyLimit(EventBean[] outgoingEvents) {
+    public EventBean[] applyLimit(EventBean[] outgoingEvents) {
 
         // no offset
         if (currentOffset == 0) {

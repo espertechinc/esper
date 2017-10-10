@@ -38,7 +38,7 @@ public class ExprNodeCompiler {
     private final static Logger log = LoggerFactory.getLogger(ExprNodeCompiler.class);
 
     public static ExprEvaluator allocateEvaluator(ExprForge forge, EngineImportService engineImportService, Class compiledByClass, boolean onDemandQuery, String statementName) {
-        if (!engineImportService.getCodeGeneration().isEnableExpression() || onDemandQuery || forge.getComplexity() != ExprForgeComplexityEnum.INTER) {
+        if (!engineImportService.getByteCodeGeneration().isEnableExpression() || onDemandQuery || forge.getComplexity() != ExprForgeComplexityEnum.INTER) {
             return forge.getExprEvaluator();
         }
 
@@ -63,7 +63,7 @@ public class ExprNodeCompiler {
         };
 
         try {
-            CodegenClassScope codegenClassScope = new CodegenClassScope(engineImportService.getCodeGeneration().isIncludeComments());
+            CodegenClassScope codegenClassScope = new CodegenClassScope(engineImportService.getByteCodeGeneration().isIncludeComments());
             ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
             CodegenMethodNode topNode = CodegenMethodNode.makeParentNode(Object.class, ExprNodeCompiler.class, exprSymbol, codegenClassScope).addParam(ExprForgeCodegenNames.PARAMS);
 
@@ -90,7 +90,7 @@ public class ExprNodeCompiler {
             CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ExprEvaluator.class, className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
             return CodegenClassGenerator.compile(clazz, engineImportService, ExprEvaluator.class, debugInformationProvider);
         } catch (Throwable t) {
-            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
+            boolean fallback = engineImportService.getByteCodeGeneration().isEnableFallback();
             String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInformationProvider, fallback);
             if (fallback) {
                 log.warn(message, t);
@@ -102,7 +102,7 @@ public class ExprNodeCompiler {
     }
 
     private static ExprEvaluator handleThrowable(EngineImportService engineImportService, Throwable t, ExprForge forge, Supplier<String> debugInformationProvider) {
-        if (engineImportService.getCodeGeneration().isEnableFallback()) {
+        if (engineImportService.getByteCodeGeneration().isEnableFallback()) {
             return forge.getExprEvaluator();
         }
         throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " (see error log for further details): " + t.getMessage(), t);

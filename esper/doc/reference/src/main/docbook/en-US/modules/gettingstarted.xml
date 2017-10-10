@@ -104,7 +104,7 @@
 			</para>
 
 			<para>
-				The use of the Janino compiler can be disabled by turning off code generation. Please see <xref linkend="codegen"/> and <xref linkend="config-engine-codegen"/>.
+				The use of the Janino compiler can be disabled by turning off code generation. Please see <xref linkend="bytecodegen"/> and <xref linkend="config-engine-bytecodegen"/>.
 			</para>
 		</sect2>    
 

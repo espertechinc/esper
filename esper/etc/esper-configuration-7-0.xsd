@@ -442,7 +442,7 @@
 		<xs:complexType>
 			<xs:sequence minOccurs="0" maxOccurs="unbounded">
 				<xs:choice>
-					<xs:element ref="esper:codegen" minOccurs="0"/>
+					<xs:element ref="esper:bytecodegen" minOccurs="0"/>
 					<xs:element ref="esper:threading" minOccurs="0"/>
 					<xs:element ref="esper:event-meta" minOccurs="0"/>
 					<xs:element ref="esper:view-resources" minOccurs="0"/>
@@ -463,7 +463,7 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="codegen">
+	<xs:element name="bytecodegen">
 		<xs:complexType>
 			<xs:attribute name="enable-resultset" type="xs:boolean" use="optional"/>
 			<xs:attribute name="enable-aggregation" type="xs:boolean" use="optional"/>

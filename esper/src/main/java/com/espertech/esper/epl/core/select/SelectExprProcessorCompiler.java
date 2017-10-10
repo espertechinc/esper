@@ -42,7 +42,7 @@ public class SelectExprProcessorCompiler {
     private final static Logger log = LoggerFactory.getLogger(SelectExprProcessorCompiler.class);
 
     public static SelectExprProcessor allocateSelectExprEvaluator(EventAdapterService eventAdapterService, SelectExprProcessorForge forge, EngineImportService engineImportService, Class compiledByClass, boolean onDemandQuery, String statementName) {
-        if (!engineImportService.getCodeGeneration().isEnableSelectClause() || onDemandQuery) {
+        if (!engineImportService.getByteCodeGeneration().isEnableSelectClause() || onDemandQuery) {
             return forge.getSelectExprProcessor(engineImportService, onDemandQuery, statementName);
         }
 
@@ -60,7 +60,7 @@ public class SelectExprProcessorCompiler {
         };
 
         try {
-            CodegenClassScope codegenClassScope = new CodegenClassScope(engineImportService.getCodeGeneration().isIncludeComments());
+            CodegenClassScope codegenClassScope = new CodegenClassScope(engineImportService.getByteCodeGeneration().isIncludeComments());
             SelectExprProcessorCompilerResult result = generate(codegenClassScope, forge, engineImportService, eventAdapterService);
 
             CodegenClassMethods methods = new CodegenClassMethods();
@@ -71,7 +71,7 @@ public class SelectExprProcessorCompiler {
             CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), SelectExprProcessor.class, className, result.getCodegenClassScope(), Collections.emptyList(), null, methods, Collections.emptyList());
             return CodegenClassGenerator.compile(clazz, engineImportService, SelectExprProcessor.class, debugInformationProvider);
         } catch (Throwable t) {
-            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
+            boolean fallback = engineImportService.getByteCodeGeneration().isEnableFallback();
             String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInformationProvider, fallback);
             if (fallback) {
                 log.warn(message, t);
@@ -108,7 +108,7 @@ public class SelectExprProcessorCompiler {
     }
 
     private static SelectExprProcessor handleThrowable(EngineImportService engineImportService, Throwable t, SelectExprProcessorForge forge, Supplier<String> debugInformationProvider, boolean isFireAndForget, String statementName) {
-        if (engineImportService.getCodeGeneration().isEnableFallback()) {
+        if (engineImportService.getByteCodeGeneration().isEnableFallback()) {
             return forge.getSelectExprProcessor(engineImportService, isFireAndForget, statementName);
         }
         throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " (see error log for further details): " + t.getMessage(), t);

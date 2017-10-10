@@ -35,7 +35,7 @@ public class EPStatementStartMethodHelperUtil {
 
         OrderByProcessor orderByProcessor = null;
         if (resultSetProcessorPrototype.getOrderByProcessorFactory() != null) {
-            orderByProcessor = resultSetProcessorPrototype.getOrderByProcessorFactory().instantiate(aggregationService, agentInstanceContext);
+            orderByProcessor = resultSetProcessorPrototype.getOrderByProcessorFactory().instantiate(agentInstanceContext);
         }
 
         ResultSetProcessor resultSetProcessor = resultSetProcessorPrototype.getResultSetProcessorFactory().instantiate(orderByProcessor, aggregationService, agentInstanceContext);

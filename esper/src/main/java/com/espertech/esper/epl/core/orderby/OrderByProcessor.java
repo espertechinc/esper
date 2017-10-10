@@ -13,6 +13,8 @@ package com.espertech.esper.epl.core.orderby;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.List;
@@ -31,9 +33,10 @@ public interface OrderByProcessor {
      * @param generatingEvents     - the events that generated the output events (each event has a corresponding array of generating events per different event streams)
      * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
      * @param exprEvaluatorContext context for expression evalauation
+     * @param aggregationService   aggregation svc
      * @return an array containing the output events in sorted order
      */
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    public EventBean[] sortPlain(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService);
 
     /**
      * Sort the output events, using the provided group-by keys for
@@ -45,11 +48,12 @@ public interface OrderByProcessor {
      * @param groupByKeys          - the keys to use for determining the group-by group of output events
      * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
      * @param exprEvaluatorContext context for expression evalauation
+     * @param aggregationService   aggregation svc
      * @return an array containing the output events in sorted order
      */
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    public EventBean[] sortWGroupKeys(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService);
 
-    public EventBean[] sort(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, OrderByElement[][] elementsPerLevel);
+    public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, AggregationService aggregationService);
 
     /**
      * Returns the sort key for a given row.
@@ -61,17 +65,7 @@ public interface OrderByProcessor {
      */
     public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
-    public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, OrderByElement[] elementsForLevel);
-
-    /**
-     * Returns the sort key for a each row where a row is a single event (no join, single stream).
-     *
-     * @param generatingEvents     is the rows consisting of one event per row
-     * @param isNewData            is true for new data
-     * @param exprEvaluatorContext context for expression evalauation
-     * @return sort key for each row
-     */
-    public Object[] getSortKeyPerRow(EventBean[] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    public Object getSortKeyRollup(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationGroupByRollupLevel level);
 
     /**
      * Sort a given array of outgoing events using the sort keys returning a sorted outgoing event array.
@@ -81,5 +75,5 @@ public interface OrderByProcessor {
      * @param exprEvaluatorContext context for expression evalauation
      * @return sorted events
      */
-    public EventBean[] sort(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext);
+    public EventBean[] sortWOrderKeys(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext);
 }

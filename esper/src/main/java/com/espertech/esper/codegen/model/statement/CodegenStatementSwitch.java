@@ -20,8 +20,9 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
     private final String ref;
     private final int numOptions;
     private final CodegenBlock[] blocks;
+    private final boolean blocksReturnValues;
 
-    public CodegenStatementSwitch(CodegenBlock parent, String ref, int numOptions) {
+    public CodegenStatementSwitch(CodegenBlock parent, String ref, int numOptions, boolean blocksReturnValues) {
         super(parent);
         this.ref = ref;
         this.numOptions = numOptions;
@@ -29,6 +30,7 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
         for (int i = 0; i < numOptions; i++) {
             blocks[i] = new CodegenBlock(this);
         }
+        this.blocksReturnValues = blocksReturnValues;
     }
 
     public CodegenBlock[] getBlocks() {
@@ -42,6 +44,11 @@ public class CodegenStatementSwitch extends CodegenStatementWBlockBase {
             indent.indent(builder, level + 1);
             builder.append("case ").append(i).append(": {\n");
             blocks[i].render(builder, imports, isInnerClass, level + 2, indent);
+
+            if (!blocksReturnValues) {
+                indent.indent(builder, level + 2);
+                builder.append("break;\n");
+            }
 
             indent.indent(builder, level + 1);
             builder.append("}\n");

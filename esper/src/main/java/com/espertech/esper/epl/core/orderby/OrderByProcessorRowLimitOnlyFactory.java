@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.common.AggregationService;
 
 /**
  * An order-by processor that sorts events according to the expressions
@@ -25,7 +24,7 @@ public class OrderByProcessorRowLimitOnlyFactory implements OrderByProcessorFact
         this.rowLimitProcessorFactory = rowLimitProcessorFactory;
     }
 
-    public OrderByProcessor instantiate(AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
+    public OrderByProcessor instantiate(AgentInstanceContext agentInstanceContext) {
         RowLimitProcessor rowLimitProcessor = rowLimitProcessorFactory.instantiate(agentInstanceContext);
         return new OrderByProcessorRowLimitOnly(rowLimitProcessor);
     }

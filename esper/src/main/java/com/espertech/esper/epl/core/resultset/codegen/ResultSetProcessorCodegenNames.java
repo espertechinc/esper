@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.core.resultset.codegen;
 
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
@@ -41,13 +40,13 @@ public class ResultSetProcessorCodegenNames {
     public final static CodegenExpressionRef REF_SELECTEXPRNONMEMBER = new CodegenExpressionRef(NAME_SELECTEXPRPROCESSOR);
     public final static CodegenExpressionRef REF_AGGREGATIONSVC = new CodegenExpressionRef(NAME_AGGREGATIONSVC);
     public final static CodegenExpressionRef REF_ORDERBYPROCESSOR = new CodegenExpressionRef(NAME_ORDERBYPROCESSOR);
-    public final static CodegenExpression REF_NEWDATA = ref(NAME_NEWDATA);
-    public final static CodegenExpression REF_OLDDATA = ref(NAME_OLDDATA);
-    public final static CodegenExpression REF_ISSYNTHESIZE = ref(NAME_ISSYNTHESIZE);
-    public final static CodegenExpression REF_ISNEWDATA = ref(NAME_ISNEWDATA);
-    public final static CodegenExpression REF_JOINSET = ref(NAME_JOINSET);
-    public final static CodegenExpression REF_VIEWABLE = ref(NAME_VIEWABLE);
-    public final static CodegenExpression REF_VIEWEVENTSLIST = ref(NAME_VIEWEVENTSLIST);
-    public final static CodegenExpression REF_JOINEVENTSSET = ref(NAME_JOINEVENTSSET);
-    public final static CodegenExpression REF_RESULTSETVISITOR = ref(NAME_RESULTSETVISITOR);
+    public final static CodegenExpressionRef REF_NEWDATA = ref(NAME_NEWDATA);
+    public final static CodegenExpressionRef REF_OLDDATA = ref(NAME_OLDDATA);
+    public final static CodegenExpressionRef REF_ISSYNTHESIZE = ref(NAME_ISSYNTHESIZE);
+    public final static CodegenExpressionRef REF_ISNEWDATA = ref(NAME_ISNEWDATA);
+    public final static CodegenExpressionRef REF_JOINSET = ref(NAME_JOINSET);
+    public final static CodegenExpressionRef REF_VIEWABLE = ref(NAME_VIEWABLE);
+    public final static CodegenExpressionRef REF_VIEWEVENTSLIST = ref(NAME_VIEWEVENTSLIST);
+    public final static CodegenExpressionRef REF_JOINEVENTSSET = ref(NAME_JOINEVENTSSET);
+    public final static CodegenExpressionRef REF_RESULTSETVISITOR = ref(NAME_RESULTSETVISITOR);
 }

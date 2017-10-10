@@ -71,12 +71,12 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     private final Map<String, Object> transientConfiguration;
     private final AggregationFactoryFactory aggregationFactoryFactory;
     private final LinkedHashMap<String, AdvancedIndexFactoryProvider> advancedIndexProviders = new LinkedHashMap<>(8);
-    private final ConfigurationEngineDefaults.CodeGeneration codeGeneration;
+    private final ConfigurationEngineDefaults.ByteCodeGeneration byteCodeGeneration;
     private final CodegenCompiler codegenCompiler;
 
     private final String engineURI;
 
-    public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory, ConfigurationEngineDefaults.CodeGeneration codeGeneration, String engineURI, CodegenCompiler codegenCompiler) {
+    public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory, ConfigurationEngineDefaults.ByteCodeGeneration byteCodeGeneration, String engineURI, CodegenCompiler codegenCompiler) {
         imports = new ArrayList<String>();
         annotationImports = new ArrayList<String>(2);
         aggregationFunctions = new HashMap<String, ConfigurationPlugInAggregationFunction>();
@@ -95,7 +95,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
         this.aggregationFactoryFactory = aggregationFactoryFactory;
         this.advancedIndexProviders.put("pointregionquadtree", new AdvancedIndexFactoryProviderPointRegionQuadTree());
         this.advancedIndexProviders.put("mxcifquadtree", new AdvancedIndexFactoryProviderMXCIFQuadTree());
-        this.codeGeneration = codeGeneration;
+        this.byteCodeGeneration = byteCodeGeneration;
         this.engineURI = engineURI;
         this.codegenCompiler = codegenCompiler;
     }
@@ -516,20 +516,20 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     }
 
     public boolean isCodegenEventPropertyGetters() {
-        return codeGeneration.isEnablePropertyGetter();
+        return byteCodeGeneration.isEnablePropertyGetter();
     }
 
-    public ConfigurationEngineDefaults.CodeGeneration getCodeGeneration() {
-        return codeGeneration;
+    public ConfigurationEngineDefaults.ByteCodeGeneration getByteCodeGeneration() {
+        return byteCodeGeneration;
     }
 
     public EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
-            if (codeGeneration.isEnableFallback()) {
+            if (byteCodeGeneration.isEnableFallback()) {
                 return getterSPI;
             }
             throw makeCodegenGetterException(t, debugInfo);
@@ -539,10 +539,10 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetterIndexed codegenGetter(EventPropertyGetterIndexedSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
-            if (codeGeneration.isEnableFallback()) {
+            if (byteCodeGeneration.isEnableFallback()) {
                 return getterSPI;
             }
             throw makeCodegenGetterException(t, debugInfo);
@@ -552,10 +552,10 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetterMapped codegenGetter(EventPropertyGetterMappedSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, codeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
-            if (codeGeneration.isEnableFallback()) {
+            if (byteCodeGeneration.isEnableFallback()) {
                 return getterSPI;
             }
             throw makeCodegenGetterException(t, debugInfo);
@@ -724,8 +724,8 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     }
 
     private void logCodegenGetter(Throwable t, Supplier<String> debugInfo) {
-        String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInfo, codeGeneration.isEnableFallback());
-        if (codeGeneration.isEnableFallback()) {
+        String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInfo, byteCodeGeneration.isEnableFallback());
+        if (byteCodeGeneration.isEnableFallback()) {
             log.warn(message, t);
         } else {
             log.error(message, t);

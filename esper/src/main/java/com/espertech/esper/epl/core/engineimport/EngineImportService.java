@@ -232,7 +232,7 @@ public interface EngineImportService extends ClassLoaderProvider {
 
     public boolean isCodegenEventPropertyGetters();
 
-    public ConfigurationEngineDefaults.CodeGeneration getCodeGeneration();
+    public ConfigurationEngineDefaults.ByteCodeGeneration getByteCodeGeneration();
 
     public CodegenCompiler getCodegenCompiler();
 

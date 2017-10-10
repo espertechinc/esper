@@ -62,7 +62,7 @@ public class TestSuiteOutputLimit extends TestCase {
         RegressionRunner.run(new ExecOutputLimitSimple());
     }
 
-    public void testExecQuerytypeRollupOutputRate() {
+    public void testExecOutputLimitRowPerGroupRollup() {
         RegressionRunner.run(new ExecOutputLimitRowPerGroupRollup());
     }
 }

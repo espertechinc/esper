@@ -17,7 +17,7 @@ public class TestEPServiceProviderManager extends TestCase {
     public void testGetInstance() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(true);
-        configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
+        configuration.getEngineDefaults().getByteCodeGeneration().setEnableExpression(false);
 
         EPServiceProvider runtimeDef1 = EPServiceProviderManager.getDefaultProvider(configuration);
         EPServiceProvider runtimeA1 = EPServiceProviderManager.getProvider("A", configuration);
@@ -52,7 +52,7 @@ public class TestEPServiceProviderManager extends TestCase {
     public void testInvalid() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
-        configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
+        configuration.getEngineDefaults().getByteCodeGeneration().setEnableExpression(false);
         configuration.addEventType("x", "xxx.noclass");
 
         try {
@@ -65,7 +65,7 @@ public class TestEPServiceProviderManager extends TestCase {
 
     public void testDefaultNaming() {
         Configuration configuration = new Configuration();
-        configuration.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
+        configuration.getEngineDefaults().getByteCodeGeneration().setEnableExpression(false);
 
         assertEquals("default", EPServiceProviderSPI.DEFAULT_ENGINE_URI_QUALIFIER);
         EPServiceProvider epNoArg = EPServiceProviderManager.getDefaultProvider(configuration);

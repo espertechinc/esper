@@ -125,7 +125,7 @@ public class EPStatementStartMethodHelperAssignExpr {
 
         OrderByProcessor orderByProcessor = null;
         if (resultSetProcessorPrototype.getOrderByProcessorFactory() != null) {
-            orderByProcessor = resultSetProcessorPrototype.getOrderByProcessorFactory().instantiate(aggregationService, agentInstanceContext);
+            orderByProcessor = resultSetProcessorPrototype.getOrderByProcessorFactory().instantiate(agentInstanceContext);
         }
 
         ResultSetProcessor processor = resultSetProcessorPrototype.getResultSetProcessorFactory().instantiate(orderByProcessor, aggregationService, agentInstanceContext);

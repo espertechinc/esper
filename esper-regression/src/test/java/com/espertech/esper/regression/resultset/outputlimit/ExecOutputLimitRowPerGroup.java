@@ -36,7 +36,7 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
         configuration.addEventType("MarketData", SupportMarketDataBean.class);
         configuration.addEventType("SupportBean", SupportBean.class);
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
-        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeDebugSymbols(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

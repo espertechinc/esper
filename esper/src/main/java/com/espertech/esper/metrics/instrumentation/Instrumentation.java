@@ -22,7 +22,7 @@ import com.espertech.esper.core.service.EPStatementHandle;
 import com.espertech.esper.core.service.InternalEventRouterEntry;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.core.orderby.OrderByElement;
+import com.espertech.esper.epl.core.orderby.OrderByElementEval;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.*;
@@ -700,7 +700,7 @@ public interface Instrumentation {
 
     void aHavingClauseJoin(Boolean pass);
 
-    void qOrderBy(EventBean[] evalEventsPerStream, OrderByElement[] orderBy);
+    void qOrderBy(EventBean[] evalEventsPerStream, OrderByElementEval[] orderBy);
 
     void aOrderBy(Object values);
 

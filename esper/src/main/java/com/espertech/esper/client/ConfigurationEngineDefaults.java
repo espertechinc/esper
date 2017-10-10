@@ -45,7 +45,7 @@ public class ConfigurationEngineDefaults implements Serializable {
     private Patterns patterns;
     private MatchRecognize matchRecognize;
     private Scripts scripts;
-    private CodeGeneration codeGeneration;
+    private ByteCodeGeneration byteCodeGeneration;
 
     /**
      * Ctor.
@@ -68,7 +68,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         patterns = new Patterns();
         matchRecognize = new MatchRecognize();
         scripts = new Scripts();
-        codeGeneration = new CodeGeneration();
+        byteCodeGeneration = new ByteCodeGeneration();
     }
 
     /**
@@ -283,16 +283,16 @@ public class ConfigurationEngineDefaults implements Serializable {
      * Returns code generation settings
      * @return code generation settings
      */
-    public CodeGeneration getCodeGeneration() {
-        return codeGeneration;
+    public ByteCodeGeneration getByteCodeGeneration() {
+        return byteCodeGeneration;
     }
 
     /**
      * Sets code generation settings
-     * @param codeGeneration settings
+     * @param byteCodeGeneration settings
      */
-    public void setCodeGeneration(CodeGeneration codeGeneration) {
-        this.codeGeneration = codeGeneration;
+    public void setByteCodeGeneration(ByteCodeGeneration byteCodeGeneration) {
+        this.byteCodeGeneration = byteCodeGeneration;
     }
 
     /**
@@ -2298,7 +2298,7 @@ public class ConfigurationEngineDefaults implements Serializable {
     /**
      * Code generation settings.
      */
-    public static class CodeGeneration implements Serializable {
+    public static class ByteCodeGeneration implements Serializable {
         private boolean enablePropertyGetter = false;
         private boolean enableExpression = true;
         private boolean enableSelectClause = false;
@@ -2456,7 +2456,7 @@ public class ConfigurationEngineDefaults implements Serializable {
 
         /**
          * Sets indicator whether to enable code generation for aggregation processing.
-         * @return indicator
+         * @param enableAggregation flag
          */
         public void setEnableAggregation(boolean enableAggregation) {
             this.enableAggregation = enableAggregation;

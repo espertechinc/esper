@@ -320,7 +320,7 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
             count++;
         }
 
-        return ResultSetProcessorUtil.outputFromCountMaySort(count, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext);
+        return ResultSetProcessorUtil.outputFromCountMaySort(count, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext, aggregationService);
     }
 
     static CodegenMethodNode generateOutputEventsViewCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -561,7 +561,7 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
             count++;
         }
 
-        return ResultSetProcessorUtil.outputFromCountMaySort(count, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext);
+        return ResultSetProcessorUtil.outputFromCountMaySort(count, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext, aggregationService);
     }
 
     private static CodegenMethodNode generateOutputEventsJoinCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {

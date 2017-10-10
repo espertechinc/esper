@@ -48,7 +48,7 @@ public class ExecAggregateFilterNamedParameter implements RegressionExecution {
         configuration.addEventType(SupportBean.class);
         configuration.addEventType(SupportBean_S0.class);
         configuration.addEventType(SupportBean_S1.class);
-        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeDebugSymbols(true);
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
     }
 

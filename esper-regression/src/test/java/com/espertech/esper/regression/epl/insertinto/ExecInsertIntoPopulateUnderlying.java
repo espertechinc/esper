@@ -47,7 +47,7 @@ public class ExecInsertIntoPopulateUnderlying implements RegressionExecution {
         configuration.addEventType("SupportSensorEvent", SupportSensorEvent.class.getName(), legacy);
 
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
-        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeDebugSymbols(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

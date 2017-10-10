@@ -155,7 +155,7 @@
 
     <xi:include href="modules/examples.xml" />
 
-    <xi:include href="modules/codegen.xml" />
+    <xi:include href="modules/bytecodegen.xml" />
 
     <xi:include href="modules/performance.xml" />
     

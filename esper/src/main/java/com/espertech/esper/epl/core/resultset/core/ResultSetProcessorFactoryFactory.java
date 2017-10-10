@@ -28,9 +28,9 @@ import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryFactory;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceForgeDesc;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
-import com.espertech.esper.epl.core.orderby.OrderByElement;
-import com.espertech.esper.epl.core.orderby.OrderByProcessorFactory;
+import com.espertech.esper.epl.core.orderby.OrderByElementForge;
 import com.espertech.esper.epl.core.orderby.OrderByProcessorFactoryFactory;
+import com.espertech.esper.epl.core.orderby.OrderByProcessorFactoryForge;
 import com.espertech.esper.epl.core.resultset.agggrouped.ResultSetProcessorAggregateGroupedForge;
 import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorFactoryCompiler;
 import com.espertech.esper.epl.core.resultset.handthru.ResultSetProcessorHandThroughFactoryForge;
@@ -53,7 +53,6 @@ import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeGroupKey;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
@@ -325,16 +324,22 @@ public class ResultSetProcessorFactoryFactory {
             useCollatorSort = stmtContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
         }
 
-        // Construct the processor for sorting output events
-        OrderByProcessorFactory orderByProcessorFactory = OrderByProcessorFactoryFactory.getProcessor(namedSelectionList,
-                groupByNodesValidated, orderByList, statementSpec.getRowLimitSpec(), stmtContext.getVariableService(), useCollatorSort, statementSpec.getOptionalContextName(), stmtContext.getEngineImportService(), isFireAndForget, stmtContext.getStatementName());
-        boolean hasOrderBy = orderByProcessorFactory != null;
-
         // Construct the processor for evaluating the select clause
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry(stmtContext.getStatementName(), stmtContext.getStatementEventTypeRef());
         SelectExprProcessorForge selectExprProcessorForge = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClauseSpec.getSelectExprList(), isUsingWildcard, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getEngineImportService(), evaluatorContextStmt,
                 stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), selectExprProcessorCallback, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo, stmtContext.getStatementExtensionServicesContext());
         EventType resultEventType = selectExprProcessorForge.getResultEventType();
+
+        // compute rollup if applicable
+        GroupByRollupPerLevelForge rollupPerLevelForges = null;
+        if (groupByRollupDesc != null) {
+            rollupPerLevelForges = getRollUpPerLevelExpressions(statementSpec, groupByNodesValidated, groupByRollupDesc, stmtContext, selectExprEventTypeRegistry, evaluatorContextStmt, insertIntoDesc, typeService, validationContext, groupByRollupInfo);
+        }
+
+        // Construct the processor for sorting output events
+        OrderByProcessorFactoryForge orderByProcessorFactory = OrderByProcessorFactoryFactory.getProcessor(namedSelectionList,
+                groupByNodesValidated, orderByList, statementSpec.getRowLimitSpec(), stmtContext.getVariableService(), useCollatorSort, statementSpec.getOptionalContextName(), rollupPerLevelForges == null ? null : rollupPerLevelForges.getOptionalOrderByElements());
+        boolean hasOrderBy = orderByProcessorFactory != null;
 
         // Get a list of event properties being aggregated in the select clause, if any
         ExprNodePropOrStreamSet propertiesGroupBy = ExprNodeUtility.getGroupByPropertiesValidateHasOne(groupByNodesValidated);
@@ -583,9 +588,9 @@ public class ResultSetProcessorFactoryFactory {
         if (groupByExpressions.getOptHavingNodePerLevel() != null) {
             havingClauses = new ExprForge[numLevels];
         }
-        OrderByElement[][] orderByElements = null;
+        OrderByElementForge[][] orderByElements = null;
         if (groupByExpressions.getOptOrderByPerLevel() != null) {
-            orderByElements = new OrderByElement[numLevels][];
+            orderByElements = new OrderByElementForge[numLevels][];
         }
 
         // for each expression in the group-by clause determine which properties it refers to
@@ -620,13 +625,12 @@ public class ResultSetProcessorFactoryFactory {
         return new GroupByRollupPerLevelForge(processors, havingClauses, orderByElements);
     }
 
-    private static OrderByElement[] rewriteRollupOrderBy(OrderByItem[] items, ExprNode[] orderByList, ExprValidationContext validationContext, ExprNodePropOrStreamSet rolledupProps, ExprNode[] groupByNodes, AggregationGroupByRollupLevel level)
+    private static OrderByElementForge[] rewriteRollupOrderBy(OrderByItem[] items, ExprNode[] orderByList, ExprValidationContext validationContext, ExprNodePropOrStreamSet rolledupProps, ExprNode[] groupByNodes, AggregationGroupByRollupLevel level)
             throws ExprValidationException {
-        OrderByElement[] elements = new OrderByElement[orderByList.length];
+        OrderByElementForge[] elements = new OrderByElementForge[orderByList.length];
         for (int i = 0; i < orderByList.length; i++) {
             ExprNode validated = rewriteRollupValidateExpression(ExprNodeOrigin.ORDERBY, orderByList[i], validationContext, rolledupProps, groupByNodes, level);
-            ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(validated.getForge(), validationContext.getEngineImportService(), ResultSetProcessorFactoryFactory.class, validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
-            elements[i] = new OrderByElement(validated, evaluator, items[i].isDescending());
+            elements[i] = new OrderByElementForge(validated, items[i].isDescending());
         }
         return elements;
     }

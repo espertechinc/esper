@@ -174,7 +174,7 @@ public class ExecQuerytypeRollupGroupingFuncs implements RegressionExecution {
 
         // invalid parameters
         tryInvalid(epService, "select theString, sum(intPrimitive), grouping(longPrimitive) from SupportBean group by rollup(theString)",
-                "Error starting statement: Group-by with rollup requires a fully-aggregated query, the query is not full-aggregated because of property 'longPrimitive' [select theString, sum(intPrimitive), grouping(longPrimitive) from SupportBean group by rollup(theString)]");
+                "Error starting statement: Failed to find expression 'longPrimitive' among group-by expressions");
         tryInvalid(epService, "select theString, sum(intPrimitive), grouping(theString||'x') from SupportBean group by rollup(theString)",
                 "Error starting statement: Failed to find expression 'theString||\"x\"' among group-by expressions [select theString, sum(intPrimitive), grouping(theString||'x') from SupportBean group by rollup(theString)]");
 

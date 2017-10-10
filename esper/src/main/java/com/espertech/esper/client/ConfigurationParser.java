@@ -855,8 +855,8 @@ class ConfigurationParser {
             if (subElement.getNodeName().equals("execution")) {
                 handleExecution(configuration, subElement);
             }
-            if (subElement.getNodeName().equals("codegen")) {
-                handleCodegen(configuration, subElement);
+            if (subElement.getNodeName().equals("bytecodegen")) {
+                handleByteCodeGen(configuration, subElement);
             }
             if (subElement.getNodeName().equals("exceptionHandling")) {
                 configuration.getEngineDefaults().getExceptionHandling().addClasses(getHandlerFactories(subElement));
@@ -1262,8 +1262,8 @@ class ConfigurationParser {
         }
     }
 
-    private static void handleCodegen(Configuration configuration, Element element) {
-        ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
+    private static void handleByteCodeGen(Configuration configuration, Element element) {
+        ConfigurationEngineDefaults.ByteCodeGeneration codegen = configuration.getEngineDefaults().getByteCodeGeneration();
         parseOptionalBoolean(element, "enable-aggregation", codegen::setEnableAggregation);
         parseOptionalBoolean(element, "enable-resultset", codegen::setEnableResultSet);
         parseOptionalBoolean(element, "enable-selectclause", codegen::setEnableSelectClause);

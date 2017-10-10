@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.epl.core.orderby;
 
-import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -21,10 +19,12 @@ import com.espertech.esper.epl.spec.OrderByItem;
 import com.espertech.esper.epl.spec.RowLimitSpec;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.variable.VariableService;
+import com.espertech.esper.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,32 +34,14 @@ import java.util.List;
 public class OrderByProcessorFactoryFactory {
     private static final Logger log = LoggerFactory.getLogger(OrderByProcessorFactoryFactory.class);
 
-    /**
-     * Returns processor for order-by clauses.
-     *
-     * @param selectionList       is a list of select expressions
-     * @param groupByNodes        is a list of group-by expressions
-     * @param orderByList         is a list of order-by expressions
-     * @param rowLimitSpec        specification for row limit, or null if no row limit is defined
-     * @param variableService     for retrieving variable state for use with row limiting
-     * @param isSortUsingCollator for string value sorting using compare or Collator
-     * @param optionalContextName context name
-     * @param engineImportService engine import svc
-     * @param onDemandQuery fire-and-forget flag
-     * @param statementName statement name
-     * @return ordering processor instance
-     * @throws com.espertech.esper.epl.expression.core.ExprValidationException when validation of expressions fails
-     */
-    public static OrderByProcessorFactory getProcessor(List<SelectClauseExprCompiledSpec> selectionList,
+    public static OrderByProcessorFactoryForge getProcessor(List<SelectClauseExprCompiledSpec> selectionList,
                                                        ExprNode[] groupByNodes,
                                                        List<OrderByItem> orderByList,
                                                        RowLimitSpec rowLimitSpec,
                                                        VariableService variableService,
                                                        boolean isSortUsingCollator,
                                                        String optionalContextName,
-                                                       EngineImportService engineImportService,
-                                                       boolean onDemandQuery,
-                                                       String statementName)
+                                                       OrderByElementForge[][] orderByRollup)
             throws ExprValidationException {
         // Get the order by expression nodes
         List<ExprNode> orderByNodes = new ArrayList<ExprNode>();
@@ -72,7 +54,7 @@ public class OrderByProcessorFactoryFactory {
             log.debug(".getProcessor Using no OrderByProcessor");
             if (rowLimitSpec != null) {
                 RowLimitProcessorFactory rowLimitProcessorFactory = new RowLimitProcessorFactory(rowLimitSpec, variableService, optionalContextName);
-                return new OrderByProcessorRowLimitOnlyFactory(rowLimitProcessorFactory);
+                return new OrderByProcessorRowLimitOnlyForge(rowLimitProcessorFactory);
             }
             return null;
         }
@@ -96,13 +78,14 @@ public class OrderByProcessorFactoryFactory {
         boolean needsGroupByKeys = !selectionList.isEmpty() && !orderAggNodes.isEmpty();
 
         log.debug(".getProcessor Using OrderByProcessorImpl");
-        ExprEvaluator[] groupByNodeEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupByNodes, engineImportService, OrderByProcessorFactory.class, onDemandQuery, statementName);
-        OrderByProcessorFactoryImpl orderByProcessorFactory = new OrderByProcessorFactoryImpl(orderByList, groupByNodeEvals, needsGroupByKeys, isSortUsingCollator, engineImportService, onDemandQuery, statementName);
+        OrderByElementForge[] elements = toElementArray(orderByList);
+        Comparator<Object> comparator = getComparator(elements, isSortUsingCollator);
+        OrderByProcessorForgeImpl orderByProcessorForge = new OrderByProcessorForgeImpl(elements, groupByNodes, needsGroupByKeys, comparator, orderByRollup);
         if (rowLimitSpec == null) {
-            return orderByProcessorFactory;
+            return orderByProcessorForge;
         } else {
             RowLimitProcessorFactory rowLimitProcessorFactory = new RowLimitProcessorFactory(rowLimitSpec, variableService, optionalContextName);
-            return new OrderByProcessorOrderedLimitFactory(orderByProcessorFactory, rowLimitProcessorFactory);
+            return new OrderByProcessorOrderedLimitForge(orderByProcessorForge, rowLimitProcessorFactory);
         }
     }
 
@@ -123,5 +106,24 @@ public class OrderByProcessorFactoryFactory {
                 throw new ExprValidationException("Aggregate functions in the order-by clause must also occur in the select expression");
             }
         }
+    }
+
+    private static Comparator<Object> getComparator(OrderByElementForge[] orderBy, boolean isSortUsingCollator) throws ExprValidationException {
+        ExprNode[] nodes = new ExprNode[orderBy.length];
+        boolean[] descending = new boolean[orderBy.length];
+        for (int i = 0; i < orderBy.length; i++) {
+            nodes[i] = orderBy[i].getExprNode();
+            descending[i] = orderBy[i].isDescending();
+        }
+        return CollectionUtil.getComparator(nodes, isSortUsingCollator, descending);
+    }
+
+    private static OrderByElementForge[] toElementArray(List<OrderByItem> orderByList) {
+        OrderByElementForge[] elements = new OrderByElementForge[orderByList.size()];
+        int count = 0;
+        for (OrderByItem item : orderByList) {
+            elements[count++] = new OrderByElementForge(item.getExprNode(), item.isDescending());
+        }
+        return elements;
     }
 }

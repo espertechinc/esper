@@ -20,9 +20,9 @@ import java.util.TimeZone;
 public class SupportEngineImportServiceFactory {
 
     public static EngineImportServiceImpl make() {
-        ConfigurationEngineDefaults.CodeGeneration codeGeneration = new ConfigurationEngineDefaults.CodeGeneration();
-        codeGeneration.setEnablePropertyGetter(false);
-        codeGeneration.setEnableExpression(false);
-        return new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE, ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE, codeGeneration, "default", null);
+        ConfigurationEngineDefaults.ByteCodeGeneration byteCodeGeneration = new ConfigurationEngineDefaults.ByteCodeGeneration();
+        byteCodeGeneration.setEnablePropertyGetter(false);
+        byteCodeGeneration.setEnableExpression(false);
+        return new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE, ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE, byteCodeGeneration, "default", null);
     }
 }

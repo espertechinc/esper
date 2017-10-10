@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.core.CodegenNamedParam;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
@@ -23,7 +24,6 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
-import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -150,6 +150,7 @@ public class ResultSetProcessorUtil {
      * Applies the select-clause to the given events returning the selected events. The number of events stays the
      * same, i.e. this method does not filter it just transforms the result set.
      *
+     * @param aggregationService   - aggregation svc
      * @param exprProcessor        - processes each input event and returns output event
      * @param orderByProcessor     - orders the outgoing events according to the order-by clause
      * @param events               - input events
@@ -158,7 +159,7 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectEventsNoHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return null;
         }
@@ -173,7 +174,7 @@ public class ResultSetProcessorUtil {
             eventGenerators[i] = new EventBean[]{events[i]};
         }
 
-        return orderByProcessor.sort(result, eventGenerators, isNewData, exprEvaluatorContext);
+        return orderByProcessor.sortPlain(result, eventGenerators, isNewData, exprEvaluatorContext, aggregationService);
     }
 
     /**
@@ -182,6 +183,7 @@ public class ResultSetProcessorUtil {
      * <p>
      * Also applies a having clause.
      *
+     * @param aggregationService   - aggregation svc
      * @param exprProcessor        - processes each input event and returns output event
      * @param orderByProcessor     - for sorting output events according to the order-by clause
      * @param events               - input events
@@ -191,7 +193,7 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectEventsHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return null;
         }
@@ -226,7 +228,7 @@ public class ResultSetProcessorUtil {
         }
 
         if (result != null) {
-            return orderByProcessor.sort(CollectionUtil.toArrayEvents(result), CollectionUtil.toArrayEventsArray(eventGenerators), isNewData, exprEvaluatorContext);
+            return orderByProcessor.sortPlain(CollectionUtil.toArrayEvents(result), CollectionUtil.toArrayEventsArray(eventGenerators), isNewData, exprEvaluatorContext, aggregationService);
         }
         return null;
     }
@@ -257,11 +259,11 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNullReturnNull("result")
                     .declareVar(EventBean[].class, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
                     .declareVar(EventBean[][].class, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
-                    .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+                    .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
         };
 
         return instance.getMethods().addMethod(EventBean[].class, "getSelectEventsHavingWithOrderBy",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(AggregationService.class, REF_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, EventBean[].class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -349,6 +351,7 @@ public class ResultSetProcessorUtil {
      * Applies the select-clause to the given events returning the selected events. The number of events stays the
      * same, i.e. this method does not filter it just transforms the result set.
      *
+     * @param aggregationService   - aggregation svc
      * @param exprProcessor        - processes each input event and returns output event
      * @param orderByProcessor     - for sorting output events according to the order-by clause
      * @param events               - input events
@@ -357,7 +360,7 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectJoinEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectJoinEventsNoHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -373,7 +376,7 @@ public class ResultSetProcessorUtil {
             count++;
         }
 
-        return orderByProcessor.sort(result, eventGenerators, isNewData, exprEvaluatorContext);
+        return orderByProcessor.sortPlain(result, eventGenerators, isNewData, exprEvaluatorContext, aggregationService);
     }
 
     /**
@@ -483,6 +486,7 @@ public class ResultSetProcessorUtil {
      * <p>
      * Also applies a having clause.
      *
+     * @param aggregationService   - aggregation svc
      * @param exprProcessor        - processes each input event and returns output event
      * @param orderByProcessor     - for sorting output events according to the order-by clause
      * @param events               - input events
@@ -492,7 +496,7 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectJoinEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectJoinEventsHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -526,7 +530,7 @@ public class ResultSetProcessorUtil {
         }
 
         if (result != null) {
-            return orderByProcessor.sort(CollectionUtil.toArrayEvents(result), CollectionUtil.toArrayEventsArray(eventGenerators), isNewData, exprEvaluatorContext);
+            return orderByProcessor.sortPlain(CollectionUtil.toArrayEvents(result), CollectionUtil.toArrayEventsArray(eventGenerators), isNewData, exprEvaluatorContext, aggregationService);
         }
         return null;
     }
@@ -555,11 +559,11 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNullReturnNull("result")
                     .declareVar(EventBean[].class, "arr", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("result")))
                     .declareVar(EventBean[][].class, "gen", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTSARRAY, ref("eventGenerators")))
-                    .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT));
+                    .methodReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortPlain", ref("arr"), ref("gen"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
         };
 
         return instance.getMethods().addMethod(EventBean[].class, "getSelectJoinEventsHavingWithOrderBy",
-                CodegenNamedParam.from(SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(AggregationService.class, REF_AGGREGATIONSVC.getRef(), SelectExprProcessor.class, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.class, NAME_ORDERBYPROCESSOR, Set.class, "events", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -862,14 +866,14 @@ public class ResultSetProcessorUtil {
                 if (!hasOrderBy) {
                     method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constant(false), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
                 } else {
-                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
                 }
             }
 
             if (!hasOrderBy) {
                 method.getBlock().assignRef("selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constant(true), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             } else {
-                method.getBlock().assignRef("selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVINGWITHORDERBY, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             }
         } else {
             if (selectRStream) {
@@ -878,7 +882,7 @@ public class ResultSetProcessorUtil {
                     method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
                 } else {
                     CodegenMethodNode select = ResultSetProcessorUtil.getSelectEventsHavingWithOrderByCodegen(classScope, instance);
-                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
                 }
             }
 
@@ -887,7 +891,7 @@ public class ResultSetProcessorUtil {
                 method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             } else {
                 CodegenMethodNode select = ResultSetProcessorUtil.getSelectEventsHavingWithOrderByCodegen(classScope, instance);
-                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             }
         }
 
@@ -903,14 +907,14 @@ public class ResultSetProcessorUtil {
                 if (!hasOrderBy) {
                     method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
                 } else {
-                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, constantNull(), REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
                 }
             }
 
             if (!hasOrderBy) {
                 method.getBlock().assignRef("selectNewEvents ", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             } else {
-                method.getBlock().assignRef("selectNewEvents ", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents ", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, constantNull(), REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             }
         } else {
             if (selectRStream) {
@@ -919,7 +923,7 @@ public class ResultSetProcessorUtil {
                     method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
                 } else {
                     CodegenMethodNode select = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderByCodegen(classScope, instance);
-                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT));
+                    method.getBlock().assignRef("selectOldEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT));
                 }
             }
 
@@ -928,7 +932,7 @@ public class ResultSetProcessorUtil {
                 method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             } else {
                 CodegenMethodNode select = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderByCodegen(classScope, instance);
-                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+                method.getBlock().assignRef("selectNewEvents", localMethod(select, REF_AGGREGATIONSVC, REF_SELECTEXPRPROCESSOR, REF_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
             }
         }
 
@@ -950,7 +954,7 @@ public class ResultSetProcessorUtil {
     public static ArrayEventIterator orderOutgoingGetIterator(List<EventBean> outgoingEvents, List<Object> orderKeys, OrderByProcessor orderByProcessor, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean[] outgoingEventsArr = CollectionUtil.toArrayEvents(outgoingEvents);
         Object[] orderKeysArr = CollectionUtil.toArrayObjects(orderKeys);
-        EventBean[] orderedEvents = orderByProcessor.sort(outgoingEventsArr, orderKeysArr, exprEvaluatorContext);
+        EventBean[] orderedEvents = orderByProcessor.sortWOrderKeys(outgoingEventsArr, orderKeysArr, exprEvaluatorContext);
         return new ArrayEventIterator(orderedEvents);
     }
 
@@ -964,9 +968,10 @@ public class ResultSetProcessorUtil {
      * @param isNewData            irstream
      * @param orderByProcessor     order-by
      * @param agentInstanceContext ctx
+     * @param aggregationService   aggregation svc
      * @return events for output
      */
-    public static EventBean[] outputFromCountMaySort(int count, EventBean[] events, Object[] keys, EventBean[][] currentGenerators, boolean isNewData, OrderByProcessor orderByProcessor, AgentInstanceContext agentInstanceContext) {
+    public static EventBean[] outputFromCountMaySort(int count, EventBean[] events, Object[] keys, EventBean[][] currentGenerators, boolean isNewData, OrderByProcessor orderByProcessor, AgentInstanceContext agentInstanceContext, AggregationService aggregationService) {
         // Resize if some rows were filtered out
         if (count != events.length) {
             if (count == 0) {
@@ -981,7 +986,7 @@ public class ResultSetProcessorUtil {
         }
 
         if (orderByProcessor != null) {
-            events = orderByProcessor.sort(events, currentGenerators, keys, isNewData, agentInstanceContext);
+            events = orderByProcessor.sortWGroupKeys(events, currentGenerators, keys, isNewData, agentInstanceContext, aggregationService);
         }
 
         return events;
@@ -998,7 +1003,7 @@ public class ResultSetProcessorUtil {
         }
 
         if (hasOrderBy) {
-            block.assignRef(events.getRef(), exprDotMethod(REF_ORDERBYPROCESSOR, "sort", events, currentGenerators, keys, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT));
+            block.assignRef(events.getRef(), exprDotMethod(REF_ORDERBYPROCESSOR, "sortWGroupKeys", events, currentGenerators, keys, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC));
         }
 
         block.methodReturn(events);
@@ -1026,10 +1031,10 @@ public class ResultSetProcessorUtil {
 
         if (orderByProcessor != null) {
             Object[] sortKeysNew = CollectionUtil.toArrayNullForEmptyObjects(newEventsSortKey);
-            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, exprEvaluatorContext);
+            newEventsArr = orderByProcessor.sortWOrderKeys(newEventsArr, sortKeysNew, exprEvaluatorContext);
             if (selectRStream) {
                 Object[] sortKeysOld = CollectionUtil.toArrayNullForEmptyObjects(oldEventsSortKey);
-                oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, exprEvaluatorContext);
+                oldEventsArr = orderByProcessor.sortWOrderKeys(oldEventsArr, sortKeysOld, exprEvaluatorContext);
             }
         }
 
@@ -1042,10 +1047,10 @@ public class ResultSetProcessorUtil {
 
         if (hasOrderBy) {
             block.declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, newEventsSortKey))
-                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
             if (selectRStream) {
                 block.declareVar(Object[].class, "sortKeysOld", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, oldEventsSortKey))
-                        .assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("oldEventsArr"), ref("sortKeysOld"), REF_AGENTINSTANCECONTEXT));
+                        .assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("sortKeysOld"), REF_AGENTINSTANCECONTEXT));
             }
         }
 

@@ -25,7 +25,7 @@ public class ExecFromClauseMethodNStream implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getLogging().setEnableQueryPlan(true);
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
-        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeDebugSymbols(true);
 
         configuration.addEventType(SupportBeanInt.class);
         configuration.addImport(SupportJoinMethods.class.getName());

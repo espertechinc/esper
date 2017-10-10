@@ -15,6 +15,7 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.core.CodegenTypedParam;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionNewAnonymousClass;
@@ -24,7 +25,6 @@ import com.espertech.esper.epl.agg.rollup.GroupByRollupPerLevelExpression;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPerLevelForge;
 import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
 import com.espertech.esper.epl.agg.service.common.AggregationService;
-import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.resultset.core.*;
 import com.espertech.esper.epl.core.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.epl.core.resultset.rowforall.ResultSetProcessorRowForAll;
@@ -123,7 +123,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
             selectExprProcessors[i] = SelectExprProcessorCompiler.allocateSelectExprEvaluator(stmtContext.getEventAdapterService(), selectForges[i], stmtContext.getEngineImportService(), ResultSetProcessorFactoryFactory.class, isFireAndForget, stmtContext.getStatementName());
         }
 
-        GroupByRollupPerLevelExpression perLevelEvals = new GroupByRollupPerLevelExpression(selectExprProcessors, havingEvals, perLevelForges.getOptionalOrderByElements());
+        GroupByRollupPerLevelExpression perLevelEvals = new GroupByRollupPerLevelExpression(selectExprProcessors, havingEvals);
         ExprEvaluator[] groupKeyEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupKeyNodeExpressions, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
 
         return new ResultSetProcessorRowPerGroupRollupFactory(resultEventType, perLevelEvals, groupKeyNodeExpressions, groupKeyEvals, isSelectRStream, isUnidirectional, outputLimitSpec, isSorting, groupByRollupDesc, isJoin, isHistoricalOnly,

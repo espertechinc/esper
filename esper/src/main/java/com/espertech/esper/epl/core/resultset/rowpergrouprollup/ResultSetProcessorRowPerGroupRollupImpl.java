@@ -28,7 +28,6 @@ import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
 import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupDesc;
 import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.agg.service.common.AggregationService;
-import com.espertech.esper.epl.core.orderby.OrderByElement;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputHelperVisitor;
@@ -299,14 +298,12 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
         EventBean[] outgoing = CollectionUtil.toArrayEvents(events);
         if (outgoing.length > 1 && prototype.isSorting()) {
-            return orderByProcessor.sort(outgoing, currentGenerators, isNewData, agentInstanceContext, prototype.getPerLevelExpression().getOptionalOrderByElements());
+            return orderByProcessor.sortRollup(outgoing, currentGenerators, isNewData, agentInstanceContext, aggregationService);
         }
         return outgoing;
     }
 
     static CodegenMethodNode generateOutputEventsViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMember orderByElements = classScope.makeAddMember(OrderByElement[][].class, forge.getPerLevelForges().getOptionalOrderByElements());
-
         Consumer<CodegenMethodNode> code = methodNode -> {
 
             methodNode.getBlock().declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
@@ -340,7 +337,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                     .declareVar(EventBean[].class, "outgoing", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")));
             if (forge.isSorting()) {
                 methodNode.getBlock().ifCondition(relational(arrayLength(ref("outgoing")), GT, constant(1)))
-                        .blockReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, member(orderByElements.getMemberId())));
+                        .blockReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortRollup", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC));
             }
             methodNode.getBlock().methodReturn(ref("outgoing"));
         };
@@ -392,14 +389,12 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         }
         EventBean[] outgoing = events.toArray(new EventBean[events.size()]);
         if (outgoing.length > 1 && prototype.isSorting()) {
-            return orderByProcessor.sort(outgoing, currentGenerators, isNewData, agentInstanceContext, prototype.getPerLevelExpression().getOptionalOrderByElements());
+            return orderByProcessor.sortRollup(outgoing, currentGenerators, isNewData, agentInstanceContext, aggregationService);
         }
         return outgoing;
     }
 
     private static CodegenMethodNode generateOutputEventsJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMember orderByElements = classScope.makeAddMember(OrderByElement[][].class, forge.getPerLevelForges().getOptionalOrderByElements());
-
         Consumer<CodegenMethodNode> code = methodNode -> {
 
             methodNode.getBlock().declareVar(ArrayList.class, "events", newInstance(ArrayList.class, constant(1)))
@@ -431,7 +426,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                     .declareVar(EventBean[].class, "outgoing", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")));
             if (forge.isSorting()) {
                 methodNode.getBlock().ifCondition(relational(arrayLength(ref("outgoing")), GT, constant(1)))
-                        .blockReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, member(orderByElements.getMemberId())));
+                        .blockReturn(exprDotMethod(REF_ORDERBYPROCESSOR, "sortRollup", ref("outgoing"), ref("currentGenerators"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC));
             }
             methodNode.getBlock().methodReturn(ref("outgoing"));
         };
@@ -1583,13 +1578,11 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         resultEvents.add(prototype.getPerLevelExpression().getSelectExprProcessor()[level.getLevelNumber()].process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext));
 
         if (prototype.isSorting()) {
-            optSortKeys.add(orderByProcessor.getSortKey(eventsPerStream, isNewData, agentInstanceContext, prototype.getPerLevelExpression().getOptionalOrderByElements()[level.getLevelNumber()]));
+            optSortKeys.add(orderByProcessor.getSortKeyRollup(eventsPerStream, isNewData, agentInstanceContext, level));
         }
     }
 
     static CodegenMethodNode generateOutputBatchedCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenClassScope classScope) {
-        CodegenMember orderByElements = classScope.makeAddMember(OrderByElement[][].class, forge.getPerLevelForges().getOptionalOrderByElements());
-
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), ref("level"));
 
@@ -1601,8 +1594,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().exprDotMethod(ref("resultEvents"), "add", exprDotMethod(selectExprProcessor, "process", ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
 
             if (forge.isSorting()) {
-                CodegenExpression orderByEle = arrayAtIndex(member(orderByElements.getMemberId()), exprDotMethod(ref("level"), "getLevelNumber"));
-                methodNode.getBlock().exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, orderByEle));
+                methodNode.getBlock().exprDotMethod(ref("optSortKeys"), "add", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKeyRollup", ref("eventsPerStream"), REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, ref("level")));
             }
         };
         return instance.getMethods().addMethod(void.class, "generateOutputBatched",
@@ -2368,9 +2360,9 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         EventBean[] newEventsArr = CollectionUtil.toArrayNullForEmptyEvents(newEvents);
         if (orderByProcessor != null) {
             Object[] sortKeysNew = CollectionUtil.toArrayNullForEmptyObjects(newEventsSortKey);
-            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
+            newEventsArr = orderByProcessor.sortWOrderKeys(newEventsArr, sortKeysNew, agentInstanceContext);
             if (prototype.isSelectRStream()) {
-                oldEventsArr = orderByProcessor.sort(oldEventsArr, oldEventSortKeys, agentInstanceContext);
+                oldEventsArr = orderByProcessor.sortWOrderKeys(oldEventsArr, oldEventSortKeys, agentInstanceContext);
             }
         }
 
@@ -2403,9 +2395,9 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().declareVar(EventBean[].class, "newEventsArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYEVENTS, ref("newEvents")));
             if (forge.isSorting()) {
                 methodNode.getBlock().declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, ref("newEventsSortKey")))
-                        .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                        .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
                 if (forge.isSelectRStream()) {
-                    methodNode.getBlock().assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("oldEventsArr"), ref("oldEventSortKeys"), REF_AGENTINSTANCECONTEXT));
+                    methodNode.getBlock().assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("oldEventSortKeys"), REF_AGENTINSTANCECONTEXT));
                 }
             }
 

@@ -384,8 +384,8 @@ legacyDef.addFieldProperty("volume", "volumeField");
 config.addEventType("StockTick", StockTickEvent.class.getName(), legacyDef);]]></programlisting>
 			</sect3>
 
-			<sect3 xml:id="config-java-codegen" revision="1">
-				<title>Turning off Code Generation</title>
+			<sect3 xml:id="config-java-bytecodegen" revision="1">
+				<title>Turning off Byte Code Generation</title>
 				
 				<para>
 					Esper employes the <literal>CGLIB</literal> library for very fast read access to event property values. For certain legacy Java classes it may be desirable to disable the use of this library and instead use Java reflection to obtain event property values from event objects.
@@ -1605,8 +1605,8 @@ class MyOwnDataSourceFactory {
 			</sect3>
 		</sect2>
 
-		<sect2 xml:id="config-engine-codegen" revision="1">
-			<title>Engine Settings related to Code Generation and Compilation</title>
+		<sect2 xml:id="config-engine-bytecodegen" revision="1">
+			<title>Engine Settings related to Byte Code Generation and Compilation</title>
 			
 			<para>
 			  The setting <literal>enable-resultset</literal> is true by default and controls whether the engine generates code for all of result-set-processing including the select-clause, having-clause and group-by expressions.
@@ -1630,12 +1630,12 @@ class MyOwnDataSourceFactory {
 
 			<para>
 			  The setting <literal>enable-fallback</literal> is true by default and controls whether the engine, upon encountering any exception generating any code, 
-			  falls back to regular evaluation. When this flag is false the engine rethrows any exception encountered for code generation.
+			  falls back to regular evaluation. When this flag is false the engine rethrows any exception encountered for byte code generation.
 			</para>
 
 			<para>
 			  The setting <literal>enable-propertygetter</literal> is false by default. It controls whether the engine generates code for event property getters when using the 
-			  <literal>getGetter</literal> method on <literal>EventType</literal>. This setting does not affect code generation for event properties that are part of an expression.
+			  <literal>getGetter</literal> method on <literal>EventType</literal>. This setting does not affect byte code generation for event properties that are part of an expression.
 			</para>
 
 			<para>
@@ -1651,22 +1651,22 @@ class MyOwnDataSourceFactory {
 				The sample code below sets the same values as the default values:
 			</para>
 			<programlisting><![CDATA[Configuration configuration = new Configuration();
-ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
-codegen.setEnableResultSet(true);
-codegen.setEnableAggregation(true);
-codegen.setEnableExpression(true);
-codegen.setEnableFallback(true);
-codegen.setEnableSelectClause(false); // since included in result set
-codegen.setEnablePropertyGetter(false); // since included in expressions
-codegen.setIncludeDebugSymbols(false);
-codegen.setIncludeComments(false);]]></programlisting>
+ConfigurationEngineDefaults.ByteCodeGeneration byteCodeGen = configuration.getEngineDefaults().getByteCodeGeneration();
+byteCodeGen.setEnableResultSet(true);
+byteCodeGen.setEnableAggregation(true);
+byteCodeGen.setEnableExpression(true);
+byteCodeGen.setEnableFallback(true);
+byteCodeGen.setEnableSelectClause(false); // since included in result set
+byteCodeGen.setEnablePropertyGetter(false); // since included in expressions
+byteCodeGen.setIncludeDebugSymbols(false);
+byteCodeGen.setIncludeComments(false);]]></programlisting>
 				
 			<para>
 				The sample XML configuration below also sets default values:
 			</para>
 			<programlisting><![CDATA[<engine-settings>
   <defaults>
-    <codegen 
+    <bytecodegen 
       enable-resultset="true" 
       enable-aggregation="true" 
       enable-expression="true" 
@@ -2289,10 +2289,10 @@ config.getEngineDefaults().getLogging().setAuditPattern("[%u] [%s] %m");]]></pro
 			</sect3>
 
 			<sect3 xml:id="config-engine-logging-code" revision="1">
-				<title>Code Generation Logging</title>
+				<title>Byte Code Generation Logging</title>
 
 				<para>
-				   By enabling this setting the engine logs code generation information at INFO level. This setting is disabled by default.
+				   By enabling this setting the engine logs byte code generation information at INFO level. This setting is disabled by default.
 				</para>
 
 				<para>

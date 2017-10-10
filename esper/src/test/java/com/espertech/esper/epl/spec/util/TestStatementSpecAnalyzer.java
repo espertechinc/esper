@@ -27,7 +27,7 @@ public class TestStatementSpecAnalyzer extends TestCase {
     public void setUp() {
         Configuration config = new Configuration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
-        config.getEngineDefaults().getCodeGeneration().setEnableExpression(false);
+        config.getEngineDefaults().getByteCodeGeneration().setEnableExpression(false);
         engine = EPServiceProviderManager.getDefaultProvider(config);
     }
 

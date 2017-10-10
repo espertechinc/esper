@@ -96,7 +96,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY, config.getEngineDefaults().getExecution().getFilterServiceProfile());
         assertEquals(16, config.getEngineDefaults().getExecution().getFilterServiceMaxFilterWidth());
         assertEquals(1, config.getEngineDefaults().getExecution().getDeclaredExprValueCacheSize());
-        ConfigurationEngineDefaults.CodeGeneration codegen = config.getEngineDefaults().getCodeGeneration();
+        ConfigurationEngineDefaults.ByteCodeGeneration codegen = config.getEngineDefaults().getByteCodeGeneration();
         assertEquals(true, codegen.isEnableAggregation());
         assertEquals(true, codegen.isEnableResultSet());
         assertEquals(false, codegen.isEnableSelectClause());
@@ -444,7 +444,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(3L, (long) config.getEngineDefaults().getMatchRecognize().getMaxStates());
         assertEquals(false, config.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, config.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
-        ConfigurationEngineDefaults.CodeGeneration codegen = config.getEngineDefaults().getCodeGeneration();
+        ConfigurationEngineDefaults.ByteCodeGeneration codegen = config.getEngineDefaults().getByteCodeGeneration();
         assertEquals(false, codegen.isEnableAggregation());
         assertEquals(false, codegen.isEnableResultSet());
         assertEquals(true, codegen.isEnableSelectClause());

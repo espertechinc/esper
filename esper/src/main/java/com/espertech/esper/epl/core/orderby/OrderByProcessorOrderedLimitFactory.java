@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.common.AggregationService;
 
 /**
  * Sorter and row limiter in one: sorts using a sorter and row limits
@@ -25,8 +24,8 @@ public class OrderByProcessorOrderedLimitFactory implements OrderByProcessorFact
         this.rowLimitProcessorFactory = rowLimitProcessorFactory;
     }
 
-    public OrderByProcessor instantiate(AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        OrderByProcessorImpl orderByProcessor = (OrderByProcessorImpl) orderByProcessorFactory.instantiate(aggregationService, agentInstanceContext);
+    public OrderByProcessor instantiate(AgentInstanceContext agentInstanceContext) {
+        OrderByProcessorImpl orderByProcessor = (OrderByProcessorImpl) orderByProcessorFactory.instantiate(agentInstanceContext);
         RowLimitProcessor rowLimitProcessor = rowLimitProcessorFactory.instantiate(agentInstanceContext);
         return new OrderByProcessorOrderedLimit(orderByProcessor, rowLimitProcessor);
     }

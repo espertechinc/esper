@@ -11,11 +11,28 @@
 package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.core.CodegenNamedMethods;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
+import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
+import java.util.Comparator;
 import java.util.List;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
+import static com.espertech.esper.epl.core.orderby.OrderByProcessorCodegenNames.*;
+import static com.espertech.esper.epl.core.orderby.OrderByProcessorOrderedLimitForge.REF_ROWLIMITPROCESSOR;
+import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGGREGATIONSVC;
+import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.REF_ISNEWDATA;
+import static com.espertech.esper.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 
 /**
  * Sorter and row limiter in one: sorts using a sorter and row limits
@@ -35,53 +52,76 @@ public class OrderByProcessorOrderedLimit implements OrderByProcessor {
         this.rowLimitProcessor = rowLimitProcessor;
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+    public EventBean[] sortPlain(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService) {
         rowLimitProcessor.determineCurrentLimit();
 
         if (rowLimitProcessor.getCurrentRowLimit() == 1 &&
                 rowLimitProcessor.getCurrentOffset() == 0 &&
                 outgoingEvents != null && outgoingEvents.length > 1) {
-            EventBean minmax = orderByProcessor.determineLocalMinMax(outgoingEvents, generatingEvents, isNewData, exprEvaluatorContext);
+            EventBean minmax = orderByProcessor.determineLocalMinMax(outgoingEvents, generatingEvents, isNewData, exprEvaluatorContext, aggregationService);
             return new EventBean[]{minmax};
         }
 
-        EventBean[] sorted = orderByProcessor.sort(outgoingEvents, generatingEvents, isNewData, exprEvaluatorContext);
+        EventBean[] sorted = orderByProcessor.sortPlain(outgoingEvents, generatingEvents, isNewData, exprEvaluatorContext, aggregationService);
         return rowLimitProcessor.applyLimit(sorted);
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, OrderByElement[][] elementsPerLevel) {
-        EventBean[] sorted = orderByProcessor.sort(outgoingEvents, currentGenerators, newData, agentInstanceContext, elementsPerLevel);
+    static void sortPlainCodegenCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        CodegenExpression limit1 = equalsIdentity(exprDotMethod(REF_ROWLIMITPROCESSOR, "getCurrentRowLimit"), constant(1));
+        CodegenExpression offset0 = equalsIdentity(exprDotMethod(REF_ROWLIMITPROCESSOR, "getCurrentOffset"), constant(0));
+        CodegenExpression haveOutgoing = and(notEqualsNull(REF_OUTGOINGEVENTS), relational(arrayLength(REF_OUTGOINGEVENTS), GT, constant(1)));
+        CodegenMethodNode determineLocalMinMax = OrderByProcessorImpl.determineLocalMinMaxCodegen(forge.getOrderByProcessorForge(), classScope, namedMethods);
+
+        CodegenMethodNode sortPlain = method.makeChild(EventBean[].class, OrderByProcessorOrderedLimit.class, classScope).addParam(SORTPLAIN_PARAMS);
+        OrderByProcessorImpl.sortPlainCodegen(forge.getOrderByProcessorForge(), sortPlain, classScope, namedMethods);
+
+        method.getBlock().exprDotMethod(REF_ROWLIMITPROCESSOR, "determineCurrentLimit")
+                .ifCondition(and(limit1, offset0, haveOutgoing))
+                    .declareVar(EventBean.class, "minmax", localMethod(determineLocalMinMax, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC))
+                    .blockReturn(newArrayWithInit(EventBean.class, ref("minmax")))
+                .declareVar(EventBean[].class, "sorted", localMethod(sortPlain, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC))
+                .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "applyLimit", ref("sorted")));
+    }
+
+    public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, AggregationService aggregationService) {
+        EventBean[] sorted = orderByProcessor.sortRollup(outgoingEvents, currentGenerators, newData, agentInstanceContext, aggregationService);
         return rowLimitProcessor.determineLimitAndApply(sorted);
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        EventBean[] sorted = orderByProcessor.sort(outgoingEvents, generatingEvents, groupByKeys, isNewData, exprEvaluatorContext);
+    public static void sortRollupCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        CodegenMethodNode sortRollup = method.makeChild(EventBean[].class, OrderByProcessorOrderedLimit.class, classScope).addParam(SORTROLLUP_PARAMS);
+        OrderByProcessorImpl.sortRollupCodegen(forge.getOrderByProcessorForge(), sortRollup, classScope, namedMethods);
+        method.getBlock().declareVar(EventBean[].class, "sorted", localMethod(sortRollup, REF_OUTGOINGEVENTS, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC))
+                .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "determineLimitAndApply", ref("sorted")));
+    }
+
+    public EventBean[] sortWGroupKeys(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService) {
+        EventBean[] sorted = orderByProcessor.sortWGroupKeys(outgoingEvents, generatingEvents, groupByKeys, isNewData, exprEvaluatorContext, aggregationService);
         return rowLimitProcessor.determineLimitAndApply(sorted);
+    }
+
+    static void sortWGroupKeysCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        CodegenMethodNode sortWGroupKeys = method.makeChild(EventBean[].class, OrderByProcessorOrderedLimit.class, classScope).addParam(SORTWGROUPKEYS_PARAMS);
+        OrderByProcessorImpl.sortWGroupKeysCodegen(forge.getOrderByProcessorForge(), sortWGroupKeys, classScope, namedMethods);
+
+        method.getBlock().declareVar(EventBean[].class, "sorted", localMethod(sortWGroupKeys, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, REF_ORDERGROUPBYKEYS, REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC))
+                .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "determineLimitAndApply", ref("sorted")));
     }
 
     public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return orderByProcessor.getSortKey(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, OrderByElement[] elementsForLevel) {
-        return orderByProcessor.getSortKey(eventsPerStream, isNewData, exprEvaluatorContext, elementsForLevel);
+    public Object getSortKeyRollup(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationGroupByRollupLevel level) {
+        return orderByProcessor.getSortKeyRollup(eventsPerStream, isNewData, exprEvaluatorContext, level);
     }
 
-    public Object[] getSortKeyPerRow(EventBean[] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        return orderByProcessor.getSortKeyPerRow(generatingEvents, isNewData, exprEvaluatorContext);
+    public EventBean[] sortWOrderKeys(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext) {
+        return OrderByProcessorUtil.sortWOrderKeysWLimit(outgoingEvents, orderKeys, orderByProcessor.getComparator(), rowLimitProcessor);
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext) {
-        rowLimitProcessor.determineCurrentLimit();
-
-        if (rowLimitProcessor.getCurrentRowLimit() == 1 &&
-                rowLimitProcessor.getCurrentOffset() == 0 &&
-                outgoingEvents != null && outgoingEvents.length > 1) {
-            EventBean minmax = orderByProcessor.determineLocalMinMax(outgoingEvents, orderKeys);
-            return new EventBean[]{minmax};
-        }
-
-        EventBean[] sorted = orderByProcessor.sort(outgoingEvents, orderKeys, exprEvaluatorContext);
-        return rowLimitProcessor.applyLimit(sorted);
+    static void sortWOrderKeysCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        CodegenMember comparator = classScope.makeAddMember(Comparator.class, forge.getOrderByProcessorForge().getComparator());
+        method.getBlock().methodReturn(staticMethod(OrderByProcessorUtil.class, "sortWOrderKeysWLimit", REF_OUTGOINGEVENTS, REF_ORDERKEYS, member(comparator.getMemberId()), REF_ROWLIMITPROCESSOR));
     }
 }

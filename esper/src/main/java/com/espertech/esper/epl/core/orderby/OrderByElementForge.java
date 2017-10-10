@@ -10,26 +10,19 @@
  */
 package com.espertech.esper.epl.core.orderby;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public class OrderByElement {
+public class OrderByElementForge {
     private ExprNode exprNode;
-    private ExprEvaluator expr;
     private boolean isDescending;
 
-    public OrderByElement(ExprNode exprNode, ExprEvaluator expr, boolean descending) {
+    public OrderByElementForge(ExprNode exprNode, boolean isDescending) {
         this.exprNode = exprNode;
-        this.expr = expr;
-        isDescending = descending;
+        this.isDescending = isDescending;
     }
 
     public ExprNode getExprNode() {
         return exprNode;
-    }
-
-    public ExprEvaluator getExpr() {
-        return expr;
     }
 
     public boolean isDescending() {

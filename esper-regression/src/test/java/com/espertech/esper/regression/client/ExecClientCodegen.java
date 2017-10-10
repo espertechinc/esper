@@ -20,7 +20,7 @@ public class ExecClientCodegen implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
 
-        ConfigurationEngineDefaults.CodeGeneration codegen = configuration.getEngineDefaults().getCodeGeneration();
+        ConfigurationEngineDefaults.ByteCodeGeneration codegen = configuration.getEngineDefaults().getByteCodeGeneration();
         codegen.setEnablePropertyGetter(true);
         codegen.setIncludeDebugSymbols(true);
         codegen.setIncludeComments(true);

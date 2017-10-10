@@ -27,8 +27,8 @@ public class ExecClientMetricsReportingNW implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
         applyMetricsConfig(configuration, -1, 1000, false);
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
-        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
-        configuration.getEngineDefaults().getCodeGeneration().setIncludeComments(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeComments(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

@@ -94,28 +94,28 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
                 if (orderByProcessor == null) {
                     selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHaving(selectExprProcessor, oldEvents, false, isSynthesize, exprEvaluatorContext);
                 } else {
-                    selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldEvents, false, isSynthesize, exprEvaluatorContext);
+                    selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, oldEvents, false, isSynthesize, exprEvaluatorContext);
                 }
             }
 
             if (orderByProcessor == null) {
                 selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHaving(selectExprProcessor, newEvents, true, isSynthesize, exprEvaluatorContext);
             } else {
-                selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, newEvents, true, isSynthesize, exprEvaluatorContext);
+                selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, newEvents, true, isSynthesize, exprEvaluatorContext);
             }
         } else {
             if (prototype.isSelectRStream()) {
                 if (orderByProcessor == null) {
                     selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsHaving(selectExprProcessor, oldEvents, prototype.getOptionalHavingNode(), false, isSynthesize, exprEvaluatorContext);
                 } else {
-                    selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldEvents, prototype.getOptionalHavingNode(), false, isSynthesize, exprEvaluatorContext);
+                    selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, oldEvents, prototype.getOptionalHavingNode(), false, isSynthesize, exprEvaluatorContext);
                 }
             }
 
             if (orderByProcessor == null) {
                 selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsHaving(selectExprProcessor, newEvents, prototype.getOptionalHavingNode(), true, isSynthesize, exprEvaluatorContext);
             } else {
-                selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, newEvents, prototype.getOptionalHavingNode(), true, isSynthesize, exprEvaluatorContext);
+                selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, newEvents, prototype.getOptionalHavingNode(), true, isSynthesize, exprEvaluatorContext);
             }
         }
 
@@ -143,27 +143,27 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
                 if (orderByProcessor == null) {
                     selectOldEvents = ResultSetProcessorUtil.getSelectEventsNoHaving(selectExprProcessor, oldData, false, isSynthesize, exprEvaluatorContext);
                 } else {
-                    selectOldEvents = ResultSetProcessorUtil.getSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, false, isSynthesize, exprEvaluatorContext);
+                    selectOldEvents = ResultSetProcessorUtil.getSelectEventsNoHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, oldData, false, isSynthesize, exprEvaluatorContext);
                 }
             }
 
             if (orderByProcessor == null) {
                 selectNewEvents = ResultSetProcessorUtil.getSelectEventsNoHaving(selectExprProcessor, newData, true, isSynthesize, exprEvaluatorContext);
             } else {
-                selectNewEvents = ResultSetProcessorUtil.getSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, true, isSynthesize, exprEvaluatorContext);
+                selectNewEvents = ResultSetProcessorUtil.getSelectEventsNoHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, newData, true, isSynthesize, exprEvaluatorContext);
             }
         } else {
             if (prototype.isSelectRStream()) {
                 if (orderByProcessor == null) {
                     selectOldEvents = ResultSetProcessorUtil.getSelectEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, isSynthesize, exprEvaluatorContext);
                 } else {
-                    selectOldEvents = ResultSetProcessorUtil.getSelectEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, prototype.getOptionalHavingNode(), false, isSynthesize, exprEvaluatorContext);
+                    selectOldEvents = ResultSetProcessorUtil.getSelectEventsHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, oldData, prototype.getOptionalHavingNode(), false, isSynthesize, exprEvaluatorContext);
                 }
             }
             if (orderByProcessor == null) {
                 selectNewEvents = ResultSetProcessorUtil.getSelectEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, isSynthesize, exprEvaluatorContext);
             } else {
-                selectNewEvents = ResultSetProcessorUtil.getSelectEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, prototype.getOptionalHavingNode(), true, isSynthesize, exprEvaluatorContext);
+                selectNewEvents = ResultSetProcessorUtil.getSelectEventsHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, newData, prototype.getOptionalHavingNode(), true, isSynthesize, exprEvaluatorContext);
             }
         }
 
@@ -214,7 +214,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
         // sort
         EventBean[] outgoingEvents = CollectionUtil.toArrayEvents(events);
         Object[] orderKeysArr = CollectionUtil.toArrayObjects(orderKeys);
-        EventBean[] orderedEvents = orderByProcessor.sort(outgoingEvents, orderKeysArr, exprEvaluatorContext);
+        EventBean[] orderedEvents = orderByProcessor.sortWOrderKeys(outgoingEvents, orderKeysArr, exprEvaluatorContext);
 
         return new ArrayEventIterator(orderedEvents);
     }
@@ -252,7 +252,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
 
         method.getBlock().declareVar(EventBean[].class, "outgoingEvents", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")))
                 .declareVar(Object[].class, "orderKeysArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYOBJECTS, ref("orderKeys")))
-                .declareVar(EventBean[].class, "orderedEvents", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("outgoingEvents"), ref("orderKeysArr"), REF_AGENTINSTANCECONTEXT))
+                .declareVar(EventBean[].class, "orderedEvents", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("outgoingEvents"), ref("orderKeysArr"), REF_AGENTINSTANCECONTEXT))
                 .methodReturn(newInstance(ArrayEventIterator.class, ref("orderedEvents")));
     }
 

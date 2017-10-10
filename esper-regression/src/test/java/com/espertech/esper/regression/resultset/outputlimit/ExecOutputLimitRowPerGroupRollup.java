@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.regression.resultset.outputlimit;
 
-import com.espertech.esper.client.Configuration;
-import com.espertech.esper.client.EPRuntime;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -30,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeDebugSymbols(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {
@@ -79,6 +77,32 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         runAssertion5OutputLimitFirst(epService);
         runAssertion6OutputLimitSnapshot(epService, false);
         runAssertion6OutputLimitSnapshot(epService, true);
+
+        runAssertionOutputSnapshotOrderWLimit(epService);
+    }
+
+    private void runAssertionOutputSnapshotOrderWLimit(EPServiceProvider epService) {
+        sendTimer(epService, 0);
+
+        String epl = "select theString as c0, sum(intPrimitive) as c1 from SupportBean group by rollup(theString) " +
+                "output snapshot every 1 seconds " +
+                "order by sum(intPrimitive) " +
+                "limit 3";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        sendEvent(epService, "E1", 12);
+        sendEvent(epService, "E2", 11);
+        sendEvent(epService, "E3", 10);
+        sendEvent(epService, "E4", 13);
+        sendEvent(epService, "E2", 5);
+
+        sendTimer(epService, 1000);
+
+        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), "c0,c1".split(","), new Object[][] {{"E3", 10}, {"E1", 12}, {"E4", 13}});
+
+        stmt.destroy();
     }
 
     private void runAssertion1NoOutputLimit(EPServiceProvider epService) {
@@ -905,5 +929,9 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         CurrentTimeEvent theEvent = new CurrentTimeEvent(timeInMSec);
         EPRuntime runtime = epService.getEPRuntime();
         runtime.sendEvent(theEvent);
+    }
+
+    private void sendEvent(EPServiceProvider epService, String theString, int intPrimitive) {
+        epService.getEPRuntime().sendEvent(new SupportBean(theString, intPrimitive));
     }
 }

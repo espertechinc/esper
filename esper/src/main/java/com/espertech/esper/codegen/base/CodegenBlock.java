@@ -461,9 +461,9 @@ public class CodegenBlock {
         }
     }
 
-    public CodegenBlock[] switchBlockOfLength(String ref, int length) {
+    public CodegenBlock[] switchBlockOfLength(String ref, int length, boolean withDefaultUnsupported) {
         checkClosed();
-        CodegenStatementSwitch switchStmt = new CodegenStatementSwitch(this, ref, length);
+        CodegenStatementSwitch switchStmt = new CodegenStatementSwitch(this, ref, length, withDefaultUnsupported);
         statements.add(switchStmt);
         return switchStmt.getBlocks();
     }

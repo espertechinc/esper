@@ -27,7 +27,7 @@ public class ExecQuerytypeRollupDimensionality implements RegressionExecution {
 
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getLogging().setEnableCode(true);
-        configuration.getEngineDefaults().getCodeGeneration().setIncludeDebugSymbols(true);
+        configuration.getEngineDefaults().getByteCodeGeneration().setIncludeDebugSymbols(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

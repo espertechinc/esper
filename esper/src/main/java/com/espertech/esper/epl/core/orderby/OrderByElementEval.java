@@ -8,14 +8,31 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.core.resultset.codegen;
+package com.espertech.esper.epl.core.orderby;
 
-import com.espertech.esper.epl.agg.service.common.AggregationServiceFactory;
-import com.espertech.esper.epl.core.orderby.OrderByProcessorFactory;
-import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactory;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNode;
 
-public interface ResultSetProcessorFactoryProvider {
-    ResultSetProcessorFactory getResultSetProcessorFactory();
-    AggregationServiceFactory getAggregationServiceFactory();
-    OrderByProcessorFactory getOrderByProcessorFactory();
+public class OrderByElementEval {
+    private final ExprNode exprNode;
+    private final ExprEvaluator expr;
+    private final boolean isDescending;
+
+    public OrderByElementEval(ExprNode exprNode, ExprEvaluator expr, boolean descending) {
+        this.exprNode = exprNode;
+        this.expr = expr;
+        isDescending = descending;
+    }
+
+    public ExprNode getExprNode() {
+        return exprNode;
+    }
+
+    public ExprEvaluator getExpr() {
+        return expr;
+    }
+
+    public boolean isDescending() {
+        return isDescending;
+    }
 }

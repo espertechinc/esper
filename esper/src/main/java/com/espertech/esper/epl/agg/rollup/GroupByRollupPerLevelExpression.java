@@ -10,19 +10,16 @@
  */
 package com.espertech.esper.epl.agg.rollup;
 
-import com.espertech.esper.epl.core.orderby.OrderByElement;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 public class GroupByRollupPerLevelExpression {
     private final SelectExprProcessor[] selectExprProcessor;
     private final ExprEvaluator[] optionalHavingNodes;
-    private final OrderByElement[][] optionalOrderByElements;
 
-    public GroupByRollupPerLevelExpression(SelectExprProcessor[] selectExprProcessor, ExprEvaluator[] optionalHavingNodes, OrderByElement[][] optionalOrderByElements) {
+    public GroupByRollupPerLevelExpression(SelectExprProcessor[] selectExprProcessor, ExprEvaluator[] optionalHavingNodes) {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingNodes = optionalHavingNodes;
-        this.optionalOrderByElements = optionalOrderByElements;
     }
 
     public SelectExprProcessor[] getSelectExprProcessor() {
@@ -31,9 +28,5 @@ public class GroupByRollupPerLevelExpression {
 
     public ExprEvaluator[] getOptionalHavingNodes() {
         return optionalHavingNodes;
-    }
-
-    public OrderByElement[][] getOptionalOrderByElements() {
-        return optionalOrderByElements;
     }
 }

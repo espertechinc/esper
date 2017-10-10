@@ -32,7 +32,9 @@ import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceForgeDesc;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.orderby.OrderByProcessor;
+import com.espertech.esper.epl.core.orderby.OrderByProcessorCompiler;
 import com.espertech.esper.epl.core.orderby.OrderByProcessorFactory;
+import com.espertech.esper.epl.core.orderby.OrderByProcessorFactoryForge;
 import com.espertech.esper.epl.core.resultset.core.*;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCompiler;
@@ -57,14 +59,16 @@ public class ResultSetProcessorFactoryCompiler {
     private final static String CLASSNAME_RESULTSETPROCESSOR = "RSP";
     private final static String MEMBERNAME_RESULTSETPROCESSORFACTORY = "rspFactory";
     private final static String MEMBERNAME_AGGREGATIONSVCFACTORY = "aggFactory";
+    private final static String MEMBERNAME_ORDERBYFACTORY = "orderByFactory";
 
-    public static ResultSetProcessorFactoryDesc allocate(ResultSetProcessorFactoryForge forge, ResultSetProcessorType resultSetProcessorType, EventType resultEventType, StatementContext stmtContext, boolean isFireAndForget, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, SelectExprProcessorForge[] selectExprProcessorForge, boolean rollup, AggregationServiceForgeDesc aggregationServiceForgeDesc, OrderByProcessorFactory orderByProcessorFactory) {
+    public static ResultSetProcessorFactoryDesc allocate(ResultSetProcessorFactoryForge forge, ResultSetProcessorType resultSetProcessorType, EventType resultEventType, StatementContext stmtContext, boolean isFireAndForget, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, SelectExprProcessorForge[] selectExprProcessorForge, boolean rollup, AggregationServiceForgeDesc aggregationServiceForgeDesc, OrderByProcessorFactoryForge orderByProcessorForge) {
         EngineImportService engineImportService = stmtContext.getEngineImportService();
 
-        if (!engineImportService.getCodeGeneration().isEnableResultSet() || isFireAndForget) {
+        if (!engineImportService.getByteCodeGeneration().isEnableResultSet() || isFireAndForget) {
             AggregationServiceFactory aggregationServiceFactory = AggregationServiceFactoryCompiler.allocate(aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), stmtContext, isFireAndForget);
             ResultSetProcessorFactory resultSetProcessorFactory = forge.getResultSetProcessorFactory(stmtContext, isFireAndForget);
             AggregationServiceFactoryDesc aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(aggregationServiceFactory, aggregationServiceForgeDesc.getExpressions(), aggregationServiceForgeDesc.getGroupKeyExpressions());
+            OrderByProcessorFactory orderByProcessorFactory = orderByProcessorForge == null ? null : orderByProcessorForge.make(engineImportService, isFireAndForget, stmtContext.getStatementName());
             return new ResultSetProcessorFactoryDesc(resultSetProcessorFactory, resultSetProcessorType, resultEventType, orderByProcessorFactory, aggregationServiceFactoryDesc);
         }
 
@@ -82,7 +86,7 @@ public class ResultSetProcessorFactoryCompiler {
         };
 
         try {
-            CodegenClassScope classScope = new CodegenClassScope(engineImportService.getCodeGeneration().isIncludeComments());
+            CodegenClassScope classScope = new CodegenClassScope(engineImportService.getByteCodeGeneration().isIncludeComments());
             List<CodegenInnerClass> innerClasses = new ArrayList<>();
             CodegenCtor providerCtor = new CodegenCtor(ResultSetProcessorFactoryCompiler.class, classScope, Collections.emptyList());
             List<CodegenTypedParam> providerExplicitMembers = new ArrayList<>(2);
@@ -92,8 +96,10 @@ public class ResultSetProcessorFactoryCompiler {
 
             makeResultSetProcessor(classScope, innerClasses, providerExplicitMembers, providerCtor, providerClassName, forge, join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType);
 
+            OrderByProcessorCompiler.makeOrderByProcessors(orderByProcessorForge, classScope, innerClasses, providerExplicitMembers, providerCtor, providerClassName, MEMBERNAME_ORDERBYFACTORY);
+
             providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.class, MEMBERNAME_AGGREGATIONSVCFACTORY));
-            if (!engineImportService.getCodeGeneration().isEnableAggregation()) {
+            if (!engineImportService.getByteCodeGeneration().isEnableAggregation()) {
                 AggregationServiceFactory factory = aggregationServiceForgeDesc.getAggregationServiceFactoryForge().getAggregationServiceFactory(stmtContext, isFireAndForget);
                 CodegenMember memberAggFactory = classScope.makeAddMember(AggregationServiceFactory.class, factory);
                 providerCtor.getBlock().assignRef(MEMBERNAME_AGGREGATIONSVCFACTORY, member(memberAggFactory.getMemberId()));
@@ -111,25 +117,29 @@ public class ResultSetProcessorFactoryCompiler {
             CodegenMethodNode getAggregationServiceFactoryMethod = CodegenMethodNode.makeParentNode(AggregationServiceFactory.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getAggregationServiceFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_AGGREGATIONSVCFACTORY));
 
+            CodegenMethodNode getOrderByProcessorFactoryMethod = CodegenMethodNode.makeParentNode(OrderByProcessorFactory.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            getOrderByProcessorFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_ORDERBYFACTORY));
+
             CodegenClassMethods methods = new CodegenClassMethods();
             CodegenStackGenerator.recursiveBuildStack(providerCtor, "ctor", methods);
             CodegenStackGenerator.recursiveBuildStack(getResultSetProcessorFactoryMethod, "getResultSetProcessorFactory", methods);
             CodegenStackGenerator.recursiveBuildStack(getAggregationServiceFactoryMethod, "getAggregationServiceFactory", methods);
+            CodegenStackGenerator.recursiveBuildStack(getOrderByProcessorFactoryMethod, "getOrderByProcessorFactory", methods);
 
             // render and compile
             CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ResultSetProcessorFactoryProvider.class, providerClassName, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
             ResultSetProcessorFactoryProvider factoryProvider = CodegenClassGenerator.compile(clazz, engineImportService, ResultSetProcessorFactoryProvider.class, debugInformationProvider);
             AggregationServiceFactoryDesc aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(factoryProvider.getAggregationServiceFactory(), aggregationServiceForgeDesc.getExpressions(), aggregationServiceForgeDesc.getGroupKeyExpressions());
-            return new ResultSetProcessorFactoryDesc(factoryProvider.getResultSetProcessorFactory(), resultSetProcessorType, resultEventType, orderByProcessorFactory, aggregationServiceFactoryDesc);
+            return new ResultSetProcessorFactoryDesc(factoryProvider.getResultSetProcessorFactory(), resultSetProcessorType, resultEventType, factoryProvider.getOrderByProcessorFactory(), aggregationServiceFactoryDesc);
         } catch (Throwable t) {
-            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
+            boolean fallback = engineImportService.getByteCodeGeneration().isEnableFallback();
             String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(t, debugInformationProvider, fallback);
             if (fallback) {
                 log.warn(message, t);
             } else {
                 log.error(message, t);
             }
-            return handleThrowable(stmtContext, t, forge, debugInformationProvider, isFireAndForget, stmtContext.getStatementName(), resultEventType, orderByProcessorFactory, aggregationServiceForgeDesc, resultSetProcessorType);
+            return handleThrowable(stmtContext, t, forge, debugInformationProvider, isFireAndForget, stmtContext.getStatementName(), resultEventType, orderByProcessorForge, aggregationServiceForgeDesc, resultSetProcessorType);
         }
     }
 
@@ -359,11 +369,12 @@ public class ResultSetProcessorFactoryCompiler {
         return new CodegenInnerClass(className, SelectExprProcessor.class, selectExprCtor, Collections.emptyList(), Collections.emptyMap(), selectClassMethods);
     }
 
-    private static ResultSetProcessorFactoryDesc handleThrowable(StatementContext statementContext, Throwable t, ResultSetProcessorFactoryForge forge, Supplier<String> debugInformationProvider, boolean isFireAndForget, String statementName, EventType resultEventType, OrderByProcessorFactory orderByProcessorFactory, AggregationServiceForgeDesc aggregationServiceForgeDesc, ResultSetProcessorType resultSetProcessorType) {
-        if (statementContext.getEngineImportService().getCodeGeneration().isEnableFallback()) {
+    private static ResultSetProcessorFactoryDesc handleThrowable(StatementContext statementContext, Throwable t, ResultSetProcessorFactoryForge forge, Supplier<String> debugInformationProvider, boolean isFireAndForget, String statementName, EventType resultEventType, OrderByProcessorFactoryForge orderByProcessorForge, AggregationServiceForgeDesc aggregationServiceForgeDesc, ResultSetProcessorType resultSetProcessorType) {
+        if (statementContext.getEngineImportService().getByteCodeGeneration().isEnableFallback()) {
             AggregationServiceFactory aggregationServiceFactory = aggregationServiceForgeDesc.getAggregationServiceFactoryForge().getAggregationServiceFactory(statementContext, isFireAndForget);
             ResultSetProcessorFactory resultSetProcessorFactory = forge.getResultSetProcessorFactory(statementContext, isFireAndForget);
             AggregationServiceFactoryDesc aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(aggregationServiceFactory, aggregationServiceForgeDesc.getExpressions(), aggregationServiceForgeDesc.getGroupKeyExpressions());
+            OrderByProcessorFactory orderByProcessorFactory = orderByProcessorForge == null ? null : orderByProcessorForge.make(statementContext.getEngineImportService(), isFireAndForget, statementName);
             return new ResultSetProcessorFactoryDesc(resultSetProcessorFactory, resultSetProcessorType, resultEventType, orderByProcessorFactory, aggregationServiceFactoryDesc);
         }
         throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " (see error log for further details): " + t.getMessage(), t);

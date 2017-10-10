@@ -59,7 +59,7 @@ public class TestResultSetProcessorSimple extends TestCase {
     }
 
     public void testUpdateAll() throws Exception {
-        assertNull(ResultSetProcessorUtil.getSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, (EventBean[]) null, true, false, null));
+        assertNull(ResultSetProcessorUtil.getSelectEventsNoHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, (EventBean[]) null, true, false, null));
 
         EventBean testEvent1 = makeEvent(10, 5, 6);
         EventBean testEvent2 = makeEvent(11, 6, 7);
@@ -89,7 +89,7 @@ public class TestResultSetProcessorSimple extends TestCase {
     }
 
     public void testProcessAll() throws Exception {
-        assertNull(ResultSetProcessorUtil.getSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, new HashSet<MultiKey<EventBean>>(), true, false, null));
+        assertNull(ResultSetProcessorUtil.getSelectJoinEventsNoHavingWithOrderBy(null, selectExprProcessor, orderByProcessor, new HashSet<MultiKey<EventBean>>(), true, false, null));
 
         EventBean testEvent1 = makeEvent(10, 5, 6);
         EventBean testEvent2 = makeEvent(11, 6, 7);

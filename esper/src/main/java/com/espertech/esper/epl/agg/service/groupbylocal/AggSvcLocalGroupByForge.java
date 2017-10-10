@@ -269,7 +269,7 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForge {
     private void getterCodegen(String methodName, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         AggregationCodegenRowLevelDesc rowLevelDesc = getRowLevelDesc();
 
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(AggregationServiceCodegenNames.NAME_COLUMN, localGroupByPlan.getColumnsForges().length);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(AggregationServiceCodegenNames.NAME_COLUMN, localGroupByPlan.getColumnsForges().length, true);
         for (int i = 0; i < blocks.length; i++) {
             AggregationLocalGroupByColumnForge col = localGroupByPlan.getColumnsForges()[i];
 

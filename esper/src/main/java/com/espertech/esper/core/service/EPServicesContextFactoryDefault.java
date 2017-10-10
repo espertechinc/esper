@@ -531,13 +531,13 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             throw new ConfigurationException("Invalid time-source time unit of " + timeUnit + ", expected millis or micros");
         }
 
-        boolean codegen = configSnapshot.getEngineDefaults().getCodeGeneration().isEnableSelectClause() || configSnapshot.getEngineDefaults().getCodeGeneration().isEnablePropertyGetter() || configSnapshot.getEngineDefaults().getCodeGeneration().isEnableExpression();
+        boolean codegen = configSnapshot.getEngineDefaults().getByteCodeGeneration().isEnableSelectClause() || configSnapshot.getEngineDefaults().getByteCodeGeneration().isEnablePropertyGetter() || configSnapshot.getEngineDefaults().getByteCodeGeneration().isEnableExpression();
         CodegenCompiler codegenCompiler = null;
         if (codegen) {
             if (PackageName.check("uri_" + engineURI) == PackageName.INVALID) {
                 throw new ConfigurationException("Invalid engine URI '" + engineURI + "', code generation requires an engine URI that is a valid Java-language identifier and may not contain Java language keywords");
             }
-            codegenCompiler = new CodegenCompilerJanino(configSnapshot.getEngineDefaults().getLogging().isEnableCode(), configSnapshot.getEngineDefaults().getCodeGeneration().isIncludeDebugSymbols());
+            codegenCompiler = new CodegenCompilerJanino(configSnapshot.getEngineDefaults().getLogging().isEnableCode(), configSnapshot.getEngineDefaults().getByteCodeGeneration().isIncludeDebugSymbols());
         }
 
         ConfigurationEngineDefaults.Expression expression = configSnapshot.getEngineDefaults().getExpression();
@@ -548,7 +548,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 configSnapshot.getEngineDefaults().getExpression().getTimeZone(), timeAbacus,
                 configSnapshot.getEngineDefaults().getExecution().getThreadingProfile(),
                 configSnapshot.getTransientConfiguration(),
-                aggregationFactoryFactory, configSnapshot.getEngineDefaults().getCodeGeneration(), engineURI, codegenCompiler);
+                aggregationFactoryFactory, configSnapshot.getEngineDefaults().getByteCodeGeneration(), engineURI, codegenCompiler);
         engineImportService.addMethodRefs(configSnapshot.getMethodInvocationReferences());
 
         // Add auto-imports

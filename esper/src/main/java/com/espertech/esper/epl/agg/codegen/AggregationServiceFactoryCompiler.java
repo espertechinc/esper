@@ -57,7 +57,7 @@ public class AggregationServiceFactoryCompiler {
     public static AggregationServiceFactory allocate(AggregationServiceFactoryForge forge, StatementContext stmtContext, boolean isFireAndForget) {
         EngineImportService engineImportService = stmtContext.getEngineImportService();
 
-        if (!engineImportService.getCodeGeneration().isEnableAggregation() || isFireAndForget) {
+        if (!engineImportService.getByteCodeGeneration().isEnableAggregation() || isFireAndForget) {
             return forge.getAggregationServiceFactory(stmtContext, isFireAndForget);
         }
 
@@ -75,7 +75,7 @@ public class AggregationServiceFactoryCompiler {
         };
 
         try {
-            CodegenClassScope classScope = new CodegenClassScope(engineImportService.getCodeGeneration().isIncludeComments());
+            CodegenClassScope classScope = new CodegenClassScope(engineImportService.getByteCodeGeneration().isIncludeComments());
 
             List<CodegenInnerClass> innerClasses = new ArrayList<>();
             String providerClassName = CodeGenerationIDGenerator.generateClassName(AggregationServiceFactoryProvider.class);
@@ -96,7 +96,7 @@ public class AggregationServiceFactoryCompiler {
             AggregationServiceFactoryProvider provider = CodegenClassGenerator.compile(clazz, engineImportService, AggregationServiceFactoryProvider.class, debugInformationProvider);
             return provider.getAggregationServiceFactory();
         } catch (CodegenCompilerException ex) {
-            boolean fallback = engineImportService.getCodeGeneration().isEnableFallback();
+            boolean fallback = engineImportService.getByteCodeGeneration().isEnableFallback();
             String message = CodegenMessageUtil.getFailedCompileLogMessageWithCode(ex, debugInformationProvider, fallback);
             if (fallback) {
                 log.warn(message, ex);
@@ -238,7 +238,7 @@ public class AggregationServiceFactoryCompiler {
             }
         }
 
-        CodegenBlock[] blocks = parent.getBlock().switchBlockOfLength("column", count);
+        CodegenBlock[] blocks = parent.getBlock().switchBlockOfLength("column", count, true);
         count = 0;
         for (CodegenMethodNode getValue : methods) {
             blocks[count++].blockReturn(localMethod(getValue, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
@@ -402,7 +402,7 @@ public class AggregationServiceFactoryCompiler {
     }
 
     private static AggregationServiceFactory handleThrowable(StatementContext statementContext, Throwable t, AggregationServiceFactoryForge forge, Supplier<String> debugInformationProvider, boolean isFireAndForget) {
-        if (statementContext.getEngineImportService().getCodeGeneration().isEnableFallback()) {
+        if (statementContext.getEngineImportService().getByteCodeGeneration().isEnableFallback()) {
             return forge.getAggregationServiceFactory(statementContext, isFireAndForget);
         }
         throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " (see error log for further details): " + t.getMessage(), t);

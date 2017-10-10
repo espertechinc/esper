@@ -320,7 +320,7 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
             countOutputRows++;
         }
 
-        return ResultSetProcessorUtil.outputFromCountMaySort(countOutputRows, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext);
+        return ResultSetProcessorUtil.outputFromCountMaySort(countOutputRows, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext, aggregationService);
     }
 
     private static CodegenMethodNode generateOutputEventsViewCodegen(ResultSetProcessorAggregateGroupedForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -509,7 +509,7 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
             countOutputRows++;
         }
 
-        return ResultSetProcessorUtil.outputFromCountMaySort(countOutputRows, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext);
+        return ResultSetProcessorUtil.outputFromCountMaySort(countOutputRows, events, keys, currentGenerators, isNewData, orderByProcessor, agentInstanceContext, aggregationService);
     }
 
     private static CodegenMethodNode generateOutputEventsJoinCodegen(ResultSetProcessorAggregateGroupedForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -1173,10 +1173,10 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (orderByProcessor != null) {
             Object[] sortKeysNew = CollectionUtil.toArrayNullForEmptyValueValues(newEventsSortKey);
-            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
+            newEventsArr = orderByProcessor.sortWOrderKeys(newEventsArr, sortKeysNew, agentInstanceContext);
             if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = CollectionUtil.toArrayNullForEmptyValueValues(oldEventsSortKey);
-                oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
+                oldEventsArr = orderByProcessor.sortWOrderKeys(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
@@ -1219,10 +1219,10 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (forge.isSorting()) {
             method.getBlock().declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYVALUEVALUES, ref("newEventsSortKey")))
-                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
             if (forge.isSelectRStream()) {
                 method.getBlock().declareVar(Object[].class, "sortKeysOld", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYVALUEVALUES, ref("oldEventsSortKey")))
-                        .assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("oldEventsArr"), ref("sortKeysOld"), REF_AGENTINSTANCECONTEXT));
+                        .assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("sortKeysOld"), REF_AGENTINSTANCECONTEXT));
             }
         }
 
@@ -1364,7 +1364,7 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (orderByProcessor != null) {
             Object[] sortKeysNew = CollectionUtil.toArrayNullForEmptyObjects(newEventsSortKey);
-            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
+            newEventsArr = orderByProcessor.sortWOrderKeys(newEventsArr, sortKeysNew, agentInstanceContext);
         }
 
         return ResultSetProcessorUtil.toPairNullIfAllNull(newEventsArr, null);
@@ -1485,7 +1485,7 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (forge.isSorting()) {
             method.getBlock().declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, ref("newEventsSortKey")))
-                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
         }
 
         method.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("newEventsArr"), constantNull()));
@@ -1736,10 +1736,10 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (orderByProcessor != null) {
             Object[] sortKeysNew = CollectionUtil.toArrayNullForEmptyValueValues(newEventsSortKey);
-            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
+            newEventsArr = orderByProcessor.sortWOrderKeys(newEventsArr, sortKeysNew, agentInstanceContext);
             if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = CollectionUtil.toArrayNullForEmptyValueValues(oldEventsSortKey);
-                oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
+                oldEventsArr = orderByProcessor.sortWOrderKeys(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
@@ -1784,10 +1784,10 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (forge.isSorting()) {
             method.getBlock().declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYVALUEVALUES, ref("newEventsSortKey")))
-                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
             if (forge.isSelectRStream()) {
                 method.getBlock().declareVar(Object[].class, "sortKeysOld", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYVALUEVALUES, ref("oldEventsSortKey")))
-                        .assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("oldEventsArr"), ref("sortKeysOld"), REF_AGENTINSTANCECONTEXT));
+                        .assignRef("oldEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("oldEventsArr"), ref("sortKeysOld"), REF_AGENTINSTANCECONTEXT));
             }
         }
 
@@ -1917,7 +1917,7 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (orderByProcessor != null) {
             Object[] sortKeysNew = CollectionUtil.toArrayNullForEmptyObjects(newEventsSortKey);
-            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
+            newEventsArr = orderByProcessor.sortWOrderKeys(newEventsArr, sortKeysNew, agentInstanceContext);
         }
 
         return ResultSetProcessorUtil.toPairNullIfAllNull(newEventsArr, null);
@@ -2029,7 +2029,7 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (forge.isSorting()) {
             method.getBlock().declareVar(Object[].class, "sortKeysNew", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYOBJECTS, ref("newEventsSortKey")))
-                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sort", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
+                    .assignRef("newEventsArr", exprDotMethod(REF_ORDERBYPROCESSOR, "sortWOrderKeys", ref("newEventsArr"), ref("sortKeysNew"), REF_AGENTINSTANCECONTEXT));
         }
 
         method.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("newEventsArr"), constantNull()));

@@ -101,7 +101,7 @@ public class TestAxiom extends TestCase {
         }
 
         Configuration config = new Configuration();
-        config.getEngineDefaults().getCodeGeneration().setEnablePropertyGetter(false);
+        config.getEngineDefaults().getByteCodeGeneration().setEnablePropertyGetter(false);
         config.configure(url);
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
@@ -318,7 +318,7 @@ public class TestAxiom extends TestCase {
     private Configuration getConfiguration() throws URISyntaxException {
         Configuration config = new Configuration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
-        config.getEngineDefaults().getCodeGeneration().setEnablePropertyGetter(false);
+        config.getEngineDefaults().getByteCodeGeneration().setEnablePropertyGetter(false);
 
         // register new representation of events
         config.addPlugInEventRepresentation(new URI(AXIOM_URI),

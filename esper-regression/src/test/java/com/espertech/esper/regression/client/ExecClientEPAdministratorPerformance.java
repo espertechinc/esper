@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class ExecClientEPAdministratorPerformance implements RegressionExecution {
 
     public void configure(Configuration configuration) throws Exception {
-        configuration.getEngineDefaults().getCodeGeneration().disableAll();
+        configuration.getEngineDefaults().getByteCodeGeneration().disableAll();
     }
 
     public void run(EPServiceProvider epService) throws Exception {

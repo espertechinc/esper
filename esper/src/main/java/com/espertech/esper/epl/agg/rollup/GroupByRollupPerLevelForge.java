@@ -10,16 +10,16 @@
  */
 package com.espertech.esper.epl.agg.rollup;
 
-import com.espertech.esper.epl.core.orderby.OrderByElement;
+import com.espertech.esper.epl.core.orderby.OrderByElementForge;
 import com.espertech.esper.epl.core.select.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprForge;
 
 public class GroupByRollupPerLevelForge {
     private final SelectExprProcessorForge[] selectExprProcessorForges;
     private final ExprForge[] optionalHavingForges;
-    private final OrderByElement[][] optionalOrderByElements;
+    private final OrderByElementForge[][] optionalOrderByElements;
 
-    public GroupByRollupPerLevelForge(SelectExprProcessorForge[] selectExprProcessorForges, ExprForge[] optionalHavingForges, OrderByElement[][] optionalOrderByElements) {
+    public GroupByRollupPerLevelForge(SelectExprProcessorForge[] selectExprProcessorForges, ExprForge[] optionalHavingForges, OrderByElementForge[][] optionalOrderByElements) {
         this.selectExprProcessorForges = selectExprProcessorForges;
         this.optionalHavingForges = optionalHavingForges;
         this.optionalOrderByElements = optionalOrderByElements;
@@ -33,7 +33,7 @@ public class GroupByRollupPerLevelForge {
         return optionalHavingForges;
     }
 
-    public OrderByElement[][] getOptionalOrderByElements() {
+    public OrderByElementForge[][] getOptionalOrderByElements() {
         return optionalOrderByElements;
     }
 }
