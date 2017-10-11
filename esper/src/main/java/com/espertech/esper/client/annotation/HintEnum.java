@@ -103,9 +103,14 @@ public enum HintEnum {
     DISABLE_WHEREEXPR_MOVETO_FILTER("DISABLE_WHEREEXPR_MOVETO_FILTER", false, false, false),
 
     /**
-     * For use with output rate limiting to enable certain optimization that may however change output.
+     * For use with output rate limiting.
      */
-    ENABLE_OUTPUTLIMIT_OPT("ENABLE_OUTPUTLIMIT_OPT", false, false, false);
+    ENABLE_OUTPUTLIMIT_OPT("ENABLE_OUTPUTLIMIT_OPT", false, false, false),
+
+    /**
+     * For use with output rate limiting.
+     */
+    DISABLE_OUTPUTLIMIT_OPT("DISABLE_OUTPUTLIMIT_OPT", false, false, false);
 
     private final String value;
     private final boolean acceptsParameters;

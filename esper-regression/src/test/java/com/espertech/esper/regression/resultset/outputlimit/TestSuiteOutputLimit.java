@@ -23,7 +23,8 @@ public class TestSuiteOutputLimit extends TestCase {
     }
 
     public void testExecOutputLimitChangeSetOpt() {
-        RegressionRunner.run(new ExecOutputLimitChangeSetOpt());
+        RegressionRunner.run(new ExecOutputLimitChangeSetOpt(true));
+        RegressionRunner.run(new ExecOutputLimitChangeSetOpt(false));
     }
 
     public void testExecOutputLimitCrontabWhen() {

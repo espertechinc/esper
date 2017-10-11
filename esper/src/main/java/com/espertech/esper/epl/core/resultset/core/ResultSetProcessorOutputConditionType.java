@@ -10,7 +10,12 @@
  */
 package com.espertech.esper.epl.core.resultset.core;
 
+import com.espertech.esper.client.ConfigurationInformation;
+import com.espertech.esper.client.annotation.HintEnum;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
+
+import java.lang.annotation.Annotation;
 
 public enum ResultSetProcessorOutputConditionType {
     SNAPSHOT,
@@ -35,5 +40,23 @@ public enum ResultSetProcessorOutputConditionType {
         } else {
             return POLICY_NONFIRST;
         }
+    }
+
+    public static boolean getOutputLimitOpt(Annotation[] annotations, ConfigurationInformation configurationInformation, boolean hasOrderBy) throws ExprValidationException {
+        if (hasOrderBy) {
+            if (hasOptHintEnable(annotations)) {
+                throw new ExprValidationException("The " + HintEnum.ENABLE_OUTPUTLIMIT_OPT + " hint is not supported with order-by");
+            }
+            return false;
+        }
+        boolean opt = configurationInformation.getEngineDefaults().getViewResources().isOutputLimitOpt();
+        if (annotations == null) {
+            return opt;
+        }
+        return opt ? HintEnum.DISABLE_OUTPUTLIMIT_OPT.getHint(annotations) == null : hasOptHintEnable(annotations);
+    }
+
+    private static boolean hasOptHintEnable(Annotation[] annotations) {
+        return HintEnum.ENABLE_OUTPUTLIMIT_OPT.getHint(annotations) != null;
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regression.resultset.outputlimit;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -18,14 +19,26 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.view.OutputProcessViewBase;
 import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.epl.SupportOutputLimitOpt;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.espertech.esper.supportregression.epl.SupportOutputLimitOpt.*;
 import static org.junit.Assert.assertEquals;
 
 public class ExecOutputLimitChangeSetOpt implements RegressionExecution {
+    private final boolean enableOutputLimitOpt;
+
+    public ExecOutputLimitChangeSetOpt(boolean enableOutputLimitOpt) {
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
+    }
+
+    public void configure(Configuration configuration) throws Exception {
+        configuration.getEngineDefaults().getViewResources().setOutputLimitOpt(enableOutputLimitOpt);
+    }
+
     public void run(EPServiceProvider epService) throws Exception {
 
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
@@ -34,66 +47,75 @@ public class ExecOutputLimitChangeSetOpt implements RegressionExecution {
 
         // unaggregated and ungrouped
         //
-        tryAssertion(epService, currentTime, 0, false, "intPrimitive", null, null, "last", null);
-        tryAssertion(epService, currentTime, 0, false, "intPrimitive", null, null, "last", "order by intPrimitive");
+        tryAssertion(epService, currentTime, DEFAULT, 0, "intPrimitive", null, null, "last", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "intPrimitive", null, null, "last", "order by intPrimitive");
 
-        tryAssertion(epService, currentTime, 5, false, "intPrimitive", null, null, "all", null);
-        tryAssertion(epService, currentTime, 0, true, "intPrimitive", null, null, "all", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "intPrimitive", null, null, "all", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "intPrimitive", null, null, "all", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "intPrimitive", null, null, "all", null);
 
-        tryAssertion(epService, currentTime, 0, false, "intPrimitive", null, null, "first", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "intPrimitive", null, null, "first", null);
 
         // fully-aggregated and ungrouped
-        tryAssertion(epService, currentTime, 5, false, "count(*)", null, null, "last", null);
-        tryAssertion(epService, currentTime, 0, true, "count(*)", null, null, "last", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "count(*)", null, null, "last", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "count(*)", null, null, "last", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "count(*)", null, null, "last", null);
 
-        tryAssertion(epService, currentTime, 5, false, "count(*)", null, null, "all", null);
-        tryAssertion(epService, currentTime, 0, true, "count(*)", null, null, "all", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "count(*)", null, null, "all", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "count(*)", null, null, "all", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "count(*)", null, null, "all", null);
 
-        tryAssertion(epService, currentTime, 0, false, "count(*)", null, null, "first", null);
-        tryAssertion(epService, currentTime, 0, false, "count(*)", null, "having count(*) > 0", "first", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "count(*)", null, null, "first", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "count(*)", null, "having count(*) > 0", "first", null);
 
         // aggregated and ungrouped
-        tryAssertion(epService, currentTime, 5, false, "theString, count(*)", null, null, "last", null);
-        tryAssertion(epService, currentTime, 0, true, "theString, count(*)", null, null, "last", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "theString, count(*)", null, null, "last", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "theString, count(*)", null, null, "last", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "theString, count(*)", null, null, "last", null);
 
-        tryAssertion(epService, currentTime, 5, false, "theString, count(*)", null, null, "all", null);
-        tryAssertion(epService, currentTime, 0, true, "theString, count(*)", null, null, "all", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "theString, count(*)", null, null, "all", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "theString, count(*)", null, null, "all", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "theString, count(*)", null, null, "all", null);
 
-        tryAssertion(epService, currentTime, 0, true, "theString, count(*)", null, null, "first", null);
-        tryAssertion(epService, currentTime, 0, true, "theString, count(*)", null, "having count(*) > 0", "first", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "theString, count(*)", null, null, "first", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "theString, count(*)", null, "having count(*) > 0", "first", null);
 
         // fully-aggregated and grouped
-        tryAssertion(epService, currentTime, 5, false, "theString, count(*)", "group by theString", null, "last", null);
-        tryAssertion(epService, currentTime, 0, true, "theString, count(*)", "group by theString", null, "last", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "theString, count(*)", "group by theString", null, "last", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "theString, count(*)", "group by theString", null, "last", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "theString, count(*)", "group by theString", null, "last", null);
 
-        tryAssertion(epService, currentTime, 5, false, "theString, count(*)", "group by theString", null, "all", null);
-        tryAssertion(epService, currentTime, 0, true, "theString, count(*)", "group by theString", null, "all", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "theString, count(*)", "group by theString", null, "all", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "theString, count(*)", "group by theString", null, "all", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "theString, count(*)", "group by theString", null, "all", null);
 
-        tryAssertion(epService, currentTime, 0, false, "theString, count(*)", "group by theString", null, "first", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "theString, count(*)", "group by theString", null, "first", null);
 
         // aggregated and grouped
-        tryAssertion(epService, currentTime, 5, false, "theString, intPrimitive, count(*)", "group by theString", null, "last", null);
-        tryAssertion(epService, currentTime, 0, true, "theString, intPrimitive, count(*)", "group by theString", null, "last", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "theString, intPrimitive, count(*)", "group by theString", null, "last", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "theString, intPrimitive, count(*)", "group by theString", null, "last", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "theString, intPrimitive, count(*)", "group by theString", null, "last", null);
 
-        tryAssertion(epService, currentTime, 5, false, "theString, intPrimitive, count(*)", "group by theString", null, "all", null);
+        tryAssertion(epService, currentTime, DEFAULT, enableOutputLimitOpt ? 0 : 5, "theString, intPrimitive, count(*)", "group by theString", null, "all", null);
+        tryAssertion(epService, currentTime, ENABLED, 0, "theString, intPrimitive, count(*)", "group by theString", null, "all", null);
+        tryAssertion(epService, currentTime, DISABLED, 5, "theString, intPrimitive, count(*)", "group by theString", null, "all", null);
 
-        tryAssertion(epService, currentTime, 0, false, "theString, intPrimitive, count(*)", "group by theString", null, "first", null);
+        tryAssertion(epService, currentTime, DEFAULT, 0, "theString, intPrimitive, count(*)", "group by theString", null, "first", null);
 
-        SupportMessageAssertUtil.tryInvalid(epService,
-                "@Hint('enable_outputlimit_opt') select sum(intPrimitive) " +
+        SupportMessageAssertUtil.tryInvalid(epService, SupportOutputLimitOpt.ENABLED.getHint() + " select sum(intPrimitive) " +
                         "from SupportBean output last every 4 events order by theString",
-                "Error starting statement: Error in the output rate limiting clause: The ENABLE_OUTPUTLIMIT_OPT hint is not supported with order-by");
+                "Error starting statement: The ENABLE_OUTPUTLIMIT_OPT hint is not supported with order-by");
     }
 
-    private void tryAssertion(EPServiceProvider epService, AtomicLong currentTime,
-                              int expected,
-                              boolean withHint,
+    private void tryAssertion(EPServiceProvider epService,
+                              AtomicLong currentTime,
+                              SupportOutputLimitOpt hint, int expected,
                               String selectClause,
                               String groupBy,
                               String having,
                               String outputKeyword,
                               String orderBy) {
-        String epl = (withHint ? "@Hint('enable_outputlimit_opt') " : "") +
+        String epl = hint.getHint() +
                 "select irstream " + selectClause + " " +
                 "from SupportBean#length(2) " +
                 (groupBy == null ? "" : groupBy + " ") +
@@ -122,7 +144,7 @@ public class ExecOutputLimitChangeSetOpt implements RegressionExecution {
         StatementResourceHolder resources = spi.getStatementContext().getStatementExtensionServicesContext().getStmtResources().getResourcesUnpartitioned();
         OutputProcessViewBase outputProcessViewBase = (OutputProcessViewBase) resources.getEventStreamViewables()[0].getViews()[0].getViews()[0];
         try {
-            assertEquals(numExpectedChangeset, outputProcessViewBase.getNumChangesetRows());
+            assertEquals("enableOutputLimitOpt=" + enableOutputLimitOpt, numExpectedChangeset, outputProcessViewBase.getNumChangesetRows());
         } catch (UnsupportedOperationException ex) {
             // allowed
         }

@@ -13,7 +13,6 @@ package com.espertech.esper.epl.core.resultset.core;
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.annotation.IterableUnbound;
 import com.espertech.esper.collection.Pair;
@@ -363,7 +362,7 @@ public class ResultSetProcessorFactoryFactory {
         }
 
         ExprForge optionalHavingForge = optionalHavingNode == null ? null : optionalHavingNode.getForge();
-        boolean hasOutputLimitOpt = HintEnum.ENABLE_OUTPUTLIMIT_OPT.getHint(statementSpec.getAnnotations()) != null;
+        boolean hasOutputLimitOpt = ResultSetProcessorOutputConditionType.getOutputLimitOpt(statementSpec.getAnnotations(), configurationInformation, hasOrderBy);
         boolean hasOutputLimitSnapshot = outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.SNAPSHOT;
         boolean isGrouped = groupByNodesValidated.length > 0 || groupByRollupDesc != null;
         ResultSetProcessorOutputConditionType outputConditionType = outputLimitSpec != null ? ResultSetProcessorOutputConditionType.getConditionType(outputLimitSpec.getDisplayLimit(), isAggregated, hasOrderBy, hasOutputLimitOpt, isGrouped) : null;

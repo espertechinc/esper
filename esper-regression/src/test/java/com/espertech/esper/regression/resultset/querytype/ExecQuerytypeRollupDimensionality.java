@@ -17,6 +17,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.epl.SupportOutputLimitOpt;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
 import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
@@ -58,16 +59,17 @@ public class ExecQuerytypeRollupDimensionality implements RegressionExecution {
     }
 
     private void runAssertionOutputWhenTerminated(EPServiceProvider epService) {
-        tryAssertionOutputWhenTerminated(epService, "last", false);
-        tryAssertionOutputWhenTerminated(epService, "last", true);
-        tryAssertionOutputWhenTerminated(epService, "all", false);
-        tryAssertionOutputWhenTerminated(epService, "snapshot", false);
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            tryAssertionOutputWhenTerminated(epService, "last", outputLimitOpt);
+        }
+
+        tryAssertionOutputWhenTerminated(epService, "all", SupportOutputLimitOpt.DEFAULT);
+        tryAssertionOutputWhenTerminated(epService, "snapshot", SupportOutputLimitOpt.DEFAULT);
     }
 
-    private void tryAssertionOutputWhenTerminated(EPServiceProvider epService, String outputLimit, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+    private void tryAssertionOutputWhenTerminated(EPServiceProvider epService, String outputLimit, SupportOutputLimitOpt opt) {
         epService.getEPAdministrator().createEPL("@name('s0') create context MyContext start SupportBean_S0(id=1) end SupportBean_S0(id=0)");
-        epService.getEPAdministrator().createEPL(hint + "@name('s1') context MyContext select theString as c0, sum(intPrimitive) as c1 " +
+        epService.getEPAdministrator().createEPL(opt.getHint() + "@name('s1') context MyContext select theString as c0, sum(intPrimitive) as c1 " +
                 "from SupportBean group by rollup(theString) output " + outputLimit + " when terminated");
         SupportUpdateListener listener = new SupportUpdateListener();
         epService.getEPAdministrator().getStatement("s1").addListener(listener);

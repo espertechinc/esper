@@ -19,6 +19,7 @@ import com.espertech.esper.client.soda.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.epl.SupportOutputLimitOpt;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
 import static org.junit.Assert.*;
@@ -29,9 +30,7 @@ public class ExecOutputLimitAfter implements RegressionExecution {
     }
 
     public void run(EPServiceProvider epService) throws Exception {
-        runAssertionAfterWithOutputLast(epService, false);
-        runAssertionAfterWithOutputLast(epService, true);
-
+        runAssertionAfterWithOutputLast(epService);
         runAssertionEveryPolicy(epService);
         runAssertionMonthScoped(epService);
         runAssertionDirectNumberOfEvents(epService);
@@ -40,9 +39,14 @@ public class ExecOutputLimitAfter implements RegressionExecution {
         runAssertionOutputWhenThen(epService);
     }
 
-    private void runAssertionAfterWithOutputLast(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String epl = hint + "select sum(intPrimitive) as thesum " +
+    private void runAssertionAfterWithOutputLast(EPServiceProvider epService) {
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertionAfterWithOutputLast(epService, outputLimitOpt);
+        }
+    }
+
+    private void runAssertionAfterWithOutputLast(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String epl = opt.getHint() + "select sum(intPrimitive) as thesum " +
                 "from SupportBean#keepall " +
                 "output after 4 events last every 2 events";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);

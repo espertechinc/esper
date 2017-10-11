@@ -2120,6 +2120,28 @@ config.getEngineDefaults().getViewResources().setAllowMultipleExpiryPolicies(tru
 				</para>
 
 			</sect3>
+
+			<sect3 xml:id="config-engine-viewresources-outputrateopt" revision="1">
+				<title>Configuring Output Rate Limiting Options</title>
+
+				<para>
+				   This flag impacts output rate limiting as further outlined in <xref linkend="appendix_outputlimit"/>. The flag serves to control the default behavior for output rate limiting for all statements that do not specify a hint.
+				</para>
+												
+				<para>
+				   If set to true (the default), all statements behave as if they hint <literal>@Hint('enable_outputlimit_opt')</literal>.
+				</para>
+
+				<para>
+				   If set to false, all statements behave as if they hint <literal>@Hint('disable_outputlimit_opt')</literal>.
+				</para>
+
+				<para>
+				   Here is the setting to allow multiple data windows without the intersection default:
+				</para>
+				<programlisting><![CDATA[Configuration config = new Configuration();
+config.getEngineDefaults().getViewResources().setOutputLimitOpt(true);]]></programlisting>
+			</sect3>
 		</sect2>
 
 		<sect2 xml:id="config-engine-logging" revision="1">

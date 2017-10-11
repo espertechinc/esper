@@ -3,6 +3,7 @@ Esper Changelog
 
 Changes in version 7.0.0-beta2
 ------------------------
+  - For certain cases of output-rate-limiting it uses less memory by making the previously-available "enable_outputlimit_opt" hint the default. 
   - Code generation for all interdependent expressions
   - The following dependent jar files are upgraded:
     - ANTLR runtime library version is now 4.7 (antlr-runtime-4.7.jar, previously antlr-runtime-4.5.3.jar)

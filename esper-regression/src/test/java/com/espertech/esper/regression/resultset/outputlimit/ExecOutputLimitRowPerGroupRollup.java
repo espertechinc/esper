@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.regression.resultset.outputlimit;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPRuntime;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -18,6 +21,7 @@ import com.espertech.esper.client.time.CurrentTimeSpanEvent;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.epl.SupportOutputLimitOpt;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.patternassert.ResultAssertExecution;
 import com.espertech.esper.supportregression.patternassert.ResultAssertTestResult;
@@ -35,19 +39,14 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
         epService.getEPAdministrator().getConfiguration().addEventType("MarketData", SupportMarketDataBean.class);
 
-        runAssertionOutputLast(epService, false, false);
-        runAssertionOutputLast(epService, false, true);
-        runAssertionOutputLast(epService, true, false);
-        runAssertionOutputLast(epService, true, true);
+        runAssertionOutputLast(epService, false);
+        runAssertionOutputLast(epService, true);
 
         runAssertionOutputLastSorted(epService, false);
         runAssertionOutputLastSorted(epService, true);
 
-        runAssertionOutputAll(epService, false, false);
-        runAssertionOutputAll(epService, false, true);
-
-        runAssertionOutputAll(epService, true, false);
-        runAssertionOutputAll(epService, true, true);
+        runAssertionOutputAll(epService, false);
+        runAssertionOutputAll(epService, true);
 
         runAssertionOutputAllSorted(epService, false);
         runAssertionOutputAllSorted(epService, true);
@@ -66,11 +65,9 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         runAssertionOutputFirst(epService, false);
         runAssertionOutputFirst(epService, true);
 
-        runAssertion3OutputLimitAll(epService, false);
-        runAssertion3OutputLimitAll(epService, true);
+        runAssertion3OutputLimitAll(epService);
 
-        runAssertion4OutputLimitLast(epService, false);
-        runAssertion4OutputLimitLast(epService, true);
+        runAssertion4OutputLimitLast(epService);
 
         runAssertion1NoOutputLimit(epService);
         runAssertion2OutputLimitDefault(epService);
@@ -169,9 +166,14 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         execution.execute(false);
     }
 
-    private void runAssertion3OutputLimitAll(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String stmtText = hint + "select symbol, sum(price) " +
+    private void runAssertion3OutputLimitAll(EPServiceProvider epService) {
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion3OutputLimitAll(epService, outputLimitOpt);
+        }
+    }
+
+    private void runAssertion3OutputLimitAll(EPServiceProvider epService, SupportOutputLimitOpt outputLimitOpt) {
+        String stmtText = outputLimitOpt.getHint() + "select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec)" +
                 "group by rollup(symbol)" +
                 "output all every 1 seconds";
@@ -208,9 +210,14 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         execution.execute(true);
     }
 
-    private void runAssertion4OutputLimitLast(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String stmtText = hint + "select symbol, sum(price) " +
+    private void runAssertion4OutputLimitLast(EPServiceProvider epService) {
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion4OutputLimitLast(epService, outputLimitOpt);
+        }
+    }
+
+    private void runAssertion4OutputLimitLast(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec)" +
                 "group by rollup(symbol)" +
                 "output last every 1 seconds";
@@ -701,13 +708,18 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionOutputAll(EPServiceProvider epService, boolean join, boolean hinted) {
+    private void runAssertionOutputAll(EPServiceProvider epService, boolean join) {
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertionOutputAll(epService, join, outputLimitOpt);
+        }
+    }
 
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+    private void runAssertionOutputAll(EPServiceProvider epService, boolean join, SupportOutputLimitOpt opt) {
+
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         SupportUpdateListener listener = new SupportUpdateListener();
-        epService.getEPAdministrator().createEPL(hint + "@Name('s1')" +
+        epService.getEPAdministrator().createEPL(opt.getHint() + "@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
                 "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
@@ -810,12 +822,17 @@ public class ExecOutputLimitRowPerGroupRollup implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionOutputLast(EPServiceProvider epService, boolean hinted, boolean join) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+    private void runAssertionOutputLast(EPServiceProvider epService, boolean join) {
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertionOutputLast(epService, join, outputLimitOpt);
+        }
+    }
+
+    private void runAssertionOutputLast(EPServiceProvider epService, boolean join, SupportOutputLimitOpt opt) {
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         SupportUpdateListener listener = new SupportUpdateListener();
-        epService.getEPAdministrator().createEPL(hint + "@Name('s1')" +
+        epService.getEPAdministrator().createEPL(opt.getHint() + "@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
                 "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +

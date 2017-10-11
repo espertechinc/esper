@@ -19,6 +19,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanString;
 import com.espertech.esper.supportregression.bean.SupportBean_A;
 import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.epl.SupportOutputLimitOpt;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.patternassert.ResultAssertExecution;
 import com.espertech.esper.supportregression.patternassert.ResultAssertTestResult;
@@ -57,15 +58,11 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
         runAssertion9AllNoHavingNoJoin(epService);
         runAssertion10AllNoHavingJoin(epService);
         runAssertion11AllHavingNoJoin(epService);
-        runAssertion11AllHavingNoJoinHinted(epService);
         runAssertion12AllHavingJoin(epService);
-        runAssertion12AllHavingJoinHinted(epService);
         runAssertion13LastNoHavingNoJoin(epService);
         runAssertion14LastNoHavingJoin(epService);
         runAssertion15LastHavingNoJoin(epService);
-        runAssertion15LastHavingNoJoinHinted(epService);
         runAssertion16LastHavingJoin(epService);
-        runAssertion16LastHavingJoinHinted(epService);
         runAssertion17FirstNoHavingNoJoin(epService);
         runAssertion17FirstNoHavingJoin(epService);
         runAssertion18SnapshotNoHavingNoJoin(epService);
@@ -469,16 +466,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertion11AllHavingNoJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, sum(price) " +
-                "from MarketData#time(5.5 sec) " +
-                "group by symbol " +
-                "having sum(price) > 50 " +
-                "output all every 1 seconds";
-        tryAssertion11_12(epService, stmtText, "all");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion11AllHavingNoJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion11AllHavingNoJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
+    private void runAssertion11AllHavingNoJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec) " +
                 "group by symbol " +
                 "having sum(price) > 50 " +
@@ -487,17 +481,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertion12AllHavingJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, sum(price) " +
-                "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall where theString=symbol " +
-                "group by symbol " +
-                "having sum(price) > 50 " +
-                "output all every 1 seconds";
-        tryAssertion11_12(epService, stmtText, "all");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion12AllHavingJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion12AllHavingJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
+    private void runAssertion12AllHavingJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "group by symbol " +
@@ -526,16 +516,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertion15LastHavingNoJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, sum(price) " +
-                "from MarketData#time(5.5 sec)" +
-                "group by symbol " +
-                "having sum(price) > 50 " +
-                "output last every 1 seconds";
-        tryAssertion15_16(epService, stmtText, "last");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion15LastHavingNoJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion15LastHavingNoJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
+    private void runAssertion15LastHavingNoJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec)" +
                 "group by symbol " +
                 "having sum(price) > 50 " +
@@ -544,17 +531,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertion16LastHavingJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, sum(price) " +
-                "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall where theString=symbol " +
-                "group by symbol " +
-                "having sum(price) > 50 " +
-                "output last every 1 seconds";
-        tryAssertion15_16(epService, stmtText, "last");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion16LastHavingJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion16LastHavingJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
+    private void runAssertion16LastHavingJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "group by symbol " +
@@ -1014,13 +997,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertionNoJoinLast(EPServiceProvider epService) {
-        tryAssertionNoJoinLast(epService, true);
-        tryAssertionNoJoinLast(epService, false);
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            tryAssertionNoJoinLast(epService, outputLimitOpt);
+        }
     }
 
-    private void tryAssertionNoJoinLast(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String epl = hint + "select irstream symbol," +
+    private void tryAssertionNoJoinLast(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String epl = opt.getHint() + "select irstream symbol," +
                 "sum(price) as mySum," +
                 "avg(price) as myAvg " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
@@ -1076,13 +1059,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertionNoJoinAll(EPServiceProvider epService) {
-        tryAssertionNoJoinAll(epService, false);
-        tryAssertionNoJoinAll(epService, true);
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            tryAssertionNoJoinAll(epService, outputLimitOpt);
+        }
     }
 
-    private void tryAssertionNoJoinAll(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String epl = hint + "select irstream symbol," +
+    private void tryAssertionNoJoinAll(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String epl = opt.getHint() + "select irstream symbol," +
                 "sum(price) as mySum," +
                 "avg(price) as myAvg " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
@@ -1100,13 +1083,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertionJoinLast(EPServiceProvider epService) {
-        tryAssertionJoinLast(epService, true);
-        tryAssertionJoinLast(epService, false);
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            tryAssertionJoinLast(epService, outputLimitOpt);
+        }
     }
 
-    private void tryAssertionJoinLast(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String epl = hint + "select irstream symbol," +
+    private void tryAssertionJoinLast(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String epl = opt.getHint() + "select irstream symbol," +
                 "sum(price) as mySum," +
                 "avg(price) as myAvg " +
                 "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
@@ -1130,13 +1113,13 @@ public class ExecOutputLimitRowPerGroup implements RegressionExecution {
     }
 
     private void runAssertionJoinAll(EPServiceProvider epService) {
-        tryAssertionJoinAll(epService, false);
-        tryAssertionJoinAll(epService, true);
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            tryAssertionJoinAll(epService, outputLimitOpt);
+        }
     }
 
-    private void tryAssertionJoinAll(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String epl = hint + "select irstream symbol," +
+    private void tryAssertionJoinAll(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String epl = opt.getHint() + "select irstream symbol," +
                 "sum(price) as mySum," +
                 "avg(price) as myAvg " +
                 "from " + SupportBeanString.class.getName() + "#length(100) as one, " +

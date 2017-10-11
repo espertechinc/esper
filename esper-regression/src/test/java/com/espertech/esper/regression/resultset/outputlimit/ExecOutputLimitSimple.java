@@ -18,6 +18,7 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.epl.SupportOutputLimitOpt;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.patternassert.ResultAssertExecution;
 import com.espertech.esper.supportregression.patternassert.ResultAssertExecutionTestSelector;
@@ -48,13 +49,9 @@ public class ExecOutputLimitSimple implements RegressionExecution {
         runAssertion7DefaultHavingNoJoin(epService);
         runAssertion8DefaultHavingJoin(epService);
         runAssertion9AllNoHavingNoJoin(epService);
-        runAssertion9AllNoHavingNoJoinHinted(epService);
         runAssertion10AllNoHavingJoin(epService);
-        runAssertion10AllNoHavingJoinHinted(epService);
         runAssertion11AllHavingNoJoin(epService);
-        runAssertion11AllHavingNoJoinHinted(epService);
         runAssertion12AllHavingJoin(epService);
-        runAssertion12AllHavingJoinHinted(epService);
         runAssertion13LastNoHavingNoJoin(epService);
         runAssertion14LastNoHavingJoin(epService);
         runAssertion15LastHavingNoJoin(epService);
@@ -146,29 +143,26 @@ public class ExecOutputLimitSimple implements RegressionExecution {
     }
 
     private void runAssertion9AllNoHavingNoJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, volume, price " +
-                "from MarketData#time(5.5 sec) " +
-                "output all every 1 seconds";
-        tryAssertion56(epService, stmtText, "all");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion9AllNoHavingNoJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion9AllNoHavingNoJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+    private void runAssertion9AllNoHavingNoJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, volume, price " +
                 "from MarketData#time(5.5 sec) " +
                 "output all every 1 seconds";
         tryAssertion56(epService, stmtText, "all");
     }
 
     private void runAssertion10AllNoHavingJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, volume, price " +
-                "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall where theString=symbol " +
-                "output all every 1 seconds";
-        tryAssertion56(epService, stmtText, "all");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion10AllNoHavingJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion10AllNoHavingJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+    private void runAssertion10AllNoHavingJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, volume, price " +
                 "from MarketData#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "output all every 1 seconds";
@@ -176,15 +170,13 @@ public class ExecOutputLimitSimple implements RegressionExecution {
     }
 
     private void runAssertion11AllHavingNoJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, volume, price " +
-                "from MarketData#time(5.5 sec) " +
-                "having price > 10" +
-                "output all every 1 seconds";
-        tryAssertion78(epService, stmtText, "all");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion11AllHavingNoJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion11AllHavingNoJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+    private void runAssertion11AllHavingNoJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, volume, price " +
                 "from MarketData#time(5.5 sec) " +
                 "having price > 10" +
                 "output all every 1 seconds";
@@ -192,16 +184,13 @@ public class ExecOutputLimitSimple implements RegressionExecution {
     }
 
     private void runAssertion12AllHavingJoin(EPServiceProvider epService) {
-        String stmtText = "select symbol, volume, price " +
-                "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall where theString=symbol " +
-                "having price > 10" +
-                "output all every 1 seconds";
-        tryAssertion78(epService, stmtText, "all");
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            runAssertion12AllHavingJoin(epService, outputLimitOpt);
+        }
     }
 
-    private void runAssertion12AllHavingJoinHinted(EPServiceProvider epService) {
-        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+    private void runAssertion12AllHavingJoin(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String stmtText = opt.getHint() + "select symbol, volume, price " +
                 "from MarketData#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "having price > 10" +
@@ -759,25 +748,25 @@ public class ExecOutputLimitSimple implements RegressionExecution {
     }
 
     private void runAssertionSimpleNoJoinAll(EPServiceProvider epService) {
-        tryAssertionSimpleNoJoinAll(epService, false);
-        tryAssertionSimpleNoJoinAll(epService, true);
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            tryAssertionSimpleNoJoinAll(epService, outputLimitOpt);
+        }
     }
 
-    private void tryAssertionSimpleNoJoinAll(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt')" : "";
-        String epl = hint + "select longBoxed " +
+    private void tryAssertionSimpleNoJoinAll(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String epl = opt.getHint() + "select longBoxed " +
                 "from " + SupportBean.class.getName() + "#length(3) " +
                 "output all every 2 events";
 
         tryAssertAll(epService, createStmtAndListenerNoJoin(epService, epl));
 
-        epl = hint + "select longBoxed " +
+        epl = opt.getHint() + "select longBoxed " +
                 "from " + SupportBean.class.getName() + "#length(3) " +
                 "output every 2 events";
 
         tryAssertAll(epService, createStmtAndListenerNoJoin(epService, epl));
 
-        epl = hint + "select * " +
+        epl = opt.getHint() + "select * " +
                 "from " + SupportBean.class.getName() + "#length(3) " +
                 "output every 2 events";
 
@@ -803,13 +792,13 @@ public class ExecOutputLimitSimple implements RegressionExecution {
     }
 
     private void runAssertionSimpleJoinAll(EPServiceProvider epService) {
-        tryAssertionSimpleJoinAll(epService, false);
-        tryAssertionSimpleJoinAll(epService, true);
+        for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
+            tryAssertionSimpleJoinAll(epService, outputLimitOpt);
+        }
     }
 
-    private void tryAssertionSimpleJoinAll(EPServiceProvider epService, boolean hinted) {
-        String hint = hinted ? "@Hint('enable_outputlimit_opt')" : "";
-        String epl = hint + "select longBoxed  " +
+    private void tryAssertionSimpleJoinAll(EPServiceProvider epService, SupportOutputLimitOpt opt) {
+        String epl = opt.getHint() + "select longBoxed  " +
                 "from " + SupportBeanString.class.getName() + "#length(3) as one, " +
                 SupportBean.class.getName() + "#length(3) as two " +
                 "output all every 2 events";

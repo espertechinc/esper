@@ -76,6 +76,7 @@ public class TestConfigurationParser extends TestCase {
         assertFalse(config.getEngineDefaults().getViewResources().isShareViews());
         assertFalse(config.getEngineDefaults().getViewResources().isAllowMultipleExpiryPolicies());
         assertFalse(config.getEngineDefaults().getViewResources().isIterableUnbound());
+        assertTrue(config.getEngineDefaults().getViewResources().isOutputLimitOpt());
         assertFalse(config.getEngineDefaults().getLogging().isEnableExecutionDebug());
         assertTrue(config.getEngineDefaults().getLogging().isEnableTimerDebug());
         assertFalse(config.getEngineDefaults().getLogging().isEnableQueryPlan());
@@ -423,6 +424,7 @@ public class TestConfigurationParser extends TestCase {
         assertTrue(config.getEngineDefaults().getViewResources().isShareViews());
         assertTrue(config.getEngineDefaults().getViewResources().isAllowMultipleExpiryPolicies());
         assertTrue(config.getEngineDefaults().getViewResources().isIterableUnbound());
+        assertFalse(config.getEngineDefaults().getViewResources().isOutputLimitOpt());
         assertEquals(Configuration.PropertyResolutionStyle.DISTINCT_CASE_INSENSITIVE, config.getEngineDefaults().getEventMeta().getClassPropertyResolutionStyle());
         assertEquals(ConfigurationEventTypeLegacy.AccessorStyle.PUBLIC, config.getEngineDefaults().getEventMeta().getDefaultAccessorStyle());
         assertEquals(EventUnderlyingType.MAP, config.getEngineDefaults().getEventMeta().getDefaultEventRepresentation());

@@ -1005,6 +1005,11 @@ class ConfigurationParser {
                 Boolean value = Boolean.parseBoolean(valueText);
                 configuration.getEngineDefaults().getViewResources().setIterableUnbound(value);
             }
+            if (subElement.getNodeName().equals("outputlimitopt")) {
+                String valueText = getRequiredAttribute(subElement, "enabled");
+                Boolean value = Boolean.parseBoolean(valueText);
+                configuration.getEngineDefaults().getViewResources().setOutputLimitOpt(value);
+            }
         }
     }
 

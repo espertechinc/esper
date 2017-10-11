@@ -853,6 +853,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         private boolean shareViews;
         private boolean allowMultipleExpiryPolicies;
         private boolean iterableUnbound;
+        private boolean outputLimitOpt;
         private static final long serialVersionUID = 2527853225433208362L;
 
         /**
@@ -862,6 +863,7 @@ public class ConfigurationEngineDefaults implements Serializable {
             shareViews = false;
             allowMultipleExpiryPolicies = false;
             iterableUnbound = false;
+            outputLimitOpt = true;
         }
 
         /**
@@ -928,6 +930,24 @@ public class ConfigurationEngineDefaults implements Serializable {
          */
         public void setIterableUnbound(boolean iterableUnbound) {
             this.iterableUnbound = iterableUnbound;
+        }
+
+        /**
+         * Returns indicator whether for output limiting the options are enabled by default.
+         * Has the same effect as adding "@hint("ENABLE_OUTPUTLIMIT_OPT") to all statements (true by default).
+         * @return flag
+         */
+        public boolean isOutputLimitOpt() {
+            return outputLimitOpt;
+        }
+
+        /**
+         * Sets indicator whether for output limiting the options are enabled by default.
+         * Has the same effect as adding "@hint("ENABLE_OUTPUTLIMIT_OPT") to all statements (true by default).
+         * @param outputLimitOpt flag
+         */
+        public void setOutputLimitOpt(boolean outputLimitOpt) {
+            this.outputLimitOpt = outputLimitOpt;
         }
     }
 

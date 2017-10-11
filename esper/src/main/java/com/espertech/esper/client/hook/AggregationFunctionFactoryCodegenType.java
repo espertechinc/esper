@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.client.hook;
 
+/**
+ * Type of byte code generation.
+ */
 public enum AggregationFunctionFactoryCodegenType {
     /**
      * Use when not generating code.
