@@ -2026,7 +2026,7 @@ runtime.sendEvent(new CurrentTimeSpanEvent(startTime.getTime() + 10*60*1000, 100
 			</para>
 	
 			<para>
-				Isolation does not apply to variables: Variables are global in nature. Also, as named windows are globally visibly data windows, consumers to named windows see changes in named windows even though a consumer or the named window (through the create statement) may be in an isolated service. Tables are also globally visible.
+				Isolation does not apply to variables, named windows and tables as they are global.
 			</para>
 	
 			<para>
@@ -2036,7 +2036,7 @@ runtime.sendEvent(new CurrentTimeSpanEvent(startTime.getTime() + 10*60*1000, 100
 			<orderedlist>
 				<listitem>
 					<para>
-						Suspend a statement without loosing its statement state that may have accumulated for the statement.
+						Suspend a statement without losing its statement state that may have accumulated for the statement.
 					</para>
 				</listitem>
 				<listitem>

@@ -264,7 +264,12 @@ select * from AppoximateCountPerWord]]></programlisting>
 				</para>
 				<programlisting><![CDATA[create window OrdersTimeWindow#time(30 sec) as 
   select symbol as sym, volume as vol, price, 1 as alertId from OrderEvent]]></programlisting>
-	
+  
+			   <note>
+				   <para>
+					   The <literal>select</literal>-clause when used with <literal>create window</literal> provides types information only. You must still use <literal>on-merge</literal> or <literal>insert-into</literal> to insert events.
+				   </para>
+			   </note>
 			</sect3>
 			
 			<sect3 xml:id="named_create_explicit" revision="1">
