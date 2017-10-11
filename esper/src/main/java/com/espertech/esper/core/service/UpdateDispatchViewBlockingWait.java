@@ -13,8 +13,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.dispatch.DispatchService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.espertech.esper.util.MutableBoolean;
 
 /**
  * Convenience view for dispatching view updates received from a parent view to update listeners
@@ -38,13 +37,13 @@ public class UpdateDispatchViewBlockingWait extends UpdateDispatchViewBase {
     }
 
     public void update(EventBean[] newData, EventBean[] oldData) {
-        newResult(new UniformPair<EventBean[]>(newData, oldData));
+        newResult(new UniformPair<>(newData, oldData));
     }
 
     public void newResult(UniformPair<EventBean[]> results) {
         statementResultService.indicate(results);
-
-        if (!isDispatchWaiting.get()) {
+        MutableBoolean waiting = isDispatchWaiting.get();
+        if (!waiting.isValue()) {
             UpdateDispatchFutureWait nextFutureWait;
             synchronized (this) {
                 nextFutureWait = new UpdateDispatchFutureWait(this, currentFutureWait, msecTimeout);
@@ -52,9 +51,7 @@ public class UpdateDispatchViewBlockingWait extends UpdateDispatchViewBase {
                 currentFutureWait = nextFutureWait;
             }
             dispatchService.addExternal(nextFutureWait);
-            isDispatchWaiting.set(true);
+            waiting.setValue(true);
         }
     }
-
-    private final static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBlockingWait.class);
 }

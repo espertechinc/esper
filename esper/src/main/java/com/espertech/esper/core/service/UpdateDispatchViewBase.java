@@ -14,9 +14,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.dispatch.Dispatchable;
+import com.espertech.esper.util.MutableBoolean;
 import com.espertech.esper.view.ViewSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
@@ -43,9 +42,9 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
     /**
      * Flag to indicate we have registered a dispatch.
      */
-    protected ThreadLocal<Boolean> isDispatchWaiting = new ThreadLocal<Boolean>() {
-        protected synchronized Boolean initialValue() {
-            return Boolean.FALSE;
+    protected ThreadLocal<MutableBoolean> isDispatchWaiting = new ThreadLocal<MutableBoolean>() {
+        protected synchronized MutableBoolean initialValue() {
+            return new MutableBoolean();
         }
     };
 
@@ -69,7 +68,7 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
     }
 
     public void execute() {
-        isDispatchWaiting.set(false);
+        isDispatchWaiting.get().setValue(false);
         statementResultService.execute();
     }
 
@@ -83,6 +82,4 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
     public StatementResultService getStatementResultService() {
         return statementResultService;
     }
-
-    private final static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBase.class);
 }
