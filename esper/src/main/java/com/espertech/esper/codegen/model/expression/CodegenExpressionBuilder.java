@@ -197,8 +197,8 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionNewArrayByLength(component, expression);
     }
 
-    public static CodegenExpression newArrayWithInit(Class component, CodegenExpression expression) {
-        return new CodegenExpressionNewArrayWithInit(component, expression);
+    public static CodegenExpression newArrayWithInit(Class component, CodegenExpression ... expressions) {
+        return new CodegenExpressionNewArrayWithInit(component, expressions);
     }
 
     public static void renderExpressions(StringBuilder builder, CodegenExpression[] expressions, Map<Class, String> imports, boolean isInnerClass) {

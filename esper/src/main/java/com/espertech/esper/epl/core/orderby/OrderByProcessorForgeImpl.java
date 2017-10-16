@@ -90,6 +90,10 @@ public class OrderByProcessorForgeImpl implements OrderByProcessorFactoryForge {
         OrderByProcessorImpl.sortWOrderKeysCodegen(this, method, classScope);
     }
 
+    public void sortTwoKeysCodegen(CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        OrderByProcessorImpl.sortTwoKeysCodegen(this, method, classScope, namedMethods);
+    }
+
     public OrderByElementForge[] getOrderBy() {
         return orderBy;
     }

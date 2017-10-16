@@ -11,6 +11,7 @@
 package com.espertech.esper.example.rfidassetzone;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
@@ -57,9 +58,7 @@ public class TestAssetZoneMoveStmt extends TestCase {
         sendTimer(240);
         assertEquals(1, listener.getNewDataList().size());
         EventBean events[] = listener.getNewDataList().get(0);
-        assertEquals(2, events.length);
-        assertEquals(2, events[0].get("Part.zone"));
-        assertEquals(3, events[1].get("Part.zone"));
+        EPAssertionUtil.assertPropsPerRowAnyOrder(events, "Part.zone".split(","), new Object[][] {{2}, {3}});
         listener.reset();
 
         sendEvents(new String[]{"A2", "A3"}, new int[]{3, 3});

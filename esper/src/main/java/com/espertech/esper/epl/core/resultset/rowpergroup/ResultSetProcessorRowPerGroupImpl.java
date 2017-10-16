@@ -35,6 +35,7 @@ import com.espertech.esper.epl.core.resultset.grouped.ResultSetProcessorGroupedU
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.view.OutputConditionPolled;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
@@ -241,7 +242,16 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();
         }
-        // Generate group-by keys for all events, collect all keys in a set for later event generation
+
+        if (newData != null && newData.length == 1) {
+            if (oldData == null || oldData.length == 0) {
+                return processViewResultNewDepthOne(newData, isSynthesize);
+            }
+            if (oldData.length == 1 && !prototype.isSelectRStream()) {
+                return processViewResultPairDepthOneNoRStream(newData, oldData, isSynthesize);
+            }
+        }
+
         Map<Object, EventBean> keysAndEvents = new HashMap<>();
         EventBean[] eventsPerStream = new EventBean[1];
 
@@ -268,7 +278,16 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
     public static void processViewResultCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethodNode method, CodegenInstanceAux instance) {
         CodegenMethodNode generateGroupKeysKeepEvent = generateGroupKeysKeepEventCodegen(forge, classScope, instance);
         CodegenMethodNode generateOutputEventsView = generateOutputEventsViewCodegen(forge, classScope, instance);
+        CodegenMethodNode processViewResultNewDepthOne = processViewResultNewDepthOneCodegen(forge, classScope, instance);
+        CodegenMethodNode processViewResultPairDepthOneNoRStream = processViewResultPairDepthOneNoRStreamCodegen(forge, classScope, instance);
 
+        CodegenBlock ifShortcut = method.getBlock().ifCondition(and(notEqualsNull(REF_NEWDATA), equalsIdentity(arrayLength(REF_NEWDATA), constant(1))));
+        ifShortcut.ifCondition(or(equalsNull(REF_OLDDATA), equalsIdentity(arrayLength(REF_OLDDATA), constant(0))))
+                .blockReturn(localMethod(processViewResultNewDepthOne, REF_NEWDATA, REF_ISSYNTHESIZE));
+        if (!forge.isSelectRStream()) {
+            ifShortcut.ifCondition(equalsIdentity(arrayLength(REF_OLDDATA), constant(1)))
+                    .blockReturn(localMethod(processViewResultPairDepthOneNoRStream, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE));
+        }
         method.getBlock().declareVar(Map.class, "keysAndEvents", newInstance(HashMap.class))
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
                 .declareVar(Object[].class, "newDataMultiKey", localMethod(generateGroupKeysKeepEvent, REF_NEWDATA, ref("keysAndEvents"), constantTrue(), ref("eventsPerStream")))
@@ -2286,5 +2305,115 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
         }
 
         return keys;
+    }
+
+    private EventBean shortcutEvalGivenKey(EventBean[] eventsPerStream, Object groupKey, boolean isNewData, boolean isSynthesize) {
+        aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), null);
+
+        if (prototype.getOptionalHavingNode() != null) {
+            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
+            if ((result == null) || (!result)) {
+                return null;
+            }
+        }
+        return selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
+    }
+
+    private static CodegenMethodNode shortcutEvalGivenKeyCodegen(ExprForge optionalHavingNode, CodegenClassScope classScope, CodegenInstanceAux instance) {
+        Consumer<CodegenMethodNode> code = methodNode -> {
+            methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull());
+            if (optionalHavingNode != null) {
+                methodNode.getBlock().ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))).blockReturn(constantNull());
+            }
+            methodNode.getBlock().methodReturn(exprDotMethod(REF_SELECTEXPRPROCESSOR, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_AGENTINSTANCECONTEXT));
+        };
+
+        return instance.getMethods().addMethod(EventBean.class, "shortcutEvalGivenKey",
+                CodegenNamedParam.from(EventBean[].class, NAME_EPS, Object.class, "groupKey", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE),
+                ResultSetProcessorRowPerGroupImpl.class, classScope, code);
+    }
+
+    private UniformPair<EventBean[]> processViewResultPairDepthOneNoRStream(EventBean[] newData, EventBean[] oldData, boolean isSynthesize) {
+        Object newGroupKey = generateGroupKeySingle(newData, true);
+        Object oldGroupKey = generateGroupKeySingle(oldData, false);
+
+        aggregationService.applyEnter(newData, newGroupKey, agentInstanceContext);
+        aggregationService.applyLeave(oldData, oldGroupKey, agentInstanceContext);
+
+        if (Objects.equals(newGroupKey, oldGroupKey)) {
+            EventBean istream = shortcutEvalGivenKey(newData, newGroupKey, true, isSynthesize);
+            return ResultSetProcessorUtil.toPairNullIfNullIStream(istream);
+        }
+
+        EventBean newKeyEvent = shortcutEvalGivenKey(newData, newGroupKey, true, isSynthesize);
+        EventBean oldKeyEvent = shortcutEvalGivenKey(oldData, oldGroupKey, true, isSynthesize);
+        if (prototype.isSorting()) {
+            aggregationService.setCurrentAccess(newGroupKey, agentInstanceContext.getAgentInstanceId(), null);
+            Object newSortKey = orderByProcessor.getSortKey(newData, true, agentInstanceContext);
+            aggregationService.setCurrentAccess(oldGroupKey, agentInstanceContext.getAgentInstanceId(), null);
+            Object oldSortKey = orderByProcessor.getSortKey(oldData, true, agentInstanceContext);
+            EventBean[] sorted = orderByProcessor.sortTwoKeys(newKeyEvent, newSortKey, oldKeyEvent, oldSortKey);
+            return new UniformPair<>(sorted, null);
+        }
+        return new UniformPair<>(new EventBean[]{newKeyEvent, oldKeyEvent}, null);
+    }
+
+    private static CodegenMethodNode processViewResultPairDepthOneNoRStreamCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
+        CodegenMethodNode shortcutEvalGivenKey = shortcutEvalGivenKeyCodegen(forge.getOptionalHavingNode(), classScope, instance);
+        CodegenMethodNode generateGroupKeySingle = ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
+
+        Consumer<CodegenMethodNode> code = methodNode -> {
+            methodNode.getBlock().declareVar(Object.class, "newGroupKey", localMethod(generateGroupKeySingle, REF_NEWDATA, constantTrue()))
+                    .declareVar(Object.class, "oldGroupKey", localMethod(generateGroupKeySingle, REF_OLDDATA, constantFalse()))
+                    .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", REF_NEWDATA, ref("newGroupKey"), REF_AGENTINSTANCECONTEXT)
+                    .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", REF_OLDDATA, ref("oldGroupKey"), REF_AGENTINSTANCECONTEXT)
+                    .ifCondition(staticMethod(Objects.class, "equals", ref("newGroupKey"), ref("oldGroupKey")))
+                    .declareVar(EventBean.class, "istream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("newGroupKey"), constantTrue(), REF_ISSYNTHESIZE))
+                    .blockReturn(staticMethod(ResultSetProcessorUtil.class, "toPairNullIfNullIStream", ref("istream")))
+                    .declareVar(EventBean.class, "newKeyEvent", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("newGroupKey"), constant(true), REF_ISSYNTHESIZE))
+                    .declareVar(EventBean.class, "oldKeyEvent", localMethod(shortcutEvalGivenKey, REF_OLDDATA, ref("oldGroupKey"), constant(true), REF_ISSYNTHESIZE));
+
+            if (forge.isSorting()) {
+                methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("newGroupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull())
+                        .declareVar(Object.class, "newSortKey", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKey", REF_NEWDATA, constantTrue(), REF_AGENTINSTANCECONTEXT))
+                        .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("newGroupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull())
+                        .declareVar(Object.class, "oldSortKey", exprDotMethod(REF_ORDERBYPROCESSOR, "getSortKey", REF_OLDDATA, constantTrue(), REF_AGENTINSTANCECONTEXT))
+                        .declareVar(EventBean[].class, "sorted", exprDotMethod(REF_ORDERBYPROCESSOR, "sortTwoKeys", ref("newKeyEvent"), ref("newSortKey"), ref("oldKeyEvent"), ref("oldSortKey")))
+                        .methodReturn(newInstance(UniformPair.class, ref("sorted"), constantNull()));
+            } else {
+                methodNode.getBlock().methodReturn(newInstance(UniformPair.class, newArrayWithInit(EventBean.class, ref("newKeyEvent"), ref("oldKeyEvent")), constantNull()));
+            }
+        };
+
+        return instance.getMethods().addMethod(UniformPair.class, "processViewResultPairDepthOneNoRStream", CodegenNamedParam.from(EventBean[].class, NAME_NEWDATA, EventBean[].class, NAME_OLDDATA, boolean.class, NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
+    }
+
+    private UniformPair<EventBean[]> processViewResultNewDepthOne(EventBean[] newData, boolean isSynthesize) {
+        Object groupKey = generateGroupKeySingle(newData, true);
+        EventBean rstream = !prototype.isSelectRStream() ? null : shortcutEvalGivenKey(newData, groupKey, false, isSynthesize);   // using newdata to compute is safe here
+        aggregationService.applyEnter(newData, groupKey, agentInstanceContext);
+        EventBean istream = shortcutEvalGivenKey(newData, groupKey, true, isSynthesize);
+        return ResultSetProcessorUtil.toPairNullIfAllNullSingle(istream, rstream);
+    }
+
+    private static CodegenMethodNode processViewResultNewDepthOneCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
+        CodegenMethodNode shortcutEvalGivenKey = shortcutEvalGivenKeyCodegen(forge.getOptionalHavingNode(), classScope, instance);
+        CodegenMethodNode generateGroupKeySingle = ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
+
+        Consumer<CodegenMethodNode> code = methodNode -> {
+            methodNode.getBlock().declareVar(Object.class, "groupKey", localMethod(generateGroupKeySingle, REF_NEWDATA, constantTrue()));
+            if (forge.isSelectRStream()) {
+                methodNode.getBlock().declareVar(EventBean.class, "rstream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantFalse(), REF_ISSYNTHESIZE));
+            }
+            methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", REF_NEWDATA, ref("groupKey"), REF_AGENTINSTANCECONTEXT)
+                    .declareVar(EventBean.class, "istream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantTrue(), REF_ISSYNTHESIZE));
+            if (forge.isSelectRStream()) {
+                methodNode.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, "toPairNullIfAllNullSingle", ref("istream"), ref("rstream")));
+            } else {
+                methodNode.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, "toPairNullIfNullIStream", ref("istream")));
+            }
+        };
+
+        return instance.getMethods().addMethod(UniformPair.class, "processViewResultNewDepthOneCodegen", CodegenNamedParam.from(EventBean[].class, NAME_NEWDATA, boolean.class, NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
     }
 }

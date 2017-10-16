@@ -47,12 +47,24 @@ public interface OrderByProcessor {
      * @param generatingEvents     - the events that generated the output events (each event has a corresponding array of generating events per different event streams)
      * @param groupByKeys          - the keys to use for determining the group-by group of output events
      * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param exprEvaluatorContext context for expression evalauation
+     * @param exprEvaluatorContext context for expression evaluation
      * @param aggregationService   aggregation svc
      * @return an array containing the output events in sorted order
      */
     public EventBean[] sortWGroupKeys(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService);
 
+    /**
+     * Sort the output events, using the provided group-by keys for
+     * evaluating grouped aggregation functions, and avoiding the cost of
+     * recomputing the keys.
+     *
+     * @param outgoingEvents       - the events to sort
+     * @param currentGenerators     - the events that generated the output events (each event has a corresponding array of generating events per different event streams)
+     * @param newData - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param agentInstanceContext context for expression evaluation
+     * @param aggregationService   aggregation svc
+     * @return an array containing the output events in sorted order
+     */
     public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, AggregationService aggregationService);
 
     /**
@@ -65,6 +77,15 @@ public interface OrderByProcessor {
      */
     public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
+    /**
+     * Returns the sort key for a given row for rollup.
+     *
+     * @param eventsPerStream      is the row consisting of one event per stream
+     * @param isNewData            is true for new data
+     * @param exprEvaluatorContext context for expression evalauation
+     * @param level rollup level
+     * @return sort key
+     */
     public Object getSortKeyRollup(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationGroupByRollupLevel level);
 
     /**
@@ -76,4 +97,14 @@ public interface OrderByProcessor {
      * @return sorted events
      */
     public EventBean[] sortWOrderKeys(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext);
+
+    /**
+     * Sort two keys and events
+     * @param first first
+     * @param sortKeyFirst sort key first
+     * @param second second
+     * @param sortKeySecond sort key seconds
+     * @return sorted
+     */
+    public EventBean[] sortTwoKeys(EventBean first, Object sortKeyFirst, EventBean second, Object sortKeySecond);
 }

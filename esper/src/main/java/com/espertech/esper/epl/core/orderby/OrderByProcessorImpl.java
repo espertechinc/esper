@@ -18,6 +18,7 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenNamedMethods;
 import com.espertech.esper.codegen.core.CodegenNamedParam;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
@@ -37,8 +38,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.*;
 import static com.espertech.esper.epl.core.orderby.OrderByProcessorCodegenNames.*;
 import static com.espertech.esper.epl.core.orderby.OrderByProcessorUtil.sortGivenOutgoingAndSortKeys;
 import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.*;
@@ -121,7 +121,12 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         return sortWGroupKeysInternal(outgoingEvents, generatingEvents, groupByKeys, isNewData, exprEvaluatorContext, aggregationService);
     }
 
-    public static void sortPlainCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+    public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, AggregationService aggregationService) {
+        List<Object> sortValuesMultiKeys = createSortPropertiesWRollup(currentGenerators, factory.getOrderByRollup(), newData, agentInstanceContext, aggregationService);
+        return sortGivenOutgoingAndSortKeys(outgoingEvents, sortValuesMultiKeys, factory.getComparator());
+    }
+
+    static void sortPlainCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenMethodNode node = sortWGroupKeysInternalCodegen(forge, classScope, namedMethods);
         method.getBlock().ifCondition(or(equalsNull(REF_OUTGOINGEVENTS), relational(arrayLength(REF_OUTGOINGEVENTS), LT, constant(2))))
                 .blockReturn(REF_OUTGOINGEVENTS);
@@ -135,12 +140,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         method.getBlock().methodReturn(localMethod(node, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, ref("groupByKeys"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
     }
 
-    public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, AggregationService aggregationService) {
-        List<Object> sortValuesMultiKeys = createSortPropertiesWRollup(currentGenerators, factory.getOrderByRollup(), newData, agentInstanceContext, aggregationService);
-        return sortGivenOutgoingAndSortKeys(outgoingEvents, sortValuesMultiKeys, factory.getComparator());
-    }
-
-    public static void sortRollupCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+    static void sortRollupCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenMethodNode createSortPropertiesWRollup = createSortPropertiesWRollupCodegen(forge, classScope, namedMethods);
         CodegenMember comparator = classScope.makeAddMember(Comparator.class, forge.getComparator());
         method.getBlock().declareVar(List.class, "sortValuesMultiKeys", localMethod(createSortPropertiesWRollup, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT, REF_AGGREGATIONSVC))
@@ -258,9 +258,24 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         return OrderByProcessorUtil.sortWOrderKeys(outgoingEvents, orderKeys, factory.getComparator());
     }
 
-    public static void sortWOrderKeysCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope) {
+    static void sortWOrderKeysCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope) {
         CodegenMember comparator = classScope.makeAddMember(Comparator.class, forge.getComparator());
         method.getBlock().methodReturn(staticMethod(OrderByProcessorUtil.class, "sortWOrderKeys", REF_OUTGOINGEVENTS, REF_ORDERKEYS, member(comparator.getMemberId())));
+    }
+
+    public EventBean[] sortTwoKeys(EventBean first, Object sortKeyFirst, EventBean second, Object sortKeySecond) {
+        if (factory.getComparator().compare(sortKeyFirst, sortKeySecond) <= 0) {
+            return new EventBean[] {first, second};
+        }
+        return new EventBean[] {second, first};
+    }
+
+    static void sortTwoKeysCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        CodegenMember comparator = classScope.makeAddMember(Comparator.class, forge.getComparator());
+        CodegenExpression compare = exprDotMethod(member(comparator.getMemberId()), "compare", REF_ORDERFIRSTSORTKEY, REF_ORDERSECONDSORTKEY);
+        method.getBlock().ifCondition(relational(compare, LE, constant(0)))
+                .blockReturn(newArrayWithInit(EventBean.class, REF_ORDERFIRSTEVENT, REF_ORDERSECONDEVENT))
+                .methodReturn(newArrayWithInit(EventBean.class, REF_ORDERSECONDEVENT, REF_ORDERFIRSTEVENT));
     }
 
     private Object[] generateGroupKeys(EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

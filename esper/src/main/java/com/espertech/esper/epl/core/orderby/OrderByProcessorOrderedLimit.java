@@ -29,9 +29,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 import static com.espertech.esper.epl.core.orderby.OrderByProcessorCodegenNames.*;
 import static com.espertech.esper.epl.core.orderby.OrderByProcessorOrderedLimitForge.REF_ROWLIMITPROCESSOR;
-import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGENTINSTANCECONTEXT;
-import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.REF_AGGREGATIONSVC;
-import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.REF_ISNEWDATA;
+import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames.*;
 import static com.espertech.esper.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 
 /**
@@ -118,6 +116,19 @@ public class OrderByProcessorOrderedLimit implements OrderByProcessor {
 
     public EventBean[] sortWOrderKeys(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext) {
         return OrderByProcessorUtil.sortWOrderKeysWLimit(outgoingEvents, orderKeys, orderByProcessor.getComparator(), rowLimitProcessor);
+    }
+
+    public EventBean[] sortTwoKeys(EventBean first, Object sortKeyFirst, EventBean second, Object sortKeySecond) {
+        EventBean[] sorted = orderByProcessor.sortTwoKeys(first, sortKeyFirst, second, sortKeySecond);
+        return rowLimitProcessor.determineLimitAndApply(sorted);
+    }
+
+    static void sortTwoKeysCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        CodegenMethodNode sortTwoKeys = method.makeChild(EventBean[].class, OrderByProcessorOrderedLimit.class, classScope).addParam(SORTTWOKEYS_PARAMS);
+        OrderByProcessorImpl.sortTwoKeysCodegen(forge.getOrderByProcessorForge(), sortTwoKeys, classScope, namedMethods);
+
+        method.getBlock().declareVar(EventBean[].class, "sorted", localMethod(sortTwoKeys, REF_ORDERFIRSTEVENT, REF_ORDERFIRSTSORTKEY, REF_ORDERSECONDEVENT, REF_ORDERSECONDSORTKEY))
+                .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "determineLimitAndApply", ref("sorted")));
     }
 
     static void sortWOrderKeysCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {

@@ -52,30 +52,22 @@ public class ExecQuerytypeRowPerGroup implements RegressionExecution {
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
+        String[] fields = "aprice,symbol".split(",");
 
         sendEvent(epService, "A", 1);
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1.0, listener.getLastNewData()[0].get("aprice"));
-        assertEquals("A", listener.getLastNewData()[0].get("symbol"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {1.0, "A"});
+
         sendEvent(epService, "B", 3);
-        //there is no A->1 as we already got it out
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1, listener.getLastNewData().length);
-        assertEquals(3.0, listener.getLastNewData()[0].get("aprice"));
-        assertEquals("B", listener.getLastNewData()[0].get("symbol"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {3.0, "B"});
+
         sendEvent(epService, "B", 5);
-        // there is NOW a A->null entry
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(2, listener.getLastNewData().length);
-        assertEquals(null, listener.getLastNewData()[0].get("aprice"));
-        assertEquals(4.0, listener.getLastNewData()[1].get("aprice"));
-        assertEquals("B", listener.getLastNewData()[1].get("symbol"));
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][] {{null, "A"}, {4.0, "B"}});
+
         sendEvent(epService, "A", 10);
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][] {{10.0, "A"}, {5.0, "B"}});
+
         sendEvent(epService, "A", 20);
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(2, listener.getLastNewData().length);
-        assertEquals(15.0, listener.getLastNewData()[0].get("aprice")); //A
-        assertEquals(null, listener.getLastNewData()[1].get("aprice")); //B
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][] {{15.0, "A"}, {null, "B"}});
 
         statement.destroy();
     }

@@ -74,4 +74,8 @@ public class OrderByProcessorRowLimitOnlyForge implements OrderByProcessorFactor
     public void sortWOrderKeysCodegen(CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         OrderByProcessorRowLimitOnly.sortWOrderKeysCodegen(method);
     }
+
+    public void sortTwoKeysCodegen(CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        OrderByProcessorRowLimitOnly.sortTwoKeysCodegen(method);
+    }
 }

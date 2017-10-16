@@ -118,4 +118,15 @@ public class RowLimitProcessor {
             return limited;
         }
     }
+
+    public EventBean[] determineApplyLimit2Events(EventBean first, EventBean second) {
+        determineCurrentLimit();
+        if (getCurrentRowLimit() == 0) {
+            return null;
+        }
+        if (getCurrentRowLimit() == 1) {
+            return new EventBean[] {first};
+        }
+        return new EventBean[] {first, second};
+    }
 }

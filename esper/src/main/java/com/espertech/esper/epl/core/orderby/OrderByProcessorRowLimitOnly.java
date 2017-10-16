@@ -21,7 +21,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import java.util.List;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
-import static com.espertech.esper.epl.core.orderby.OrderByProcessorCodegenNames.REF_OUTGOINGEVENTS;
+import static com.espertech.esper.epl.core.orderby.OrderByProcessorCodegenNames.*;
 import static com.espertech.esper.epl.core.orderby.OrderByProcessorOrderedLimitForge.REF_ROWLIMITPROCESSOR;
 
 /**
@@ -70,6 +70,14 @@ public class OrderByProcessorRowLimitOnly implements OrderByProcessor {
 
     public EventBean[] sortWOrderKeys(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext) {
         return rowLimitProcessor.determineLimitAndApply(outgoingEvents);
+    }
+
+    public EventBean[] sortTwoKeys(EventBean first, Object sortKeyFirst, EventBean second, Object sortKeySecond) {
+        return rowLimitProcessor.determineApplyLimit2Events(first, second);
+    }
+
+    static void sortTwoKeysCodegen(CodegenMethodNode method) {
+        method.getBlock().methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "determineApplyLimit2Events", REF_ORDERFIRSTEVENT, REF_ORDERSECONDEVENT));
     }
 
     static void sortWOrderKeysCodegen(CodegenMethodNode method) {

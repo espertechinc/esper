@@ -83,6 +83,10 @@ public class OrderByProcessorOrderedLimitForge implements OrderByProcessorFactor
         OrderByProcessorOrderedLimit.sortWOrderKeysCodegen(this, method, classScope, namedMethods);
     }
 
+    public void sortTwoKeysCodegen(CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        OrderByProcessorOrderedLimit.sortTwoKeysCodegen(this, method, classScope, namedMethods);
+    }
+
     OrderByProcessorForgeImpl getOrderByProcessorForge() {
         return orderByProcessorForge;
     }

@@ -1068,4 +1068,26 @@ public class ResultSetProcessorUtil {
                     .assignRef("oldEventsSortKey", selectRStream ? newInstance(ArrayList.class) : constantNull());
         }
     }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param istream istream event
+     * @param rstream rstream event
+     * @return pair
+     */
+    public static UniformPair<EventBean[]> toPairNullIfAllNullSingle(EventBean istream, EventBean rstream) {
+        if (istream != null) {
+            return new UniformPair<>(new EventBean[] {istream}, rstream == null ? null : new EventBean[] {rstream});
+        }
+        return rstream == null ? null : new UniformPair<>(null, new EventBean[] {rstream});
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param istream istream event
+     * @return pair
+     */
+    public static UniformPair<EventBean[]> toPairNullIfNullIStream(EventBean istream) {
+        return istream == null ? null : new UniformPair<>(new EventBean[] {istream}, null);
+    }
 }

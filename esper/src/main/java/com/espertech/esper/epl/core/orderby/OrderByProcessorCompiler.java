@@ -81,6 +81,9 @@ public class OrderByProcessorCompiler {
         CodegenMethodNode sortWOrderKeysMethod = CodegenMethodNode.makeParentNode(EventBean[].class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean[].class, REF_OUTGOINGEVENTS.getRef()).addParam(Object[].class, REF_ORDERKEYS.getRef()).addParam(ExprEvaluatorContext.class, REF_EXPREVALCONTEXT.getRef());
         forge.sortWOrderKeysCodegen(sortWOrderKeysMethod, classScope, namedMethods);
 
+        CodegenMethodNode sortTwoKeysMethod = CodegenMethodNode.makeParentNode(EventBean[].class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(SORTTWOKEYS_PARAMS);
+        forge.sortTwoKeysCodegen(sortTwoKeysMethod, classScope, namedMethods);
+
         List<CodegenTypedParam> members = new ArrayList<>();
         List<CodegenTypedParam> ctorParams = new ArrayList<>();
         ctorParams.add(new CodegenTypedParam(providerClassName, "o"));
@@ -94,6 +97,7 @@ public class OrderByProcessorCompiler {
         CodegenStackGenerator.recursiveBuildStack(getSortKeyMethod, "getSortKey", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getSortKeyRollupMethod, "getSortKeyRollup", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(sortWOrderKeysMethod, "sortWOrderKeys", innerMethods);
+        CodegenStackGenerator.recursiveBuildStack(sortTwoKeysMethod, "sortTwoKeys", innerMethods);
         for (Map.Entry<String, CodegenMethodNode> methodEntry : namedMethods.getMethods().entrySet()) {
             CodegenStackGenerator.recursiveBuildStack(methodEntry.getValue(), methodEntry.getKey(), innerMethods);
         }

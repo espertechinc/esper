@@ -18,11 +18,11 @@ import java.util.Set;
 
 public class CodegenExpressionNewArrayWithInit implements CodegenExpression {
     private final Class component;
-    private final CodegenExpression expression;
+    private final CodegenExpression[] expressions;
 
-    public CodegenExpressionNewArrayWithInit(Class component, CodegenExpression expression) {
+    public CodegenExpressionNewArrayWithInit(Class component, CodegenExpression[] expressions) {
         this.component = component;
-        this.expression = expression;
+        this.expressions = expressions;
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
@@ -35,12 +35,14 @@ public class CodegenExpressionNewArrayWithInit implements CodegenExpression {
             builder.append("[]");
         }
         builder.append("{");
-        expression.render(builder, imports, isInnerClass);
+        CodegenExpressionBuilder.renderExpressions(builder, expressions, imports, isInnerClass);
         builder.append("}");
     }
 
     public void mergeClasses(Set<Class> classes) {
         classes.add(component);
-        expression.mergeClasses(classes);
+        for (CodegenExpression expression : expressions) {
+            expression.mergeClasses(classes);
+        }
     }
 }

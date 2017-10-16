@@ -26,7 +26,6 @@ import static com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorC
 import static com.espertech.esper.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 
 public class OrderByProcessorCodegenNames {
-    final static CodegenExpressionRef REF_ORDERBYAGGREGATIONSVC = ref("aggregationSvc");
     final static String CLASSNAME_ORDERBYPROCESSORFACTORY = "OrderProcFactory";
     final static String CLASSNAME_ORDERBYPROCESSOR = "OrderProc";
 
@@ -36,6 +35,11 @@ public class OrderByProcessorCodegenNames {
     final static CodegenExpressionRef REF_ORDERCURRENTGENERATORS = ref("orderCurrentGenerators");
     final static CodegenExpressionRef REF_ORDERROLLUPLEVEL = ref("orderlevel");
     final static CodegenExpressionRef REF_ORDERKEYS = ref("orderKeys");
+
+    final static CodegenExpressionRef REF_ORDERFIRSTEVENT = ref("first");
+    final static CodegenExpressionRef REF_ORDERFIRSTSORTKEY = ref("firstSortKey");
+    final static CodegenExpressionRef REF_ORDERSECONDEVENT = ref("second");
+    final static CodegenExpressionRef REF_ORDERSECONDSORTKEY = ref("secondSortKey");
 
     final static List<CodegenNamedParam> SORTPLAIN_PARAMS = CodegenNamedParam.from(EventBean[].class, REF_OUTGOINGEVENTS.getRef(),
             EventBean[][].class, REF_GENERATINGEVENTS.getRef(),
@@ -57,4 +61,10 @@ public class OrderByProcessorCodegenNames {
             boolean.class, REF_ISNEWDATA.getRef(),
             AgentInstanceContext.class, REF_AGENTINSTANCECONTEXT.getRef(),
             AggregationService.class, REF_AGGREGATIONSVC.getRef());
+
+    final static List<CodegenNamedParam> SORTTWOKEYS_PARAMS = CodegenNamedParam.from(
+            EventBean.class, REF_ORDERFIRSTEVENT.getRef(),
+            Object.class, REF_ORDERFIRSTSORTKEY.getRef(),
+            EventBean.class, REF_ORDERSECONDEVENT.getRef(),
+            Object.class, REF_ORDERSECONDSORTKEY.getRef());
 }
