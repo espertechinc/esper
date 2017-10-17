@@ -22,6 +22,7 @@ import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.db.DataCache;
 import com.espertech.esper.epl.db.PollExecStrategy;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierAndStreamRefVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
 import com.espertech.esper.epl.join.pollindex.PollResultIndexingStrategy;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -109,7 +110,7 @@ public class MethodPollingViewable implements HistoricalEventViewable {
 
         // validate and visit
         ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementContext.getStatementExtensionServicesContext(), null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
-        ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(true);
+        ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true);
         final List<ExprNode> validatedInputParameters = new ArrayList<ExprNode>();
         for (ExprNode exprNode : methodStreamSpec.getExpressions()) {
             ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.METHODINVJOIN, exprNode, validationContext);
@@ -118,9 +119,9 @@ public class MethodPollingViewable implements HistoricalEventViewable {
         }
 
         // determine required streams
-        requiredStreams = new TreeSet<Integer>();
-        for (Pair<Integer, String> identifier : visitor.getExprProperties()) {
-            requiredStreams.add(identifier.getFirst());
+        requiredStreams = new TreeSet<>();
+        for (ExprNodePropOrStreamDesc ref : visitor.getRefs()) {
+            requiredStreams.add(ref.getStreamNum());
         }
 
         // class-based evaluation

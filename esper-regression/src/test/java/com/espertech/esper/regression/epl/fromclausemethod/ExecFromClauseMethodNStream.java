@@ -20,6 +20,7 @@ import com.espertech.esper.supportregression.epl.SupportJoinMethods;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ExecFromClauseMethodNStream implements RegressionExecution {
     public void configure(Configuration configuration) throws Exception {
@@ -47,6 +48,32 @@ public class ExecFromClauseMethodNStream implements RegressionExecution {
         runAssertion3HistPureNoSubordinate(epService);
         runAssertion3Hist1Subordinate(epService);
         runAssertion3Hist2SubordinateChain(epService);
+        runAssertion3Stream1HistStreamNWTwice(epService);
+    }
+
+    private void runAssertion3Stream1HistStreamNWTwice(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(MySampleTradeEvent.class);
+
+        epService.getEPAdministrator().createEPL("create window AllTrades#keepall as MySampleTradeEvent");
+        epService.getEPAdministrator().createEPL("insert into AllTrades select * from MySampleTradeEvent");
+
+        String epl = "select us, them, corr.correlation as crl " +
+                "from AllTrades as us, AllTrades as them," +
+                "method:" + this.getClass().getName() + ".computeCorrelation(us, them) as corr\n" +
+                "where us.side != them.side and corr.correlation > 0";
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        MySampleTradeEvent one = new MySampleTradeEvent("T1", "B");
+        epService.getEPRuntime().sendEvent(one);
+        assertFalse(listener.isInvoked());
+
+        MySampleTradeEvent two = new MySampleTradeEvent("T2", "S");
+        epService.getEPRuntime().sendEvent(two);
+
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), "us,them,crl".split(","), new Object[][] {{one, two, 1}, {two, one, 1}});
     }
 
     private void runAssertion1Stream2HistStarSubordinateCartesianLast(EPServiceProvider epService) {
@@ -501,5 +528,39 @@ public class ExecFromClauseMethodNStream implements RegressionExecution {
 
     private void sendBeanInt(EPServiceProvider epService, String id, int p00) {
         sendBeanInt(epService, id, p00, -1, -1, -1);
+    }
+
+    public static ComputeCorrelationResult computeCorrelation(MySampleTradeEvent us, MySampleTradeEvent them) {
+        return new ComputeCorrelationResult(us != null && them != null ? 1 : 0);
+    }
+
+    public static class ComputeCorrelationResult {
+        private final int correlation;
+
+        public ComputeCorrelationResult(int correlation) {
+            this.correlation = correlation;
+        }
+
+        public int getCorrelation() {
+            return correlation;
+        }
+    }
+
+    public static class MySampleTradeEvent {
+        private final String tradeId;
+        private final String side;
+
+        public MySampleTradeEvent(String tradeId, String side) {
+            this.tradeId = tradeId;
+            this.side = side;
+        }
+
+        public String getTradeId() {
+            return tradeId;
+        }
+
+        public String getSide() {
+            return side;
+        }
     }
 }
