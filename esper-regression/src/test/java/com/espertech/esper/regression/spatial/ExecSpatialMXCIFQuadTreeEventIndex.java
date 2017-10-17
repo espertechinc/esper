@@ -25,6 +25,7 @@ import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.CollectionUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +61,25 @@ public class ExecSpatialMXCIFQuadTreeEventIndex implements RegressionExecution {
         runAssertionEventIndexUnique(epService);
         runAssertionEventIndexPerformance(epService);
         runAssertionEventIndexTableFireAndForget(epService);
+        runAssertionEventIndexZeroWidthAndHeight(epService);
+    }
+
+    private void runAssertionEventIndexZeroWidthAndHeight(EPServiceProvider epService) {
+        epService.getEPAdministrator().createEPL("create schema Geofence(x double, y double, vin string)");
+        epService.getEPAdministrator().createEPL("create table Regions(regionId string primary key, rx double, ry double, rwidth double, rheight double)");
+        epService.getEPAdministrator().createEPL("create index RectangleIndex on Regions((rx, ry, rwidth, rheight) mxcifquadtree(0, 0, 10, 12))");
+        EPStatement stmt = epService.getEPAdministrator().createEPL(IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on Geofence as vin insert into VINWithRegion select regionId, vin from Regions where rectangle(rx, ry, rwidth, rheight).intersects(rectangle(vin.x, vin.y, 0, 0))");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        SupportQueryPlanIndexHook.assertOnExprTableAndReset("RectangleIndex", "non-unique hash={} btree={} advanced={mxcifquadtree(rx,ry,rwidth,rheight)}");
+
+        epService.getEPRuntime().executeQuery("insert into Regions values ('R1', 2, 2, 5, 5)");
+        epService.getEPRuntime().sendEvent(CollectionUtil.populateNameValueMap("x", 3d, "y", 3d, "vin", "V1"), "Geofence");
+
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "vin,regionId".split(","), new Object[] {"V1", "R1"});
+
+        stmt.destroy();
     }
 
     private void runAssertionEventIndexTableFireAndForget(EPServiceProvider epService) {

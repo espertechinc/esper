@@ -411,8 +411,10 @@ public class QueryGraph {
             if (pair.getSecond().length == 0) {
                 if (numStreams > 1) {
                     for (int i = 0; i < numStreams; i++) {
-                        QueryGraphValue value = getCreateValue(i, streamValue);
-                        value.addCustom(indexExpressions, operationName, expressionPosition, pair.getFirst());
+                        if (i != streamValue) {
+                            QueryGraphValue value = getCreateValue(i, streamValue);
+                            value.addCustom(indexExpressions, operationName, expressionPosition, pair.getFirst());
+                        }
                     }
                 } else {
                     QueryGraphValue value = getCreateValue(SELF_STREAM, streamValue);
