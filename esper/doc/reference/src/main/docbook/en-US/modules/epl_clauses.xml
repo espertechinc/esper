@@ -2017,6 +2017,9 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 			</para>
             <programlisting><![CDATA[select prod.getZone().checkZone("zone 1") from ProductEvent as prod]]></programlisting>
 
+			<para>
+				Use the backwards apostrophe ` (aka. back tick) character to escape stream names in the <literal>from</literal>-clause and in <literal>on-</literal>trigger statements (e.g. <literal>from MyEvent as `order`...</literal>).
+			</para>
 		</sect2>
 
     </sect1>

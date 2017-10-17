@@ -14,6 +14,10 @@ import com.espertech.esper.supportregression.execution.RegressionRunner;
 import junit.framework.TestCase;
 
 public class TestSuiteOther extends TestCase {
+    public void testExecEPLAsKeywordBacktick() {
+        RegressionRunner.run(new ExecEPLAsKeywordBacktick());
+    }
+
     public void testExecEPLComments() {
         RegressionRunner.run(new ExecEPLComments());
     }

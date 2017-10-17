@@ -2532,6 +2532,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitEventPropertyIdent(EsperEPL2GrammarParser.EventPropertyIdentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#identOrTicked}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdentOrTicked(EsperEPL2GrammarParser.IdentOrTickedContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#identOrTicked}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdentOrTicked(EsperEPL2GrammarParser.IdentOrTickedContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#keywordAllowedIdent}.
 	 * @param ctx the parse tree
 	 */

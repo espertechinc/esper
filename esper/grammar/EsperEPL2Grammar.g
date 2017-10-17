@@ -324,13 +324,13 @@ onExpr : ON onStreamExpr
 	(onDeleteExpr | onSelectExpr (onSelectInsertExpr+ outputClauseInsert?)? | onSetExpr | onUpdateExpr | onMergeExpr)
 	;
 	
-onStreamExpr : (eventFilterExpression | patternInclusionExpression) (AS i=IDENT | i=IDENT)?;
+onStreamExpr : (eventFilterExpression | patternInclusionExpression) (AS identOrTicked | identOrTicked)?;
 
 updateExpr : UPDATE ISTREAM updateDetails;
 	
-updateDetails :	classIdentifier (AS i=IDENT | i=IDENT)? SET onSetAssignmentList (WHERE whereClause)?;
+updateDetails :	classIdentifier (AS identOrTicked | identOrTicked)? SET onSetAssignmentList (WHERE whereClause)?;
 
-onMergeExpr : MERGE INTO? n=IDENT (AS i=IDENT | i=IDENT)? (WHERE whereClause)? mergeItem+;
+onMergeExpr : MERGE INTO? n=IDENT (AS identOrTicked | identOrTicked)? (WHERE whereClause)? mergeItem+;
 
 mergeItem : (mergeMatched | mergeUnmatched);
 	
@@ -365,7 +365,7 @@ onSelectExpr
 onUpdateExpr	
 @init  { paraphrases.push("on-update clause"); }
 @after { paraphrases.pop(); }
-		: UPDATE n=IDENT (AS i=IDENT | i=IDENT)? SET onSetAssignmentList (WHERE whereClause)?;
+		: UPDATE n=IDENT (AS identOrTicked | identOrTicked)? SET onSetAssignmentList (WHERE whereClause)?;
 
 onSelectInsertExpr
 @init  { paraphrases.push("on-select-insert clause"); }
@@ -373,7 +373,7 @@ onSelectInsertExpr
 		: INSERT insertIntoExpr SELECT selectionList onSelectInsertFromClause? (WHERE whereClause)?;
 	
 onSelectInsertFromClause
-		: FROM propertyExpression (AS i=IDENT | i=IDENT)?;
+		: FROM propertyExpression (AS identOrTicked | identOrTicked)?;
 
 outputClauseInsert : OUTPUT (f=FIRST | a=ALL);
 	
@@ -391,7 +391,7 @@ onSetAssignmentList : onSetAssignment (COMMA onSetAssignment)*;
 	
 onSetAssignment : eventProperty EQUALS expression | expression;
 		
-onExprFrom : FROM n=IDENT (AS i=IDENT | i=IDENT)?;
+onExprFrom : FROM n=IDENT (AS identOrTicked | identOrTicked)?;
 
 createWindowExpr : CREATE WINDOW i=IDENT viewExpressions? (ru=RETAINUNION|ri=RETAININTERSECTION)? AS? 
 		  (
@@ -442,7 +442,7 @@ createSchemaDef : SCHEMA name=IDENT AS?
 		  |   	LPAREN createColumnList? RPAREN 
 		  ) createSchemaQual*;
 
-fafDelete : DELETE FROM classIdentifier (AS i=IDENT | i=IDENT)? (WHERE whereClause)?;
+fafDelete : DELETE FROM classIdentifier (AS identOrTicked | identOrTicked)? (WHERE whereClause)?;
 
 fafUpdate : UPDATE updateDetails;
 
@@ -574,7 +574,7 @@ selectionListElementAnno : ATCHAR i=IDENT;
 streamSelector : s=IDENT DOT STAR (AS i=IDENT)?;
 	
 streamExpression : (eventFilterExpression | patternInclusionExpression | databaseJoinExpression | methodJoinExpression )
-		viewExpressions? (AS i=IDENT | i=IDENT)? (u=UNIDIRECTIONAL)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
+		viewExpressions? (AS identOrTicked | identOrTicked)? (u=UNIDIRECTIONAL)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
 		
 forExpr : FOR i=IDENT (LPAREN expressionList? RPAREN)?;
 
@@ -818,7 +818,7 @@ subQueryExpr
 subSelectFilterExpr
 @init  { paraphrases.push("subquery filter specification"); }
 @after { paraphrases.pop(); }
-		: eventFilterExpression viewExpressions? (AS i=IDENT | i=IDENT)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
+		: eventFilterExpression viewExpressions? (AS identOrTicked | identOrTicked)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
 		
 arrayExpression : LCURLY (expression (COMMA expression)* )? RCURLY chainedFunction?;
 
@@ -1023,6 +1023,8 @@ eventPropertyAtomic : eventPropertyIdent (
 			)?;
 		
 eventPropertyIdent : ipi=keywordAllowedIdent (ESCAPECHAR DOT ipi2=keywordAllowedIdent?)*;
+
+identOrTicked : i1=IDENT | i2=TICKED_STRING_LITERAL;
 	
 keywordAllowedIdent : i1=IDENT
 		| i2=TICKED_STRING_LITERAL

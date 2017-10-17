@@ -17,6 +17,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.streamtype.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypesException;
+import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
 import com.espertech.esper.util.LevenshteinDistance;
 
@@ -35,12 +36,12 @@ public class ExprIdentNodeUtil {
         return getTypeFromStream(streamTypeService, prop, streamOrProp, obtainFragment);
     }
 
-    protected static Pair<PropertyResolutionDescriptor, String> getTypeFromStream(StreamTypeService streamTypeService, String unresolvedPropertyName, String streamOrPropertyName, boolean obtainFragment)
+    protected static Pair<PropertyResolutionDescriptor, String> getTypeFromStream(StreamTypeService streamTypeService, String unresolvedPropertyName, String streamOrPropertyNameMayEscaped, boolean obtainFragment)
             throws ExprValidationPropertyException {
         PropertyResolutionDescriptor propertyInfo = null;
 
         // no stream/property name supplied
-        if (streamOrPropertyName == null) {
+        if (streamOrPropertyNameMayEscaped == null) {
             try {
                 propertyInfo = streamTypeService.resolveByPropertyName(unresolvedPropertyName, obtainFragment);
             } catch (StreamTypesException ex) {
@@ -55,6 +56,7 @@ public class ExprIdentNodeUtil {
 
         // try to resolve the property name and stream name as it is (ie. stream name as a stream name)
         StreamTypesException typeExceptionOne;
+        String streamOrPropertyName = ASTUtil.unescapeBacktick(streamOrPropertyNameMayEscaped);
         try {
             propertyInfo = streamTypeService.resolveByStreamAndPropName(streamOrPropertyName, unresolvedPropertyName, obtainFragment);
             // resolves with a stream name, return descriptor and stream name

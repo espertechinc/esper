@@ -346,4 +346,8 @@ public class ASTUtil {
 
         return writer.toString();
     }
+
+    public static String getStreamNameUnescapedOptional(EsperEPL2GrammarParser.IdentOrTickedContext ctx) {
+        return ctx != null ? ASTUtil.unescapeBacktick(ctx.getText()) : null;
+    }
 }

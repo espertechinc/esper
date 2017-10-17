@@ -18,6 +18,7 @@ import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
+import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.event.*;
 import com.espertech.esper.util.TypeWidener;
@@ -145,7 +146,7 @@ public class EventBeanUpdateHelperFactory {
 
         int indexDot = propertyName.indexOf(".");
         if ((namedWindowAlias != null) && (indexDot != -1)) {
-            String prefix = propertyName.substring(0, indexDot);
+            String prefix = ASTUtil.unescapeBacktick(propertyName.substring(0, indexDot));
             String name = propertyName.substring(indexDot + 1);
             if (prefix.equals(namedWindowAlias)) {
                 writableProperty = eventTypeSPI.getWritableProperty(name);

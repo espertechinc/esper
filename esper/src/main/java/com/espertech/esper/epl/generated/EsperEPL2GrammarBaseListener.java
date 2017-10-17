@@ -2992,6 +2992,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIdentOrTicked(EsperEPL2GrammarParser.IdentOrTickedContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIdentOrTicked(EsperEPL2GrammarParser.IdentOrTickedContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterKeywordAllowedIdent(EsperEPL2GrammarParser.KeywordAllowedIdentContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -67,7 +67,6 @@ import com.espertech.esper.util.PlaceholderParseException;
 import com.espertech.esper.util.PlaceholderParser;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -536,7 +535,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         String eventTypeName = ASTUtil.unescapeClassIdent(updctx.classIdentifier());
         FilterStreamSpecRaw streamSpec = new FilterStreamSpecRaw(new FilterSpecRaw(eventTypeName, Collections.<ExprNode>emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, eventTypeName, StreamSpecOptions.DEFAULT);
         statementSpec.getStreamSpecs().add(streamSpec);
-        String optionalStreamName = updctx.i != null ? updctx.i.getText() : null;
+        String optionalStreamName = ASTUtil.getStreamNameUnescapedOptional(updctx.identOrTicked());
         List<OnTriggerSetAssignment> assignments = ASTExprHelper.getOnTriggerSetAssignments(updctx.onSetAssignmentList(), astExprNodeMap);
         ExprNode whereClause = updctx.WHERE() != null ? ASTExprHelper.exprCollectSubNodes(updctx.whereClause(), 0, astExprNodeMap).get(0) : null;
         statementSpec.setUpdateDesc(new UpdateDesc(optionalStreamName, assignments, whereClause));
@@ -607,7 +606,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitOnStreamExpr(EsperEPL2GrammarParser.OnStreamExprContext ctx) {
-        String streamAsName = ctx.i != null ? ctx.i.getText() : null;
+        String streamAsName = ASTUtil.getStreamNameUnescapedOptional(ctx.identOrTicked());
 
         // get stream to use (pattern or filter)
         StreamSpecRaw streamSpec;
@@ -632,7 +631,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (onTriggerSplitPropertyEvals == null) {
             onTriggerSplitPropertyEvals = new HashMap<>();
         }
-        onTriggerSplitPropertyEvals.put(statementSpec, new OnTriggerSplitStreamFromClause(propertyEvalSpec, ctx.i == null ? null : ctx.i.getText()));
+        String streamName = ASTUtil.getStreamNameUnescapedOptional(ctx.identOrTicked());
+        onTriggerSplitPropertyEvals.put(statementSpec, new OnTriggerSplitStreamFromClause(propertyEvalSpec, streamName));
         propertyEvalSpec = null;
     }
 
@@ -663,7 +663,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitFafUpdate(EsperEPL2GrammarParser.FafUpdateContext ctx) {
-        handleFAFNamedWindowStream(ctx.updateDetails().classIdentifier(), ctx.updateDetails().i);
+        handleFAFNamedWindowStream(ctx.updateDetails().classIdentifier(), ctx.updateDetails().identOrTicked());
         List<OnTriggerSetAssignment> assignments = ASTExprHelper.getOnTriggerSetAssignments(ctx.updateDetails().onSetAssignmentList(), astExprNodeMap);
         ExprNode whereClause = ctx.updateDetails().whereClause() == null ? null : ASTExprHelper.exprCollectSubNodes(ctx.updateDetails().whereClause(), 0, astExprNodeMap).get(0);
         statementSpec.setFilterExprRootNode(whereClause);
@@ -755,7 +755,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitFafDelete(EsperEPL2GrammarParser.FafDeleteContext ctx) {
-        handleFAFNamedWindowStream(ctx.classIdentifier(), ctx.i);
+        handleFAFNamedWindowStream(ctx.classIdentifier(), ctx.identOrTicked());
         statementSpec.setFireAndForgetSpec(new FireAndForgetSpecDelete());
     }
 
@@ -884,7 +884,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void exitStreamExpression(EsperEPL2GrammarParser.StreamExpressionContext ctx) {
         // Determine the optional stream name
-        String streamName = ctx.i != null ? ctx.i.getText() : null;
+        String streamName = ASTUtil.getStreamNameUnescapedOptional(ctx.identOrTicked());
 
         boolean isUnidirectional = ctx.UNIDIRECTIONAL() != null;
         boolean isRetainUnion = ctx.RETAINUNION() != null;
@@ -1274,7 +1274,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitSubSelectFilterExpr(EsperEPL2GrammarParser.SubSelectFilterExprContext ctx) {
-        String streamName = ctx.i != null ? ctx.i.getText() : null;
+        String streamName = ASTUtil.getStreamNameUnescapedOptional(ctx.identOrTicked());
         boolean isRetainUnion = ctx.ru != null;
         boolean isRetainIntersection = ctx.ri != null;
         StreamSpecOptions options = new StreamSpecOptions(false, isRetainUnion, isRetainIntersection);
@@ -1467,7 +1467,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitOnExpr(EsperEPL2GrammarParser.OnExprContext ctx) {
         if (ctx.onMergeExpr() != null) {
             String windowName = ctx.onMergeExpr().n.getText();
-            String asName = ctx.onMergeExpr().i != null ? ctx.onMergeExpr().i.getText() : null;
+            String asName = ASTUtil.getStreamNameUnescapedOptional(ctx.onMergeExpr().identOrTicked());
             OnTriggerMergeDesc desc = new OnTriggerMergeDesc(windowName, asName, mergeMatcheds == null ? Collections.<OnTriggerMergeMatched>emptyList() : mergeMatcheds);
             statementSpec.setOnTriggerDesc(desc);
         } else if (ctx.onSetExpr() == null) {
@@ -1863,15 +1863,15 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             return getOnExprWindowName(ctx.onSelectExpr().onExprFrom());
         }
         if (ctx.onUpdateExpr() != null) {
-            Token alias = ctx.onUpdateExpr().i;
-            return new UniformPair<>(ctx.onUpdateExpr().n.getText(), alias != null ? alias.getText() : null);
+            String name = ASTUtil.getStreamNameUnescapedOptional(ctx.onUpdateExpr().identOrTicked());
+            return new UniformPair<>(ctx.onUpdateExpr().n.getText(), name);
         }
         return null;
     }
 
     private UniformPair<String> getOnExprWindowName(EsperEPL2GrammarParser.OnExprFromContext ctx) {
         String windowName = ctx.n.getText();
-        String windowStreamName = ctx.i != null ? ctx.i.getText() : null;
+        String windowStreamName = ASTUtil.getStreamNameUnescapedOptional(ctx.identOrTicked());
         return new UniformPair<>(windowName, windowStreamName);
     }
 
@@ -1914,9 +1914,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(dotNode, parentCtx, astExprNodeMap);
     }
 
-    private void handleFAFNamedWindowStream(EsperEPL2GrammarParser.ClassIdentifierContext node, Token i) {
+    private void handleFAFNamedWindowStream(EsperEPL2GrammarParser.ClassIdentifierContext node, EsperEPL2GrammarParser.IdentOrTickedContext asClause) {
         String windowName = ASTUtil.unescapeClassIdent(node);
-        String alias = i != null ? i.getText() : null;
+        String alias = ASTUtil.getStreamNameUnescapedOptional(asClause);
         statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(windowName, Collections.<ExprNode>emptyList(), null), ViewSpec.toArray(viewSpecs), alias, StreamSpecOptions.DEFAULT));
     }
 
@@ -3271,5 +3271,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitTypeExpressionAnnotation(EsperEPL2GrammarParser.TypeExpressionAnnotationContext ctx) {
+    }
+
+    public void enterIdentOrTicked(EsperEPL2GrammarParser.IdentOrTickedContext ctx) {
+    }
+
+    public void exitIdentOrTicked(EsperEPL2GrammarParser.IdentOrTickedContext ctx) {
     }
 }
