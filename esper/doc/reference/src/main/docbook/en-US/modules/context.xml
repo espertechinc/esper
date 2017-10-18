@@ -987,7 +987,7 @@ select t1 from pattern [
 							</row>
 							<row>
 								<entry><literal>endTime</literal></entry>
-								<entry>The end time of the context partition. This field is only available in the case that it can be computed from the crontab or time period expression that is provided.
+								<entry>The end time of the context partition. This field is only available in the case that it can be computed from the crontab or time period expression that is provided. Use <literal>current_timestamp</literal> instead.
 								</entry>
 							</row>
 						</tbody>

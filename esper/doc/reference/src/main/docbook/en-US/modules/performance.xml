@@ -1500,6 +1500,10 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				<para>
 					Consider the world of relational databases. Your code could attach to a relational database, create the same table with a different name 100 times, 
 					and populate each of the 100 different tables with the same row data. A relational database administrator would probably recommend against creating 100 identical tables holding the same row data. 
+					Compare an EPL statement to a relational database table in respect to how many there should be. 
+					In a good design there are limited number of EPL statements. Esper is not specifically designed for very large number of EPL statements. 
+					Similarly a relational database schema design that has 100,000 tables would be something one would seriously question.
+					 It depends on the EPL statement itself in respect to how many EPL statements fit into memory and there is no general guideline.
 				</para>
 
 				<para>
@@ -1514,7 +1518,8 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 					and factor them out into a context declaration. Instead of creating X similar statements, 
 					declare a context and attach one statement to the context, thus having X context partitions. This reduces the analysis that the engine must perform for each statement
 					since now the engine only needs to analyze the context declaration and the EPL statement. 
-					Your application can send start and stop events to control which context partitions exist and what events each context partition analyzes.
+					Your application can send start and stop events to control which context partitions exist and what events each context partition analyzes. 
+					Use the context partition administrative API to browse or terminate context partitions.
 				</para>				
 				
 				<para>

@@ -584,5 +584,25 @@ epService.getEPAdministrator().getDeploymentAdmin()
         <para>
 			Engine and statement-level metrics reporting is described in <xref linkend="api-instrumentation"/>.			
         </para>
+        
+		<para>
+			The easiest way to see thread contentions is by using VisualVM when Esper is under load and looking at the Threads tab. 
+			In the worst case you will see a lot of red color in VisualVM.
+			The red line in VisualVM shows the threads that are either in a monitor region or waiting in an entry set for the monitor. 
+			The monitor is the mechanism that Java uses to support synchronization.
+			When an EPL statement is stateful, Esper manages the state using a monitor (lock) per context partition.
+		</para>
+						
+		<para>
+			A JVM profiler can be handy to see how much CPU is spent in Esper by the <literal>sendEvent</literal> method.
+		</para>
+		
+		<para>
+				The <literal>jconsole</literal> can provide information on the JVM heap. If memory gets tights the performance can drop significantly.
+		</para>
+		
+		<para>
+				Enterprise Edition has a library for measuring and reporting memory use for Esper.
+		</para>
 	</sect1>
 </chapter>

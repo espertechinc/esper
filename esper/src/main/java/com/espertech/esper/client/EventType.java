@@ -33,6 +33,11 @@ import java.util.Iterator;
  * <p>
  * Implementations in addition may provide a means to access property values as event fragments, which
  * are typed events themselves.
+ * <p>
+ * The order of property names depends on the underlying event type and may be platform-specific.
+ * When the underlying class is object-array the order of property names is always as-provided.
+ * When the underlying class is map the order of property names is defined only when LinkedHashMap was used to register the type.
+ * When the underlying class is bean the order of property names is depends on the order of the methods returned by reflection.
  */
 public interface EventType {
     /**
@@ -132,8 +137,7 @@ public interface EventType {
     /**
      * Get the property names for the event type.
      * <p>
-     * Note that properties do not have a defined order. Your application should not rely on the order
-     * of properties returned by this method.
+     * Note that the order of property names depends on the underlying event type.
      * <p>
      * The method does not return property names of inner or nested types.
      *
@@ -144,8 +148,7 @@ public interface EventType {
     /**
      * Get property descriptors for the event type.
      * <p>
-     * Note that properties do not have a defined order. Your application should not rely on the order
-     * of properties returned by this method.
+     * Note that the order of property names depends on the underlying event type.
      * <p>
      * The method does not return property information of inner or nested types.
      *
