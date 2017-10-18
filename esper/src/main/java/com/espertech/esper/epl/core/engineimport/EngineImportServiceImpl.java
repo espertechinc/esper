@@ -432,10 +432,10 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
             return new ExprAggMultiFunctionLinearAccessNode(AggregationStateType.WINDOW);
         }
         if (nameLowerCase.equals("firstever")) {
-            return new ExprFirstEverNode(isDistinct);
+            return new ExprFirstLastEverNode(isDistinct, true);
         }
         if (nameLowerCase.equals("lastever")) {
-            return new ExprLastEverNode(isDistinct);
+            return new ExprFirstLastEverNode(isDistinct, false);
         }
         if (nameLowerCase.equals("countever")) {
             return new ExprCountEverNode(isDistinct);

@@ -15,30 +15,41 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.ExprWildcard;
 
 /**
- * Represents the "lastever" aggregate function is an expression tree.
+ * Represents the "firstever" and "lastever: aggregate function is an expression tree.
  */
-public class ExprLastEverNode extends ExprAggregateNodeBase {
-    private static final long serialVersionUID = -435756490067654566L;
+public class ExprFirstLastEverNode extends ExprAggregateNodeBase {
+
+    private final boolean first;
 
     /**
      * Ctor.
      *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprLastEverNode(boolean distinct) {
+    public ExprFirstLastEverNode(boolean distinct, boolean first) {
         super(distinct);
+        this.first = first;
     }
 
     public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
-        if (positionalParams.length == 0 || positionalParams.length > 2) {
+        if (positionalParams.length > 2) {
             throw makeExceptionExpectedParamNum(0, 2);
         }
         if (positionalParams.length == 2) {
             super.validateFilter(positionalParams[1].getForge());
         }
-        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeLastEver(validationContext.getStatementExtensionSvcContext(), this, positionalParams[0].getForge().getEvaluationType());
+
+        Class resultType;
+        boolean isWildcard = positionalParams.length == 0 || positionalParams.length > 0 && positionalParams[0] instanceof ExprWildcard;
+        if (isWildcard) {
+            resultType = validationContext.getStreamTypeService().getEventTypes()[0].getUnderlyingType();
+        } else {
+            resultType = positionalParams[0].getForge().getEvaluationType();
+        }
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeFirstLastEver(validationContext.getStatementExtensionSvcContext(), this, resultType);
     }
 
     public boolean hasFilter() {
@@ -46,11 +57,19 @@ public class ExprLastEverNode extends ExprAggregateNodeBase {
     }
 
     public String getAggregationFunctionName() {
-        return "lastever";
+        return first ? "firstever" : "lastever";
     }
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
-        return node instanceof ExprLastEverNode;
+        if (!(node instanceof ExprFirstLastEverNode)) {
+            return false;
+        }
+        ExprFirstLastEverNode other = (ExprFirstLastEverNode) node;
+        return other.first == this.first;
+    }
+
+    public boolean isFirst() {
+        return first;
     }
 
     protected boolean isFilterExpressionAsLastParameter() {

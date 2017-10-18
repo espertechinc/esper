@@ -54,12 +54,8 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
         return new AggregationMethodFactoryCountEver(exprCountEverNode, ignoreNulls);
     }
 
-    public AggregationMethodFactory makeFirstEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprFirstEverNode exprFirstEverNode, Class type) {
-        return new AggregationMethodFactoryFirstEver(exprFirstEverNode, type);
-    }
-
-    public AggregationMethodFactory makeLastEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprLastEverNode exprLastEverNode, Class type) {
-        return new AggregationMethodFactoryLastEver(exprLastEverNode, type);
+    public AggregationMethodFactory makeFirstLastEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprFirstLastEverNode exprFirstLastEverNode, Class type) {
+        return new AggregationMethodFactoryFirstLastEver(exprFirstLastEverNode, type);
     }
 
     public AggregationMethodFactory makeLeaving(StatementExtensionSvcContext statementExtensionSvcContext, ExprLeavingAggNode exprLeavingAggNode) {

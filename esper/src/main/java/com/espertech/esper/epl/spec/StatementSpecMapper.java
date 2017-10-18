@@ -1836,10 +1836,10 @@ public class StatementSpecMapper {
             return new ExprStddevNode(node.isDistinct());
         } else if (expr instanceof LastEverProjectionExpression) {
             LastEverProjectionExpression node = (LastEverProjectionExpression) expr;
-            return new ExprLastEverNode(node.isDistinct());
+            return new ExprFirstLastEverNode(node.isDistinct(), false);
         } else if (expr instanceof FirstEverProjectionExpression) {
             FirstEverProjectionExpression node = (FirstEverProjectionExpression) expr;
-            return new ExprFirstEverNode(node.isDistinct());
+            return new ExprFirstLastEverNode(node.isDistinct(), true);
         } else if (expr instanceof CountEverProjectionExpression) {
             CountEverProjectionExpression node = (CountEverProjectionExpression) expr;
             return new ExprCountEverNode(node.isDistinct());
@@ -2241,12 +2241,9 @@ public class StatementSpecMapper {
         } else if (expr instanceof ExprMedianNode) {
             ExprMedianNode median = (ExprMedianNode) expr;
             return new MedianProjectionExpression(median.isDistinct());
-        } else if (expr instanceof ExprLastEverNode) {
-            ExprLastEverNode last = (ExprLastEverNode) expr;
-            return new LastEverProjectionExpression(last.isDistinct());
-        } else if (expr instanceof ExprFirstEverNode) {
-            ExprFirstEverNode first = (ExprFirstEverNode) expr;
-            return new FirstEverProjectionExpression(first.isDistinct());
+        } else if (expr instanceof ExprFirstLastEverNode) {
+            ExprFirstLastEverNode firstlast = (ExprFirstLastEverNode) expr;
+            return firstlast.isFirst() ? new FirstEverProjectionExpression(firstlast.isDistinct()) : new LastEverProjectionExpression(firstlast.isDistinct());
         } else if (expr instanceof ExprCountEverNode) {
             ExprCountEverNode countEver = (ExprCountEverNode) expr;
             return new CountEverProjectionExpression(countEver.isDistinct());

@@ -666,11 +666,18 @@ public class ExecAggregateFirstLastWindow implements RegressionExecution {
                 "last(*) as laststar, " +
                 "last(sb.*) as laststarsb, " +
                 "window(*) as windowstar, " +
-                "window(sb.*) as windowstarsb " +
+                "window(sb.*) as windowstarsb, " +
+                "firstever(*) as firsteverstar, " +
+                "lastever(*) as lasteverstar " +
                 "from SupportBean#length(2) as sb";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
+
+        EventPropertyDescriptor[] props = stmt.getEventType().getPropertyDescriptors();
+        for (int i = 0; i < props.length; i++) {
+            assertEquals(i == 4 || i == 5 ? SupportBean[].class : SupportBean.class, props[i].getPropertyType());
+        }
 
         tryAssertionStar(epService, listener);
         stmt.destroy();
@@ -686,22 +693,22 @@ public class ExecAggregateFirstLastWindow implements RegressionExecution {
     }
 
     private void tryAssertionStar(EPServiceProvider epService, SupportUpdateListener listener) {
-        String[] fields = "firststar,firststarsb,laststar,laststarsb,windowstar,windowstarsb".split(",");
+        String[] fields = "firststar,firststarsb,laststar,laststarsb,windowstar,windowstarsb,firsteverstar,lasteverstar".split(",");
 
         Object beanE1 = new SupportBean("E1", 10);
         epService.getEPRuntime().sendEvent(beanE1);
         Object[] window = new Object[]{beanE1};
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{beanE1, beanE1, beanE1, beanE1, window, window});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{beanE1, beanE1, beanE1, beanE1, window, window, beanE1, beanE1});
 
         Object beanE2 = new SupportBean("E2", 20);
         epService.getEPRuntime().sendEvent(beanE2);
         window = new Object[]{beanE1, beanE2};
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{beanE1, beanE1, beanE2, beanE2, window, window});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{beanE1, beanE1, beanE2, beanE2, window, window, beanE1, beanE2});
 
         Object beanE3 = new SupportBean("E3", 30);
         epService.getEPRuntime().sendEvent(beanE3);
         window = new Object[]{beanE2, beanE3};
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{beanE2, beanE2, beanE3, beanE3, window, window});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{beanE2, beanE2, beanE3, beanE3, window, window, beanE1, beanE3});
     }
 
     private void runAssertionUnboundedStream(EPServiceProvider epService) {

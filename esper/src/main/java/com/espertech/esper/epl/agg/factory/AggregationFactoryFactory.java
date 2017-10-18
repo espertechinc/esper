@@ -41,9 +41,7 @@ public interface AggregationFactoryFactory {
 
     AggregationMethodFactory makeCountEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprCountEverNode exprCountEverNode, boolean ignoreNulls);
 
-    AggregationMethodFactory makeFirstEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprFirstEverNode exprFirstEverNode, Class type);
-
-    AggregationMethodFactory makeLastEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprLastEverNode exprLastEverNode, Class type);
+    AggregationMethodFactory makeFirstLastEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprFirstLastEverNode exprFirstLastEverNode, Class type);
 
     AggregationMethodFactory makeLeaving(StatementExtensionSvcContext statementExtensionSvcContext, ExprLeavingAggNode exprLeavingAggNode);
 
