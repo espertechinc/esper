@@ -195,10 +195,16 @@ public class ExecEnumExceptIntersectUnion implements RegressionExecution {
         String epl;
 
         epl = "select contained.union(true) from SupportBean_ST0_Container";
-        tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.union(true)': Enumeration method 'union' requires an expression yielding an event-collection as input paramater [select contained.union(true) from SupportBean_ST0_Container]");
+        tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.union(true)': Enumeration method 'union' requires an expression yielding a collection of events of type 'SupportBean_ST0' as input parameter");
 
         epl = "select contained.union(prevwindow(s1)) from SupportBean_ST0_Container#lastevent, SupportBean#keepall s1";
         tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.union(prevwindow(s1))': Enumeration method 'union' expects event type 'SupportBean_ST0' but receives event type 'SupportBean' [select contained.union(prevwindow(s1)) from SupportBean_ST0_Container#lastevent, SupportBean#keepall s1]");
+
+        epl = "select (select * from SupportBean#keepall).union(strvals) from SupportCollection";
+        tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'subselect_1.union(strvals)': Enumeration method 'union' requires an expression yielding a collection of events of type 'SupportBean' as input parameter");
+
+        epl = "select strvals.union((select * from SupportBean#keepall)) from SupportCollection";
+        tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'strvals.union(subselect_1)': Enumeration method 'union' requires an expression yielding a collection of values of type 'String' as input parameter");
     }
 
     private void runAssertionUnionWhere(EPServiceProvider epService) {
