@@ -186,7 +186,7 @@ public class ASTLibFunctionHelper {
 
         // special case for min,max
         String firstFunction = model.getChainElements().get(0).getFuncName();
-        if ((firstFunction.toLowerCase(Locale.ENGLISH).equals("max")) || (firstFunction.toLowerCase(Locale.ENGLISH).equals("min")) ||
+        if (model.getOptionalClassIdent() == null && (firstFunction.toLowerCase(Locale.ENGLISH).equals("max")) || (firstFunction.toLowerCase(Locale.ENGLISH).equals("min")) ||
                 (firstFunction.toLowerCase(Locale.ENGLISH).equals("fmax")) || (firstFunction.toLowerCase(Locale.ENGLISH).equals("fmin"))) {
             EsperEPL2GrammarParser.LibFunctionArgsContext firstArgs = model.getChainElements().get(0).getArgs();
             handleMinMax(firstFunction, firstArgs, astExprNodeMap);
