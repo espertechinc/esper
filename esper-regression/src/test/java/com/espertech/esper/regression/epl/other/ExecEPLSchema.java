@@ -54,7 +54,27 @@ public class ExecEPLSchema implements RegressionExecution {
         runAssertionNestableMapArray(epService);
         runAssertionInherit(epService);
         runAssertionVariantType(epService);
+        runAssertionCopyFromOrderObjectArray(epService);
         runAssertionInvalid(epService);
+    }
+
+    private void runAssertionCopyFromOrderObjectArray(EPServiceProvider epService) {
+        epService.getEPAdministrator().createEPL("create objectarray schema MyEventOne(p0 string, p1 double)");
+        epService.getEPAdministrator().createEPL("create objectarray schema MyEventTwo(p2 string) copyfrom MyEventOne");
+
+        EventType type = epService.getEPAdministrator().getConfiguration().getEventType("MyEventTwo");
+        EPAssertionUtil.assertEqualsExactOrder("p0,p1,p2".split(","), type.getPropertyNames());
+
+        epService.getEPAdministrator().createEPL("insert into MyEventTwo select 'abc' as p2, s.* from MyEventOne as s");
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select p0, p1, p2 from MyEventTwo");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new Object[] {"E1", 10d}, "MyEventOne");
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "p0,p1,p2".split(","), new Object[] {"E1", 10d, "abc"});
+
+        stmt.destroy();
     }
 
     private void runAssertionSchemaArrayPrimitiveType(EPServiceProvider epService) {
@@ -203,9 +223,9 @@ public class ExecEPLSchema implements RegressionExecution {
 
         // invalid tests
         tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4(a long) copyFrom MyType",
-                "Error starting statement: Type by name 'MyType' contributes property 'a' defined as 'java.lang.String' which overides the same property of type 'java.lang.Long' [");
+                "Error starting statement: Duplicate column name 'a' [");
         tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4(c BaseTwo) copyFrom MyType",
-                "Error starting statement: Property by name 'c' is defined twice by adding type 'MyType' [");
+                "Error starting statement: Duplicate column name 'c' [");
         tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4(c BaseTwo) copyFrom XYZ",
                 "Error starting statement: Type by name 'XYZ' could not be located [");
         tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4 as " + SupportBean.class.getName() + " copyFrom XYZ",

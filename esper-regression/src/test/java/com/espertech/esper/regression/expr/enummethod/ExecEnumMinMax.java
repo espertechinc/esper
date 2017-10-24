@@ -36,7 +36,25 @@ public class ExecEnumMinMax implements RegressionExecution {
         runAssertionMinMaxScalarWithLambda(epService);
         runAssertionMinMaxEvents(epService);
         runAssertionMinMaxScalar(epService);
+        runAssertionMinMaxScalarChain(epService);
         runAssertionInvalid(epService);
+    }
+
+    private void runAssertionMinMaxScalarChain(EPServiceProvider epService) {
+        epService.getEPAdministrator().getConfiguration().addEventType(EventWithLongArray.class);
+
+        SupportUpdateListener listener = new SupportUpdateListener();
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select coll.max().minus(1 minute) >= coll.min() as c0 from EventWithLongArray");
+        stmt.addListener(listener);
+        String[] fields = "c0".split(",");
+
+        epService.getEPRuntime().sendEvent(new EventWithLongArray(new long[] {150000, 140000, 200000, 190000}));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true});
+
+        epService.getEPRuntime().sendEvent(new EventWithLongArray(new long[] {150000, 139999, 200000, 190000}));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true});
+
+        stmt.destroy();
     }
 
     private void runAssertionMinMaxScalarWithLambda(EPServiceProvider epService) {
@@ -138,6 +156,18 @@ public class ExecEnumMinMax implements RegressionExecution {
 
         public static BigDecimal extractBigDecimal(String arg) {
             return new BigDecimal(arg.substring(1));
+        }
+    }
+
+    public final static class EventWithLongArray {
+        private final long[] coll;
+
+        public EventWithLongArray(long[] coll) {
+            this.coll = coll;
+        }
+
+        public long[] getColl() {
+            return coll;
         }
     }
 }
