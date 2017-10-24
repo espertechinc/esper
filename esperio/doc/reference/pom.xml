@@ -3,7 +3,7 @@
 	<name>EsperIO Reference Documentation</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esper_adapter_reference</artifactId>
-	<version>7.0.0-beta2</version>
+	<version>7.0.0-beta3</version>
 	<packaging>jdocbook</packaging>
 	<licenses>
 		<license>
