@@ -190,6 +190,14 @@ public class ASTLibFunctionHelper {
                 (firstFunction.toLowerCase(Locale.ENGLISH).equals("fmax")) || (firstFunction.toLowerCase(Locale.ENGLISH).equals("fmin"))) {
             EsperEPL2GrammarParser.LibFunctionArgsContext firstArgs = model.getChainElements().get(0).getArgs();
             handleMinMax(firstFunction, firstArgs, astExprNodeMap);
+            if (model.getChainElements().size() <= 1) {
+                return;
+            }
+            List<ExprChainedSpec> chain = new ArrayList<>();
+            addChainRemainderFromOffset(model.getChainElements(), 1, chain, astExprNodeMap);
+            ExprDotNodeImpl exprNode = new ExprDotNodeImpl(chain, duckType, udfCache);
+            exprNode.addChildNode(astExprNodeMap.remove(firstArgs));
+            astExprNodeMap.put(ctx, exprNode);
             return;
         }
 

@@ -66,8 +66,8 @@ public class TestSuiteDatetime extends TestCase {
         RegressionRunner.run(new ExecDTPlusMinus());
     }
 
-    public void testExecDTProperty() {
-        RegressionRunner.run(new ExecDTProperty());
+    public void testExecDTDataSources() {
+        RegressionRunner.run(new ExecDTDataSources());
     }
 
     public void testExecDTRound() {

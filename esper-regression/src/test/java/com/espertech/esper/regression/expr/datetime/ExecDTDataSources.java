@@ -18,6 +18,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.util.DateTime;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportDateTime;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
@@ -28,16 +29,36 @@ import static java.time.DayOfWeek.THURSDAY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ExecDTProperty implements RegressionExecution {
+public class ExecDTDataSources implements RegressionExecution {
 
     public void configure(Configuration configuration) throws Exception {
-        configuration.addEventType("SupportDateTime", SupportDateTime.class);
+        configuration.addEventType(SupportDateTime.class);
+        configuration.addEventType(SupportBean.class);
     }
 
     public void run(EPServiceProvider epService) throws Exception {
         runAssertionFieldWValue(epService);
         runAssertionStartEndTS(epService);
         runAssertionAllCombinations(epService);
+        runAssertionMinMax(epService);
+    }
+
+    private void runAssertionMinMax(EPServiceProvider epService) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
+                "min(longPrimitive).before(max(longBoxed), 1 second) as c0," +
+                "min(longPrimitive, longBoxed).before(20000L, 1 second) as c1" +
+                " from SupportBean#length(2)");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+        String[] fields = "c0,c1".split(",");
+
+        sendBean(epService, 20000, 20000);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {false, false});
+
+        sendBean(epService, 19000, 20000);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {true, true});
+
+        stmt.destroy();
     }
 
     private void runAssertionAllCombinations(EPServiceProvider epService) {
@@ -145,6 +166,13 @@ public class ExecDTProperty implements RegressionExecution {
         } catch (EPStatementException ex) {
             assertEquals("Error starting statement: Event type declares end timestamp as property 'endTSXXX' however inherited event type 'T2' declares end timestamp as property 'endTSOne' [create schema T12 as (startTSOne long, endTSXXX long) inherits T2 starttimestamp startTSOne endtimestamp endTSXXX]", ex.getMessage());
         }
+    }
+
+    private void sendBean(EPServiceProvider epService, long longPrimitive, long longBoxed) {
+        SupportBean bean = new SupportBean();
+        bean.setLongPrimitive(longPrimitive);
+        bean.setLongBoxed(longBoxed);
+        epService.getEPRuntime().sendEvent(bean);
     }
 
     public static interface MyInterface {
