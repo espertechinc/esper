@@ -5490,7 +5490,7 @@ function myItemProducerScript() {
 			</para>
 
 			<para>
-				The optional <literal>copyfrom</literal> keyword is followed by a comma-separate list of event type names. For each event type listed, the engine looks up that type and adds all event property definitions to the newly-defined type, in addition to those listed explicitly (if any).				
+				The optional <literal>copyfrom</literal> keyword is followed by a comma-separate list of event type names. For each event type listed, the engine looks up that type and adds all event property definitions to the newly-defined type, in addition to those listed explicitly (if any). The resulting order of properties is that copied-from properties are first (in the order of event types and their property order) and explicitly-listed properties last. 
 			</para>
 
 			<para>

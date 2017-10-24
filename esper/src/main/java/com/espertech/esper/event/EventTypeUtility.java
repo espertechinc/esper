@@ -167,6 +167,18 @@ public class EventTypeUtility {
     public static LinkedHashMap<String, Object> buildType(List<ColumnDesc> columns, EventAdapterService eventAdapterService, Set<String> copyFrom, EngineImportService engineImportService) throws ExprValidationException {
         LinkedHashMap<String, Object> typing = new LinkedHashMap<String, Object>();
         Set<String> columnNames = new HashSet<String>();
+
+        // Copy-from information gets added first as object-array appends information in well-defined order
+        if (copyFrom != null && !copyFrom.isEmpty()) {
+            for (String copyFromName : copyFrom) {
+                EventType type = eventAdapterService.getExistsTypeByName(copyFromName);
+                if (type == null) {
+                    throw new ExprValidationException("Type by name '" + copyFromName + "' could not be located");
+                }
+                mergeType(typing, type, columnNames);
+            }
+        }
+
         for (ColumnDesc column : columns) {
             boolean added = columnNames.add(column.getName());
             if (!added) {
@@ -176,15 +188,6 @@ public class EventTypeUtility {
             typing.put(column.getName(), columnType);
         }
 
-        if (copyFrom != null && !copyFrom.isEmpty()) {
-            for (String copyFromName : copyFrom) {
-                EventType type = eventAdapterService.getExistsTypeByName(copyFromName);
-                if (type == null) {
-                    throw new ExprValidationException("Type by name '" + copyFromName + "' could not be located");
-                }
-                mergeType(typing, type);
-            }
-        }
         return typing;
     }
 
@@ -242,7 +245,7 @@ public class EventTypeUtility {
         return column.getType();
     }
 
-    private static void mergeType(Map<String, Object> typing, EventType typeToMerge)
+    private static void mergeType(Map<String, Object> typing, EventType typeToMerge, Set<String> columnNames)
             throws ExprValidationException {
         for (EventPropertyDescriptor prop : typeToMerge.getPropertyDescriptors()) {
 
@@ -273,6 +276,8 @@ public class EventTypeUtility {
                     typing.put(prop.getPropertyName(), fragment.getFragmentType());
                 }
             }
+
+            columnNames.add(prop.getPropertyName());
         }
     }
 
