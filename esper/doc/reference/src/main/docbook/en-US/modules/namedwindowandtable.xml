@@ -326,7 +326,9 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 				</para>
 	
 				<para>
-					The <literal>destroy</literal> method on the <literal>EPStatement</literal> that created the named window removes the named window. However the implicit event type associated with the named window remains active since further statements may continue to use that type. Therefore a named window of the same name can only be created again if the type information matches the prior declaration for a named window.
+					The <literal>destroy</literal> method on the <literal>EPStatement</literal> that created the named window removes the named window. 
+					When using the deployment API the engine also removes the type information associated to the named window. 
+					Otherwise the named window type information remains available since further statements may continue to use that type.
 				</para>
 			</sect3>
 
@@ -1277,6 +1279,12 @@ select [and] delete <emphasis>select_list</emphasis>...
 			The sample EPL above also shows the use of the <literal>window</literal> aggregation function. It specifies the <literal>window</literal> aggregation function 
 			to instruct the engine to output a single event, regardless of the number of rows in the named window, and that contains a column <literal>rows</literal> that contains a collection of the selected event's underlying objects.
 		</para>
+		
+		<note>
+			<para>
+				<literal>On Select Delete</literal> deletes all rows that match the where-clause. When there is no where-clause it deletes all rows regardless of what the output looks like. The <literal>having</literal>-clause is relevant to output only and does not narrow down the rows that are deleted.
+			</para>
+		</note>
 	</sect1>
 
 	<sect1 xml:id="named_update" revision="1">

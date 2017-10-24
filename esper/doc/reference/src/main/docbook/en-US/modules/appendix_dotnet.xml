@@ -305,6 +305,14 @@
 		<para>
 			<literal>Iterator</literal> is replaced with <literal>GetEnumerator</literal>. <literal>SafeIterator</literal> is replaced with <literal>GetSafeEnumerator</literal>.
 		</para>
+	
+		<para>
+			In NEsper you can assign a delegate to a subscriber using lamba this way:
+		</para>
+		<programlisting><![CDATA[statement.Subscriber = new Action<TradeReportEvent, NesperTest>((a, b) => {
+  Debug.Print("got here");
+});]]></programlisting>
+
     </sect1>
 
     <sect1 xml:id="appendix_dotnet_api_admin_listeners" revision="1">

@@ -1553,10 +1553,15 @@ listener or subscriber instances then such shared state should be thread-safe.
 				Note that the options discussed herein may introduce additional processing overhead into your system, as each option involves work queue management and thread context switching.
 			</para>
 
-			<para>
-				If your use cases require ordered processing of events or do not tolerate disorder, the threading options described herein may not be the right choice. For enforcing a processing order within a given criteria, your application must enforce such processing order using Java or .NET code. Esper will not enforce order of processing if you enable inbound or route threading. 
-				Your application code could, for example, utilize a thread per group of criteria keys, a latch per criteria key, or a queue per criteria key, or use Java's completion service, all depending on your ordering requirements.
-			</para>
+			<note>
+				<para>
+					If your use cases require ordered processing of events or do not tolerate disorder, the threading options described herein are not the right choice.
+				</para>
+				<para>
+					For enforcing a processing order within a given criteria, your application must enforce such processing order. Esper does not enforce order of processing if you enable inbound or route threading. 
+					Your application code could, for example, utilize a thread per group of criteria keys, a latch per criteria key, or a queue per criteria key, or use Java's completion service, all depending on your ordering requirements.
+				</para>
+			</note>
 
 			<para>
 				If your use cases require loss-less processing of events, wherein the threading options mean that events are held in an in-memory queue, the threading options described herein may not be the right choice.
