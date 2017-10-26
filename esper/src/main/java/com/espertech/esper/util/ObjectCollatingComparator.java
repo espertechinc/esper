@@ -33,6 +33,6 @@ public final class ObjectCollatingComparator implements Comparator<Object>, Meta
     }
 
     public final int compare(Object firstValue, Object secondValue) {
-        return MultiKeyComparator.compareValuesCollated(firstValue, secondValue, isDescendingValue, collator);
+        return CollectionUtil.compareValuesCollated(firstValue, secondValue, isDescendingValue, collator);
     }
 }

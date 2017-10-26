@@ -11,11 +11,11 @@
 package com.espertech.esper.view.ext;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.collection.HashableMultiKey;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.util.MultiKeyCastingComparator;
-import com.espertech.esper.util.MultiKeyComparator;
+import com.espertech.esper.util.HashableMultiKeyCastingComparator;
+import com.espertech.esper.util.HashableMultiKeyComparator;
 import com.espertech.esper.view.window.RandomAccessByIndex;
 import com.espertech.esper.view.window.RandomAccessByIndexObserver;
 import junit.framework.TestCase;
@@ -35,7 +35,7 @@ public class TestIStreamSortedRandomAccess extends TestCase {
             }
         };
         access = new IStreamSortRankRandomAccessImpl(updateObserver);
-        sortedEvents = new TreeMap<Object, Object>(new MultiKeyCastingComparator(new MultiKeyComparator(new boolean[]{false})));
+        sortedEvents = new TreeMap<Object, Object>(new HashableMultiKeyCastingComparator(new HashableMultiKeyComparator(new boolean[]{false})));
 
         events = new EventBean[100];
         for (int i = 0; i < events.length; i++) {
@@ -95,7 +95,7 @@ public class TestIStreamSortedRandomAccess extends TestCase {
 
     private void add(String key, EventBean theEvent) {
         ((SupportBean) theEvent.getUnderlying()).setTheString(key);
-        MultiKeyUntyped mkey = new MultiKeyUntyped(new Object[]{key});
+        HashableMultiKey mkey = new HashableMultiKey(new Object[]{key});
         List<EventBean> eventList = (List<EventBean>) sortedEvents.get(mkey);
         if (eventList == null) {
             eventList = new LinkedList<EventBean>();

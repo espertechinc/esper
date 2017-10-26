@@ -131,7 +131,7 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
             useCollatorSort = statementContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
         }
 
-        comparator = CollectionUtil.getComparator(sortCriteriaExpressions, useCollatorSort, isDescendingValues);
+        comparator = CollectionUtil.getComparatorHashableMultiKeys(sortCriteriaExpressions, useCollatorSort, isDescendingValues); // hashable-key comparator since we may remove sort keys
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {

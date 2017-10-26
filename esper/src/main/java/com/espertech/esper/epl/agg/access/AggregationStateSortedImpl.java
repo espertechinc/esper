@@ -11,10 +11,7 @@
 package com.espertech.esper.epl.agg.access;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.codegen.base.CodegenClassScope;
-import com.espertech.esper.codegen.base.CodegenMember;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.codegen.base.CodegenSymbolProviderEmpty;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.core.CodegenCtor;
 import com.espertech.esper.codegen.core.CodegenNamedMethods;
 import com.espertech.esper.codegen.core.CodegenNamedParam;
@@ -22,8 +19,7 @@ import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRefWCol;
-import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.codegen.base.CodegenMembersColumnized;
+import com.espertech.esper.collection.HashableMultiKey;
 import com.espertech.esper.epl.agg.aggregator.AggregatorCodegenUtil;
 import com.espertech.esper.epl.agg.factory.AggregationStateSortedForge;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -200,7 +196,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
             for (ExprEvaluator expr : criteria) {
                 result[count++] = expr.evaluate(eventsPerStream, true, exprEvaluatorContext);
             }
-            return new MultiKeyUntyped(result);
+            return new HashableMultiKey(result);
         }
     }
 
@@ -220,7 +216,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
                 for (int i = 0; i < criteria.length; i++) {
                     method.getBlock().assignArrayElement(ref("result"), constant(i), expressions[i]);
                 }
-                method.getBlock().methodReturn(newInstance(MultiKeyUntyped.class, ref("result")));
+                method.getBlock().methodReturn(newInstance(HashableMultiKey.class, ref("result")));
             }
         };
         return namedMethods.addMethod(Object.class, methodName, CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), AggregationStateSortedImpl.class, classScope, code);

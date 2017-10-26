@@ -12,10 +12,10 @@ package com.espertech.esper.view.ext;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.collection.HashableMultiKey;
 import com.espertech.esper.supportunit.event.EventFactoryHelper;
-import com.espertech.esper.util.MultiKeyCastingComparator;
-import com.espertech.esper.util.MultiKeyComparator;
+import com.espertech.esper.util.HashableMultiKeyCastingComparator;
+import com.espertech.esper.util.HashableMultiKeyComparator;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -27,7 +27,7 @@ public class TestSortWindowIterator extends TestCase {
 
     public void setUp() {
         events = EventFactoryHelper.makeEventMap(new String[]{"a", "b", "c", "d", "f", "g"});
-        comparator = new MultiKeyCastingComparator(new MultiKeyComparator(new boolean[]{false}));
+        comparator = new HashableMultiKeyCastingComparator(new HashableMultiKeyComparator(new boolean[]{false}));
         testMap = new TreeMap<Object, Object>(comparator);
     }
 
@@ -39,7 +39,7 @@ public class TestSortWindowIterator extends TestCase {
     public void testOneElement() {
         LinkedList<EventBean> list = new LinkedList<EventBean>();
         list.add(events.get("a"));
-        MultiKeyUntyped key = new MultiKeyUntyped(new Object[]{"akey"});
+        HashableMultiKey key = new HashableMultiKey(new Object[]{"akey"});
         testMap.put(key, list);
 
         Iterator<EventBean> it = new SortWindowIterator(testMap);
@@ -50,7 +50,7 @@ public class TestSortWindowIterator extends TestCase {
         LinkedList<EventBean> list = new LinkedList<EventBean>();
         list.add(events.get("a"));
         list.add(events.get("b"));
-        MultiKeyUntyped key = new MultiKeyUntyped(new Object[]{"keyA"});
+        HashableMultiKey key = new HashableMultiKey(new Object[]{"keyA"});
         testMap.put(key, list);
 
         Iterator<EventBean> it = new SortWindowIterator(testMap);
@@ -60,11 +60,11 @@ public class TestSortWindowIterator extends TestCase {
     public void testTwoSeparateEntryElement() {
         LinkedList<EventBean> list1 = new LinkedList<EventBean>();
         list1.add(events.get("a"));
-        MultiKeyUntyped keyB = new MultiKeyUntyped(new Object[]{"keyB"});
+        HashableMultiKey keyB = new HashableMultiKey(new Object[]{"keyB"});
         testMap.put(keyB, list1);
         LinkedList<EventBean> list2 = new LinkedList<EventBean>();
         list2.add(events.get("b"));
-        MultiKeyUntyped keyA = new MultiKeyUntyped(new Object[]{"keyA"});
+        HashableMultiKey keyA = new HashableMultiKey(new Object[]{"keyA"});
         testMap.put(keyA, list2); // Actually before list1
 
         Iterator<EventBean> it = new SortWindowIterator(testMap);
@@ -75,12 +75,12 @@ public class TestSortWindowIterator extends TestCase {
         LinkedList<EventBean> list1 = new LinkedList<EventBean>();
         list1.add(events.get("a"));
         list1.add(events.get("b"));
-        MultiKeyUntyped keyB = new MultiKeyUntyped(new Object[]{"keyB"});
+        HashableMultiKey keyB = new HashableMultiKey(new Object[]{"keyB"});
         testMap.put(keyB, list1);
         LinkedList<EventBean> list2 = new LinkedList<EventBean>();
         list2.add(events.get("c"));
         list2.add(events.get("d"));
-        MultiKeyUntyped keyC = new MultiKeyUntyped(new Object[]{"keyC"});
+        HashableMultiKey keyC = new HashableMultiKey(new Object[]{"keyC"});
         testMap.put(keyC, list2);
 
         Iterator<EventBean> it = new SortWindowIterator(testMap);
@@ -90,18 +90,18 @@ public class TestSortWindowIterator extends TestCase {
     public void testMixedEntryElement() {
         LinkedList<EventBean> list1 = new LinkedList<EventBean>();
         list1.add(events.get("a"));
-        MultiKeyUntyped keyA = new MultiKeyUntyped(new Object[]{"keyA"});
+        HashableMultiKey keyA = new HashableMultiKey(new Object[]{"keyA"});
         testMap.put(keyA, list1);
         LinkedList<EventBean> list2 = new LinkedList<EventBean>();
         list2.add(events.get("c"));
         list2.add(events.get("d"));
-        MultiKeyUntyped keyB = new MultiKeyUntyped(new Object[]{"keyB"});
+        HashableMultiKey keyB = new HashableMultiKey(new Object[]{"keyB"});
         testMap.put(keyB, list2);
         LinkedList<EventBean> list3 = new LinkedList<EventBean>();
         list3.add(events.get("e"));
         list3.add(events.get("f"));
         list3.add(events.get("g"));
-        MultiKeyUntyped keyC = new MultiKeyUntyped(new Object[]{"keyC"});
+        HashableMultiKey keyC = new HashableMultiKey(new Object[]{"keyC"});
         testMap.put(keyC, list3);
 
         Iterator<EventBean> it = new SortWindowIterator(testMap);

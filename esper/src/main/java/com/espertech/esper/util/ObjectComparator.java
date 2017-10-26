@@ -30,6 +30,6 @@ public final class ObjectComparator implements Comparator<Object>, MetaDefItem, 
     }
 
     public final int compare(Object firstValue, Object secondValue) {
-        return MultiKeyComparator.compareValues(firstValue, secondValue, isDescendingValue);
+        return CollectionUtil.compareValues(firstValue, secondValue, isDescendingValue);
     }
 }

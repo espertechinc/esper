@@ -19,6 +19,7 @@ import com.espertech.esper.codegen.core.CodegenNamedMethods;
 import com.espertech.esper.codegen.core.CodegenNamedParam;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.collection.HashableMultiKey;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
@@ -104,7 +105,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aOrderBy(values);
         }
-        return new MultiKeyUntyped(values);
+        return new HashableMultiKey(values);
     }
 
     public EventBean[] sortPlain(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService) {
@@ -218,7 +219,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                     InstrumentationHelper.get().aOrderBy(values);
                 }
 
-                sortProperties[count] = new MultiKeyUntyped(values);
+                sortProperties[count] = new HashableMultiKey(values);
                 count++;
             }
         }
@@ -245,7 +246,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                 for (int i = 0; i < forge.getOrderBy().length; i++) {
                     forEach.assignArrayElement("values", constant(i), localMethod(CodegenLegoMethodExpression.codegenExpression(elements[i].getExprNode().getForge(), method, classScope), ref("eventsPerStream"), REF_ISNEWDATA, REF_EXPREVALCONTEXT));
                 }
-                forEach.assignArrayElement("sortProperties", ref("count"), newInstance(MultiKeyUntyped.class, ref("values")));
+                forEach.assignArrayElement("sortProperties", ref("count"), newInstance(HashableMultiKey.class, ref("values")));
             }
             forEach.increment("count");
             method.getBlock().methodReturn(staticMethod(Arrays.class, "asList", ref("sortProperties")));
@@ -364,7 +365,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                     InstrumentationHelper.get().aOrderBy(values);
                 }
 
-                sortProperties[count] = new MultiKeyUntyped(values);
+                sortProperties[count] = new HashableMultiKey(values);
                 count++;
             }
         }
@@ -433,7 +434,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         } else {
             int count = 0;
             Object[] values = new Object[factory.getOrderBy().length];
-            MultiKeyUntyped valuesMk = new MultiKeyUntyped(values);
+            HashableMultiKey valuesMk = new HashableMultiKey(values);
 
             for (EventBean[] eventsPerStream : generatingEvents) {
                 if (factory.isNeedsGroupByKeys()) {
@@ -455,7 +456,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                 if (newMinMax) {
                     localMinMax = valuesMk;
                     values = new Object[factory.getOrderBy().length];
-                    valuesMk = new MultiKeyUntyped(values);
+                    valuesMk = new HashableMultiKey(values);
                     outgoingMinMaxBean = outgoingEvents[count];
                 }
 
@@ -497,7 +498,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                         .increment("count");
             } else {
                 method.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(elements.length)))
-                        .declareVar(MultiKeyUntyped.class, "valuesMk", newInstance(MultiKeyUntyped.class, ref("values")));
+                        .declareVar(HashableMultiKey.class, "valuesMk", newInstance(HashableMultiKey.class, ref("values")));
 
                 CodegenBlock forEach = method.getBlock().forEach(EventBean[].class, "eventsPerStream", REF_GENERATINGEVENTS);
 
@@ -512,7 +513,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                 forEach.ifCondition(or(equalsNull(ref("localMinMax")), relational(exprDotMethod(member(comparator.getMemberId()), "compare", ref("localMinMax"), ref("valuesMk")), GT, constant(0))))
                         .assignRef("localMinMax", ref("valuesMk"))
                         .assignRef("values", newArrayByLength(Object.class, constant(elements.length)))
-                        .assignRef("valuesMk", newInstance(MultiKeyUntyped.class, ref("values")))
+                        .assignRef("valuesMk", newInstance(HashableMultiKey.class, ref("values")))
                         .assignRef("outgoingMinMaxBean", arrayAtIndex(REF_OUTGOINGEVENTS, ref("count")))
                         .blockEnd()
                         .increment("count");
@@ -537,7 +538,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                 CodegenMethodNode expression = CodegenLegoMethodExpression.codegenExpression(orderBy[i].getExprNode().getForge(), methodNode, classScope);
                 methodNode.getBlock().assignArrayElement("keys", constant(i), localMethod(expression, EnumForgeCodegenNames.REF_EPS, ResultSetProcessorCodegenNames.REF_ISNEWDATA, REF_EXPREVALCONTEXT));
             }
-            methodNode.getBlock().methodReturn(newInstance(MultiKeyUntyped.class, ref("keys")));
+            methodNode.getBlock().methodReturn(newInstance(HashableMultiKey.class, ref("keys")));
         };
 
         return namedMethods.addMethod(Object.class, methodName, CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), ResultSetProcessorUtil.class, classScope, code);

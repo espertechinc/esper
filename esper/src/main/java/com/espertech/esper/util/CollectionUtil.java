@@ -21,6 +21,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.text.Collator;
 import java.util.*;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
@@ -71,7 +72,7 @@ public class CollectionUtil {
         };
     }
 
-    public static Comparator<Object> getComparator(ExprNode[] sortCriteria, boolean isSortUsingCollator, boolean[] isDescendingValues) {
+    public static Comparator<Object> getComparatorHashableMultiKeys(ExprNode[] sortCriteria, boolean isSortUsingCollator, boolean[] isDescendingValues) {
         // determine string-type sorting
         boolean hasStringTypes = false;
         boolean[] stringTypes = new boolean[sortCriteria.length];
@@ -87,11 +88,11 @@ public class CollectionUtil {
 
         if (sortCriteria.length > 1) {
             if ((!hasStringTypes) || (!isSortUsingCollator)) {
-                MultiKeyComparator comparatorMK = new MultiKeyComparator(isDescendingValues);
-                return new MultiKeyCastingComparator(comparatorMK);
+                HashableMultiKeyComparator comparatorMK = new HashableMultiKeyComparator(isDescendingValues);
+                return new HashableMultiKeyCastingComparator(comparatorMK);
             } else {
-                MultiKeyCollatingComparator comparatorMk = new MultiKeyCollatingComparator(isDescendingValues, stringTypes);
-                return new MultiKeyCastingComparator(comparatorMk);
+                HashableMultiKeyCollatingComparator comparatorMk = new HashableMultiKeyCollatingComparator(isDescendingValues, stringTypes);
+                return new HashableMultiKeyCastingComparator(comparatorMk);
             }
         } else {
             if ((!hasStringTypes) || (!isSortUsingCollator)) {
@@ -687,5 +688,81 @@ public class CollectionUtil {
             events.add(iterator.next());
         }
         return events.toArray(new EventBean[events.size()]);
+    }
+
+    /**
+     * Compares two nullable values using Collator, for use with string-typed values.
+     *
+     * @param valueOne     first value to compare
+     * @param valueTwo     second value to compare
+     * @param isDescending true for descending
+     * @param collator     the Collator for comparing
+     * @return compare result
+     */
+    public static int compareValuesCollated(Object valueOne, Object valueTwo, boolean isDescending, Collator collator) {
+        if (valueOne == null || valueTwo == null) {
+            // A null value is considered equal to another null
+            // value and smaller than any nonnull value
+            if (valueOne == null && valueTwo == null) {
+                return 0;
+            }
+            if (valueOne == null) {
+                if (isDescending) {
+                    return 1;
+                }
+                return -1;
+            }
+            if (isDescending) {
+                return -1;
+            }
+            return 1;
+        }
+
+        if (isDescending) {
+            return collator.compare(valueTwo, valueOne);
+        }
+
+        return collator.compare(valueOne, valueTwo);
+    }
+
+    /**
+     * Compares two nullable values.
+     *
+     * @param valueOne     first value to compare
+     * @param valueTwo     second value to compare
+     * @param isDescending true for descending
+     * @return compare result
+     */
+    public static int compareValues(Object valueOne, Object valueTwo, boolean isDescending) {
+        if (valueOne == null || valueTwo == null) {
+            // A null value is considered equal to another null
+            // value and smaller than any nonnull value
+            if (valueOne == null && valueTwo == null) {
+                return 0;
+            }
+            if (valueOne == null) {
+                if (isDescending) {
+                    return 1;
+                }
+                return -1;
+            }
+            if (isDescending) {
+                return -1;
+            }
+            return 1;
+        }
+
+        Comparable comparable1;
+        if (valueOne instanceof Comparable) {
+            comparable1 = (Comparable) valueOne;
+        } else {
+            throw new ClassCastException("Cannot sort objects of type " + valueOne.getClass());
+        }
+
+        if (isDescending) {
+            return -1 * comparable1.compareTo(valueTwo);
+        }
+
+        return comparable1.compareTo(valueTwo);
     }
 }

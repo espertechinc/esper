@@ -10,17 +10,15 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.collection.HashableMultiKey;
 
 import java.io.Serializable;
-import java.text.Collator;
 import java.util.Comparator;
 
 /**
- * A comparator on multikeys. The multikeys must contain the same
- * number of values.
+ * A comparator on multikeys. The multikeys must contain the same number of values.
  */
-public final class MultiKeyComparator implements Comparator<MultiKeyUntyped>, MetaDefItem, Serializable {
+public final class HashableMultiKeyComparator implements Comparator<HashableMultiKey>, MetaDefItem, Serializable {
     private final boolean[] isDescendingValues;
     private static final long serialVersionUID = -5990983090238885417L;
 
@@ -31,11 +29,11 @@ public final class MultiKeyComparator implements Comparator<MultiKeyUntyped>, Me
      *                           entry in the multi-keys is to be sorted in descending order. The multikeys
      *                           to be compared must have the same number of values as this array.
      */
-    public MultiKeyComparator(boolean[] isDescendingValues) {
+    public HashableMultiKeyComparator(boolean[] isDescendingValues) {
         this.isDescendingValues = isDescendingValues;
     }
 
-    public final int compare(MultiKeyUntyped firstValues, MultiKeyUntyped secondValues) {
+    public final int compare(HashableMultiKey firstValues, HashableMultiKey secondValues) {
         if (firstValues.size() != isDescendingValues.length || secondValues.size() != isDescendingValues.length) {
             throw new IllegalArgumentException("Incompatible size MultiKey sizes for comparison");
         }
@@ -98,40 +96,5 @@ public final class MultiKeyComparator implements Comparator<MultiKeyUntyped>, Me
         }
 
         return comparable1.compareTo(valueTwo);
-    }
-
-    /**
-     * Compares two nullable values using Collator, for use with string-typed values.
-     *
-     * @param valueOne     first value to compare
-     * @param valueTwo     second value to compare
-     * @param isDescending true for descending
-     * @param collator     the Collator for comparing
-     * @return compare result
-     */
-    public static int compareValuesCollated(Object valueOne, Object valueTwo, boolean isDescending, Collator collator) {
-        if (valueOne == null || valueTwo == null) {
-            // A null value is considered equal to another null
-            // value and smaller than any nonnull value
-            if (valueOne == null && valueTwo == null) {
-                return 0;
-            }
-            if (valueOne == null) {
-                if (isDescending) {
-                    return 1;
-                }
-                return -1;
-            }
-            if (isDescending) {
-                return -1;
-            }
-            return 1;
-        }
-
-        if (isDescending) {
-            return collator.compare(valueTwo, valueOne);
-        }
-
-        return collator.compare(valueOne, valueTwo);
     }
 }

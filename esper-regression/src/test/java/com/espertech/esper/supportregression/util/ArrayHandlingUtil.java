@@ -11,8 +11,8 @@
 package com.espertech.esper.supportregression.util;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.util.MultiKeyComparator;
+import com.espertech.esper.collection.HashableMultiKey;
+import com.espertech.esper.util.HashableMultiKeyComparator;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -27,24 +27,24 @@ public class ArrayHandlingUtil {
     public static EventBean[] reorder(final String[] keys, EventBean[] events) {
         EventBean[] result = new EventBean[events.length];
         System.arraycopy(events, 0, result, 0, result.length);
-        final MultiKeyComparator mkcomparator = new MultiKeyComparator(new boolean[keys.length]);
+        final HashableMultiKeyComparator mkcomparator = new HashableMultiKeyComparator(new boolean[keys.length]);
         Arrays.sort(result, new Comparator<EventBean>() {
             @Override
             public int compare(EventBean o1, EventBean o2) {
-                MultiKeyUntyped mk1 = getMultiKey(o1, keys);
-                MultiKeyUntyped mk2 = getMultiKey(o2, keys);
+                HashableMultiKey mk1 = getMultiKey(o1, keys);
+                HashableMultiKey mk2 = getMultiKey(o2, keys);
                 return mkcomparator.compare(mk1, mk2);
             }
         });
         return result;
     }
 
-    public static MultiKeyUntyped getMultiKey(EventBean theEvent, String[] keys) {
+    public static HashableMultiKey getMultiKey(EventBean theEvent, String[] keys) {
         Object[] mk = new Object[keys.length];
         for (int i = 0; i < keys.length; i++) {
             mk[i] = theEvent.get(keys[i]);
         }
-        return new MultiKeyUntyped(mk);
+        return new HashableMultiKey(mk);
     }
 
     public static Object[][] getUnderlyingEvents(EventBean[] events, String[] keys) {

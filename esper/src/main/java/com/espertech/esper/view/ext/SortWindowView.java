@@ -12,7 +12,7 @@ package com.espertech.esper.view.ext;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.collection.HashableMultiKey;
 import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -220,7 +220,7 @@ public class SortWindowView extends ViewSupport implements DataWindowView, Clone
         for (ExprEvaluator expr : sortWindowViewFactory.sortCriteriaEvaluators) {
             result[count++] = expr.evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }
-        return new MultiKeyUntyped(result);
+        return new HashableMultiKey(result);
     }
 
     /**

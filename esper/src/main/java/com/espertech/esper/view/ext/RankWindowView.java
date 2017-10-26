@@ -12,6 +12,7 @@ package com.espertech.esper.view.ext;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.HashableMultiKey;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
@@ -20,8 +21,6 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -79,7 +78,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         // Remove old data
         if (oldData != null) {
             for (int i = 0; i < oldData.length; i++) {
-                Object uniqueKey = getUniqueValues(oldData[i]);
+                Object uniqueKey = getUniqueKey(oldData[i]);
                 Object existingSortKey = uniqueKeySortKeys.get(uniqueKey);
 
                 if (existingSortKey == null) {
@@ -99,7 +98,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         // Add new data
         if (newData != null) {
             for (int i = 0; i < newData.length; i++) {
-                Object uniqueKey = getUniqueValues(newData[i]);
+                Object uniqueKey = getUniqueKey(newData[i]);
                 Object newSortKey = getSortValues(newData[i]);
                 Object existingSortKey = uniqueKeySortKeys.get(uniqueKey);
 
@@ -137,7 +136,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                     List<EventBean> existingList = (List<EventBean>) existing;
                     while (numberOfEvents > sortWindowSize && !existingList.isEmpty()) {
                         EventBean newestEvent = existingList.remove(0);
-                        Object uniqueKey = getUniqueValues(newestEvent);
+                        Object uniqueKey = getUniqueKey(newestEvent);
                         uniqueKeySortKeys.remove(uniqueKey);
                         numberOfEvents--;
                         removedEvents.add(newestEvent);
@@ -148,7 +147,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                     }
                 } else {
                     EventBean lastSortedEvent = (EventBean) existing;
-                    Object uniqueKey = getUniqueValues(lastSortedEvent);
+                    Object uniqueKey = getUniqueKey(lastSortedEvent);
                     uniqueKeySortKeys.remove(uniqueKey);
                     numberOfEvents--;
                     removedEvents.add(lastSortedEvent);
@@ -228,7 +227,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                 Iterator<EventBean> it = existingList.iterator();
                 for (; it.hasNext(); ) {
                     EventBean eventForRank = it.next();
-                    if (getUniqueValues(eventForRank).equals(uniqueKeyToRemove)) {
+                    if (getUniqueKey(eventForRank).equals(uniqueKeyToRemove)) {
                         it.remove();
                         removedOldEvent = eventForRank;
                         break;
@@ -256,7 +255,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                 Iterator<EventBean> it = existingList.iterator();
                 for (; it.hasNext(); ) {
                     EventBean eventForRank = it.next();
-                    if (getUniqueValues(eventForRank).equals(uniqueKeyToReplace)) {
+                    if (getUniqueKey(eventForRank).equals(uniqueKeyToReplace)) {
                         it.remove();
                         replaced = eventForRank;
                         break;
@@ -283,18 +282,27 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                 " sortWindowSize=" + sortWindowSize;
     }
 
-    public Object getUniqueValues(EventBean theEvent) {
-        return getCriteriaKey(eventsPerStream, rankWindowViewFactory.uniqueEvals, theEvent, agentInstanceViewFactoryContext);
+    public Object getUniqueKey(EventBean theEvent) {
+        return getUniqueKey(eventsPerStream, rankWindowViewFactory.uniqueEvals, theEvent, agentInstanceViewFactoryContext);
     }
 
     public Object getSortValues(EventBean theEvent) {
-        return getCriteriaKey(eventsPerStream, rankWindowViewFactory.sortEvals, theEvent, agentInstanceViewFactoryContext);
+        return getSortKey(eventsPerStream, rankWindowViewFactory.sortEvals, theEvent, agentInstanceViewFactoryContext);
     }
 
-    public static Object getCriteriaKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext) {
+    public static Object getUniqueKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext) {
         eventsPerStream[0] = theEvent;
         if (evaluators.length > 1) {
             return getCriteriaMultiKey(eventsPerStream, evaluators, evalContext);
+        } else {
+            return evaluators[0].evaluate(eventsPerStream, true, evalContext);
+        }
+    }
+
+    public static Object getSortKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext) {
+        eventsPerStream[0] = theEvent;
+        if (evaluators.length > 1) {
+            return getSortMultiKey(eventsPerStream, evaluators, evalContext);
         } else {
             return evaluators[0].evaluate(eventsPerStream, true, evalContext);
         }
@@ -307,6 +315,15 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
             result[count++] = expr.evaluate(eventsPerStream, true, evalContext);
         }
         return new MultiKeyUntyped(result);
+    }
+
+    public static HashableMultiKey getSortMultiKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, ExprEvaluatorContext evalContext) {
+        Object[] result = new Object[evaluators.length];
+        int count = 0;
+        for (ExprEvaluator expr : evaluators) {
+            result[count++] = expr.evaluate(eventsPerStream, true, evalContext);
+        }
+        return new HashableMultiKey(result);
     }
 
     /**
@@ -328,6 +345,4 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
     public ViewFactory getViewFactory() {
         return rankWindowViewFactory;
     }
-
-    private static final Logger log = LoggerFactory.getLogger(RankWindowView.class);
 }

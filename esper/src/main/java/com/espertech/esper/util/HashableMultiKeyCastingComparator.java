@@ -10,24 +10,23 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.collection.HashableMultiKey;
 
 import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * A comparator on multikeys. The multikeys must contain the same
- * number of values.
+ * A comparator on multikeys. The multikeys must contain the same number of values.
  */
-public final class MultiKeyCastingComparator implements Comparator<Object>, MetaDefItem, Serializable {
+public final class HashableMultiKeyCastingComparator implements Comparator<Object>, MetaDefItem, Serializable {
     private static final long serialVersionUID = 2914561149171499446L;
-    private final Comparator<MultiKeyUntyped> comparator;
+    private final Comparator<HashableMultiKey> comparator;
 
-    public MultiKeyCastingComparator(Comparator<MultiKeyUntyped> comparator) {
+    public HashableMultiKeyCastingComparator(Comparator<HashableMultiKey> comparator) {
         this.comparator = comparator;
     }
 
     public final int compare(Object firstValues, Object secondValues) {
-        return comparator.compare((MultiKeyUntyped) firstValues, (MultiKeyUntyped) secondValues);
+        return comparator.compare((HashableMultiKey) firstValues, (HashableMultiKey) secondValues);
     }
 }

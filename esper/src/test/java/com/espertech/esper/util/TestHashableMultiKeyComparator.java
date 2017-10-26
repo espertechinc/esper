@@ -10,47 +10,47 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.collection.HashableMultiKey;
 import junit.framework.TestCase;
 
 import java.util.Comparator;
 
-public class TestMultiKeyComparator extends TestCase {
-    Comparator<MultiKeyUntyped> comparator;
-    MultiKeyUntyped firstValues;
-    MultiKeyUntyped secondValues;
+public class TestHashableMultiKeyComparator extends TestCase {
+    Comparator<HashableMultiKey> comparator;
+    HashableMultiKey firstValues;
+    HashableMultiKey secondValues;
 
     public void testCompareSingleProperty() {
-        comparator = new MultiKeyComparator(new boolean[]{false});
+        comparator = new HashableMultiKeyComparator(new boolean[]{false});
 
-        firstValues = new MultiKeyUntyped(new Object[]{3d});
-        secondValues = new MultiKeyUntyped(new Object[]{4d});
+        firstValues = new HashableMultiKey(new Object[]{3d});
+        secondValues = new HashableMultiKey(new Object[]{4d});
         assertTrue(comparator.compare(firstValues, secondValues) < 0);
 
-        comparator = new MultiKeyComparator(new boolean[]{true});
+        comparator = new HashableMultiKeyComparator(new boolean[]{true});
 
         assertTrue(comparator.compare(firstValues, secondValues) > 0);
         assertTrue(comparator.compare(firstValues, firstValues) == 0);
     }
 
     public void testCompareTwoProperties() {
-        comparator = new MultiKeyComparator(new boolean[]{false, false});
+        comparator = new HashableMultiKeyComparator(new boolean[]{false, false});
 
-        firstValues = new MultiKeyUntyped(new Object[]{3d, 3L});
-        secondValues = new MultiKeyUntyped(new Object[]{3d, 4L});
+        firstValues = new HashableMultiKey(new Object[]{3d, 3L});
+        secondValues = new HashableMultiKey(new Object[]{3d, 4L});
         assertTrue(comparator.compare(firstValues, secondValues) < 0);
 
-        comparator = new MultiKeyComparator(new boolean[]{false, true});
+        comparator = new HashableMultiKeyComparator(new boolean[]{false, true});
 
         assertTrue(comparator.compare(firstValues, secondValues) > 0);
         assertTrue(comparator.compare(firstValues, firstValues) == 0);
     }
 
     public void testInvalid() {
-        comparator = new MultiKeyComparator(new boolean[]{false, false});
+        comparator = new HashableMultiKeyComparator(new boolean[]{false, false});
 
-        firstValues = new MultiKeyUntyped(new Object[]{3d});
-        secondValues = new MultiKeyUntyped(new Object[]{3d, 4L});
+        firstValues = new HashableMultiKey(new Object[]{3d});
+        secondValues = new HashableMultiKey(new Object[]{3d, 4L});
         try {
             comparator.compare(firstValues, secondValues);
             fail();
@@ -58,8 +58,8 @@ public class TestMultiKeyComparator extends TestCase {
             // Expected
         }
 
-        firstValues = new MultiKeyUntyped(new Object[]{3d});
-        secondValues = new MultiKeyUntyped(new Object[]{3d});
+        firstValues = new HashableMultiKey(new Object[]{3d});
+        secondValues = new HashableMultiKey(new Object[]{3d});
         try {
             comparator.compare(firstValues, secondValues);
             fail();

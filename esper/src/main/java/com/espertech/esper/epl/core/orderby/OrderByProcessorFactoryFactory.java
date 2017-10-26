@@ -115,7 +115,7 @@ public class OrderByProcessorFactoryFactory {
             nodes[i] = orderBy[i].getExprNode();
             descending[i] = orderBy[i].isDescending();
         }
-        return CollectionUtil.getComparator(nodes, isSortUsingCollator, descending);
+        return CollectionUtil.getComparatorHashableMultiKeys(nodes, isSortUsingCollator, descending);
     }
 
     private static OrderByElementForge[] toElementArray(List<OrderByItem> orderByList) {

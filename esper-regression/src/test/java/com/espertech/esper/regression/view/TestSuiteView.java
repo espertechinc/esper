@@ -103,6 +103,10 @@ public class TestSuiteView extends TestCase {
         RegressionRunner.run(new ExecViewSize());
     }
 
+    public void testExecViewSort() {
+        RegressionRunner.run(new ExecViewSort());
+    }
+
     public void testExecViewStartStop() {
         RegressionRunner.run(new ExecViewStartStop());
     }

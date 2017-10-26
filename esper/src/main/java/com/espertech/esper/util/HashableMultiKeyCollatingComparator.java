@@ -10,17 +10,16 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.collection.HashableMultiKey;
 
 import java.io.Serializable;
 import java.text.Collator;
 import java.util.Comparator;
 
 /**
- * A comparator on multikeys with string values and using the Collator for comparing.
- * The multikeys must contain the same number of values.
+ * A comparator on multikeys with string values and using the Collator for comparing. The multikeys must contain the same number of values.
  */
-public final class MultiKeyCollatingComparator implements Comparator<MultiKeyUntyped>, MetaDefItem, Serializable {
+public final class HashableMultiKeyCollatingComparator implements Comparator<HashableMultiKey>, MetaDefItem, Serializable {
     private final boolean[] isDescendingValues;
     private final boolean[] stringTypedValue;
     private transient Collator collator = null;
@@ -34,13 +33,13 @@ public final class MultiKeyCollatingComparator implements Comparator<MultiKeyUnt
      *                           to be compared must have the same number of values as this array.
      * @param stringTypeValues   true for each string-typed column
      */
-    public MultiKeyCollatingComparator(boolean[] isDescendingValues, boolean[] stringTypeValues) {
+    public HashableMultiKeyCollatingComparator(boolean[] isDescendingValues, boolean[] stringTypeValues) {
         this.isDescendingValues = isDescendingValues;
         this.stringTypedValue = stringTypeValues;
         this.collator = Collator.getInstance();
     }
 
-    public final int compare(MultiKeyUntyped firstValues, MultiKeyUntyped secondValues) {
+    public final int compare(HashableMultiKey firstValues, HashableMultiKey secondValues) {
         if (firstValues.size() != isDescendingValues.length || secondValues.size() != isDescendingValues.length) {
             throw new IllegalArgumentException("Incompatible size MultiKey sizes for comparison");
         }
@@ -51,12 +50,12 @@ public final class MultiKeyCollatingComparator implements Comparator<MultiKeyUnt
             boolean isDescending = isDescendingValues[i];
 
             if (!stringTypedValue[i]) {
-                int comparisonResult = MultiKeyComparator.compareValues(valueOne, valueTwo, isDescending);
+                int comparisonResult = HashableMultiKeyComparator.compareValues(valueOne, valueTwo, isDescending);
                 if (comparisonResult != 0) {
                     return comparisonResult;
                 }
             } else {
-                int comparisonResult = MultiKeyComparator.compareValuesCollated(valueOne, valueTwo, isDescending, collator);
+                int comparisonResult = CollectionUtil.compareValuesCollated(valueOne, valueTwo, isDescending, collator);
                 if (comparisonResult != 0) {
                     return comparisonResult;
                 }

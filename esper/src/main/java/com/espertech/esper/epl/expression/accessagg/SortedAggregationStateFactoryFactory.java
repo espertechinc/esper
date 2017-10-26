@@ -47,7 +47,7 @@ public class SortedAggregationStateFactoryFactory {
 
     public AggregationStateFactoryForge makeForge() {
         boolean sortUsingCollator = engineImportService.isSortUsingCollator();
-        Comparator<Object> comparator = CollectionUtil.getComparator(expressions, sortUsingCollator, sortDescending);
+        Comparator<Object> comparator = CollectionUtil.getComparatorHashableMultiKeys(expressions, sortUsingCollator, sortDescending); // hashable-key comparator since we may remove sort keys
 
         if (ever) {
             AggregationStateMinMaxByEverSpecForge spec = new AggregationStateMinMaxByEverSpecForge(streamNum, expressions, parent.isMax(), comparator, null, optionalFilter);
