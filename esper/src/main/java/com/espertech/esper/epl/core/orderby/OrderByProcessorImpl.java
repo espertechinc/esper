@@ -20,7 +20,6 @@ import com.espertech.esper.codegen.core.CodegenNamedParam;
 import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.HashableMultiKey;
-import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
 import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
@@ -28,9 +27,7 @@ import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.resultset.codegen.ResultSetProcessorCodegenNames;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Arrays;
@@ -113,13 +110,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
             return outgoingEvents;
         }
 
-        // Get the group by keys if needed
-        Object[] groupByKeys = null;
-        if (factory.isNeedsGroupByKeys()) {
-            groupByKeys = generateGroupKeys(generatingEvents, isNewData, exprEvaluatorContext);
-        }
-
-        return sortWGroupKeysInternal(outgoingEvents, generatingEvents, groupByKeys, isNewData, exprEvaluatorContext, aggregationService);
+        return sortWGroupKeysInternal(outgoingEvents, generatingEvents, null, isNewData, exprEvaluatorContext, aggregationService);
     }
 
     public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, AggregationService aggregationService) {
@@ -131,14 +122,8 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         CodegenMethodNode node = sortWGroupKeysInternalCodegen(forge, classScope, namedMethods);
         method.getBlock().ifCondition(or(equalsNull(REF_OUTGOINGEVENTS), relational(arrayLength(REF_OUTGOINGEVENTS), LT, constant(2))))
                 .blockReturn(REF_OUTGOINGEVENTS);
-        if (!forge.isNeedsGroupByKeys()) {
-            CodegenMethodNode generateGroupKeys = generateGroupKeysCodegen(forge, classScope, namedMethods);
-            method.getBlock().declareVar(Object[].class, "groupByKeys", localMethod(generateGroupKeys, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
-        } else {
-            method.getBlock().declareVar(Object[].class, "groupByKeys", constantNull());
-        }
 
-        method.getBlock().methodReturn(localMethod(node, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, ref("groupByKeys"), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
+        method.getBlock().methodReturn(localMethod(node, REF_OUTGOINGEVENTS, REF_GENERATINGEVENTS, constantNull(), REF_ISNEWDATA, REF_EXPREVALCONTEXT, REF_AGGREGATIONSVC));
     }
 
     static void sortRollupCodegen(OrderByProcessorForgeImpl forge, CodegenMethodNode method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
@@ -279,48 +264,6 @@ public class OrderByProcessorImpl implements OrderByProcessor {
                 .methodReturn(newArrayWithInit(EventBean.class, REF_ORDERSECONDEVENT, REF_ORDERFIRSTEVENT));
     }
 
-    private Object[] generateGroupKeys(EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object[] keys = new Object[generatingEvents.length];
-
-        int count = 0;
-        for (EventBean[] eventsPerStream : generatingEvents) {
-            keys[count++] = generateGroupKey(eventsPerStream, isNewData, exprEvaluatorContext);
-        }
-
-        return keys;
-    }
-
-    private static CodegenMethodNode generateGroupKeysCodegen(OrderByProcessorForgeImpl forge, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        CodegenMethodNode generateGroupKey = generateGroupKeyCodegen(forge.getGroupByNodes(), classScope, namedMethods);
-        Consumer<CodegenMethodNode> code = method -> {
-            method.getBlock().declareVar(Object[].class, "keys", newArrayByLength(Object.class, arrayLength(REF_GENERATINGEVENTS)))
-                    .declareVar(int.class, "count", constant(0))
-                    .forEach(EventBean[].class, "eventsPerStream", REF_GENERATINGEVENTS)
-                    .assignArrayElement("keys", ref("count"), localMethod(generateGroupKey, ref("eventsPerStream"), REF_ISNEWDATA, REF_EXPREVALCONTEXT))
-                    .increment("count")
-                    .blockEnd()
-                    .methodReturn(ref("keys"));
-        };
-
-        return namedMethods.addMethod(Object[].class, "generateGroupKeys", CodegenNamedParam.from(EventBean[][].class, REF_GENERATINGEVENTS.getRef(), boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), ResultSetProcessorUtil.class, classScope, code);
-    }
-
-    private Object generateGroupKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        ExprEvaluator[] evals = factory.getGroupByNodes();
-        if (evals.length == 1) {
-            return evals[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        }
-
-        Object[] keys = new Object[evals.length];
-        int count = 0;
-        for (ExprEvaluator exprNode : evals) {
-            keys[count] = exprNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            count++;
-        }
-
-        return new MultiKeyUntyped(keys);
-    }
-
     private List<Object> createSortPropertiesWRollup(List<GroupByRollupKey> currentGenerators, OrderByElementEval[][] elementsPerLevel, boolean isNewData, AgentInstanceContext exprEvaluatorContext, AggregationService aggregationService) {
         Object[] sortProperties = new Object[currentGenerators.size()];
 
@@ -397,13 +340,6 @@ public class OrderByProcessorImpl implements OrderByProcessor {
     }
 
     public EventBean determineLocalMinMax(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService) {
-
-        // Get the group by keys if needed
-        Object[] groupByKeys = null;
-        if (factory.isNeedsGroupByKeys()) {
-            groupByKeys = generateGroupKeys(generatingEvents, isNewData, exprEvaluatorContext);
-        }
-
         OrderByElementEval[] elements = factory.getOrderBy();
         Object localMinMax = null;
         EventBean outgoingMinMaxBean = null;
@@ -411,9 +347,6 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         if (elements.length == 1) {
             int count = 0;
             for (EventBean[] eventsPerStream : generatingEvents) {
-                if (factory.isNeedsGroupByKeys()) {
-                    aggregationService.setCurrentAccess(groupByKeys[count], exprEvaluatorContext.getAgentInstanceId(), null);
-                }
 
                 if (InstrumentationHelper.ENABLED) {
                     InstrumentationHelper.get().qOrderBy(eventsPerStream, factory.getOrderBy());
@@ -437,9 +370,6 @@ public class OrderByProcessorImpl implements OrderByProcessor {
             HashableMultiKey valuesMk = new HashableMultiKey(values);
 
             for (EventBean[] eventsPerStream : generatingEvents) {
-                if (factory.isNeedsGroupByKeys()) {
-                    aggregationService.setCurrentAccess(groupByKeys[count], exprEvaluatorContext.getAgentInstanceId(), null);
-                }
 
                 int countTwo = 0;
                 if (InstrumentationHelper.ENABLED) {
@@ -468,27 +398,16 @@ public class OrderByProcessorImpl implements OrderByProcessor {
     }
 
     public static CodegenMethodNode determineLocalMinMaxCodegen(OrderByProcessorForgeImpl forge, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        CodegenMethodNode generateGroupKeys = generateGroupKeysCodegen(forge, classScope, namedMethods);
         OrderByElementForge[] elements = forge.getOrderBy();
         CodegenMember comparator = classScope.makeAddMember(Comparator.class, forge.getComparator());
 
         Consumer<CodegenMethodNode> code = method -> {
-            if (!forge.isNeedsGroupByKeys()) {
-                method.getBlock().declareVar(Object[].class, "groupByKeys", constantNull());
-            } else {
-                method.getBlock().declareVar(Object[].class, "groupByKeys", localMethod(generateGroupKeys, REF_GENERATINGEVENTS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
-            }
-
             method.getBlock().declareVar(Object.class, "localMinMax", constantNull())
                     .declareVar(EventBean.class, "outgoingMinMaxBean", constantNull())
                     .declareVar(int.class, "count", constant(0));
 
             if (elements.length == 1) {
                 CodegenBlock forEach = method.getBlock().forEach(EventBean[].class, "eventsPerStream", REF_GENERATINGEVENTS);
-
-                if (forge.isNeedsGroupByKeys()) {
-                    forEach.exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", arrayAtIndex(ref("groupByKeys"), ref("count")), exprDotMethod(REF_EXPREVALCONTEXT, "getAgentInstanceId"), constantNull());
-                }
 
                 forEach.declareVar(Object.class, "sortKey", localMethod(CodegenLegoMethodExpression.codegenExpression(elements[0].getExprNode().getForge(), method, classScope), ref("eventsPerStream"), REF_ISNEWDATA, REF_EXPREVALCONTEXT))
                         .ifCondition(or(equalsNull(ref("localMinMax")), relational(exprDotMethod(member(comparator.getMemberId()), "compare", ref("localMinMax"), ref("sortKey")), GT, constant(0))))
@@ -542,25 +461,6 @@ public class OrderByProcessorImpl implements OrderByProcessor {
         };
 
         return namedMethods.addMethod(Object.class, methodName, CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), ResultSetProcessorUtil.class, classScope, code);
-    }
-
-    static CodegenMethodNode generateGroupKeyCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
-        Consumer<CodegenMethodNode> code = methodNode -> {
-            if (groupKeyExpressions.length == 1) {
-                CodegenMethodNode expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[0].getForge(), methodNode, classScope);
-                methodNode.getBlock().methodReturn(localMethod(expression, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
-                return;
-            }
-
-            methodNode.getBlock().declareVar(Object[].class, "keys", newArrayByLength(Object.class, constant(groupKeyExpressions.length)));
-            for (int i = 0; i < groupKeyExpressions.length; i++) {
-                CodegenMethodNode expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[i].getForge(), methodNode, classScope);
-                methodNode.getBlock().assignArrayElement("keys", constant(i), localMethod(expression, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
-            }
-            methodNode.getBlock().methodReturn(newInstance(MultiKeyUntyped.class, ref("keys")));
-        };
-
-        return namedMethods.addMethod(Object.class, "generateGroupKey", CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), ResultSetProcessorUtil.class, classScope, code);
     }
 
     public Comparator<Object> getComparator() {

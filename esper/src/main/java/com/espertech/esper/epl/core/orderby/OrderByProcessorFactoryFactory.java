@@ -35,7 +35,6 @@ public class OrderByProcessorFactoryFactory {
     private static final Logger log = LoggerFactory.getLogger(OrderByProcessorFactoryFactory.class);
 
     public static OrderByProcessorFactoryForge getProcessor(List<SelectClauseExprCompiledSpec> selectionList,
-                                                       ExprNode[] groupByNodes,
                                                        List<OrderByItem> orderByList,
                                                        RowLimitSpec rowLimitSpec,
                                                        VariableService variableService,
@@ -80,7 +79,7 @@ public class OrderByProcessorFactoryFactory {
         log.debug(".getProcessor Using OrderByProcessorImpl");
         OrderByElementForge[] elements = toElementArray(orderByList);
         Comparator<Object> comparator = getComparator(elements, isSortUsingCollator);
-        OrderByProcessorForgeImpl orderByProcessorForge = new OrderByProcessorForgeImpl(elements, groupByNodes, needsGroupByKeys, comparator, orderByRollup);
+        OrderByProcessorForgeImpl orderByProcessorForge = new OrderByProcessorForgeImpl(elements, needsGroupByKeys, comparator, orderByRollup);
         if (rowLimitSpec == null) {
             return orderByProcessorForge;
         } else {

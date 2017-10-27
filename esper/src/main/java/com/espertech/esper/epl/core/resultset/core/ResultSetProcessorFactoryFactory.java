@@ -337,7 +337,7 @@ public class ResultSetProcessorFactoryFactory {
 
         // Construct the processor for sorting output events
         OrderByProcessorFactoryForge orderByProcessorFactory = OrderByProcessorFactoryFactory.getProcessor(namedSelectionList,
-                groupByNodesValidated, orderByList, statementSpec.getRowLimitSpec(), stmtContext.getVariableService(), useCollatorSort, statementSpec.getOptionalContextName(), rollupPerLevelForges == null ? null : rollupPerLevelForges.getOptionalOrderByElements());
+                orderByList, statementSpec.getRowLimitSpec(), stmtContext.getVariableService(), useCollatorSort, statementSpec.getOptionalContextName(), rollupPerLevelForges == null ? null : rollupPerLevelForges.getOptionalOrderByElements());
         boolean hasOrderBy = orderByProcessorFactory != null;
 
         // Get a list of event properties being aggregated in the select clause, if any

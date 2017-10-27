@@ -19,7 +19,6 @@ import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.util.Comparator;
 import java.util.List;
@@ -31,14 +30,12 @@ import static com.espertech.esper.epl.core.orderby.OrderByProcessorCodegenNames.
 public class OrderByProcessorForgeImpl implements OrderByProcessorFactoryForge {
 
     private final OrderByElementForge[] orderBy;
-    private final ExprNode[] groupByNodes;
     private final boolean needsGroupByKeys;
     private final Comparator<Object> comparator;
     private final OrderByElementForge[][] orderByRollup;
 
-    public OrderByProcessorForgeImpl(OrderByElementForge[] orderBy, ExprNode[] groupByNodes, boolean needsGroupByKeys, Comparator<Object> comparator, OrderByElementForge[][] orderByRollup) {
+    public OrderByProcessorForgeImpl(OrderByElementForge[] orderBy, boolean needsGroupByKeys, Comparator<Object> comparator, OrderByElementForge[][] orderByRollup) {
         this.orderBy = orderBy;
-        this.groupByNodes = groupByNodes;
         this.needsGroupByKeys = needsGroupByKeys;
         this.comparator = comparator;
         this.orderByRollup = orderByRollup;
@@ -46,9 +43,8 @@ public class OrderByProcessorForgeImpl implements OrderByProcessorFactoryForge {
 
     public OrderByProcessorFactoryImpl make(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
         OrderByElementEval[] elements = makeEvalArray(orderBy, engineImportService, isFireAndForget, statementName);
-        ExprEvaluator[] groupByEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupByNodes, engineImportService, OrderByProcessorForgeImpl.class, isFireAndForget, statementName);
         OrderByElementEval[][] rollupEvals = orderByRollup != null ? makeEvalRollup(orderByRollup, engineImportService, isFireAndForget, statementName) : null;
-        return new OrderByProcessorFactoryImpl(elements, groupByEvals, needsGroupByKeys, comparator, rollupEvals);
+        return new OrderByProcessorFactoryImpl(elements, needsGroupByKeys, comparator, rollupEvals);
     }
 
     public void instantiateCodegen(CodegenMethodNode method, CodegenClassScope classScope) {
@@ -96,10 +92,6 @@ public class OrderByProcessorForgeImpl implements OrderByProcessorFactoryForge {
 
     public OrderByElementForge[] getOrderBy() {
         return orderBy;
-    }
-
-    public ExprNode[] getGroupByNodes() {
-        return groupByNodes;
     }
 
     public boolean isNeedsGroupByKeys() {

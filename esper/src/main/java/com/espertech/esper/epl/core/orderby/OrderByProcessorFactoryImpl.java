@@ -22,19 +22,16 @@ import java.util.Comparator;
 public class OrderByProcessorFactoryImpl implements OrderByProcessorFactory {
 
     private final OrderByElementEval[] orderBy;
-    private final ExprEvaluator[] groupByNodes;
     private final boolean needsGroupByKeys;
     private final Comparator<Object> comparator;
     private final OrderByElementEval[][] orderByRollup;
     private final OrderByProcessorImpl orderByProcessor;
 
     public OrderByProcessorFactoryImpl(OrderByElementEval[] orderBy,
-                                       ExprEvaluator[] groupByEvals,
                                        boolean needsGroupByKeys,
                                        Comparator<Object> comparator,
                                        OrderByElementEval[][] orderByRollup) {
         this.orderBy = orderBy;
-        this.groupByNodes = groupByEvals;
         this.needsGroupByKeys = needsGroupByKeys;
         this.comparator = comparator;
         this.orderByRollup = orderByRollup;
@@ -47,10 +44,6 @@ public class OrderByProcessorFactoryImpl implements OrderByProcessorFactory {
 
     public OrderByElementEval[] getOrderBy() {
         return orderBy;
-    }
-
-    public ExprEvaluator[] getGroupByNodes() {
-        return groupByNodes;
     }
 
     public boolean isNeedsGroupByKeys() {
