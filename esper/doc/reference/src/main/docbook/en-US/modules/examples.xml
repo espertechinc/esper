@@ -462,7 +462,7 @@ having cnt < avg(cnt) * 0.75]]></programlisting>
         </para>
 
         <para>
-			The view may also be used together with <literal>std:groupwin</literal> to group per criteria, such as symbol. In this case the assumption of timestamp order applies per symbol.
+			The view may also be used together with <literal>#groupwin</literal> to group per criteria, such as symbol. In this case the assumption of timestamp order applies per symbol.
         </para>
 
         <para>

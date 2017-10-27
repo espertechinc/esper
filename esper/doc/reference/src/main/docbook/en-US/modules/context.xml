@@ -1416,7 +1416,7 @@ select context.NineToFive.startTime, context.SegmentedByCustomer.key1 from BankT
 				<tbody>
 					<row>
 						<entry>Grouped Data Window</entry>
-						<entry><para>Partitions at the level of data window, only applies to appended data window(s).</para><para>Syntax: <literal>std:groupby(...)</literal></para></entry>
+						<entry><para>Partitions at the level of data window, only applies to appended data window(s).</para><para>Syntax: <literal>#groupwin(...)</literal></para></entry>
 						<entry><programlisting><![CDATA[// Length window of 2 events per customer
 select * from
   BankTxn#groupwin(custId)#length(2)]]></programlisting></entry>

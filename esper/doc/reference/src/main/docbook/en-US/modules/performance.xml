@@ -453,8 +453,8 @@ select * from MarketData(symbol = 'GE') having sum(price) > 1000
 select * from MarketData(symbol = 'GE') group by symbol having sum(price) > 1000]]></programlisting>
 
 			<para>
-				If your statement specifies the grouped data window <literal>std:groupwin</literal> but the window being grouped retains the same set of events regardless of grouping, 
-				remove <literal>std:groupwin</literal>:
+				If your statement specifies the grouped data window <literal>#groupwin</literal> but the window being grouped retains the same set of events regardless of grouping, 
+				remove <literal>#groupwin</literal>:
 			</para>
 <programlisting><![CDATA[// Prefer:
 create window MarketDataWindow#keepall as MarketDataEventType
@@ -723,7 +723,7 @@ group by venue, ccyPair, side]]></programlisting>
 			</para>
 
 			<para>
-				When joining streams and not providing a <literal>where</literal> clause, consider using the <literal>std:unique</literal> data window or <literal>std:lastevent</literal> data window to join only the last event or the last event per unique key(s) of each stream. 
+				When joining streams and not providing a <literal>where</literal> clause, consider using the <literal>#unique</literal> data window or <literal>#lastevent</literal> data window to join only the last event or the last event per unique key(s) of each stream. 
 			</para>
 
 			<para>
@@ -865,7 +865,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 			<title>The Keep-All Data Window</title>
 
 			<para>
-				The <literal>std:keepall</literal> data window is a data window that retains all arriving events. The data window can be useful during the development phase and to implement a custom expiry policy using <literal>on-delete</literal> and named windows. Care should be taken to timely remove from the keep-all data window however. Use <literal>on-select</literal> or on-demand queries to count the number of rows currently held by a named window with keep-all expiry policy.
+				The <literal>#keepall</literal> data window is a data window that retains all arriving events. The data window can be useful during the development phase and to implement a custom expiry policy using <literal>on-delete</literal> and named windows. Care should be taken to timely remove from the keep-all data window however. Use <literal>on-select</literal> or on-demand queries to count the number of rows currently held by a named window with keep-all expiry policy.
 			</para>
 		</sect2>
 
@@ -881,11 +881,11 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 			</para>
 			
 			<para>
-			  When using the <literal>group-by</literal> clause or <literal>std:groupwin</literal> grouped data windows please consider the hints as described below. Make sure your grouping criteria are fields that don't have an unlimited number of possible values or specify hints otherwise.
+			  When using the <literal>group-by</literal> clause or <literal>#groupwin</literal> grouped data windows please consider the hints as described below. Make sure your grouping criteria are fields that don't have an unlimited number of possible values or specify hints otherwise.
 			</para>
 			
 			<para>
-				The <literal>std:unique</literal> unique data window can also be a source for error. If your uniqueness criteria include a field which is never unique the memory use of the data window can grow, unless your application deletes events.
+				The <literal>#unique</literal> unique data window can also be a source for error. If your uniqueness criteria include a field which is never unique the memory use of the data window can grow, unless your application deletes events.
 			</para>
 			
 			<para>
@@ -912,7 +912,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 			</para>
 			
 			<para>
-			  The <literal>prev</literal>, <literal>prevwindow</literal> and <literal>prevtail</literal> functions access a data window directly. The engine does not need to maintain a separate data structure and grouping is based on the use of the <literal>std:groupwin</literal> grouped data window. 
+			  The <literal>prev</literal>, <literal>prevwindow</literal> and <literal>prevtail</literal> functions access a data window directly. The engine does not need to maintain a separate data structure and grouping is based on the use of the <literal>#groupwin</literal> grouped data window. 
 			  Compare this to the use of event aggregation functions such as <literal>first</literal>, <literal>window</literal> and <literal>last</literal> which group according to the <literal>group by</literal> clause. If your statement utilizes both together consider reformulating to use <literal>prev</literal> instead.
 			</para>
 			
@@ -1075,7 +1075,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 					As the engine locks on the level of context partition, high concurrency under threading can be achieved by using context partitions.
 				</para>
 				<para>
-					Generally context partitions require more memory then the more fine-grained grouping that can be achieved by <literal>group by</literal> or <literal>std:groupwin</literal>.
+					Generally context partitions require more memory then the more fine-grained grouping that can be achieved by <literal>group by</literal> or <literal>#groupwin</literal>.
 				</para>
 		</sect2>
 
@@ -1176,7 +1176,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 					<listitem>
 						<para>
 							The data window(s) declared on streams and named windows. 
-							The <literal>std:unique</literal> and the <literal>std:firstunique</literal> data window instruct the engine to retain the last event per unique criteria.
+							The <literal>#unique</literal> and the <literal>#firstunique</literal> data window instruct the engine to retain the last event per unique criteria.
 						</para>
 					</listitem>
 					<listitem>

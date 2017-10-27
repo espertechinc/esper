@@ -1850,7 +1850,7 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 group by expressway]]></programlisting>
 
 			<para>
-				The next example serves to show staggering of views. It uses the <literal>std:groupwin</literal> view to create a separate length window per car id:
+				The next example serves to show staggering of views. It uses <literal>#groupwin</literal> to create a separate length window per car id:
 			</para>
 				
          <programlisting><![CDATA[select cardId, expressway, direction, segment, count(*) 
@@ -1858,11 +1858,11 @@ from CarLocEvent#groupwin(carId)#length(4)
 group by carId, expressway, direction, segment]]></programlisting>
 
 			<para>
-				The first view <literal>std:groupwin(carId)</literal> groups car location events by car id. The second view <literal>win:length(4)</literal> keeps a length window of the 4 last events, with one separate length window for each car id. The example reports the number of events per car id and per expressway, direction and segment considering the last 4 events for each car id only. 
+				The first view <literal>#groupwin(carId)</literal> groups car location events by car id. The second view <literal>win:length(4)</literal> keeps a length window of the 4 last events, with one separate length window for each car id. The example reports the number of events per car id and per expressway, direction and segment considering the last 4 events for each car id only. 
 			</para>
 			
 			<para>
-				Note that the <literal>group by</literal> syntax is generally preferable over <literal>std:groupwin</literal> for grouping information as it is SQL-compliant, easier to read and does not create a separate data window per group. The <literal>std:groupwin</literal> in above example creates a separate data window (length window in the example) per group, demonstrating staggering views.
+				Note that the <literal>group by</literal> syntax is generally preferable over <literal>#groupwin</literal> for grouping information as it is SQL-compliant, easier to read and does not create a separate data window per group. The <literal>#groupwin</literal> in above example creates a separate data window (length window in the example) per group, demonstrating staggering views.
 			</para>
 
 			<para>
@@ -1877,7 +1877,7 @@ group by carId, expressway, direction, segment]]></programlisting>
 		<sect2 xml:id="epl-from-clause-view-multidatawindow" >
 		   <title>Multiple Data Window Views</title>
 		   <para>
-			   Data window views provide an expiry policy that indicates when to remove events from the data window, with the exception of the keep-all data window which has no expiry policy and the <literal>std:groupwin</literal> grouped-window view for allocating a new data window per group.
+			   Data window views provide an expiry policy that indicates when to remove events from the data window, with the exception of the keep-all data window which has no expiry policy and the <literal>#groupwin</literal> grouped-window view for allocating a new data window per group.
 		   </para>
 		   
 		   <para>
@@ -2762,10 +2762,10 @@ having stddev(price) &gt; 0.8</programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-group-by-versus-view" >
-			 <title>Comparing Keyed Segmented Context, the <emphasis>Group By</emphasis> clause and the <emphasis>std:groupwin</emphasis> view</title>
+			 <title>Comparing Keyed Segmented Context, the <emphasis>Group By</emphasis> clause and the <emphasis>#groupwin</emphasis> view</title>
 
 			<para>
-				The keyed segmented context <emphasis>create context ... partition by</emphasis> and the <emphasis>group by</emphasis> clause as well as the built-in <emphasis>std:groupwin</emphasis> view are similar in their ability to group events but very different in their semantics. This section explains the key differences in their behavior and use.
+				The keyed segmented context <emphasis>create context ... partition by</emphasis> and the <emphasis>group by</emphasis> clause as well as the built-in <emphasis>#groupwin</emphasis> view are similar in their ability to group events but very different in their semantics. This section explains the key differences in their behavior and use.
 			</para>
 				
 			<para>
@@ -2777,7 +2777,7 @@ having stddev(price) &gt; 0.8</programlisting>
 			</para>
 
 			<para>
-				The <emphasis>std:groupwin</emphasis> view is a built-in view that groups events into data windows. The view is described in greater detail in <xref linkend="view-std-groupwin"/>. Its primary use is to create a separate data window per group, or more generally to create separate instances of all its sub-views for each grouping key encountered.
+				The <emphasis>#groupwin</emphasis> view is a built-in view that groups events into data windows. The view is described in greater detail in <xref linkend="view-std-groupwin"/>. Its primary use is to create a separate data window per group, or more generally to create separate instances of all its sub-views for each grouping key encountered.
 			</para>
 			
 			<para>
@@ -2808,7 +2808,7 @@ having stddev(price) &gt; 0.8</programlisting>
 							</entry>
 						</row>
 						<row>
-							<entry>Grouped Data Window (<emphasis>std:groupwin</emphasis>)</entry>
+							<entry>Grouped Data Window (<emphasis>#groupwin</emphasis>)</entry>
 							<entry>
 							  <para>
 							    Separate data window per key value.
@@ -3273,7 +3273,7 @@ order by price, volume</programlisting>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					If the statement is not a join, does not group via <literal>group by</literal> clause and does not declare grouped data windows via <literal>std:groupwin</literal> view, the order in which events are delivered to listeners and through the <literal>iterator</literal> pull API is the order of event arrival.
+					If the statement is not a join, does not group via <literal>group by</literal> clause and does not declare grouped data windows via <literal>#groupwin</literal> view, the order in which events are delivered to listeners and through the <literal>iterator</literal> pull API is the order of event arrival.
 				</para>
 			</listitem>
 			<listitem>
@@ -3758,7 +3758,7 @@ from TriggerEvent</programlisting>
   (select name from Zones#unique(zoneId) where zoneId = RFID.zoneId)]]></programlisting>
 		
 		<para>
-			The example above shows a subquery in the <literal>where</literal> clause. The statement selects RFID events in which the zone name matches a string constant based on zone id. The statement uses the view <literal>std:unique</literal> to guarantee that only the last event per zone id is held from processing by the subquery.
+			The example above shows a subquery in the <literal>where</literal> clause. The statement selects RFID events in which the zone name matches a string constant based on zone id. The statement uses the view <literal>#unique</literal> to guarantee that only the last event per zone id is held from processing by the subquery.
 		</para>
 
 		<para>
@@ -3769,7 +3769,7 @@ from TriggerEvent</programlisting>
   where zoneId = RFID.zoneId) as name from RFIDEvent]]></programlisting>
 
 		<para>
-			Note that when a simple or correlated subquery returns multiple rows, the engine returns a <literal>null</literal> value as the subquery result. To limit the number of events returned by a subquery consider using one of the views <literal>std:lastevent</literal>, <literal>std:unique</literal> and <literal>std:groupwin</literal> or aggregation functions or the multi-row and multi-column selects as described below.
+			Note that when a simple or correlated subquery returns multiple rows, the engine returns a <literal>null</literal> value as the subquery result. To limit the number of events returned by a subquery consider using one of the views <literal>#lastevent</literal>, <literal>#unique</literal> and <literal>#groupwin</literal> or aggregation functions or the multi-row and multi-column selects as described below.
 		</para>
 
 		<para>
@@ -4270,7 +4270,7 @@ full outer join NewsEvent#unique(symbol) as n on t.symbol = n.symbol]]></program
 			</para>
 
 			<para>
-				Note that each of the sample queries above defines a data window. The sample queries above use the last-event data window (std:lastevent) or the unique data window (std:unique). A data window serves to indicate the subset of events to join from each stream and may be required depending on the join.
+				Note that each of the sample queries above defines a data window. The sample queries above use the last-event data window (#lastevent) or the unique data window (#unique). A data window serves to indicate the subset of events to join from each stream and may be required depending on the join.
 			</para>
 
 			<para>
