@@ -875,7 +875,7 @@ public EventType getEventType() {
 				</listitem>
 				<listitem>
 					<para>
-						The <literal>cloneView</literal> method must make a configured copy of the view to enable the view to work in a grouping context together with a <literal>std:groupwin</literal> parent view
+						The <literal>cloneView</literal> method must make a configured copy of the view to enable the view to work in a grouping context together with a <literal>#groupwin</literal> parent view
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -1004,7 +1004,7 @@ public EventType getEventType() {
 			<title>Requirement for Grouped Views</title>
 			
 			<para>
-				Grouped views are views that operate under the <literal>std:groupwin</literal> view. When operating under one or more <literal>std:groupwin</literal> views, the engine instantiates a single view instance when the statement starts, and a new view instance per group criteria dynamically as new group criteria become known. 
+				Grouped views are views that operate under the <literal>#groupwin</literal> view. When operating under one or more <literal>#groupwin</literal> views, the engine instantiates a single view instance when the statement starts, and a new view instance per group criteria dynamically as new group criteria become known. 
 			</para>
 		
 			<para>

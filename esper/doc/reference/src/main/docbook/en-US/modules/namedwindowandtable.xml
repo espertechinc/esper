@@ -490,7 +490,7 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
 			</para>
 	
 			<para>
-				The following example further declares a view into the named window. Such a view can be a plug-in view or one of the built-in views, but cannot be a data window view (with the exception of the <literal>std:groupwin</literal> grouped-window view which is allowed).
+				The following example further declares a view into the named window. Such a view can be a plug-in view or one of the built-in views, but cannot be a data window view (with the exception of the <literal>#groupwin</literal> grouped-window view which is allowed).
 			</para>
 			<programlisting><![CDATA[select * from OrdersNamedWindow(volume>0, price>0).mycompany:mypluginview()]]></programlisting>
 			
@@ -1984,7 +1984,7 @@ EPOnDemandQueryResult result = prepared.execute();
 prepared.execute();	// execute a second time]]></programlisting>
 
 		<para>
-		  A unique index is generally preferable over non-unique indexes. For named windows, if your data window declares a unique data window (<literal>std:unique</literal>, <literal>std:firstunique</literal>, including intersections and grouped unique data windows) it is not necessary to create a unique index unless index sharing is enabled, since the engine considers the unique data window declaration in query planning. 
+		  A unique index is generally preferable over non-unique indexes. For named windows, if your data window declares a unique data window (<literal>#unique</literal>, <literal>#firstunique</literal>, including intersections and grouped unique data windows) it is not necessary to create a unique index unless index sharing is enabled, since the engine considers the unique data window declaration in query planning. 
 		</para>
 		
 		<para>
@@ -2265,8 +2265,8 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 
 		<tip>				
 			<para>
-				It usually does not make sense to configure a revision event type without delta event types. Use the unique data window (<literal>std:unique</literal>) or unique data window in intersection with other data windows
-				instead (i.e. <literal>std:unique(field)#time(1 hour)</literal>).
+				It usually does not make sense to configure a revision event type without delta event types. Use the unique data window (<literal>#unique</literal>) or unique data window in intersection with other data windows
+				instead (i.e. <literal>#unique(field)#time(1 hour)</literal>).
 			</para>
 		</tip>
 
