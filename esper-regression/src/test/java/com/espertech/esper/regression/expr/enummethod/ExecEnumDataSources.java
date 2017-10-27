@@ -45,7 +45,9 @@ public class ExecEnumDataSources implements RegressionExecution {
         runAssertionSubstitutionParameter(epService);
         runAssertionTableRow(epService);
         runAssertionPatternFilter(epService);
-        runAssertionMatchRecognize(epService);
+        runAssertionMatchRecognizeDefine(epService);
+        runAssertionMatchRecognizeMeasures(epService, false);
+        runAssertionMatchRecognizeMeasures(epService, true);
         runAssertionEnumObject(epService);
         runAssertionSortedMaxMinBy(epService);
         runAssertionJoin(epService);
@@ -57,6 +59,37 @@ public class ExecEnumDataSources implements RegressionExecution {
         runAssertionProperty(epService);
         runAssertionPrevFuncs(epService);
         runAssertionUDFStaticMethod(epService);
+    }
+
+    private void runAssertionMatchRecognizeMeasures(EPServiceProvider epService, boolean select) {
+        String epl;
+        if (!select) {
+            epl = "select ids from SupportBean match_recognize ( " +
+                    "  measures A.selectFrom(o -> o.theString) as ids ";
+        }
+        else {
+            epl = "select a.selectFrom(o -> o.theString) as ids from SupportBean match_recognize (measures A as a ";
+        }
+        epl = epl + " pattern (A{3}) define A as A.intPrimitive = 1)";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 1));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 1));
+        assertColl("E1,E2,E3", listener.assertOneGetNewAndReset().get("ids"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E4", 1));
+        epService.getEPRuntime().sendEvent(new SupportBean("E5", 1));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E6", 1));
+        assertColl("E4,E5,E6", listener.assertOneGetNewAndReset().get("ids"));
+
+        stmt.destroy();
     }
 
     private void runAssertionSubstitutionParameter(EPServiceProvider epService) {
@@ -110,7 +143,7 @@ public class ExecEnumDataSources implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionMatchRecognize(EPServiceProvider epService) {
+    private void runAssertionMatchRecognizeDefine(EPServiceProvider epService) {
 
         // try define-clause
         String[] fieldsOne = "a_array[0].theString,a_array[1].theString,b.theString".split(",");
@@ -683,6 +716,10 @@ public class ExecEnumDataSources implements RegressionExecution {
         Collection<Map> mapsColl = (Collection<Map>) rows;
         Map[] maps = mapsColl.toArray(new Map[mapsColl.size()]);
         EPAssertionUtil.assertPropsPerRow(maps, fields, objects);
+    }
+
+    private void assertColl(String expected, Object value) {
+        EPAssertionUtil.assertEqualsExactOrder(expected.split(","), ((Collection)value).toArray());
     }
 
     public static class SelectorEvent {

@@ -417,7 +417,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
             throws ExprValidationException {
         try {
             ExprEvaluatorContextStatement exprEvaluatorContext = new ExprEvaluatorContextStatement(statementContext, false);
-            ExprValidationContext validationContext = new ExprValidationContext(typeServiceMeasure, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
+            ExprValidationContext validationContext = new ExprValidationContext(typeServiceMeasure, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), true, false, true, false, null, false);
             return ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGMEASURE, measureNode, validationContext);
         } catch (ExprValidationPropertyException e) {
             String grouped = CollectionUtil.toString(variablesMultiple);
