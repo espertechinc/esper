@@ -47,7 +47,7 @@
 		
 		<note>
 			<para>
-			  For all extension code it is not safe to administrate the engine within the extension code. For example, it is not safe to implement a data window view that creates a new statement or destroys an existing statement.
+			  For all extension code it is not safe to administrate the engine within the extension code. For example, it is not safe to implement a data window that creates a new statement or destroys an existing statement.
 			</para>
 		</note>
     </sect1>
@@ -699,8 +699,7 @@ epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(ent
         <title>Derived-value and Data Window View</title>
         
 		<indexterm><primary>plug-in</primary><secondary>custom view</secondary></indexterm>
-		<indexterm><primary>views</primary><secondary>custom plug-in view</secondary></indexterm>
-		<indexterm><primary>data window views</primary><secondary>custom plug-in view</secondary></indexterm>
+		<indexterm><primary>data window</primary><secondary>custom plug-in view</secondary></indexterm>
         <para>
 			Views in Esper are used to derive information from an event stream, and to represent data windows onto an event stream. This chapter describes how to plug-in a new, custom view. 
         </para>

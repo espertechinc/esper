@@ -1054,7 +1054,7 @@ sender.sendEvent(myEvent);]]></programlisting>
 			</listitem>
 			<listitem>
 				<para>
-					Views and patterns are not allowed to appear in on-demand queries.
+					Data windows and patterns are not allowed to appear in on-demand queries.
 				</para>
 			</listitem>
 			<listitem>
@@ -1468,7 +1468,7 @@ double value = (Double) newEvent[0].get("a[0].value");]]></programlisting>
         </para>
 
 		<para>
-In Esper, an engine instance is a unit of separation. Applications can obtain and discard (initialize) one or more engine instances within the same Java VM and can provide the same or different engine configurations to each instance. An engine instance efficiently shares resources between statements. For example, consider two statements that declare the same data window. The engine matches up view declarations provided by each statement and can thus provide a single data window representation shared between the two statements.
+In Esper, an engine instance is a unit of separation. Applications can obtain and discard (initialize) one or more engine instances within the same Java VM and can provide the same or different engine configurations to each instance. An engine instance can shares resources between statements by means of named windows, tables and variables.
         </para>
 
         <para>
@@ -2249,7 +2249,7 @@ isolatedService.getEPRuntime().send(historyEvent);
         </para>
         
         <para>
-			Exception handlers receive any EPL statement unchecked exception such as internal exceptions or exceptions thrown by plug-in aggregation functions or plug-in views. The engine does not provide to exception handlers any exceptions thrown by static method invocations for function calls, method invocations in joins, methods on variables and event classes and listeners or subscriber exceptions.
+			Exception handlers receive any EPL statement unchecked exception such as internal exceptions or exceptions thrown by plug-in aggregation functions or plug-in data windows. The engine does not provide to exception handlers any exceptions thrown by static method invocations for function calls, method invocations in joins, methods on variables and event classes and listeners or subscriber exceptions.
         </para>
 
         <para>
@@ -2380,7 +2380,7 @@ isolatedService.getEPRuntime().send(historyEvent);
 						</row>
 						<row>
 							<entry><emphasis>FromClause</emphasis></entry>
-							<entry>A list of one or more streams; A stream can be a filter-based, a pattern-based or a SQL-based stream; Views are added to streams to provide data window or other projections</entry>
+							<entry>A list of one or more streams; A stream can be a filter-based, a pattern-based or a SQL-based stream; Add data windows here.</entry>
 						</row>
 					</tbody>
 				</tgroup>
@@ -2663,7 +2663,7 @@ EPStatement stmtOnSelect = epService.getEPAdministrator().create(model);]]></pro
         <para>
 			Substitution parameters can be inserted into any EPL construct that takes an expression. 
 			They are therefore valid in any clauses such as the select-clause, from-clause filters, where-clause, group-by-clause, 
-			having-clause or order-by-clause, including view parameters and pattern observers and guards.
+			having-clause or order-by-clause, including data window parameters and pattern observers and guards.
 			Substitution parameters cannot be used where a numeric constant is required rather than an expression and in SQL statements.
         </para>
 

@@ -170,7 +170,7 @@ INFO  [audit] Statement All-Order-Events property price value 100.0]]></programl
 						</row>
 						<row>
 							<entry>View</entry>
-							<entry>Each view name and its insert and remove stream.</entry>
+							<entry>Each data window name and its insert and remove stream.</entry>
 						</row>
 					</tbody>
 				</tgroup>				

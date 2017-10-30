@@ -4,45 +4,40 @@
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
 
-    <title>EPL Reference: Views</title>
+    <title>EPL Reference: Data Windows</title>
         
-		<indexterm><primary>views</primary><secondary>overview</secondary></indexterm>
-		<indexterm><primary>data window views</primary><secondary>overview</secondary></indexterm>
+		<indexterm><primary>data window</primary><secondary>overview</secondary></indexterm>
 
         <para>
-            This chapter outlines the views that are built into Esper. All views can be arbitrarily combined as many of the examples below show. 
-			The section on <xref linkend="processingmodel"/> provides additional information on the relationship of views, filtering and aggregation. Please also see <xref linkend="epl-from-clause-view-spec"/> for the use of views in the <literal>from</literal> clause with streams, patterns and named windows.
+            This chapter outlines the data windows that are built into Esper.
+			The section on <xref linkend="processingmodel"/> provides additional information on the relationship of filtering, windows and aggregation. Please also see <xref linkend="epl-from-clause-window-spec"/> for the use of windows in the <literal>from</literal> clause with streams, patterns and named windows.
         </para>
         
         <para>
-            Esper organizes built-in views in namespaces and names. Views that provide sliding or tumbling data windows are in the <literal>win</literal> namespace. Other most commonly used views are in the <literal>std</literal> namespace. The <literal>ext</literal> namespace are views that order events. The <literal>stat</literal> namespace is used for views that derive statistical data.
-        </para>
-
-        <para>
-            Esper distinguishes between data window views and derived-value views. Data windows, or data window views, are views that retain incoming events until an expiry policy indicates to release events. Derived-value views derive a new value from event streams and post the result as events of a new type. Both types of views are stateful.
+            Data windows retain incoming events until an expiry policy indicates to release events. Thus data windows are a means of indicating what subset of events to analyze.
         </para>
                 
         <para>
-            Two or more data window views can be combined. This allows a sets of events retained by one data window to be placed into a union or an intersection with the set of events retained by one or more other data windows. Please see <xref linkend="epl-from-clause-view-multidatawindow"/> for more detail.
+            Two or more data windows can be combined. This allows a sets of events retained by one data window to be placed into a union or an intersection with the set of events retained by one or more other data windows. Please see <xref linkend="epl-from-clause-view-multidatawindow"/> for more detail.
         </para>
 
         <para>
 			The keep-all data window counts as a data window but has no expiry policy: it retains all events received. The grouped-window declaration allocates a new data window per grouping criteria and thereby counts as a data window, but cannot appear alone.
         </para>
-
+        
         <para>
-            The next table summarizes data window views:
+            The next table summarizes data windows:
         </para>
 
 	   <table frame="topbot">
-			<title>Built-in Data Window Views</title>
+			<title>Built-in Data Windows</title>
 			<tgroup cols="3">
 				<colspec colwidth="1.5*"/>
 				<colspec colwidth="2.0*"/>
 				<colspec colwidth="2.0*"/>
 				<thead>
 					<row>
-						<entry>View</entry>
+						<entry>Data Window</entry>
 						<entry>Syntax</entry>
 						<entry>Description</entry>
 					</row>
@@ -91,7 +86,7 @@
 					<row>
 						<entry>Keep-All Window</entry>
 						<entry><literal>keepall</literal></entry>
-						<entry>The keep-all data window view simply retains all events.</entry>
+						<entry>The keep-all data window simply retains all events.</entry>
 					</row>
 					<row>
 						<entry>Sorted Window</entry>
@@ -121,7 +116,7 @@
 					<row>
 						<entry>Grouped Data Window</entry>
 						<entry><literal>groupwin(</literal><emphasis>grouping criteria(s)</emphasis><literal>)</literal></entry>
-						<entry>Groups events into sub-views by the value of the specified expression(s), generally used to provide a separate data window per group.</entry>
+						<entry>Groups events into sub-data-windows by the value of the specified expression(s), generally used to provide a separate data window per group.</entry>
 					</row>
 					<row>
 						<entry>Last Event Window</entry>
@@ -162,21 +157,22 @@
 			</tgroup>
 		</table> 
 		
-		<indexterm><primary>derived-value views</primary><secondary>overview</secondary></indexterm>
+		<indexterm><primary>derived-value window</primary><secondary>overview</secondary></indexterm>
 
         <para>
-			The table below summarizes views that derive information from received events and present the derived information as an insert and remove stream of events that are typed specifically to carry the result of the computations: 
+			There is a special kind of data window that is used less frequently, and is called a derived-value window. They are windows that derive a new value from event streams and post the result as events of a new type.
+			The table below summarizes these special derived-value windows.
         </para>
 
 	   <table frame="topbot">
-			<title>Built-in Derived-Value Views</title>
+			<title>Built-in Derived-Value Data Windows</title>
 			<tgroup cols="3">
 				<colspec colwidth="1.5*"/>
 				<colspec colwidth="2.0*"/>
 				<colspec colwidth="2.0*"/>
 				<thead>
 					<row>
-						<entry>View</entry>
+						<entry>Data Window</entry>
 						<entry>Syntax</entry>
 						<entry>Description</entry>
 					</row>
@@ -210,24 +206,28 @@
 				</tbody>
 			</tgroup>
 		</table> 
-        
+		        
 		<sect1 xml:id="view-parameters" >
-		   <title>A Note on View Name and Parameters</title>
+		   <title>A Note on Data Window Name and Parameters</title>
 		   
 		   <para>
-			   The syntax for view specifications starts with view name and is followed by optional view parameter expressions in parenthesis:
+			   The syntax for data windows starts with data window name and is followed by optional parameter expressions in parenthesis:
 		   </para>
-		   <synopsis><emphasis>name</emphasis>(<emphasis>view_parameters</emphasis>)</synopsis>
+		   <synopsis><emphasis>name</emphasis>(<emphasis>window_parameters</emphasis>)</synopsis>
 
 		   <para>
 			   This example specifies a time window of 5 seconds:
 		   </para>
 			<programlisting><![CDATA[select * from StockTickEvent#time(5 sec)]]></programlisting>
 
+			<para>
+			  Esper organizes built-in data windows in namespaces and names. Windows that provide sliding or tumbling data windows are in the <literal>win</literal> namespace. Other most commonly used windows are in the <literal>std</literal> namespace. The <literal>ext</literal> namespace are window that order events. The <literal>stat</literal> namespace is used for windows that derive statistical data.
+			</para>
+
 		   <para>
-			   Alternatively you may specify the namespace name and <literal>:</literal> colon character in addition:
+			   Alternatively you may specify the namespace name and <literal>:</literal> colon character.			
 		   </para>
-		   <synopsis><emphasis>namespace</emphasis>:<emphasis>name</emphasis>(<emphasis>view_parameters</emphasis>)</synopsis>
+		   <synopsis><emphasis>namespace</emphasis>:<emphasis>name</emphasis>(<emphasis>window_parameters</emphasis>)</synopsis>
 
 		   <para>
 			   The below examples all specify a time window of 5 seconds:
@@ -237,7 +237,7 @@
 			<programlisting><![CDATA[select * from StockTickEvent.win:time(5 sec)]]></programlisting>
 
 		   <para>
-			   All expressions are allowed as parameters to views, including expressions that contain variables or substitution parameters for prepared statements. Subqueries, the special <literal>prior</literal> and <literal>prev</literal> functions and aggregations (with the exception of the expression window and expression batch window) are not allowed as view parameters.
+			   All expressions are allowed as parameters to data windows, including expressions that contain variables or substitution parameters for prepared statements. Subqueries, the special <literal>prior</literal> and <literal>prev</literal> functions and aggregations (with the exception of the expression window and expression batch window) are not allowed as data window parameters.
 		   </para>
 
 		   <para>
@@ -246,15 +246,15 @@
 			<programlisting><![CDATA[select * from StockTickEvent#time(VAR_WINDOW_SIZE)]]></programlisting>
 
 		   <para>
-			   Expression parameters for views are evaluated at the time of context partition instantiation with the exception of the expression window (<literal>expr</literal>) and expression batch window (<literal>expr_batch</literal>). 
+			   The system evaluates expression parameters for data windows at the time of context partition instantiation with the exception of the expression window (<literal>expr</literal>) and expression batch window (<literal>expr_batch</literal>). 
 		   </para>
 
 		   <para>
-			   Also consider multiple data windows in intersection or union (keywords <literal>retain-intersection</literal> and <literal>retain-union</literal>). Consider writing a custom plug-in view if your application requires behavior that is not yet provided by any of the built-in views.
+			   Also consider multiple data windows in intersection or union (keywords <literal>retain-intersection</literal> and <literal>retain-union</literal>). Consider writing a custom plug-in data window if your application requires behavior that is not yet provided by any of the built-in windows.
 		   </para>
 
 		   <para>
-			   If a view takes no parameters you may leave parenthesis off or the use empty parenthesis <literal>()</literal>.
+			   If a window takes no parameters you may leave parenthesis off or the use empty parenthesis <literal>()</literal>.
 		   </para>
 
 		   <para>
@@ -322,21 +322,16 @@
 		</sect1>
 
         <sect1 xml:id="win-views" >
-           <title>Data Window Views</title>
-
-			<para>
-				All the views explained below are data window views, as are <literal>unique</literal>, <literal>firstunique</literal>, <literal>lastevent</literal> and <literal>firstevent</literal>.
-			</para>
+           <title>Data Windows</title>
 			
 			<sect2 xml:id="view-win-length" >
-			   <title>Length window (<literal>length</literal> or <literal>win:length</literal>)</title>
+			   <title>Length Window (<literal>length</literal> or <literal>win:length</literal>)</title>
 		
 				<indexterm><primary>length window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>length window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>length window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>length window</secondary></indexterm>
 
 				<para>
-					This view is a moving (sliding) length window extending the specified number of elements into the past. The view takes a single expression as a parameter providing a numeric size value that defines the window size:
+					This window is a moving (sliding) length window extending the specified number of elements into the past. The window takes a single expression as a parameter providing a numeric size value that defines the window size:
 				</para>
 				<synopsis>length(<emphasis>size_expression</emphasis>)</synopsis>
 
@@ -362,33 +357,31 @@ select * from StockTickEvent#length(1)]]></programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-win-length-batch" >
-			   <title>Length batch window (<literal>length_batch</literal> or <literal>win:length_batch</literal>)</title>
+			   <title>Length Batch Window (<literal>length_batch</literal> or <literal>win:length_batch</literal>)</title>
 		
 				<indexterm><primary>length batch window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>length batch window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>length batch window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>length batch window</secondary></indexterm>
 
 				<para>
-					This window view buffers events (tumbling window) and releases them when a given minimum number of events has been collected. Provide an expression defining the number of events to batch as a parameter:
+					This window buffers events (tumbling window) and releases them when a given minimum number of events has been collected. Provide an expression defining the number of events to batch as a parameter:
 				</para>
 				<synopsis>length_batch(<emphasis>size_expression</emphasis>)</synopsis>
 
 				<para>
-					The next statement buffers events until a minimum of 10 events have collected. Listeners to updates posted by this view receive updated information only when 10 or more events have collected.
+					The next statement buffers events until a minimum of 10 events have collected. Listeners to updates posted by this window receive updated information only when 10 or more events have collected.
 				</para>
 	
 				<programlisting><![CDATA[select * from StockTickEvent#length_batch(10)]]></programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-win-time" >
-			   <title>Time window (<literal>time</literal> or <literal>win:time</literal>)</title>
+			   <title>Time Window (<literal>time</literal> or <literal>win:time</literal>)</title>
 		
 				<indexterm><primary>time window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>time window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>time window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>time window</secondary></indexterm>
 
 				<para>
-					This view is a moving (sliding) time window extending the specified time interval into the past based on the system time.
+					This window is a moving (sliding) time window extending the specified time interval into the past based on the system time.
 					Provide a time period (see <xref linkend="epl-syntax-time-periods"/>) or an expression defining the number of seconds as a parameter:
 				</para>
 
@@ -412,15 +405,14 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-win-ext_time" >
-			   <title>Externally-timed window (<literal>ext_timed</literal> or <literal>win:ext_timed</literal>)</title>
+			   <title>Externally-timed Window (<literal>ext_timed</literal> or <literal>win:ext_timed</literal>)</title>
 		
 				<indexterm><primary>externally-timed window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>externally-timed window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>externally-timed window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>externally-timed window</secondary></indexterm>
 
 				<para>
-					Similar to the time window, this view is a moving (sliding) time window extending the specified time interval into the past, but based on the long-type
-					time value supplied by a timestamp expression. The view takes two parameters: the expression to return long-typed timestamp values,
+					Similar to the time window, this window is a moving (sliding) time window extending the specified time interval into the past, but based on the long-type
+					time value supplied by a timestamp expression. The window takes two parameters: the expression to return long-typed timestamp values,
 					and a time period or expression that provides a number of seconds:
 				</para>
 
@@ -433,20 +425,20 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 				</para>
 
 				<para>
-					The algorithm underlying the view compares the timestamp value returned by the expression when the oldest event arrived with the timestamp value returned by the expression for the newest arriving event on event arrival. 
+					The algorithm underlying the window compares the timestamp value returned by the expression when the oldest event arrived with the timestamp value returned by the expression for the newest arriving event on event arrival. 
 					If the time interval between the timestamp values is larger then the timer period parameter, 
 					then the algorithm removes all oldest events tail-first until the difference between the oldest and newest event is within the time interval. The window
 					therefore slides only when events arrive and only considers each event's timestamp property (or other expression value returned) and not engine time.
 				</para>
 
 				<para>
-					This view holds stock tick events of the last 10 seconds based on the timestamp property in <literal>StockTickEvent</literal>.
+					This window holds stock tick events of the last 10 seconds based on the timestamp property in <literal>StockTickEvent</literal>.
 				</para>
 	
 				<programlisting><![CDATA[select * from StockTickEvent#ext_timed(timestamp, 10 seconds)]]></programlisting>
 
 				<para>
-					The externally-timed data window expects strict ordering of the timestamp values returned by the timestamp expression. The view is not useful for ordering events in time order, please use the time-order view instead.
+					The externally-timed data window expects strict ordering of the timestamp values returned by the timestamp expression. The window is not useful for ordering events in time order, please use the time-order window instead.
 				</para>
 				
 				<para>
@@ -456,14 +448,13 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-win-time-batch" >
-			   <title>Time batch window (<literal>time_batch</literal> or <literal>win:time_batch</literal>)</title>
+			   <title>Time batch Window (<literal>time_batch</literal> or <literal>win:time_batch</literal>)</title>
 		
 				<indexterm><primary>time batch window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>time batch window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>time batch window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>time batch window</secondary></indexterm>
 
 				<para>
-					This window view buffers events (tumbling window) and releases them every specified time interval in one update. The view takes a time period or an expression providing a number of seconds as a parameter, plus optional parameters described next.
+					This window buffers events (tumbling window) and releases them every specified time interval in one update. The window takes a time period or an expression providing a number of seconds as a parameter, plus optional parameters described next.
 				</para>
 
 				<synopsis>time_batch(<emphasis>time_period</emphasis> [,<emphasis>optional_reference_point</emphasis>] [,<emphasis>flow_control</emphasis>])</synopsis>
@@ -479,18 +470,18 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 						Please see <xref linkend="view-batchwindows"/> for information on what a batch window is and how to best to compute over intervals. 
 					</para>
 					<para>
-						Note that using this view means that the engine keeps events in memory until the time is up: Consider your event arrival rate and determine if this is the behavior you want. Use context declaration or output rate limiting such as <literal>output snapshot</literal> as an alternative.
+						Note that using this window means that the engine keeps events in memory until the time is up: Consider your event arrival rate and determine if this is the behavior you want. Use context declaration or output rate limiting such as <literal>output snapshot</literal> as an alternative.
 					</para>	
 				</note>
 
 				<para>
 					The below example batches events into a 5 second window releasing new batches every 5 seconds. Listeners to updates
-					posted by this view receive updated information only every 5 seconds.
+					posted by this window receive updated information only every 5 seconds.
 				</para>	
 				<programlisting><![CDATA[select * from StockTickEvent#time_batch(5 sec)]]></programlisting>
 								
 				<para>
-					By default, if there are no events arriving in the current interval (insert stream), and no events remain from the prior batch (remove stream), then the view does not post results to listeners. The view allows overriding this
+					By default, if there are no events arriving in the current interval (insert stream), and no events remain from the prior batch (remove stream), then the window does not post results to listeners. The window allows overriding this
 					default behavior via flow control keywords.
 				</para>
 
@@ -501,20 +492,20 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
     [, "flow-control-keyword [, keyword...]"] )</synopsis>
 
 				<para>
-					The FORCE_UPDATE flow control keyword instructs the view to post an empty result set to listeners if there is no
+					The FORCE_UPDATE flow control keyword instructs the window to post an empty result set to listeners if there is no
 					data to post for an interval. When using this keyword the <literal>irstream</literal> keyword should be used in the <literal>select</literal> clause to ensure the remove stream is also output. 
 					Note that FORCE_UPDATE is for use with listeners to the same statement and not for use with named windows. Consider output rate limiting instead.
 				</para>
 				
 				<para>
-					The START_EAGER flow control keyword instructs the view to post empty result sets even before the first event
-					arrives, starting a time interval at statement creation time. As when using FORCE_UPDATE, the view also posts an
+					The START_EAGER flow control keyword instructs the window to post empty result sets even before the first event
+					arrives, starting a time interval at statement creation time. As when using FORCE_UPDATE, the window also posts an
 					empty result set to listeners if there is no data to post for an interval, however it starts doing so at time of statement
 					creation rather then at the time of arrival of the first event.
 				</para>
 
 				<para>
-					Taking the two flow control keywords in one sample statement, this example presents a view that waits for 10
+					Taking the two flow control keywords in one sample statement, this example presents a window that waits for 10
 					seconds. It posts empty result sets after one interval after the statement is created, and keeps posting an empty result set as no events arrive during intervals:					
 				</para>
 				<programlisting><![CDATA[select * from MyEvent#time_batch(10 sec, "FORCE_UPDATE, START_EAGER")]]></programlisting>				
@@ -530,16 +521,15 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-win-ext-time-batch" >
-			   <title>Externally-timed batch window (<literal>ext_timed_batch</literal> or <literal>win:ext_timed_batch</literal>)</title>
+			   <title>Externally-timed Batch Window (<literal>ext_timed_batch</literal> or <literal>win:ext_timed_batch</literal>)</title>
 		
 				<indexterm><primary>externally-timed batch window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>externally-time batch window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>externally-time batch window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>externally-time batch window</secondary></indexterm>
 
 				<para>
-				    Similar to the time batch window, this view buffers events (tumbling) and releases them every specified time interval in one update, 
+				    Similar to the time batch window, this window buffers events (tumbling) and releases them every specified time interval in one update, 
 				    but based on the long-type time value supplied by a timestamp expression.
-					The view has two required parameters taking an expression that returns long-typed timestamp values and a time period or constant-value expression that provides a number of seconds:
+					The window has two required parameters taking an expression that returns long-typed timestamp values and a time period or constant-value expression that provides a number of seconds:
 				</para>
 
 				<synopsis>ext_timed_batch(<emphasis>timestamp_expression</emphasis>, <emphasis>time_period</emphasis> [,<emphasis>optional_reference_point</emphasis>])</synopsis>
@@ -556,18 +546,18 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 				</para>
 				
 				<para>
-					The algorithm underlying the view compares the timestamp value returned by the expression when the oldest event arrived with the timestamp value returned by the expression for the 
+					The algorithm underlying the window compares the timestamp value returned by the expression when the oldest event arrived with the timestamp value returned by the expression for the 
 					newest arriving event on event arrival. If the time interval between the timestamp values is larger then the timer period parameter, then the algorithm posts the current batch of events. 
 					The window therefore posts batches only when events arrive and only considers each event's timestamp property (or other expression value returned) and not engine time.
 				</para>
 				
 				<para>
-					Note that using this view means that the engine keeps events in memory until the time is up: Consider your event arrival rate and determine if this is the behavior you want. Use context declaration or output rate limiting such as <literal>output snapshot</literal> as an alternative.
+					Note that using this window means that the engine keeps events in memory until the time is up: Consider your event arrival rate and determine if this is the behavior you want. Use context declaration or output rate limiting such as <literal>output snapshot</literal> as an alternative.
 				</para>
 
 				<para>
 					The below example batches events into a 5 second window releasing new batches every 5 seconds. Listeners to updates
-					posted by this view receive updated information only when event arrive with timestamps that indicate the start of a new batch:
+					posted by this window receive updated information only when event arrive with timestamps that indicate the start of a new batch:
 				</para>	
 				<programlisting><![CDATA[select * from StockTickEvent#ext_timed_batch(timestamp, 5 sec)]]></programlisting>
 												
@@ -582,7 +572,7 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 				
 				<para>
 				  The externally-timed data window expects strict ordering of the timestamp values returned by the timestamp expression. 
-				  The view is not useful for ordering events in time order, please use the timeorder view instead.
+				  The window is not useful for ordering events in time order, please use the time-order window instead.
 				</para>
 
 				<para>
@@ -592,19 +582,18 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-win-time-length-batch" >
-			   <title>Time-Length combination batch window (<literal>time_length_batch</literal> or <literal>win:time_length_batch</literal>)</title>
+			   <title>Time-Length Combination Batch Window (<literal>time_length_batch</literal> or <literal>win:time_length_batch</literal>)</title>
 		
 				<indexterm><primary>time length batch window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>time length batch window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>time length batch window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>time length batch window</secondary></indexterm>
 
 				<para>
-					This data window view is a combination of time and length batch (tumbling) windows. Similar to the time and length batch windows, this view batches events and releases the batched events when either one of the 
+					This data window is a combination of time and length batch (tumbling) windows. Similar to the time and length batch windows, this batches events and releases the batched events when either one of the 
 following conditions occurs, whichever occurs first: the data window has collected a given number of events, or a given time interval has passed.
 				</para>
 
 				<para>
-					The view parameters take 2 forms. The first form accepts a time period or an expression providing a number of seconds, and an expression for the number of events:
+					The parameters take 2 forms. The first form accepts a time period or an expression providing a number of seconds, and an expression for the number of events:
 				</para>				
 				<synopsis>time_length_batch(<emphasis>time_period</emphasis>, <emphasis>number_of_events_expression</emphasis>)</synopsis>
 				<synopsis>time_length_batch(<emphasis>seconds_interval_expression</emphasis>, <emphasis>number_of_events_expression</emphasis>)</synopsis>
@@ -615,48 +604,47 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<programlisting><![CDATA[ select * from MyEvent#time_length_batch(1 sec, 100)]]></programlisting>
 
 				<para>
-					In this example, if 100 events arrive into the window before a 1-second time interval passes, the view posts the batch of 100 events. If less then 100 events arrive within a 1-second interval,
-					the view posts all events that arrived within the 1-second interval at the end of the interval.
+					In this example, if 100 events arrive into the window before a 1-second time interval passes, the window posts the batch of 100 events. If less then 100 events arrive within a 1-second interval,
+					the window posts all events that arrived within the 1-second interval at the end of the interval.
 				</para>
 
 				<para>
-					By default, if there are no events arriving in the current interval (insert stream), and no events remain from the prior batch (remove stream), then the view does not post results to listeners. This
-					view allows overriding this default behavior via flow control keywords.
+					By default, if there are no events arriving in the current interval (insert stream), and no events remain from the prior batch (remove stream), then the window does not post results to listeners. This
+					window allows overriding this default behavior via flow control keywords.
 				</para>
 
 				<para>
-					The synopsis of the view with flow control parameters is:
+					The synopsis of the window with flow control parameters is:
 				</para>				
 				<synopsis>time_length_batch(<emphasis>time_period or seconds_interval_expression</emphasis>, <emphasis>number_of_events_expression</emphasis>, 
     "<emphasis>flow control keyword [, keyword...]</emphasis>")</synopsis>
 
 				<para>
-					The <literal>FORCE_UPDATE</literal> flow control keyword instructs the view to post an empty result set to listeners if there is no data to post for an interval. The view begins posting no later then after one time interval passed after the first event arrives. When using this keyword the <literal>irstream</literal> keyword should be used in the <literal>select</literal> clause to ensure the remove stream is also output. 
+					The <literal>FORCE_UPDATE</literal> flow control keyword instructs the window to post an empty result set to listeners if there is no data to post for an interval. The window begins posting no later then after one time interval passed after the first event arrives. When using this keyword the <literal>irstream</literal> keyword should be used in the <literal>select</literal> clause to ensure the remove stream is also output. 
 				</para>				
 
 				<para>
-					The <literal>START_EAGER</literal> flow control keyword instructs the view to post empty result sets even before the first event arrives, starting a time interval at statement creation time. As when using <literal>FORCE_UPDATE</literal>, the view also posts an empty result set to listeners if there is no data to post for an interval, however it starts doing so at time of statement creation rather then at the time of arrival of the first event.
+					The <literal>START_EAGER</literal> flow control keyword instructs the window to post empty result sets even before the first event arrives, starting a time interval at statement creation time. As when using <literal>FORCE_UPDATE</literal>, the window also posts an empty result set to listeners if there is no data to post for an interval, however it starts doing so at time of statement creation rather then at the time of arrival of the first event.
 				</para>				
 
 				<para>
-					Taking the two flow control keywords in one sample statement, this example presents a view that waits for 10 seconds or reacts when the 5th event arrives, whichever comes first. It posts empty result sets after one interval after the statement is created, and keeps posting an empty result set as no events arrive during intervals: 
+					Taking the two flow control keywords in one sample statement, this example presents a window that waits for 10 seconds or reacts when the 5th event arrives, whichever comes first. It posts empty result sets after one interval after the statement is created, and keeps posting an empty result set as no events arrive during intervals: 
 				</para>
 				<programlisting><![CDATA[ select * from MyEvent#time_length_batch(10 sec, 5, "FORCE_UPDATE, START_EAGER")]]></programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-win-time-accumulating" >
-			   <title>Time-Accumulating window (<literal>time_accum</literal> or <literal>win:time_accum</literal>)</title>
+			   <title>Time-Accumulating Window (<literal>time_accum</literal> or <literal>win:time_accum</literal>)</title>
 		
 				<indexterm><primary>time-accumulating window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>time-accumulating window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>time-accumulating window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>time-accumulating window</secondary></indexterm>
 
 				<para>
-					This data window view is a specialized moving (sliding) time window that differs from the regular time window in that it accumulates events until no more events arrive within a given time interval, and only then releases the accumulated events as a remove stream.
+					This data window is a specialized moving (sliding) time window that differs from the regular time window in that it accumulates events until no more events arrive within a given time interval, and only then releases the accumulated events as a remove stream.
 				</para>
 
 				<para>
-					The view accepts a single parameter: the time period or seconds-expression specifying the length of the time interval during which no events must arrive until the view releases accumulated events. The synopsis is as follows:
+					The window accepts a single parameter: the time period or seconds-expression specifying the length of the time interval during which no events must arrive until the window releases accumulated events. The synopsis is as follows:
 				</para>				
 				<synopsis>time_accum(<emphasis>time_period</emphasis>)</synopsis>
 				<synopsis>time_accum(<emphasis>seconds_interval_expression</emphasis>)</synopsis>
@@ -676,23 +664,22 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<programlisting><![CDATA[ select rstream * from MyEvent#time_accum(10 sec)]]></programlisting>
 
 				<para>
-					If there are no events arriving, then the view does not post results to listeners. 
+					If there are no events arriving, then the window does not post results to listeners. 
 				</para>
 			</sect2>
 
 			<sect2 xml:id="view-win-keepall" >
-			   <title>Keep-All window (<literal>keepall</literal> or <literal>win:keepall</literal>)</title>
+			   <title>Keep-All Window (<literal>keepall</literal> or <literal>win:keepall</literal>)</title>
 		
 				<indexterm><primary>keep-all window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>keep-all window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>keep-all window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>keep-all window</secondary></indexterm>
 
 				<para>
-					This keep-all data window view simply retains all events. The view does not remove events from the data window, unless used with a named window and the <literal>on delete</literal> clause.
+					This keep-all data window simply retains all events. The window does not remove events from the data window, unless used with a named window and the <literal>on delete</literal> clause.
 				</para>
 
 				<para>
-					The view accepts no parameters. The synopsis is as follows:
+					The window accepts no parameters. The synopsis is as follows:
 				</para>				
 				<synopsis>keepall</synopsis>
 
@@ -702,18 +689,18 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<programlisting><![CDATA[ select * from MyEvent#keepall]]></programlisting>
 
 				<para>
-					Note that since the view does not release events, care must be taken to prevent retained events from using all available memory.
+					Note that since the window does not release events, care must be taken to prevent retained events from using all available resources.
 				</para>
 			</sect2>
 
 			<sect2 xml:id="view-win-firstlength" >
-			   <title>First Length (<literal>firstlength</literal> or <literal>win:firstlength</literal>)</title>
+			   <title>First Length Window(<literal>firstlength</literal> or <literal>win:firstlength</literal>)</title>
 		
 				<indexterm><primary>first length window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>first length window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>first length window</secondary></indexterm>
 
 				<para>
-					The <literal>firstlength</literal> view retains the very first <emphasis>size_expression</emphasis> events.
+					The <literal>firstlength</literal> window retains the very first <emphasis>size_expression</emphasis> events.
 				</para>
 				
 				<para>
@@ -722,23 +709,23 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<synopsis>firstlength(<emphasis>size_expression</emphasis>)</synopsis>
 
 				<para>
-					If used within a named window and an <literal>on-delete</literal> clause deletes events, the view accepts further arriving events until the number of retained events reaches the size of <emphasis>size_expression</emphasis>.
+					If used within a named window and an <literal>on-delete</literal> clause deletes events, the window accepts further arriving events until the number of retained events reaches the size of <emphasis>size_expression</emphasis>.
 				</para>
 
 				<para>
-					The below example creates a view that retains only the first 10 events:
+					The below example creates a window that retains only the first 10 events:
 				</para>
 				<programlisting><![CDATA[select * from MyEvent#firstlength(10)]]></programlisting>				
 			</sect2>
 			
 			<sect2 xml:id="view-win-firsttime" >
-			   <title>First Time (<literal>firsttime</literal> or <literal>win:firsttime</literal>)</title>
+			   <title>First Time Window (<literal>firsttime</literal> or <literal>win:firsttime</literal>)</title>
 		
 				<indexterm><primary>first time window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>first time window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>first time window</secondary></indexterm>
 
 				<para>
-					The <literal>firsttime</literal> view retains all events arriving within a given time interval after statement start.
+					The <literal>firsttime</literal> window retains all events arriving within a given time interval after statement start.
 				</para>
 				
 				<para>
@@ -748,23 +735,23 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<synopsis>firsttime(<emphasis>seconds_interval_expression</emphasis>)</synopsis>
 
 				<para>
-					The below example creates a view that retains only those events arriving within 1 minute and 10 seconds of statement start:
+					The below example creates a window that retains only those events arriving within 1 minute and 10 seconds of statement start:
 				</para>
 				<programlisting><![CDATA[select * from MyEvent#firsttime(1 minute 10 seconds)]]></programlisting>				
 			</sect2>
 
 			<sect2 xml:id="view-win-expr" >
-			   <title>Expiry Expression (<literal>expr</literal> or <literal>win:expr</literal>)</title>
+			   <title>Expiry Expression Window (<literal>expr</literal> or <literal>win:expr</literal>)</title>
 		
 				<indexterm><primary>expression window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>expiry expression window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>expiry expression window</secondary></indexterm>
 
 				<para>
-					The <literal>expr</literal> view applies an expiry expression and removes events from the data window when the expression returns false.
+					The <literal>expr</literal> data window applies an expiry expression and removes events from the data window when the expression returns false.
 				</para>
 				
 				<para>
-				   Use this view to implement rolling and dynamically shrinking or expanding time, length or other windows. Rolling can, for example, be controlled based on event properties of arriving events, based on aggregation values or based on the return result of user-defined functions. Use this view to accumulate events until a value changes or other condition occurs based on arriving events or change of a variable value.
+				   Use this window to implement rolling and dynamically shrinking or expanding time, length or other windows. Rolling can, for example, be controlled based on event properties of arriving events, based on aggregation values or based on the return result of user-defined functions. Use this window to accumulate events until a value changes or other condition occurs based on arriving events or change of a variable value.
 				 </para>
 				
 				<para>
@@ -773,17 +760,17 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<synopsis>expr(<emphasis>expiry_expression</emphasis>)</synopsis>
 
 				<para>
-					The expiry expression can be any expression including expressions on event properties, variables, aggregation functions or user-defined functions. The view applies this expression to the oldest event(s) currently in the view, as described next.
+					The expiry expression can be any expression including expressions on event properties, variables, aggregation functions or user-defined functions. The window applies this expression to the oldest event(s) currently in the window, as described next.
 				</para>
 
 				<para>
-					When a new event arrives or when a variable value referenced by the expiry expression changes then the view applies the expiry expression starting from the oldest event in the data window.
-					If the expiry expression returns false for the oldest event, the view removes the event from the data window. The view then applies the expression to the next oldest event.
-					If the expiry expression returns true for the oldest event, no further evaluation takes place and the view indicates any new and expired events through insert and remove stream.
+					When a new event arrives or when a variable value referenced by the expiry expression changes then the window applies the expiry expression starting from the oldest event in the data window.
+					If the expiry expression returns false for the oldest event, the window removes the event from the data window. The window then applies the expression to the next oldest event.
+					If the expiry expression returns true for the oldest event, no further evaluation takes place and the window indicates any new and expired events through insert and remove stream.
 				</para>
 
 				<para>
-					By using variables in the expiry expression it is possible to change the behavior of the view dynamically at runtime. When one or more variables used in the expression are updated the view evaluates the expiry expression starting from the oldest event.
+					By using variables in the expiry expression it is possible to change the behavior of the window dynamically at runtime. When one or more variables used in the expression are updated the window evaluates the expiry expression starting from the oldest event.
 				</para>
 
 				<para>
@@ -795,7 +782,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 				</para>
 				
 			   <table frame="topbot">
-					<title>Built-in Properties of the Expiry Expression Data Window View</title>
+					<title>Built-in Properties of the Expiry Expression Data Window</title>
 					<tgroup cols="3">
 						<colspec colwidth="1.1*"/>
 						<colspec colwidth="0.8*"/>
@@ -809,39 +796,39 @@ following conditions occurs, whichever occurs first: the data window has collect
 						</thead>
 						<tbody>
 							<row>
-								<entry>current_count</entry>
+								<entry><literal>current_count</literal></entry>
 								<entry>int</entry>
 								<entry>The number of events in the data window including the currently-arriving event.</entry>
 							</row>
 							<row>
-								<entry>expired_count</entry>
+								<entry><literal>expired_count</literal></entry>
 								<entry>int</entry>
 								<entry>The number of events expired during this evaluation.</entry>
 							</row>
 							<row>
-								<entry>newest_event</entry>
+								<entry><literal>newest_event</literal></entry>
 								<entry>(same event type as arriving events)</entry>
 								<entry>The last-arriving event itself.</entry>
 							</row>
 							<row>
-								<entry>newest_timestamp</entry>
+								<entry><literal>newest_timestamp</literal></entry>
 								<entry>long</entry>
 								<entry>The engine timestamp associated with the last-arriving event.</entry>
 							</row>
 							<row>
-								<entry>oldest_event</entry>
+								<entry><literal>oldest_event</literal></entry>
 								<entry>(same event type as arriving events)</entry>
 								<entry>The currently-evaluated event itself.</entry>
 							</row>
 							<row>
-								<entry>oldest_timestamp</entry>
+								<entry><literal>oldest_timestamp</literal></entry>
 								<entry>long</entry>
 								<entry>The engine timestamp associated with the currently-evaluated event.</entry>
 							</row>
 							<row>
-								<entry>view_reference</entry>
+								<entry><literal>view_reference</literal></entry>
 								<entry>Object</entry>
-								<entry>The object handle to this view.</entry>
+								<entry>The object handle to this data window.</entry>
 							</row>
 						</tbody>
 					</tgroup>
@@ -854,7 +841,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 				
 				<para>
 					The following example implements a dynamically-sized length window by means of a SIZE variable. As the SIZE variable value changes 
-					the view retains the number of events according to the current value of SIZE:
+					the window retains the number of events according to the current value of SIZE:
 				</para>
 				<programlisting><![CDATA[create variable int SIZE = 1000]]></programlisting>
 				<programlisting><![CDATA[select * from MyEvent#expr(current_count <= SIZE)]]></programlisting>
@@ -866,7 +853,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 
 				<para>
 					The following example implements a dynamically-sized time window. As the SIZE long-type variable value changes 
-					the view retains a time interval accordingly:
+					the window retains a time interval accordingly:
 				</para>
 				<programlisting><![CDATA[create variable long SIZE = 1000]]></programlisting>
 				<programlisting><![CDATA[select * from MyEvent#expr(newest_timestamp - oldest_timestamp < SIZE)]]></programlisting>
@@ -896,23 +883,23 @@ following conditions occurs, whichever occurs first: the data window has collect
 					</para>
 					
 					<para>
-					  When using variables in the expiry expression, the thread that updates the variable does not evaluate the view. The thread that updates the variable instead schedules a reevaluation and view evaluates by timer execution.
+					  When using variables in the expiry expression, the thread that updates the variable does not evaluate the window. The thread that updates the variable instead schedules a reevaluation and window evaluates by timer execution.
 					</para>					
 				</sect3>
 			</sect2>
 
 			<sect2 xml:id="view-win-exprbatch" >
-			   <title>Expiry Expression Batch (<literal>expr_batch</literal> or <literal>win:expr_batch</literal>)</title>
+			   <title>Expiry Expression Batch Window (<literal>expr_batch</literal> or <literal>win:expr_batch</literal>)</title>
 		
 				<indexterm><primary>expression batch window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>expiry expression batch window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>expiry expression batch window</secondary></indexterm>
 
 				<para>					
-					The <literal>expr_batch</literal> view buffers events (tumbling window) and releases them when a given expiry expression returns true.
+					The <literal>expr_batch</literal> buffers events (tumbling window) and releases them when a given expiry expression returns true.
 				</para>
 				
 				<para>
-				  Use this view to implement dynamic or custom batching behavior, such as for dynamically shrinking or growing time, length or other batches, for batching based on event properties of arriving events, aggregation values or for batching based on a user-defined function.
+				  Use this window to implement dynamic or custom batching behavior, such as for dynamically shrinking or growing time, length or other batches, for batching based on event properties of arriving events, aggregation values or for batching based on a user-defined function.
 				</para>
 			
 				<para>
@@ -921,7 +908,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<synopsis>expr_batch(<emphasis>expiry_expression</emphasis>, [<emphasis>include_triggering_event</emphasis>])</synopsis>
 
 				<para>
-					The expiry expression can be any expression including expressions on event properties, variables, aggregation functions or user-defined functions. The view applies this expression to arriving event(s), as described next.
+					The expiry expression can be any expression including expressions on event properties, variables, aggregation functions or user-defined functions. The window applies this expression to arriving event(s), as described next.
 				</para>
 
 				<para>
@@ -929,12 +916,12 @@ following conditions occurs, whichever occurs first: the data window has collect
 				</para>
 
 				<para>
-					When a new event arrives or when a variable value referenced by the expiry expression changes or when events get removed from the data window then the view applies the expiry expression. 
+					When a new event arrives or when a variable value referenced by the expiry expression changes or when events get removed from the data window then the window applies the expiry expression. 
 					If the expiry expression returns true the data window posts the collected events as the insert stream and the last batch of events as remove stream.
 				</para>
 
 				<para>
-					By using variables in the expiry expression it is possible to change the behavior of the view dynamically at runtime. When one or more variables used in the expression are updated the view evaluates the expiry expression as well.
+					By using variables in the expiry expression it is possible to change the behavior of the window dynamically at runtime. When one or more variables used in the expression are updated the window evaluates the expiry expression as well.
 				</para>
 
 				<para>
@@ -946,7 +933,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 				</para>
 				
 			   <table frame="topbot">
-					<title>Built-in Properties of the Expiry Expression Data Window View</title>
+					<title>Built-in Properties of the Expiry Expression Data Window</title>
 					<tgroup cols="3">
 						<colspec colwidth="1.0*"/>
 						<colspec colwidth="1.0*"/>
@@ -960,34 +947,34 @@ following conditions occurs, whichever occurs first: the data window has collect
 						</thead>
 						<tbody>
 							<row>
-								<entry>current_count</entry>
+								<entry><literal>current_count</literal></entry>
 								<entry>int</entry>
 								<entry>The number of events in the data window including the currently-arriving event.</entry>
 							</row>
 							<row>
-								<entry>newest_event</entry>
+								<entry><literal>newest_event</literal></entry>
 								<entry>(same event type as arriving events)</entry>
 								<entry>The last-arriving event itself.</entry>
 							</row>
 							<row>
-								<entry>newest_timestamp</entry>
+								<entry><literal>newest_timestamp</literal></entry>
 								<entry>long</entry>
 								<entry>The engine timestamp associated with the last-arriving event.</entry>
 							</row>
 							<row>
-								<entry>oldest_event</entry>
+								<entry><literal>oldest_event</literal></entry>
 								<entry>(same event type as arriving events)</entry>
 								<entry>The currently-evaluated event itself.</entry>
 							</row>
 							<row>
-								<entry>oldest_timestamp</entry>
+								<entry><literal>oldest_timestamp</literal></entry>
 								<entry>long</entry>
 								<entry>The engine timestamp associated with the currently-evaluated event.</entry>
 							</row>
 							<row>
-								<entry>view_reference</entry>
+								<entry><literal>view_reference</literal></entry>
 								<entry>Object</entry>
-								<entry>The object handle to this view.</entry>
+								<entry>The object handle to this window.</entry>
 							</row>
 						</tbody>
 					</tgroup>
@@ -1000,7 +987,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 				
 				<para>
 					The following example implements a dynamically-sized length batch window by means of a SIZE variable. As the SIZE variable value changes 
-					the view accomulates and posts the number of events according to the current value of SIZE:
+					the window accumulates and posts the number of events according to the current value of SIZE:
 				</para>
 				<programlisting><![CDATA[create variable int SIZE = 1000]]></programlisting>
 				<programlisting><![CDATA[select * from MyEvent#expr_batch(current_count >= SIZE)]]></programlisting>
@@ -1039,25 +1026,19 @@ following conditions occurs, whichever occurs first: the data window has collect
 					</para>
 					
 					<para>
-					  When using variables in the expiry expression, the thread that updates the variable does not evaluate the view. The thread that updates the variable instead schedules a reevaluation and view evaluates by timer execution.
+					  When using variables in the expiry expression, the thread that updates the variable does not evaluate the window. The thread that updates the variable instead schedules a reevaluation and window evaluates by timer execution.
 					</para>					
 				</sect3>
 			</sect2>
 
-	   </sect1>
-
-        <sect1 xml:id="std-views" >
-           <title>Standard view set</title>
-
 			<sect2 xml:id="view-std-unique" >
-			   <title>Unique (<literal>unique</literal> or <literal>std:unique</literal>)</title>
+			   <title>Unique Window (<literal>unique</literal> or <literal>std:unique</literal>)</title>
 		
 				<indexterm><primary>unique window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>unique window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>unique window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>unique window</secondary></indexterm>
 
 				<para>
-					The <literal>unique</literal> view is a view that includes only the most recent among events having the same value(s) for the result of the specified expression or list of expressions.
+					The <literal>unique</literal> window is a window that includes only the most recent among events having the same value(s) for the result of the specified expression or list of expressions.
 				</para>
 				
 				<para>
@@ -1066,7 +1047,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<synopsis>unique(<emphasis>unique_expression</emphasis> [, <emphasis>unique_expression</emphasis> ...])</synopsis>
 
 				<para>
-					The view acts as a length window of size 1 for each distinct value returned by an expression, or combination of values returned by multiple expressions. It thus posts as old events the prior event of the same value(s), if any.
+					The window acts as a length window of size 1 for each distinct value returned by an expression, or combination of values returned by multiple expressions. It thus posts as old events the prior event of the same value(s), if any.
 				</para>
 
 				<para>
@@ -1074,12 +1055,12 @@ following conditions occurs, whichever occurs first: the data window has collect
 				</para>
 
 				<para>
-					The below example creates a view that retains only the last event per symbol.
+					The below example creates a window that retains only the last event per symbol.
 				</para>
 				<programlisting><![CDATA[select * from StockTickEvent#unique(symbol)]]></programlisting>
 				
 				<para>
-					The next example creates a view that retains the last event per symbol and feed.
+					The next example creates a window that retains the last event per symbol and feed.
 				</para>
 				<programlisting><![CDATA[select * from StockTickEvent#unique(symbol, feed)]]></programlisting>
 				
@@ -1093,17 +1074,16 @@ following conditions occurs, whichever occurs first: the data window has collect
 			   <title>Grouped Data Window (<literal>groupwin</literal> or <literal>std:groupwin</literal>)</title>
 		
 				<indexterm><primary>groupwin window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>grouped data window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>grouped data window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>grouped data window</secondary></indexterm>
 				
 				<para>
-					This view groups events into sub-views by the value returned by the specified expression or the combination of values returned by a list of expressions. The view takes a single expression to supply the group criteria values, or a list of expressions as parameters, as the synopsis shows:
+					Specifying <literal>#groupwin</literal> groups events into sub-data-window by the value returned by the specified expression or the combination of values returned by a list of expressions. The <literal>#groupwin</literal> takes a single expression to supply the group criteria values, or a list of expressions as parameters, as the synopsis shows:
 				</para>
 
 				<synopsis>groupwin(<emphasis>grouping_expression</emphasis> [, <emphasis>grouping_expression</emphasis> ...])</synopsis>
 
 				<para>
-					The <emphasis>grouping_expression</emphasis> expression(s) return one or more group keys, by which the view creates sub-views for each distinct group key. Note that the expression should not return an unlimited number of values: the grouping expression should not
+					The <emphasis>grouping_expression</emphasis> expression(s) return one or more group keys, by which it creates a separate data window for each distinct group key. Note that the expression should not return an unlimited number of values: the grouping expression should not
 					return a time value or otherwise unlimited key. 
 				</para>
 
@@ -1131,13 +1111,13 @@ select * from StockTickEvent#groupwin(symbol)#length(1)]]></programlisting>
 				<para>
 					The @Hint("<literal>reclaim_group_aged=</literal><emphasis>age_in_seconds</emphasis>") hint instructs the engine to discard grouped data window state that has not been updated for <emphasis>age_in_seconds</emphasis> seconds. 
 					The optional @Hint("<literal>reclaim_group_freq=</literal><emphasis>sweep_frequency_in_seconds</emphasis>") can be specified in addition to control the frequency at which the engine sweeps data window state.
-					If the hint is not specified, the frequency defaults to the same value as <emphasis>age_in_seconds</emphasis>. Use the hints when your group criteria returns a changing or unlimited number of values. By default and without hints the view does not reclaim or remove data windows for group criteria values.
+					If the hint is not specified, the frequency defaults to the same value as <emphasis>age_in_seconds</emphasis>. Use the hints when your group criteria returns a changing or unlimited number of values. By default and without hints the data window does not reclaim or remove data windows for group criteria values.
 				</para>
 				
 				<para>
 					The updated sample statement with both hints:
 				</para>
-				<programlisting><![CDATA[// Remove data window views for symbols not updated for 10 seconds or more and sweep every 30 seconds
+				<programlisting><![CDATA[// Remove data window for symbols not updated for 10 seconds or more and sweep every 30 seconds
 @Hint('reclaim_group_aged=10,reclaim_group_freq=30')
 select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(5)]]></programlisting>
 
@@ -1153,13 +1133,13 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(5)]]></pro
 				<programlisting><![CDATA[select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(5) group by symbol]]></programlisting>
 
 				<para>
-					The <literal>groupwin</literal> grouped-window view can also take multiple expressions that provide values to group by. This example computes the total price for each symbol and feed for the last 10 events per symbol and feed combination:
+					The <literal>groupwin</literal> grouped-window can also take multiple expressions that provide values to group by. This example computes the total price for each symbol and feed for the last 10 events per symbol and feed combination:
 				</para>
 	
 				<programlisting><![CDATA[select sum(price) from StockTickEvent#groupwin(symbol, feed)#length(10)]]></programlisting>
 
 				<para>
-					The order in which the <literal>groupwin</literal> grouped-window view appears within sub-views of a stream controls the data the engine derives from events for each group. The next 2 statements demonstrate this using a length window.
+					The order in which the <literal>groupwin</literal> grouped-window appears controls the data the engine derives from events for each group. The next 2 statements demonstrate this using a length window.
 				</para>
 
 				<para>
@@ -1169,11 +1149,11 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(5)]]></pro
 				<programlisting><![CDATA[select sum(price) from StockTickEvent#length(10)]]></programlisting>
 
 				<para>
-					We have learned that by placing the <literal>groupwin</literal> grouped-window view before other views, these other views become part of the grouped set of views. The engine dynamically allocates a new view instance for each subview, every time it encounters a new group key such as a new value for symbol. Therefore, in <literal>groupwin(symbol)#length(10)</literal> the engine allocates a new length window for each distinct symbol. However in <literal>length(10)</literal> alone the engine maintains a single length window.
+					We have learned that by placing the <literal>groupwin</literal> grouped-window before other data windows, these other data windows become part of the grouped set of windows. The engine dynamically allocates a new window instance for each, every time it encounters a new group key such as a new value for symbol. Therefore, in <literal>groupwin(symbol)#length(10)</literal> the engine allocates a new length window for each distinct symbol. However in <literal>length(10)</literal> alone the engine maintains a single length window.
 				</para>
 
 				<para>
-					The <literal>groupwin</literal> can be used with multiple data window views to achieve a grouped intersection or union policy.
+					The <literal>groupwin</literal> can be used with multiple data windows to achieve a grouped intersection or union policy.
 				</para>
 
 				<para>
@@ -1203,9 +1183,8 @@ select sum(price) from StockTickEvent#time(1 minute)
 				</note>
 
 				<para>
-					For advanced users: There is an optional view that can control how the <literal>groupwin</literal> grouped-window view gets evaluated and that view is the <literal>merge</literal> view. 
-					The merge view can only occur after a <literal>groupwin</literal> grouped-window view in a view chain and controls
-					at what point in the view chain the merge of the data stream occurs from view-instance-per-criteria to single view.
+					For advanced users: There is an optional declaration that can control how the <literal>groupwin</literal> grouped-window gets evaluated and that is <literal>#merge</literal>. 
+					The merge can only occur after a <literal>groupwin</literal> grouped-window. It controls the end of the grouped declaration. 
 				</para>
 
 				<para>
@@ -1219,89 +1198,28 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
     #weighted_avg(price, volume)]]></programlisting>
 
 				<para>
-					If your statement does not specify the optional <literal>merge</literal> view, the semantics are the same as the first statement.
+					If your statement does not specify the optional <literal>#merge</literal>, the semantics are the same as the first statement.
 				</para>
 
 				<para>
-					The first statement, in which the merge-view is added to the end (same as no merge view), computes weighted average per ticker, considering, per-ticker, the last 1M Market events for each ticker.
-					The second statement, in which the merge view is added to the middle, computes weighted average considering, per-ticker, the last 1M Market events, computing the weighted average for all such events using a single view rather then multiple view instances with one view per ticker. 
+					The first statement, in which the <literal>#merge</literal>is added to the end (same as no merge), computes weighted average per ticker, considering, per-ticker, the last 1M Market events for each ticker.
+					The second statement, in which the merge is added to the middle, computes weighted average considering, per-ticker, the last 1M Market events, computing the weighted average for all such events using a single data window rather then multiple data window instances with one window per ticker. 
 				</para>
-			</sect2>
-
-			<sect2 xml:id="view-std-size" >
-			   <title>Size (<literal>size</literal>) or <literal>std:size</literal>)</title>
-		
-				<indexterm><primary>size window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>size window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>size window</secondary></indexterm>
-
-				<para>
-					This view posts the number of events received from a stream or view plus any additional event properties or expression values listed as parameters. The synopsis is:
-				</para>
-
-				<synopsis>size([<emphasis>expression</emphasis>, ...] [ * ])</synopsis>
-
-				<para>					
-					The view posts a single long-typed property named <literal>size</literal>. The view posts the prior size as old data, and the current size as new data to update listeners of the view. Via the <literal>iterator</literal> method of the statement the size value can also be polled (read). The view only posts output events when the <literal>size</literal> count changes and does not stay the same.
-				</para>
-				
-				<para>
-					As optional parameters the view takes a list of expressions that the view evaluates against the last arriving event and provides along the <literal>size</literal> field. You may also provide the <literal>*</literal> wildcard selector to have the view output all event properties.
-				</para>
-
-				<para>					
-					An alternative to receiving a data window event count is the <literal>prevcount</literal> function. Compared to the <literal>size</literal> view the <literal>prevcount</literal> function requires a data window while the <literal>size</literal> view does not. The related <literal>count(...)</literal> aggregation function provides a count per group when used with <literal>group by</literal>.
-				</para>
-
-				<para>
-					When combined with a data window view, the size view reports the current number of events in the data window in the insert stream and the prior number of events in the data window as the remove stream. This example reports the number of tick events within the last 1 minute:
-				</para>
-				<programlisting><![CDATA[select size from StockTickEvent#time(1 min)#size]]></programlisting>
-
-				<para>
-					To select additional event properties you may add each event property to output as a parameter to the view. 
-				</para>
-
-				<para>
-					The next example selects the symbol and feed event properties in addition to the <literal>size</literal> property:
-				</para>
-				<programlisting><![CDATA[select size, symbol, feed from StockTickEvent#time(1 min)#size(symbol, feed)]]></programlisting>
-
-				<para>
-					This example selects all event properties in addition to the <literal>size</literal> property:
-				</para>
-				<programlisting><![CDATA[select * from StockTickEvent#time(1 min)#size(*)]]></programlisting>
-
-				<para>
-					The size view is also useful in conjunction with a <literal>groupwin</literal> grouped-window view to count the number of events per group. The EPL below returns the number of events per symbol.
-				</para>
-				<programlisting><![CDATA[select size from StockTickEvent#groupwin(symbol)#size]]></programlisting>
-
-				<para>
-					When used without a data window, the view simply counts the number of events:
-				</para>
-				<programlisting><![CDATA[select size from StockTickEvent#size]]></programlisting>
-
-				<para>
-					All views can be used with pattern statements as well. The next EPL snippet shows a pattern where we look for tick events followed by trade events for the same symbol. The size view counts the number of occurrences of the pattern.
-				</para>
-				<programlisting><![CDATA[select size from pattern[every s=StockTickEvent -> TradeEvent(symbol=s.symbol)]#size]]></programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-std-last" >
-			   <title>Last Event (<literal>std:lastevent</literal>)</title>
+			   <title>Last Event Window (<literal>std:lastevent</literal>)</title>
 		
 				<indexterm><primary>last event window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>last event window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>last event window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>last event window</secondary></indexterm>
 
 				<para>
-					This view exposes the last element of its parent view:
+					This window exposes the last element:
 				</para>
 				<synopsis>lastevent</synopsis>
 
 				<para>
-					The view acts as a length window of size 1. It thus posts as old events the prior event in the stream, if any.
+					The window acts as a length window of size 1. It thus posts as old events the prior event in the stream, if any.
 				</para>
 
 				<para>
@@ -1316,13 +1234,13 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 			</sect2>
 
 			<sect2 xml:id="view-std-first" >
-			   <title>First Event (<literal>firstevent</literal> or <literal>std:firstevent</literal>)</title>
+			   <title>First Event Window (<literal>firstevent</literal> or <literal>std:firstevent</literal>)</title>
 		
 				<indexterm><primary>first event</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>first event</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>first event</secondary></indexterm>
 
 				<para>
-					This view retains only the first arriving event:
+					This window retains only the first arriving event:
 				</para>
 				<synopsis>firstevent</synopsis>
 
@@ -1331,7 +1249,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				</para>
 
 				<para>
-					If used within a named window and an <literal>on-delete</literal> clause deletes the first event, the view resets and will retain the next arriving event.
+					If used within a named window and an <literal>on-delete</literal> clause deletes the first event, the window resets and will retain the next arriving event.
 				</para>
 
 				<para>
@@ -1346,13 +1264,13 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 			</sect2>
 
 			<sect2 xml:id="view-std-firstunique" >
-			   <title>First Unique (<literal>firstunique</literal> or <literal>std:firstunique</literal>)</title>
+			   <title>First Unique Window (<literal>firstunique</literal> or <literal>std:firstunique</literal>)</title>
 		
 				<indexterm><primary>first unique window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>first unique window</secondary></indexterm>
+				<indexterm><primary>data window</primary><secondary>first unique window</secondary></indexterm>
 
 				<para>
-					The <literal>firstunique</literal> view retains only the very first among events having the same value for the specified expression or list of expressions.
+					The <literal>firstunique</literal> window retains only the very first among events having the same value for the specified expression or list of expressions.
 				</para>
 				
 				<para>
@@ -1361,11 +1279,11 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<synopsis>firstunique(<emphasis>unique_expression</emphasis> [, <emphasis>unique_expression</emphasis> ...])</synopsis>
 
 				<para>
-					If used within a named window and an <literal>on-delete</literal> clause deletes events, the view resets and will retain the next arriving event for the expression result value(s) of the deleted events.
+					If used within a named window and an <literal>on-delete</literal> clause deletes events, the window resets and will retain the next arriving event for the expression result value(s) of the deleted events.
 				</para>
 
 				<para>
-					The below example creates a view that retains only the first event per category:
+					The below example creates a window that retains only the first event per category:
 				</para>
 				<programlisting><![CDATA[select * from ReferenceData#firstunique(category)]]></programlisting>
 				
@@ -1374,34 +1292,306 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 					Specify <literal>@Hint('disable_unique_implicit_idx')</literal> to force the engine to plan queries using a non-unique index.
 				</para>				
 			</sect2>
+			
+			<sect2 xml:id="view-ext-sort" >
+			   <title>Sorted Window (<literal>sort</literal> or <literal>ext:sort</literal>)</title>
+		
+				<indexterm><primary>sorted window</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>sorted window</secondary></indexterm>
+
+				<para>					
+					This window sorts by values returned by the specified expression or list of expressions and keeps only the top (or bottom) events up to the given size. 
+				</para>
+
+				<para>					
+					This window retains all events in the stream that fall into the sort range. Use the ranked window as described next to retain events per unique key(s) and sorted.
+				</para>
+
+				<para>
+					The syntax is as follows:
+				</para>
+				<synopsis>sort(<emphasis>size_expression</emphasis>, 
+    <emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...]) </synopsis>
+
+				<para>					
+					An expression may be followed by the optional <literal>asc</literal> or <literal>desc</literal> keywords to indicate that the values returned by that expression are sorted in ascending or descending sort order.
+				</para>
+
+				<para>
+					The window below retains only those events that have the highest 10 prices considering all events (and not only the last event per symbol, see rank below) and reports a total price:
+				</para>
+				<programlisting><![CDATA[select sum(price) from StockTickEvent#sort(10, price desc)]]></programlisting>				
+
+				<para>
+					The following example sorts events first by price in descending order, and then by symbol name in ascending (alphabetical) order, keeping only the 10
+events with the highest price (with ties resolved by alphabetical order of symbol).
+				</para>
+				<programlisting><![CDATA[select * from StockTickEvent#sort(10, price desc, symbol asc)]]></programlisting>				
+				
+				<para>
+					The sorted window is often used with the <literal>prev</literal>, <literal>prevwindow</literal> or <literal>prevtail</literal> single-row functions to output properties of events at a certain position or to output the complete data window according to sort order.
+				</para>
+
+				<para>
+					Use the grouped window to retain a separate sort window for each group. For example, the windows <literal>groupwin(market)#sort(10, price desc)</literal> instruct the engine to retain, per market,  the highest 10 prices.
+				</para>
+			</sect2>
+			
+			<sect2 xml:id="view-ext-rank" >
+			   <title>Ranked Window (<literal>rank</literal> or <literal>ext:rank</literal>)</title>
+		
+				<indexterm><primary>ranked window</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>ranked window</secondary></indexterm>
+
+				<para>					
+					This window retains only the most recent among events having the same value for the criteria expression(s), sorted by sort criteria expressions and keeps only the top events up to the given size.
+				</para>
+
+				<para>					
+					This window is similar to the sorted window in that it keeps only the top (or bottom) events up to the given size, however the window also retains only the most recent among events having the same value(s) for the specified uniqueness expression(s).
+				</para>
+
+				<para>
+					The syntax is as follows:
+				</para>
+				<synopsis>rank(<emphasis>unique_expression</emphasis> [, <emphasis>unique_expression</emphasis> ...],
+    <emphasis>size_expression</emphasis>, 
+    <emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...]) </synopsis>
+
+				<para>
+					Specify the expressions returning unique key values first. Then specify a constant value that is the size of the ranked window. Then specify the expressions returning sort criteria values. The sort criteria expressions may be followed by the optional <literal>asc</literal> or <literal>desc</literal> keywords to indicate that the values returned by that expression are sorted in ascending or descending sort order.
+				</para>
+
+				<para>
+					The window below retains only those events that have the highest 10 prices considering only the last event per symbol and reports a total price:
+				</para>
+				<programlisting><![CDATA[select sum(price) from StockTickEvent#rank(symbol, 10, price desc)]]></programlisting>
+
+				<para>
+					The following example retains, for the last event per market and symbol, those events that sort by price and quantity ascending into the first 10 ranks:
+				</para>
+				<programlisting><![CDATA[select * from StockTickEvent#rank(market, symbol, 10, price, quantity)]]></programlisting>
+				
+				<para>
+					The ranked window is often used with the <literal>prev</literal>, <literal>prevwindow</literal> or <literal>prevtail</literal> single-row functions to output properties of events at a certain position or to output the complete data window according to sort order.
+				</para>
+
+				<para>
+					This example outputs every 5 seconds the top 10 events according to price descending and considering only the last event per symbol:
+				</para>
+				<programlisting><![CDATA[select prevwindow(*) from StockTickEvent#rank(symbol, 10, price desc)
+  output snapshot every 5 seconds limit 1  // need only 1 row]]></programlisting>
+
+				<para>
+					Use the grouped window to retain a separate rank for each group. For example, the windows <literal>groupwin(market)#rank(symbol, 10, price desc)</literal> instruct the engine to retain, per market,  the highest 10 prices considering the last event per symbol.
+				</para>
+			</sect2>
+
+			<sect2 xml:id="view-time-order" >
+			   <title>Time-Order Window (<literal>time_order</literal> or <literal>ext:time_order</literal>)</title>
+		
+				<indexterm><primary>time-order window</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>time-order window</secondary></indexterm>
+
+				<para>
+					This window orders events that arrive out-of-order, using timestamp-values provided by an expression, and by comparing that timestamp value to engine time.
+				</para>
+
+				<para>
+					The syntax for this window is as follows.
+				</para>
+				<synopsis>time_order(<emphasis>timestamp_expression</emphasis>, <emphasis>time_period</emphasis>)</synopsis>
+				<synopsis>time_order(<emphasis>timestamp_expression</emphasis>, <emphasis>seconds_interval_expression</emphasis>)</synopsis>
+
+				<para>
+					The first parameter to the window is the expression that supplies timestamp values. The timestamp is expected to be a long-typed value that denotes an event's time of consideration by the window (or other expression). This is typically the time of arrival. The second parameter is a number-of-seconds expression or the time period specifying the time interval that an arriving event should maximally be held, in order to consider older events arriving at a later time.
+				</para>
+
+				<para>
+					Since the window compares timestamp values to engine time, the window requires that the timestamp values and engine time are both following the same clock. Therefore, to the extend that the clocks that originated both timestamps differ, the window may produce inaccurate results.
+				</para>
+
+				<para>
+					As an example, the next statement uses the <literal>arrival_time</literal> property of <literal>MyTimestampedEvent</literal> events to order and release events by arrival time:
+				</para>
+				<programlisting><![CDATA[insert rstream into ArrivalTimeOrderedStream
+select rstream * from MyTimestampedEvent#time_order(arrival_time, 10 sec)]]></programlisting>
+
+				<para>
+					In the example above, the <literal>arrival_time</literal> property holds a long-typed timestamp value. On arrival of an event, the engine compares the timestamp value of each event to the tail-time of the window. The tail-time of the window is, in this example, 10 seconds before engine time (continuously sliding). If the timestamp value indicates that the event is older then the tail-time of the time window, the event is released immediately in the remove stream. If the timestamp value indicates that the event is newer then the tail-time of the window, the window retains the event until engine time moves such that the event timestamp is older then tail-time.
+				</para> 
+
+				<para>
+					The examples thus holds each arriving event in memory anywhere from zero seconds to 10 seconds, to allow for older events (considering arrival time timestamp) to arrive. In other words, the window holds an event with an arrival time equal to engine time for 10 seconds. The window holds an event with an arrival time that is 2 seconds older then engine time for 8 seconds. The window holds an event with an arrival time that is 10 or more seconds older then engine time for zero seconds, and releases such (old) events immediately into the remove stream. 
+				</para> 
+
+				<para>
+					The insert stream of this sliding window consists of all arriving events. The remove stream of the window is ordered by timestamp value: The event that has the oldest timestamp value is released first, followed by the next newer events. Note the statement above uses the <literal>rstream</literal> keyword in both the <literal>insert into</literal> clause and the <literal>select</literal> clause to select ordered events only. It uses the <literal>insert into</literal> clause to makes such ordered stream available for subsequent statements to use.
+				</para> 
+
+				<para>
+					It is up to your application to populate the timestamp property into your events or use a sensible expression that returns timestamp values for consideration by the window. The window also works well if you use externally-provided time via timer events. 
+				</para> 
+			</sect2>
+
+			<sect2 xml:id="view-timetolive" >
+			   <title>Time-To-Live Window (<literal>timetolive</literal> or <literal>ext:timetolive</literal>)</title>
+		
+				<indexterm><primary>time-to-live window</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>time-to-live window</secondary></indexterm>
+
+				<para>
+					This window retains events until engine time reaches the value returned by the given timestamp expression.
+				</para>
+
+				<para>
+					The syntax for this window is as follows:
+				</para>
+				<synopsis>timetolive(<emphasis>timestamp_expression</emphasis>)</synopsis>
+
+				<para>
+					The only parameter to the window is the expression that supplies timestamp values. The timestamp is expected to be a long-typed value that denotes an event's time-to-live. 
+				</para>
+
+				<para>
+					Since the window compares timestamp values to engine time, the window requires that the timestamp values and engine time are both following the same clock.
+				</para>
+
+				<para>
+					On arrival of an event, the engine evaluates the timestamp expression and obtains a long-type timestamp. The engine compares that timestamp value to engine time:
+				</para> 
+				<itemizedlist>
+					<ns:listitem>
+						<para>If the timestamp is older than engine time or the same as engine time, the engine releases the event immediately into the remove stream and does not retain the event at all.</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>If the timestamp value is newer than the engine time, the data window retains the event until engine time moves forward such that the timestamp is the same or older than engine time.</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					As an example, the next statement uses the <literal>arrival_time</literal> property of <literal>MyTimestampedEvent</literal> events to release events by arrival time:
+				</para>
+				<programlisting><![CDATA[insert rstream into ArrivalTimeOrderedStream
+select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlisting>
+
+				<para>
+					For example, assume engine time is <literal>8:00:00</literal> (8 am).
+				</para> 
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							If the <literal>arrival_time</literal> timestamp is <literal>8:00:00</literal> or older (such as <literal>7:59:00</literal>), the data window does not retain the event at all, i.e.
+							the engine releases the event into the remove stream upon arrival.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							If the <literal>arrival_time</literal> timestamp is after <literal>8:00:00</literal> the data window retains the event.
+							Let's say the <literal>arrival_time</literal> timestamp is <literal>8:02:00</literal> the engine retains the event until engine time is <literal>8:02:00</literal> or newer.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+				
+				<para>
+					The engine evaluates the expression only once at the arrival of each event to determine that event's time-to-live.
+				</para>
+
+				<para>
+					The insert stream of this sliding window consists of all arriving events. The remove stream of the window is ordered by timestamp value: The event that has the oldest timestamp value is released first, followed by the next newer events. Note the statement above uses the <literal>rstream</literal> keyword in both the <literal>insert into</literal> clause and the <literal>select</literal> clause to select ordered events only. It uses the <literal>insert into</literal> clause to makes such ordered stream available for subsequent statements to use.
+				</para> 
+
+				<para>
+					It is up to your application to populate the timestamp property into your events or use a sensible expression that returns timestamp values for consideration by the window. 
+					The window also works well if you use externally-provided time via timer events and if you have engine time track watermarks. 
+				</para> 
+
+				<para>
+					The time-to-live data window is fully equivalent to the time-order data window with a zero value for the time period.
+				</para> 
+			</sect2>
 	   </sect1>
   
         <sect1 xml:id="stat-views" >
-           <title>Statistics views</title>
+           <title>Special Derived-Value Windows</title>
            
            <para>
-			   The statistics views can be used combined with data window views or alone. Very similar to aggregation functions, these views aggregate or derive information from an event stream. As compared to aggregation functions,
-			   statistics views can post multiple derived fields including properties from the last event that was received. The derived fields and event properties are available for querying in the <literal>where</literal>-clause and are often compared to prior values using the <literal>prior</literal> function.
+			   The derived-value windows can be used combined with data windows or alone. Very similar to aggregation functions, these windows aggregate or derive information from an event stream. As compared to aggregation functions,
+			   statistics windows can post multiple derived fields all-in-one including properties from the last event that was received. The derived fields and event properties are available for querying in the <literal>where</literal>-clause and are often compared to prior values using the <literal>prior</literal> function. Derived-value window do not retain events.
            </para>
-           
-           <para>
-			   Statistics views accept one or more primary value expressions and any number of optional additional expressions that return values based on the last event received.
-           </para>
-           
-			<sect2 xml:id="view-stat-uni" >
-			   <title>Univariate statistics (<literal>uni</literal> or <literal>stat:uni</literal>)</title>
+                      
+			<sect2 xml:id="view-std-size" >
+			   <title>Size Derived-Value Window (<literal>size</literal>) or <literal>std:size</literal>)</title>
 		
-				<indexterm><primary>univariate statistics view</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>univariate statistics</secondary></indexterm>
-				<indexterm><primary>derived-value views</primary><secondary>univariate statistics</secondary></indexterm>
+				<indexterm><primary>size window</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>size window</secondary></indexterm>
 
 				<para>
-					This view calculates univariate statistics on a numeric expression. The view takes a single value expression as a parameter plus any number of optional additional expressions to return properties of the last event. The value expression must return a numeric value:
+					This window posts the number of events received from a stream or window plus any additional event properties or expression values listed as parameters. The synopsis is:
+				</para>
+
+				<synopsis>size([<emphasis>expression</emphasis>, ...] [ * ])</synopsis>
+
+				<para>					
+					The window posts a single long-typed property named <literal>size</literal>. The window posts the prior size as old data, and the current size as new data to update listeners of the window. Via the <literal>iterator</literal> method of the statement the size value can also be polled (read). The window only posts output events when the <literal>size</literal> count changes and does not stay the same.
+				</para>
+				
+				<para>
+					As optional parameters the window takes a list of expressions that the window evaluates against the last arriving event and provides along the <literal>size</literal> field. You may also provide the <literal>*</literal> wildcard selector to have the window output all event properties.
+				</para>
+
+				<para>					
+					An alternative to receiving a data window event count is the <literal>prevcount</literal> function. Compared to the <literal>size</literal> window the <literal>prevcount</literal> function requires a data window while the <literal>size</literal> window does not. The related <literal>count(...)</literal> aggregation function provides a count per group when used with <literal>group by</literal>.
+				</para>
+
+				<para>
+					When combined with a data window, the size window  reports the current number of events in the data window in the insert stream and the prior number of events in the data window as the remove stream. This example reports the number of tick events within the last 1 minute:
+				</para>
+				<programlisting><![CDATA[select size from StockTickEvent#time(1 min)#size]]></programlisting>
+
+				<para>
+					To select additional event properties you may add each event property to output as a parameter to the window. 
+				</para>
+
+				<para>
+					The next example selects the symbol and feed event properties in addition to the <literal>size</literal> property:
+				</para>
+				<programlisting><![CDATA[select size, symbol, feed from StockTickEvent#time(1 min)#size(symbol, feed)]]></programlisting>
+
+				<para>
+					This example selects all event properties in addition to the <literal>size</literal> property:
+				</para>
+				<programlisting><![CDATA[select * from StockTickEvent#time(1 min)#size(*)]]></programlisting>
+
+				<para>
+					The size window is also useful in conjunction with a <literal>groupwin</literal> grouped-window to count the number of events per group. The EPL below returns the number of events per symbol.
+				</para>
+				<programlisting><![CDATA[select size from StockTickEvent#groupwin(symbol)#size]]></programlisting>
+
+				<para>
+					When used without a data window, the window simply counts the number of events:
+				</para>
+				<programlisting><![CDATA[select size from StockTickEvent#size]]></programlisting>
+
+				<para>
+					All windows can be used with pattern statements as well. The next EPL snippet shows a pattern where we look for tick events followed by trade events for the same symbol. The size window counts the number of occurrences of the pattern.
+				</para>
+				<programlisting><![CDATA[select size from pattern[every s=StockTickEvent -> TradeEvent(symbol=s.symbol)]#size]]></programlisting>
+			</sect2>
+
+			<sect2 xml:id="view-stat-uni" >
+			   <title>Univariate Statistics Derived-Value Window (<literal>uni</literal> or <literal>stat:uni</literal>)</title>
+		
+				<indexterm><primary>univariate statistics</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>univariate statistics</secondary></indexterm>
+
+				<para>
+					This window calculates univariate statistics on a numeric expression. The window takes a single value expression as a parameter plus any number of optional additional expressions to return properties of the last event. The value expression must return a numeric value:
 				</para>
 				<synopsis>uni(<emphasis>value_expression</emphasis> [,<emphasis>expression</emphasis>, ...] [ * ])</synopsis>
 				
 				<para>
-					After the value expression you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the view output all event properties.
+					After the value expression you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the window output all event properties.
 				</para>
 				
 				<table frame="topbot" xml:id="view-stat-uni-table" revision="2">
@@ -1450,7 +1640,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<programlisting><![CDATA[select stddev from StockTickEvent#length(10)#uni(price)]]></programlisting>
 
 				<para>
-					To add properties from the event stream you may simply add all additional properties as parameters to the view.
+					To add properties from the event stream you may simply add all additional properties as parameters to the window.
 				</para>
 
 				<para>
@@ -1465,19 +1655,18 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 			</sect2>
 
 			<sect2 xml:id="view-stat-linest" >
-			   <title>Regression (<literal>linest</literal> or <literal>stat:linest</literal>)</title>
+			   <title>Regression Derived-Value Window (<literal>linest</literal> or <literal>stat:linest</literal>)</title>
 		
-				<indexterm><primary>regression view</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>regression</secondary></indexterm>
-				<indexterm><primary>derived-value views</primary><secondary>regression</secondary></indexterm>
+				<indexterm><primary>regression</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>regression</secondary></indexterm>
 				<para>
-					This view calculates regression and related intermediate results on the values returned by two expressions. The view takes two value expressions as parameters plus any number of optional additional expressions to return properties of the last event. The value expressions must return a numeric value:
+					This window calculates regression and related intermediate results on the values returned by two expressions. The window takes two value expressions as parameters plus any number of optional additional expressions to return properties of the last event. The value expressions must return a numeric value:
 				</para>
 				
 				<synopsis>linest(<emphasis>value_expression</emphasis>, <emphasis>value_expression</emphasis> [,<emphasis>expression</emphasis>, ...] [ * ])</synopsis>
 
 				<para>
-					After the two value expressions you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the view output all event properties.
+					After the two value expressions you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the window output all event properties.
 				</para>
 
 				<table frame="topbot" xml:id="view-stat-linest-table" revision="2">
@@ -1578,7 +1767,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<programlisting><![CDATA[select slope, YIntercept from StockTickEvent#time(10 seconds)#linest(price, offer)]]></programlisting>	
 				
 				<para>
-					To add properties from the event stream you may simply add all additional properties as parameters to the view.
+					To add properties from the event stream you may simply add all additional properties as parameters to the window.
 				</para>
 
 				<para>
@@ -1593,20 +1782,19 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 			</sect2>
 				
 			<sect2 xml:id="view-stat-correl" >
-			   <title>Correlation (<literal>correl</literal> or <literal>stat:correl</literal>)</title>
+			   <title>Correlation Derived-Value Window (<literal>correl</literal> or <literal>stat:correl</literal>)</title>
 		
-				<indexterm><primary>correlation view</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>correlation</secondary></indexterm>
-				<indexterm><primary>derived-value views</primary><secondary>correlation</secondary></indexterm>
+				<indexterm><primary>correlation</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>correlation</secondary></indexterm>
 
 				<para>
-					This view calculates the correlation value on the value returned by two expressions. The view takes two value expressions as parameters plus any number of optional additional expressions to return properties of the last event. The value expressions must be return a numeric value:
+					This window calculates the correlation value on the value returned by two expressions. The window takes two value expressions as parameters plus any number of optional additional expressions to return properties of the last event. The value expressions must be return a numeric value:
 				</para>
 				
 				<synopsis>correl(<emphasis>value_expression</emphasis>, <emphasis>value_expression</emphasis> [,<emphasis>expression</emphasis>, ...] [ * ])</synopsis>
 				
 				<para>
-					After the two value expressions you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the view output all event properties.
+					After the two value expressions you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the window output all event properties.
 				</para>
 
 				<table frame="topbot" xml:id="view-stat-correl-table" revision="2">
@@ -1635,7 +1823,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<programlisting><![CDATA[select correlation from StockTickEvent(symbol='GE')#correl(price, offer)]]></programlisting>            
 				
 				<para>
-					To add properties from the event stream you may simply add all additional properties as parameters to the view.
+					To add properties from the event stream you may simply add all additional properties as parameters to the window.
 				</para>
 
 				<para>
@@ -1650,19 +1838,18 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 			</sect2>
 						
 			<sect2 xml:id="view-stat-weightedavg" >
-			   <title>Weighted average (<literal>weighted_avg</literal> or <literal>stat:weighted_avg</literal>)</title>
+			   <title>Weighted Average Derived-Value Window (<literal>weighted_avg</literal> or <literal>stat:weighted_avg</literal>)</title>
 		
-				<indexterm><primary>weighted average view</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>weighted average</secondary></indexterm>
-				<indexterm><primary>derived-value views</primary><secondary>weighted average</secondary></indexterm>
+				<indexterm><primary>weighted average</primary></indexterm>
+				<indexterm><primary>data window</primary><secondary>weighted average</secondary></indexterm>
 
 				<para>
-					This view returns the weighted average given an expression returning values to compute the average for and an expression returning weight. The view takes two value expressions as parameters plus any number of optional additional expressions to return properties of the last event. The value expressions must return numeric values:
+					This window returns the weighted average given an expression returning values to compute the average for and an expression returning weight. The window takes two value expressions as parameters plus any number of optional additional expressions to return properties of the last event. The value expressions must return numeric values:
 				</para>				
 				<synopsis>weighted_avg(<emphasis>value_expression_field</emphasis>, <emphasis>value_expression_weight</emphasis> [,<emphasis>expression</emphasis>, ...] [ * ])</synopsis>
 				
 				<para>
-					After the value expression you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the view output all event properties.
+					After the value expression you may optionally list additional expressions or event properties to evaluate for the stream and return their value based on the last arriving event. You may also provide the <literal>*</literal> wildcard selector to have the window output all event properties.
 				</para>
 
 				<table frame="topbot" xml:id="view-stat-weightedavg-table" revision="2">
@@ -1693,7 +1880,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 from StockTickEvent(symbol='GE')#time(3 seconds)#weighted_avg(price, volume)]]></programlisting>            
 
 				<para>
-					To add properties from the event stream you may simply add all additional properties as parameters to the view.
+					To add properties from the event stream you may simply add all additional properties as parameters to the window.
 				</para>
 
 				<para>
@@ -1720,235 +1907,5 @@ from StockTickEvent#time(3 seconds) group by symbol]]></programlisting>
 				<programlisting><![CDATA[select symbol, average
 from StockTickEvent#groupwin(symbol)#length(5)#weighted_avg(price, volume)]]></programlisting>            
 			</sect2> 			
-		</sect1>
-
-        <sect1 xml:id="ext-views" >
-           <title>Extension View Set</title>
-           
-           <para>
-			   The views in this set are data windows that order events according to a criteria.
-           </para>
-
-			<sect2 xml:id="view-ext-sort" >
-			   <title>Sorted Window View (<literal>sort</literal> or <literal>ext:sort</literal>)</title>
-		
-				<indexterm><primary>sorted window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>sorted window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>sorted window</secondary></indexterm>
-
-				<para>					
-					This view sorts by values returned by the specified expression or list of expressions and keeps only the top (or bottom) events up to the given size. 
-				</para>
-
-				<para>					
-					This view retains all events in the stream that fall into the sort range. Use the ranked window as described next to retain events per unique key(s) and sorted.
-				</para>
-
-				<para>
-					The syntax is as follows:
-				</para>
-				<synopsis>sort(<emphasis>size_expression</emphasis>, 
-    <emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...]) </synopsis>
-
-				<para>					
-					An expression may be followed by the optional <literal>asc</literal> or <literal>desc</literal> keywords to indicate that the values returned by that expression are sorted in ascending or descending sort order.
-				</para>
-
-				<para>
-					The view below retains only those events that have the highest 10 prices considering all events (and not only the last event per symbol, see rank below) and reports a total price:
-				</para>
-				<programlisting><![CDATA[select sum(price) from StockTickEvent#sort(10, price desc)]]></programlisting>				
-
-				<para>
-					The following example sorts events first by price in descending order, and then by symbol name in ascending (alphabetical) order, keeping only the 10
-events with the highest price (with ties resolved by alphabetical order of symbol).
-				</para>
-				<programlisting><![CDATA[select * from StockTickEvent#sort(10, price desc, symbol asc)]]></programlisting>				
-				
-				<para>
-					The sorted window is often used with the <literal>prev</literal>, <literal>prevwindow</literal> or <literal>prevtail</literal> single-row functions to output properties of events at a certain position or to output the complete data window according to sort order.
-				</para>
-
-				<para>
-					Use the grouped window to retain a separate sort window for each group. For example, the views <literal>groupwin(market)#sort(10, price desc)</literal> instruct the engine to retain, per market,  the highest 10 prices.
-				</para>
-			</sect2>
-			
-			<sect2 xml:id="view-ext-rank" >
-			   <title>Ranked Window View (<literal>rank</literal> or <literal>ext:rank</literal>)</title>
-		
-				<indexterm><primary>ranked window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>ranked window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>ranked window</secondary></indexterm>
-
-				<para>					
-					This view retains only the most recent among events having the same value for the criteria expression(s), sorted by sort criteria expressions and keeps only the top events up to the given size.
-				</para>
-
-				<para>					
-					This view is similar to the sorted window in that it keeps only the top (or bottom) events up to the given size, however the view also retains only the most recent among events having the same value(s) for the specified uniqueness expression(s).
-				</para>
-
-				<para>
-					The syntax is as follows:
-				</para>
-				<synopsis>rank(<emphasis>unique_expression</emphasis> [, <emphasis>unique_expression</emphasis> ...],
-    <emphasis>size_expression</emphasis>, 
-    <emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...]) </synopsis>
-
-				<para>
-					Specify the expressions returning unique key values first. Then specify a constant value that is the size of the ranked window. Then specify the expressions returning sort criteria values. The sort criteria expressions may be followed by the optional <literal>asc</literal> or <literal>desc</literal> keywords to indicate that the values returned by that expression are sorted in ascending or descending sort order.
-				</para>
-
-				<para>
-					The view below retains only those events that have the highest 10 prices considering only the last event per symbol and reports a total price:
-				</para>
-				<programlisting><![CDATA[select sum(price) from StockTickEvent#rank(symbol, 10, price desc)]]></programlisting>
-
-				<para>
-					The following example retains, for the last event per market and symbol, those events that sort by price and quantity ascending into the first 10 ranks:
-				</para>
-				<programlisting><![CDATA[select * from StockTickEvent#rank(market, symbol, 10, price, quantity)]]></programlisting>
-				
-				<para>
-					The ranked window is often used with the <literal>prev</literal>, <literal>prevwindow</literal> or <literal>prevtail</literal> single-row functions to output properties of events at a certain position or to output the complete data window according to sort order.
-				</para>
-
-				<para>
-					This example outputs every 5 seconds the top 10 events according to price descending and considering only the last event per symbol:
-				</para>
-				<programlisting><![CDATA[select prevwindow(*) from StockTickEvent#rank(symbol, 10, price desc)
-  output snapshot every 5 seconds limit 1  // need only 1 row]]></programlisting>
-
-				<para>
-					Use the grouped window to retain a separate rank for each group. For example, the views <literal>groupwin(market)#rank(symbol, 10, price desc)</literal> instruct the engine to retain, per market,  the highest 10 prices considering the last event per symbol.
-				</para>
-			</sect2>
-
-			<sect2 xml:id="view-time-order" >
-			   <title>Time-Order View (<literal>time_order</literal> or <literal>ext:time_order</literal>)</title>
-		
-				<indexterm><primary>time-order window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>time-order window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>time-order window</secondary></indexterm>
-
-				<para>
-					This view orders events that arrive out-of-order, using timestamp-values provided by an expression, and by comparing that timestamp value to engine time.
-				</para>
-
-				<para>
-					The syntax for this view is as follows.
-				</para>
-				<synopsis>time_order(<emphasis>timestamp_expression</emphasis>, <emphasis>time_period</emphasis>)</synopsis>
-				<synopsis>time_order(<emphasis>timestamp_expression</emphasis>, <emphasis>seconds_interval_expression</emphasis>)</synopsis>
-
-				<para>
-					The first parameter to the view is the expression that supplies timestamp values. The timestamp is expected to be a long-typed value that denotes an event's time of consideration by the view (or other expression). This is typically the time of arrival. The second parameter is a number-of-seconds expression or the time period specifying the time interval that an arriving event should maximally be held, in order to consider older events arriving at a later time.
-				</para>
-
-				<para>
-					Since the view compares timestamp values to engine time, the view requires that the timestamp values and engine time are both following the same clock. Therefore, to the extend that the clocks that originated both timestamps differ, the view may produce inaccurate results.
-				</para>
-
-				<para>
-					As an example, the next statement uses the <literal>arrival_time</literal> property of <literal>MyTimestampedEvent</literal> events to order and release events by arrival time:
-				</para>
-				<programlisting><![CDATA[insert rstream into ArrivalTimeOrderedStream
-select rstream * from MyTimestampedEvent#time_order(arrival_time, 10 sec)]]></programlisting>
-
-				<para>
-					In the example above, the <literal>arrival_time</literal> property holds a long-typed timestamp value. On arrival of an event, the engine compares the timestamp value of each event to the tail-time of the window. The tail-time of the window is, in this example, 10 seconds before engine time (continuously sliding). If the timestamp value indicates that the event is older then the tail-time of the time window, the event is released immediately in the remove stream. If the timestamp value indicates that the event is newer then the tail-time of the window, the view retains the event until engine time moves such that the event timestamp is older then tail-time.
-				</para> 
-
-				<para>
-					The examples thus holds each arriving event in memory anywhere from zero seconds to 10 seconds, to allow for older events (considering arrival time timestamp) to arrive. In other words, the view holds an event with an arrival time equal to engine time for 10 seconds. The view holds an event with an arrival time that is 2 seconds older then engine time for 8 seconds. The view holds an event with an arrival time that is 10 or more seconds older then engine time for zero seconds, and releases such (old) events immediately into the remove stream. 
-				</para> 
-
-				<para>
-					The insert stream of this sliding window consists of all arriving events. The remove stream of the view is ordered by timestamp value: The event that has the oldest timestamp value is released first, followed by the next newer events. Note the statement above uses the <literal>rstream</literal> keyword in both the <literal>insert into</literal> clause and the <literal>select</literal> clause to select ordered events only. It uses the <literal>insert into</literal> clause to makes such ordered stream available for subsequent statements to use.
-				</para> 
-
-				<para>
-					It is up to your application to populate the timestamp property into your events or use a sensible expression that returns timestamp values for consideration by the view. The view also works well if you use externally-provided time via timer events. 
-				</para> 
-			</sect2>
-
-			<sect2 xml:id="view-timetolive" >
-			   <title>Time-To-Live View (<literal>timetolive</literal> or <literal>ext:timetolive</literal>)</title>
-		
-				<indexterm><primary>time-to-live window</primary></indexterm>
-				<indexterm><primary>views</primary><secondary>time-to-live window</secondary></indexterm>
-				<indexterm><primary>data window views</primary><secondary>time-to-live window</secondary></indexterm>
-
-				<para>
-					This view retains events until engine time reaches the value returned by the given timestamp expression.
-				</para>
-
-				<para>
-					The syntax for this view is as follows:
-				</para>
-				<synopsis>timetolive(<emphasis>timestamp_expression</emphasis>)</synopsis>
-
-				<para>
-					The only parameter to the view is the expression that supplies timestamp values. The timestamp is expected to be a long-typed value that denotes an event's time-to-live. 
-				</para>
-
-				<para>
-					Since the view compares timestamp values to engine time, the view requires that the timestamp values and engine time are both following the same clock.
-				</para>
-
-				<para>
-					On arrival of an event, the engine evaluates the timestamp expression and obtains a long-type timestamp. The engine compares that timestamp value to engine time:
-				</para> 
-				<itemizedlist>
-					<ns:listitem>
-						<para>If the timestamp is older than engine time or the same as engine time, the engine releases the event immediately into the remove stream and does not retain the event at all.</para>
-					</ns:listitem>
-					<ns:listitem>
-						<para>If the timestamp value is newer than the engine time, the data window retains the event until engine time moves forward such that the timestamp is the same or older than engine time.</para>
-					</ns:listitem>
-				</itemizedlist>
-
-				<para>
-					As an example, the next statement uses the <literal>arrival_time</literal> property of <literal>MyTimestampedEvent</literal> events to release events by arrival time:
-				</para>
-				<programlisting><![CDATA[insert rstream into ArrivalTimeOrderedStream
-select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlisting>
-
-				<para>
-					For example, assume engine time is <literal>8:00:00</literal> (8 am).
-				</para> 
-				<itemizedlist>
-					<ns:listitem>
-						<para>
-							If the <literal>arrival_time</literal> timestamp is <literal>8:00:00</literal> or older (such as <literal>7:59:00</literal>), the data window does not retain the event at all, i.e.
-							the engine releases the event into the remove stream upon arrival.
-						</para>
-					</ns:listitem>
-					<ns:listitem>
-						<para>
-							If the <literal>arrival_time</literal> timestamp is after <literal>8:00:00</literal> the data window retains the event.
-							Let's say the <literal>arrival_time</literal> timestamp is <literal>8:02:00</literal> the engine retains the event until engine time is <literal>8:02:00</literal> or newer.
-						</para>
-					</ns:listitem>
-				</itemizedlist>
-				
-				<para>
-					The engine evaluates the expression only once at the arrival of each event to determine that event's time-to-live.
-				</para>
-
-				<para>
-					The insert stream of this sliding window consists of all arriving events. The remove stream of the view is ordered by timestamp value: The event that has the oldest timestamp value is released first, followed by the next newer events. Note the statement above uses the <literal>rstream</literal> keyword in both the <literal>insert into</literal> clause and the <literal>select</literal> clause to select ordered events only. It uses the <literal>insert into</literal> clause to makes such ordered stream available for subsequent statements to use.
-				</para> 
-
-				<para>
-					It is up to your application to populate the timestamp property into your events or use a sensible expression that returns timestamp values for consideration by the view. 
-					The view also works well if you use externally-provided time via timer events and if you have engine time track watermarks. 
-				</para> 
-
-				<para>
-					The time-to-live data window is fully equivalent to the time-order data window with a zero value for the time period.
-				</para> 
-			</sect2>
 		</sect1>
 </chapter>

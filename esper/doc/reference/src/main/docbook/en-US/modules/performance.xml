@@ -342,7 +342,7 @@ select * from MarketData(ticker = 'GOOG')]]></programlisting>
 
 				<para>
 					The example below is the equivalent (same semantics) statement and performs post-data-window filtering without a data window.
-					The engine does not optimize statements that filter in the where-clause for the reason that data window views are generally present.
+					The engine does not optimize statements that filter in the where-clause for the reason that data windows are generally present.
 				</para>
 
 				<programlisting><![CDATA[// Less good performance : post-data-window filtering
@@ -454,7 +454,7 @@ select * from MarketData(symbol = 'GE') group by symbol having sum(price) > 1000
 
 			<para>
 				If your statement specifies the grouped data window <literal>#groupwin</literal> but the window being grouped retains the same set of events regardless of grouping, 
-				remove <literal>#groupwin</literal>:
+				remove <literal>#groupwin</literal>, for example:
 			</para>
 <programlisting><![CDATA[// Prefer:
 create window MarketDataWindow#keepall as MarketDataEventType
@@ -654,7 +654,7 @@ config.getEngineDefaults().getThreading().setInsertIntoDispatchPreserveOrder(fal
 			<title>High-Arrival-Rate Streams and Single Statements</title>
 
 			<para>
-				A context partition is associated with certain context partition state that consists of current aggregation values, partial pattern matches, data windows or other view state depending on whether your statement uses such constructs. When an engine receives events it updates context partition state under locking such that context partition state remains consistent under concurrent multi-threaded access.
+				A context partition is associated with certain context partition state that consists of current aggregation values, partial pattern matches, data windows depending on whether your statement uses such constructs. When an engine receives events it updates context partition state under locking such that context partition state remains consistent under concurrent multi-threaded access.
 			</para>
 			
 			<para>

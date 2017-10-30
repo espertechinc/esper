@@ -93,10 +93,10 @@
 						<entry><xref linkend="examples-ohlcpluginview"/></entry>
 						<entry>
 							<para>
-								A plug-in custom view addressing a problem in the financial space: Computes open-high-low-close bars for minute-intervals of events that may arrive late, based on each event's timestamp.
+								A plug-in custom data window addressing a problem in the financial space: Computes open-high-low-close bars for minute-intervals of events that may arrive late, based on each event's timestamp.
 							</para>
 							<para>
-								A custom plug-in view based on the extension API can be a convenient and reusable way to express a domain-specific analysis problem as a unit, and this example includes the code for the OHLC view factory and view as well as simulator to test the view.
+								A custom plug-in data window based on the extension API can be a convenient and reusable way to express a domain-specific analysis problem as a unit, and this example includes the code for the OHLC data window factory and window as well as simulator to test the window.
 							</para>
 						</entry>
 					</row>
@@ -393,7 +393,7 @@ double askPrice;
 			</para>
 
 			<para>
-				We can use an EPL statement that specifies a view onto the market data event stream that batches together 1 second of events. 
+				We can use an EPL statement that specifies a data window onto the market data event stream that batches together 1 second of events. 
 				We specify the feed and a count of events per feed as output values. To make this data available for further processing, we
 				insert output events into the TicksPerSecond event stream:
 			</para>
@@ -444,9 +444,9 @@ having cnt < avg(cnt) * 0.75]]></programlisting>
     </sect1>
 
     <sect1 xml:id="examples-ohlcpluginview">
-        <title>OHLC Plug-in View</title>
+        <title>OHLC Plug-in Data Window</title>
         <para>
-			This example contains a fully-functional custom view based on the extension API that computes OHLC open-high-low-close bars for events that provide a long-typed timestamp and a double-typed value.
+			This example contains a fully-functional custom data window based on the extension API that computes OHLC open-high-low-close bars for events that provide a long-typed timestamp and a double-typed value.
         </para>
 
         <para>
@@ -454,19 +454,19 @@ having cnt < avg(cnt) * 0.75]]></programlisting>
         </para>
 
         <para>
-			The example provides an OHLC view that is hardcoded to 1-minute bars. It considers the timestamp value carried by each event, and not the system time. The cutoff time after which an event is no longer considered for a bar is hardcoded to 5 seconds.
+			The example provides an OHLC data window that is hardcoded to 1-minute bars. It considers the timestamp value carried by each event, and not the system time. The cutoff time after which an event is no longer considered for a bar is hardcoded to 5 seconds.
         </para>
 
         <para>
-			The view assumes that events arrive in timestamp order: Each event's timestamp value is equal to or higher then the timestamp value provided by the prior event.
+			The window assumes that events arrive in timestamp order: Each event's timestamp value is equal to or higher then the timestamp value provided by the prior event.
         </para>
 
         <para>
-			The view may also be used together with <literal>#groupwin</literal> to group per criteria, such as symbol. In this case the assumption of timestamp order applies per symbol.
+			The window may also be used together with <literal>#groupwin</literal> to group per criteria, such as symbol. In this case the assumption of timestamp order applies per symbol.
         </para>
 
         <para>
-			The view gracefully handles no-event and late-event scenarios. Interval boundaries are defined by system time, thus event timestamp and system time must roughly be in-sync, unless using external timer events.
+			The window gracefully handles no-event and late-event scenarios. Interval boundaries are defined by system time, thus event timestamp and system time must roughly be in-sync, unless using external timer events.
         </para>
     </sect1>
 
