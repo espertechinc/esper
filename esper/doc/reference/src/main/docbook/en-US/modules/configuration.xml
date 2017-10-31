@@ -2093,7 +2093,7 @@ config.getEngineDefaults().getViewResources().setIterableUnbound(true);]]></prog
 				<title>Configuring Multi-Expiry Policy Defaults</title>
 
 				<para>
-				   By default, when combining multiple data window views, Esper applies an intersection of the data windows unless the <literal>retain-union</literal> keyword is provided which instructs to apply an union. The setting described herein may be used primarily for backward compatibility to instruct that intersection should not be the default.
+				   By default, when combining multiple data windows, Esper applies an intersection of the data windows unless the <literal>retain-union</literal> keyword is provided which instructs to apply an union. The setting described herein may be used primarily for backward compatibility to instruct that intersection should not be the default.
 				</para>
 								
 				<para>
@@ -2112,7 +2112,7 @@ config.getEngineDefaults().getViewResources().setIterableUnbound(true);]]></prog
 config.getEngineDefaults().getViewResources().setAllowMultipleExpiryPolicies(true);]]></programlisting>
 
 				<para>
-				   When setting this option to true, and when using multiple data window views for a given stream, the behavior is as follows: The top-most data window receives an insert stream of events. It passes each insert stream event to each further data window view in the chain. Each data window view may remove events according to its expiry policy. Such remove stream events are only passed to data window views further in the chain, and are not made available to data window views earlier in the chain.
+				   When setting this option to true, and when using multiple data windows for a given stream, the behavior is as follows: The top-most data window receives an insert stream of events. It passes each insert stream event to each further data window view in the chain. Each data window view may remove events according to its expiry policy. Such remove stream events are only passed to data windows further in the chain, and are not made available to data windows earlier in the chain.
 				</para>
 
 				<para>
@@ -2684,7 +2684,7 @@ config.getEngineDefaults().getTimeSource().setTimeUnit(TimeUnit.MILLISECONDS);]]
 			<title>Engine Settings related to Language and Locale</title>
 			
 			<para>
-				Locale-dependence in Esper can be present in the sort order of string values by the <literal>order by</literal> clause and by the sort view.
+				Locale-dependence in Esper can be present in the sort order of string values by the <literal>order by</literal> clause and by the sort window.
 			</para>
 
 			<para>

@@ -756,7 +756,7 @@ public class InnerType {
 	<sect1 xml:id="eventrep-generictuple">
 	   <title>Support for Generic Tuples</title>
 		   <para>
-			   Esper does not require a fixed tuple structure and fully supports generic tuples, i.e.  there does not need to be a fixed set of attributes or event properties and event properties can be added and queried at runtime.
+			   Esper does not require a fixed tuple structure and fully supports generic tuples. Event properties can be defined, added to existing types and queried at runtime.
 		   </para>
 		   
 		   <para>

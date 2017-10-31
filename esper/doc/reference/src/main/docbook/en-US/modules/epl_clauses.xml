@@ -22,31 +22,17 @@
         </para>
 
         <para>
-			EPL statements are used to derive and aggregate information from one or more streams of events, and to join or merge event streams. This section outlines EPL syntax. It also outlines the built-in views, which are the building blocks for deriving and aggregating information from event streams. 
+			EPL statements are used to derive and aggregate information from one or more streams of events, and to join or merge event streams. This section outlines EPL syntax.
         </para>
         
         <para>
-			EPL statements contain definitions of one or more views. Similar to tables in a SQL statement, views define the data available for querying and filtering. 
-			Some views represent windows over a stream of events. Other views derive statistics from event properties, group events or handle unique event property values.
-            Views can be staggered onto each other to build a chain of views. The Esper engine makes sure that views are reused among EPL statements for efficiency.
+			EPL statements can specify data windows. Similar to tables in a SQL statement, data windows define the subset of events to be analyzed. 
+            Data windows can be combined to an intersection or union of sets of events.
         </para>
         
         <para>
-			The built-in set of views is:
+			Some of the often-used data windows are <literal>#length</literal>, <literal>#time</literal>, <literal>#unique</literal>, <literal>#lastevent</literal>, <literal>#firstevent</literal> and <literal>#keepall</literal>.
          </para>
-
-		<orderedlist spacing="compact">
-			<listitem>
-				<para>
-					Data window views: <literal>length</literal>, <literal>length_batch</literal>, <literal>time</literal>, <literal>time_batch</literal>, <literal>time_length_batch</literal>, <literal>time_accum</literal>, <literal>ext_timed</literal>, <literal>ext_timed_batch</literal>, <literal>sort</literal>, <literal>rank</literal>, <literal>time_order</literal>, <literal>timetolive</literal>, <literal>unique</literal>, <literal>groupwin</literal>, <literal>lastevent</literal>, <literal>firstevent</literal>, <literal>firstunique</literal>, <literal>firstlength</literal>,  <literal>firsttime</literal>.
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					Views that derive statistics: <literal>size</literal>, <literal>uni</literal>, <literal>linest</literal>, <literal>correl</literal>, <literal>weighted_avg</literal>.
-				</para>
-			</listitem>
-		</orderedlist>
 
         <para>
 			EPL provides the concept of <emphasis>named window</emphasis>. Named windows are data windows that can be inserted-into and deleted-from by one or more statements, and that can queried by one or more statements. Named windows have a global character, being visible and shared across an engine instance beyond a single statement. Use the <literal>CREATE WINDOW</literal> clause to create named windows. Use the <literal>ON MERGE</literal> clause to atomically merge events into named window state, the <literal>INSERT INTO</literal> clause to insert data into a named window, the <literal>ON DELETE</literal> clause to remove events from a named window, the <literal>ON UPDATE</literal> clause to update events held by a named window and the <literal>ON SELECT</literal> clause to perform a query triggered by a pattern or arriving event on a named window. Finally, the name of the named window can occur in a statement's <literal>FROM</literal> clause to query a named window or include the named window in a join or subquery.
@@ -71,7 +57,7 @@
         </para>
 
         <para>
-			Esper can be extended by plugging-in custom developed views and aggregation functions.
+			Esper can be extended by plugging-in custom developed data windows, aggregation functions, and more.
         </para>
 
     </sect1>
@@ -1216,12 +1202,6 @@ from MarketDataEvent mdstream]]></programlisting>
 			</para>
 			<programlisting><![CDATA[select symbol, price, sum(volume) from StockTick(symbol='IBM')#time(60 sec)
 ]]></programlisting>
-
-			<para>
-				The following statement declares a further view onto the event stream of stock ticks: the univariate statistics view (<literal>stat:uni</literal>). The statement selects the properties that this view derives from the stream, for the last 100 events of IBM stock ticks in the length window.
-			</para>
-			<programlisting><![CDATA[select datapoints, total, average, variance, stddev, stddevpa
-from StockTick(symbol='IBM')#length(100)#uni(volume)]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-select-expressions" >
@@ -1559,7 +1539,7 @@ from MyEvent#length(2) as s0</programlisting>
 		</para>
 
 		<para>
-			For all streams with the exception of historical sources your query may employ data window views as outlined below. The <literal>retain-intersection</literal> (the default) and <literal>retain-union</literal> keywords build a union or intersection of two or more data windows as described in <xref linkend="epl-from-clause-view-multidatawindow"/>.
+			For all streams with the exception of historical sources your query may employ data windows as outlined below. The <literal>retain-intersection</literal> (the default) and <literal>retain-union</literal> keywords build a union or intersection of two or more data windows as described in <xref linkend="epl-from-clause-view-multidatawindow"/>.
 		</para>
 
         <sect2 xml:id="epl-from-clause-filter" >
@@ -1569,7 +1549,7 @@ from MyEvent#length(2) as s0</programlisting>
 				The <emphasis>stream_def</emphasis> syntax for a filter-based event stream is as below:
 			</para>
 	
-			<synopsis><emphasis>event_stream_name</emphasis> [(<emphasis>filter_criteria</emphasis>)] [<emphasis>contained_selection</emphasis>] [#<emphasis>view_spec</emphasis>] [#<emphasis>view_spec</emphasis>] [...]</synopsis>
+			<synopsis><emphasis>event_stream_name</emphasis> [(<emphasis>filter_criteria</emphasis>)] [<emphasis>contained_selection</emphasis>] [#<emphasis>window_spec</emphasis>] [#<emphasis>window_spec</emphasis>] [...]</synopsis>
 	
 			<para>
 			  The <emphasis>event_stream_name</emphasis> is either the name of an event type or name of an event stream populated by an <literal>insert into</literal> statement 
@@ -1587,24 +1567,17 @@ from MyEvent#length(2) as s0</programlisting>
 			</para>
 			
 			<para>
-			  The <emphasis>view_spec</emphasis> are optional view specifications, which are combinable definitions for retaining events and for deriving information from events.
-			  Views cannot be specified for tables. Instead of the <literal>#</literal> hash character the <literal>.</literal> dot character can also be used, however the dot character requires the view namespace.
+			  The <emphasis>window_spec</emphasis> specify one or more data windows.
+			  Data windows cannot be specified for named windows and tables. Instead of the <literal>#</literal> hash character the <literal>.</literal> dot character can also be used, however the dot character requires the data window namespace.
 			</para>
 
 			<para>
-				The following EPL statement shows event type, filter criteria and views combined in one statement. It selects all event properties for the last 100 events of IBM stock ticks for volume. In the example, the event type is the fully qualified Java class name <literal>org.esper.example.StockTick</literal>. The expression filters for events where the property <literal>symbol</literal> has a value of "IBM". The optional view specifications for deriving data from the StockTick events are a length window and a view for computing statistics on volume. The name for the event stream is "volumeStats".
+				The following EPL statement shows event type, filter criteria and data windows combined in one statement. It selects all event properties for the last 100 events of IBM stock ticks for volume. In the example, the event type is the fully qualified Java class name <literal>org.esper.example.StockTick</literal>. The expression filters for events where the property <literal>symbol</literal> has a value of "IBM". This query specifies a length window and thus computes the total volume of the last 100 events.
 			</para>
-			<programlisting><![CDATA[select * from 
-  org.esper.example.StockTick(symbol='IBM')#length(100)#uni(volume) as volumeStats]]></programlisting>
-
-			<para>
-				The above is equivalent to:
-			</para>
-			<programlisting><![CDATA[select * from 
-  org.esper.example.StockTick(symbol='IBM').win:length(100).stat:uni(volume) as volumeStats]]></programlisting>
+			<programlisting><![CDATA[select sum(volume) from org.esper.example.StockTick(symbol='IBM')#length(100)]]></programlisting>
 	
 			<para>
-				Esper filters out events in an event stream as defined by filter criteria before it sends events to subsequent views. Thus, compared to search conditions in a <literal>where</literal> clause, filter criteria remove unneeded events early. In the above example, events with a symbol other than IBM do not enter the time window.
+				Esper filters out events in an event stream as defined by filter criteria that are placed in parenthesis, before it sends events to the data window(s) (if any). Thus, compared to search conditions in a <literal>where</literal> clause, filter criteria remove unneeded events early. In the above example, events with a symbol other than IBM do not enter the length window.
 			</para>
 
 			<sect3 xml:id="epl-filter-event-type" >
@@ -1806,10 +1779,10 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
            <title>Pattern-based Event Streams</title>
 			<para>
 				Event pattern expressions can also be used to specify one or more event streams in an EPL statement.
-				For pattern-based event streams, the event stream definition <emphasis>stream_def</emphasis> consists of the keyword <literal>pattern</literal> and a pattern expression in brackets <literal>[]</literal>. The syntax for an event stream definition using a pattern expression is below. As in filter-based event streams, an optional list of views that derive data from the stream can be supplied.
+				For pattern-based event streams, the event stream definition <emphasis>stream_def</emphasis> consists of the keyword <literal>pattern</literal> and a pattern expression in brackets <literal>[]</literal>. The syntax for an event stream definition using a pattern expression is below. As in filter-based event streams you can specify data windows.
 			</para>
 			
-			<synopsis>pattern [<emphasis>pattern_expression</emphasis>] [.<emphasis>view_spec</emphasis>] [.<emphasis>view_spec</emphasis>] [...]</synopsis>
+			<synopsis>pattern [<emphasis>pattern_expression</emphasis>] [#<emphasis>window_spec</emphasis>] [#<emphasis>window_spec</emphasis>] [...]</synopsis>
 
 			<para>
 				The next statement specifies an event stream that consists of both stock tick events and trade events. The example tags stock tick events with the name "tick" and trade events with the name "trade".
@@ -1821,7 +1794,7 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 			</para>			
 
 			<para>
-				Lets further refine this statement adding a view the gives us the last 30 seconds of either stock tick or trade events. Lets also select prices and a price total.
+				Lets further refine this statement adding a data window the gives us the last 30 seconds of either stock tick or trade events. Lets also select prices and a price total.
 			</para>			
             <programlisting><![CDATA[select tick.price as tickPrice, trade.price as tradePrice, 
        sum(tick.price) + sum(trade.price) as total
@@ -1830,16 +1803,21 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 			<para>
 				Note that in the statement above <literal>tickPrice</literal> and <literal>tradePrice</literal> can each be null values depending on the event processed. Therefore, an aggregation function such as <literal>sum(tick.price + trade.price))</literal> would always return null values as either of the two price properties are always a null value for any event matching the pattern. Use the <literal>coalesce</literal> function to handle null values, for example: <literal>sum(coalesce(tick.price, 0) + coalesce(trade.price, 0))</literal>.
 			</para>			
+			
+			<note>
+				<para>
+					When used with patterns, specifying a data window defines what pattern matches to retain in memory for the purpose of joins or for using the iterator API.
+				</para>
+				<para>
+					When used with patterns, specifying a data window does not limit pattern matches to events in the window. The <literal>match_recognize</literal> pattern matching however does limit matches to events retained by a data window.
+				</para>
+			</note>
 		</sect2>
 
-        <sect2 xml:id="epl-from-clause-view-spec" >
-           <title>Specifying Views</title>
+        <sect2 xml:id="epl-from-clause-window-spec" >
+           <title>Specifying Data Windows</title>
 			<para>
-				Views are used to specify an expiry policy for events (data window views) and also to derive data. Views can be staggered onto each other. See the section <xref linkend="epl-views"/> on the views available that also outlines the different types of views: Data Window views and Derived-Value views.
-			</para>
-						
-			<para>
-				Views can optionally take one or more parameters. These parameters are expressions themselves that may consist of any combination of variables, arithmetic, user-defined function or substitution parameters for prepared statements, for example.
+				Data windows retain a subset of events. They provide an retain/expiry policy for events and the engine automatically removes events according to the retain/expiry policy. Data windows can be grouped and data windows can be intersected or unioned. See the section <xref linkend="epl-views"/> on the data windows available. Data windows can take parameters. Any expressions can be a parameter, with limitations.
 			</para>
 
 			<para>
@@ -1850,7 +1828,7 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 group by expressway]]></programlisting>
 
 			<para>
-				The next example serves to show staggering of views. It uses <literal>#groupwin</literal> to create a separate length window per car id:
+				The next example declares <literal>#groupwin</literal> and a <literal>#length</literal> window to indicate that there is a separate length window per car id:
 			</para>
 				
          <programlisting><![CDATA[select cardId, expressway, direction, segment, count(*) 
@@ -1858,34 +1836,27 @@ from CarLocEvent#groupwin(carId)#length(4)
 group by carId, expressway, direction, segment]]></programlisting>
 
 			<para>
-				The first view <literal>#groupwin(carId)</literal> groups car location events by car id. The second view <literal>win:length(4)</literal> keeps a length window of the 4 last events, with one separate length window for each car id. The example reports the number of events per car id and per expressway, direction and segment considering the last 4 events for each car id only. 
+				The <literal>#groupwin(carId)</literal> groups car location events by car id. The <literal>#length(4)</literal> keeps a length window of the 4 last events, with one separate length window for each car id. 
+				The example reports the number of events per car id and per expressway, direction and segment considering the last 4 events for each car id only. 
 			</para>
 			
 			<para>
-				Note that the <literal>group by</literal> syntax is generally preferable over <literal>#groupwin</literal> for grouping information as it is SQL-compliant, easier to read and does not create a separate data window per group. The <literal>#groupwin</literal> in above example creates a separate data window (length window in the example) per group, demonstrating staggering views.
-			</para>
-
-			<para>
-				When views are staggered onto each other as a chain of views, then the insert and remove stream received by each view is the insert and remove stream made available by the view (or stream) earlier in the chain. 
-			</para>
-
-			<para>
-				The special keep-all view keeps all events: It does not provide a remove stream, i.e. events are not removed from the keep-all view unless by means of the <literal>on-delete</literal> syntax or by revision events.
+				The special keep-all window keeps all events: It does not expire events and does not provide a remove stream, i.e. events are not removed from the keep-all window unless by means of <literal>on-delete</literal> or <literal>on-merge</literal> or fire-and-forget <literal>delete</literal>.
 			</para>
 		</sect2>
 
 		<sect2 xml:id="epl-from-clause-view-multidatawindow" >
-		   <title>Multiple Data Window Views</title>
+		   <title>Multiple Data Windows</title>
 		   <para>
-			   Data window views provide an expiry policy that indicates when to remove events from the data window, with the exception of the keep-all data window which has no expiry policy and the <literal>#groupwin</literal> grouped-window view for allocating a new data window per group.
+			   Data windows provide an expiry policy that indicates when to remove events from the data window, with the exception of the keep-all data window which has no expiry policy and the <literal>#groupwin</literal> grouped-window for allocating a new data window per group.
 		   </para>
 		   
 		   <para>
-			   EPL allows the freedom to use multiple data window views onto a stream and thus combine expiry policies. Combining data windows into an intersection (the default) or a union can achieve a useful strategy for retaining events and expiring events that are no longer of interest. Named windows, tables and the <literal>on-delete</literal> syntax provide an additional degree of freedom.
+			   EPL allows the freedom to use multiple data windows onto a stream and thus combine expiry policies. Combining data windows into an intersection (the default) or a union can achieve a useful strategy for retaining events and expiring events that are no longer of interest. Named windows, tables and <literal>on-merge</literal> and <literal>on-delete</literal> provide an additional degree of freedom.
 		   </para>
 
 		   <para>
-			   In order to combine two or more data window views there is no keyword required. The <emphasis>retain-intersection</emphasis> keyword is the default and the <emphasis>retain-union</emphasis> keyword may instead be provided for a stream.
+			   In order to combine two or more data windows there is no keyword required. The <emphasis>retain-intersection</emphasis> keyword is the default and the <emphasis>retain-union</emphasis> keyword may instead be provided for a stream.
 		   </para>
 
 			<para>
@@ -1941,27 +1912,27 @@ group by carId, expressway, direction, segment]]></programlisting>
 					</thead>
 					<tbody>
 						<row>
-							<entry><literal>win:time(30)#firstunique(keys)</literal></entry>
+							<entry><literal>#time(30)#firstunique(keys)</literal></entry>
 							<entry>Retains 30 seconds of events unique per <literal>keys</literal> value (first event per value).</entry>
 						</row>
 						<row>
-							<entry><literal>win:firstlength(3)#firstunique(keys)</literal></entry>
+							<entry><literal>#firstlength(3)#firstunique(keys)</literal></entry>
 							<entry>Retains the first 3 events that are also unique per <literal>keys</literal> value.</entry>
 						</row>
 						<row>
-							<entry><literal>win:time_batch(N seconds)#unique(keys)</literal></entry>
+							<entry><literal>#time_batch(N seconds)#unique(keys)</literal></entry>
 							<entry>Posts a batch every N seconds that contains the last of each unique event per <literal>keys</literal> value.</entry>
 						</row>
 						<row>
-							<entry><literal>win:time_batch(N seconds)#firstunique(keys)</literal></entry>
+							<entry><literal>#time_batch(N seconds)#firstunique(keys)</literal></entry>
 							<entry>Posts a batch every N seconds that contains the first of each unique event per <literal>keys</literal> value.</entry>
 						</row>
 						<row>
-							<entry><literal>win:length_batch(N)#unique(keys)</literal></entry>
+							<entry><literal>#length_batch(N)#unique(keys)</literal></entry>
 							<entry>Posts a batch of unique events (last event per value) when N unique events per <literal>keys</literal> value are encountered.</entry>
 						</row>
 						<row>
-							<entry><literal>win:length_batch(N)#firstunique(keys)</literal></entry>
+							<entry><literal>#length_batch(N)#firstunique(keys)</literal></entry>
 							<entry>Posts a batch of unique events (first event per value) when N unique events per <literal>keys</literal> value are encountered.</entry>
 						</row>
 					</tbody>
@@ -1969,7 +1940,7 @@ group by carId, expressway, direction, segment]]></programlisting>
 			</table>
 
 		   <para>
-			   For advanced users and for backward compatibility, it is possible to configure Esper to allow multiple data window views without either of the <literal>retain</literal> keywords, as described in <xref linkend="config-engine-viewresources-multipolicy"/>.
+			   For advanced users and for backward compatibility, it is possible to configure Esper to allow multiple data windows without either of the <literal>retain</literal> keywords, as described in <xref linkend="config-engine-viewresources-multipolicy"/>.
 		   </para>
 		</sect2>
 		
@@ -2102,8 +2073,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
     [, group_by:<emphasis>local_group_by</emphasis>] [, filter:<emphasis>filter_expression</emphasis>] )</synopsis>
 
 				<para>
-					You can apply aggregate functions to all events in an event stream window or other view, or to one or more groups of events. From each set of events to which 
-					an aggregate function is applied, Esper generates a single value. 
+					You can apply aggregate functions to all events in an event stream window or to one or more groups of events (i.e. <literal>group by</literal>). From each set of events to which an aggregate function is applied, Esper generates a single value. 
 				</para>
 
 				<para>
@@ -2761,15 +2731,15 @@ having stddev(price) &gt; 0.8</programlisting>
 
 		</sect2>
 
-        <sect2 xml:id="epl-group-by-versus-view" >
-			 <title>Comparing Keyed Segmented Context, the <emphasis>Group By</emphasis> clause and the <emphasis>#groupwin</emphasis> view</title>
+        <sect2 xml:id="epl-group-by-versus-view">
+			 <title>Comparing Keyed Segmented Context, the <emphasis>Group By</emphasis> Clause and <emphasis>#groupwin</emphasis> for Data Windows</title>
 
 			<para>
-				The keyed segmented context <emphasis>create context ... partition by</emphasis> and the <emphasis>group by</emphasis> clause as well as the built-in <emphasis>#groupwin</emphasis> view are similar in their ability to group events but very different in their semantics. This section explains the key differences in their behavior and use.
+				The keyed segmented context <emphasis>create context ... partition by</emphasis> and the <emphasis>group by</emphasis> clause as well as the built-in <emphasis>#groupwin</emphasis> are similar in their ability to group events but very different in their semantics. This section explains the key differences in their behavior and use.
 			</para>
 				
 			<para>
-				The keyed segmented context as declared with <emphasis>create context ... partition by</emphasis> and <emphasis>context .... select ...</emphasis> creates a new context partition per key value(s). The engine maintains separate data window views as well as separate aggregations per context partition; thereby the keyed segmented context applies to both. See <xref linkend="context_def_keyed"/> for additional examples.
+				The keyed segmented context as declared with <emphasis>create context ... partition by</emphasis> and <emphasis>context .... select ...</emphasis> creates a new context partition per key value(s). The engine maintains separate data windows as well as separate aggregations per context partition; thereby the keyed segmented context applies to both. See <xref linkend="context_def_keyed"/> for additional examples.
 			</para>
 
 			<para>
@@ -2777,7 +2747,7 @@ having stddev(price) &gt; 0.8</programlisting>
 			</para>
 
 			<para>
-				The <emphasis>#groupwin</emphasis> view is a built-in view that groups events into data windows. The view is described in greater detail in <xref linkend="view-std-groupwin"/>. Its primary use is to create a separate data window per group, or more generally to create separate instances of all its sub-views for each grouping key encountered.
+				The <emphasis>#groupwin</emphasis> instructs the system to have a separate data window per group, see <xref linkend="view-std-groupwin"/>. It causes allocation of separate data window(s) for each grouping key encountered.
 			</para>
 			
 			<para>
@@ -2838,7 +2808,7 @@ having stddev(price) &gt; 0.8</programlisting>
 			</para>
 
 			<para>
-				The next example shows queries that produce equivalent results. The query using the <emphasis>group by</emphasis> clause is generally preferable as is easier to read. The second form introduces the <literal>stat:uni</literal> view which computes univariate statistics for a given property:
+				The next example shows queries that produce equivalent results. The query using the <emphasis>group by</emphasis> clause is generally preferable as is easier to read. The second form introduces the <literal>#uni</literal> special data window which computes univariate statistics for a given property:
 			</para>
 
 			<programlisting>select symbol, avg(price) from StockTickEvent group by symbol
@@ -2854,7 +2824,7 @@ select symbol, average from StockTickEvent#groupwin(symbol)#uni(price)</programl
 select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</programlisting>
 
 			<para>
-				The key difference between the two statements is that in the first statement the length window is ungrouped and applies to all events regardless of group. While in the second query each group gets its own instance of a length window. For example, in the second query events arriving for symbol "ABC" get a length window of 10 events, and events arriving for symbol "DEF" get their own length window of 10 events. 
+				The key difference between the two statements is that in the first statement the length window is ungrouped and applies to all events regardless of group. While in the second query each group gets its own length window. For example, in the second query events arriving for symbol "ABC" get a length window of 10 events, and events arriving for symbol "DEF" get their own length window of 10 events. 
 			</para>
 
 		</sect2>
@@ -3015,7 +2985,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 					<synopsis>select sum(price) from StockTickEvent output when OutputTriggerVar = true</synopsis>
 
 					<para>
-						The engine evaluates the trigger expression when streams and data views post one or more insert or remove stream events after considering the <literal>where</literal> clause, if present. It also evaluates the trigger expression when any of the variables used in the trigger expression, if any, changes value. Thus output occurs as follows:
+						The engine evaluates the trigger expression when streams and data windows (if any) post one or more insert or remove stream events after considering the <literal>where</literal> clause, if present. It also evaluates the trigger expression when any of the variables used in the trigger expression, if any, changes value. Thus output occurs as follows:
 					</para>
 
 					<orderedlist spacing="compact">
@@ -3177,7 +3147,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 				</para>
 				
 				<para>
-					The engine evaluates the having-clause at the granularity of the data posted by views. That is, if you utilize a time window and output every 10 events, the <literal>having</literal> clause applies to each individual event or events entering and leaving the time window (and not once per batch of 10 events).
+					The engine evaluates the having-clause at the granularity of the data posted by data windows (if any) or when an event arrives (without a data windows). That is, if you utilize a time window and output every 10 events, the <literal>having</literal> clause applies to each individual event or events entering and leaving the time window (and not once per batch of 10 events).
 				</para>
 
 				<para>
@@ -3273,7 +3243,7 @@ order by price, volume</programlisting>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					If the statement is not a join, does not group via <literal>group by</literal> clause and does not declare grouped data windows via <literal>#groupwin</literal> view, the order in which events are delivered to listeners and through the <literal>iterator</literal> pull API is the order of event arrival.
+					If the statement is not a join, does not group via <literal>group by</literal> clause and does not declare grouped data windows via <literal>#groupwin</literal>, the order in which events are delivered to listeners and through the <literal>iterator</literal> pull API is the order of event arrival.
 				</para>
 			</listitem>
 			<listitem>
@@ -3548,7 +3518,7 @@ from pattern [every linkDown=LinkDownEvent -> linkUp=LinkUpEvent(ip=linkDown.ip)
 
 			<para>
 				A variant stream name may appear anywhere in a pattern or <literal>from</literal> clause. In a pattern, a filter against a variant stream matches any events of any of the event types inserted into the variant stream. 
-				In a <literal>from</literal> clause including for named windows, views declared onto a variant stream may hold events of any of the event types inserted into the variant stream.
+				In a <literal>from</literal> clause including for named windows, data windows may hold events of any of the event types inserted into the variant stream.
 			</para>
 
 			<para>
@@ -3758,7 +3728,7 @@ from TriggerEvent</programlisting>
   (select name from Zones#unique(zoneId) where zoneId = RFID.zoneId)]]></programlisting>
 		
 		<para>
-			The example above shows a subquery in the <literal>where</literal> clause. The statement selects RFID events in which the zone name matches a string constant based on zone id. The statement uses the view <literal>#unique</literal> to guarantee that only the last event per zone id is held from processing by the subquery.
+			The example above shows a subquery in the <literal>where</literal> clause. The statement selects RFID events in which the zone name matches a string constant based on zone id. The statement sets <literal>#unique</literal> to guarantee that only the last event per zone id is retained for processing by the subquery.
 		</para>
 
 		<para>
@@ -3769,7 +3739,7 @@ from TriggerEvent</programlisting>
   where zoneId = RFID.zoneId) as name from RFIDEvent]]></programlisting>
 
 		<para>
-			Note that when a simple or correlated subquery returns multiple rows, the engine returns a <literal>null</literal> value as the subquery result. To limit the number of events returned by a subquery consider using one of the views <literal>#lastevent</literal>, <literal>#unique</literal> and <literal>#groupwin</literal> or aggregation functions or the multi-row and multi-column selects as described below.
+			Note that when a simple or correlated subquery returns multiple rows, the engine returns a <literal>null</literal> value as the subquery result. To limit the number of events returned by a subquery consider using one of the <literal>#lastevent</literal>, <literal>#unique</literal> data windows or aggregation functions or the multi-row and multi-column-select as described below.
 		</para>
 
 		<para>
@@ -4339,11 +4309,11 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
  where fraud.accountNumber = withdraw.w.accountNumber]]></programlisting>
 	
 			<para>
-				The statement above joins the last 30 minutes of fraud warnings with a pattern. The pattern consists of every withdrawal event that is followed by a PIN change event for the same account number. It joins the two event streams on account number. The last-event view instucts the join to only consider the last pattern match.
+				The statement above joins the last 30 minutes of fraud warnings with a pattern. The pattern consists of every withdrawal event that is followed by a PIN change event for the same account number. It joins the two event streams on account number. The last-event window instucts the join to only consider the last pattern match.
 			</para>
 	
 			<para>
-				In a join and outer join, your statement must declare a data window view or other view onto each stream. Streams that are marked as unidirectional and named windows and tables as well as database or methods in a join are an exception and do not require a view to be specified. If you are joining an event to itself via contained-event selection, views also do not need to be specified. The reason that a data window must be declared is that a data window specifies which events are considered for the join (i.e. last event, last 10 events, all events, last 1 second of events etc.).
+				In a join and outer join, your statement must declare a data window onto each stream. Streams that are marked as unidirectional and named windows and tables as well as database or methods in a join are an exception and do not require a data window. If you are joining an event to itself via contained-event selection, data windows also do not need to be specified. The reason that a data window must be declared is that a data window specifies which events are considered for the join (i.e. last event, last 10 events, all events, last 1 second of events etc.).
 			</para>
 	
 			<para>
@@ -4353,7 +4323,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
  where fraud.accountNumber = pin.accountNumber]]></programlisting>
 
 			<para>
-				The above example employed the special keep-all view that retains all events.
+				The above example employed the special keep-all window that retains all events.
 			</para>			
 		</sect2>
 
@@ -4420,7 +4390,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
        on rfid.itemId = orderList.itemId and rfid.assetId = orderList.assetId]]></programlisting>
 
 			<para>
-				Patterns as streams in a join follow this rule: If no data window view is declared for the pattern then the pattern stream retains the last match. Thus a pattern must have matched at least once for the last row to become available in a join. Multiple rows from a pattern stream may be retained by declaring a data window view onto a pattern using the <literal>pattern [...].</literal><emphasis>view_specification</emphasis> syntax.
+				Patterns as streams in a join follow this rule: If your query does not specify a data window for the pattern then the pattern stream retains the last match. Thus a pattern must have matched at least once for the last match to become available in a join. Multiple rows from a pattern stream may be retained by declaring a data window onto a pattern using the <literal>pattern [...]#</literal><emphasis>window_spec</emphasis> syntax.
 			</para>
 	
 			<para>
@@ -4460,7 +4430,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			<indexterm><primary>EPL</primary><secondary>outer join, unidirectional</secondary></indexterm>
 	
 			<para>
-				In a join or outer join your statement lists multiple event streams, views and/or patterns in the <literal>from</literal> clause. As events arrive into the engine, each of the streams (views, patterns) provides insert and remove stream events. The engine evaluates each insert and remove stream event provided by each stream, and joins or outer joins each event against data window contents of each stream, and thus generates insert and remove stream join results.
+				In a join or outer join your statement lists multiple event streams, data windows and/or patterns in the <literal>from</literal> clause. As events arrive into the engine, each of the streams (data windows, patterns) provides insert and remove stream events. The engine evaluates each insert and remove stream event provided by each stream, and joins or outer joins each event against data window contents of each stream, and thus generates insert and remove stream join results.
 			</para>
 				
 			<para>
@@ -4506,7 +4476,7 @@ where tick.symbol = news.symbol]]></programlisting>
 				</listitem>
 				<listitem>
 					<para>
-						The stream that declares the <literal>unidirectional</literal> keyword cannot declare a data window view or other view for that stream, since remove stream events are not processed for the single stream.
+						The stream that declares the <literal>unidirectional</literal> keyword cannot declare a data window for that stream, since remove stream events are not processed for the single stream.
 					</para>
 				</listitem>
 			</orderedlist>
@@ -4638,7 +4608,7 @@ and ob1.price between t.buy and t.sell and ob2.price between t.buy and t.sell]]>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					Sub-views on an SQL query are not allowed; That is, one cannot create a time or length window on an SQL query. However one can use the <literal>insert into</literal> syntax to make join results available to a further statement.
+					An SQL query cannot declare data windows; That is, one cannot create a time or length window on an SQL query. Instead, use <literal>insert into</literal> to make join results available for further processing.
 				</para>
 			</listitem>
 			<listitem>
@@ -4968,7 +4938,7 @@ select * from sql:MyDB ['select * from MyEventTable]]]></programlisting>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					Sub-views on invocations are not allowed; That is, one cannot create a time or length window on an invocation. However one can use the <literal>insert into</literal> syntax to make join results available to a further statement.
+					A invocation cannot declare data windows; That is, one cannot create a time or length window on an invocation. Instead, use <literal>insert into</literal> to make join results available for further processing.
 				</para>
 			</listitem>
 		</itemizedlist>
@@ -5717,7 +5687,7 @@ can be used to assign a stream name. Patterns and named windows can also be spec
 		</para>
 
 		<para>
-			By default the engine inserts into the first <literal>insert into</literal> stream without a <literal>where</literal> clause or for which the <literal>where</literal> clause condition matches. To change the default behavior and insert into all matching streams instead (including those without a <literal>where</literal> clause), the <literal>output all</literal> keywords may be added to the statement.
+			By default the engine inserts into the first <literal>insert into</literal> stream without a <literal>where</literal> clause or for which the <literal>where</literal> clause condition matches. To change the default behavior and insert into all matching streams instead (including those without a <literal>where</literal> clause), add the <literal>output all</literal> keywords.
 		</para>
 
 		<para>
@@ -6093,7 +6063,7 @@ on PageHitEvent(ip='0.0.0.0') pagehit set varPageHitZero.userId = pagehit.userId
 			<programlisting><![CDATA[create constant variable StateCheckerService stateChecker = StateCheckerServiceFactory.makeService()]]></programlisting>
 
 			<para>
-				Or the variable can be added via the config API; an example code snippet is next:
+				You can add a variable via the configuration API; an example code snippet is next:
 			</para>
 			<programlisting><![CDATA[admin.getConfiguration().addVariable("stateChecker", StateCheckerService.class, StateCheckerServiceFactory.makeService(), true);]]></programlisting>
 
@@ -6289,7 +6259,7 @@ select minPrice() as minprice from MarketData]]></programlisting>
 		</para>
 
 		<para>
-			To review, in the <literal>from</literal> clause a <emphasis>contained_selection</emphasis> may appear after the event stream name and filter criteria, and before any view specifications.
+			To review, in the <literal>from</literal> clause a <emphasis>contained_selection</emphasis> may appear after the event stream name and filter criteria, and before any data windows.
 		</para>
 
 		<para>
@@ -6376,7 +6346,7 @@ select minPrice() as minprice from MarketData]]></programlisting>
 		<programlisting><![CDATA[select * from MediaOrder(orderId='PO200901')[books.book]]]></programlisting>
 
 		<para>
-			The above query the returns each book only for media orders with a given order id. This query illustrates a contained-event selection and a view: 
+			The above query the returns each book only for media orders with a given order id. This query illustrates a contained-event selection and a data window: 
 		</para>
 		<programlisting><![CDATA[select count(*) from MediaOrder[books.book]#unique(bookId)]]></programlisting>
 		
@@ -6560,7 +6530,7 @@ select mediaOrder.orderId, book.bookId, review.reviewId from ReviewStream]]></pr
 			</para>
 
 			<para>
-				When joining within the same event it is not required that views are specified. Recall, in a join or outer join there must be views specified that hold the data to be joined. For self-joins, no views are required and the join
+				When joining within the same event it is not required to specify a data window. Recall, in a join or outer join there must be a data window specified that defines the subset of events available to be joined. For self-joins, no data window is required and the join
 				executes against the data returned by the same event.
 			</para>
 			
@@ -7009,7 +6979,7 @@ from pattern [a=Withdrawal -> b=Withdrawal(id = a.id)]]]></programlisting>
 		<title>Controlling Event Delivery : The <literal>For</literal> Clause</title>
 		
 		<para>
-			The engine delivers all result events of a given statement to the statement's listeners and subscriber (if any) in a single invocation of each listener and subscriber's <literal>update</literal> method passing an array of result events. For example, a statement using a time-batch view may provide many result events after a time period passes, a pattern may provide multiple matching events or in a join the join cardinality could be multiple rows.
+			The engine delivers all result events of a given statement to the statement's listeners and subscriber (if any) in a single invocation of each listener and subscriber's <literal>update</literal> method passing an array of result events. For example, a statement using a time-batch window may provide many result events after a time period passes, a pattern may provide multiple matching events or in a join the join cardinality could be multiple rows.
 		</para>
 		
 		<para>
@@ -7040,7 +7010,7 @@ from pattern [a=Withdrawal -> b=Withdrawal(id = a.id)]]]></programlisting>
 		</para>
 
 		<para>
-			Consider the following example without <literal>for</literal>-clause. The time batch data view collects RFIDEvent events for 10 seconds and posts an array of result events:
+			Consider the following example without <literal>for</literal>-clause. The time batch data window collects RFIDEvent events for 10 seconds and posts an array of result events:
 		</para>
 		<programlisting><![CDATA[select * from RFIDEvent#time_batch(10 sec)]]></programlisting>
 		

@@ -169,7 +169,7 @@ EPStatement myTrigger = admin.createEPL("select * from pattern [" +
 			</para>
 
 			<para>
-				In addition, a data window view can be declared onto a pattern. A data window declared onto a pattern only serves to retain pattern matches. A data window declared onto a pattern does not limit, cancel, remove or delete intermediate pattern matches of the pattern when pattern matches leave the data window.
+				In addition, you may use data window with a pattern. A data window declared for a pattern only serves to retain pattern matches, for use in joins or for iterating via the iterator API. A data window declared onto a pattern does not limit, cancel, remove or delete intermediate pattern matches of the pattern when pattern matches leave the data window.
 			</para>
 
 			<para>
@@ -230,7 +230,7 @@ having sum(a.price + b.price) > 100]]></programlisting>
 			</para>
 
 			<programlisting><![CDATA[if (myPattern.iterator().hasNext()) {
-	ServiceMeasurement event = (ServiceMeasurement) view.iterator().next().get("alert");
+	ServiceMeasurement event = (ServiceMeasurement) statement.iterator().next().get("alert");
     ... // some more code here to process the event
 }
 else {
@@ -1060,7 +1060,7 @@ every timer:interval(1 sec) -> (b=B where timer:within(1 sec))]]></programlistin
 				</para>
 				
 				<para>
-					The pattern as discussed above matches every A event followed by the first B event followed by the next C event, and doesn't specifically qualify the B or C events to look for based on the A event.  To look for specific B and C events in relation to a given A event, the correlation must use one or more of the properties of the A event, such as the "id" property:
+					The pattern as discussed above matches every A event followed by the first B event followed by the next C event, and doesn't specifically qualify the B or C events to look for based on the A event.  To look for specific B and C events in relation to a given A event, specify correlating properties of the A event, for example:
 				</para>
 				<programlisting><![CDATA[every a=A -> (B(id=a.id -> C(id=a.id)) where timer:within(1 hour)]]></programlisting>
 				
@@ -2062,7 +2062,7 @@ timer:within(125)</programlisting>
 			</table> 
 	
 			<para>
-				The keyword <literal>last</literal> used in the days-of-month field means the last day of the month (current month). To specify the last day of another month, a value for the month field has to be provided. For example: <literal>timer:at(*, *, last,2,*)</literal> is the last day of February. 
+				The keyword <literal>last</literal> used in the days-of-month field means the last day of the month (current month). To specify the last day of another month, you must provide a value for the month field. For example: <literal>timer:at(*, *, last,2,*)</literal> is the last day of February. 
 			</para>
 				
 			<para>

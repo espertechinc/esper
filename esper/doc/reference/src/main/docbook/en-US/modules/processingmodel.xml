@@ -14,7 +14,7 @@
 		</para>
 
         <para>
-			The Esper processing model is continuous:  Update listeners and/or subscribers to statements receive updated data as soon as the engine processes events for that statement, according to the statement's choice of event streams, views, filters and output rates.
+			The Esper processing model is continuous:  Update listeners and/or subscribers to statements receive updated data as soon as the engine processes events for that statement, according to the statement's choice of event streams, data windows, filters and output rates.
         </para>
 			
         <para>
@@ -172,7 +172,8 @@ results via method invocation. The subscriber class need not implement an interf
         </figure>
         
         <para>
-			The where-clause and having-clause in statements eliminate potential result rows at a later stage in processing, after events have been processed into a statement's data window or other views.
+			The where-clause and having-clause in statements eliminate potential result rows at a later stage in processing, after events have been processed into a statement's data window, if the query specifies a data window at all.
+			The where-clause is typically used for correlation in a join or subquery and not for filters. Filter expressions should be placed right after the event type name in parenthesis.
         </para>
 
         <para>
@@ -200,7 +201,7 @@ results via method invocation. The subscriber class need not implement an interf
         <title>Time Windows</title>
         
         <para>
-			In this section we explain the output model of statements employing a time window view and a time batch view.
+			In this section we explain the output model of statements employing a time window or a time batch window.
         </para>
 
 		<sect2 xml:id="processingmodel_time_window_1" revision="1">
@@ -273,11 +274,11 @@ having amount > 1000]]></programlisting>
 
 			<indexterm><primary>time batch window</primary></indexterm>
 			<para>
-				The time batch view buffers events and releases them every specified time interval in one update. Time windows control the evaluation of events, as does the length batch window. 
+				The time batch window buffers events and releases them every specified time interval in one update. Time windows control the evaluation of events, as does the length batch window.
 			</para>
 			
 			<para>
-				The next diagram serves to illustrate the functioning of a time batch view. For the diagram, we assume a simple query as below:
+				The next diagram serves to illustrate the functioning of a time batch window. For the diagram, we assume a simple query as below:
 			</para>
 
 			<programlisting><![CDATA[select * from Withdrawal#time_batch(4 sec)]]></programlisting>
@@ -287,7 +288,7 @@ having amount > 1000]]></programlisting>
 			</para>
 
 			<figure xml:id="processingmodel_timebatch_flow">
-				<title>Output example for a statement with a time batch view</title>
+				<title>Output example for a statement with a time batch window</title>
 				<mediaobject>
 					<imageobject>
 						<imagedata fileref="images/refdoc_outputmodel_timebatch.gif" format="GIF" align="center"/>
@@ -334,9 +335,9 @@ having amount > 1000]]></programlisting>
 	<sect1 xml:id="processingmodel_batch" revision="1">
 		<title>Batch Windows</title>
 
-		<indexterm><primary>views</primary><secondary>batch window processing</secondary></indexterm>		
+		<indexterm><primary>data window</primary><secondary>batch window processing</secondary></indexterm>		
 		<para>
-			The built-in data windows that act on batches of events are the <literal>win:time_batch</literal> and the <literal>win:length_batch</literal> views, among others. The <literal>win:time_batch</literal> data window collects events arriving during a given time interval and posts collected events as a batch to listeners at the end of the time interval. The <literal>win:length_batch</literal> data window collects a given number of events and posts collected events as a batch to listeners when the given number of events has collected.
+			The built-in data windows that act on batches of events are the <literal>#time_batch</literal> and the <literal>#length_batch</literal> windows, among others. The <literal>#time_batch</literal> data window collects events arriving during a given time interval and posts collected events as a batch to listeners at the end of the time interval. The <literal>#length_batch</literal> data window collects a given number of events and posts collected events as a batch to listeners when the given number of events has collected.
 		</para>
 		
 		<para>

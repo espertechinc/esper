@@ -849,7 +849,7 @@ select prev(symbol) from Trade
 select prev(symbol, 1) from Trade</programlisting>			
 
 			<para>
-				The combination of the <literal>prev</literal> function and <literal>#groupwin</literal> view returns the property value for a previous event in the given data window group. 
+				The combination of the <literal>prev</literal> function and <literal>#groupwin</literal> returns the property value for a previous event in the given data window group. 
 			</para>
 
 			<para>
@@ -872,7 +872,7 @@ from Trade#groupwin(symbol)#sort(1, price asc)</programlisting>
 					</listitem>
 					<listitem>
 						<para>
-							The function requires a data window view, or a <literal>#groupwin</literal> and data window view, without any additional sub-views. See <xref linkend="win-views"/> for built-in data window views.
+							The function requires a data window, or <literal>#groupwin</literal> and a data window. See <xref linkend="win-views"/> for data windows.
 						</para>
 					</listitem>
 				</itemizedlist>
@@ -887,17 +887,17 @@ from Trade#groupwin(symbol)#sort(1, price asc)</programlisting>
 				<itemizedlist spacing="compact">
 					<listitem>
 						<para>
-							The <literal>prev</literal> function returns previous events in the order provided by the data window, while the <literal>prior</literal> function returns prior events in the order of arrival as posted by a stream's declared views.
+							The <literal>prev</literal> function returns previous events in the order provided by the data window, while the <literal>prior</literal> function returns prior events in the order of arrival as posted by a stream's declared windows.
 						</para>
 					</listitem>
 					<listitem>
 						<para>
-							The <literal>prev</literal> function requires a data window view while the <literal>prior</literal> function does not have any view requirements.
+							The <literal>prev</literal> function requires a data window while the <literal>prior</literal> function does not have any such requirement.
 						</para>
 					</listitem>
 					<listitem>
 						<para>
-							The <literal>prev</literal> function returns the previous event grouped by a criteria by combining the <literal>#groupwin</literal> view and a data window. The <literal>prior</literal> function returns prior events posted by the last view regardless of data window grouping.
+							The <literal>prev</literal> function returns the previous event grouped by a criteria by combining the <literal>#groupwin</literal> and a data window. The <literal>prior</literal> function returns prior events posted regardless of data window grouping.
 						</para>
 					</listitem>
 					<listitem>
@@ -973,7 +973,7 @@ select prevtail(symbol) from Trade
 select prevtail(symbol, 1) from Trade</programlisting>			
 
 			<para>
-				The combination of the <literal>prevtail</literal> function and <literal>#groupwin</literal> view returns the property value for a positional first event in the given data window group. 
+				The combination of the <literal>prevtail</literal> function and <literal>#groupwin</literal> returns the property value for a positional first event in the given data window group. 
 			</para>
 
 			<para>
@@ -996,7 +996,7 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 					</listitem>
 					<listitem>
 						<para>
-							The function requires a data window view, or a <literal>#groupwin</literal> and data window view, without any additional sub-views. See <xref linkend="win-views"/> for built-in data window views.
+							The function requires a data window, or a <literal>#groupwin</literal> and a data window. See <xref linkend="win-views"/> for built-in data windows.
 						</para>
 					</listitem>
 				</itemizedlist>
@@ -1044,7 +1044,7 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 			</para>
 
 			<para>
-				The combination of the <literal>prevwindow</literal> function and <literal>#groupwin</literal> view returns the property value(s) for all events in the given data window group. 
+				The combination of the <literal>prevwindow</literal> function and <literal>#groupwin</literal> returns the property value(s) for all events in the given data window group. 
 			</para>
 
 			<para>
@@ -1066,7 +1066,7 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 					</listitem>
 					<listitem>
 						<para>
-							The function requires a data window view, or a <literal>#groupwin</literal> and data window view, without any additional sub-views. See <xref linkend="win-views"/> for built-in data window views.
+							The function requires a data window, or <literal>#groupwin</literal> and a data window. See <xref linkend="win-views"/> for built-in data windows.
 						</para>
 					</listitem>
 				</itemizedlist>
@@ -1101,7 +1101,7 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 			<programlisting>select prevcount(trade) from Trade#length(10) as trade</programlisting>
 
 			<para>
-				The combination of the <literal>prevcount</literal> function and <literal>#groupwin</literal> view returns the count of events in the given data window group. 
+				The combination of the <literal>prevcount</literal> function and <literal>#groupwin</literal> returns the count of events in the given data window group. 
 			</para>
 
 			<para>
@@ -1123,7 +1123,7 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 					</listitem>
 					<listitem>
 						<para>
-							The function requires a data window view, or a <literal>#groupwin</literal> and data window view, without any additional sub-views. See <xref linkend="win-views"/> for built-in data window views.
+							The function requires a data window, or a <literal>#groupwin</literal> and a data window. See <xref linkend="win-views"/> for built-in data windows.
 						</para>
 					</listitem>
 				</itemizedlist>
@@ -1153,7 +1153,7 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 			<programlisting>select prior(1, trade) from Trade as trade</programlisting>
 
 			<para>
-				The <literal>prior</literal> function can be used on any event stream or view and does not have any specific view requirements.  The function operates on the order of arrival of events by the event stream or view that provides the events.
+				The <literal>prior</literal> function can be used on any event stream and does not require declaring a data window.  The function operates on the order of arrival of events by the event stream that provides the events.
 			</para>
 
 			<para>
@@ -2251,7 +2251,7 @@ having leaving()</programlisting>
 								</para>
 								<para>
 									A maximum N historical values are stored, so it can be safely used to compare
-									recent values in large views without incurring excessive overhead.
+									recent values in data windows with a large number of events without incurring excessive overhead.
 								</para>
 								<para>
 									As compared to the <literal>prev</literal> row function, this aggregation function works within the current <literal>group by</literal> group, see <xref linkend="processingmodel_aggregation_output"/>.
