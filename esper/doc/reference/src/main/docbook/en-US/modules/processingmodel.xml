@@ -90,7 +90,7 @@
 		</para>
 	</sect1>
 		
-    <sect1 xml:id="processingmodel_straightselect" revision="1">
+    <sect1 xml:id="processingmodel_basicselect" revision="1">
         <title>Basic Select</title>
 
 		<para>
@@ -108,11 +108,11 @@
 			In the picture the <literal>W</literal><subscript>n</subscript> stands for a specific <literal>Withdrawal</literal> event arriving. The number in parenthesis is the withdrawal amount.
 		</para>
 		
-        <figure xml:id="processingmodel_into_straightselect">
+        <figure xml:id="processingmodel_into_basicselect">
 			<title>EPL Select Example Input and Output Flow</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/refdoc_procmodel_straightselect.png" scale="60" align="center"/>
+					<imagedata fileref="images/refdoc_procmodel_basicselect.png" scale="60" align="center"/>
 				</imageobject>
 			</mediaobject>
         </figure>
@@ -126,7 +126,7 @@
 		</para>
 	</sect1>
 	
-    <sect1 xml:id="processingmodel_plainaggregate" revision="1">
+    <sect1 xml:id="processingmodel_basicaggregation" revision="1">
         <title>Basic Aggregation</title>
         
         <para>
@@ -143,7 +143,7 @@
 			After that Esper effectively forgets the current event and does not remember any events at all, but does remember the current count and total.
 		</para>
 		
-        <figure xml:id="processingmodel_into_plainaggregate">
+        <figure xml:id="processingmodel_into_basicaggregation">
 			<title>EPL Select Example Input and Output Flow</title>
 			<mediaobject>
 				<imageobject>
@@ -392,7 +392,7 @@ select .... from Withdrawal where amount > 200]]></programlisting>
         </para>
 
         <figure xml:id="processingmodel_into_basicwhere">
-			<title>EPL Basic Data Window and Aggregation Example Input and Output Flow</title>
+			<title>EPL Basic Where-Clause Example Input and Output Flow</title>
 			<mediaobject>
 				<imageobject>
 					<imagedata fileref="images/refdoc_procmodel_basicwhere.png" scale="60" align="center"/>
