@@ -103,7 +103,7 @@
 			</listitem>
 			<listitem>
 				<para>
-					All event representations allow transposing the event itself and parts of all of its property graph into new events. The term transposing refers to selecting the event itself or event properties that are themselves nestable property graphs, and then querying the event's properties or nested property graphs in further statements. The Apache Axiom event representation is an exception and does not currently allow transposing event properties but does allow transposing the event itself.
+					All event representations allow transposing the event itself and parts or all of its property graph into new events. The term transposing refers to selecting the event itself or event properties that are themselves nestable property graphs, and then querying the event's properties or nested property graphs in further statements. The Apache Axiom event representation is an exception and does not currently allow transposing event properties but does allow transposing the event itself.
 				</para>
 			</listitem>
 			<listitem>
@@ -138,7 +138,7 @@
 			</listitem>
 			<listitem>
 				<para>
-					The choice makes its possible to consciously trade-off performance, ease-of-use, the ability to evolve and effort needed to import or externalize events and use existing event type metadata. 
+					The choice makes it possible to consciously trade-off performance, ease-of-use, the ability to evolve and effort needed to import or externalize events and use existing event type metadata. 
 				</para>
 			</listitem>
 		</itemizedlist>
@@ -255,7 +255,7 @@
 			</para>
 	
 			<para>
-				This example below uses Java classes to illustrate;The same principles apply to all event representations.
+				This example below uses Java classes to illustrate; The same principles apply to all event representations.
 			</para>
 
 			<para>
@@ -669,7 +669,7 @@ public class InnerType {
 					<tbody>
 						<row>
 							<entry>Performance</entry>
-							<entry>Good</entry>
+							<entry>Very Good (with Byte Code Generation, else Good)</entry>
 							<entry>Good</entry>
 							<entry>Very Good</entry>
 							<entry>Very Good</entry>
@@ -764,7 +764,7 @@ public class InnerType {
 		   </para>
 		   <itemizedlist>
 				<ns:listitem>
-					<para>Dynamic properties allow to query properties that are not defined, see <xref linkend="eventrep-dyncproperties"/>.</para>
+					<para>Dynamic properties allow querying properties that are not defined, see <xref linkend="eventrep-dyncproperties"/>.</para>
 				</ns:listitem>
 				<ns:listitem>
 					<para>The <literal>cast</literal> function for operations that require strongly-typed data, see <xref linkend="epl-single-row-function-cast"/>.</para>
@@ -888,13 +888,8 @@ such event metadata and event data into one of the built-in event representation
         </para>
 
         <para>
-			  The third means to handle updating events is the revision event types, for use with named windows only, as further described in <xref linkend="named_versioning"/>. With revision event types one can declare, via configuration only, multiple different event types and then
-			  have the engine present a merged event type that contains a superset of properties of all merged types, and have the engine merge events as they arrive without additional EPL statements.
+			  The third means to handle updating events is the revision event types, for use with named windows only, as further described in <xref linkend="named_versioning"/>. With revision event types one can declare, via configuration only, multiple different event types. The engine can present a merged event type that contains a superset of properties of all merged types, and the engine can merge events as they arrive without additional EPL statements.
         </para>
-
-		<para>
-			Note that patterns do not reflect changes to past events. For the temporal nature of patterns, any changes to events that were observed in the past do not reflect upon current pattern state.
-		</para>
 	</sect1>
 
 	<sect1 xml:id="eventrep-coarse">
@@ -909,7 +904,7 @@ such event metadata and event data into one of the built-in event representation
 
         <para>
 			To extract information from a coarse-grained event or to perform bulk operations on the rows of the property graph in an event, Esper provides a convenient syntax: 
-			When specifying a filter expression in a pattern or in a <literal>select</literal> clause, it may contain a contained-event selection syntax, as further described in <xref linkend="epl-containedeventselect"/>.
+			When specifying a filter expression in a pattern or in a <literal>select</literal> clause, it may contain an contained-event selection syntax, as further described in <xref linkend="epl-containedeventselect"/>.
 		</para>
 
 	</sect1>
@@ -924,7 +919,7 @@ such event metadata and event data into one of the built-in event representation
 		</para>
 
         <para>
-			The <literal>insert into</literal> clause can populate instantiate new instances of Java object events, <literal>java.util.Map</literal> events and <literal>Object[]</literal> (object array) events directly from the results of <literal>select</literal> clause expressions and populate such instances. Simply use the event type name as the stream name in the <literal>insert into</literal> clause as described in <xref linkend="epl-insert-into"/>.
+			The <literal>insert into</literal> clause can instantiate and populate new instances of Java object events, <literal>java.util.Map</literal> events and <literal>Object[]</literal> (object array) events directly from the results of <literal>select</literal> clause expressions. Simply use the event type name as the stream name in the <literal>insert into</literal> clause as described in <xref linkend="epl-insert-into"/>.
         </para>
         
         <para>
@@ -966,7 +961,7 @@ select fname, lname from HRSystemEvent</programlisting>
 select fname, lname, 'HIRED' as type from HRSystemEvent(type='NEW')</programlisting> 
 
         <para>
-          The matching of the <literal>select</literal> or <literal>insert into</literal>-clause column names to target event type's property names is case-sensitive. It is allowed to only populate a subset of all available columns in the target event type. Wildcard (<literal>*</literal>) is also allowed and copies all fields of the events or multiple events in a join.
+          The matching of the <literal>select</literal> or <literal>insert into</literal>-clause column names to target event type's property names is case-sensitive. You can specify a subset of all available columns in the target event type. Wildcard (<literal>*</literal>) is allowed and copies all fields of the events or multiple events in a join.
 		</para>
 
         <para>

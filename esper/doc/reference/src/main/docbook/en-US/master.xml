@@ -72,17 +72,17 @@
 			</listitem>
 			<listitem>
 				<para>
-                    Read <xref linkend="gettingstarted"/> if you are new to CEP and ESP (complex event processing, event stream processing)
+                    Read <xref linkend="gettingstarted"/> if you are new to CEP and streaming analytics
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Read <xref linkend="processingmodel"/> to gain insight into EPL basic concepts
                 </para>
 			</listitem>
 			<listitem>
 				<para>
                     Read <xref linkend="event_representation"/> that explains the different ways of representing events to Esper
-                </para>
-			</listitem>
-			<listitem>
-				<para>
-                    Read <xref linkend="processingmodel"/> to gain insight into EPL continuous query results
                 </para>
 			</listitem>
 			<listitem>
@@ -115,9 +115,9 @@
 
     <xi:include href="modules/gettingstarted.xml" />
 
-    <xi:include href="modules/event_representation.xml" />
-
     <xi:include href="modules/processingmodel.xml" />
+
+    <xi:include href="modules/event_representation.xml" />
 
     <xi:include href="modules/context.xml" />
 

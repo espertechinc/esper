@@ -246,6 +246,22 @@ countStmt.start();]]></programlisting>
 				</tgroup>
 			</table>
 			
+		<tip>
+			<para>
+				The engine calls application-provided update listeners and subscribers for output. These commonly encapsulate the actions to take when there is output.
+				This design decouples EPL statements from actions and places actions outside of EPL. It allows actions to change independently from statements: A statement 
+				does not need to be updated when its associated action(s) change.
+			</para>
+			<para>
+				While action-taking, in respect to the code or script taking the action, is not a part of the EPL language, here are a few noteworthy points. 
+				Through the use of EPL annotations one can attach information to EPL that can be used by applications to flexibly determine actions.
+				The convenient <literal>StatementAwareUpdateListener</literal> interface is a listener that receives the statement itself and subscribers can accept <literal>EPStatement</literal> as a parameter.
+				The <literal>insert into</literal>-clause can be used to send results into a further stream and input and output adapters or data flows can exist to process output events from that stream.
+				Also the data flow <literal>EPStatementSource</literal> operator can be used to hook up actions declaratively.
+				The <literal>EPStatementStateListener </literal> can inform your application of new statements coming online.
+			</para>
+		</tip>
+
 			<para>
 				Your application may attach one or more listeners, zero or one single subscriber and in addition use the Pull API on the same statement. There are no limitations to the use of iterator, subscriber or listener
 				alone or in combination to receive statement results.
