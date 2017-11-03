@@ -78,7 +78,7 @@ public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction {
 
     @Override
     public void toEPL(StringWriter writer) {
-        writer.write("then update ");
+        writer.write("update ");
         UpdateClause.renderEPLAssignments(writer, assignments);
         if (whereClause != null) {
             writer.write(" where ");

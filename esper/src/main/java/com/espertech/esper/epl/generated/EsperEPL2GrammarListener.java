@@ -270,6 +270,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitMergeMatchedItem(EsperEPL2GrammarParser.MergeMatchedItemContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#onMergeDirectInsert}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnMergeDirectInsert(EsperEPL2GrammarParser.OnMergeDirectInsertContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#onMergeDirectInsert}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnMergeDirectInsert(EsperEPL2GrammarParser.OnMergeDirectInsertContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#mergeUnmatched}.
 	 * @param ctx the parse tree
 	 */

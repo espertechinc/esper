@@ -41,6 +41,7 @@ import java.util.List;
 public class TableOnMergeHelper {
     private List<TableOnMergeMatch> matched;
     private List<TableOnMergeMatch> unmatched;
+    private TableOnMergeActionIns insertUnmatched;
     private boolean requiresWriteLock;
 
     public TableOnMergeHelper(StatementContext statementContext,
@@ -98,6 +99,10 @@ public class TableOnMergeHelper {
             }
         }
 
+        if (onTriggerDesc.getOptionalInsertNoMatch() != null) {
+            insertUnmatched = setupInsert(tableMetadata, internalEventRouter, count, onTriggerDesc.getOptionalInsertNoMatch(), triggeringEventType, triggeringStreamName, statementContext);
+        }
+
         // since updates may change future secondary keys
         requiresWriteLock = hasDeleteAction || hasInsertIntoTableAction || hasUpdateAction;
     }
@@ -144,6 +149,10 @@ public class TableOnMergeHelper {
 
     public List<TableOnMergeMatch> getUnmatched() {
         return unmatched;
+    }
+
+    public TableOnMergeActionIns getInsertUnmatched() {
+        return insertUnmatched;
     }
 
     public boolean isRequiresWriteLock() {

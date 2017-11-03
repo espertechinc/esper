@@ -56,12 +56,8 @@ public class StatementSpecRawAnalyzer {
         // Look for expressions with sub-selects in select expression list and filter expression
         // Recursively compile the statement within the statement.
         ExprNodeSubselectDeclaredDotVisitor visitor = new ExprNodeSubselectDeclaredDotVisitor();
-        for (SelectClauseElementRaw raw : spec.getSelectClauseSpec().getSelectExprList()) {
-            if (raw instanceof SelectClauseExprRawSpec) {
-                SelectClauseExprRawSpec rawExpr = (SelectClauseExprRawSpec) raw;
-                rawExpr.getSelectExpression().accept(visitor);
-            }
-        }
+        walkSubselectSelectClause(spec.getSelectClauseSpec().getSelectExprList(), visitor);
+
         if (spec.getFilterRootNode() != null) {
             spec.getFilterRootNode().accept(visitor);
         }
@@ -134,12 +130,7 @@ public class StatementSpecRawAnalyzer {
                     split.getWhereClause().accept(visitor);
                 }
                 if (split.getSelectClause().getSelectExprList() != null) {
-                    for (SelectClauseElementRaw element : split.getSelectClause().getSelectExprList()) {
-                        if (element instanceof SelectClauseExprRawSpec) {
-                            SelectClauseExprRawSpec selectExpr = (SelectClauseExprRawSpec) element;
-                            selectExpr.getSelectExpression().accept(visitor);
-                        }
-                    }
+                    walkSubselectSelectClause(split.getSelectClause().getSelectExprList(), visitor);
                 }
             }
         } else if (onTriggerDesc instanceof OnTriggerMergeDesc) {
@@ -161,14 +152,12 @@ public class StatementSpecRawAnalyzer {
                     }
                     if (action instanceof OnTriggerMergeActionInsert) {
                         OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) action;
-                        for (SelectClauseElementRaw element : insert.getSelectClause()) {
-                            if (element instanceof SelectClauseExprRawSpec) {
-                                SelectClauseExprRawSpec selectExpr = (SelectClauseExprRawSpec) element;
-                                selectExpr.getSelectExpression().accept(visitor);
-                            }
-                        }
+                        walkSubselectSelectClause(insert.getSelectClause(), visitor);
                     }
                 }
+            }
+            if (merge.getOptionalInsertNoMatch() != null) {
+                walkSubselectSelectClause(merge.getOptionalInsertNoMatch().getSelectClause(), visitor);
             }
         }
     }
@@ -280,27 +269,22 @@ public class StatementSpecRawAnalyzer {
                         expressions.add(item.getOptionalMatchCond());
                     }
                     for (OnTriggerMergeAction action : item.getActions()) {
-                        if (action instanceof OnTriggerMergeActionDelete) {
-                            OnTriggerMergeActionDelete delete = (OnTriggerMergeActionDelete) action;
-                            if (delete.getOptionalWhereClause() != null) {
-                                expressions.add(delete.getOptionalWhereClause());
-                            }
-                        } else if (action instanceof OnTriggerMergeActionUpdate) {
+                        if (action.getOptionalWhereClause() != null) {
+                            expressions.add(action.getOptionalWhereClause());
+                        }
+                        if (action instanceof OnTriggerMergeActionUpdate) {
                             OnTriggerMergeActionUpdate update = (OnTriggerMergeActionUpdate) action;
-                            if (update.getOptionalWhereClause() != null) {
-                                expressions.add(update.getOptionalWhereClause());
-                            }
                             for (OnTriggerSetAssignment assignment : update.getAssignments()) {
                                 expressions.add(assignment.getExpression());
                             }
                         } else if (action instanceof OnTriggerMergeActionInsert) {
                             OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) action;
-                            if (insert.getOptionalWhereClause() != null) {
-                                expressions.add(insert.getOptionalWhereClause());
-                            }
                             addSelectClause(expressions, insert.getSelectClause());
                         }
                     }
+                }
+                if (onMerge.getOptionalInsertNoMatch() != null) {
+                    addSelectClause(expressions, onMerge.getOptionalInsertNoMatch().getSelectClause());
                 }
             }
         }
@@ -490,6 +474,15 @@ public class StatementSpecRawAnalyzer {
 
         for (EvalFactoryNode child : patternExpression.getChildNodes()) {
             collectPatternExpressions(expressions, child);
+        }
+    }
+
+    private static void walkSubselectSelectClause(List<SelectClauseElementRaw> selectClause, ExprNodeSubselectDeclaredDotVisitor visitor) {
+        for (SelectClauseElementRaw element : selectClause) {
+            if (element instanceof SelectClauseExprRawSpec) {
+                SelectClauseExprRawSpec selectExpr = (SelectClauseExprRawSpec) element;
+                selectExpr.getSelectExpression().accept(visitor);
+            }
         }
     }
 }

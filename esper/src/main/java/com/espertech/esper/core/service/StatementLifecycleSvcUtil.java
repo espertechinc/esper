@@ -165,15 +165,21 @@ public class StatementLifecycleSvcUtil {
                         }
                     }
                     if (action instanceof OnTriggerMergeActionInsert) {
-                        OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) action;
-                        for (SelectClauseElementRaw element : insert.getSelectClause()) {
-                            if (element instanceof SelectClauseExprRawSpec) {
-                                SelectClauseExprRawSpec selectExpr = (SelectClauseExprRawSpec) element;
-                                selectExpr.getSelectExpression().accept(visitor);
-                            }
-                        }
+                        selectWalkOnMergeInsert((OnTriggerMergeActionInsert) action, visitor);
                     }
                 }
+            }
+            if (merge.getOptionalInsertNoMatch() != null) {
+                selectWalkOnMergeInsert(merge.getOptionalInsertNoMatch(), visitor);
+            }
+        }
+    }
+
+    private static void selectWalkOnMergeInsert(OnTriggerMergeActionInsert action, ExprNodeSubselectDeclaredDotVisitor visitor) {
+        for (SelectClauseElementRaw element : action.getSelectClause()) {
+            if (element instanceof SelectClauseExprRawSpec) {
+                SelectClauseExprRawSpec selectExpr = (SelectClauseExprRawSpec) element;
+                selectExpr.getSelectExpression().accept(visitor);
             }
         }
     }
@@ -244,13 +250,13 @@ public class StatementLifecycleSvcUtil {
                 OnTriggerMergeDesc merge = (OnTriggerMergeDesc) onTriggerDesc;
                 for (OnTriggerMergeMatched item : merge.getItems()) {
                     for (OnTriggerMergeAction action : item.getActions()) {
-                        if (action instanceof OnTriggerMergeActionInsert) {
-                            OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) action;
-                            if (insert.getOptionalStreamName() != null && isTable(insert.getOptionalStreamName(), tableService)) {
-                                return true;
-                            }
+                        if (checkOnTriggerMergeAction(action, tableService)) {
+                            return true;
                         }
                     }
+                }
+                if (merge.getOptionalInsertNoMatch() != null && checkOnTriggerMergeAction(merge.getOptionalInsertNoMatch(), tableService)) {
+                    return true;
                 }
             }
         } // end of trigger handling
@@ -267,6 +273,16 @@ public class StatementLifecycleSvcUtil {
             }
         }
 
+        return false;
+    }
+
+    private static boolean checkOnTriggerMergeAction(OnTriggerMergeAction action, TableService tableService) {
+        if (action instanceof OnTriggerMergeActionInsert) {
+            OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) action;
+            if (insert.getOptionalStreamName() != null && isTable(insert.getOptionalStreamName(), tableService)) {
+                return true;
+            }
+        }
         return false;
     }
 

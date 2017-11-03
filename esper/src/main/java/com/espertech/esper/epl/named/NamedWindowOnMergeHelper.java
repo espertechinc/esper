@@ -37,6 +37,7 @@ import java.util.List;
  * Factory for handles for updates/inserts/deletes/select
  */
 public class NamedWindowOnMergeHelper {
+    private NamedWindowOnMergeActionIns insertUnmatched;
     private List<NamedWindowOnMergeMatch> matched;
     private List<NamedWindowOnMergeMatch> unmatched;
 
@@ -48,8 +49,8 @@ public class NamedWindowOnMergeHelper {
                                     String namedWindowName,
                                     EventTypeSPI namedWindowType)
             throws ExprValidationException {
-        matched = new ArrayList<NamedWindowOnMergeMatch>();
-        unmatched = new ArrayList<NamedWindowOnMergeMatch>();
+        matched = new ArrayList<>();
+        unmatched = new ArrayList<>();
 
         int count = 1;
         for (OnTriggerMergeMatched matchedItem : onTriggerDesc.getItems()) {
@@ -84,6 +85,10 @@ public class NamedWindowOnMergeHelper {
             } else {
                 unmatched.add(new NamedWindowOnMergeMatch(matchedItem.getOptionalMatchCond(), actions, statementContext.getEngineImportService(), statementContext.getStatementName()));
             }
+        }
+
+        if (onTriggerDesc.getOptionalInsertNoMatch() != null) {
+            insertUnmatched = setupInsert(namedWindowName, internalEventRouter, namedWindowType, count, onTriggerDesc.getOptionalInsertNoMatch(), triggeringEventType, triggeringStreamName, statementContext);
         }
     }
 
@@ -149,5 +154,9 @@ public class NamedWindowOnMergeHelper {
 
     public List<NamedWindowOnMergeMatch> getUnmatched() {
         return unmatched;
+    }
+
+    public NamedWindowOnMergeActionIns getInsertUnmatched() {
+        return insertUnmatched;
     }
 }

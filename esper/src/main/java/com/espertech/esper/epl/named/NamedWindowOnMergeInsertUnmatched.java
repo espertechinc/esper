@@ -11,18 +11,24 @@
 package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
+import com.espertech.esper.epl.spec.OnTriggerType;
+import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.ViewSupport;
+
+import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public abstract class NamedWindowOnExprBaseView extends ViewSupport implements NamedWindowOnExprView {
+public class NamedWindowOnMergeInsertUnmatched extends ViewSupport implements NamedWindowOnExprView {
     /**
      * The event type of the events hosted in the named window.
      */
-    private final SubordWMatchExprLookupStrategy lookupStrategy;
     private final ExprEvaluatorContext exprEvaluatorContext;
 
     /**
@@ -30,39 +36,37 @@ public abstract class NamedWindowOnExprBaseView extends ViewSupport implements N
      */
     protected final NamedWindowRootViewInstance rootView;
 
+    private final NamedWindowOnMergeViewFactory factory;
+
     /**
      * Ctor.
      *
-     * @param lookupStrategy       for handling trigger events to determine deleted events
      * @param rootView             to indicate which events to delete
      * @param exprEvaluatorContext context for expression evalauation
      */
-    public NamedWindowOnExprBaseView(SubordWMatchExprLookupStrategy lookupStrategy,
-                                     NamedWindowRootViewInstance rootView,
-                                     ExprEvaluatorContext exprEvaluatorContext) {
-        this.lookupStrategy = lookupStrategy;
+    public NamedWindowOnMergeInsertUnmatched(NamedWindowRootViewInstance rootView,
+                                             ExprEvaluatorContext exprEvaluatorContext,
+                                             NamedWindowOnMergeViewFactory factory) {
         this.rootView = rootView;
         this.exprEvaluatorContext = exprEvaluatorContext;
+        this.factory = factory;
     }
 
-    /**
-     * Implemented by on-trigger views to action on the combination of trigger and matching events in the named window.
-     *
-     * @param triggerEvents  is the trigger events (usually 1)
-     * @param matchingEvents is the matching events retrieved via lookup strategy
-     */
-    public abstract void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents);
-
     public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_MERGE, newData, CollectionUtil.EVENTBEANARRAY_EMPTY);
+        }
+
         if (newData == null) {
             return;
         }
+        OneEventCollection newColl = new OneEventCollection();
+        factory.getNamedWindowOnMergeHelper().getInsertUnmatched().apply(null, newData, newColl, null, exprEvaluatorContext);
+        NamedWindowOnMergeView.applyDelta(newColl, null, factory, rootView, this);
 
-        // Determine via the lookup strategy a subset of events to process
-        EventBean[] eventsFound = lookupStrategy.lookup(newData, exprEvaluatorContext);
-
-        // Let the implementation handle the delete or other action
-        handleMatching(newData, eventsFound);
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 
     /**
@@ -72,5 +76,13 @@ public abstract class NamedWindowOnExprBaseView extends ViewSupport implements N
      */
     public ExprEvaluatorContext getExprEvaluatorContext() {
         return exprEvaluatorContext;
+    }
+
+    public EventType getEventType() {
+        return rootView.getEventType();
+    }
+
+    public Iterator<EventBean> iterator() {
+        return Collections.emptyIterator();
     }
 }

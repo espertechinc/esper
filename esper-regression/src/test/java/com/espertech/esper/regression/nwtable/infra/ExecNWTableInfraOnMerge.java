@@ -22,6 +22,7 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import com.espertech.esper.util.EventRepresentationChoice;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -86,6 +87,52 @@ public class ExecNWTableInfraOnMerge implements RegressionExecution {
 
         runAssertionInvalid(epService, true);
         runAssertionInvalid(epService, false);
+
+        for (boolean namedWindow : new boolean[] {true, false}) {
+            runAssertionInsertOnly(epService, namedWindow, true, false, false);
+            runAssertionInsertOnly(epService, namedWindow, false, false, false);
+            runAssertionInsertOnly(epService, namedWindow, false, false, true);
+            runAssertionInsertOnly(epService, namedWindow, false, true, false);
+            runAssertionInsertOnly(epService, namedWindow, false, true, true);
+        }
+    }
+
+    private void runAssertionInsertOnly(EPServiceProvider epService, boolean namedWindow, boolean useEquivalent, boolean soda, boolean useColumnNames) {
+        String[] fields = "p0,p1,".split(",");
+        String createEPL = namedWindow ?
+                "@Name('Window') create window InsertOnlyInfra#unique(p0) as (p0 string, p1 int)" :
+                "@Name('Window') create table InsertOnlyInfra (p0 string primary key, p1 int)";
+        EPStatement createStmt = epService.getEPAdministrator().createEPL(createEPL);
+        SupportUpdateListener createListener = new SupportUpdateListener();
+        createStmt.addListener(createListener);
+
+        String epl;
+        if (useEquivalent) {
+            epl = "on SupportBean merge InsertOnlyInfra where 1=2 when not matched then insert select theString as p0, intPrimitive as p1";
+        }
+        else if (useColumnNames) {
+            epl = "on SupportBean as provider merge InsertOnlyInfra insert(p0, p1) select provider.theString, intPrimitive";
+        }
+        else {
+            epl = "on SupportBean merge InsertOnlyInfra insert select theString as p0, intPrimitive as p1";
+        }
+        EPStatement stmt = SupportModelHelper.compileCreate(epService, epl, soda);
+        assertSame(createStmt.getEventType(), stmt.getEventType());
+        SupportUpdateListener insertListener = new SupportUpdateListener();
+        stmt.addListener(insertListener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        EPAssertionUtil.assertPropsPerRowAnyOrder(createStmt.iterator(), fields, new Object[][] {{"E1", 1}});
+        assertEquals("E1", insertListener.assertOneGetNewAndReset().get("p0"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        EPAssertionUtil.assertPropsPerRowAnyOrder(createStmt.iterator(), fields, new Object[][] {{"E1", 1}, {"E2", 2}});
+        assertEquals("E2", insertListener.assertOneGetNewAndReset().get("p0"));
+
+        epService.getEPAdministrator().destroyAllStatements();
+        for (String name : "InsertOnlyInfra".split(",")) {
+            epService.getEPAdministrator().getConfiguration().removeEventType(name, false);
+        }
     }
 
     private void runAssertionFlow(EPServiceProvider epService, boolean namedWindow) throws Exception {

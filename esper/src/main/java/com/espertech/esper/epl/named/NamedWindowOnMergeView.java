@@ -12,7 +12,6 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.collection.ArrayEventIterator;
 import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
@@ -20,6 +19,8 @@ import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.epl.spec.OnTriggerType;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.util.CollectionUtil;
+import com.espertech.esper.view.ViewSupport;
 
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +30,6 @@ import java.util.List;
  */
 public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView {
     private final NamedWindowOnMergeViewFactory parent;
-    private EventBean[] lastResult;
 
     public NamedWindowOnMergeView(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance rootView, ExprEvaluatorContext exprEvaluatorContext, NamedWindowOnMergeViewFactory parent) {
         super(lookupStrategy, rootView, exprEvaluatorContext);
@@ -121,9 +121,17 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView {
                     InstrumentationHelper.get().aInfraMergeWhenThens(true);
                 }
             }
-
         }
 
+        applyDelta(newData, oldData, parent, rootView, this);
+
+        // Keep the last delete records
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
+    }
+
+    static void applyDelta(OneEventCollection newData, OneEventCollection oldData, NamedWindowOnMergeViewFactory parent, NamedWindowRootViewInstance rootView, ViewSupport viewable) {
         if (!newData.isEmpty() || (oldData != null && !oldData.isEmpty())) {
             if ((MetricReportingPath.isMetricsEnabled) && (parent.getCreateNamedWindowMetricHandle().isEnabled()) && !newData.isEmpty()) {
                 parent.getMetricReportingService().accountTime(parent.getCreateNamedWindowMetricHandle(), 0, 0, newData.toArray().length);
@@ -134,22 +142,16 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView {
             if (parent.getStatementResultService().isMakeNatural()) {
                 EventBean[] eventsPerStreamNaturalNew = newData.isEmpty() ? null : newData.toArray();
                 EventBean[] eventsPerStreamNaturalOld = (oldData == null || oldData.isEmpty()) ? null : oldData.toArray();
-                this.rootView.update(EventBeanUtility.denaturalize(eventsPerStreamNaturalNew), EventBeanUtility.denaturalize(eventsPerStreamNaturalOld));
-                updateChildren(eventsPerStreamNaturalNew, eventsPerStreamNaturalOld);
+                rootView.update(EventBeanUtility.denaturalize(eventsPerStreamNaturalNew), EventBeanUtility.denaturalize(eventsPerStreamNaturalOld));
+                viewable.updateChildren(eventsPerStreamNaturalNew, eventsPerStreamNaturalOld);
             } else {
                 EventBean[] eventsPerStreamNew = newData.isEmpty() ? null : newData.toArray();
                 EventBean[] eventsPerStreamOld = (oldData == null || oldData.isEmpty()) ? null : oldData.toArray();
-                this.rootView.update(eventsPerStreamNew, eventsPerStreamOld);
+                rootView.update(eventsPerStreamNew, eventsPerStreamOld);
                 if (parent.getStatementResultService().isMakeSynthetic()) {
-                    updateChildren(eventsPerStreamNew, eventsPerStreamOld);
+                    viewable.updateChildren(eventsPerStreamNew, eventsPerStreamOld);
                 }
             }
-        }
-
-        // Keep the last delete records
-        lastResult = matchingEvents;
-        if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().aInfraOnAction();
         }
     }
 
@@ -158,6 +160,6 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView {
     }
 
     public Iterator<EventBean> iterator() {
-        return new ArrayEventIterator(lastResult);
+        return CollectionUtil.NULL_EVENT_ITERATOR;
     }
 }

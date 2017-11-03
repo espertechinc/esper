@@ -330,7 +330,7 @@ updateExpr : UPDATE ISTREAM updateDetails;
 	
 updateDetails :	classIdentifier (AS identOrTicked | identOrTicked)? SET onSetAssignmentList (WHERE whereClause)?;
 
-onMergeExpr : MERGE INTO? n=IDENT (AS identOrTicked | identOrTicked)? (WHERE whereClause)? mergeItem+;
+onMergeExpr : MERGE INTO? n=IDENT (AS identOrTicked | identOrTicked)? (onMergeDirectInsert | (WHERE whereClause)? mergeItem+);
 
 mergeItem : (mergeMatched | mergeUnmatched);
 	
@@ -342,6 +342,8 @@ mergeMatchedItem : THEN (
 		  | mergeInsert
 		  )
 		  ;		
+		  
+onMergeDirectInsert: INSERT (LPAREN columnList RPAREN)? SELECT selectionList;
 
 mergeUnmatched : WHEN NOT_EXPR MATCHED (AND_EXPR expression)? mergeUnmatchedItem+;
 	

@@ -138,6 +138,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     private PropertyEvalSpec propertyEvalSpec;
     private List<OnTriggerMergeMatched> mergeMatcheds;
     private List<OnTriggerMergeAction> mergeActions;
+    private OnTriggerMergeActionInsert mergeInsertNoMatch;
     private ContextDescriptor contextDescriptor;
 
     private final CommonTokenStream tokenStream;
@@ -364,6 +365,13 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         String first = ctx.i.getText();
         ExprNode exprNode = ASTExprHelper.exprCollectSubNodes(ctx, 0, astExprNodeMap).get(0);
         statementSpec.getMatchRecognizeSpec().getDefines().add(new MatchRecognizeDefineItem(first, exprNode));
+    }
+
+    public void exitOnMergeDirectInsert(EsperEPL2GrammarParser.OnMergeDirectInsertContext ctx) {
+        List<SelectClauseElementRaw> expressions = new ArrayList<>(statementSpec.getSelectClauseSpec().getSelectExprList());
+        statementSpec.getSelectClauseSpec().getSelectExprList().clear();
+        List<String> columsList = ASTUtil.getIdentList(ctx.columnList());
+        mergeInsertNoMatch = new OnTriggerMergeActionInsert(null, null, columsList, expressions);
     }
 
     public void exitMergeUnmatchedItem(EsperEPL2GrammarParser.MergeUnmatchedItemContext ctx) {
@@ -1468,7 +1476,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (ctx.onMergeExpr() != null) {
             String windowName = ctx.onMergeExpr().n.getText();
             String asName = ASTUtil.getStreamNameUnescapedOptional(ctx.onMergeExpr().identOrTicked());
-            OnTriggerMergeDesc desc = new OnTriggerMergeDesc(windowName, asName, mergeMatcheds == null ? Collections.<OnTriggerMergeMatched>emptyList() : mergeMatcheds);
+            OnTriggerMergeDesc desc = new OnTriggerMergeDesc(windowName, asName, mergeInsertNoMatch, mergeMatcheds == null ? Collections.<OnTriggerMergeMatched>emptyList() : mergeMatcheds);
             statementSpec.setOnTriggerDesc(desc);
         } else if (ctx.onSetExpr() == null) {
             UniformPair<String> windowName = getOnExprWindowName(ctx);
@@ -3277,5 +3285,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitIdentOrTicked(EsperEPL2GrammarParser.IdentOrTickedContext ctx) {
+    }
+
+    public void enterOnMergeDirectInsert(EsperEPL2GrammarParser.OnMergeDirectInsertContext ctx) {
     }
 }

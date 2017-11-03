@@ -621,53 +621,22 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
                         insertTypeSvc = twoStreamTypeSvc;
                     }
 
-                    List<SelectClauseElementCompiled> compiledSelect = new ArrayList<SelectClauseElementCompiled>();
                     if (insert.getOptionalWhereClause() != null) {
                         insert.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, insert.getOptionalWhereClause(), insertTypeSvc, statementContext, evaluatorContextStmt, exprNodeErrorMessage, true));
                     }
-                    int colIndex = 0;
-                    for (SelectClauseElementRaw raw : insert.getSelectClause()) {
-                        if (raw instanceof SelectClauseStreamRawSpec) {
-                            SelectClauseStreamRawSpec rawStreamSpec = (SelectClauseStreamRawSpec) raw;
-                            Integer foundStreamNum = null;
-                            for (int s = 0; s < insertTypeSvc.getStreamNames().length; s++) {
-                                if (rawStreamSpec.getStreamName().equals(insertTypeSvc.getStreamNames()[s])) {
-                                    foundStreamNum = s;
-                                    break;
-                                }
-                            }
-                            if (foundStreamNum == null) {
-                                throw new ExprValidationException("Stream by name '" + rawStreamSpec.getStreamName() + "' was not found");
-                            }
-                            SelectClauseStreamCompiledSpec streamSelectSpec = new SelectClauseStreamCompiledSpec(rawStreamSpec.getStreamName(), rawStreamSpec.getOptionalAsName());
-                            streamSelectSpec.setStreamNumber(foundStreamNum);
-                            compiledSelect.add(streamSelectSpec);
-                        } else if (raw instanceof SelectClauseExprRawSpec) {
-                            SelectClauseExprRawSpec exprSpec = (SelectClauseExprRawSpec) raw;
-                            ExprValidationContext validationContext = new ExprValidationContext(insertTypeSvc, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-                            ExprNode exprCompiled = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprSpec.getSelectExpression(), validationContext);
-                            String resultName = exprSpec.getOptionalAsName();
-                            if (resultName == null) {
-                                if (insert.getColumns().size() > colIndex) {
-                                    resultName = insert.getColumns().get(colIndex);
-                                } else {
-                                    resultName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprCompiled);
-                                }
-                            }
-                            compiledSelect.add(new SelectClauseExprCompiledSpec(exprCompiled, resultName, exprSpec.getOptionalAsName(), exprSpec.isEvents()));
-                            EPStatementStartMethodHelperValidate.validateNoAggregations(exprCompiled, "Expression in a merge-selection may not utilize aggregation functions");
-                        } else if (raw instanceof SelectClauseElementWildcard) {
-                            compiledSelect.add(new SelectClauseElementWildcard());
-                        } else {
-                            throw new IllegalStateException("Unknown select clause item:" + raw);
-                        }
-                        colIndex++;
-                    }
+
+                    List<SelectClauseElementCompiled> compiledSelect = validateInsertSelect(insert.getSelectClause(), insertTypeSvc, insert.getColumns(), statementContext, evaluatorContextStmt);
                     insert.setSelectClauseCompiled(compiledSelect);
                 } else {
                     throw new IllegalArgumentException("Unrecognized merge item '" + item.getClass().getName() + "'");
                 }
             }
+        }
+
+        if (mergeDesc.getOptionalInsertNoMatch() != null) {
+            StreamTypeService typeSvc = new StreamTypeServiceImpl(triggerStreamType, triggerStreamName, true, statementContext.getEngineURI());
+            List<SelectClauseElementCompiled> compiledSelect = validateInsertSelect(mergeDesc.getOptionalInsertNoMatch().getSelectClause(), typeSvc, mergeDesc.getOptionalInsertNoMatch().getColumns(), statementContext, evaluatorContextStmt);
+            mergeDesc.getOptionalInsertNoMatch().setSelectClauseCompiled(compiledSelect);
         }
     }
 
@@ -696,6 +665,49 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
         return ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, deleteJoinExpr, validationContext);
+    }
+
+    private List<SelectClauseElementCompiled> validateInsertSelect(List<SelectClauseElementRaw> selectClause, StreamTypeService insertTypeSvc, List<String> insertColumns, StatementContext statementContext, ExprEvaluatorContextStatement evaluatorContextStmt) throws ExprValidationException {
+        int colIndex = 0;
+        List<SelectClauseElementCompiled> compiledSelect = new ArrayList<SelectClauseElementCompiled>();
+        for (SelectClauseElementRaw raw : selectClause) {
+            if (raw instanceof SelectClauseStreamRawSpec) {
+                SelectClauseStreamRawSpec rawStreamSpec = (SelectClauseStreamRawSpec) raw;
+                Integer foundStreamNum = null;
+                for (int s = 0; s < insertTypeSvc.getStreamNames().length; s++) {
+                    if (rawStreamSpec.getStreamName().equals(insertTypeSvc.getStreamNames()[s])) {
+                        foundStreamNum = s;
+                        break;
+                    }
+                }
+                if (foundStreamNum == null) {
+                    throw new ExprValidationException("Stream by name '" + rawStreamSpec.getStreamName() + "' was not found");
+                }
+                SelectClauseStreamCompiledSpec streamSelectSpec = new SelectClauseStreamCompiledSpec(rawStreamSpec.getStreamName(), rawStreamSpec.getOptionalAsName());
+                streamSelectSpec.setStreamNumber(foundStreamNum);
+                compiledSelect.add(streamSelectSpec);
+            } else if (raw instanceof SelectClauseExprRawSpec) {
+                SelectClauseExprRawSpec exprSpec = (SelectClauseExprRawSpec) raw;
+                ExprValidationContext validationContext = new ExprValidationContext(insertTypeSvc, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
+                ExprNode exprCompiled = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprSpec.getSelectExpression(), validationContext);
+                String resultName = exprSpec.getOptionalAsName();
+                if (resultName == null) {
+                    if (insertColumns.size() > colIndex) {
+                        resultName = insertColumns.get(colIndex);
+                    } else {
+                        resultName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprCompiled);
+                    }
+                }
+                compiledSelect.add(new SelectClauseExprCompiledSpec(exprCompiled, resultName, exprSpec.getOptionalAsName(), exprSpec.isEvents()));
+                EPStatementStartMethodHelperValidate.validateNoAggregations(exprCompiled, "Expression in a merge-selection may not utilize aggregation functions");
+            } else if (raw instanceof SelectClauseElementWildcard) {
+                compiledSelect.add(new SelectClauseElementWildcard());
+            } else {
+                throw new IllegalStateException("Unknown select clause item:" + raw);
+            }
+            colIndex++;
+        }
+        return compiledSelect;
     }
 
     private static class ContextFactoryResult {

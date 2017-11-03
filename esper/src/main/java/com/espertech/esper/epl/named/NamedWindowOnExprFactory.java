@@ -18,7 +18,7 @@ import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
  * View for the on-delete statement that handles removing events from a named window.
  */
 public interface NamedWindowOnExprFactory {
-    public NamedWindowOnExprBaseView make(SubordWMatchExprLookupStrategy lookupStrategy,
+    public NamedWindowOnExprView make(SubordWMatchExprLookupStrategy lookupStrategy,
                                           NamedWindowRootViewInstance namedWindowRootViewInstance,
                                           AgentInstanceContext agentInstanceContext,
                                           ResultSetProcessor resultSetProcessor);

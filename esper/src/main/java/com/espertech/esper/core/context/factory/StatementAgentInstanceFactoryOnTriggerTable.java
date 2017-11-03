@@ -36,6 +36,7 @@ import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
+import com.espertech.esper.epl.table.onaction.TableOnView;
 import com.espertech.esper.epl.table.onaction.TableOnViewBase;
 import com.espertech.esper.epl.table.onaction.TableOnViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
@@ -94,7 +95,7 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
             }
         }
         SubordWMatchExprLookupStrategy strategy = queryPlanResult.getFactory().realize(indexes, agentInstanceContext, state.getIterableTableScan(), null);
-        TableOnViewBase onExprBaseView = onExprFactory.make(strategy, state, agentInstanceContext, pair.getFirst());
+        TableOnView onExprBaseView = onExprFactory.make(strategy, state, agentInstanceContext, pair.getFirst());
 
         return new OnExprViewResult(onExprBaseView, pair.getSecond());
     }

@@ -35,7 +35,10 @@ public class NamedWindowOnMergeViewFactory extends NamedWindowOnExprBaseViewFact
         this.metricReportingService = metricReportingService;
     }
 
-    public NamedWindowOnExprBaseView make(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance namedWindowRootViewInstance, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor) {
+    public NamedWindowOnExprView make(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance namedWindowRootViewInstance, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor) {
+        if (namedWindowOnMergeHelper.getInsertUnmatched() != null) {
+            return new NamedWindowOnMergeInsertUnmatched(namedWindowRootViewInstance, agentInstanceContext, this);
+        }
         return new NamedWindowOnMergeView(lookupStrategy, namedWindowRootViewInstance, agentInstanceContext, this);
     }
 

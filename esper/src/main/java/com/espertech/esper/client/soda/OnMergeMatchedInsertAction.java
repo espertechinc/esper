@@ -120,7 +120,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction {
 
     @Override
     public void toEPL(StringWriter writer) {
-        writer.write("then insert");
+        writer.write("insert");
         if (optionalStreamName != null) {
             writer.write(" into ");
             writer.write(optionalStreamName);

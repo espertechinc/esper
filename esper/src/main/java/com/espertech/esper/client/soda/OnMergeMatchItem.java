@@ -63,6 +63,7 @@ public class OnMergeMatchItem extends OnClause {
         }
         for (OnMergeMatchedAction action : actions) {
             formatter.beginMergeAction(writer);
+            writer.append("then ");
             action.toEPL(writer);
         }
     }

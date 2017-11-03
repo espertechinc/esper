@@ -23,6 +23,7 @@ public class OnMergeClause extends OnClause {
     private String windowName;
     private String optionalAsName;
     private List<OnMergeMatchItem> matchItems;
+    private OnMergeMatchedInsertAction insertNoMatch;
 
     /**
      * Ctor.
@@ -73,14 +74,20 @@ public class OnMergeClause extends OnClause {
             writer.write(optionalAsName);
         }
 
-        if (optionalWhereClause != null) {
-            formatter.beginMergeWhere(writer);
-            writer.write("where ");
-            optionalWhereClause.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
+        if (insertNoMatch != null) {
+            writer.append(" ");
+            insertNoMatch.toEPL(writer);
         }
+        else {
+            if (optionalWhereClause != null) {
+                formatter.beginMergeWhere(writer);
+                writer.write("where ");
+                optionalWhereClause.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
+            }
 
-        for (OnMergeMatchItem item : matchItems) {
-            item.toEPL(writer, formatter);
+            for (OnMergeMatchItem item : matchItems) {
+                item.toEPL(writer, formatter);
+            }
         }
     }
 
@@ -147,5 +154,13 @@ public class OnMergeClause extends OnClause {
      */
     public void setMatchItems(List<OnMergeMatchItem> matchItems) {
         this.matchItems = matchItems;
+    }
+
+    public void setInsertNoMatch(OnMergeMatchedInsertAction insertNoMatch) {
+        this.insertNoMatch = insertNoMatch;
+    }
+
+    public OnMergeMatchedInsertAction getInsertNoMatch() {
+        return insertNoMatch;
     }
 }

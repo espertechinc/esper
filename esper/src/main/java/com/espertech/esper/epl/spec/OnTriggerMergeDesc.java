@@ -18,15 +18,21 @@ import java.util.List;
 public class OnTriggerMergeDesc extends OnTriggerWindowDesc {
     private static final long serialVersionUID = 3388811105339812571L;
 
+    private OnTriggerMergeActionInsert optionalInsertNoMatch;
     private List<OnTriggerMergeMatched> items;
 
-    public OnTriggerMergeDesc(String windowName, String optionalAsName, List<OnTriggerMergeMatched> items) {
+    public OnTriggerMergeDesc(String windowName, String optionalAsName, OnTriggerMergeActionInsert optionalInsertNoMatch, List<OnTriggerMergeMatched> items) {
         super(windowName, optionalAsName, OnTriggerType.ON_MERGE, false);
+        this.optionalInsertNoMatch = optionalInsertNoMatch;
         this.items = items;
     }
 
     public List<OnTriggerMergeMatched> getItems() {
         return items;
+    }
+
+    public OnTriggerMergeActionInsert getOptionalInsertNoMatch() {
+        return optionalInsertNoMatch;
     }
 }
 

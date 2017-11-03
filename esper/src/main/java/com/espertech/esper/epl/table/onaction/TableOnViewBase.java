@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
-public abstract class TableOnViewBase extends ViewSupport implements StopCallback {
+public abstract class TableOnViewBase extends ViewSupport implements StopCallback, TableOnView {
     private static final Logger log = LoggerFactory.getLogger(TableOnViewBase.class);
 
     protected final SubordWMatchExprLookupStrategy lookupStrategy;

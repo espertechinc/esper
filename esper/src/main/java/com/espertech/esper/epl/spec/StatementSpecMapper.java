@@ -380,11 +380,7 @@ public class StatementSpecMapper {
                         Expression optionalCondition = merge.getOptionalWhereClause() == null ? null : unmapExpressionDeep(merge.getOptionalWhereClause(), unmapContext);
                         action = new OnMergeMatchedUpdateAction(assignments, optionalCondition);
                     } else if (actionitem instanceof OnTriggerMergeActionInsert) {
-                        OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) actionitem;
-                        List<String> columnNames = new ArrayList<String>(insert.getColumns());
-                        List<SelectClauseElement> select = unmapSelectClauseElements(insert.getSelectClause(), unmapContext);
-                        Expression optionalCondition = insert.getOptionalWhereClause() == null ? null : unmapExpressionDeep(insert.getOptionalWhereClause(), unmapContext);
-                        action = new OnMergeMatchedInsertAction(columnNames, select, optionalCondition, insert.getOptionalStreamName());
+                        action = unmapMergeInsert((OnTriggerMergeActionInsert) actionitem, unmapContext);
                     } else {
                         throw new IllegalArgumentException("Unrecognized merged action type '" + actionitem.getClass() + "'");
                     }
@@ -392,10 +388,22 @@ public class StatementSpecMapper {
                 }
                 matchItems.add(matchItem);
             }
-            model.setOnExpr(OnMergeClause.create(trigger.getWindowName(), trigger.getOptionalAsName(), matchItems));
+            OnMergeClause onMerge = OnMergeClause.create(trigger.getWindowName(), trigger.getOptionalAsName(), matchItems);
+            if (trigger.getOptionalInsertNoMatch() != null) {
+                onMerge.setInsertNoMatch(unmapMergeInsert(trigger.getOptionalInsertNoMatch(), unmapContext));
+            }
+            model.setOnExpr(onMerge);
         } else {
             throw new IllegalArgumentException("Type of on-clause not handled: " + onTriggerDesc.getOnTriggerType());
         }
+    }
+
+    private static OnMergeMatchedInsertAction unmapMergeInsert(OnTriggerMergeActionInsert actionitem, StatementSpecUnMapContext unmapContext) {
+        OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) actionitem;
+        List<String> columnNames = new ArrayList<String>(insert.getColumns());
+        List<SelectClauseElement> select = unmapSelectClauseElements(insert.getSelectClause(), unmapContext);
+        Expression optionalCondition = insert.getOptionalWhereClause() == null ? null : unmapExpressionDeep(insert.getOptionalWhereClause(), unmapContext);
+        return new OnMergeMatchedInsertAction(columnNames, select, optionalCondition, insert.getOptionalStreamName());
     }
 
     private static void unmapUpdateClause(List<StreamSpecRaw> desc, UpdateDesc updateDesc, EPStatementObjectModel model, StatementSpecUnMapContext unmapContext) {
@@ -948,11 +956,7 @@ public class StatementSpecMapper {
                         ExprNode optionalCondition = update.getWhereClause() == null ? null : mapExpressionDeep(update.getWhereClause(), mapContext);
                         actionItem = new OnTriggerMergeActionUpdate(optionalCondition, assignments);
                     } else if (action instanceof OnMergeMatchedInsertAction) {
-                        OnMergeMatchedInsertAction insert = (OnMergeMatchedInsertAction) action;
-                        List<String> columnNames = new ArrayList<String>(insert.getColumnNames());
-                        List<SelectClauseElementRaw> select = mapSelectClauseElements(insert.getSelectList(), mapContext);
-                        ExprNode optionalCondition = insert.getWhereClause() == null ? null : mapExpressionDeep(insert.getWhereClause(), mapContext);
-                        actionItem = new OnTriggerMergeActionInsert(optionalCondition, insert.getOptionalStreamName(), columnNames, select);
+                        actionItem = mapOnTriggerMergeActionInsert((OnMergeMatchedInsertAction) action, mapContext);
                     } else {
                         throw new IllegalArgumentException("Unrecognized merged action type '" + action.getClass() + "'");
                     }
@@ -961,11 +965,19 @@ public class StatementSpecMapper {
                 ExprNode optionalCondition = matchItem.getOptionalCondition() == null ? null : mapExpressionDeep(matchItem.getOptionalCondition(), mapContext);
                 matcheds.add(new OnTriggerMergeMatched(matchItem.isMatched(), optionalCondition, actions));
             }
-            OnTriggerMergeDesc mergeDesc = new OnTriggerMergeDesc(merge.getWindowName(), merge.getOptionalAsName(), matcheds);
+            OnTriggerMergeActionInsert optionalInsertNoMatch = merge.getInsertNoMatch() == null ? null : mapOnTriggerMergeActionInsert(merge.getInsertNoMatch(), mapContext);;
+            OnTriggerMergeDesc mergeDesc = new OnTriggerMergeDesc(merge.getWindowName(), merge.getOptionalAsName(), optionalInsertNoMatch, matcheds);
             raw.setOnTriggerDesc(mergeDesc);
         } else {
             throw new IllegalArgumentException("Cannot map on-clause expression type : " + onExpr);
         }
+    }
+
+    private static OnTriggerMergeActionInsert mapOnTriggerMergeActionInsert(OnMergeMatchedInsertAction insert, StatementSpecMapContext mapContext) {
+        List<String> columnNames = new ArrayList<String>(insert.getColumnNames());
+        List<SelectClauseElementRaw> select = mapSelectClauseElements(insert.getSelectList(), mapContext);
+        ExprNode optionalCondition = insert.getWhereClause() == null ? null : mapExpressionDeep(insert.getWhereClause(), mapContext);
+        return new OnTriggerMergeActionInsert(optionalCondition, insert.getOptionalStreamName(), columnNames, select);
     }
 
     private static void mapRowLimit(RowLimitClause rowLimitClause, StatementSpecRaw raw, StatementSpecMapContext mapContext) {

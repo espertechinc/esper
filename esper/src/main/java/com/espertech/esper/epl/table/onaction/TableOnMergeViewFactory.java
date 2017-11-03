@@ -35,7 +35,10 @@ public class TableOnMergeViewFactory implements TableOnViewFactory {
         this.metricReportingService = metricReportingService;
     }
 
-    public TableOnViewBase make(SubordWMatchExprLookupStrategy lookupStrategy, TableStateInstance tableState, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor) {
+    public TableOnView make(SubordWMatchExprLookupStrategy lookupStrategy, TableStateInstance tableState, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor) {
+        if (onMergeHelper.getInsertUnmatched() != null) {
+            return new TableOnMergeInsertUnmatched(tableState, agentInstanceContext, tableMetadata, this);
+        }
         return new TableOnMergeView(lookupStrategy, tableState, agentInstanceContext, tableMetadata, this);
     }
 
