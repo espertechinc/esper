@@ -336,7 +336,7 @@ select id, count(*) from MyOffOnStream#time(1 hour) group by id;]]></programlist
 		</para>
 
 		<para>
-		  We also provide additional sample code to read and deploy modules as part of the J2EE considerations below.
+		  We provide additional sample code to read and deploy modules as part of the J2EE considerations below.
 		</para>
 
 		<sect2 xml:id="devlifecycle-admin-readparse">
@@ -448,7 +448,7 @@ deployAdmin.remove(moduleDeploymentId);]]></programlisting>
 				To validate whether a set of statements is complete and can start without issues, set the following flags on a <literal>DeploymentOptions</literal> instance passed to the <literal>deploy</literal> method as the code snippet below shows:
 			</para>			
 			<programlisting><![CDATA[DeploymentOptions options = new DeploymentOptions();
-options.setIsolatedServiceProvider("validation");	// we isolate any statements 
+options.setIsolatedServiceProvider("validation");	// isolate any statements 
 options.setValidateOnly(true);	// validate leaving no started statements
 options.setFailFast(false); // do not fail on first error
 epService.getEPAdministrator().getDeploymentAdmin()
@@ -505,7 +505,7 @@ epService.getEPAdministrator().getDeploymentAdmin()
 		<sect2 xml:id="devlifecycle-j2ee-servletcontextlistener">
 			<title>Servlet Context Listener</title>
 			<para>
-				When deploying a J2EE archive that contains EPL modules files we provide sample code to read and deploy EPL modules files packaged with the enterprise or web application archive when the servlet initializes. The sample un-deploys EPL modules when the servlet context gets destroyed.
+				When deploying a J2EE archive that contains EPL modules files below is sample code to read and deploy EPL modules files packaged with the enterprise or web application archive when the servlet initializes. The sample un-deploys EPL modules when the servlet context gets destroyed.
 			</para>
 			
 			<para>

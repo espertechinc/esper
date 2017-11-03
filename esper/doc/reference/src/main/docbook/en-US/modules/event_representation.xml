@@ -23,7 +23,7 @@
 	</para>
 
     <para>
-		In <xref linkend="api-event"/> we explain how an event type becomes visible in EPL statements and output events delivered by the engine.
+		<xref linkend="api-event"/> explains how an event type becomes visible in EPL statements and output events delivered by the engine.
     </para>
 
     <sect1 xml:id="eventrep_intro">
@@ -324,7 +324,7 @@ public class InnerType {
 		</para>
 			
 		<para>
-			The idea behind dynamic properties is that for a given underlying event representation we don't always know all properties in advance. An underlying event may have additional properties that are not known at statement compilation time, that we want to query on. The concept is especially useful for events that represent rich, object-oriented domain models.
+			The idea behind dynamic properties is that for a given underlying event representation you don't always know all properties in advance. An underlying event may have additional properties that are not known at statement compilation time, that you want to query on. The concept is especially useful for events that represent rich, object-oriented domain models.
 		</para>
 
 		<para>
@@ -372,7 +372,7 @@ public class InnerType {
 		</para>
 
 		<para>
-			Assume that both Service and Product classes provide a property named "price". Via a dynamic property we can specify a query that obtains the price property from either object (Service or Product):
+			Assume that both Service and Product classes provide a property named "price". Via a dynamic property you can specify a query that obtains the price property from either object (Service or Product):
 		</para>
 		<programlisting><![CDATA[select item.price? from OrderEvent]]></programlisting>		
 
@@ -801,7 +801,7 @@ public class InnerType {
 			</para>
 
 			<para>
-				For example, let's say we need a generic tuple and we have <literal>Map</literal> events:
+				For example, let's say you need a generic tuple and you have <literal>Map</literal> events:
 			</para>
 			<programlisting>create schema GenericTuple()</programlisting> 
 
@@ -888,7 +888,7 @@ such event metadata and event data into one of the built-in event representation
         </para>
 
         <para>
-			  The third means to handle updating events is the revision event types, for use with named windows only, as further described in <xref linkend="named_versioning"/>. With revision event types one can declare, via configuration only, multiple different event types. The engine can present a merged event type that contains a superset of properties of all merged types, and the engine can merge events as they arrive without additional EPL statements.
+			  The third means to handle updating events is the revision event types, for use with named windows only, as further described in <xref linkend="named_versioning"/>. With revision event types you can declare, via configuration only, multiple different event types. The engine can present a merged event type that contains a superset of properties of all merged types, and the engine can merge events as they arrive without additional EPL statements.
         </para>
 	</sect1>
 

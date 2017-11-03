@@ -84,7 +84,7 @@ testing on small configuration.</programlisting>
 			<title>Theading</title>
 
 			<para>
-				We recommend using multiple threads to send events into Esper. We provide a test class below. 
+				We recommend using multiple threads to send events into Esper. There is a test class below. 
 				Our test class does not use a blocking queue and thread pool so as to avoid a point of contention.
 			</para>
 			
@@ -213,7 +213,7 @@ testing on small configuration.</programlisting>
 
 				<para>
 					The sample uses a fixed-size array blocking queue. To handle the situation where the queue is full and accepts no more messages,
-					we use a rejection handler that counts the number of rejections and retries:
+					it uses a rejection handler that counts the number of rejections and retries:
 				</para>
 				<programlisting><![CDATA[private class EngineRejectionHandler implements RejectedExecutionHandler {
   private volatile long spinCount = 0;
@@ -298,7 +298,7 @@ testing on small configuration.</programlisting>
 			<title>Select the underlying event rather than individual fields</title>
 			
 			<para>
-				By selecting the underlying event in the select-clause we can reduce load on the engine, since the 
+				By selecting the underlying event in the select-clause you can reduce load on the engine, since the 
 				engine does not need to generate a new output event for each input event.
 			</para>
 	
@@ -514,7 +514,7 @@ every A -> B where timer:within(1 sec)]]></programlisting>
 
 			<para>
 				When compiling a statement, the EPStatement instance lets us know the EventType via the getEventType() method.
-				From the EventType we can obtain EventPropertyGetter instances for named event properties.
+				From the EventType you can obtain EventPropertyGetter instances for named event properties.
 			</para>
 
 			<para>
@@ -772,7 +772,7 @@ where a.symbol = b.symbol]]></programlisting>
 				A join is multidirectionally evaluated: When an event of any of the streams participating in the join arrive, the join gets evaluated, unless using the unidirectional keyword.
 				Consider using a subquery instead when evaluation only needs to take place when a certain event arrives:
 			</para>
-<programlisting><![CDATA[// Rewrite this join since we don't need to join when a LoginSucceededWindow arrives
+<programlisting><![CDATA[// Rewrite this join since you don't need to join when a LoginSucceededWindow arrives
 // Also rewrite because the account number always is the value 123.
 select * from LoginSucceededWindow as l, WithdrawalWindow as w
 where w.accountNumber = '123' and w.accountNumber = l.accountNumber
@@ -1058,7 +1058,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 		<sect2 xml:id="perf-tips-19">
 				<title>Large Number of Threads</title>
 				<para>
-					When using a large number of threads with the engine, such as more then 100 threads, we provide a setting in the configuration that instructs the engine to reduce the use of thread-local variables. Please see  <xref linkend="config-engine-execution"/> for more information.
+					When using a large number of threads with the engine, such as more then 100 threads, you can provide a setting in the configuration that instructs the engine to reduce the use of thread-local variables. Please see  <xref linkend="config-engine-execution"/> for more information.
 				</para>
 		</sect2>
 		
@@ -1202,7 +1202,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 
 				<para>
 				   The engine prefers hash-based lookups (equals) and combination hash-btree lookups (equals and relational-operator or range) over btree lookups (relational-operator or range)
-				   over in-keyword (single and multi-index) lookup plans. This behavior can be controlled by hints that we discuss next.
+				   over in-keyword (single and multi-index) lookup plans. This behavior can be controlled by hints that are discussed next.
 				</para>
 		</sect2>
 		
@@ -1523,7 +1523,7 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				</para>				
 				
 				<para>
-					For example, assume we need to create 100000 similar EPL statements that all filter <literal>GeoEvent</literal> events: 
+					For example, assume you need to create 100000 similar EPL statements that all filter <literal>GeoEvent</literal> events: 
 				</para>
 				<programlisting>create schema GeoEvent(id string, value int, marker string)</programlisting>
 				<programlisting><![CDATA[@name('statment-1) select * from GeoEvent(id = '0001', value between 10 and 20, marker in ('a', 'b'))]]></programlisting>
@@ -1537,7 +1537,7 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				<para>
 					In this example, the EPL statements have similar filters: <literal>id = </literal><emphasis>an_id</emphasis>, <literal>value between </literal><emphasis>start_range</emphasis><literal> and </literal><emphasis>end_range</emphasis> and
 					<literal>marker in (</literal><emphasis>markers</emphasis><literal>)</literal>.
-					We could say that statements are similar and look like:
+					You could say that statements are similar and look like:
 				</para>
 				<programlisting><![CDATA[select * from GeoEvent(id=an_id, value between start_range and end_range, marker in (markers))]]></programlisting>
 				
@@ -1545,7 +1545,7 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 					The <emphasis>an_id</emphasis>, <emphasis>start_range</emphasis>, <emphasis>end_range</emphasis> and <emphasis>markers</emphasis> are essential parameters to an instance of the filtering EPL statement.
 					Instances of EPL statements are context partitions. Declare a context to refactor and change our design so the common filters are in one place. 
 					This apprach just requires two statements: the context declaration and the statement with the filters. 
-					We also declare two event types: one to allocate new context partitions and one to terminate context partitions.
+					You may declare two event types: one to allocate new context partitions and one to terminate context partitions.
 				</para>
 
 				<para>
@@ -1559,7 +1559,7 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				<programlisting><![CDATA[create schema TermEvent(id string)]]></programlisting>
 
 				<para>
-					The context declaration tells the engine that when an <literal>InitEvent</literal> arrives we want have a new instance that is parameterized by the <literal>InitEvent</literal> properties:
+					The context declaration tells the engine that when an <literal>InitEvent</literal> arrives you want have a new instance that is parameterized by the <literal>InitEvent</literal> properties:
 				</para>
 				<programlisting><![CDATA[create context GeoEventFilterContext
   initiated by InitEvent as initevent
@@ -1927,16 +1927,6 @@ considered for this statistic report. 95.13% ie 788 062 events were handled
 
                 </listitem>
             </orderedlist>
-        </sect2>
-
-        <sect2 xml:id="how-we-kit" revision="1">
-            <title>How we use the performance kit</title>
-
-            <para>
-                We use the performance kit to track performance progress across Esper versions, as well as to implement
-                optimizations.
-            </para>
-
         </sect2>
     </sect1>
 </chapter>

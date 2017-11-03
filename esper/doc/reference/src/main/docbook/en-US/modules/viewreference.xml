@@ -1162,7 +1162,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(5)]]></pro
 				<programlisting><![CDATA[select * from StockTickEvent#groupwin(symbol)#length(4)#time(10)]]></programlisting>
 
 				<para>
-					Last, we consider a grouped data window for two group criteria. Here, the query results are total price per symbol and feed for the last 100 events per symbol and feed.
+					Last, considers a grouped data window for two group criteria. Here, the query results are total price per symbol and feed for the last 100 events per symbol and feed.
 				</para>
 				<programlisting><![CDATA[select sum(price) from StockTickEvent#groupwin(symbol, feed)#length(100)]]></programlisting>
 		
@@ -1574,7 +1574,7 @@ select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlis
 				<programlisting><![CDATA[select size from StockTickEvent#size]]></programlisting>
 
 				<para>
-					All windows can be used with pattern statements as well. The next EPL snippet shows a pattern where we look for tick events followed by trade events for the same symbol. The size window counts the number of occurrences of the pattern.
+					All windows can be used with pattern statements as well. The next EPL snippet shows a pattern that looks for tick events followed by trade events for the same symbol. The size window counts the number of occurrences of the pattern.
 				</para>
 				<programlisting><![CDATA[select size from pattern[every s=StockTickEvent -> TradeEvent(symbol=s.symbol)]#size]]></programlisting>
 			</sect2>

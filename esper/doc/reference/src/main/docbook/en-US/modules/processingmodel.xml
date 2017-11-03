@@ -259,7 +259,7 @@
 
 		<para>
 			Esper remembers up to five events in total (the last five events). At the start of the query the data window is empty.
-			By itself, keeping the last five events may not sound useful. But in connection with a join, subquery or match-recognize pattern for example a data window tells the engine which events we want to query.
+			By itself, keeping the last five events may not sound useful. But in connection with a join, subquery or match-recognize pattern for example a data window tells the engine which events you want to query.
 		</para>
 
         <note>
@@ -515,7 +515,7 @@ select .... from Withdrawal where amount > 200]]></programlisting>
 		</para>
 
 		<para>
-			The query we discuss next outputs the last count and total of all <literal>Withdrawal</literal> events every four seconds:
+			The next query outputs the last count and total of all <literal>Withdrawal</literal> events every four seconds:
 		</para>
 		<programlisting><![CDATA[select count(*), total(amount) from Withdrawal output last every 4 seconds]]></programlisting>
 		
@@ -912,7 +912,7 @@ group by account]]></programlisting>
 				</para>
 
 				<para>
-					For example, assume the <literal>WithdrawalEvent</literal> has an <literal>account</literal> field. One could create three EPL statements like so:
+					For example, assume the <literal>WithdrawalEvent</literal> has an <literal>account</literal> field. You could create three EPL statements like so:
 				</para>
 				<programlisting><![CDATA[@name('A') select * from WithdrawalEvent(account = 1)]]></programlisting>
 				<programlisting><![CDATA[@name('B') select * from WithdrawalEvent(account = 1)]]></programlisting>
@@ -1088,12 +1088,12 @@ group by account]]></programlisting>
 				</para>
 
 				<para>
-					For example, assume the <literal>LoginEvent</literal> has an <literal>account</literal> field. One could declare a context initiated by a <literal>LoginEvent</literal> for a user:
+					For example, assume the <literal>LoginEvent</literal> has an <literal>account</literal> field. You could declare a context initiated by a <literal>LoginEvent</literal> for a user:
 				</para>
 				<programlisting><![CDATA[@name('A') create context UserSession initiated by LoginEvent as loginEvent]]></programlisting>
 
 				<para>
-					By associating the statement to the context we can tell the engine to analze per <literal>LoginEvent</literal>, for example:
+					By associating the statement to the context you can tell the engine to analze per <literal>LoginEvent</literal>, for example:
 				</para>
 				<programlisting><![CDATA[@name('B') context UserSession select count(*) from WithdrawalEvent(account = context.loginEvent.account)]]></programlisting>
 

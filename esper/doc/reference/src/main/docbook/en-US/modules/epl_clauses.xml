@@ -1459,7 +1459,7 @@ select default.MyEvent.myProperty from MyEvent</programlisting>
 			
 			<para>
 				By default, for certain select-clause expressions that output events or a collection of events,
-				the engine outputs the underlying event objects. With outputs we refer to the data passed to listeners, 
+				the engine outputs the underlying event objects. The term <emphasis>outputs</emphasis> means the data passed to listeners, 
 				subscribers and inserted-into into another stream via insert-into.			   
 			</para>
 
@@ -1740,12 +1740,12 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 				 </para>
 	
 				<para>
-					In this example we are interested in RFID events where the category matches any of the given values:
+					In this example you are interested in RFID events where the category matches any of the given values:
 				</para>
 				<programlisting><![CDATA[mypackage.RfidEvent(category in ('Perishable', 'Container'))]]></programlisting>
 	
 				<para>
-					By using the <literal>not in </literal>keywords we can filter events with a property value that does not match any of the values in a list of values:
+					By using the <literal>not in </literal>keywords you can filter events with a property value that does not match any of the values in a list of values:
 				 </para>
 				<programlisting><![CDATA[mypackage.RfidEvent(category not in ('Household', 'Electrical'))]]></programlisting>
 			</sect3>
@@ -1896,7 +1896,7 @@ group by carId, expressway, direction, segment]]></programlisting>
 		   </para>
 		   
 		   <para>
-		     In below table we provide additional examples for data window intersections:
+		     The table below provides additional examples for data window intersections:
 		   </para>
 		   
 			<table frame="topbot">
@@ -2109,7 +2109,7 @@ from StockTickEvent#length(10)
 where symbol='IBM'</programlisting>				
 								
 				<para>
-					In the above example the length window of 10 elements is not affected by the <literal>where</literal> clause, i.e. all events enter and leave the length window regardless of their symbol. If we only care about the last 10 IBM events, we need to add filter criteria as below.
+					In the above example the length window of 10 elements is not affected by the <literal>where</literal> clause, i.e. all events enter and leave the length window regardless of their symbol. If you only care about the last 10 IBM events, you need to add filter criteria as below.
 				</para>
 			    <programlisting>select 'IBM stats' as title, avg(price) as avgPrice, sum(price) as sumPrice
 from StockTickEvent(symbol='IBM')#length(10)
@@ -3002,7 +3002,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 					</orderedlist>
 
 					<para>
-						By adding a <literal>then</literal> part to the EPL, we can reset any variables after the trigger expression evaluated to true:
+						By adding a <literal>then</literal> part to the EPL, you can reset any variables after the trigger expression evaluated to true:
 					</para>
 			    <programlisting>select sum(price) from StockTickEvent 
   output when OutputTriggerVar = true  
@@ -3190,7 +3190,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 				</para>
 
 				<para>
-					By adding an output rate limiting clause to a statement that contains a <emphasis>group by</emphasis> clause we can control output of groups to obtain one row for each group, generating an event per group at the given output frequency.
+					By adding an output rate limiting clause to a statement that contains a <emphasis>group by</emphasis> clause you can control output of groups to obtain one row for each group, generating an event per group at the given output frequency.
 				</para>
 				
 				<para>
@@ -3428,7 +3428,7 @@ select A.customerId, A.timestamp - B.timestamp
 ...</programlisting>
 
 		<para>
-			The <literal>rstream</literal> keyword can be useful to indicate to the engine to generate only remove stream events. This can be useful if we want to trigger 
+			The <literal>rstream</literal> keyword can be useful to indicate to the engine to generate only remove stream events. This can be useful if you want to trigger 
 			actions when events leave a window rather then when events enter a window. The statement below generates <literal>CombinedEvent</literal> events when
 			EventA and EventB leave the window after 30 minutes.
 		</para>
@@ -3721,7 +3721,7 @@ from TriggerEvent</programlisting>
 		<programlisting><![CDATA[select assetId, (select zone from ZoneClosed#lastevent) as lastClosed from RFIDEvent]]></programlisting>
 
 		<para>
-			If the inner query is dependent on the outer query, we will have a correlated subquery. An example of a correlated subquery is shown below. Notice the <literal>where</literal> clause in the inner query, where the condition involves a stream from the outer query:
+			If the inner query is dependent on the outer query, you will have a correlated subquery. An example of a correlated subquery is shown below. Notice the <literal>where</literal> clause in the inner query, where the condition involves a stream from the outer query:
 	    </para>
 
 		<programlisting><![CDATA[select * from RfidEvent as RFID where 'Dock 1' = 
@@ -4097,7 +4097,7 @@ from OrderEvent]]></programlisting>
 			</para>
 
 			<para>
-				In this example for a correlated subquery against a named window we assume that the <literal>OrderNamedWindow</literal> has been created and contains order events. The query returns for each <literal>MarketData</literal> event
+				In this example for a correlated subquery against a named window, assume that the <literal>OrderNamedWindow</literal> has been created and contains order events. The query returns for each <literal>MarketData</literal> event
 				the list of order ids for orders with the same symbol:
 			</para>
 			<programlisting><![CDATA[select price,
@@ -4293,7 +4293,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			</para>
 	
 			<para>
-				This example joins 2 event streams. The first event stream consists of fraud warning events for which we keep the last 30 minutes. The second stream is withdrawal events for which we consider the last 30 seconds. The streams are joined on account number.
+				This example joins 2 event streams. The first event stream consists of fraud warning events for which it keep the last 30 minutes. The second stream is withdrawal events for which it considers the last 30 seconds. The streams are joined on account number.
 			</para>
 <programlisting><![CDATA[select fraud.accountNumber as accntNum, fraud.warning as warn, withdraw.amount as amount,
        max(fraud.timestamp, withdraw.timestamp) as timestamp, 'withdrawlFraud' as desc
@@ -4350,7 +4350,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 </synopsis>
 
 			<para>
-				If the outer join is a left outer join, there will be at least one output event for each event of the stream on the left-hand side of the clause. For example, in the left outer join shown below we will get output for each event in the stream RfidEvent, even if the event does not match any event in the event stream OrderList.
+				If the outer join is a left outer join, there will be at least one output event for each event of the stream on the left-hand side of the clause. For example, in the left outer join shown below you get output for each event in the stream RfidEvent, even if the event does not match any event in the event stream OrderList.
 			</para>
 
 <programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
@@ -4359,7 +4359,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
      on rfid.itemId = orderList.itemId]]></programlisting>
 		
 			<para>
-				Similarly, if the join is a Right Outer Join, then there will be at least one output event for each event of the stream on the right-hand side of the clause. For example, in the right outer join shown below we will get output for each event in the stream OrderList, even if the event does not match any event in the event stream RfidEvent.
+				Similarly, if the join is a Right Outer Join, then there will be at least one output event for each event of the stream on the right-hand side of the clause. For example, in the right outer join shown below you get output for each event in the stream OrderList, even if the event does not match any event in the event stream RfidEvent.
 			</para>
 
 <programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
@@ -4381,7 +4381,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
        on rfid.itemId = orderList.itemId and rfid.assetId = orderList.assetId]]></programlisting>
 
 			<para>
-				The last type of join is an inner join. In an inner join, the engine produces at least one output event for each event of the stream on the left-hand side that matches at least one event on the right hand side considering the join properties. For example, in the inner join shown below we will get output for each event in the RfidEvent stream that matches one or more events in the OrderList data window:
+				The last type of join is an inner join. In an inner join, the engine produces at least one output event for each event of the stream on the left-hand side that matches at least one event on the right hand side considering the join properties. For example, in the inner join shown below you get output for each event in the RfidEvent stream that matches one or more events in the OrderList data window:
 			</para>
 
 <programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
@@ -4608,7 +4608,7 @@ and ob1.price between t.buy and t.sell and ob2.price between t.buy and t.sell]]>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					An SQL query cannot declare data windows; That is, one cannot create a time or length window on an SQL query. Instead, use <literal>insert into</literal> to make join results available for further processing.
+					An SQL query cannot declare data windows; That is, you cannot create a time or length window on an SQL query. Instead, use <literal>insert into</literal> to make join results available for further processing.
 				</para>
 			</listitem>
 			<listitem>
@@ -4938,7 +4938,7 @@ select * from sql:MyDB ['select * from MyEventTable]]]></programlisting>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					A invocation cannot declare data windows; That is, one cannot create a time or length window on an invocation. Instead, use <literal>insert into</literal> to make join results available for further processing.
+					A invocation cannot declare data windows; That is, you cannot create a time or length window on an invocation. Instead, use <literal>insert into</literal> to make join results available for further processing.
 				</para>
 			</listitem>
 		</itemizedlist>
@@ -5991,7 +5991,7 @@ group by symbol
 having sum(price) > var_threshold]]></programlisting>
 
 			<para>
-				In this example we use a variable to dynamically change the output rate on-the-fly. The variable 'var_output_rate' holds the current rate at which the statement posts a current count to listeners:
+				This example uses a variable to dynamically change the output rate on-the-fly. The variable 'var_output_rate' holds the current rate at which the statement posts a current count to listeners:
 			</para>
 			<programlisting><![CDATA[select count(*) from TickEvent output every var_output_rate seconds]]></programlisting>
 			
@@ -6294,11 +6294,11 @@ select minPrice() as minprice from MarketData]]></programlisting>
 		</para>
 
 		<para>
-			To illustrate, a sample media order event in XML event representation is shown below. Also, a XML event type can optionally be strongly-typed with an explicit XML XSD schema that we don't show here. Note that Map and POJO representation can be considered equivalent for the purpose of this example.
+			To illustrate, a sample media order event in XML event representation is shown below. Also, a XML event type can optionally be strongly-typed with an explicit XML XSD schema that is not shown here. Note that Map and POJO representation can be considered equivalent for the purpose of this example.
 		</para>
 
 		<para>
-			Let us now assume that we have declared the event type <literal>MediaOrder</literal> as being represented by the root node <literal>&lt;mediaorder&gt;</literal> of such XML snip:
+			Let us now assume the event type <literal>MediaOrder</literal> as being represented by the root node <literal>&lt;mediaorder&gt;</literal> of such XML snip:
 		</para>
 
 	<programlisting><![CDATA[<mediaorder>
