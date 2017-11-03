@@ -320,7 +320,7 @@ config.addEventTypeAutoName(MyEvent.getPackage().getName());]]></programlisting>
 				</para>
 				
 				<para>					
-					For example, assuming the class <literal>MyLegacyEvent</literal> exposes a method named <literal>readValue</literal> and a member variable named <literal>myField</literal>, we can then use properties as shown. 
+					For example, assuming the class <literal>MyLegacyEvent</literal> exposes a method named <literal>readValue</literal> and a member variable named <literal>myField</literal>, you can then use properties as shown. 
 				</para>
 				<programlisting><![CDATA[select readValue, myField from MyLegacyEvent]]></programlisting>
 
@@ -529,7 +529,7 @@ config.addEventType("MyLegacyEvent", MyLegacyEventClass.class.getName(), legacyD
 </event-type>]]></programlisting>
 
 			<para>
-				For NEsper .NET we use <literal>util-map</literal> instead of <literal>java-util-map</literal>.
+				For NEsper .NET use <literal>util-map</literal> instead of <literal>java-util-map</literal>.
 			</para>
 
 			<para>
@@ -698,7 +698,7 @@ configuration.addEventType("MyObjectArrayEvent", propertyNames, propertyTypes);]
 					<para>A <literal>carId</literal> property of type <literal>int</literal>.</para>
 				</ns:listitem>
 				<ns:listitem>
-					<para>A <literal>carType</literal> property of type <literal>string</literal>. Note: We use the Avro-provided <literal>avro.java.string</literal> property to ensure is is a <literal>java.lang.String</literal> instance and not a <literal>java.lang.CharSequence</literal>) instance.</para>
+					<para>A <literal>carType</literal> property of type <literal>string</literal>. Note:Wse the Avro-provided <literal>avro.java.string</literal> property to ensure is is a <literal>java.lang.String</literal> instance and not a <literal>java.lang.CharSequence</literal>) instance.</para>
 				</ns:listitem>
 			</orderedlist>
 						
@@ -793,7 +793,7 @@ configuration.addEventType("MyXMLNodeEvent", desc);]]></programlisting>
 			<para>
 				 This example configures an event property named <literal>countTags</literal> whose value is computed by an XPath expression. The namespace prefixes
 				 and default namespace are for use with XPath expressions and must also be made known to the engine in order for the engine to compile XPath expressions. 
-				 Via the <literal>schema-resource</literal> attribute we instruct the engine to load a schema file. You may also use <literal>schema-text</literal> instead to 
+				 Via the <literal>schema-resource</literal> attribute you can instruct the engine to load a schema file. You may also use <literal>schema-text</literal> instead to 
 				 provide the actual text of the schema.
 			</para>
 			
@@ -1290,7 +1290,7 @@ config.addAnnotationImport("com.mycompany.mypackage.myannotations.*");]]></progr
 </database-reference>]]></programlisting>
 
 				<para>
-					To help you better understand how the engine uses this information to obtain connections, we have included the logic below.
+					To help you better understand how the engine uses this information to obtain connections, please look at the logic below.
 				</para>
 				<programlisting><![CDATA[if (envProperties.size() > 0) {
   initialContext = new InitialContext(envProperties);
@@ -1314,7 +1314,7 @@ Connection connection = dataSource.getConnection();]]></programlisting>
 				<title>Connections obtained via DataSource Factory</title>
 
 				<para>
-					This section describes how to use <citetitle><link xlink:href="http://commons.apache.org/dbcp">Apache Commons Database Connection Pooling (Apache DBCP)</link></citetitle> with Esper. We also explain how to provide a custom application-specific <literal>DataSource</literal> factory if not using Apache DBCP.
+					This section describes how to use <citetitle><link xlink:href="http://commons.apache.org/dbcp">Apache Commons Database Connection Pooling (Apache DBCP)</link></citetitle> with Esper. It explains how to provide a custom application-specific <literal>DataSource</literal> factory if not using Apache DBCP.
 				</para>
 
 				<para>
@@ -2950,7 +2950,7 @@ config.getEngineDefaults().getExecution().setFairlock(true);]]></programlisting>
 				</para>
 		
 				<para>
-					CAUTION: We provide this setting for the purpose of identifying locking overhead, or when your application is single-threaded, or when using an external mechanism for concurrency control.
+					CAUTION: Esper provides this setting for the purpose of identifying locking overhead, or when your application is single-threaded, or when using an external mechanism for concurrency control.
 					Setting disable-locking to true may have unpredictable results unless your application is taking concurrency under consideration.
 				</para>
 

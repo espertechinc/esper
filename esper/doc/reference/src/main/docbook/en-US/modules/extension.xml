@@ -1415,7 +1415,7 @@ public EventType getEventType() {
 			</para>
 
 			<para>
-				Among the Esper examples we provide an example use of the aggregation multi-function API in the example by name Cycle-Detect. 
+				Among the Esper examples is an example use of the aggregation multi-function API in the example by name Cycle-Detect. 
 				Cycle-Detect takes incoming transaction events that have from-account and to-account fields.
 				The example detects a cycle in the transactions between accounts in order to detect a possible transaction fraud. 
 				Please note that the graph and cycle detection logic of the example is not part of Esper:

@@ -193,7 +193,7 @@ having sum(a.price + b.price) > 100]]></programlisting>
 			
 			<para>            
 				The example below shows an anonymous implementation of the <literal>com.espertech.esper.client.UpdateListener</literal> interface.
-				We add the anonymous listener implementation to the <literal>myPattern</literal> statement created earlier. 
+				The example adds the anonymous listener implementation to the <literal>myPattern</literal> statement created earlier. 
 				The listener code simply extracts the underlying event class.
 			</para>
 			<programlisting><![CDATA[myPattern.addListener(new UpdateListener() {
@@ -994,7 +994,7 @@ every timer:interval(1 sec) -> (b=B where timer:within(1 sec))]]></programlistin
 				<title><literal>Every</literal> Operator Example</title>
 
 				<para>
-					In this example we consider a generic pattern in which the pattern must match for each A event followed by a B event and followed by a C event, in which both the B event and the C event must arrive within 1 hour of the A event. The first approach to the pattern is as follows:
+					This example considers a generic pattern in which the pattern must match for each A event followed by a B event and followed by a C event, in which both the B event and the C event must arrive within 1 hour of the A event. The first approach to the pattern is as follows:
 				</para>
 
 				<programlisting><![CDATA[every A  -> (B -> C) where timer:within(1 hour)]]></programlisting>
@@ -1046,7 +1046,7 @@ every timer:interval(1 sec) -> (b=B where timer:within(1 sec))]]></programlistin
 				</orderedlist>
 
 				<para>
-					In the pattern above, we have specified a 1-hour lifetime for subexpressions looking for B and C events. Thus, if no B and no C event arrive within 1 hour after A<subscript>1</subscript>, the first subexpression goes away. If no B and no C event arrive within 1 hour after A<subscript>2</subscript>, the second subexpression goes away. The third subexpression however stays around looking for more A events.
+					In the pattern above, there is a 1-hour lifetime for subexpressions looking for B and C events. Thus, if no B and no C event arrive within 1 hour after A<subscript>1</subscript>, the first subexpression goes away. If no B and no C event arrive within 1 hour after A<subscript>2</subscript>, the second subexpression goes away. The third subexpression however stays around looking for more A events.
 				</para>
 				
 				<para>
@@ -1522,7 +1522,7 @@ a=A -> (B(id = a.id) and C(id = a.id))]]></programlisting>
 
 			<para>
 				Elaborating further, the expression <literal>every A or every B</literal> is equivalent to <literal>every (A or B)</literal>. 
-				We prefer <literal>every A or every B</literal> as the <literal>every</literal> keyword lets the engine know that filters for A and B can remain active.
+				Prefer <literal>every A or every B</literal> as the <literal>every</literal> keyword lets the engine know that filters for A and B can remain active.
 				Consider the expression <literal>every A or every timer:interval(10 sec)</literal> which is not equivalent to <literal>every (A or timer:interval(10 sec))</literal>. 
 				This is because in the latter expression when an A event arrives the interval restarts.
 			</para>
@@ -1713,7 +1713,7 @@ a=A -> (B(id = a.id) and C(id = a.id))]]></programlisting>
 			</para>
 	
 			<para>
-				By placing parentheses around the <literal>every</literal> keyword and its subexpression, we can have the <literal>every</literal> under the control of the guard:
+				By placing parentheses around the <literal>every</literal> keyword and its subexpression, you can have the <literal>every</literal> under the control of the guard:
 			</para>
 			<programlisting><![CDATA[(every MyEvent) where timer:within(10 sec)]]></programlisting>
 

@@ -541,7 +541,7 @@ match_recognize (
 			<para>
 				To detect patterns that consist of a permutation of variables you may use <literal>match_recognize_permute</literal>. 
 				It is possible to express a permutation as alternations but it becomes clumsy when many variables are involved. 
-				For example, if all permutations of three variables A B C are needed we could express it as: (A B C | A C B | B A C | B C A | C A B | C B A).
+				For example, if all permutations of three variables A B C are needed you could express it as: (A B C | A C B | B A C | B C A | C A B | C B A).
 			</para>
 			
 			<para>

@@ -934,7 +934,7 @@ from pattern[every timer:interval(30)]]]></programlisting>
 			<programlisting><![CDATA[create window ZoneWindow#unique(name) as Zone]]></programlisting>
 
 			<para>
-				Then we create a statement to insert zone events that arrive to the named window:
+				Then you create a statement to insert zone events that arrive to the named window:
 			</para>
 			<programlisting><![CDATA[insert into ZoneWindow select * from Zone]]></programlisting>
 			

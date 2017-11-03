@@ -911,7 +911,7 @@ select t1 from pattern [
 			</para>
 			
 			<para>
-				By providing no terminating condition, we can tell the engine to allocate context partitions that never terminate, for example:
+				By providing no terminating condition, you can tell the engine to allocate context partitions that never terminate, for example:
 			</para>
 			<programlisting><![CDATA[create context CtxTrainEnter initiated by TrainEnterEvent as te]]></programlisting>
 
@@ -1104,7 +1104,7 @@ create context MyContext
 
 				<programlisting><![CDATA[// An overlapping context where each distinct MyInitEvent initiates a new context 
 // and each context partition terminates after 20 seconds
-// We use @inclusive to say that the same MyInitEvent that fires the pattern
+// Use @inclusive to say that the same MyInitEvent that fires the pattern
 // also applies to statements that are associated to the context.
 create context MyContext
   initiated by pattern [every-distinct(a.id, 20 sec) a=MyInitEvent]@inclusive
@@ -1260,7 +1260,7 @@ select custId, account, sum(amount) from BankTxn group by account]]></programlis
 			</para>
 			
 			<para>
-				In the scenario that we analyze here, assume that an <literal>AStart</literal> event arrives next. This is, logically,  the beginning of the <literal>SpanA</literal> lifecycle (aka. session, interval):
+				In the scenario, assume that an <literal>AStart</literal> event arrives next. This is, logically,  the beginning of the <literal>SpanA</literal> lifecycle (aka. session, interval):
 			</para>
 			<itemizedlist>
 				<ns:listitem>
@@ -1537,7 +1537,7 @@ select * from SensorEvent output when terminated then set myvar=3]]></programlis
 		</para>
 		
 		<para>
-			You may also create a named window and declare a context for the named window. In this case the engine in effect manages separate named windows, one for each context partition. Limitations apply in this case that we discuss herein.
+			You may also create a named window and declare a context for the named window. In this case the engine in effect manages separate named windows, one for each context partition. Limitations apply in this case that are discussed herein.
 		</para>
 		
 		<para>
@@ -1594,7 +1594,7 @@ on TruncateEvent delete from SpeedingEvents1Hour]]></programlisting>
 		
 		<para>
 			You may also create a table and declare a context for the table. In this case the engine in effect manages separate tables, one for each context partition. 
-			Limitations apply in this case that we discuss herein.
+			Limitations apply in this case that are discussed herein.
 		</para>
 		
 		<para>

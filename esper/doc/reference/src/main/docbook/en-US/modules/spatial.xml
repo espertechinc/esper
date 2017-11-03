@@ -397,7 +397,7 @@ select * from RectangleEvent(point(0, 0, filterindex:myPointRegionQuadtreeSettin
 			</para>
 				
 			<para>
-				For example, assume we have a table that contains points:
+				For example, assume a table that contains points:
 			</para>
 			<programlisting>create table PointTable(pointId string primary key, px double, py double)</programlisting>
 			
@@ -586,7 +586,7 @@ select * from RectangleEvent(rectangle(10, 20, 5, 5, filterindex:myMXCIFQuadtree
 			</para>
 				
 			<para>
-				For example, assume we have a table that contains rectangles:
+				For example, assume a table that contains rectangles:
 			</para>
 			<programlisting>create table RectangleTable(rectangleId string primary key, rx double, ry double, rwidth double, rheight double)</programlisting>
 			

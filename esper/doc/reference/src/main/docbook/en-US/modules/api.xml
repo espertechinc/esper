@@ -254,7 +254,7 @@ countStmt.start();]]></programlisting>
 			</para>
 			<para>
 				While action-taking, in respect to the code or script taking the action, is not a part of the EPL language, here are a few noteworthy points. 
-				Through the use of EPL annotations one can attach information to EPL that can be used by applications to flexibly determine actions.
+				Through the use of EPL annotations you can attach information to EPL that can be used by applications to flexibly determine actions.
 				The convenient <literal>StatementAwareUpdateListener</literal> interface is a listener that receives the statement itself and subscribers can accept <literal>EPStatement</literal> as a parameter.
 				The <literal>insert into</literal>-clause can be used to send results into a further stream and input and output adapters or data flows can exist to process output events from that stream.
 				Also the data flow <literal>EPStatementSource</literal> operator can be used to hook up actions declaratively.
@@ -916,7 +916,7 @@ runtime.sendEvent(new MarketDataBean('IBM', 75.0));
 
 		<tip>
 			<para>
-				Events, in theoretical terms, are observations of a state change that occurred in the past. Since one cannot change an event that happened in the past, events are best modelled as immutable objects. 
+				Events, in theoretical terms, are observations of a state change that occurred in the past. Since you cannot change an event that happened in the past, events are best modelled as immutable objects. 
 			</para>
 		</tip>
         
@@ -1513,7 +1513,7 @@ Each engine instance performs minimal locking to enable high levels of concurren
         </para>
 
 		<para>
-You may turn off context partition locking engine-wide (also read the caution notice) as described in <xref linkend="config-engine-execution-disablelock"/>. You may disable context partition locking for a given statement by providing the <literal>@NoLock</literal> annotation as part of your EPL. Note, we provide the <literal>@NoLock</literal> annotation for the purpose of identifying locking overhead, or when your application is single-threaded, or when using an external mechanism for concurrency control or for example with virtual data windows or plug-in data windows to allow customizing concurrency for a given statement or named window. Using this annotation may have unpredictable results unless your application is taking concurrency under consideration.
+You may turn off context partition locking engine-wide (also read the caution notice) as described in <xref linkend="config-engine-execution-disablelock"/>. You may disable context partition locking for a given statement by providing the <literal>@NoLock</literal> annotation as part of your EPL. Note, Esper provides the <literal>@NoLock</literal> annotation for the purpose of identifying locking overhead, or when your application is single-threaded, or when using an external mechanism for concurrency control or for example with virtual data windows or plug-in data windows to allow customizing concurrency for a given statement or named window. Using this annotation may have unpredictable results unless your application is taking concurrency under consideration.
         </para>
 
 		<para>
@@ -2407,7 +2407,7 @@ isolatedService.getEPRuntime().send(historyEvent);
 			</para>
 
 			<para>
-				Within the from-clause we have a choice of different streams to select on. The <literal>FilterStream</literal> class represents a stream that is filled by events of a certain type and that pass an optional filter expression.
+				Within the from-clause you have a choice of different streams to select on. The <literal>FilterStream</literal> class represents a stream that is filled by events of a certain type and that pass an optional filter expression.
 			</para>
 
 			<para>
@@ -2471,7 +2471,7 @@ model.setFromClause(FromClause.create(FilterStream.create("com.chipmaker.ReadyEv
 			</para>
 
 			<para>
-				In the next example we add a simple where-clause to the EPL  as shown earlier:
+				The next example adds a simple where-clause to the EPL as shown earlier:
 			</para>
 			<programlisting><![CDATA[select * from com.chipmaker.ReadyEvent where line=8]]></programlisting>
 
@@ -2481,7 +2481,7 @@ model.setFromClause(FromClause.create(FilterStream.create("com.chipmaker.ReadyEv
 			<programlisting><![CDATA[model.setWhereClause(Expressions.eq("line", 8));]]></programlisting>
 
 			<para>
-				The following example considers a more complex where-clause. Assume we need to build an expression using logical-and and logical-or:
+				The following example considers a more complex where-clause. Assume you need to build an expression using logical-and and logical-or:
 			</para>			
 			<programlisting><![CDATA[select * from com.chipmaker.ReadyEvent 
 where (line=8) or (line=10 and age<5)]]></programlisting>
@@ -2529,7 +2529,7 @@ model.setFromClause(FromClause.create(PatternStream.create(pattern)));]]></progr
 			<title>Building a Select Statement</title>
 			
 			<para>
-				In this section we build a complete example statement and include all optional clauses in one EPL  statement, to demonstrate the object model API.
+				This section builds a complete example statement and includes all optional clauses in one EPL  statement, to demonstrate the object model API.
 			</para>
 
 			<para>
@@ -2926,7 +2926,7 @@ prepared.setObject("lines/line1", 1);]]></programlisting>
 		</para>
 
 		<para>
-			In this example we show how one may obtain a renderer for repeated rendering of events of the same type, assuming that <literal>statement</literal> is an instance of <literal>EPStatement</literal>:
+			This example shows how to obtain a renderer for repeated rendering of events of the same type, assuming that <literal>statement</literal> is an instance of <literal>EPStatement</literal>:
 		</para>
 		<programlisting><![CDATA[JSONEventRenderer jsonRenderer = epService.getEPRuntime().
     getEventRenderer().getJSONRenderer(statement.getEventType());]]></programlisting>

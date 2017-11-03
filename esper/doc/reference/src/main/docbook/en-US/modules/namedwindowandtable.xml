@@ -371,7 +371,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>window_spec</emphasis> 
 			</para>
 	
 			<para>
-				In this example we first create a named window using some of the columns of an OrderEvent event type:
+				This example first creates a named window using some of the columns of an OrderEvent event type:
 			</para>
 			<programlisting><![CDATA[create window OrdersWindow#keepall as select symbol, volume, price from OrderEvent]]></programlisting>
 			
@@ -425,7 +425,7 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
 				</para>
 	
 				<para>
-					Here we create a named window that decorates OrderEvent events by adding an additional property named <literal>priceTotal</literal> to each OrderEvent. A matching <literal>insert into</literal> statement is also part of the sample:
+					This sample EPL query creates a named window that decorates OrderEvent events by adding an additional property named <literal>priceTotal</literal> to each OrderEvent. A matching <literal>insert into</literal> statement is also part of the sample:
 				</para>
 				<programlisting><![CDATA[create window OrdersWindow#time(30) as select *, price as priceTotal from OrderEvent]]></programlisting>
 				<programlisting><![CDATA[insert into OrdersWindow select *, price * unit as priceTotal from ServiceOrderEvent]]></programlisting>
@@ -1720,7 +1720,7 @@ merge [into] <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name
 when matched and active = true then update set active = false]]></programlisting>
 
 		<para>
-			A longer example utilizing a named window follows. We start by declaring a schema that provides a product id and that holds a total price:
+			A longer example utilizing a named window follows. You start by declaring a schema that provides a product id and that holds a total price:
 		</para>
 		<programlisting><![CDATA[create schema ProductTotalRec as (productId string, totalPrice double)]]></programlisting>
 
@@ -1974,7 +1974,7 @@ create window UserProfileWindow#time(1 hour) select * from UserProfile]]></progr
 create index UserProfileIndex on UserProfileWindow(userId)]]></programlisting>
 
 		<para>
-			Next, execute an on-demand fire-and-forget query as shown below, herein we use the prepared version to demonstrate:
+			Next, execute an on-demand fire-and-forget query as shown below; this sample uses the prepared version to demonstrate:
 		</para>
 		<programlisting><![CDATA[String query = "select * from UserProfileWindow where userId='Joe'";
 EPOnDemandPreparedQuery prepared = epRuntime.prepareQuery(query);
@@ -2279,7 +2279,7 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 		</para>
 
 		<para>				
-			Delta events may also add properties to the revision event type. For example, one could add a new event type with security information to the revision event type and such security-related properties become available on the resulting revision event type.
+			Delta events may also add properties to the revision event type. For example, you could add a new event type with security information to the revision event type and such security-related properties become available on the resulting revision event type.
 		</para>
 
 		<para>

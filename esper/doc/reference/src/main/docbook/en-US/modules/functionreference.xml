@@ -1919,7 +1919,7 @@ from SensorEvent</programlisting>
 			<title>Approximation Aggregation Functions</title>
 
 			<para>
-				Under approximation aggregation function we understand aggregations that perform approximate analysis. Compared to the previously-introduced aggregation functions,
+				Approximation aggregation functions are aggregations that perform approximate analysis. Compared to the previously-introduced aggregation functions,
 				the functions discussed here have a degree of accuracy and probabilistic behavior.
 			</para>
 			
@@ -1988,7 +1988,7 @@ from SensorEvent</programlisting>
 									<entry><literal>confidence</literal></entry>
 									<entry>
 										<para>
-											Provides the certainty with which we reach the accuracy of type double.
+											Provides the certainty with which you reach the accuracy of type double.
 										</para>
 										<para>
 											The default is 0.99.

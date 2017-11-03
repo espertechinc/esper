@@ -361,7 +361,7 @@ group by ID]]></programlisting>
 		<para>
 			This example processes a raw market data feed. It reports throughput statistics and 
 			detects when the data rate of a feed falls off unexpectedly. A rate fall-off may mean that the data is stale and 
-			we want to alert when there is a possible problem with the feed.
+			you want to alert when there is a possible problem with the feed.
 		</para>
 
 		<para>
@@ -389,12 +389,12 @@ double askPrice;
         	<title>Computing Rates Per Feed</title>
 
 			<para>
-				For the throughput statistics and to detect rapid fall-off we calculate a ticks per second rate for each market data feed. 
+				For throughput statistics and to detect rapid fall-off, the example calculates a ticks per second rate for each market data feed. 
 			</para>
 
 			<para>
-				We can use an EPL statement that specifies a data window onto the market data event stream that batches together 1 second of events. 
-				We specify the feed and a count of events per feed as output values. To make this data available for further processing, we
+				You can use an EPL statement that specifies a data window onto the market data event stream that batches together 1 second of events. 
+				You specify the feed and a count of events per feed as output values. To make this data available for further processing, you
 				insert output events into the TicksPerSecond event stream:
 			</para>
 
@@ -414,7 +414,7 @@ select feed, count(*) as cnt
 
 			<para>
 				We can compute the average number of ticks per second over the last 10 seconds simply by using the TicksPerSecond events computed by the
-				prior statement and averaging the last 10 seconds. Next, we compare the current rate with the moving average and
+				prior statement and averaging the last 10 seconds. Next, the example compares the current rate with the moving average and
 				filter out any rates that fall below 75% of the average:
 			</para>
 
@@ -483,7 +483,7 @@ having cnt < avg(cnt) * 0.75]]></programlisting>
 			<title>The Events</title>
 
 			<para>
-	The use case involves tracking three components of a transaction. It‘s important that we use at least three components, since some engines have different performance or coding for only two events per transaction. Each component comes to the engine as an event with the following fields:
+	The use case involves tracking three components of a transaction. It's important that the example uses at least three components, since some engines have different performance or coding for only two events per transaction. Each component comes to the engine as an event with the following fields:
 			</para>
 	
 			<itemizedlist spacing="compact">
@@ -500,7 +500,7 @@ having cnt < avg(cnt) * 0.75]]></programlisting>
 			</itemizedlist>
 	
 			<para>
-				In addition, we have the following extra fields:
+				In addition, the example has the following extra fields:
 			</para>
 	
 			<para>
@@ -570,7 +570,7 @@ What we‘re doing here is matching the transaction IDs on each event, to form a
 			<title>Real time summary data</title>
 
 			<para>
-Further, we need to produce the following:
+Further, the example produces the following:
 			</para>
 
 			<itemizedlist spacing="compact">
@@ -596,7 +596,7 @@ Further, we need to produce the following:
 			<title>Find problems</title>
 
 			<para>
-We need to detect a transaction that did not make it through all three events. In other words, a transaction with events A or B, but not C. Note that, in this case, what we care about is event C. The lack of events A or B could indicate a failure in the event transport and should be ignored. Although the lack of an event C could also be a transport failure, it merits looking into.
+The example detects a transaction that did not make it through all three events. In other words, a transaction with events A or B, but not C. Note that, in this case, what you care about is event C. The lack of events A or B could indicate a failure in the event transport and should be ignored. Although the lack of an event C could also be a transport failure, it merits looking into.
 			</para>			
 		</sect2>
 		
@@ -635,7 +635,7 @@ To make testing easier, standard and to demonstrate how the example works, the e
 				</listitem>
 				<listitem>
 					<para>
-						The time stamp on each event is based on the system time. Between events A and B as well as B and C, between 0 and 999 is added to the time. So, we have an expected time difference of around 500 milliseconds between each event
+						The time stamp on each event is based on the system time. Between events A and B as well as B and C, between 0 and 999 is added to the time. So, you have an expected time difference of around 500 milliseconds between each event
 					</para>
 				</listitem>
 				<listitem>
@@ -646,7 +646,7 @@ To make testing easier, standard and to demonstrate how the example works, the e
 				</itemizedlist>
 	
 				<para>
-	To make things harder, we don‘t want transaction events coming in order. This code ensures that they come completely out of order. To do this, we fill in a bucket with events and, when the bucket is full, we shuffle it. The buckets are sized so that some transactions‘ events will be split between buckets. So, you have a fairly randomized flow of events, representing the worst case from a big, distributed infrastructure.
+	To make things harder, the example doesn't have transaction events coming in order. This code ensures that they come completely out of order. To do this, the example fills in a bucket with events and, when the bucket is full, it shuffles it. The buckets are sized so that some transactions‘ events will be split between buckets. So, you have a fairly randomized flow of events, representing the worst case from a big, distributed infrastructure.
 				</para>
 	
 				<para>
@@ -703,7 +703,7 @@ To make testing easier, standard and to demonstrate how the example works, the e
 			</itemizedlist>
 			
 			<para>
-				All events provide information about the terminal that published the event, and a timestamp. The terminal information is held in a property named "term" and provides a terminal id. Since all events carry similar information, we model each event as a subtype to a base class BaseTerminalEvent, which will provide the terminal information that all events share. This enables us to treat all terminal events polymorphically, that is we can treat derived event types just like their parent event types. This helps simplify our queries.
+				All events provide information about the terminal that published the event, and a timestamp. The terminal information is held in a property named "term" and provides a terminal id. Since all events carry similar information, it models each event as a subtype to a base class BaseTerminalEvent, which will provide the terminal information that all events share. This enables us to treat all terminal events polymorphically, that is you can treat derived event types just like their parent event types. This helps simplify our queries.
 			</para>
 
 			<para>
@@ -716,7 +716,7 @@ To make testing easier, standard and to demonstrate how the example works, the e
 			<title>Detecting Customer Check-in Issues</title>
 
 			<para>
-				A customer may be in the middle of a check-in when the terminal detects a hardware problem or when the network goes down. In that situation we want to alert a team member to help the customer. When the terminal detects a problem, it issues an OutOfOrder event. A pattern can find situations where the terminal indicates out-of-order and the customer is in the middle of the check-in process:
+				A customer may be in the middle of a check-in when the terminal detects a hardware problem or when the network goes down. In that situation the example alerts a team member to help the customer. When the terminal detects a problem, it issues an OutOfOrder event. A pattern can find situations where the terminal indicates out-of-order and the customer is in the middle of the check-in process:
 			</para>
 
 <programlisting><![CDATA[select * from pattern [ every a=Checkin -> 
@@ -729,7 +729,7 @@ To make testing easier, standard and to demonstrate how the example works, the e
 			<title>Absence of Status Events</title>
 
 			<para>
-				Since Status events arrive in regular intervals of 60 seconds, we can make us of temporal pattern matching using timer to find events that didn't arrive. We can use the every operator and timer:interval() to repeat an action every 60 seconds. Then we combine this with a not operator to check for absence of Status events. A 65 second interval during which we look for Status events allows 5 seconds to account for a possible delay in transmission or processing:
+				Since Status events arrive in regular intervals of 60 seconds, you can make use of temporal pattern matching using timer to find events that didn't arrive. You can use the every operator and timer:interval() to repeat an action every 60 seconds. Then you combine this with a not operator to check for absence of Status events. A 65 second interval during which you look for Status events allows 5 seconds to account for a possible delay in transmission or processing:
 			</para>
 
 <programlisting><![CDATA[select 'terminal 1 is offline' from pattern 
@@ -742,7 +742,7 @@ output first every 5 minutes]]></programlisting>
 			<title>Activity Summary Data</title>
 
 			<para>
-				By presenting statistical information about terminal activity to our staff in real-time we enable them to monitor the system and spot problems. The next example query simply gives us a count per event type every 1 minute. We could further use this data, available through the CountPerType event stream, to join and compare against a recorded usage pattern, or to just summarize activity in real-time.
+				By presenting statistical information about terminal activity to our staff in real-time you enable them to monitor the system and spot problems. The next example query simply gives us a count per event type every 1 minute. You could further use this data, available through the CountPerType event stream, to join and compare against a recorded usage pattern, or to just summarize activity in real-time.
 			</para>
 
 <programlisting><![CDATA[insert into CountPerType
@@ -756,7 +756,7 @@ output all every 1 minutes]]></programlisting>
 			<title>Sample Application for J2EE Application Server</title>
 
 			<para>
-				The example code in the distribution package implements a message-driven enterprise java bean (MDB EJB). We used an MDB as a convenient place for processing incoming events via a JMS message queue or topic. The example uses 2 JMS queues: One queue to receive events published by terminals, and a second queue to indicate situations detected via EPL statement and listener back to a receiving process.
+				The example code in the distribution package implements a message-driven enterprise java bean (MDB EJB). The example uses an MDB as a convenient place for processing incoming events via a JMS message queue or topic. The example uses 2 JMS queues: One queue to receive events published by terminals, and a second queue to indicate situations detected via EPL statement and listener back to a receiving process.
 			</para>
 
 			<para>
@@ -825,7 +825,7 @@ output all every 1 minutes]]></programlisting>
 </jms-queue>]]></programlisting>
 
 					<para>
-					  Disable persistence in the messaging subsystem for this example so we are not running out of disk space:
+					  Disable persistence in the messaging subsystem for this example so it is not running out of disk space:
 					</para>
 <programlisting><![CDATA[<persistence-enabled>false</persistence-enabled>]]></programlisting>
 
@@ -988,12 +988,12 @@ select Part.zone from pattern [
             
         <para>                      
             The example measures and monitors operation latency and error counts per customer and operation. When 
-            one of our operations oversteps these constraints, we want to be alerted right away. Additionally, we would like to have some monitoring in
+            one of our operations oversteps these constraints, you want to be alerted right away. Additionally, you would like to have some monitoring in
             place that checks the health of our service and provides some information on how the operations are used.
         </para>
 
         <para>                      
-            Some of the constraints we need to check are:
+            Some of the constraints you need to check are:
          </para>
             
 		<itemizedlist spacing="compact">
@@ -1062,7 +1062,7 @@ select Part.zone from pattern [
         </para>
         
         <para>
-           The implementation we provide tests the questions, answers and scoring according to the data provided in <literal>trivia_test_questions_small.htm</literal> and <literal>trivia_test_questions_large.htm</literal>.
+           The implementation provided tests the questions, answers and scoring according to the data provided in <literal>trivia_test_questions_small.htm</literal> and <literal>trivia_test_questions_large.htm</literal>.
         </para>
     </sect1>    
 </chapter>
