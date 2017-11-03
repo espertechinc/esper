@@ -1194,10 +1194,6 @@ where onw.symbol = trig.symbol]]></programlisting>
 			<para>
 				For named windows, the <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on select</literal> clause returns the last batch of selected events in response to the last triggering event, or null if the last triggering event did not select any rows.
 			</para>
-			
-			 <para>
-				An <literal>on-select</literal> statement executes under a shareable named window context partition lock.				
-			 </para>
 		</sect2>
 
 		<sect2 xml:id="named_querying_table" revision="1">
@@ -1636,9 +1632,58 @@ where ord.id = win.id or flush.id = win.id]]></programlisting>
 		</para>
 
 		<para>
-			The syntax for the <literal>on merge</literal> clause is as follows: 
+			The syntax for the <literal>on merge</literal> clause has two forms. 
 		</para>
-		<synopsis>on <emphasis>event_type</emphasis>[<emphasis>(filter_criteria)</emphasis>] [as <emphasis>stream_name</emphasis>]
+		
+		<sect2 xml:id="named_upsert_insertunmatched" revision="1">
+			<title><literal>On-Merge</literal> Insert</title>
+		
+			<para>
+				Use <literal>on merge</literal> with <literal>insert</literal> to inserts one row. This syntax is:
+			</para>
+			<synopsis>on <emphasis>event_type</emphasis>[<emphasis>(filter_criteria)</emphasis>] [as <emphasis>stream_name</emphasis>]
+merge [into] <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+insert [ (<emphasis>property_name</emphasis> [, property_name] [,...]) ] select <emphasis>select_expression</emphasis> [, <emphasis>select_expression</emphasis>[,...]]</synopsis>
+
+			<para>
+				The <emphasis>event_type</emphasis> is the name of the type of events that trigger the merge. It is optionally followed by <emphasis>filter_criteria</emphasis> which are filter expressions to apply to arriving events. The optional <literal>as</literal> keyword can be used to assign a name for use in the <literal>where</literal> clause. Patterns and named windows can also be specified in the <literal>on</literal> clause as described in prior sections.
+			</para>
+				
+			<para>
+				The <emphasis>window_or_table_name</emphasis> is the name of the named window to insert a row into. 
+				The <literal>as</literal> keyword is also available to assign a name to the named window or table.
+			</para>
+							
+			<para>
+				It follows the <literal>insert</literal> keyword and optionally the <literal>into</literal> keyword. Optionally you can provide a list of property names in parenthesis.
+			</para>
+
+			<para>
+				It follows the required <literal>select</literal> keyword and one or more select-clause expressions. The wildcard (<literal>*</literal>) is available in the select-clause as well. 
+			</para>
+			
+			<para>
+				On-merge can be used with tables and named windows. This examples uses the <literal>SecuritySummaryTable</literal> table that was defined earlier.
+			</para>
+			
+			<para>
+				This example statement inserts a row into the <literal>SecuritySummaryTable</literal> table when a <literal>SecuritySummary</literal> arrives:
+			</para>
+			<programlisting><![CDATA[on SecuritySummary merge SecuritySummaryTable insert select ipAddress, userId]]></programlisting>
+
+			<para>
+				The following EPL is equivalent to the query above and uses the upsert syntax instead, described next.
+			</para>
+			<programlisting><![CDATA[on SecuritySummary merge SecuritySummaryTable where 1=2 when not matched then insert select ipAddress, userId]]></programlisting>
+		</sect2>
+			
+		<sect2 xml:id="named_upsert_upsert" revision="1">
+			<title><literal>On-Merge</literal> Update, Delete, Select (Upsert)</title>
+
+			<para>
+				The syntax for <literal>on merge</literal> for update-insert (upsert) is as follows: 
+			</para>
+			<synopsis>on <emphasis>event_type</emphasis>[<emphasis>(filter_criteria)</emphasis>] [as <emphasis>stream_name</emphasis>]
 merge [into] <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
 [where <emphasis>criteria_expression</emphasis>]
   when [not] matched [and <emphasis>search_condition</emphasis>]
@@ -1655,90 +1700,89 @@ merge [into] <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name
           [where <emphasis>filter_expression</emphasis>]
     ]
     [then [insert|update|delete]] [,then ...]
-  [when ...  then ... [...]] 
-</synopsis>
+  [when ...  then ... [...]] </synopsis>
 				
-		<para>
-			The <emphasis>event_type</emphasis> is the name of the type of events that trigger the merge. It is optionally followed by <emphasis>filter_criteria</emphasis> which are filter expressions to apply to arriving events. The optional <literal>as</literal> keyword can be used to assign a name for use in the <literal>where</literal> clause. Patterns and named windows can also be specified in the <literal>on</literal> clause as described in prior sections.
-		</para>
-			
-		<para>
-			The <emphasis>window_or_table_name</emphasis> is the name of the named window or table to insert, update or delete rows. 
-			The <literal>as</literal> keyword is also available to assign a name to the named window or table.
-		</para>
-			
-		<para>
-			The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that correlates the arriving (triggering) event to the rows to be considered of the table or named window.
-			We recommend specifying a criteria expression that is as specific as possible.
-		</para>
-		
-		<para>
-			Following the <literal>where</literal> clause is one or more <literal>when matched</literal> or <literal>when not matched</literal> clauses in any order. Each may have an additional search condition associated.
-		</para>
-
-		<para>
-			After each <literal>when [not] matched</literal> follow one or more <literal>then</literal> clauses that each contains the action to take: Either an <literal>insert</literal>, <literal>update</literal> or <literal>delete</literal> keyword. 
-		</para>
-
-		<para>
-			After <literal>when not matched</literal> only <literal>insert</literal> action(s) are available. After <literal>when matched</literal> any <literal>insert</literal>, <literal>update</literal> and <literal>delete</literal> action(s) are available.
-		</para>
-
-		<para>
-			After <literal>insert</literal> follows, optionally, the <literal>into</literal> keyword followed by the stream name or named window to insert-into. If no <literal>into</literal> and stream name is specified, the insert applies to the current table or named window. It follows an optional list of columns inserted. It follows the required <literal>select</literal> keyword and one or more select-clause expressions. The wildcard (<literal>*</literal>) is available in the select-clause as well. It follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 
-		</para>
-
-		<para>
-			 After <literal>update</literal> follows the <literal>set</literal> keyword and one or more mutation expressions. For mutation expressions please see <xref linkend="named_update"/>.
-			 It follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 			     
-		</para>
-
-		<para>
-			 After <literal>delete</literal> follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 
-		</para>
-
-		<para>
-		  When according to the where-clause <emphasis>criteria_expression</emphasis> the engine finds no rows in the named window or table that match the condition, the engine evaluates each <emphasis>when not matched</emphasis> clause. If the optional search condition returns true or no search condition was provided then the engine performs all of the actions listed after each <literal>then</literal>.
-		</para>
-		
-		<para>
-		  When according to the where-clause <emphasis>criteria_expression</emphasis> the engine finds one or more rows in the named window or table that match the condition, the engine evaluates each <emphasis>when matched</emphasis> clause. If the optional search condition returns true or no search condition was provided the engine performs all of the actions listed after each <literal>then</literal>.
-		</para>
-
-		<para>
-			The engine executes <literal>when matched</literal> and <literal>when not matched</literal> in the order specified. If the optional search condition returns true or no search condition was specified then the engine takes the associated action (or multiple actions for multiple <literal>then</literal> keywords). When the block of actions completed the engine proceeds to the next matching row, if any. After completing all matching rows the engine continues to the next triggering event if any.
-		</para>
+			<para>
+				The <emphasis>event_type</emphasis> is the name of the type of events that trigger the merge. It is optionally followed by <emphasis>filter_criteria</emphasis> which are filter expressions to apply to arriving events. The optional <literal>as</literal> keyword can be used to assign a name for use in the <literal>where</literal> clause. Patterns and named windows can also be specified in the <literal>on</literal> clause as described in prior sections.
+			</para>
 				
-		<para>
-			On-merge can be used with tables and named windows. The examples herein declare a <literal>ProductWindow</literal> named window and also use the <literal>SecuritySummaryTable</literal> table to provide examples for each.
-		</para>
-		
-		<para>
-			This example statement updates the <literal>SecuritySummaryTable</literal> table when a <literal>ResetEvent</literal> arrives setting the <literal>active</literal> column's value to false:
-		</para>
-		<programlisting><![CDATA[on ResetEvent merge SecuritySummaryTable
+			<para>
+				The <emphasis>window_or_table_name</emphasis> is the name of the named window or table to insert, update or delete rows. 
+				The <literal>as</literal> keyword is also available to assign a name to the named window or table.
+			</para>
+				
+			<para>
+				The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that correlates the arriving (triggering) event to the rows to be considered of the table or named window.
+				We recommend specifying a criteria expression that is as specific as possible.
+			</para>
+			
+			<para>
+				Following the <literal>where</literal> clause is one or more <literal>when matched</literal> or <literal>when not matched</literal> clauses in any order. Each may have an additional search condition associated.
+			</para>
+	
+			<para>
+				After each <literal>when [not] matched</literal> follow one or more <literal>then</literal> clauses that each contains the action to take: Either an <literal>insert</literal>, <literal>update</literal> or <literal>delete</literal> keyword. 
+			</para>
+	
+			<para>
+				After <literal>when not matched</literal> only <literal>insert</literal> action(s) are available. After <literal>when matched</literal> any <literal>insert</literal>, <literal>update</literal> and <literal>delete</literal> action(s) are available.
+			</para>
+	
+			<para>
+				After <literal>insert</literal> follows, optionally, the <literal>into</literal> keyword followed by the stream name or named window to insert-into. If no <literal>into</literal> and stream name is specified, the insert applies to the current table or named window. It follows an optional list of columns inserted. It follows the required <literal>select</literal> keyword and one or more select-clause expressions. The wildcard (<literal>*</literal>) is available in the select-clause as well. It follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 
+			</para>
+	
+			<para>
+				 After <literal>update</literal> follows the <literal>set</literal> keyword and one or more mutation expressions. For mutation expressions please see <xref linkend="named_update"/>.
+				 It follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 			     
+			</para>
+	
+			<para>
+				 After <literal>delete</literal> follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 
+			</para>
+	
+			<para>
+			  When according to the where-clause <emphasis>criteria_expression</emphasis> the engine finds no rows in the named window or table that match the condition, the engine evaluates each <emphasis>when not matched</emphasis> clause. If the optional search condition returns true or no search condition was provided then the engine performs all of the actions listed after each <literal>then</literal>.
+			</para>
+			
+			<para>
+			  When according to the where-clause <emphasis>criteria_expression</emphasis> the engine finds one or more rows in the named window or table that match the condition, the engine evaluates each <emphasis>when matched</emphasis> clause. If the optional search condition returns true or no search condition was provided the engine performs all of the actions listed after each <literal>then</literal>.
+			</para>
+	
+			<para>
+				The engine executes <literal>when matched</literal> and <literal>when not matched</literal> in the order specified. If the optional search condition returns true or no search condition was specified then the engine takes the associated action (or multiple actions for multiple <literal>then</literal> keywords). When the block of actions completed the engine proceeds to the next matching row, if any. After completing all matching rows the engine continues to the next triggering event if any.
+			</para>
+
+			<para>
+				On-merge can be used with tables and named windows. The examples herein declare a <literal>ProductWindow</literal> named window and also use the <literal>SecuritySummaryTable</literal> table to provide examples for each.
+			</para>
+			
+			<para>
+				This example statement updates the <literal>SecuritySummaryTable</literal> table when a <literal>ResetEvent</literal> arrives setting the <literal>active</literal> column's value to false:
+			</para>
+			<programlisting><![CDATA[on ResetEvent merge SecuritySummaryTable
 when matched and active = true then update set active = false]]></programlisting>
 
-		<para>
-			A longer example utilizing a named window follows. You start by declaring a schema that provides a product id and that holds a total price:
-		</para>
-		<programlisting><![CDATA[create schema ProductTotalRec as (productId string, totalPrice double)]]></programlisting>
-
-		<para>
-			We create a named window that holds a row for each unique product:
-		</para>
-		<programlisting><![CDATA[create window ProductWindow#unique(productId) as ProductTotalRec]]></programlisting>
-
-		<para>
-			The events for this example are order events that hold an order id, product id, price, quantity and deleted-flag declared by the next schema:
-		</para>
-		<programlisting><![CDATA[create schema OrderEvent as (orderId string, productId string, price double, 
+			<para>
+				A longer example utilizing a named window follows. You start by declaring a schema that provides a product id and that holds a total price:
+			</para>
+			<programlisting><![CDATA[create schema ProductTotalRec as (productId string, totalPrice double)]]></programlisting>
+	
+			<para>
+				We create a named window that holds a row for each unique product:
+			</para>
+			<programlisting><![CDATA[create window ProductWindow#unique(productId) as ProductTotalRec]]></programlisting>
+	
+			<para>
+				The events for this example are order events that hold an order id, product id, price, quantity and deleted-flag declared by the next schema:
+			</para>
+			<programlisting><![CDATA[create schema OrderEvent as (orderId string, productId string, price double, 
     quantity int, deletedFlag boolean)]]></programlisting>
 
-		<para>				
-			The following EPL statement utilizes <literal>on-merge</literal> to total up the price for each product based on arriving order events:
-		</para>
-		<programlisting><![CDATA[on OrderEvent oe
+			<para>				
+				The following EPL statement utilizes <literal>on-merge</literal> to total up the price for each product based on arriving order events:
+			</para>
+			<programlisting><![CDATA[on OrderEvent oe
   merge ProductWindow pw
   where pw.productId = oe.productId
   when matched
@@ -1746,24 +1790,24 @@ when matched and active = true then update set active = false]]></programlisting
   when not matched 
     then insert select productId, price as totalPrice]]></programlisting>
     
-		<para>
-			In the above example, when an order event arrives, the engine looks up in the product named window the matching row or rows for the same product id as the arriving event. In this example the engine always finds no row or one row as the product named window is declared with a unique data window based on product id. 
-			If the engine finds a row in the named window, it performs the update action adding up the price as defined under <literal>when matched</literal>. If the engine does not find a row in the named window it performs the insert action as defined under <literal>when not matched</literal>, inserting a new row.
-		</para>
-
-		<para>
-			The <literal>insert</literal> keyword may be followed by a list of columns as shown in this EPL snippet:
-		</para>
-		<programlisting><![CDATA[// equivalent to the insert shown in the last 2 lines in above EPL
+			<para>
+				In the above example, when an order event arrives, the engine looks up in the product named window the matching row or rows for the same product id as the arriving event. In this example the engine always finds no row or one row as the product named window is declared with a unique data window based on product id. 
+				If the engine finds a row in the named window, it performs the update action adding up the price as defined under <literal>when matched</literal>. If the engine does not find a row in the named window it performs the insert action as defined under <literal>when not matched</literal>, inserting a new row.
+			</para>
+	
+			<para>
+				The <literal>insert</literal> keyword may be followed by a list of columns as shown in this EPL snippet:
+			</para>
+			<programlisting><![CDATA[// equivalent to the insert shown in the last 2 lines in above EPL
 ...when not matched 
     then insert(productId, totalPrice) select productId, price]]></programlisting>
-
-		<para>
-			The second example demonstrates the use of a select-clause with wildcard, a search condition and the <literal>delete</literal> keyword. It creates a named window that holds order events and employs on-merge to insert order events for which no corresponding order id was found, update quantity to the quantity provided by the last arriving event and delete order events that are marked as deleted:
-		</para>
-		
-		<programlisting><![CDATA[create window OrderWindow#keepall as OrderEvent]]></programlisting>
-		<programlisting><![CDATA[on OrderEvent oe
+	
+			<para>
+				The second example demonstrates the use of a select-clause with wildcard, a search condition and the <literal>delete</literal> keyword. It creates a named window that holds order events and employs on-merge to insert order events for which no corresponding order id was found, update quantity to the quantity provided by the last arriving event and delete order events that are marked as deleted:
+			</para>
+			
+			<programlisting><![CDATA[create window OrderWindow#keepall as OrderEvent]]></programlisting>
+			<programlisting><![CDATA[on OrderEvent oe
   merge OrderWindow pw
   where pw.orderId = oe.orderId
   when not matched 
@@ -1773,35 +1817,35 @@ when matched and active = true then update set active = false]]></programlisting
   when matched
     then update set pw.quantity = oe.quantity, pw.price = oe.price]]></programlisting>
 
-		<para>
-			In the above example the <literal>oe.deletedFlag=true</literal> search condition instructs the engine to take the delete action only if the deleted-flag is set.
-		</para>
-
-		<para>
-			You may specify multiple actions by providing multiple <literal>then</literal> keywords each followed by an action. Each of the <literal>insert</literal>, <literal>update</literal> and <literal>delete</literal> actions can itself have a where-clause as well.
-			If a where-clause exists for an action, the engine evaluates the where-clause and applies the action only if the where-clause returns Boolean true.
-		</para>
-		
-		<para>
-			This example specifies two update actions and uses the where-clause to trigger different update behavior depending on whether the order event price is less than zero.
-			This example assumes that the host application defined a <literal>clearorder</literal> user-defined function, to demonstrate calling a user-defined function as part of the update mutation expressions: 
-		</para>
-		<programlisting><![CDATA[on OrderEvent oe
+			<para>
+				In the above example the <literal>oe.deletedFlag=true</literal> search condition instructs the engine to take the delete action only if the deleted-flag is set.
+			</para>
+	
+			<para>
+				You may specify multiple actions by providing multiple <literal>then</literal> keywords each followed by an action. Each of the <literal>insert</literal>, <literal>update</literal> and <literal>delete</literal> actions can itself have a where-clause as well.
+				If a where-clause exists for an action, the engine evaluates the where-clause and applies the action only if the where-clause returns Boolean true.
+			</para>
+			
+			<para>
+				This example specifies two update actions and uses the where-clause to trigger different update behavior depending on whether the order event price is less than zero.
+				This example assumes that the host application defined a <literal>clearorder</literal> user-defined function, to demonstrate calling a user-defined function as part of the update mutation expressions: 
+			</para>
+			<programlisting><![CDATA[on OrderEvent oe
   merge OrderWindow pw
   where pw.orderId = oe.orderId
   when matched
     then update set clearorder(pw) where oe.price < 0
     then update set pw.quantity = oe.quantity, pw.price = oe.price where oe.price >= 0]]></programlisting>
 
-		<para>
-			To insert events into another stream and not the named window, use <literal>insert</literal> <literal>into</literal> <emphasis>streamname</emphasis>.
-		</para>
-		
-		<para>
-			In the next example each matched-clause contains two actions, one action to insert a log event and a second action to insert, delete or update:
-		</para>
-		
-		<programlisting><![CDATA[on OrderEvent oe
+			<para>
+				To insert events into another stream and not the named window, use <literal>insert</literal> <literal>into</literal> <emphasis>streamname</emphasis>.
+			</para>
+			
+			<para>
+				In the next example each matched-clause contains two actions, one action to insert a log event and a second action to insert, delete or update:
+			</para>
+			
+			<programlisting><![CDATA[on OrderEvent oe
   merge OrderWindow pw
   where pw.orderId = oe.orderId
   when not matched 
@@ -1814,25 +1858,26 @@ when matched and active = true then update set active = false]]></programlisting
     then insert into LogEvent select 'this is a update' as name
     then update set pw.quantity = oe.quantity, pw.price = oe.price]]></programlisting>
     
-		<para>
-			While the engine evaluates and executes all actions listed under the same matched-clause in order, you may not rely on updated field values of an earlier action to trigger the where-clause of a later action. Similarly you should avoid simultaneous update and delete actions for the same match: the engine does not guarantee whether the update or the delete take final affect.
-		</para>
-
-		<para>
-			Your application can subscribe a listener to <literal>on merge</literal> statements to determine inserted, updated and removed events. Statements post any events that are inserted to, updated or deleted from a named window to all listeners attached to the statement as new data and removed data. 
-		</para>
-		
-		<para>
-		  The following limitations apply to on-merge statements:
-		</para>	
-		<orderedlist spacing="compact">
-			<listitem>
-				<para>
-					Aggregation functions and the <literal>prev</literal> and <literal>prior</literal> operators are not available in conditions and the <literal>select</literal>-clause.
-				</para>
-			</listitem>
-		</orderedlist>
-
+			<para>
+				While the engine evaluates and executes all actions listed under the same matched-clause in order, you may not rely on updated field values of an earlier action to trigger the where-clause of a later action. Similarly you should avoid simultaneous update and delete actions for the same match: the engine does not guarantee whether the update or the delete take final affect.
+			</para>
+	
+			<para>
+				Your application can subscribe a listener to <literal>on merge</literal> statements to determine inserted, updated and removed events. Statements post any events that are inserted to, updated or deleted from a named window to all listeners attached to the statement as new data and removed data. 
+			</para>
+			
+			<para>
+			  The following limitations apply to on-merge statements:
+			</para>	
+			<orderedlist spacing="compact">
+				<listitem>
+					<para>
+						Aggregation functions and the <literal>prev</literal> and <literal>prior</literal> operators are not available in conditions and the <literal>select</literal>-clause.
+					</para>
+				</listitem>
+			</orderedlist>
+		</sect2>
+				
 		<sect2 xml:id="named_merge_namedwin" revision="1">
 			<title>Notes on On-Merge With Named Windows</title>
 
