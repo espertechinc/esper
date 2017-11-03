@@ -269,11 +269,10 @@
     </sect1>
     
     <sect1 xml:id="appendix_dotnet_processingmodel_intro" revision="1">
-		<title>.NET Processing Model Introduction</title>
-		
+		<title>.NET Basic Concepts</title>
+
 		<para>
-			<literal>UpdateListener</literal> is replaced by <literal>UpdateEventHandler</literal> in .NET. Subscriber objects must implement the <literal>Update</literal> method 
-			or subscriber objects must be a delegate with an appropriate number of arguments.
+			There are no differences between Esper and NEsper in respect to basic concepts.
 		</para>
     </sect1>
     
@@ -298,6 +297,10 @@
 		
 		<para>
 			NEsper exposes the Events <literal>events</literal> on <literal>EPStatement</literal> objects.
+		</para>
+		<para>
+			<literal>UpdateListener</literal> is replaced by <literal>UpdateEventHandler</literal> in .NET. Subscriber objects must implement the <literal>Update</literal> method 
+			or subscriber objects must be a delegate with an appropriate number of arguments.
 		</para>
 		<para>
 			The <literal>setSubscriber</literal> method is replaced with the <literal>Subscriber</literal> property. This property can take an object or a delegate.

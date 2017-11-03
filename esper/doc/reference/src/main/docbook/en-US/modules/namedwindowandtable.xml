@@ -190,7 +190,7 @@ select * from AppoximateCountPerWord]]></programlisting>
 			<title>Creating Named Windows: the <literal>Create Window</literal> clause</title>
 			
 			<para>
-				The <literal>create window</literal> statement creates a named window by specifying a window name and one or more data window views, as well as the type of event to hold in the named window.
+				The <literal>create window</literal> statement creates a named window by specifying a window name and one or more data windows, as well as the type of event to hold in the named window.
 			</para>
 		
 			<para>
@@ -220,7 +220,7 @@ select * from AppoximateCountPerWord]]></programlisting>
 					The syntax for creating a named window by modeling the named window after an existing event type, is as follows: 
 				</para>
 				<synopsis>[context <emphasis>context_name</emphasis>] 
-		create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</emphasis> 
+		create window <emphasis>window_name</emphasis>.<emphasis>window_spec</emphasis> 
 		[as] [select <emphasis>list_of_properties</emphasis> from] <emphasis>event_type_or_windowname</emphasis>
 		[insert [where <emphasis>filter_expression</emphasis>]]</synopsis>
 							
@@ -229,7 +229,7 @@ select * from AppoximateCountPerWord]]></programlisting>
 				</para>
 					
 				<para>
-					The <emphasis>view_specifications</emphasis> are one or more data window views that define the expiry policy for removing events from the data window. Named windows must explicitly declare a data window view. This is required to ensure that the policy for retaining events in the data window is well defined. To keep all events, use the keep-all view: It indicates that the named window should keep all events and only remove events from the named window that are deleted via the <literal>on delete</literal> clause. The view specification can only list data window views, derived-value views are not allowed since these don't represent an expiry policy. Data window views are listed in <xref linkend="epl-views"/>. View parameterization and staggering are described in <xref linkend="epl-from-clause-view-spec"/>.
+					The <emphasis>window_spec</emphasis> are one or more data windows that define the expiry policy for removing events from the named window. Named windows must explicitly declare a data window. This is required to ensure that the policy for retaining events in the data window is well defined. To keep all events, use the keep-all window: It indicates that the named window should keep all events and only remove events from the named window that are deleted by <literal>on delete</literal>, <literal>on merge</literal> or fire-and-forget <literal>delete</literal>. Data windows are listed in <xref linkend="epl-views"/>.
 				</para>
 					
 				<para>				
@@ -279,7 +279,7 @@ select * from AppoximateCountPerWord]]></programlisting>
 					The second syntax for creating a named window is by supplying column names and types: 
 				</para>
 				<synopsis>[context <emphasis>context_name</emphasis>] 
-create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</emphasis> [as] (<emphasis>column_name</emphasis> <emphasis>column_type</emphasis> 
+create window <emphasis>window_name</emphasis>.<emphasis>window_spec</emphasis> [as] (<emphasis>column_name</emphasis> <emphasis>column_type</emphasis> 
   [,<emphasis>column_name</emphasis> <emphasis>column_type</emphasis> [,...])</synopsis>
 
 				<para>				
@@ -443,7 +443,7 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
 			<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>selecting from</tertiary></indexterm>
 	
 			<para>
-				A named window can be referred to by any statement in the <literal>from</literal> clause of the statement. Filter criteria can also be specified. Additional views may be used onto named windows however such views cannot include data window views.
+				A named window can be referred to by any statement in the <literal>from</literal> clause of the statement. Filter criteria can also be specified. Data windows cannot be specified when selecting from a named window (the special derived-value windows are allowed however).
 			</para>
 			
 			<para>
@@ -482,7 +482,7 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
 			<programlisting><![CDATA[select symbol, avg(price) from OrdersNamedWindow(sector='energy') group by symbol]]></programlisting>
 			
 			<para>
-				By adding a filter to the named window, the aggregation and grouping as well as any views that may be declared onto to the named window receive a filtered insert and remove stream. The above statement thus outputs, continuously, the average price per symbol for all orders in the named window that belong to a certain sector.
+				By adding a filter to the named window, the aggregation and grouping receive a filtered insert and remove stream. The above statement thus outputs, continuously, the average price per symbol for all orders in the named window that belong to a certain sector.
 			</para>
 	
 			<para>
@@ -490,12 +490,12 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
 			</para>
 	
 			<para>
-				The following example further declares a view into the named window. Such a view can be a plug-in view or one of the built-in views, but cannot be a data window view (with the exception of the <literal>#groupwin</literal> grouped-window view which is allowed).
+				The following example further declares a custom derived-value window named <literal>myplugindatawindow</literal>.
 			</para>
-			<programlisting><![CDATA[select * from OrdersNamedWindow(volume>0, price>0).mycompany:mypluginview()]]></programlisting>
+			<programlisting><![CDATA[select * from OrdersNamedWindow(volume>0, price>0)#myplugindatawindow()]]></programlisting>
 			
 			<para>
-				Data window views cannot be used onto named windows since named windows post insert and remove streams for the events entering and leaving the named window, thus the expiry policy and batch behavior are well defined by the data window declared for the named window. For example, the following is not allowed and fails at time of statement creation:
+				Data windows cannot be used onto named windows since named windows post insert and remove streams for the events entering and leaving the named window, thus the expiry policy and batch behavior are well defined by the data window 	declared for the named window. For example, the following is not allowed and fails at time of statement creation:
 			</para>
 			<programlisting><![CDATA[// not a valid statement
 	select * from OrdersNamedWindow#time(30 sec)]]></programlisting>
@@ -1025,7 +1025,7 @@ select totalIntrusions from IntrusionEvent]]></programlisting>
 			<programlisting><![CDATA[select * from IntrusionCountTable]]></programlisting>
 			
 			<para>
-				For tables, the contained-event syntax and the declaration of views is not supported.
+				For tables, the contained-event syntax and specifying a data window is not supported.
 				In a join, a table in the <literal>from</literal>-clause cannot be marked as <literal>unidirectional</literal>. You may not specify any of the retain-flags.
 				Tables cannot be used in the <literal>from</literal>-clause of match-recognize statements, in context declarations, in pattern filter atoms and <literal>update istream</literal>.
 			</para>
@@ -1034,7 +1034,7 @@ select totalIntrusions from IntrusionEvent]]></programlisting>
 			    The following are examples of invalid statements:
 			</para>
 			<programlisting><![CDATA[// invalid statement examples
-select * from IntrusionCountTable#time(30 sec)   // views not allowed
+select * from IntrusionCountTable#time(30 sec)   // data window not allowed
 select * from IntrusionCountTable unidirectional, MyEvent   // tables cannot be marked as unidirectional]]></programlisting>
 
 			<para>
@@ -2260,7 +2260,7 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 		</para>
 
 		<para>				
-			The expiry policy as specified by view definitions applies to each distinct key value, or multiple distinct key values for composite keys. An expiry policy re-evaluates when new versions arrive. In the example, user profile events expire from the time window when no creation or update event for a given user id has been received for 1 hour.
+			The expiry policy as specified by data window definitions applies to each distinct key value, or multiple distinct key values for composite keys. An expiry policy re-evaluates when new versions arrive. In the example, user profile events expire from the time window when no creation or update event for a given user id has been received for 1 hour.
 		</para>
 
 		<tip>				
