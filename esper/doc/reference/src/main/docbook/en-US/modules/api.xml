@@ -1509,7 +1509,12 @@ In the default configuration, each engine instance maintains a single timer thre
         </para>
         
 		<para>
-Each engine instance performs minimal locking to enable high levels of concurrency. An engine instance locks on a context partition level to protect context partition resources. For stateless EPL select-statements the engine does not use a context-partition lock and operates lock-free for the context partition. For stateful statements, the maximum (theoretical) degree of parallelism is 2^31-1 (2,147,483,647) parallel threads working to process a single EPL statement under a hash segmented context.
+Each engine instance performs minimal locking to enable high levels of concurrency. An engine instance locks on the combination of query and context partition to protect context partition resources. For example, two queries with three partitions each have a total of six locks. For stateless EPL select-statements the engine does not use a context-partition lock and operates lock-free for the context partition. For stateful statements, the maximum (theoretical) degree of parallelism is 2^31-1 (2,147,483,647) parallel threads working to process a single EPL statement under a hash segmented context.
+        </para>
+
+		<para>
+			For named windows and tables, <literal>on-select</literal>, <literal>on-merge</literal>, <literal>on-update</literal> and <literal>on-delete</literal> all execute under the same lock as the partition of the named window or table.
+			Any <literal>insert into</literal> produces a new event for the work queue and does not lock the target of the insert-into.
         </para>
 
 		<para>
