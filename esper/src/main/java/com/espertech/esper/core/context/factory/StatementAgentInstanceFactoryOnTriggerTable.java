@@ -37,7 +37,6 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.onaction.TableOnView;
-import com.espertech.esper.epl.table.onaction.TableOnViewBase;
 import com.espertech.esper.epl.table.onaction.TableOnViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.util.StopCallback;

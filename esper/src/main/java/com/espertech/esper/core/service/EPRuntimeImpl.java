@@ -1086,7 +1086,9 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                     handled = handle.getFilterFaultHandler().handleFilterFault(theEvent, version);
                 }
                 if (!handled) {
-                    handleFilterFault(handle, theEvent);
+                    if (handle.getStatementFilterVersion().getStmtFilterVersion() != Long.MAX_VALUE) {
+                        handleFilterFault(handle, theEvent);
+                    }
                 }
             } else {
                 if (callbackList instanceof Collection) {
@@ -1136,7 +1138,9 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                     handled = handle.getFilterFaultHandler().handleFilterFault(theEvent, version);
                 }
                 if (!handled) {
-                    handleFilterFault(handle, theEvent);
+                    if (handle.getStatementFilterVersion().getStmtFilterVersion() != Long.MAX_VALUE) {
+                        handleFilterFault(handle, theEvent);
+                    }
                 }
             } else {
                 handleCallback.getFilterCallback().matchFound(theEvent, null);

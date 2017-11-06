@@ -18,7 +18,6 @@ import com.espertech.esper.codegen.core.CodegenTypedParam;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.util.Comparator;
 import java.util.List;

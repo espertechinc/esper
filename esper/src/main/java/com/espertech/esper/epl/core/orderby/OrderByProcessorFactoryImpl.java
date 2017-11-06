@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 import java.util.Comparator;
 

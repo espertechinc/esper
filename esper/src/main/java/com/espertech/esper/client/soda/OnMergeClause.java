@@ -77,8 +77,7 @@ public class OnMergeClause extends OnClause {
         if (insertNoMatch != null) {
             writer.append(" ");
             insertNoMatch.toEPL(writer);
-        }
-        else {
+        } else {
             if (optionalWhereClause != null) {
                 formatter.beginMergeWhere(writer);
                 writer.write("where ");

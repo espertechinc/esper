@@ -965,7 +965,7 @@ public class StatementSpecMapper {
                 ExprNode optionalCondition = matchItem.getOptionalCondition() == null ? null : mapExpressionDeep(matchItem.getOptionalCondition(), mapContext);
                 matcheds.add(new OnTriggerMergeMatched(matchItem.isMatched(), optionalCondition, actions));
             }
-            OnTriggerMergeActionInsert optionalInsertNoMatch = merge.getInsertNoMatch() == null ? null : mapOnTriggerMergeActionInsert(merge.getInsertNoMatch(), mapContext);;
+            OnTriggerMergeActionInsert optionalInsertNoMatch = merge.getInsertNoMatch() == null ? null : mapOnTriggerMergeActionInsert(merge.getInsertNoMatch(), mapContext);
             OnTriggerMergeDesc mergeDesc = new OnTriggerMergeDesc(merge.getWindowName(), merge.getOptionalAsName(), optionalInsertNoMatch, matcheds);
             raw.setOnTriggerDesc(mergeDesc);
         } else {
