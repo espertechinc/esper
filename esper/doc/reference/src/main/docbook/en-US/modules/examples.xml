@@ -386,7 +386,7 @@ double askPrice;
 		</sect2>
 			
         <sect2 xml:id="examples-marketdata-computing">
-        	<title>Computing Rates Per Feed</title>
+        	<title>Computing Rates per Feed</title>
 
 			<para>
 				For throughput statistics and to detect rapid fall-off, the example calculates a ticks per second rate for each market data feed. 
@@ -405,7 +405,7 @@ select feed, count(*) as cnt
 		</sect2>
 
         <sect2 xml:id="examples-marketdata-falloff">
-        	<title>Detecting a Fall-off</title>
+        	<title>Detecting a Fall-Off</title>
 
 			<para>
 				We define a rapid fall-off by alerting when the number of ticks per second for any second falls below 75% of the 
@@ -444,7 +444,7 @@ having cnt < avg(cnt) * 0.75]]></programlisting>
     </sect1>
 
     <sect1 xml:id="examples-ohlcpluginview">
-        <title>OHLC Plug-in Data Window</title>
+        <title>OHLC Plug-In Data Window</title>
         <para>
 			This example contains a fully-functional custom data window based on the extension API that computes OHLC open-high-low-close bars for events that provide a long-typed timestamp and a double-typed value.
         </para>
@@ -527,7 +527,7 @@ having cnt < avg(cnt) * 0.75]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="examples-txn3event-2" >
-			<title>Combined event</title>
+			<title>Combined Event</title>
 
 			<para>
 					We need to take in events A, B and C and produce a single, combined event with the following fields:
@@ -567,7 +567,7 @@ What we‘re doing here is matching the transaction IDs on each event, to form a
 		</sect2>
 		
         <sect2 xml:id="examples-txn3event-3">
-			<title>Real time summary data</title>
+			<title>Real-Time Summary Data</title>
 
 			<para>
 Further, the example produces the following:
@@ -593,7 +593,7 @@ Further, the example produces the following:
 		</sect2>
 		
         <sect2 xml:id="examples-txn3event-4">
-			<title>Find problems</title>
+			<title>Find Problems</title>
 
 			<para>
 The example detects a transaction that did not make it through all three events. In other words, a transaction with events A or B, but not C. Note that, in this case, what you care about is event C. The lack of events A or B could indicate a failure in the event transport and should be ignored. Although the lack of an event C could also be a transport failure, it merits looking into.
@@ -601,7 +601,7 @@ The example detects a transaction that did not make it through all three events.
 		</sect2>
 		
         <sect2 xml:id="examples-txn3event-5">
-			<title>Event generator</title>
+			<title>Event Generator</title>
 		
 			<para>
 To make testing easier, standard and to demonstrate how the example works, the example is including an event generator. The generator generates events for a given number of transactions, using the following rules:
@@ -713,7 +713,7 @@ To make testing easier, standard and to demonstrate how the example works, the e
 		</sect2>
 
         <sect2 xml:id="examples-terminalsvc-pattern1">
-			<title>Detecting Customer Check-in Issues</title>
+			<title>Detecting Customer Check-In Issues</title>
 
 			<para>
 				A customer may be in the middle of a check-in when the terminal detects a hardware problem or when the network goes down. In that situation the example alerts a team member to help the customer. When the terminal detects a problem, it issues an OutOfOrder event. A pattern can find situations where the terminal indicates out-of-order and the customer is in the middle of the check-in process:

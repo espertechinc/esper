@@ -696,7 +696,7 @@ epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(ent
 	</sect1>
 
     <sect1 xml:id="custom-views" revision="1">
-        <title>Derived-value and Data Window View</title>
+        <title>Derived-Value and Data Window View</title>
         
 		<indexterm><primary>plug-in</primary><secondary>custom view</secondary></indexterm>
 		<indexterm><primary>data window</primary><secondary>custom plug-in view</secondary></indexterm>
@@ -2241,7 +2241,7 @@ engine.getEPAdministrator().getConfiguration().addPlugInAggregationMultiFunction
 	</sect1>
 
     <sect1 xml:id="custom-event-representation" revision="1">
-        <title>Event Type And Event Object</title>
+        <title>Event Type and Event Object</title>
         
 		<indexterm><primary>plug-in</primary><secondary>custom event object</secondary></indexterm>
 		<indexterm><primary>event object</primary><secondary>custom</secondary></indexterm>
@@ -2365,7 +2365,7 @@ engine.getEPAdministrator().getConfiguration().addPlugInAggregationMultiFunction
 		</sect2>				
 
 		<sect2 xml:id="custom-eventrep-uriresolution" revision="1">
-			<title>URI-based Resolution</title>
+			<title>URI-Based Resolution</title>
 			
 			<para>
 				Assume you have registered event representations using the following URIs:

@@ -1127,7 +1127,7 @@ from MarketDataEvent mdstream]]></programlisting>
     </sect1>
 
     <sect1 xml:id="epl-select-list">
-        <title>Choosing Event Properties And Events: the <emphasis>Select</emphasis> Clause</title>
+        <title>Choosing Event Properties and Events: The <emphasis>Select</emphasis> Clause</title>
         
 		<indexterm><primary>select clause</primary></indexterm>
 		<indexterm><primary>EPL</primary><secondary>select clause</secondary></indexterm>
@@ -1154,10 +1154,10 @@ from MarketDataEvent mdstream]]></programlisting>
 		</para>
 
         <sect2 xml:id="epl-select-all-props" >
-           <title>Choosing all event properties: select *</title>
+           <title>Choosing the Event Itself: Select *</title>
 
 			<para>
-				The syntax for selecting all event properties in a stream is:
+				The syntax for selecting the event itself is:
 			</para>
 			<synopsis>select * from <emphasis>stream_def</emphasis></synopsis>
 
@@ -1191,7 +1191,7 @@ from MarketDataEvent mdstream]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-select-event-props" >
-           <title>Choosing specific event properties</title>
+           <title>Choosing Specific Event Properties</title>
 			<para>
 				To choose the particular event properties to return:
 			</para>
@@ -1218,7 +1218,7 @@ from MarketDataEvent mdstream]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-select-renaming" >
-            <title>Renaming event properties</title>
+            <title>Renaming Event Properties</title>
 			<para>
 				Event properties and expressions can be renamed using below syntax.
 			</para>
@@ -1240,7 +1240,7 @@ from MarketDataEvent mdstream]]></programlisting>
 		</sect2>
 		
         <sect2 xml:id="epl-select-all-join">
-           <title>Choosing event properties and events in a join</title>
+           <title>Choosing Event Properties and Events in a Join</title>
            
 			<para>
 				If your statement is joining multiple streams, your may specify property names that are unique among the joined streams, or use wildcard (*) as explained earlier.
@@ -1302,7 +1302,7 @@ select tick.price, news.text, result from TickNewStream]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-select-pattern" >
-           <title>Choosing event properties and events from a pattern</title>
+           <title>Choosing Event Properties and Events From a Pattern</title>
            
 			<para>
 				If your statement employs pattern expressions, then your pattern expression tags events with a tag name. Each tag name becomes available for use as a property in the <literal>select</literal> clause and all other clauses.
@@ -1335,7 +1335,7 @@ select tick.symbol, tick.price, news.text from StockTickAndNews]]></programlisti
 		</sect2>
 
         <sect2 xml:id="epl-select-using-istream-rstream" >
-            <title>Selecting <literal>insert</literal> and <literal>remove</literal> stream events</title>
+            <title>Selecting <literal>Insert</literal> and <literal>Remove</literal> Stream Events</title>
 
 			<para>
 				The optional <literal>istream</literal>, <literal>irstream</literal> and <literal>rstream</literal> keywords in the <literal>select</literal> clause control the event streams posted to listeners and observers to a statement. 
@@ -1380,7 +1380,7 @@ select tick.symbol, tick.price, news.text from StockTickAndNews]]></programlisti
 		</sect2>
 
 		<sect2 xml:id="epl-syntax-prefix-propsandstream">
-			<title>Qualifying property names and stream names</title>
+			<title>Qualifying Property Names and Stream Names</title>
 			
 			<para>
 				Property or column names can optionally be qualified by a stream name and the provider URI. The syntax is:
@@ -1455,7 +1455,7 @@ select default.MyEvent.myProperty from MyEvent</programlisting>
 		</sect2>
 
 		<sect2 xml:id="epl-selecteventbean">
-			<title>Selecting EventBean instead of Underlying Event</title>
+			<title>Selecting EventBean Instead of Underlying Event</title>
 			
 			<para>
 				By default, for certain select-clause expressions that output events or a collection of events,
@@ -1510,7 +1510,7 @@ from MyEvent#length(2) as s0</programlisting>
     </sect1>
 
     <sect1 xml:id="epl-from-clause">
-        <title>Specifying Event Streams: the <emphasis>From</emphasis> Clause</title>
+        <title>Specifying Event Streams: The <emphasis>From</emphasis> Clause</title>
 
 		<indexterm><primary>join</primary><secondary>from clause</secondary></indexterm>
 		<indexterm><primary>from clause</primary></indexterm>
@@ -1543,7 +1543,7 @@ from MyEvent#length(2) as s0</programlisting>
 		</para>
 
         <sect2 xml:id="epl-from-clause-filter" >
-           <title>Filter-based Event Streams</title>
+           <title>Filter-Based Event Streams</title>
 
 			<para>
 				The <emphasis>stream_def</emphasis> syntax for a filter-based event stream is as below:
@@ -1776,7 +1776,7 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 		</sect2>
 		
         <sect2 xml:id="epl-from-clause-patterns" >
-           <title>Pattern-based Event Streams</title>
+           <title>Pattern-Based Event Streams</title>
 			<para>
 				Event pattern expressions can also be used to specify one or more event streams in an EPL statement.
 				For pattern-based event streams, the event stream definition <emphasis>stream_def</emphasis> consists of the keyword <literal>pattern</literal> and a pattern expression in brackets <literal>[]</literal>. The syntax for an event stream definition using a pattern expression is below. As in filter-based event streams you can specify data windows.
@@ -1996,7 +1996,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
     </sect1>
     
     <sect1 xml:id="epl-where-clause">
-        <title>Specifying Search Conditions: the <emphasis>Where</emphasis> Clause</title>
+        <title>Specifying Search Conditions: The <emphasis>Where</emphasis> Clause</title>
 
 		<indexterm><primary>where clause</primary></indexterm>
 		<indexterm><primary>EPL</primary><secondary>where clause</secondary></indexterm>
@@ -2041,10 +2041,10 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
     </sect1>
 
     <sect1 xml:id="epl-grouping-aggregating">
-        <title>Aggregates and grouping: the <emphasis>Group-by</emphasis> Clause and the <emphasis>Having</emphasis> Clause</title>
+        <title>Aggregates and Grouping: The <emphasis>Group-By</emphasis> Clause and the <emphasis>Having</emphasis> Clause</title>
 
         <sect2 xml:id="epl-grouping-aggregate-functions" >
-				<title>Using aggregate functions</title>
+				<title>Using Aggregate Functions</title>
 			
 				<para>
 					The aggregate functions are further documented in <xref linkend="epl-function-aggregation"/>. 
@@ -2133,7 +2133,7 @@ where symbol='IBM'</programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-grouping-group-by" >
-				 <title>Organizing statement results into groups: the <emphasis>Group-by</emphasis> clause</title>
+				 <title>Organizing Statement Results into Groups: The <emphasis>Group-by</emphasis> Clause</title>
 
 				<indexterm><primary>group by clause</primary></indexterm>
 				<indexterm><primary>EPL</primary><secondary>group by clause</secondary></indexterm>
@@ -2532,7 +2532,7 @@ c
 		</sect2>
 
         <sect2 xml:id="epl-grouping-agglocal" >
-			 <title>Specifying grouping for each aggregation function</title>
+			 <title>Specifying Grouping for Each Aggregation Function</title>
 			 <para>
 				EPL allows each aggregation function to specify its own grouping criteria. This is useful for aggregating across multiple dimensions.
 			 </para>
@@ -2606,7 +2606,7 @@ from Orders#time(1 min) group by account</programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-grouping-aggfilter" >
-			 <title>Specifying a filter expression for each aggregation function</title>
+			 <title>Specifying a Filter Expression for Each Aggregation Function</title>
 			 <para>
 				EPL allows each aggregation function to specify its own filter expression. This is useful for conditionally aggregating.
 			 </para>
@@ -2645,7 +2645,7 @@ from Orders#time(1 min) group by account</programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-grouping-having" >
-			 <title>Selecting groups of events: the <emphasis>Having</emphasis> clause</title>
+			 <title>Selecting Groups of Events: The <emphasis>Having</emphasis> Clause</title>
 
 				<indexterm><primary>having clause</primary></indexterm>
 				<indexterm><primary>EPL</primary><secondary>having clause</secondary></indexterm>
@@ -2685,7 +2685,7 @@ having price &lt; avg(price)</programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-filter-where-grouping-having-interactions" >
-			 <title>How the stream filter, <emphasis>Where</emphasis>, <emphasis>Group By</emphasis> and <emphasis>Having</emphasis> clauses interact</title>
+			 <title>How the Stream Filter, <emphasis>Where</emphasis>, <emphasis>Group By</emphasis> and <emphasis>Having</emphasis>-Clauses Interact</title>
 				<para>
 					When you include filters, the <literal>where</literal> condition, the <literal>group by</literal> clause and the <literal>having</literal> condition in an EPL statement
 					the sequence in which each clause affects events determines the final result:
@@ -2832,7 +2832,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
     </sect1>
 
     <sect1 xml:id="epl-output-rate">
-        <title>Stabilizing and Controlling Output: the <emphasis>Output</emphasis> Clause</title>
+        <title>Stabilizing and Controlling Output: The <emphasis>Output</emphasis> Clause</title>
 
 		<indexterm><primary>output control and stabilizing clause</primary></indexterm>
 		<indexterm><primary>EPL</primary><secondary>output control and stabilizing</secondary></indexterm>
@@ -3016,7 +3016,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 						The following built-in properties are available for use:
 					</para>
 					<table frame="topbot" xml:id="epl-output-expression-builtin" revision="2">
-						<title>Built-In Properties for Use with Output When</title>
+						<title>Built-In Properties for Use With Output When</title>
 						<tgroup cols="2">
 							<colspec colwidth="1*"/>
 							<colspec colwidth="2.5*"/>
@@ -3140,7 +3140,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 		</sect2>
 
         <sect2 xml:id="epl-output-groupby" >
-				<title>Aggregation, Group By, Having and Output clause interaction</title>
+				<title>Aggregation, Group By, Having and Output Clause Interaction</title>
 			
 				<para>
 					Remove stream events can also be useful in conjunction with aggregation and the <literal>output</literal> clause: When the engine posts remove stream events for fully-aggregated queries, it presents the aggregation state before the expiring event leaves the data window. Your application can thus easily obtain a delta between the new aggregation value and the prior aggregation value.
@@ -3346,7 +3346,7 @@ limit 2, 8</programlisting>
 	</sect1>
 
     <sect1 xml:id="epl-insert-into">
-        <title>Merging Streams and Continuous Insertion: the <emphasis>Insert Into</emphasis> Clause</title>
+        <title>Merging Streams and Continuous Insertion: The <emphasis>Insert Into</emphasis> Clause</title>
 
 		<indexterm><primary>insert into clause</primary></indexterm>
 		<indexterm><primary>EPL</primary><secondary>insert into clause</secondary></indexterm>
@@ -3447,7 +3447,7 @@ select linkUp.ip as ip
 from pattern [every linkDown=LinkDownEvent -> linkUp=LinkUpEvent(ip=linkDown.ip)]</programlisting>
 
 		<sect2 xml:id="insert-into-property-transpose">
-			<title>Transposing a Property To a Stream</title>			
+			<title>Transposing a Property to a Stream</title>			
 			<para>
 				Sometimes your events may carry properties that are themselves event objects. Therefore EPL offers a special syntax to insert the value of a property itself as an event into a stream:
 			</para>
@@ -3472,7 +3472,7 @@ from pattern [every linkDown=LinkDownEvent -> linkUp=LinkUpEvent(ip=linkDown.ip)
 		</sect2>
 
 		<sect2 xml:id="insert-into-merging-columns">
-			<title>Merging Streams By Event Type</title>			
+			<title>Merging Streams by Event Type</title>			
 			<para>
 				The <literal>insert into</literal> clause allows to merge multiple event streams into a event single stream. 
 				The clause names an event stream to insert into by specifing an <emphasis>event_stream_name</emphasis>. The first statement that inserts into the named stream defines the stream's event types. Further statements that
@@ -3627,7 +3627,7 @@ from PurchaseOrder#lastevent as order, ServiceEvent#lastevent as service</progra
 		</sect2>
 
 		<sect2 xml:id="insert-into-reconcile">
-			<title>Select-Clause Expression And Inserted-Into Column Event Type</title>
+			<title>Select-Clause Expression and Inserted-Into Column Event Type</title>
 
 			<para>
 				When you declare the inserted-into event type in advance to the statement that inserts, the engine compares the inserted-into event type information to the return type of expressions in the select-clause.
@@ -3681,7 +3681,7 @@ from TriggerEvent</programlisting>
 		</sect2>
 
 		<sect2 xml:id="insert-into-typewithoutprops">
-			<title>Insert Into for Event Types without Properties</title>
+			<title>Insert Into for Event Types Without Properties</title>
 
 			<para>
 				When using insert-into and the type information for the inserted-into stream exists and the type has no properties, specify a <literal>select</literal>-clause that selects a single column of value <literal>null</literal> and that provides no column name.
@@ -3858,7 +3858,7 @@ select * from A(a_val in
 		</para>
 
 		<sect2 xml:id="epl-subqueries-exists">
-			<title>The '<literal>exists</literal>' Keyword</title>
+			<title>The '<literal>Exists</literal>' Keyword</title>
 
 			<para>
 				The <literal>exists</literal> condition is considered "to be met" if the subquery returns at least one row. The <literal>not exists</literal> condition is considered true if the subquery returns no rows.
@@ -3882,7 +3882,7 @@ select * from A(a_val in
 		</sect2>
 
 		<sect2 xml:id="epl-subqueries-in">
-			<title>The '<literal>in</literal>' and '<literal>not in</literal>' Keywords</title>
+			<title>The '<literal>In</literal>' and '<literal>Not In</literal>' Keywords</title>
 			
 			<para>
 				The <literal>in</literal> subquery condition is true if the value of an expression matches one or more of the values returned by the subquery. Consequently, the <literal>not in</literal> condition is true if the value of an expression matches none of the values returned by the subquery.
@@ -3914,7 +3914,7 @@ select * from A(a_val in
 		</sect2>
 
 		<sect2 xml:id="epl-subqueries-anysome">
-			<title>The '<literal>any</literal>' and '<literal>some</literal>' Keywords</title>
+			<title>The '<literal>Any</literal>' and '<literal>Some</literal>' Keywords</title>
 			
 			<para>
 				The <literal>any</literal> subquery condition is true if the expression returns true for one or more of the values returned by the subquery.
@@ -3960,7 +3960,7 @@ select * from A(a_val in
 		</sect2>
 
 		<sect2 xml:id="epl-subqueries-all">
-			<title>The '<literal>all</literal>' Keyword</title>
+			<title>The '<literal>All</literal>' Keyword</title>
 			
 			<para>
 				The <literal>all</literal> subquery condition is true if the expression returns true for all of the values returned by the subquery.
@@ -5813,7 +5813,7 @@ can be used to assign a stream name. Patterns and named windows can also be spec
 		</para>		
 
 		<sect2 xml:id="variable_create" revision="1">
-			<title>Creating Variables: the <literal>Create Variable</literal> clause</title>
+			<title>Creating Variables: The <literal>Create Variable</literal> Clause</title>
 
 			<para>
 				The <literal>create variable</literal> syntax creates a new variable by defining the variable type and name. In alternative to the syntax, variables can also be declared in the runtime and engine configuration options.
@@ -5925,7 +5925,7 @@ can be used to assign a stream name. Patterns and named windows can also be spec
 		</sect2>
 
 		<sect2 xml:id="variable_set" revision="1">
-			<title>Setting Variable Values: the <literal>On Set</literal> clause</title>
+			<title>Setting Variable Values: The <literal>On Set</literal> Clause</title>
 
 			<para>
 				The <literal>on set</literal> statement assigns a new value to one or more variables when a triggering event arrives or a triggering pattern occurs. Use the <literal>setVariableValue</literal> methods on <literal>EPRuntime</literal> to assign variable values programmatically.
@@ -6078,7 +6078,7 @@ on PageHitEvent(ip='0.0.0.0') pagehit set varPageHitZero.userId = pagehit.userId
 	</sect1>		
 
 	<sect1 xml:id="create-exprglobal" revision="1">
-		<title>Declaring Global Expressions, Aliases And Scripts: <emphasis>Create Expression</emphasis></title>
+		<title>Declaring Global Expressions, Aliases and Scripts: <emphasis>Create Expression</emphasis></title>
 		
 		<indexterm><primary>create expression</primary></indexterm>
 		<indexterm><primary>expression</primary><secondary>declaring</secondary></indexterm>
@@ -6797,7 +6797,7 @@ where my_ids.id = my_window.id]]></programlisting>
 		</sect2>		
 
 		<sect2 xml:id="epl-containedeventselect-beginend" revision="1">
-			<title>Generating Marker Events such as a Begin and End Event</title>
+			<title>Generating Marker Events Such as a Begin and End Event</title>
 
 			<para>
 				The syntax for splitting and duplicating streams can be used to generate marker events.
@@ -6826,7 +6826,7 @@ where my_ids.id = my_window.id]]></programlisting>
 	</sect1>
 	
 	<sect1 xml:id="epl-update">
-	   <title>Updating an Insert Stream: the Update IStream Clause</title>
+	   <title>Updating an Insert Stream: The <literal>Update IStream</literal> Clause</title>
 	   
 		<para>
 			The <literal>update istream</literal> statement allows declarative modification of event properties of events entering a stream. Update is a pre-processing step to each new event, modifying an event before the event applies to any statements.

@@ -1055,7 +1055,7 @@ from StockTick#time(10) group by symbol]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="enumeration-ds-prev">
-			<title><literal>prev</literal>, <literal>prevwindow</literal> and <literal>prevtail</literal> Single-Row Functions as Input</title>
+			<title><literal>Prev</literal>, <literal>Prevwindow</literal> and <literal>Prevtail</literal> Single-Row Functions as Input</title>
 			
 			<para>
 				The <literal>prev</literal>, <literal>prevwindow</literal> and <literal>prevtail</literal> single-row functions allow access into a stream's data window however are not aggregation functions and and as such not sensitive to the presence of <literal>group by</literal>. See <xref linkend="epl-single-row-function-ref-previouswindow"/>.

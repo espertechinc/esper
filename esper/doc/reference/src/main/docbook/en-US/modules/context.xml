@@ -1403,7 +1403,7 @@ select context.NineToFive.startTime, context.SegmentedByCustomer.key1 from BankT
 		</para>
 
 		<table frame="topbot">
-			<title>Partition in EPL without the use of Context Declaration</title>
+			<title>Partition in EPL Without the Use of Context Declarations</title>
 			<tgroup cols="3">
 				<colspec colwidth="0.30*"/>
 				<colspec colwidth="0.8*"/>

@@ -642,7 +642,7 @@ public class InnerType {
 		</sect2>
 
 		<sect2 xml:id="eventrep_comparing_advantages">
-			<title>Side-By-Side</title>
+			<title>Side-by-Side</title>
 			<para>
 				Each of the event representations of Java object, Map, Object-array, Avro and XML document has advantages and disadvantages that are summarized in the table below:
 			</para>

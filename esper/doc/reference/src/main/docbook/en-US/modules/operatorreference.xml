@@ -20,7 +20,7 @@
 			</para>
 	
 			<table frame="topbot" xml:id="epl-arith-operators" revision="2">
-				<title>Syntax and results of arithmetic operators</title>
+				<title>Syntax and Results of Arithmetic Operators</title>
 				<tgroup cols="2">
 					<colspec colwidth="2.0*"/>
 					<colspec colwidth="1.5*"/>
@@ -55,7 +55,7 @@
 		</sect1>		
 		
 		<sect1 xml:id="epl-operator-ref-logical">
-			<title>Logical And Comparison Operators</title>
+			<title>Logical and Comparison Operators</title>
 
 			<indexterm><primary>logical and comparison operators</primary></indexterm>
 			<indexterm><primary>operators</primary><secondary>logical and comparison</secondary></indexterm>
@@ -64,7 +64,7 @@
 			</para>
 	
 			<table frame="topbot" xml:id="epl-log-operators" revision="2">
-				<title>Syntax and results of logical and comparison operators</title>
+				<title>Syntax and Results of Logical and Comparison Operators</title>
 				<tgroup cols="2">
 					<colspec colwidth="2.0*"/>
 					<colspec colwidth="1.5*"/>
@@ -145,7 +145,7 @@
 			</para>
 	
 			<table frame="topbot" xml:id="epl-concat-operators" revision="2">
-				<title>Syntax and results of concatenation operators</title>
+				<title>Syntax and Results of Concatenation Operators</title>
 				<tgroup cols="2">
 					<colspec colwidth="2.0*"/>
 					<colspec colwidth="1.5*"/>
@@ -177,7 +177,7 @@
 			</para>
 	
 			<table frame="topbot" xml:id="epl-binary-operators" revision="2">
-				<title>Syntax and results of binary operators</title>
+				<title>Syntax and Results of Binary Operators</title>
 				<tgroup cols="2">
 					<colspec colwidth="2.0*"/>
 					<colspec colwidth="1.5*"/>
@@ -316,7 +316,7 @@
 		</sect1>		
 
 		<sect1 xml:id="epl-operator-ref-keyword-in">
-			<title>The '<literal>in</literal>' Keyword</title>
+			<title>The '<literal>In</literal>' Keyword</title>
 
 			<indexterm><primary><literal>in</literal> set operator</primary></indexterm>
 			<indexterm><primary>operators</primary><secondary><literal>in</literal></secondary></indexterm>
@@ -379,7 +379,7 @@
 			</para>
 
 			<sect2 xml:id="epl-operator-ref-keyword-in-range">
-				<title>'<literal>in</literal>' for Range Selection</title>
+				<title>'<literal>In</literal>' for Range Selection</title>
 				
 				<para>
 					The <literal>in</literal> keyword can be used to specify ranges, including open, half-closed, half-open and inverted ranges.
@@ -444,7 +444,7 @@
 		</sect1>		
 
 		<sect1 xml:id="epl-operator-ref-keyword-between">
-			<title>The '<literal>between</literal>' Keyword</title>
+			<title>The '<literal>Between</literal>' Keyword</title>
 
 			<indexterm><primary><literal>between</literal> operator</primary></indexterm>
 			<indexterm><primary>operators</primary><secondary><literal>between</literal></secondary></indexterm>
@@ -490,7 +490,7 @@
 		</sect1>		
 
 		<sect1 xml:id="epl-operator-ref-keyword-like">
-			<title>The '<literal>like</literal>' Keyword</title>
+			<title>The '<literal>Like</literal>' Keyword</title>
 
 			<indexterm><primary><literal>like</literal> operator</primary></indexterm>
 			<indexterm><primary>operators</primary><secondary><literal>like</literal></secondary></indexterm>
@@ -520,7 +520,7 @@
 		</sect1>		
 
 		<sect1 xml:id="epl-operator-ref-keyword-regexp">
-			<title>The '<literal>regexp</literal>' Keyword</title>
+			<title>The '<literal>Regexp</literal>' Keyword</title>
 
 			<indexterm><primary><literal>regexp</literal> operator</primary></indexterm>
 			<indexterm><primary>operators</primary><secondary><literal>regexp</literal></secondary></indexterm>
@@ -549,7 +549,7 @@
 		</sect1>		
 
 		<sect1 xml:id="epl-operator-anysome">
-			<title>The '<literal>any</literal>' and '<literal>some</literal>' Keywords</title>
+			<title>The '<literal>Any</literal>' and '<literal>Some</literal>' Keywords</title>
 			
 			<para>
 				The <literal>any</literal> operator is true if the expression returns true for one or more of the values returned by a list of expressions including array, <literal>Collection</literal> and <literal>Map</literal> values.
@@ -611,7 +611,7 @@
 		</sect1>
 
 		<sect1 xml:id="epl-operator-all">
-			<title>The '<literal>all</literal>' Keyword</title>
+			<title>The '<literal>All</literal>' Keyword</title>
 			
 			<para>
 				The <literal>all</literal> operator is true if the expression returns true for all of the values returned by a list of expressions including array, <literal>Collection</literal> and <literal>Map</literal> values.
@@ -670,7 +670,7 @@
 		</sect1>
 
 		<sect1 xml:id="epl-operator-new">
-			<title>The '<literal>new</literal>' Keyword</title>
+			<title>The '<literal>New</literal>' Keyword</title>
 			<indexterm><primary>new</primary></indexterm>
 			<indexterm><primary>operators</primary><secondary>new</secondary></indexterm>
 			
@@ -691,7 +691,7 @@
 			</orderedlist>
 			
 			<sect2 xml:id="epl-operator-new-datastructure">
-				<title>Using '<literal>new</literal>' To Populate A Data Structure</title>
+				<title>Using '<literal>New</literal>' to Populate a Data Structure</title>
 			
 				<para>
 					The <literal>new</literal> data structure operator populates a new data structure by evaluating column names and assignment expressions. This is useful when an expression should return multiple results, for performing a transformation or inside enumeration method lambda expressions. 
@@ -737,7 +737,7 @@ select calcPrice(po) as priceDetail from ProductOrder po]]></programlisting>
 		</sect2>
 		
 		<sect2 xml:id="epl-operator-new-instance">
-			<title>Using '<literal>new</literal>' To Instantiate An Object</title>
+			<title>Using '<literal>New</literal>' to Instantiate an Object</title>
 		
 			<para>
 				The <literal>new</literal> instantiation operator can instantiate an object of the given class. 

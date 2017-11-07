@@ -22,7 +22,7 @@
 		</para>
 				
 		<table frame="topbot">
-			<title>Interacting with Esper</title>
+			<title>Interacting With Esper</title>
 			<tgroup cols="2">
 				<colspec colwidth="0.2*"/>
 				<colspec colwidth="1*"/>
@@ -58,7 +58,7 @@
 		</para>
 
         <figure xml:id="processingmodel_into_querycontainerpic">
-			<title>Esper is a Query Container</title>
+			<title>Esper Is a Query Container</title>
 			<mediaobject>
 				<imageobject>
 					<imagedata fileref="images/refdoc_procmodel_querycontainer.png" scale="60" align="center"/>
@@ -632,7 +632,7 @@ select .... from Withdrawal where amount > 200]]></programlisting>
 		</para>
 
 		<sect2 xml:id="processingmodel_aggregation_batch_unagg" revision="1">
-			<title>Un-aggregated and Un-grouped</title>
+			<title>Un-Aggregated and Un-Grouped</title>
 
 			<para>
 				An example statement for the un-aggregated and un-grouped case is as follows:
@@ -648,7 +648,7 @@ select .... from Withdrawal where amount > 200]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="processingmodel_aggregation_batch_full_agg" revision="1">
-			<title>Fully Aggregated and Un-grouped</title>
+			<title>Fully Aggregated and Un-Grouped</title>
 
 			<para>
 				If your statement only selects aggregation values and does not group, your statement may look as the example below:

@@ -129,7 +129,7 @@ from NewEmployeeEvent(address('work').streetName = 'Park Ave')]]></programlistin
 			</para>
 	
 			<table frame="topbot">
-				<title>JavaBeans-style Getter Methods and Property Names</title>
+				<title>JavaBeans-Style Getter Methods and Property Names</title>
 				<tgroup cols="3">
 					<colspec colwidth="1*"/>
 					<colspec colwidth="1*"/>

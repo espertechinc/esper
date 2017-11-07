@@ -48,7 +48,7 @@ testing on small configuration.</programlisting>
         <title>Performance Tips</title>
 
 		<sect2 xml:id="perf-tips-1">
-			<title>Understand how to tune your Java virtual machine</title>
+			<title>Understand How to Tune Your Java Virtual Machine</title>
 	
 			<para>
 				Esper runs on a JVM and you need to be familiar with JVM tuning.
@@ -295,7 +295,7 @@ testing on small configuration.</programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-4">
-			<title>Select the underlying event rather than individual fields</title>
+			<title>Select the Underlying Event Rather Than Individual Fields</title>
 			
 			<para>
 				By selecting the underlying event in the select-clause you can reduce load on the engine, since the 
@@ -319,7 +319,7 @@ select assetId, zone, xlocation, ylocation from RFIDEvent ]]></programlisting>
 		</sect2>
 		
 		<sect2 xml:id="perf-tips-5">
-			<title>Prefer stream-level filtering over where-clause filtering</title>
+			<title>Prefer Stream-Level Filtering Over Where-Clause Filtering</title>
 
 			<para>
 				Esper stream-level filtering is very well optimized, while filtering via the where-clause post any data windows is not optimized. 				
@@ -331,7 +331,7 @@ select assetId, zone, xlocation, ylocation from RFIDEvent ]]></programlisting>
 			</para>
 			
 			<sect3 xml:id="perf-tips-5-nonnamedwindowexample">
-				<title>Examples without named windows</title>
+				<title>Examples Without Named Windows</title>
 			
 				<para>
 					Consider the example below, which performs stream-level filtering:
@@ -376,7 +376,7 @@ select * from Market where ticker = 'GOOG']]></programlisting>
 			</sect3>
 			
 			<sect3 xml:id="perf-tips-5-namedwindowexample">
-				<title>Examples using named windows</title>
+				<title>Examples Using Named Windows</title>
 			
 				<para>
 					The next two example EPL queries put the account number filter criteria directly into parenthesis following the named window name:
@@ -392,7 +392,7 @@ from WithdrawalNamedWindow(accountNumber = '123')]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="perf-tips-5-whereclausecomputations">
-				<title>Common computations in where-clauses</title>
+				<title>Common Computations in Where-Clauses</title>
 			
 				<para>
 					If you have a number of queries performing a given computation on incoming events, consider moving the computation from the where-clause to a 
@@ -411,7 +411,7 @@ select * from MarketData where (VST * RT) – (VST / RT) > 1]]></programlisting>
 		</sect2>
 	
 		<sect2 xml:id="perf-tips-6">
-			<title>Reduce the use of arithmetic in expressions</title>
+			<title>Reduce the Use of Arithmetic in Expressions</title>
 
 			<para>
 				Esper does not yet attempt to pre-evaluate arithmetic expressions that produce constant results.
@@ -505,7 +505,7 @@ every A -> B where timer:within(1 sec)]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-7">
-			<title>Consider using EventPropertyGetter for fast access to event properties</title>
+			<title>Consider Using EventPropertyGetter for Fast Access to Event Properties</title>
 
 			<para>
 				The EventPropertyGetter interface is useful for obtaining an event property value without property name table lookup 
@@ -555,7 +555,7 @@ MyGetterUpdateListener listener = new MyGetterUpdateListener(stmt.getEventType()
 		</sect2>
 			
 		<sect2 xml:id="perf-tips-8">
-			<title>Consider casting the underlying event</title>
+			<title>Consider Casting the Underlying Event</title>
 
 			<para>
 				When an application requires the value of most or all event properties, it can often be best to simply select the underlying event via wildcard
@@ -580,7 +580,7 @@ MyGetterUpdateListener listener = new MyGetterUpdateListener(stmt.getEventType()
 		</sect2>
 		
 		<sect2 xml:id="perf-tips-9">
-			<title>Turn off logging and audit</title>
+			<title>Turn Off Logging and Audit</title>
 
 			<para>
 	Since Esper 1.10, even if you don't have a log4j configuration file in place, Esper will make sure to minimize execution path logging overhead.
@@ -597,7 +597,7 @@ MyGetterUpdateListener listener = new MyGetterUpdateListener(stmt.getEventType()
 		</sect2>
 
 		<sect2 xml:id="perf-tips-11">
-			<title>Tune or disable delivery order guarantees</title>
+			<title>Tune or Disable Delivery Order Guarantees</title>
 
 			<para>
 				If your application is not a multithreaded application, or you application is not sensitive to the order of delivery of result events to your application listeners, then consider disabling the delivery order guarantees the engine makes towards ordered delivery of results to listeners:
@@ -715,7 +715,7 @@ group by venue, ccyPair, side]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-13a">
-			<title>Subqueries versus Joins And Where-clause And Data Windows</title>
+			<title>Subqueries Versus Joins and Where-Clause and Data Windows</title>
 
 			<para>
 				When joining streams the engine builds a product of the joined data windows based on the <literal>where</literal> clause. It analyzes the <literal>where</literal> clause at time of statement compilation and
@@ -919,8 +919,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-14">
-
-			<title>Performance, JVM, OS and hardware</title>
+			<title>Performance, JVM, OS and Hardware</title>
 
 			<para>
 				Performance will also depend on your JVM (Sun HotSpot, BEA JRockit, IBM J9), your operating system and your hardware.
@@ -946,7 +945,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-15">
-			<title>Consider using Hints</title>
+			<title>Consider Using Hints</title>
 
 			<para>
 				The @Hint annotation provides a single keyword or a comma-separated list of keywords that provide instructions to the engine towards statement execution
@@ -1080,7 +1079,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-21">
-			<title>Prefer Constant Variables over Non-Constant Variables</title>
+			<title>Prefer Constant Variables Over Non-Constant Variables</title>
 			<para>
 				The create-variable syntax as well as the APIs can identify a variable as a constant value. When a variable's value is not intended to change it is best to declare the variable as constant.
 			</para>
@@ -1111,7 +1110,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-22">
-			<title>Prefer Object-array Events</title>
+			<title>Prefer Object-Array Events</title>
 			<para>
 				Object-array events offer the best read access performance for access to event property values. In addition, object-array events use much less memory then Map-type events. They also offer the best write access performance. 
 			</para>
@@ -1228,7 +1227,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 				</para>
 
 			   <table frame="topbot">
-					<title>Built-in Properties of the Expression Analysis Hint</title>
+					<title>Built-In Properties of the Expression Analysis Hint</title>
 					<tgroup cols="3">
 						<colspec colwidth="1.0*"/>
 						<colspec colwidth="1.0*"/>
@@ -1295,7 +1294,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 				</para>
 
 			   <table frame="topbot">
-					<title>Built-in Properties of the Expression Analysis Hint</title>
+					<title>Built-In Properties of the Expression Analysis Hint</title>
 					<tgroup cols="6">
 						<colspec colwidth="2.0*"/>
 						<colspec colwidth="1.0*"/>
@@ -1470,7 +1469,7 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				</para>
 		</sect2>
 		<sect2 xml:id="perf-tips-27">
-				<title>Do not create the same or similar EPL Statement X times</title>
+				<title>Do Not Create the Same or Similar EPL Statement X Times</title>
 				
 				<para>
 					It is vastly more efficient to create an EPL statement once and attach multiple listeners, then to create the same EPL statement X times.
@@ -1715,10 +1714,10 @@ select * from pattern[A -> B(id = 10)];]]></programlisting>
     </sect1>
 
     <sect1 xml:id="performance-kit" revision="1">
-        <title>Using the performance kit</title>
+        <title>Using the Performance Kit</title>
 
         <sect2 xml:id="how-to-kit" revision="1">
-            <title>How to use the performance kit</title>
+            <title>How to Use the Performance Kit</title>
 
         <para>
             The benchmark application is basically an Esper event server build with Esper that listens to remote clients

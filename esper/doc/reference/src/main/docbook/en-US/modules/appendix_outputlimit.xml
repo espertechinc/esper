@@ -32,7 +32,7 @@
 		</para>
 
 		<sect1 xml:id="epl-output-unaggandungrouped">
-			<title>For Un-aggregated and Un-grouped Queries</title>
+			<title>For Un-Aggregated and Un-Grouped Queries</title>
 			
 			<sect2 xml:id="epl-output-unaggandungrouped-last">
 				<title><literal>Output Last</literal></title>
@@ -76,7 +76,7 @@
 		</sect1>
 		
 		<sect1 xml:id="epl-output-fullyaggandungrouped">
-			<title>For Fully Aggregated and Un-grouped Queries</title>					
+			<title>For Fully Aggregated and Un-Grouped Queries</title>					
 
 			<sect2 xml:id="epl-output-fullyaggandungrouped-last">
 				<title><literal>Output Last</literal></title>

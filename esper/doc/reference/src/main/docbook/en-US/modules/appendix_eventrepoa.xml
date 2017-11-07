@@ -4,7 +4,7 @@
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
 
-   <title>Event Representation: Object-array (<literal>Object[]</literal>) Events</title>
+   <title>Event Representation: Object-Array (<literal>Object[]</literal>) Events</title>
 	<indexterm><primary>object-array event representation</primary></indexterm>
 	<indexterm><primary>event</primary><secondary>Object-array representation</secondary></indexterm>
 

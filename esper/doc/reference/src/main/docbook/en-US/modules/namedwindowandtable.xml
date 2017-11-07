@@ -4,7 +4,7 @@
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
 
-    <title>EPL Reference: Named Windows And Tables</title>
+    <title>EPL Reference: Named Windows and Tables</title>
         
     <sect1 xml:id="nwtable-overview">
         <title>Overview</title>
@@ -93,7 +93,7 @@
 		</sect2>
 		
 		<sect2 xml:id="nwtable-overview-compare">
-			<title>Comparing Named Windows And Tables</title>
+			<title>Comparing Named Windows and Tables</title>
 			
 			<para>
 			  As a general rule-of-thumb, if you need to share a data window between statements, the named window is the right approach. 
@@ -187,7 +187,7 @@ select * from AppoximateCountPerWord]]></programlisting>
         <title>Named Window Usage</title>
 
 		<sect2 xml:id="named_create" revision="1">
-			<title>Creating Named Windows: the <literal>Create Window</literal> clause</title>
+			<title>Creating Named Windows: The <literal>Create Window</literal> clause</title>
 			
 			<para>
 				The <literal>create window</literal> statement creates a named window by specifying a window name and one or more data windows, as well as the type of event to hold in the named window.
@@ -210,7 +210,7 @@ select * from AppoximateCountPerWord]]></programlisting>
 			</para>
 		
 			<sect3 xml:id="named_create_modelafter" revision="1">
-				<title>Creation by Modeling after an Existing Type</title>
+				<title>Creation by Modeling After an Existing Type</title>
 		
 				<para>
 					The benefit of modeling a named window after an existing event type is that event properties can be nested, indexed, mapped or other types that your event objects may provide as properties, including the type of the underlying event itself. Also, using the wildcard (*) operator means your EPL does not need to list each individual property explicitly.
@@ -333,7 +333,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>window_spec</emphasis> 
 			</sect3>
 
 			<sect3 xml:id="named_populate_named" revision="1">
-				<title>Populating a Named Window from an Existing Named Window</title>
+				<title>Populating a Named Window From an Existing Named Window</title>
 				
 				<indexterm><primary>create window, insert</primary></indexterm>
 				<indexterm><primary>named window</primary><secondary>populating from a named window</secondary></indexterm>
@@ -366,7 +366,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>window_spec</emphasis> 
 			</para>
 			
 			<para>
-				  For inserting into a named window and for simultaneously checking if the inserted row already exists in the named window or for atomic update-insert operation on a named window, consider using <literal>on-merge</literal> as described in <xref linkend="named_upsert"/>. On-merge
+				  For inserting into a named window and for simultaneously checking if the inserted row already exists in the named window or for atomic update-insert operation on a named window, or for targeting a specific partition, you must use <literal>on-merge</literal> as described in <xref linkend="named_upsert"/>. On-merge
 				  is similar to the SQL <literal>merge</literal> clause and provides what is known as an "Upsert" operation: Update existing events or if no existing event(s) are found then insert a new event, all in one atomic operation provided by a single EPL statement.
 			</para>
 	
@@ -509,7 +509,7 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
         <title>Table Usage</title>
 
 		<sect2 xml:id="table_create" revision="1">
-			<title>Creating Tables: The <literal>Create Table</literal> clause</title>			
+			<title>Creating Tables: The <literal>Create Table</literal> Clause</title>			
 			<para>
 				The <literal>create table</literal> statement creates a table.
 			</para>
@@ -693,7 +693,7 @@ create table <emphasis>table_name</emphasis> [as] (<emphasis>column_name</emphas
 		</sect2>
 	
 		<sect2 xml:id="table_agginto" revision="1">
-			<title>Aggregating Into Table Rows: The <literal>Into Table</literal> clause</title>
+			<title>Aggregating Into Table Rows: The <literal>Into Table</literal> Clause</title>
 			
 			<para>
 				Use the <literal>into table</literal> keywords to instruct the engine to aggregate into table columns. A given statement can only aggregate into a single table.
@@ -975,8 +975,8 @@ select totalIntrusions from IntrusionEvent]]></programlisting>
 			</para>
 			
 			<para>
-				  For inserting into a table and for simultaneously checking if the inserted row already exists in the table or for atomic update-insert operation on a table, 
-				  consider using <literal>on-merge</literal> as described in <xref linkend="named_upsert"/>. On-merge
+				  For inserting into a table and for simultaneously checking if the inserted row already exists in the table or for atomic update-insert operation on a table, or for targeting a specific partition, you must use
+				  <literal>on-merge</literal> as described in <xref linkend="named_upsert"/>. On-merge
 				  is similar to the SQL <literal>merge</literal> clause and provides what is known as an "Upsert" operation: Update existing rows or if no existing rows(s) are found then insert a new row, 
 				  all in one atomic operation provided by a single EPL statement.
 			</para>
@@ -1079,7 +1079,7 @@ where intr.fromAddress = firewall.fromAddress and intr.toAddress = firewall.toAd
 	</sect1>
 	
 	<sect1 xml:id="named_querying" revision="1">
-		<title>Triggered Select: the <literal>On Select</literal> clause</title>
+		<title>Triggered Select: The <literal>On Select</literal> Clause</title>
 		
 		<indexterm><primary>on-select</primary></indexterm>
 		<indexterm><primary>named window</primary><secondary>triggered select using On Select</secondary></indexterm>
@@ -1210,7 +1210,7 @@ where onw.symbol = trig.symbol]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="named_query" revision="1">
-			<title>On-Select Compared To Join</title>
+			<title><literal>On-Select</literal> Compared to Join</title>
 			
 			<para>
 				The similarities and differences between an <literal>on select</literal> clause and a regular or outer join (and not unidirectional) are as follows: 
@@ -1245,7 +1245,7 @@ where onw.symbol = trig.symbol]]></programlisting>
 	</sect1>
 
 	<sect1 xml:id="named_selectdelete" revision="1">
-		<title>Triggered Select+Delete: the <literal>On Select Delete</literal> clause</title>
+		<title>Triggered Select+Delete: The <literal>On Select Delete</literal> Clause</title>
 		
 		<indexterm><primary>on-select-delete</primary></indexterm>
 		<indexterm><primary>named window</primary><secondary>triggered select and delete using On Select Delete</secondary></indexterm>
@@ -1284,7 +1284,7 @@ select [and] delete <emphasis>select_list</emphasis>...
 	</sect1>
 
 	<sect1 xml:id="named_update" revision="1">
-		<title>Updating Data: the <literal>On Update</literal> clause</title>
+		<title>Updating Data: The <literal>On Update</literal> Clause</title>
 		
 		<indexterm><primary>on-update</primary></indexterm>
 		<indexterm><primary>named window</primary><secondary>updating</secondary></indexterm>
@@ -1327,7 +1327,7 @@ set <emphasis>mutation_expression</emphasis> [, <emphasis>mutation_expression</e
 		</para>
 
 		<table frame="topbot">
-			<title>Mutation Expressions in Update And Merge</title>
+			<title>Mutation Expressions in Update and Merge</title>
 			<tgroup cols="2">
 				<colspec colwidth="1*"/>
 				<colspec colwidth="0.75*"/>
@@ -1504,7 +1504,7 @@ set field_a = 1,
 	</sect1>
 
 	<sect1 xml:id="named_delete" revision="1">
-		<title>Deleting Data: the <literal>On Delete</literal> clause</title>
+		<title>Deleting Data: The <literal>On Delete</literal> Clause</title>
 		
 		<indexterm><primary>on-delete</primary></indexterm>
 		<indexterm><primary>named window</primary><secondary>deleting from</secondary></indexterm>
@@ -1555,7 +1555,7 @@ where myNamedWindow.symbol = myNewOrders.symbol]]></programlisting>
 		</para>
 
 		<sect2 xml:id="named_delete_pattern" >
-		   <title>Using Patterns in the <literal>On Delete</literal> Clause</title>
+		   <title>Using Patterns in the <literal>On-Delete</literal> Clause</title>
 
 			<para>
 				By means of patterns the <literal>on delete</literal> clause and <literal>on select</literal> clause (described below) can look for more complex conditions to occur, possibly involving multiple events or the passing of time. The syntax for <literal>on delete</literal> with a pattern expression is show next:
@@ -1618,7 +1618,7 @@ where ord.id = win.id or flush.id = win.id]]></programlisting>
 	</sect1>
 
 	<sect1 xml:id="named_upsert" revision="1">
-		<title>Triggered Upsert using the <literal>On-Merge</literal> Clause</title>
+		<title>Triggered Upsert Using the <literal>On-Merge</literal> Clause</title>
 		
 		<indexterm><primary>upsert</primary></indexterm>
 		<indexterm><primary>merge</primary></indexterm>
@@ -2070,7 +2070,7 @@ select * from TickEventWindow where symbol='GE' and buyPrice between 10 and 20]]
 		Fire-And-Forget-specific
      -->
 	<sect1 xml:id="nwtable-faf" revision="1">
-        <title>Using Fire-And-Forget Queries with Named Windows and Tables</title>
+        <title>Using Fire-and-Forget Queries With Named Windows and Tables</title>
 
 		<para>
 			Fire-and-Forget queries can be run against both tables and named windows. We use the term <emphasis>property</emphasis> and <emphasis>column</emphasis> interchangeably.
@@ -2238,7 +2238,7 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 	</sect1>
 
 	<sect1 xml:id="named_versioning" revision="1">
-		<title>Versioning and Revision Event Type Use with Named Windows</title>
+		<title>Versioning and Revision Event Type Use With Named Windows</title>
 		
 		<indexterm><primary>named window</primary><secondary>versioning events</secondary></indexterm>
 
@@ -2345,7 +2345,7 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 	</sect1>
 		
 	<sect1 xml:id="named-eventasproperty" revision="1">
-		<title>Events As Property</title>
+		<title>Events as Property</title>
 		<para>
 			Columns in a named window and table may also hold an event or multiple events. More information on the <literal>insert into</literal> clause providing event columns is in <xref linkend="insert-into-eventasproperty"/>.
 		</para>

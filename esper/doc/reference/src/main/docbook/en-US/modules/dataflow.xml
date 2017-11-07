@@ -380,7 +380,7 @@ epService.getEPAdministrator().createEPL(epl);]]></programlisting>
 
 	<sect1 xml:id="dataflow-reference">
 
-		<title>Built-in Operators</title>		
+		<title>Built-In Operators</title>		
 		<para>
 			The below table summarizes the built-in data flow operators (Esper only) available:
 		</para>
@@ -1320,7 +1320,7 @@ emitter.submit(new Object[] {"this is some text"});]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="dataflow-api-punctuation">
-			<title>Data Flow Punctuation with Markers</title>
+			<title>Data Flow Punctuation With Markers</title>
 			<para>
 				When your application executes a data flow instance by means of the <literal>start</literal> (non-blocking) or <literal>run</literal> (blocking) methods, the data flow instance stays running until either completed or cancelled. While cancellation is always via the <literal>cancel</literal> method,
 				completion occurs when all source operators provide final markers.

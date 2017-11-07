@@ -656,7 +656,7 @@ match_recognize (
 		</sect2>
 
 		<sect2 xml:id="match-recognize-patternops-singletonvars">
-			<title>Variables Can be Singleton or Group</title>
+			<title>Variables Can Be Singleton or Group</title>
 
 			<para>
 				A <emphasis>singleton variable</emphasis> is a variable in a pattern that does not have a quantifier or has a zero-or-one quantifier (<literal>?</literal> or <literal>??</literal>) and occurs only once in the pattern (except with alteration).
@@ -687,7 +687,7 @@ match_recognize (
 					</para>
 				
 					<table frame="topbot" xml:id="match-recognize-patternops-singletonvars-aggfunc-table" revision="2">
-						<title>Syntax and results of aggregate functions</title>
+						<title>Syntax and Results of Aggregate Functions</title>
 						<tgroup cols="2">
 							<colspec colwidth="1*"/>
 							<colspec colwidth="2.0*"/>
@@ -798,7 +798,7 @@ of the first match are discarded. If SKIP TO CURRENT ROW is specified, then no m
 		</sect2>
 
 		<sect2 xml:id="match-recognize-patternops-quantifiers-reluctant">
-			<title>Greedy Or Reluctant</title>
+			<title>Greedy or Reluctant</title>
 
 			<para>
 				Reluctant quantifiers are indicated by an additional question mark (<literal>*?, +?, ??,</literal>). Reluctant quantifiers try to match as few rows as possible, whereas non-reluctant quantifiers are greedy and try to match as many rows
@@ -865,7 +865,7 @@ match_recognize (
 		</sect2>			
 
 		<sect2 xml:id="match-recognize-patternops-quantifiers-oneormore">
-			<title>Quantifier - One Or More (+ and +?)</title>
+			<title>Quantifier - One or More (+ and +?)</title>
 
 			<para>
 				The one-or-more quantifier (+) must be matched one or more times by events. The operator is greedy and the reluctant version is <literal>+?</literal>.
@@ -942,7 +942,7 @@ match_recognize (
 		</sect2>
 
 		<sect2 xml:id="match-recognize-patternops-quantifiers-zeroormore">
-			<title>Quantifier - Zero Or More (* and *?)</title>
+			<title>Quantifier - Zero or More (* and *?)</title>
 
 			<para>
 				The zero-or-more quantifier (*) must be matched zero or more times by events. The operator is greedy and the reluctant version is <literal>*?</literal>.
@@ -1016,7 +1016,7 @@ match_recognize (
 		</sect2>
 		
 		<sect2 xml:id="match-recognize-patternops-quantifiers-zeroorone">
-			<title>Quantifier - Zero Or One (? and ??)</title>
+			<title>Quantifier - Zero or One (? and ??)</title>
 
 			<para>
 				The zero-or-one quantifier (?) must be matched zero or one time by events. The operator is greedy and the reluctant version is <literal>??</literal>.
@@ -1175,7 +1175,7 @@ match_recognize (
 		</sect2>
 		
 		<sect2 xml:id="match-recognize-patternops-quantifiersrepeat-n_or_more">
-			<title>Repetition - N Or More Matches</title>
+			<title>Repetition - N or More Matches</title>
 
 			<para>
 				The quantifier <literal>{n, }</literal> must be matched N or more times. The repetition quantifier can be combined with other non-repetition quantifiers and can be used with grouping.
@@ -1800,7 +1800,7 @@ define
     </sect1>
 
     <sect1 xml:id="match-recognize-intervalorterminated">
-        <title>Interval-Or-Terminated</title>
+        <title>Interval-or-Terminated</title>
         
         <para>
 			The <literal>interval</literal> keyword and time period can be followed by <literal>or terminated</literal> keywords. When or-terminated is specified, the engine detects when a pattern state cannot match further and outputs matching event sequences collected so far that are otherwise only output at the end of the interval. This is not applicable to on-demand pattern matching.
@@ -1901,7 +1901,7 @@ define
     </sect1>
 
     <sect1 xml:id="match-recognize-variant">
-        <title>Use with Different Event Types</title>
+        <title>Use With Different Event Types</title>
         
         <para>
 			You may match different types of events using match-recognize by following any of these strategies:
@@ -1954,7 +1954,7 @@ match_recognize (
     </sect1>
 
 	<sect1 xml:id="match-recognize-state-max" >
-	   <title>Limiting Engine-wide State Count</title>
+	   <title>Limiting Engine-Wide State Count</title>
 	   
 	   <para>
 		 Esper allows setting a maximum number of states in the configuration, applicable to all match-recognize constructs of all statements. 

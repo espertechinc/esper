@@ -101,7 +101,7 @@
     </sect1>
     
     <sect1 xml:id="outputspec-simple" revision="1">
-        <title>Output for Un-aggregated and Un-grouped Queries</title>
+        <title>Output for Un-Aggregated and Un-Grouped Queries</title>
         
         <para>
 			This chapter provides sample output for queries that do not have aggregation functions and do not have a <literal>group by</literal> clause.
@@ -471,7 +471,7 @@ output snapshot every 1 seconds]]></programlisting>
     </sect1>
 
     <sect1 xml:id="outputspec-rowforall" revision="1">
-        <title>Output for Fully-aggregated and Un-grouped Queries</title>
+        <title>Output for Fully-Aggregated and Un-Grouped Queries</title>
 
         <para>
 			This chapter provides sample output for queries that have aggregation functions, and that do not have a <literal>group by</literal> clause, and in which all event properties are under aggregation.
@@ -795,7 +795,7 @@ output snapshot every 1 seconds]]></programlisting>
     </sect1>
 
     <sect1 xml:id="outputspec-aggregateall" revision="1">
-        <title>Output for Aggregated and Un-grouped Queries</title>
+        <title>Output for Aggregated and Un-Grouped Queries</title>
 
         <para>
 			This chapter provides sample output for queries that have aggregation functions, and that do not have a <literal>group by</literal> clause, and in which there are event properties that are not under aggregation.
@@ -1140,7 +1140,7 @@ output snapshot every 1 seconds]]></programlisting>
     </sect1>
 
     <sect1 xml:id="outputspec-groupedrowpergroup" revision="1">
-        <title>Output for Fully-aggregated and Grouped Queries</title>
+        <title>Output for Fully-Aggregated and Grouped Queries</title>
 
         <para>
 			This chapter provides sample output for queries that have aggregation functions, and that have a <literal>group by</literal> clause, and in which all event properties are under aggregation or appear in the <literal>group by</literal> clause.

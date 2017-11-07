@@ -107,7 +107,7 @@
     </sect1>
 
     <sect1 xml:id="pattern-how-to-use">
-        <title>How to use Patterns</title>
+        <title>How to Use Patterns</title>
         
         <sect2 xml:id="pattern-howto-syntax">
            <title>Pattern Syntax</title>
@@ -221,7 +221,7 @@ having sum(a.price + b.price) > 100]]></programlisting>
 		</sect2>
 		
         <sect2 xml:id="pattern-howto-pull-data" >
-           <title>Pulling Data from Patterns</title>
+           <title>Pulling Data From Patterns</title>
            
 			<para>
 				Data can also be obtained from pattern statements via the <literal>safeIterator()</literal> and <literal>iterator()</literal> methods on <literal>EPStatement</literal> (the pull API)
@@ -514,7 +514,7 @@ timer:interval(5 min) and not MyEvent]]></programlisting></entry>
     </sect1>
 
     <sect1 xml:id="pattern-filter">
-        <title>Filter Expressions In Patterns</title>
+        <title>Filter Expressions in Patterns</title>
 
 		<indexterm><primary>pattern</primary><secondary>filter expressions</secondary></indexterm>
 		<para>
@@ -771,7 +771,7 @@ select * from pattern [every MyTable -> timer:interval(10 sec)]]]></programlisti
             </para>
 
 			<table frame="topbot" xml:id="pattern-every-samples" revision="2">
-				<title>'Every' operator examples</title>
+				<title><literal>Every</literal> Operator Examples</title>
 				<tgroup cols="2">
 					<colspec colwidth="1*"/>
 					<colspec colwidth="2.5*"/>
@@ -1575,7 +1575,7 @@ a=A -> (B(id = a.id) and C(id = a.id))]]></programlisting>
         </sect2>
 
         <sect2 xml:id="pattern-temporal-followed-by" >
-           <title>Followed-by</title>
+           <title>Followed-By</title>
     
 			<indexterm><primary><literal>-&gt;</literal> pattern operator</primary></indexterm>
 			<indexterm><primary><literal>followed-by</literal> pattern operator</primary></indexterm>
@@ -2317,7 +2317,7 @@ timer:within(125)</programlisting>
 			</sect3>
 			
 			<sect3 xml:id="pattern-timer-schedule-scheduleatdate">
-			   <title>Scheduling a callback to occur for a given date (non-repeating)</title>
+			   <title>Scheduling a Callback to Occur for a Given Date (Non-Repeating)</title>
 			   
 			   <para>
 				   To instruct the engine to observe a date, provide a date to the observer. 
@@ -2344,7 +2344,7 @@ timer:within(125)</programlisting>
 			</sect3>
 			
 			<sect3 xml:id="pattern-timer-schedule-scheduleafterperiod">
-			   <title>Scheduling a callback to occur after a given period (non-repeating)</title>
+			   <title>Scheduling a Callback to Occur After a Given Period (Non-Repeating)</title>
 			   
 			   <para>
 				   To instruct the engine to observe a period starting from the current engine time, provide a period.
@@ -2367,7 +2367,7 @@ timer:within(125)</programlisting>
 			</sect3>
 
 			<sect3 xml:id="pattern-timer-schedule-scheduleafterdateandperiod">
-			   <title>Scheduling a callback to occur after a given date and period (non-repeating)</title>
+			   <title>Scheduling a Callback to Occur After a Given Date and Period (Non-Repeating)</title>
 			   
 			   <para>
 				   To instruct the engine to observe a period starting from a given date, provide a date and a period.
@@ -2390,7 +2390,7 @@ timer:within(125)</programlisting>
 			</sect3>
 
 			<sect3 xml:id="pattern-timer-schedule-scheduleperiodicallyanchorenginetime">
-			   <title>Scheduling a callback to occur periodically (repeating)</title>
+			   <title>Scheduling a Callback to Occur Periodically (Repeating)</title>
 			   
 			   <para>
 				   To instruct the engine to observe a period starting from the current engine time and repeatedly thereafter anchored to current engine time, 
@@ -2427,7 +2427,7 @@ timer:within(125)</programlisting>
 			</sect3>
 
 			<sect3 xml:id="pattern-timer-schedule-scheduleperiodicallyanchordate">
-			   <title>Scheduling a callback to occur periodically starting from a given date (repeating)</title>
+			   <title>Scheduling a Callback to Occur Periodically Starting From a Given Date (Repeating)</title>
 			   
 			   <para>
 				   To instruct the engine to observe a period starting from a given date and repeatedly thereafter anchored to the provide date, 

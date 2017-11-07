@@ -144,7 +144,7 @@ EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config
 		</sect2>
 
 		<sect2 xml:id="configuration-transientobjects-classforname" revision="1">
-			<title>Class-For-Name</title>
+			<title>Class-for-Name</title>
 			<para>
 				By default, when resolving a fully-qualified class name to a <literal>Class</literal>, the <literal>com.espertech.esper.client.util.ClassForNameProviderDefault</literal> uses:
 			</para>
@@ -219,7 +219,7 @@ epService.getEPAdministrator().getConfiguration().getTransientConfiguration().pu
 
 		<indexterm><primary>configuration</primary><secondary>items to configure</secondary></indexterm>
 		<sect2 xml:id="config-java" revision="1">
-			<title>Events represented by Java Classes</title>
+			<title>Events Represented by Java Classes</title>
 			
 			<sect3 xml:id="config-java-package-alias" revision="1">
 				<title>Package of Java Event Classes</title>
@@ -506,7 +506,7 @@ config.addEventType("MyLegacyEvent", MyLegacyEventClass.class.getName(), legacyD
 		</sect2>
 			
 		<sect2 xml:id="config-java-util-map" revision="1">
-			<title>Events represented by <literal>java.util.Map</literal></title>
+			<title>Events Represented by <literal>java.util.Map</literal></title>
 			
 			<para>
 				The engine can process <literal>java.util.Map</literal> events via the <literal>sendEvent(Map map, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Entries in the Map represent event properties. Please see the <xref linkend="appendix_eventrepmap"/> section for details on how to use <literal>Map</literal> events with the engine.
@@ -585,7 +585,7 @@ configuration.addEventType("MyMapEvent", properties);]]></programlisting>
 		</sect2>
 		
 		<sect2 xml:id="config-objectarray" revision="1">
-			<title>Events represented by <literal>Object[]</literal> (Object-array)</title>
+			<title>Events Represented by <literal>Object[]</literal> (Object-array)</title>
 			
 			<para>
 				The engine can process Object-array (<literal>Object[]</literal>) events via the <literal>sendEvent(Object[] array, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Elements in the Object array represent event properties. Please see the <xref linkend="appendix_eventrepoa"/> section for details on how to use <literal>Object[]</literal> events with the engine.
@@ -654,7 +654,7 @@ configuration.addEventType("MyObjectArrayEvent", propertyNames, propertyTypes);]
 		</sect2>
 
 		<sect2 xml:id="config-avro" revision="1">
-			<title>Events represented by Avro <literal>GenericData.Record</literal></title>
+			<title>Events Represented by Avro <literal>GenericData.Record</literal></title>
 			
 			<para>
 				The engine can process Avro <literal>GenericData.Record</literal> events via the <literal>sendEventAvro(GenericData.Record event, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Please see the <xref linkend="appendix_eventrepavro"/> section for details on how to use Avro events with the engine.
@@ -736,7 +736,7 @@ configuration.addEventTypeAvro("MyAvroType", avroType);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="config-xml-dom" revision="1">
-			<title>Events represented by <literal>org.w3c.dom.Node</literal></title>
+			<title>Events Represented by <literal>org.w3c.dom.Node</literal></title>
 			
 			<para>
 				Via this configuration item the Esper engine can natively process <literal>org.w3c.dom.Node</literal> instances, i.e. XML document object model (DOM) nodes.
@@ -1031,7 +1031,7 @@ desc.setEndTimestampPropertyName("endts");]]></programlisting>
 		</sect2>
 					
 		<sect2 xml:id="config-plugineventrep" revision="1">
-			<title>Events represented by Plug-in Event Representations</title>
+			<title>Events Represented by Plug-in Event Representations</title>
 			
 			<para>
 				As part of the extension API plug-in event representations allows an application to create new event types and event instances based on information available elsewhere. Please see <xref linkend="custom-event-representation"/> for details.
@@ -1092,7 +1092,7 @@ configuration.setPlugInEventTypeNameResolutionURIs(new URI[] {childURI});]]></pr
 		</sect2>
 
 		<sect2 xml:id="config-class--package-imports" revision="1">
-			<title>Class and package imports</title>
+			<title>Class and Package Imports</title>
 			
 			<para>
 				Esper allows invocations of static Java library functions in expressions, as outlined in <xref linkend="epl-single-row-function-ref"/>. This configuration 
@@ -1148,7 +1148,7 @@ config.addImport("com.mycompany.mypackage.MyLib");   // class import]]></program
 		</sect2>
 
 		<sect2 xml:id="config-class--package-imports-annotations" revision="1">
-			<title>Annotation class and package imports</title>
+			<title>Annotation Class and Package Imports</title>
 			
 			<para>
 				If your application has certain classes or packages that should only be visible within an <literal>@</literal>-annotation, 
@@ -1264,7 +1264,7 @@ config.addAnnotationImport("com.mycompany.mypackage.myannotations.*");]]></progr
 			</para>
 						
 			<sect3 xml:id="config-database-datasource" revision="1">
-				<title>Connections obtained via DataSource</title>
+				<title>Connections Obtained via DataSource</title>
 
 				<para>
 					This configuration causes Esper to obtain a database connection from a <literal>javax.sql.DataSource</literal> available from your JNDI provider.
@@ -1311,7 +1311,7 @@ Connection connection = dataSource.getConnection();]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="config-database-datasourcefactory" revision="1">
-				<title>Connections obtained via DataSource Factory</title>
+				<title>Connections Obtained via DataSource Factory</title>
 
 				<para>
 					This section describes how to use <citetitle><link xlink:href="http://commons.apache.org/dbcp">Apache Commons Database Connection Pooling (Apache DBCP)</link></citetitle> with Esper. It explains how to provide a custom application-specific <literal>DataSource</literal> factory if not using Apache DBCP.
@@ -1384,7 +1384,7 @@ class MyOwnDataSourceFactory {
 			</sect3>
 
 			<sect3 xml:id="config-database-drivermanager" revision="1">
-				<title>Connections obtained via DriverManager</title>
+				<title>Connections Obtained via DriverManager</title>
 
 				<para>
 				The next snippet of XML configures a database named <literal>mydb2</literal> to obtain connections via <literal>java.sql.DriverManager</literal>. The <literal>drivermanager-connection</literal> element instructs the engine to obtain new connections to the database <literal>mydb2</literal> by means of <literal>Class.forName</literal> and <literal>DriverManager.getConnection</literal> using the class name, URL and optional username, password and connection arguments.
@@ -1407,7 +1407,7 @@ class MyOwnDataSourceFactory {
 			</sect3>
 
 			<sect3 xml:id="config-database-connections" revision="1">
-				<title>Connections-level settings</title>
+				<title>Connections-Level Settings</title>
 
 				<para>
 					Additional connection-level settings can optionally be provided to the engine which the engine will apply to new connections. When the engine obtains a new connection, it applies only those settings to the connection that are explicitly configured. The engine leaves all other connection settings at default values.
@@ -1429,7 +1429,7 @@ class MyOwnDataSourceFactory {
 			</sect3>
 
 			<sect3 xml:id="config-database-connections-lifecycle" revision="1">
-				<title>Connections lifecycle settings</title>
+				<title>Connections Lifecycle Settings</title>
 
 				<para>
 					By default the engine retains a separate database connection for each started EPL statement. However, it is possible to override this behavior and require the engine to obtain a new database connection for each lookup, and to close that database connection after the lookup is completed. This often makes sense when you have a large number of EPL statements and require pooling of connections via a connection pool.
@@ -1454,7 +1454,7 @@ class MyOwnDataSourceFactory {
 			</sect3>
 
 			<sect3 xml:id="config-database-cache" revision="1">
-				<title>Cache settings</title>
+				<title>Cache Settings</title>
 
 				<para>
 					Cache settings can dramatically reduce the number of database queries that the engine executes for EPL statements. If no cache setting is specified, the engine does not cache query results and executes a separate database query for every event.
@@ -1484,7 +1484,7 @@ class MyOwnDataSourceFactory {
 				</sect4>
 
 				<sect4 xml:id="config-database-cache-expiry" revision="1">
-					<title>Expiry-time Cache</title>
+					<title>Expiry-Time Cache</title>
 					
 					<para>
 						The expiry time cache is configured by a maximum age in seconds, a purge interval and an optional reference type. The cache discards (on the get operation) any query results that are older then the maximum age so that stale data is not used. If the cache is not empty, then every purge interval number of seconds the engine purges any expired entries from the cache.
@@ -1563,7 +1563,7 @@ class MyOwnDataSourceFactory {
 				</para>
 				
 				<table frame="topbot" xml:id="epl-grouping-aggregate-func" revision="2">
-					<title>Syntax and results of aggregate functions</title>
+					<title>Syntax and Results of Aggregate Functions</title>
 					<tgroup cols="2">
 						<colspec colwidth="0.5*"/>
 						<colspec colwidth="2.0*"/>
@@ -1606,7 +1606,7 @@ class MyOwnDataSourceFactory {
 		</sect2>
 
 		<sect2 xml:id="config-engine-bytecodegen" revision="1">
-			<title>Engine Settings related to Byte Code Generation and Compilation</title>
+			<title>Engine Settings Related to Byte Code Generation and Compilation</title>
 			
 			<para>
 			  The setting <literal>enable-resultset</literal> is true by default and controls whether the engine generates code for all of result-set-processing including the select-clause, having-clause and group-by expressions.
@@ -1681,10 +1681,10 @@ byteCodeGen.setIncludeComments(false);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="config-engine-threading" revision="1">
-			<title>Engine Settings related to Concurrency and Threading</title>
+			<title>Engine Settings Related to Concurrency and Threading</title>
 			
 			<sect3 xml:id="config-engine-threading-dispatch" revision="1">
-				<title>Preserving the order of events delivered to listeners</title>
+				<title>Preserving the Order of Events Delivered to Listeners</title>
 
 				<para>
 					In multithreaded environments, this setting controls whether dispatches of statement result events to listeners preserve the ordering in which a statement processes events. By default the engine guarantees that it delivers a statement's result events to statement listeners in the order in which the result is generated. This behavior can be turned off via configuration as below. This behavior applies to stateful statements
@@ -1723,7 +1723,7 @@ engine = EPServiceProviderManager.getDefaultProvider(config);]]></programlisting
 			</sect3>
 
 			<sect3 xml:id="config-engine-threading-insert-into" revision="1">
-				<title>Preserving the order of events for insert-into streams</title>
+				<title>Preserving the Order of Events for Insert-Into Streams</title>
 
 				<para>
 					In multithreaded environments, this setting controls whether statements producing events for other statements via insert-into preserve the order of delivery within the producing and consuming statements, allowing statements that consume other statement's events to behave deterministic in multithreaded applications, if the consuming statement requires such determinism. By default, the engine makes this guarantee (the setting is on). This behavior applies to stateful statements and not to stateless statements as stateless statements execute lock-free.
@@ -1750,7 +1750,7 @@ engine = EPServiceProviderManager.getDefaultProvider(config);]]></programlisting
 			</sect3>
 
 			<sect3 xml:id="config-engine-threading-named-window-dispatch" revision="1">
-				<title>Preserving the order of named window dispatches to named window consumer statements</title>
+				<title>Preserving the Order of Named Window Dispatches to Named Window Consumer Statements</title>
 
 				<para>
 					In multithreaded environments, this setting controls whether named windows producing insert and remove streams for other statements that consume the named window by 
@@ -1884,7 +1884,7 @@ config.getEngineDefaults().getThreading().setEngineFairlock(true);]]></programli
 		</sect2>
 
 		<sect2 xml:id="config-engine-eventmeta" revision="1">
-			<title>Engine Settings related to Event Metadata</title>
+			<title>Engine Settings Related to Event Metadata</title>
 			
 			<sect3 xml:id="config-engine-eventmeta-representation" revision="1">
 				<title>Default Event Representation</title>
@@ -2024,10 +2024,10 @@ config.getEngineDefaults().getEventMeta().setAnonymousCacheSize(5);]]></programl
 		</sect2>
 
 		<sect2 xml:id="config-engine-viewresources" revision="1">
-			<title>Engine Settings related to View Resources</title>
+			<title>Engine Settings Related to View Resources</title>
 			
 			<sect3 xml:id="config-engine-viewresources-sharing" revision="1">
-				<title>Sharing View Resources between Statements</title>
+				<title>Sharing View Resources Between Statements</title>
 
 				<para>
 					As multi-threaded environments are common, the engine by default does not implicitly share data windows between multiple statements. The <literal>share-views</literal> setting is thereby false by default.
@@ -2145,7 +2145,7 @@ config.getEngineDefaults().getViewResources().setOutputLimitOpt(true);]]></progr
 		</sect2>
 
 		<sect2 xml:id="config-engine-logging" revision="1">
-			<title>Engine Settings related to Logging</title>
+			<title>Engine Settings Related to Logging</title>
 			
 			<sect3 xml:id="config-engine-logging-execpath" revision="1">
 				<title>Execution Path Debug Logging</title>
@@ -2339,7 +2339,7 @@ config.getEngineDefaults().getLogging().setEnableCode(true);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="config-engine-variables" revision="1">
-			<title>Engine Settings related to Variables</title>
+			<title>Engine Settings Related to Variables</title>
 			
 			<sect3 xml:id="config-engine-variables-lifetimeold" revision="1">
 				<title>Variable Version Release Interval</title>
@@ -2368,7 +2368,7 @@ config.getEngineDefaults().getLogging().setEnableCode(true);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="config-engine-patterns" revision="1">
-			<title>Engine Settings related to Patterns</title>
+			<title>Engine Settings Related to Patterns</title>
 			
 			<sect3 xml:id="config-engine-patterns-max" revision="1">
 				<title>Followed-By Operator Maximum Subexpression Count</title>
@@ -2408,7 +2408,7 @@ config.getEngineDefaults().getLogging().setEnableCode(true);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="config-engine-matchrecognize" revision="1">
-			<title>Engine Settings related to Match-Recognize</title>
+			<title>Engine Settings Related to Match-Recognize</title>
 			
 			<sect3 xml:id="config-engine-matchrecognize-max" revision="1">
 				<title>Maximum State Count</title>
@@ -2449,7 +2449,7 @@ config.getEngineDefaults().getLogging().setEnableCode(true);]]></programlisting>
 		</sect2>
 		
 		<sect2 xml:id="config-engine-scripts" revision="1">
-			<title>Engine Settings related to Scripts</title>
+			<title>Engine Settings Related to Scripts</title>
 			
 			<para>
 			   You may configure a default script dialect as described herein. The default script dialect is <literal>js</literal> which stands for JavaScript, since most JVM ship with an integrated JavaScript engine.
@@ -2471,7 +2471,7 @@ config.getEngineDefaults().getLogging().setEnableCode(true);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="config-engine-stream-selection" revision="1">
-			<title>Engine Settings related to Stream Selection</title>
+			<title>Engine Settings Related to Stream Selection</title>
 			
 			<sect3 xml:id="config-engine-streamselect-choices" revision="1">
 				<title>Default Statement Stream Selection</title>
@@ -2511,7 +2511,7 @@ config.getEngineDefaults().getStreamSelection()
 		</sect2>
 
 		<sect2 xml:id="config-engine-time-source" revision="1">
-			<title>Engine Settings related to Time Source</title>
+			<title>Engine Settings Related to Time Source</title>
 			
 			<sect3 xml:id="config-engine-timesource-choices" revision="1">
 				<title>Default Time Source</title>
@@ -2574,7 +2574,7 @@ config.getEngineDefaults().getTimeSource().setTimeUnit(TimeUnit.MILLISECONDS);]]
 		</sect2>
 
 		<sect2 xml:id="config-engine-jmxmetrics" revision="1">
-			<title>Engine Settings related to JMX Metrics</title>
+			<title>Engine Settings Related to JMX Metrics</title>
 
 			<para>
 				Please set the flag as described herein to have the engine report key counters and other processing information through the JMX mbean platform server. By default JMX is not enabled.
@@ -2597,7 +2597,7 @@ config.getEngineDefaults().getTimeSource().setTimeUnit(TimeUnit.MILLISECONDS);]]
 		</sect2>
 
 		<sect2 xml:id="config-engine-instrumentation" revision="1">
-			<title>Engine Settings related to Metrics Reporting</title>
+			<title>Engine Settings Related to Metrics Reporting</title>
 
 			<para>
 				This section explains how to enable and configure metrics reporting, which is by default disabled. Please see <xref linkend="api-instrumentation"/> for more information on the metrics data reported to your application.
@@ -2681,7 +2681,7 @@ config.getEngineDefaults().getTimeSource().setTimeUnit(TimeUnit.MILLISECONDS);]]
 		</sect2>
 
 		<sect2 xml:id="config-engine-language" revision="1">
-			<title>Engine Settings related to Language and Locale</title>
+			<title>Engine Settings Related to Language and Locale</title>
 			
 			<para>
 				Locale-dependence in Esper can be present in the sort order of string values by the <literal>order by</literal> clause and by the sort window.
@@ -2711,7 +2711,7 @@ config.getEngineDefaults().getLanguage().setSortUsingCollator(true);]]></program
 		</sect2>
 
 		<sect2 xml:id="config-engine-expression" revision="1">
-			<title>Engine Settings related to Expression Evaluation</title>
+			<title>Engine Settings Related to Expression Evaluation</title>
 			
 			<sect3 xml:id="config-engine-expression-division" revision="1">
 				<title>Integer Division and Division by Zero</title>
@@ -2885,7 +2885,7 @@ config.getEngineDefaults().getExpression().setDivisionByZeroReturnsNull(true);]]
 		</sect2>
 
 		<sect2 xml:id="config-engine-execution" revision="1">
-			<title>Engine Settings related to Execution of Statements</title>
+			<title>Engine Settings Related to Execution of Statements</title>
 			
 			<sect3 xml:id="config-engine-execution-prioritized" revision="1">
 				<title>Prioritized Execution</title>
@@ -3132,7 +3132,7 @@ config.getEngineDefaults().getExecution().
 		</sect2>
 
 		<sect2 xml:id="config-engine-exceptionhandling" revision="1">
-			<title>Engine Settings related to Exception Handling</title>
+			<title>Engine Settings Related to Exception Handling</title>
 			
 			<para>
 				Use the settings as described here to register an exception handler factory class that provides an exception handler. The engine invokes exception handlers in the order they are listed to handle a continues-query unchecked exception, as further described in <xref linkend="api-exception"/>.
@@ -3165,7 +3165,7 @@ config.getEngineDefaults().getExceptionHandling().setUndeployRethrowPolicy(Confi
 		</sect2>
 
 		<sect2 xml:id="config-engine-conditionhandling" revision="1">
-			<title>Engine Settings related to Condition Handling</title>
+			<title>Engine Settings Related to Condition Handling</title>
 			
 			<para>
 				Use the settings as described here to register a condition handler factory class that provides a condition handler. The engine invokes condition handlers in the order they are listed to indicate conditions, which is the term used for notification when certain predefined limits are reached, as further described in <xref linkend="api-condition"/>.

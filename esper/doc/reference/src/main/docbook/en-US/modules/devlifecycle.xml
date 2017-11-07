@@ -371,7 +371,7 @@ DeploymentOrder order = deployAdmin.getDeploymentOrder(mymodules, new Deployment
 	  </sect2>
 
 		<sect2 xml:id="devlifecycle-admin-devlifecycle-undeploy">
-        <title>Deploying and Un-deploying</title>
+        <title>Deploying and Un-Deploying</title>
 			<para>
 				The deployment interface returns a deployment id for each module made known by adding a module or by deploying a module. To un-deploy the module your application must provide the deployment id. Your application can assign its own deployment id or obtain the module name
 				from the <literal>Module</literal> and use that as the deployment id.

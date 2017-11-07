@@ -343,7 +343,7 @@ countStmt.start();]]></programlisting>
 			</sect3>
 
 		    <sect3 xml:id="api-admin-subscriber-rowbyrow">		
-				<title>Row-By-Row Delivery</title>
+				<title>Row-by-Row Delivery</title>
 	
 				<indexterm><primary>subscriber object</primary><secondary>row-by-row</secondary></indexterm>
 				<para>
@@ -625,7 +625,7 @@ statement.addListener(myListener);]]></programlisting>
 			</para>		
 
 		  <sect3 xml:id="api-admin-listeners-replay">		
-				<title>Subscription Snapshot  and Atomic Delivery</title>
+				<title>Subscription Snapshot and Atomic Delivery</title>
 				
 				<para>
 					The <literal>addListenerWithReplay</literal> method provided by <literal>EPStatement</literal> makes it possible to send a snapshot of current statement results to a listener when the listener is added.
@@ -1001,7 +1001,7 @@ sender.sendEvent(myEvent);]]></programlisting>
     </sect1>
 
 	<sect1 xml:id="api-ondemand">		
-		<title>On-Demand Fire-And-Forget Query Execution</title>
+		<title>On-Demand Fire-and-Forget Query Execution</title>
 
 		<para>
 			As your application may not require streaming results and may not know each query in advance, the on-demand query facility provides for ad-hoc execution of an EPL expression.
@@ -1320,7 +1320,7 @@ group by symbol]]></programlisting>
 			</para>
 			
 			<table frame="topbot">
-				<title>Properties offered by sample statement aggregating price</title>
+				<title>Properties Offered by Sample Statement Aggregating Price</title>
 				<tgroup cols="4">
 					<colspec colwidth="0.8*"/>
 					<colspec colwidth="1*"/>
@@ -1382,7 +1382,7 @@ Long count= (Long) newEvents[0].get("mycount");]]></programlisting>
 			</para>
 			
 			<table frame="topbot">
-				<title>Properties offered by sample wildcard-select statement</title>
+				<title>Properties Offered by Sample Wildcard-Select Statement</title>
 				<tgroup cols="4">
 					<colspec colwidth="1*"/>
 					<colspec colwidth="1*"/>
@@ -2050,10 +2050,34 @@ runtime.sendEvent(new CurrentTimeSpanEvent(startTime.getTime() + 10*60*1000, 100
 			<para>
 				Your application can create new statements that start in an isolated service. You can also move existing statements back and forth between the engine and an isolated service.
 			</para>
-	
-			<para>
-				Isolation does not apply to variables, named windows and tables as they are global.
-			</para>
+
+			<note>
+				<para>
+					Isolation does not apply and is not supported for globally-visible concepts. Specifically it is not supported for the following.
+				</para>
+				<orderedlist>
+					<ns:listitem>
+						<para>
+							Contexts, context partitions.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							Variables.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							Named Windows.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							Tables.
+						</para>
+					</ns:listitem>
+				</orderedlist>
+			</note>
 	
 			<para>
 				An isolated service allows an application to:
@@ -2158,7 +2182,7 @@ isolatedService.getEPAdministrator().addStatement(stmt);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="api-isolatedruntime-catchup">
-			<title>Example: Catching up a Statement from Historical Data</title>
+			<title>Example: Catching Up a Statement From Historical Data</title>
 			
 			<para>
 				This example creates a statement in the isolated service, replays some events and advances time, then merges back the statement to the engine to let it participate in incoming events and engine time processing.
@@ -3009,7 +3033,7 @@ String xml = epService.getEPRuntime().getEventRenderer().renderXML(event);]]></p
 	</sect1>
 
     <sect1 xml:id="api-plugin">
-        <title>Plug-in Loader</title>
+        <title>Plug-In Loader</title>
         
 		<indexterm><primary>plug-in loader</primary></indexterm>
         <para>

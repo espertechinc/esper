@@ -7,7 +7,7 @@
     <title>Getting Started</title>
 
     <sect1 xml:id="gettingstarted_introcep" revision="1">
-        <title>Introduction to CEP and event series analysis</title>
+        <title>Introduction to Complex Event Processing</title>
         
         <para>
 			The Esper engine has been developed to address the requirements of applications that analyze and react to events. Some typical examples of applications are:

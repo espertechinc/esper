@@ -1595,7 +1595,7 @@ select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlis
 				</para>
 				
 				<table frame="topbot" xml:id="view-stat-uni-table" revision="2">
-					<title>Univariate statistics derived properties</title>
+					<title>Univariate Statistics Derived Properties</title>
 					<tgroup cols="2">
 						<colspec colwidth="1*"/>
 						<colspec colwidth="2.5*"/>
@@ -1670,7 +1670,7 @@ select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlis
 				</para>
 
 				<table frame="topbot" xml:id="view-stat-linest-table" revision="2">
-					<title>Regression derived properties</title>
+					<title>Regression Derived Properties</title>
 					<tgroup cols="2">
 						<colspec colwidth="1*"/>
 						<colspec colwidth="2.5*"/>
@@ -1798,7 +1798,7 @@ select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlis
 				</para>
 
 				<table frame="topbot" xml:id="view-stat-correl-table" revision="2">
-					<title>Correlation derived properties</title>
+					<title>Correlation Derived Properties</title>
 					<tgroup cols="2">
 						<colspec colwidth="1*"/>
 						<colspec colwidth="2.5*"/>
@@ -1853,7 +1853,7 @@ select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlis
 				</para>
 
 				<table frame="topbot" xml:id="view-stat-weightedavg-table" revision="2">
-					<title>Weighted average derived properties</title>
+					<title>Weighted Average Derived Properties</title>
 					<tgroup cols="2">
 						<colspec colwidth="1*"/>
 						<colspec colwidth="2.5*"/>
