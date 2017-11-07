@@ -14,7 +14,7 @@
         </para>
         
         <para>
-           When you look up the word <emphasis>context</emphasis> in a dictionary, you may find: Context is the set of circumstances or facts that surround a particular event, situation, etc.. 
+           When you look up the word <emphasis>context</emphasis> in a dictionary, you may find: Context is the set of circumstances or facts that surround a particular event, situation, etc. 
         </para>
         
         <para>
@@ -27,10 +27,11 @@
         
         <para>
            A context takes a cloud of events and classifies them into one or more sets. These sets are called <emphasis>context partitions</emphasis>. An event processing operation that is associated with a context operates on each of these context partitions independently. (Credit: Taken from the book "Event Processing in Action" by Opher Etzion and Peter Niblett.)
+           A basic partitioned query was reviewed in <xref linkend="processingmodel_basicpartition"/>.
         </para>
 
         <para>
-          A context is a declaration of dimension and may thus result in one or more context partitions. In the banking transaction example there the context dimension is the customer and a context partition exists per customer. In the traffic monitoring example there is a single context partition that exists only between 9 am and 5 pm and does not exist outside of that daily time period.
+          A context is a declaration of dimension and may thus result in one or more context partitions. In the banking transaction example the context dimension is the customer and a context partition exists per customer. In the traffic monitoring example there is a single context partition that exists only between 9 am and 5 pm and does not exist outside of that daily time period.
         </para>
         
         <para>
@@ -116,12 +117,12 @@
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-                    For keyed segmented context there is a context partition (or session) per key or multiple keys, see <xref linkend="context_def_keyed"/>.
+                    For keyed segmented context there is a context partition (or session) per key or multiple keys see <xref linkend="context_def_keyed"/>.
 				</para>
 			</listitem>
 			<listitem>
 				<para>
-                    For hash segmented context there is a context partition (or session) per hash code of one or more keys, see <xref linkend="context_def_hashed"/>.
+                    For hash segmented context there is a context partition (or session) per hash code of one or more keys see <xref linkend="context_def_hashed"/>.
 				</para>
 			</listitem>
 			<listitem>
@@ -142,7 +143,7 @@
 		</itemizedlist>
 				
 		<para>
-		   For more information on locking and threading please see <xref linkend="api-threading"/>. For performance related information please refer to <xref linkend="performance"/>.
+		   For the API to administrate context partitions please see <xref linkend="api-contextpartitionadmin"/>. For more information on locking and threading please see <xref linkend="api-threading"/>. For performance related information please refer to <xref linkend="performance"/>.
 		</para>		
 	</sect1>
 	
@@ -243,7 +244,7 @@
 select custId, account, sum(amount) from BankTxn group by account]]></programlisting>
 			
 			<para>
-			    The following statement refers to the context created as above and detects a withdrawal of more then 400 followed by a second withdrawal of more then 400 that occur within 10 minutes of the first withdrawal, all for the same customer:
+			    The following statement refers to the context created as above and detects a withdrawal of more than 400 followed by a second withdrawal of more then 400 that occur within 10 minutes of the first withdrawal, all for the same customer:
 			</para>
 			<programlisting><![CDATA[context SegmentedByCustomer
 select * from pattern [
@@ -309,7 +310,7 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 			</sect3>
 			
 			<sect3 xml:id="context_def_keyed_multiprop" revision="1">
-				<title>Multiple Properties Per Event Type</title>
+				<title>Multiple Properties per Event Type</title>
 
 				<para>
 					You may assign events to context partitions based on the values of two or more event properties. The engine thus uses the combination of values of these properties to pick a context partition.
@@ -355,7 +356,7 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 							</row>
 							<row>
 								<entry><literal>id</literal></entry>
-								<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+								<entry>The integer-type internal context partition id that the engine assigns to the context partition.</entry>
 							</row>
 							<row>
 								<entry><literal>key1</literal></entry>
@@ -421,7 +422,7 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 			<title>Hash Segmented Context</title>
 			
 			<para>
-				  This context assigns events to context partitions based on result of a hash function and modulo operation. Each event thus belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one result of hash value modulo granularity. 
+				  This context assigns events to context partitions based on the result of a hash function and modulo operation. Each event belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one result of hash value modulo granularity. 
 			</para>
 			
 			<para>
@@ -472,7 +473,7 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 			</para>
 			
 			<para>
-			  The <literal>granularity</literal> is required and is an integer number that defines the maximum number of context partitions. The engine computes hash code modulo granularity <literal>hash(</literal><emphasis>params</emphasis><literal>) mod </literal><emphasis>granularity</emphasis> to determine the context partition. When you specify the <literal>hash_code</literal> function the engine uses the object hash code and the computation is <emphasis>params.</emphasis><literal>hashCode() %</literal><emphasis>granularity</emphasis>.
+			  The <literal>granularity</literal> is required and is an integer number that defines the maximum number of context partitions. The engine computes hash code modulo granularity <literal>hash(</literal><emphasis>params</emphasis><literal>) mod </literal><emphasis>granularity</emphasis> to determine the context partition. When you specify the <literal>hash_code</literal> function the engine uses the object hash code and the computation is <emphasis>params.</emphasis><literal>hashCode() %</literal> <emphasis>granularity</emphasis>.
 			</para>
 			
 			<para>
@@ -577,7 +578,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 							</row>
 							<row>
 								<entry><literal>id</literal></entry>
-								<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+								<entry>The integer-type internal context partition id that the engine assigns to the context partition.</entry>
 							</row>
 						</tbody>
 					</tgroup>
@@ -599,7 +600,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 				<title>Performance Considerations</title>
 				
 				<para>
-				  The <literal>hash_code</literal> function based on the Java object hash code is generally faster then the CRC32 algorithm. The CRC32 algorithm, when used with a non-String parameter or with multiple parameters, requires the engine to serialize all expression results to a byte array to compute the CRC32 hash code.
+				  The <literal>hash_code</literal> function based on the Java object hash code is generally faster than the CRC32 algorithm. The CRC32 algorithm, when used with a non-String parameter or with multiple parameters, requires the engine to serialize all expression results to a byte array to compute the CRC32 hash code.
 				</para>
 
 				<para>
@@ -607,7 +608,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 				</para>
 
 				<para>
-				  When specifying a granularity greater then <literal>65536</literal> (64k) the engine switches to a Map-based lookup of context partition state which can slow down statement processing.
+				  When specifying a granularity greater than <literal>65536</literal> (64k) the engine switches to a Map-based lookup of context partition state which can slow down statement processing.
 				</para>
 			</sect3>
 
@@ -634,7 +635,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 			</para>
 				
 			<para>
-				Following the context name is a list of groups separated by the <literal>group</literal> keyword. The list of group is followed by the <literal>from</literal> keyword and a stream definition.
+				Following the context name is a list of groups separated by the <literal>group</literal> keyword. The list of groups is followed by the <literal>from</literal> keyword and a stream definition.
 			</para>
 				
 			<para>
@@ -642,7 +643,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 			</para>
 
 			<para>
-				Group expressions are predicate expression and must return a Boolean true or false when applied to an event. For a given event, any number of the group expressions may return true thus categories can be overlapping.
+				Group expressions are predicate expressions and must return a Boolean-type true or false when applied to an event. For a given event, any number of group expressions may return true thus categories can be overlapping.
 			</para>
 
 			<para>
@@ -688,7 +689,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 							</row>
 							<row>
 								<entry><literal>id</literal></entry>
-								<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+								<entry>The integer-type internal context partition id that the engine assigns to the context partition.</entry>
 							</row>
 							<row>
 								<entry><literal>label</literal></entry>
@@ -882,8 +883,17 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 			</para>
 			<programlisting><![CDATA[context CtxTrainEnter
 select t1 from pattern [
-  t1=TrainEnterEvent -> timer:interval(5 min) and not TrainLeaveEvent(trainId = context.te.trainId)
+  t1=TrainEnterEvent(trainId = context.te.trainId) -> timer:interval(5 min) and not TrainLeaveEvent(trainId = context.te.trainId)
   ]]]></programlisting>
+  
+			<tip>
+				<para>
+					Each event (incoming or inserted-into) applies to each context partition. You must provide filter expressions that indicate how events apply to context partitions.
+				</para>
+				<para>
+					The example above has <literal>trainId = context.te.trainId</literal> to say that the train id of events must match the train id of the initiating event of the particular context partition.
+				</para>
+			</tip>
 
 			<para>
 			  Since the <literal>TrainEnterEvent</literal> that initiates a new context partition also counts towards the statement, the first part of the pattern (the <literal>t1=TrainEnterEvent</literal>) is satisfied by that initiating event.
@@ -1020,12 +1030,8 @@ from TrainLeaveEvent(trainId = context.te.trainId)]]></programlisting>
 				<title>Filter Context Condition</title>
 
 				<para>
-					Use the syntax described here to define the stream that starts/initiates a context partition or that ends/terminates a context partition.
+					Define the stream that starts/initiates a context partition or that ends/terminates a context partition:
 				</para>				
-
-				<para>
-					The syntax is: 
-				</para>
 				<synopsis><emphasis>event_stream_name</emphasis> [(<emphasis>filter_criteria</emphasis>)] [as <emphasis>stream_name</emphasis>]</synopsis>
 						
 				<para>
@@ -1067,12 +1073,8 @@ terminated by MyTermEvent(id=e1.id, level <> e1.level)]]></programlisting>
 				<title>Pattern Context Condition</title>
 
 				<para>
-					You can define a pattern that starts/initiates a context partition or that ends/terminates a context partition.
+					You can define a pattern that starts/initiates a context partition or that ends/terminates a context partition:
 				</para>				
-
-				<para>
-					The syntax is: 
-				</para>
 				<synopsis>pattern [<emphasis>pattern_expression</emphasis>] [@inclusive]</synopsis>
 						
 				<para>
@@ -1376,7 +1378,7 @@ select context.NineToFive.startTime, context.SegmentedByCustomer.key1 from BankT
 						</row>
 						<row>
 							<entry><literal>id</literal></entry>
-							<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+							<entry>The integer-type internal context partition id that the engine assigns to the context partition.</entry>
 						</row>
 					</tbody>
 				</tgroup>
@@ -1450,36 +1452,26 @@ select * from
 	</sect1>
      
     <sect1 xml:id="context_outputterminated" revision="1">
-        <title>Output When Context Partition Ends</title>
+        <title>Output When a Context Partition Ends or Terminates</title>
         
         <para>
-          You may use output rate limiting to trigger output when a context partition ends, as further described in <xref linkend="epl-output-rate"/>.
+          You may use output rate limiting to trigger output when a context partition ends or terminates using <literal>output when terminated</literal>.
+          This concept was introduced to you in <xref linkend="processingmodel_basicpartitionedandoutputlimited"/>.
+          For more information on output rate limiting please see <xref linkend="epl-output-rate"/>.
         </para>
         
-        <para>
-          Consider the fixed temporal context:  A new context partition gets allocated at the designated start time and the current context partition ends at the designated end time. To trigger output when the context partition ends and before it gets removed, read on.
-        </para>
-        
-        <para>
-          The same is true for the initiated temporal context:  That context starts a new context partition when trigger events arrive or when a pattern matches. Each context partition expires (ends, terminates) after the specified time period passed. To trigger output at the time the context partition expires, read on.
-        </para>
-
 		<para>
-		  You may use the <literal>when terminated</literal> syntax with output rate limiting to trigger output when a context partition ends. The following example demonstrates the idea by declaring an initiated temporal context.
-		</para>
-
-		<para>
-			The next statement creates a context <literal>CtxEachMinute</literal> that initiates a new context partition every 1 minute, and that expires each context partition after 5 minutes:
+			The context <literal>CtxEachMinute</literal> initiates a new context partition every 1 minute, and each context partition expires after 5 minutes:
 		</para>
 		<programlisting><![CDATA[create context CtxEachMinute
 initiated by pattern [every timer:interval(1 min)]
 terminated after 5 minutes]]></programlisting>
 
 		<para>
-			The following statement computes an ongoing average temperature however only outputs the last value of the average temperature after 5 minutes when a context partition ends:
+			The following statement computes an ongoing average temperature however only outputs the last value of the average temperature, together with the context partition id and the current engine time, after 5 minutes when a context partition ends:
 		</para>
 		<programlisting><![CDATA[context CtxEachMinute
-select context.id, avg(temp) from SensorEvent output snapshot when terminated]]></programlisting>
+select current_timestamp as endtime, context.id, avg(temp) from SensorEvent output last when terminated]]></programlisting>
 
 		<para>
 			The <literal>when terminated</literal> syntax can be combined with other output rates.
@@ -1489,7 +1481,7 @@ select context.id, avg(temp) from SensorEvent output snapshot when terminated]]>
 			The next example outputs every 1 minute and also when the context partition ends:
 		</para>
 		<programlisting><![CDATA[context CtxEachMinute
-select context.id, avg(temp) from SensorEvent output snapshot every 1 minute and when terminated]]></programlisting>
+select context.id, avg(temp) from SensorEvent output last every 1 minute and when terminated]]></programlisting>
 
 		<para>
 			In the case that the end/terminating condition of the context partition is an event or pattern, the context properties contain the information of the tagged events in the pattern or the single event that ended/terminated the context partition. 
@@ -1508,10 +1500,10 @@ terminated by MyEndEvent(id = startevent.id) as endevent]]></programlisting>
 
 		<programlisting><![CDATA[context CtxSample 
 select context.startevent.id, context.endevent.id, count(*) from MyEvent
-output snapshot when terminated]]></programlisting>
+output last when terminated]]></programlisting>
 
 		<para>
-			You may in addition specify a termination expression that the engine evaluates when a context partition terminates. Only when the terminaton expression evaluates to true does output occur. The expression may refer to built-in properties as described in <xref linkend="epl-output-expression"/>. The syntax is as follows:
+			You may in addition specify a termination expression that the engine evaluates when a context partition terminates. Only when the termination expression evaluates to true does output occur. The expression may refer to built-in properties as described in <xref linkend="epl-output-expression"/>. The syntax is as follows:
 		</para>	
 		<synopsis>...output when terminated and <emphasis>termination_expression</emphasis></synopsis>
 
@@ -1537,11 +1529,11 @@ select * from SensorEvent output when terminated then set myvar=3]]></programlis
 		</para>
 		
 		<para>
-			You may also create a named window and declare a context for the named window. In this case the engine in effect manages separate named windows, one for each context partition. Limitations apply in this case that are discussed herein.
+			You may also create a named window and declare a context for the named window. In this case the engine in effect manages separate named windows, one for each context partition.
 		</para>
 		
 		<para>
-		  For example, consider the 9 am to 5 pm fixed temoral context as shown earlier:
+		  For example, consider the 9 am to 5 pm non-overlapping context as shown earlier:
 		</para>
 		<programlisting><![CDATA[create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)]]></programlisting>
 
@@ -1553,10 +1545,10 @@ select * from SensorEvent output when terminated then set myvar=3]]></programlis
 		<para>
 		  You can insert into the named window:
 		</para>
-		<programlisting><![CDATA[insert into SpeedingEvents1Hour select * from TrafficEvent(speed > 100)]]></programlisting>
+		<programlisting><![CDATA[context NineToFive on TrafficEvent(speed > 100) merge SpeedingEvents1Hour insert select *]]></programlisting>
 
 		<para>
-		  Any on-merge, on-select, on-update and on-delete statements must however declare the same context.
+		  Any on-merge, on-select, on-update and on-delete statements must declare the same context, in order to operate on partitioned named windows or tables for the same partition.
 		</para>
 		
 		<para>
@@ -1581,7 +1573,15 @@ on TruncateEvent delete from SpeedingEvents1Hour]]></programlisting>
 		<programlisting><![CDATA[create context HashByUserCtx as 
   coalesce by consistent_hash_crc32(userId) from ScoreCycle granularity 64]]></programlisting>
 		<programlisting><![CDATA[context HashByUserCtx create window ScoreCycleWindow#unique(productId, keyword) as ScoreCycle]]></programlisting>
-
+		
+		<note>
+			<para>
+				Use on-merge to insert events into a specific partition.
+			</para>
+			<para>
+				<literal>Insert Into</literal> produces an event that is visible to all partitions.
+			</para>
+		</note>	
 	</sect1>
 
     <sect1 xml:id="context_tables" revision="1">
@@ -1593,12 +1593,11 @@ on TruncateEvent delete from SpeedingEvents1Hour]]></programlisting>
 		</para>
 		
 		<para>
-			You may also create a table and declare a context for the table. In this case the engine in effect manages separate tables, one for each context partition. 
-			Limitations apply in this case that are discussed herein.
+			You may also create a table and declare a context for the table. In this case the engine in effect manages separate tables, one for each context partition.
 		</para>
 		
 		<para>
-		  For example, consider the 9 am to 5 pm fixed temoral context as shown earlier:
+		  For example, consider the 9 am to 5 pm non-overlapping context as shown earlier:
 		</para>
 		<programlisting><![CDATA[create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)]]></programlisting>
 
@@ -1626,6 +1625,15 @@ group by carId]]></programlisting>
 		  For example, this EPL truncates the AverageSpeedTable:
 		</para>
 		<programlisting><![CDATA[context NineToFive on TruncateEvent delete from AverageSpeedTable]]></programlisting>
+
+		<note>
+			<para>
+				Use on-merge or into-table to insert events into a specific partition.
+			</para>
+			<para>
+				<literal>Insert Into</literal> produces an event that is visible to all partitions.
+			</para>
+		</note>
 	</sect1>
 
     <sect1 xml:id="context_variables" revision="1">
@@ -1662,8 +1670,12 @@ group by carId]]></programlisting>
     <sect1 xml:id="context_selection" revision="1">
         <title>Operations on Specific Context Partitions</title>
         
+		<para>
+			   The API to read and manage content partitions themselves is <xref linkend="api-contextpartitionadmin"/>.
+		</para>		
+
         <para>
-			  Selecting specific context partitions and interrogating context partitions is useful for:
+			  Selecting specific context partitions and interrogating context partition state is useful for:
         </para>
 
 		<orderedlist spacing="compact">
