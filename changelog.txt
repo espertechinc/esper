@@ -1,7 +1,7 @@
 Esper Changelog
 ===================
 
-Changes in version 7.0.0-beta3
+Changes in version 7.0.0
 ------------------------
   - For certain cases of output-rate-limiting it uses less memory by making the previously-available "enable_outputlimit_opt" hint the default. 
   - Code generation for all of result set processing, aggregation, having-clause, order-by

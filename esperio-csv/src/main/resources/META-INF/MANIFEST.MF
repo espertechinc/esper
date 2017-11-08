@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-Vendor: EsperTech
 Built-By: EsperTech
 Build-Jdk: 1.8.0_111
-Bundle-Version: 7.0.0-beta3
+Bundle-Version: 7.0.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.espertech.esperio-csv
 Eclipse-BuddyPolicy: dependent
