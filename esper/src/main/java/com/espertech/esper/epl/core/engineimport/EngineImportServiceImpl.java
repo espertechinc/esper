@@ -526,7 +526,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (byteCodeGeneration.isEnableFallback()) {
@@ -539,7 +539,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetterIndexed codegenGetter(EventPropertyGetterIndexedSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (byteCodeGeneration.isEnableFallback()) {
@@ -552,7 +552,7 @@ public class EngineImportServiceImpl implements EngineImportService, ClassLoader
     public EventPropertyGetterMapped codegenGetter(EventPropertyGetterMappedSPI getterSPI, String eventTypeName, String propertyExpression) {
         Supplier<String> debugInfo = getCodegenDebugInfo(eventTypeName, propertyExpression);
         try {
-            return EventPropertyGetterCompiler.compile(engineURI, this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
+            return EventPropertyGetterCompiler.compile(this, getterSPI, debugInfo, byteCodeGeneration.isIncludeComments());
         } catch (Throwable t) {
             logCodegenGetter(t, debugInfo);
             if (byteCodeGeneration.isEnableFallback()) {

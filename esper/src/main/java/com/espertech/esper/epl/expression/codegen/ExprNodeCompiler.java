@@ -87,7 +87,7 @@ public class ExprNodeCompiler {
             CodegenStackGenerator.recursiveBuildStack(topNode, "evaluate", methods);
 
             String className = CodeGenerationIDGenerator.generateClassName(ExprEvaluator.class);
-            CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ExprEvaluator.class, className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
+            CodegenClass clazz = new CodegenClass(ExprEvaluator.class, engineImportService.getCodegenCompiler().getPackageName(), className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
             return CodegenClassGenerator.compile(clazz, engineImportService, ExprEvaluator.class, debugInformationProvider);
         } catch (Throwable t) {
             boolean fallback = engineImportService.getByteCodeGeneration().isEnableFallback();

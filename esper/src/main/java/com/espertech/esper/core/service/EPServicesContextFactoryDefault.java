@@ -534,10 +534,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         boolean codegen = configSnapshot.getEngineDefaults().getByteCodeGeneration().isEnableSelectClause() || configSnapshot.getEngineDefaults().getByteCodeGeneration().isEnablePropertyGetter() || configSnapshot.getEngineDefaults().getByteCodeGeneration().isEnableExpression();
         CodegenCompiler codegenCompiler = null;
         if (codegen) {
-            if (PackageName.check("uri_" + engineURI) == PackageName.INVALID) {
-                throw new ConfigurationException("Invalid engine URI '" + engineURI + "', code generation requires an engine URI that is a valid Java-language identifier and may not contain Java language keywords");
-            }
-            codegenCompiler = new CodegenCompilerJanino(configSnapshot.getEngineDefaults().getLogging().isEnableCode(), configSnapshot.getEngineDefaults().getByteCodeGeneration().isIncludeDebugSymbols());
+            codegenCompiler = new CodegenCompilerJanino(engineURI, configSnapshot.getEngineDefaults().getLogging().isEnableCode(), configSnapshot.getEngineDefaults().getByteCodeGeneration().isIncludeDebugSymbols());
         }
 
         ConfigurationEngineDefaults.Expression expression = configSnapshot.getEngineDefaults().getExpression();
@@ -654,78 +651,5 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             clazz = Array.newInstance(clazz, 0).getClass();
         }
         return clazz;
-    }
-
-    public enum PackageName {
-
-        SIMPLE, QUALIFIED, INVALID;
-
-        public static final PackageName check(String name) {
-            PackageName ret = PackageName.INVALID;
-            int[] codePoint;
-            int index = 0, dotex = -1;
-            boolean needStart = true;
-            escape:
-            {
-                if (name == null || name.isEmpty()) break escape;
-                if (name.codePointAt(0) == '.') break escape;
-                codePoint = name.codePoints().toArray();
-                while (index <= codePoint.length) {
-                    if (index == codePoint.length) {
-                        if (codePoint[index - 1] == '.') {
-                            ret = PackageName.INVALID;
-                            break escape;
-                        }
-                        int start = dotex + 1;
-                        int end = index;
-                        start = name.offsetByCodePoints(0, start);
-                        end = name.offsetByCodePoints(0, end);
-                        String test = name.substring(start, end);
-                        if (!(Arrays.binarySearch(RESERVED, test) < 0)) {
-                            ret = PackageName.INVALID;
-                            break escape;
-                        }
-                        if (!(ret == PackageName.QUALIFIED)) ret = PackageName.SIMPLE;
-                        break escape;
-                    }
-                    if (codePoint[index] == '.') {
-                        if (codePoint[index - 1] == '.') {
-                            ret = PackageName.INVALID;
-                            break escape;
-                        } else {
-                            needStart = true;
-                            int start = dotex + 1;
-                            int end = index;
-                            start = name.offsetByCodePoints(0, start);
-                            end = name.offsetByCodePoints(0, end);
-                            String test = name.substring(start, end);
-                            if (!(Arrays.binarySearch(RESERVED, test) < 0)) break escape;
-                            dotex = index;
-                            ret = PackageName.QUALIFIED;
-                        }
-                    } else if (Character.isJavaIdentifierStart(codePoint[index])) {
-                        if (needStart) needStart = false;
-                    } else if (!Character.isJavaIdentifierPart(codePoint[index])) {
-                        ret = PackageName.INVALID;
-                        break escape;
-                    }
-                    index++;
-                }
-            }
-            return ret;
-        }
-
-        private static final String[] RESERVED;
-
-        static {
-            RESERVED = new String[]{"abstract", "assert", "boolean", "break", "byte",
-                "case", "catch", "char", "class", "const", "continue", "default", "do",
-                "double", "else", "enum", "extends", "false", "final", "finally",
-                "float", "for", "if", "goto", "implements", "import", "instanceof",
-                "int", "interface", "long", "native", "new", "null", "package",
-                "private", "protected", "public", "return", "short", "static",
-                "strictfp", "super", "switch", "synchronized", "this", "throw",
-                "throws", "transient", "true", "try", "void", "volatile", "while"};
-        }
     }
 }

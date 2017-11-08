@@ -127,7 +127,7 @@ public class ResultSetProcessorFactoryCompiler {
             CodegenStackGenerator.recursiveBuildStack(getOrderByProcessorFactoryMethod, "getOrderByProcessorFactory", methods);
 
             // render and compile
-            CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), ResultSetProcessorFactoryProvider.class, providerClassName, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            CodegenClass clazz = new CodegenClass(ResultSetProcessorFactoryProvider.class, engineImportService.getCodegenCompiler().getPackageName(), providerClassName, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
             ResultSetProcessorFactoryProvider factoryProvider = CodegenClassGenerator.compile(clazz, engineImportService, ResultSetProcessorFactoryProvider.class, debugInformationProvider);
             AggregationServiceFactoryDesc aggregationServiceFactoryDesc = new AggregationServiceFactoryDesc(factoryProvider.getAggregationServiceFactory(), aggregationServiceForgeDesc.getExpressions(), aggregationServiceForgeDesc.getGroupKeyExpressions());
             return new ResultSetProcessorFactoryDesc(factoryProvider.getResultSetProcessorFactory(), resultSetProcessorType, resultEventType, factoryProvider.getOrderByProcessorFactory(), aggregationServiceFactoryDesc);

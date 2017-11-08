@@ -68,7 +68,7 @@ public class SelectExprProcessorCompiler {
 
             // render and compile
             String className = CodeGenerationIDGenerator.generateClassName(SelectExprProcessor.class);
-            CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), SelectExprProcessor.class, className, result.getCodegenClassScope(), Collections.emptyList(), null, methods, Collections.emptyList());
+            CodegenClass clazz = new CodegenClass(SelectExprProcessor.class, engineImportService.getCodegenCompiler().getPackageName(), className, result.getCodegenClassScope(), Collections.emptyList(), null, methods, Collections.emptyList());
             return CodegenClassGenerator.compile(clazz, engineImportService, SelectExprProcessor.class, debugInformationProvider);
         } catch (Throwable t) {
             boolean fallback = engineImportService.getByteCodeGeneration().isEnableFallback();

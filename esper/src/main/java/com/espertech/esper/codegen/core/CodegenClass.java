@@ -25,8 +25,8 @@ public class CodegenClass {
     private final CodegenClassMethods methods;
     private final List<CodegenInnerClass> innerClasses;
 
-    public CodegenClass(String engineURI, Class interfaceClass, String className, CodegenClassScope codegenClassScope, List<CodegenTypedParam> explicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
-        this("com.espertech.esper.generated.uri_" + engineURI,
+    public CodegenClass(Class interfaceClass, String packageName, String className, CodegenClassScope codegenClassScope, List<CodegenTypedParam> explicitMembers, CodegenCtor optionalCtor, CodegenClassMethods methods, List<CodegenInnerClass> innerClasses) {
+        this(packageName,
                 className,
                 interfaceClass,
                 explicitMembers,

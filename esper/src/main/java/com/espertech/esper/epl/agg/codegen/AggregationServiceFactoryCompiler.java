@@ -92,7 +92,7 @@ public class AggregationServiceFactoryCompiler {
             providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.class, MEMBERNAME_AGGREGATIONSVCFACTORY));
             providerCtor.getBlock().assignRef(MEMBERNAME_AGGREGATIONSVCFACTORY, newInstanceInnerClass(AggregationServiceCodegenNames.CLASSNAME_AGGREGATIONSERVICEFACTORY, ref("this")));
 
-            CodegenClass clazz = new CodegenClass(engineImportService.getEngineURI(), AggregationServiceFactoryProvider.class, providerClassName, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            CodegenClass clazz = new CodegenClass(AggregationServiceFactoryProvider.class, engineImportService.getCodegenCompiler().getPackageName(), providerClassName, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
             AggregationServiceFactoryProvider provider = CodegenClassGenerator.compile(clazz, engineImportService, AggregationServiceFactoryProvider.class, debugInformationProvider);
             return provider.getAggregationServiceFactory();
         } catch (CodegenCompilerException ex) {

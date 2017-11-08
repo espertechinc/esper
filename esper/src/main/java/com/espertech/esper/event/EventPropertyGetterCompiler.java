@@ -32,7 +32,7 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
 
 public class EventPropertyGetterCompiler {
     
-    public static EventPropertyGetter compile(String engineURI, EngineImportService engineImportService, EventPropertyGetterSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
+    public static EventPropertyGetter compile(EngineImportService engineImportService, EventPropertyGetterSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
         CodegenClassScope codegenClassScope = new CodegenClassScope(includeCodeComments);
 
         CodegenMethodNode getMethod = CodegenMethodNode.makeParentNode(Object.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE, codegenClassScope).addParam(EventBean.class, "bean");
@@ -50,11 +50,11 @@ public class EventPropertyGetterCompiler {
         CodegenStackGenerator.recursiveBuildStack(fragmentMethod, "getFragment", methods);
 
         String className = CodeGenerationIDGenerator.generateClassName(EventPropertyGetter.class);
-        CodegenClass clazz = new CodegenClass(engineURI, EventPropertyGetter.class, className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
+        CodegenClass clazz = new CodegenClass(EventPropertyGetter.class, engineImportService.getCodegenCompiler().getPackageName(), className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
         return CodegenClassGenerator.compile(clazz, engineImportService, EventPropertyGetter.class, debugInfoSupplier);
     }
 
-    public static EventPropertyGetterIndexed compile(String engineURI, EngineImportService engineImportService, EventPropertyGetterIndexedSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
+    public static EventPropertyGetterIndexed compile(EngineImportService engineImportService, EventPropertyGetterIndexedSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
         CodegenClassScope codegenClassScope = new CodegenClassScope(includeCodeComments);
 
         CodegenMethodNode getMethod = CodegenMethodNode.makeParentNode(Object.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE, codegenClassScope).addParam(EventBean.class, "bean").addParam(int.class, "index");
@@ -64,11 +64,11 @@ public class EventPropertyGetterCompiler {
         CodegenStackGenerator.recursiveBuildStack(getMethod, "get", methods);
 
         String className = CodeGenerationIDGenerator.generateClassName(EventPropertyGetterIndexed.class);
-        CodegenClass clazz = new CodegenClass(engineURI, EventPropertyGetterIndexed.class, className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
+        CodegenClass clazz = new CodegenClass(EventPropertyGetterIndexed.class, engineImportService.getCodegenCompiler().getPackageName(), className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
         return CodegenClassGenerator.compile(clazz, engineImportService, EventPropertyGetterIndexed.class, debugInfoSupplier);
     }
 
-    public static EventPropertyGetterMapped compile(String engineURI, EngineImportService engineImportService, EventPropertyGetterMappedSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
+    public static EventPropertyGetterMapped compile(EngineImportService engineImportService, EventPropertyGetterMappedSPI getterSPI, Supplier<String> debugInfoSupplier, boolean includeCodeComments) throws CodegenCompilerException {
         CodegenClassScope codegenClassScope = new CodegenClassScope(includeCodeComments);
 
         CodegenMethodNode getMethod = CodegenMethodNode.makeParentNode(Object.class, getterSPI.getClass(), CodegenSymbolProviderEmpty.INSTANCE, codegenClassScope).addParam(EventBean.class, "bean").addParam(String.class, "key");
@@ -78,7 +78,7 @@ public class EventPropertyGetterCompiler {
         CodegenStackGenerator.recursiveBuildStack(getMethod, "get", methods);
 
         String className = CodeGenerationIDGenerator.generateClassName(EventPropertyGetterMapped.class);
-        CodegenClass clazz = new CodegenClass(engineURI, EventPropertyGetterMapped.class, className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
+        CodegenClass clazz = new CodegenClass(EventPropertyGetterMapped.class, engineImportService.getCodegenCompiler().getPackageName(), className, codegenClassScope, Collections.emptyList(), null, methods, Collections.emptyList());
         return CodegenClassGenerator.compile(clazz, engineImportService, EventPropertyGetterMapped.class, debugInfoSupplier);
     }
 }

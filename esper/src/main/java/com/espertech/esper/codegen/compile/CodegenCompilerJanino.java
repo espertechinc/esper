@@ -12,6 +12,7 @@ package com.espertech.esper.codegen.compile;
 
 import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.util.IdentifierUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,7 @@ public class CodegenCompilerJanino implements CodegenCompiler {
 
     private final boolean logging;
     private final boolean includeDebugSymbols;
+    private final String packageName;
 
     private Constructor janinoCompilerCtor;
     private Method janinoCompilerCookMethod;
@@ -51,15 +53,19 @@ public class CodegenCompilerJanino implements CodegenCompiler {
     private Method janinoCompilerSetDebuggingInformationMethod;
     private Method janinoCompilerSetParentClassLoaderMethod;
 
-    public CodegenCompilerJanino(boolean logging, boolean includeDebugSymbols) {
+    public CodegenCompilerJanino(String engineURI, boolean logging, boolean includeDebugSymbols) {
         this.logging = logging;
         this.includeDebugSymbols = includeDebugSymbols;
         setupJanino();
+        this.packageName = "com.espertech.esper.generated.uri_" + IdentifierUtil.getIdentifierMayStartNumeric(engineURI);
+    }
+
+    public String getPackageName() {
+        return packageName;
     }
 
     public <T> Class<T> compileClass(String code, String fullyQualifiedClassName, ClassLoader classLoader, Supplier<String> debugInformation) throws CodegenCompilerException {
 
-        // Supplier<String> classOrigin
         if (log.isDebugEnabled() || logging) {
             String origin = debugInformation.get();
             StringWriter writer = new StringWriter();
