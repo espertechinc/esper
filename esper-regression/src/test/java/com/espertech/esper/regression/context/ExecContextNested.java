@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
+import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalidFAFSyntax;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertEquals;
 
@@ -1170,6 +1171,8 @@ public class ExecContextNested implements RegressionExecution {
         epService.getEPRuntime().sendEvent(makeEvent("E1", 0, 10));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"g2", "E1", 10L});
 
+        assertPartitionInfo(epService);
+
         epService.getEPRuntime().sendEvent(makeEvent("E2", 0, 11));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"g2", "E2", 11L});
 
@@ -1304,6 +1307,20 @@ public class ExecContextNested implements RegressionExecution {
 
             return paths != null && Arrays.equals(pathMatch, extract);
         }
+    }
+
+    private void assertPartitionInfo(EPServiceProvider epService) {
+        EPContextPartitionAdmin partitionAdmin = epService.getEPAdministrator().getContextPartitionAdmin();
+        ContextPartitionCollection partitions = partitionAdmin.getContextPartitions("NestedContext", ContextPartitionSelectorAll.INSTANCE);
+        assertEquals(1, partitions.getDescriptors().size());
+        ContextPartitionIdentifierNested nested = (ContextPartitionIdentifierNested) partitions.getDescriptors().values().iterator().next().getIdentifier();
+        assertNested(nested);
+    }
+
+    private void assertNested(ContextPartitionIdentifierNested nested) {
+        assertEquals(0, ((ContextPartitionIdentifierInitiatedTerminated)nested.getIdentifiers()[0]).getStartTime());
+        assertEquals("g2", ((ContextPartitionIdentifierCategory)nested.getIdentifiers()[1]).getLabel());
+        EPAssertionUtil.assertEqualsExactOrder(new Object[] {"E1"}, ((ContextPartitionIdentifierPartitioned)nested.getIdentifiers()[2]).getKeys());
     }
 
     public static class TestEvent implements Serializable {

@@ -129,7 +129,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
             ContextController parent = treeEntry.getParent();
             ContextControllerTreeEntry parentEntry = subcontexts.get(parent);
             for (int i = 0; i < length - 2; i++) {
-                keys[length - 2 - i] = nestedContextFactories[length - 2 - i].keyPayloadToIdentifier(parentEntry.getInitPartitionKey());
+                keys[length - 3 - i] = nestedContextFactories[length - 3 - i].keyPayloadToIdentifier(parentEntry.getInitPartitionKey());
                 parent = parentEntry.getParent();
                 parentEntry = subcontexts.get(parent);
             }
