@@ -1062,7 +1062,7 @@ every timer:interval(1 sec) -> (b=B where timer:within(1 sec))]]></programlistin
 				<para>
 					The pattern as discussed above matches every A event followed by the first B event followed by the next C event, and doesn't specifically qualify the B or C events to look for based on the A event.  To look for specific B and C events in relation to a given A event, specify correlating properties of the A event, for example:
 				</para>
-				<programlisting><![CDATA[every a=A -> (B(id=a.id -> C(id=a.id)) where timer:within(1 hour)]]></programlisting>
+				<programlisting><![CDATA[every a=A -> (B(id=a.id) -> C(id=a.id)) where timer:within(1 hour)]]></programlisting>
 				
 				<para>
 					The pattern as shown above thus matches on arrival of C<subscript>1</subscript> for combination {A<subscript>1</subscript>, B<subscript>1</subscript>, C<subscript>1</subscript>} and
