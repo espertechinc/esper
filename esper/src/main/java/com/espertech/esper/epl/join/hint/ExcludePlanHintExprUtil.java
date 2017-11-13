@@ -63,7 +63,7 @@ public class ExcludePlanHintExprUtil {
                 SelectClauseStreamSelectorEnum.ISTREAM_ONLY, statementContext.getEngineImportService(),
                 statementContext.getVariableService(), statementContext.getSchedulingService(),
                 statementContext.getEngineURI(), statementContext.getConfigSnapshot(),
-                new PatternNodeFactoryImpl(), new ContextManagementServiceImpl(),
+                new PatternNodeFactoryImpl(), new ContextManagementServiceImpl(statementContext.getEngineURI()),
                 new ExprDeclaredServiceImpl(), new TableServiceImpl());
         ExprNode expr = raw.getStreamSpecs().get(0).getViewSpecs()[0].getObjectParameters().get(0);
         ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.HINT, expr, statementContext, OAEXPRESSIONTYPE, false);

@@ -11,6 +11,9 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.context.ContextStateEventContextCreated;
+import com.espertech.esper.client.context.ContextStateEventContextDestroyed;
+import com.espertech.esper.client.context.ContextStateListener;
 import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
@@ -25,14 +28,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ContextManagementServiceImpl implements ContextManagementService {
     private static final Logger log = LoggerFactory.getLogger(ContextManagementServiceImpl.class);
 
+    private final String engineURI;
     private final Map<String, ContextManagerEntry> contexts;
     private final Set<String> destroyedContexts = new HashSet<String>();
+    private final CopyOnWriteArrayList<ContextStateListener> listeners = new CopyOnWriteArrayList<>();
 
-    public ContextManagementServiceImpl() {
+    public ContextManagementServiceImpl(String engineURI) {
+        this.engineURI = engineURI;
         contexts = new HashMap<String, ContextManagerEntry>();
     }
 
@@ -51,6 +58,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         factoryServiceContext.getAgentInstanceContextCreate().getEpStatementAgentInstanceHandle().setFilterFaultHandler(contextManager);
 
         contexts.put(contextDesc.getContextName(), new ContextManagerEntry(contextManager));
+        ContextStateEventUtil.dispatchContext(listeners, () -> new ContextStateEventContextCreated(servicesContext.getEngineURI(), contextDesc.getContextName()), ContextStateListener::onContextCreated);
     }
 
     public int getContextCount() {
@@ -127,10 +135,15 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         return contexts;
     }
 
+    public CopyOnWriteArrayList<ContextStateListener> getListeners() {
+        return listeners;
+    }
+
     private void destroyContext(String contextName, ContextManagerEntry entry) {
         entry.getContextManager().safeDestroy();
         contexts.remove(contextName);
         destroyedContexts.remove(contextName);
+        ContextStateEventUtil.dispatchContext(listeners, () -> new ContextStateEventContextDestroyed(engineURI, contextName), ContextStateListener::onContextDestroyed);
     }
 
     private String getNotDecaredText(String contextName) {

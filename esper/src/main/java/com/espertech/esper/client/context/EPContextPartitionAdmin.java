@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.client.context;
 
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -163,4 +164,54 @@ public interface EPContextPartitionAdmin {
      * @throws IllegalArgumentException if a context by that name was not declared
      */
     public ContextPartitionDescriptor getDescriptor(String contextName, int agentInstanceId);
+
+    /**
+     * Add a context state listener
+     * @param listener to add
+     */
+    void addContextStateListener(ContextStateListener listener);
+
+    /**
+     * Remove a context state listener
+     * @param listener to remove
+     */
+    void removeContextStateListener(ContextStateListener listener);
+
+    /**
+     * Returns an iterator of context state listeners (read-only)
+     * @return listeners
+     */
+    Iterator<ContextStateListener> getContextStateListeners();
+
+    /**
+     * Removes all context state listener
+     */
+    void removeContextStateListeners();
+
+    /**
+     * Add context partition state listener for the given context
+     * @param contextName context name
+     * @param listener to add
+     */
+    void addContextPartitionStateListener(String contextName, ContextPartitionStateListener listener);
+
+    /**
+     * Remove a context partition state listener for the given context
+     * @param contextName context name
+     * @param listener to remove
+     */
+    void removeContextPartitionStateListener(String contextName, ContextPartitionStateListener listener);
+
+    /**
+     * Returns an iterator of context partition state listeners (read-only) for the given context
+     * @param contextName context name
+     * @return listeners
+     */
+    Iterator<ContextPartitionStateListener> getContextPartitionStateListeners(String contextName);
+
+    /**
+     * Removes all context partition state listener for the given context
+     * @param contextName context name
+     */
+    void removeContextPartitionStateListeners(String contextName);
 }

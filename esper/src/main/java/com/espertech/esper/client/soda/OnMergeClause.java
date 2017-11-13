@@ -155,10 +155,18 @@ public class OnMergeClause extends OnClause {
         this.matchItems = matchItems;
     }
 
+    /**
+     * Sets an optional insert to executed without a match-clause. If set indicates there is no match-clause.
+     * @param insertNoMatch insert
+     */
     public void setInsertNoMatch(OnMergeMatchedInsertAction insertNoMatch) {
         this.insertNoMatch = insertNoMatch;
     }
 
+    /**
+     * Reutrns an optional insert to executed without a match-clause. If set indicates there is no match-clause.
+     * @return insert
+     */
     public OnMergeMatchedInsertAction getInsertNoMatch() {
         return insertNoMatch;
     }

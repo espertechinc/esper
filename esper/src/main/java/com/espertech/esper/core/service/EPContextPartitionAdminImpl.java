@@ -130,6 +130,38 @@ public class EPContextPartitionAdminImpl implements EPContextPartitionAdminSPI {
         return new EPContextPartitionImportResult(importCallback.existingToImported, importCallback.allocatedToImported);
     }
 
+    public void addContextStateListener(ContextStateListener listener) {
+        services.getContextManagementService().getListeners().add(listener);
+    }
+
+    public void removeContextStateListener(ContextStateListener listener) {
+        services.getContextManagementService().getListeners().remove(listener);
+    }
+
+    public Iterator<ContextStateListener> getContextStateListeners() {
+        return Collections.unmodifiableList(services.getContextManagementService().getListeners()).iterator();
+    }
+
+    public void removeContextStateListeners() {
+        services.getContextManagementService().getListeners().clear();
+    }
+
+    public void addContextPartitionStateListener(String contextName, ContextPartitionStateListener listener) {
+        checkedGetContextManager(contextName).addListener(listener);
+    }
+
+    public void removeContextPartitionStateListener(String contextName, ContextPartitionStateListener listener) {
+        checkedGetContextManager(contextName).removeListener(listener);
+    }
+
+    public Iterator<ContextPartitionStateListener> getContextPartitionStateListeners(String contextName) {
+        return checkedGetContextManager(contextName).getListeners();
+    }
+
+    public void removeContextPartitionStateListeners(String contextName) {
+        checkedGetContextManager(contextName).removeListeners();
+    }
+
     private ContextManager checkedGetContextManager(String contextName) {
         ContextManager contextManager = services.getContextManagementService().getContextManager(contextName);
         if (contextManager == null) {

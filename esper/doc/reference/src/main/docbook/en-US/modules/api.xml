@@ -3280,6 +3280,11 @@ epService.getEPRuntime().executeQuery(
 					Determine statements associated to a context and context nesting level.
 				</para>
 			</listitem>
+			<listitem>
+				<para>
+					Receive a callback when new contexts get created and destroyed or when context partitions are allocated and de-allocated.
+				</para>
+			</listitem>
 		</itemizedlist>
 		
 		<para>

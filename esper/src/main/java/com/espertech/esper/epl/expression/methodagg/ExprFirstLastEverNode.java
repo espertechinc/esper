@@ -26,7 +26,7 @@ public class ExprFirstLastEverNode extends ExprAggregateNodeBase {
 
     /**
      * Ctor.
-     *
+     * @param first true if first
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
     public ExprFirstLastEverNode(boolean distinct, boolean first) {

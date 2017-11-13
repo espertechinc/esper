@@ -119,7 +119,7 @@ public class ContextControllerCategory implements ContextController {
                     factory.populateContextInternalFilterAddendums(filterAddendumToUse, count);
                 }
 
-                ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, optionalTriggeringPattern, count, context, controllerState, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
+                ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, optionalTriggeringPattern, count, context, controllerState, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED, () -> new ContextPartitionIdentifierCategory(category.getName()));
                 handleCategories.put(count, handle);
 
                 factory.getFactoryContext().getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), count, factory.getBinding());
@@ -180,7 +180,7 @@ public class ContextControllerCategory implements ContextController {
 
             int contextPartitionId = entry.getValue().getOptionalContextPartitionId();
             int assignedSubPathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, null, null, categoryNumber, context, controllerState, filterAddendumToUse, loadingExistingState || factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState());
+            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, null, null, categoryNumber, context, controllerState, filterAddendumToUse, loadingExistingState || factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState(), () -> new ContextPartitionIdentifierCategory(category.getName()));
             handleCategories.put(categoryNumber, handle);
 
             if (entry.getKey().getSubPath() > maxSubpathId) {

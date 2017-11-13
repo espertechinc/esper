@@ -34,7 +34,9 @@ public abstract class ContextPartitionIdentifier implements Serializable {
     }
 
     /**
-     * Returns the context partition id.
+     * Returns the context partition id, when available.
+     * This value may be null when a context partition id has not been assigned or is not available.
+     * This value is always provided for use with filters.
      *
      * @return context partition id
      */

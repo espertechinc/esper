@@ -11,6 +11,7 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.context.ContextStateListener;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.EPServicesContext;
@@ -19,6 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.CreateContextDesc;
 
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface ContextManagementService {
     public void addContextSpec(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, CreateContextDesc contextDesc, boolean isRecoveringResilient, EventType statementResultEventType) throws ExprValidationException;
@@ -38,4 +40,6 @@ public interface ContextManagementService {
     public Map<String, ContextManagerEntry> getContexts();
 
     public ContextManager getContextManager(String contextName);
+
+    public CopyOnWriteArrayList<ContextStateListener> getListeners();
 }

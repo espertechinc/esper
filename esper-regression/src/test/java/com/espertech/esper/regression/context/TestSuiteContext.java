@@ -14,6 +14,10 @@ import com.espertech.esper.supportregression.execution.RegressionRunner;
 import junit.framework.TestCase;
 
 public class TestSuiteContext extends TestCase {
+    public void testExecContextAdminListen() {
+        RegressionRunner.run(new ExecContextAdminListen());
+    }
+
     public void testExecContextAdminPartitionSPI() {
         RegressionRunner.run(new ExecContextAdminPartitionSPI());
     }

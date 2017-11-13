@@ -11,13 +11,12 @@
 package com.espertech.esper.core.context.util;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.context.ContextPartitionStateListener;
+import com.espertech.esper.client.context.ContextStateEventContextPartitionDeallocated;
 import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.core.context.factory.StatementAgentInstancePreload;
-import com.espertech.esper.core.context.mgr.AgentInstance;
-import com.espertech.esper.core.context.mgr.AgentInstanceFilterProxy;
-import com.espertech.esper.core.context.mgr.ContextControllerStatementBase;
-import com.espertech.esper.core.context.mgr.ContextControllerTreeAgentInstanceList;
+import com.espertech.esper.core.context.mgr.*;
 import com.espertech.esper.core.context.stmt.AIRegistryAggregation;
 import com.espertech.esper.core.context.stmt.AIRegistryExpr;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
@@ -47,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class StatementAgentInstanceUtil {
 
@@ -60,13 +60,15 @@ public class StatementAgentInstanceUtil {
         }
     }
 
-    public static void stopAgentInstances(List<AgentInstance> agentInstances, Map<String, Object> terminationProperties, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {
+    public static void stopAgentInstances(List<AgentInstance> agentInstances, Map<String, Object> terminationProperties, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired, CopyOnWriteArrayList<ContextPartitionStateListener> listenersLazy, int cpid, String contextName) {
         if (agentInstances == null) {
             return;
         }
         for (AgentInstance instance : agentInstances) {
             stopAgentInstanceRemoveResources(instance, terminationProperties, servicesContext, isStatementStop, leaveLocksAcquired);
         }
+
+        ContextStateEventUtil.dispatchPartition(listenersLazy, () -> new ContextStateEventContextPartitionDeallocated(servicesContext.getEngineURI(), contextName, cpid), ContextPartitionStateListener::onContextPartitionDeallocated);
     }
 
     public static void stopAgentInstanceRemoveResources(AgentInstance agentInstance, Map<String, Object> terminationProperties, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {

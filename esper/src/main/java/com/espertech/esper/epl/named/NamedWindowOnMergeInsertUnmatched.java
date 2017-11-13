@@ -41,6 +41,7 @@ public class NamedWindowOnMergeInsertUnmatched extends ViewSupport implements Na
     /**
      * Ctor.
      *
+     * @param factory              merge view factory
      * @param rootView             to indicate which events to delete
      * @param exprEvaluatorContext context for expression evalauation
      */

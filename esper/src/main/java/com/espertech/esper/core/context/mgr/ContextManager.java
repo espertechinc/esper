@@ -13,12 +13,14 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.context.ContextPartitionDescriptor;
 import com.espertech.esper.client.context.ContextPartitionSelector;
+import com.espertech.esper.client.context.ContextPartitionStateListener;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.filter.FilterFaultHandler;
 import com.espertech.esper.filter.FilterSpecLookupable;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 public interface ContextManager extends FilterFaultHandler {
@@ -51,4 +53,12 @@ public interface ContextManager extends FilterFaultHandler {
     public Collection<Integer> getAgentInstanceIds(ContextPartitionSelector contextPartitionSelector);
 
     public Map<Integer, ContextControllerStatementDesc> getStatements();
+
+    public void addListener(ContextPartitionStateListener listener);
+
+    public void removeListener(ContextPartitionStateListener listener);
+
+    public Iterator<ContextPartitionStateListener> getListeners();
+
+    public void removeListeners();
 }

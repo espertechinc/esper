@@ -11,7 +11,9 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.client.context.ContextPartitionState;
+import org.codehaus.janino.util.Producer;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +28,7 @@ public interface ContextControllerLifecycleCallback {
                                                                        ContextControllerState states,
                                                                        ContextInternalFilterAddendum filterAddendum,
                                                                        boolean isRecoveringResilient,
-                                                                       ContextPartitionState state);
+                                                                       ContextPartitionState state, Producer<ContextPartitionIdentifier> identifier);
 
     public void contextPartitionNavigate(ContextControllerInstanceHandle existingHandle,
                                          ContextController originator,

@@ -199,7 +199,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             stmtMetadataFactory = (StatementMetadataFactory) JavaClassHelper.instantiate(StatementMetadataFactory.class, configSnapshot.getEngineDefaults().getAlternativeContext().getStatementMetadataFactory(), engineImportService.getClassForNameProvider());
         }
 
-        ContextManagementService contextManagementService = new ContextManagementServiceImpl();
+        ContextManagementService contextManagementService = new ContextManagementServiceImpl(engineImportService.getEngineURI());
 
         PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc = null;
         if (configSnapshot.getEngineDefaults().getPatterns().getMaxSubexpressions() != null) {

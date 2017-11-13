@@ -159,7 +159,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
             factory.populateContextInternalFilterAddendums(filterAddendum, key);
         }
 
-        ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, theEvent, null, key, props, null, filterAddendum, false, ContextPartitionState.STARTED);
+        ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, theEvent, null, key, props, null, filterAddendum, false, ContextPartitionState.STARTED, () -> new ContextPartitionIdentifierPartitioned(getKeyObjectsAccountForMultikey(key)));
 
         partitionKeys.put(key, handle);
 
@@ -226,7 +226,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
             Map<String, Object> props = ContextPropertyEventType.getPartitionBean(factoryContext.getContextName(), 0, mapKey, factory.getSegmentedSpec().getItems().get(0).getPropertyNames());
 
             int assignedSubpathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubpathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, mapKey, props, controllerState, myFilterAddendum, loadingExistingState || factoryContext.isRecoveringResilient(), entry.getValue().getState());
+            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubpathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, mapKey, props, controllerState, myFilterAddendum, loadingExistingState || factoryContext.isRecoveringResilient(), entry.getValue().getState(), () -> new ContextPartitionIdentifierPartitioned(keys));
             partitionKeys.put(mapKey, handle);
 
             if (entry.getKey().getSubPath() > maxSubpathId) {

@@ -114,7 +114,8 @@ public class ContextControllerHash implements ContextController, ContextControll
                         factory.populateContextInternalFilterAddendums(filterAddendumToUse, i);
                     }
 
-                    ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, null, i, properties, controllerState, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
+                    final int hash = i;
+                    ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, null, i, properties, controllerState, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED, () -> new ContextPartitionIdentifierHash(hash));
                     partitionKeys.put(i, handle);
 
                     factory.getFactoryContext().getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), i, factory.getBinding());
@@ -170,7 +171,7 @@ public class ContextControllerHash implements ContextController, ContextControll
             factory.populateContextInternalFilterAddendums(filterAddendumToUse, id);
         }
 
-        ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, theEvent, null, id, properties, null, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
+        ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, theEvent, null, id, properties, null, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED, () -> new ContextPartitionIdentifierHash(id));
         partitionKeys.put(id, handle);
 
         factory.getFactoryContext().getStateCache().addContextPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), id, factory.getBinding());
@@ -234,7 +235,7 @@ public class ContextControllerHash implements ContextController, ContextControll
             Map<String, Object> properties = ContextPropertyEventType.getHashBean(factoryContext.getContextName(), hashAlgoGeneratedId);
 
             int assignedSubPathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, hashAlgoGeneratedId, properties, controllerState, filterAddendumToUse, loadingExistingState || factoryContext.isRecoveringResilient(), entry.getValue().getState());
+            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, hashAlgoGeneratedId, properties, controllerState, filterAddendumToUse, loadingExistingState || factoryContext.isRecoveringResilient(), entry.getValue().getState(), () -> new ContextPartitionIdentifierHash(hashAlgoGeneratedId));
             partitionKeys.put(hashAlgoGeneratedId, handle);
 
             if (entry.getKey().getSubPath() > maxSubpathId) {
