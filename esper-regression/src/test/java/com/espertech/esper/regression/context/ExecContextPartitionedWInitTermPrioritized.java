@@ -22,6 +22,7 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.filter.FilterSet;
 import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.context.SupportContextPropUtil;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
@@ -124,14 +125,15 @@ public class ExecContextPartitionedWInitTermPrioritized implements RegressionExe
         stmt.addListener(listener);
         String[] fields = "theString,theSum".split(",");
 
-        sendBean(epService, "A", 100, 1, true);
+        SupportBean initA = sendBean(epService, "A", 100, 1, true);
         sendBean(epService, "B", 99, 2, false);
-        sendBean(epService, "B", 200, 3, true);
+        SupportBean initB = sendBean(epService, "B", 200, 3, true);
         sendBean(epService, "A", 0, 4, false);
         sendBean(epService, "B", 0, 5, false);
         sendBean(epService, "A", 0, 6, true);
         assertFalse(listener.isInvoked());
         assertPartitionsInitWCorrelatedTermFilter(epService);
+        SupportContextPropUtil.assertContextProps(epService, "CtxPartitionInitWCorrTerm", new int[] {0, 1}, "key1,sb", new Object[][] {{"A", initA}, {"B", initB}});
 
         sendBean(epService, "B", 200, 7, false);
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"B", 3+5L});
@@ -746,11 +748,12 @@ public class ExecContextPartitionedWInitTermPrioritized implements RegressionExe
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(time)));
     }
 
-    private void sendBean(EPServiceProvider epService, String theString, int intPrimitive, long longPrimitive, boolean boolPrimitive) {
+    private SupportBean sendBean(EPServiceProvider epService, String theString, int intPrimitive, long longPrimitive, boolean boolPrimitive) {
         SupportBean sb = new SupportBean(theString, intPrimitive);
         sb.setBoolPrimitive(boolPrimitive);
         sb.setLongPrimitive(longPrimitive);
         epService.getEPRuntime().sendEvent(sb);
+        return sb;
     }
 
     private void sendS0(EPServiceProvider epService, String p00, String p01) {

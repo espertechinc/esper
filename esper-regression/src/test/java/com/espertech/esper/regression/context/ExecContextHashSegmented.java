@@ -24,6 +24,7 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.context.SupportContextPropUtil;
 import com.espertech.esper.supportregression.context.SupportHashCodeFuncGranularCRC32;
 import com.espertech.esper.supportregression.context.SupportSelectorByHashCode;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
@@ -120,6 +121,7 @@ public class ExecContextHashSegmented implements RegressionExecution {
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 101));
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 3));
         EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), stmt.safeIterator(), fields, new Object[][]{{5, "E1", 6}, {15, "E2", 10}, {9, "E3", 201}});
+        SupportContextPropUtil.assertContextProps(epService, "MyCtx", new int[] {5, 15, 9}, null, null);
 
         // test iterator targeted hash
         SupportSelectorByHashCode selector = new SupportSelectorByHashCode(Collections.singleton(15));

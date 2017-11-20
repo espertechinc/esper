@@ -61,4 +61,6 @@ public interface ContextManager extends FilterFaultHandler {
     public Iterator<ContextPartitionStateListener> getListeners();
 
     public void removeListeners();
+
+    public Map<String, Object> getContextProperties(int contextPartitionId);
 }

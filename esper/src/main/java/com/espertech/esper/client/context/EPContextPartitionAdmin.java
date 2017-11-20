@@ -11,6 +11,7 @@
 package com.espertech.esper.client.context;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -214,4 +215,12 @@ public interface EPContextPartitionAdmin {
      * @param contextName context name
      */
     void removeContextPartitionStateListeners(String contextName);
+
+    /**
+     * Returns the context properties for a given context name and context partition id.
+     * @param contextName context name
+     * @param contextPartitionId context partition id
+     * @return map of built-in properties wherein values representing event are EventBean instances
+     */
+    Map<String, Object> getContextProperties(String contextName, int contextPartitionId);
 }

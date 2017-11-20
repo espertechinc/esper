@@ -27,10 +27,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.bean.SupportBean_S2;
-import com.espertech.esper.supportregression.context.SupportSelectorById;
-import com.espertech.esper.supportregression.context.SupportSelectorCategory;
-import com.espertech.esper.supportregression.context.SupportSelectorFilteredInitTerm;
-import com.espertech.esper.supportregression.context.SupportSelectorNested;
+import com.espertech.esper.supportregression.context.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.AgentInstanceAssertionUtil;
 
@@ -406,9 +403,12 @@ public class ExecContextNested implements RegressionExecution {
         stmtUser.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
-        epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_1"));
+        SupportBean_S0 s0_1 = new SupportBean_S0(1, "S0_1");
+        epService.getEPRuntime().sendEvent(s0_1);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", -5));
         assertFalse(listener.isInvoked());
+        SupportContextPropUtil.assertContextPropsNested(epService, "NestedContext", new int[] {0}, "SegByString,InitCtx".split(","), new String[] {"key1", "s0"},
+                new Object[][][] {{{"E1"}, {s0_1}}});
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_1", "E1", 2}});
@@ -416,7 +416,11 @@ public class ExecContextNested implements RegressionExecution {
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 3));
         assertFalse(listener.isInvoked());
 
-        epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "S0_2"));
+        SupportBean_S0 s0_2 = new SupportBean_S0(2, "S0_2");
+        epService.getEPRuntime().sendEvent(s0_2);
+
+        SupportContextPropUtil.assertContextPropsNested(epService, "NestedContext", new int[] {0,1,2}, "SegByString,InitCtx".split(","), new String[] {"key1", "s0"},
+                new Object[][][] {{{"E1"}, {s0_1}}, {{"E1"}, {s0_2}}, {{"E2"}, {s0_2}}});
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 4));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_2", "E2", 4}});

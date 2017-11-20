@@ -22,6 +22,7 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.context.SupportContextPropUtil;
 import com.espertech.esper.supportregression.context.SupportSelectorById;
 import com.espertech.esper.supportregression.context.SupportSelectorCategory;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
@@ -77,6 +78,7 @@ public class ExecContextCategory implements RegressionExecution {
         epService.getEPRuntime().sendEvent(new SupportBean("E3", -8));
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 60));
         EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), stmt.safeIterator(), fields, new Object[][]{{0, "grp1", "E3", -108}, {1, "grp2", "E1", 3}, {1, "grp2", "E2", -5}, {2, "grp3", "E1", 60}});
+        SupportContextPropUtil.assertContextProps(epService, "MyCtx", new int[] {0, 1, 2}, "label", new Object[][] {{"grp1"}, {"grp2"}, {"grp3"}});
 
         // test iterator targeted by context partition id
         SupportSelectorById selectorById = new SupportSelectorById(Collections.singleton(1));

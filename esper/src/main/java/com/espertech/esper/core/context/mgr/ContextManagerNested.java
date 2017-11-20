@@ -506,6 +506,10 @@ public class ContextManagerNested extends ContextManagerBase implements ContextM
         return new AgentInstanceArraySafeIterator(instances);
     }
 
+    public Map<String, Object> getContextProperties(int contextPartitionId) {
+        return ContextManagerImpl.getContextPropertiesFirstStmt(contextPartitionId, statements);
+    }
+
     private AgentInstance startStatement(int contextId, ContextControllerStatementDesc statementDesc, ContextController originator, Object partitionKey, Map<String, Object> contextProperties, boolean isRecoveringResilient) {
 
         // build filters

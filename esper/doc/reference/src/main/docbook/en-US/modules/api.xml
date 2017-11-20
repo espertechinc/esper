@@ -2914,7 +2914,7 @@ prepared.setObject("lines/line1", 1);]]></programlisting>
 						</row>
 						<row>
 							<entry>cpuTime</entry>
-							<entry>Statement processing CPU time (system and user) in nanoseconds (if available by Java VM).</entry>
+							<entry>Statement processing CPU time (system and user) in nanoseconds (if available by Java VM, obtained from <literal>ThreadMXBean.getCurrentThreadCpuTime</literal>).</entry>
 						</row>
 						<row>
 							<entry>wallTime</entry>
@@ -3283,6 +3283,11 @@ epService.getEPRuntime().executeQuery(
 			<listitem>
 				<para>
 					Receive a callback when new contexts get created and destroyed or when context partitions are allocated and de-allocated.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Obtain context properties.
 				</para>
 			</listitem>
 		</itemizedlist>

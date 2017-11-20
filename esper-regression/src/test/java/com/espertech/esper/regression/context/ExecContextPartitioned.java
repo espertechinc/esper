@@ -22,6 +22,7 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.context.SupportContextPropUtil;
 import com.espertech.esper.supportregression.context.SupportSelectorPartitioned;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
@@ -790,6 +791,8 @@ public class ExecContextPartitioned implements RegressionExecution {
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 10));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{ctx, 0, "G1", "G1"});
+        SupportContextPropUtil.assertContextProps(epService, "SegmentedByString", new int[] {0}, "key1", new Object[][] {{"G1"}});
+
         epService.getEPAdministrator().destroyAllStatements();
 
         // test grouped delivery

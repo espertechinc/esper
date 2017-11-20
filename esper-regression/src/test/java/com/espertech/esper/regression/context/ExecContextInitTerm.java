@@ -27,6 +27,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.context.SupportContextPropUtil;
 import com.espertech.esper.supportregression.context.SupportSelectorById;
 import com.espertech.esper.supportregression.context.SupportSelectorFilteredInitTerm;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
@@ -257,17 +258,20 @@ public class ExecContextInitTerm implements RegressionExecution {
         EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, context.s0.p00 as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall group by theString");
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
-        epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_1"));
+        SupportBean_S0 initOne = new SupportBean_S0(1, "S0_1");
+        epService.getEPRuntime().sendEvent(initOne);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 10));
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(2000));
-        epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "S0_2"));
+        SupportBean_S0 initTwo = new SupportBean_S0(2, "S0_2");
+        epService.getEPRuntime().sendEvent(initTwo);
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 100));
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 101));
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 3));
         EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), stmt.safeIterator(), fields, new Object[][]{{0, "S0_1", "E1", 6}, {0, "S0_1", "E2", 10}, {0, "S0_1", "E3", 201}, {1, "S0_2", "E1", 3}, {1, "S0_2", "E3", 201}});
+        SupportContextPropUtil.assertContextProps(epService, "MyCtx", new int[] {0, 1}, "startTime,endTime,s0", new Object[][] {{1000L, null, initOne}, {2000L, null, initTwo}});
 
         // test iterator targeted by context partition id
         SupportSelectorById selectorById = new SupportSelectorById(Collections.singleton(1));

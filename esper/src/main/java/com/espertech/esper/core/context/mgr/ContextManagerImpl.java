@@ -19,6 +19,9 @@ import com.espertech.esper.core.context.stmt.StatementAIResourceRegistryFactory;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.context.util.ContextIteratorHandler;
 import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
+import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
+import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.filter.FilterFaultHandler;
@@ -432,6 +435,22 @@ public class ContextManagerImpl extends ContextManagerBase implements ContextMan
         for (Map.Entry<Integer, ContextPartitionDescriptor> entry : original.entrySet()) {
             entry.getValue().setState(state);
         }
+    }
+
+    public Map<String, Object> getContextProperties(int contextPartitionId) {
+        return getContextPropertiesFirstStmt(contextPartitionId, statements);
+    }
+
+    static Map<String, Object> getContextPropertiesFirstStmt(int contextPartitionId, Map<Integer, ContextControllerStatementDesc> statements) {
+        for (Map.Entry<Integer, ContextControllerStatementDesc> entry : statements.entrySet()) {
+            StatementContext statementContext = entry.getValue().getStatement().getStatementContext();
+            StatementResourceService resourceService = statementContext.getStatementExtensionServicesContext().getStmtResources();
+            StatementResourceHolder holder = resourceService.getPartitioned(contextPartitionId);
+            if (holder != null) {
+                return holder.getAgentInstanceContext().getContextProperties().getProperties();
+            }
+        }
+        return null;
     }
 
     public static class ContextNestedHandleImpl implements ContextControllerInstanceHandle {

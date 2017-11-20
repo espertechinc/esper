@@ -46,6 +46,11 @@ public class EPContextPartitionAdminImpl implements EPContextPartitionAdminSPI {
         return contextManager.getNumNestingLevels();
     }
 
+    public Map<String, Object> getContextProperties(String contextName, int contextPartitionId) {
+        ContextManager contextManager = checkedGetContextManager(contextName);
+        return contextManager.getContextProperties(contextPartitionId);
+    }
+
     public ContextPartitionCollection destroyContextPartitions(String contextName, ContextPartitionSelector selector) {
         ContextManager contextManager = checkedGetContextManager(contextName);
         ContextStatePathDescriptor descriptor = contextManager.extractDestroyPaths(selector);
