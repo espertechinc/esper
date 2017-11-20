@@ -18,10 +18,15 @@ import java.util.List;
 public class ContextDetailPartitioned implements ContextDetail {
 
     private static final long serialVersionUID = -7754347180148095977L;
-    private final List<ContextDetailPartitionItem> items;
 
-    public ContextDetailPartitioned(List<ContextDetailPartitionItem> items) {
+    private final List<ContextDetailPartitionItem> items;
+    private List<ContextDetailConditionFilter> optionalInit;
+    private ContextDetailCondition optionalTermination;
+
+    public ContextDetailPartitioned(List<ContextDetailPartitionItem> items, List<ContextDetailConditionFilter> optionalInit, ContextDetailCondition optionalTermination) {
         this.items = items;
+        this.optionalInit = optionalInit;
+        this.optionalTermination = optionalTermination;
     }
 
     public List<ContextDetailPartitionItem> getItems() {
@@ -33,6 +38,29 @@ public class ContextDetailPartitioned implements ContextDetail {
         for (ContextDetailPartitionItem item : items) {
             filters.add(item.getFilterSpecCompiled());
         }
+        if (optionalInit != null) {
+            for (ContextDetailConditionFilter filter : optionalInit) {
+                filters.add(filter.getFilterSpecCompiled());
+            }
+        }
+        if (optionalTermination != null) {
+            List<FilterSpecCompiled> specs = optionalTermination.getFilterSpecIfAny();
+            if (specs != null) {
+                filters.addAll(specs);
+            }
+        }
         return filters;
+    }
+
+    public ContextDetailCondition getOptionalTermination() {
+        return optionalTermination;
+    }
+
+    public void setOptionalTermination(ContextDetailCondition optionalTermination) {
+        this.optionalTermination = optionalTermination;
+    }
+
+    public List<ContextDetailConditionFilter> getOptionalInit() {
+        return optionalInit;
     }
 }

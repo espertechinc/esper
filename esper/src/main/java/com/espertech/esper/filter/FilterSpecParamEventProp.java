@@ -104,7 +104,9 @@ public final class FilterSpecParamEventProp extends FilterSpecParam {
         EventBean theEvent = matchedEvents.getMatchingEventByTag(resultEventAsName);
         Object value = null;
         if (theEvent == null) {
-            log.warn("Matching events for tag '" + resultEventAsName + "' returned a null result, using null value in filter criteria, for statement '" + statementName + "'");
+            if (log.isDebugEnabled()) {
+                log.debug("Matching events for tag '" + resultEventAsName + "' returned a null result, using null value in filter criteria, for statement '" + statementName + "'");
+            }
         } else {
             value = theEvent.get(resultEventProperty);
         }

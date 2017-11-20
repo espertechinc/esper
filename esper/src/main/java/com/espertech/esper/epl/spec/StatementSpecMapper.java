@@ -454,9 +454,20 @@ public class StatementSpecMapper {
             List<ContextDescriptorKeyedSegmentedItem> segmentedItems = new ArrayList<ContextDescriptorKeyedSegmentedItem>();
             for (ContextDetailPartitionItem item : seg.getItems()) {
                 Filter filter = unmapFilter(item.getFilterSpecRaw(), unmapContext);
-                segmentedItems.add(new ContextDescriptorKeyedSegmentedItem(item.getPropertyNames(), filter));
+                segmentedItems.add(new ContextDescriptorKeyedSegmentedItem(item.getPropertyNames(), filter, item.getAliasName()));
             }
-            desc = new ContextDescriptorKeyedSegmented(segmentedItems);
+            List<ContextDescriptorConditionFilter> initCondition = null;
+            if (seg.getOptionalInit() != null) {
+                initCondition = new ArrayList<>();
+                for (ContextDetailConditionFilter filter : seg.getOptionalInit()) {
+                    initCondition.add((ContextDescriptorConditionFilter) unmapCreateContextRangeCondition(filter, unmapContext));
+                }
+            }
+            ContextDescriptorCondition terminationCondition = null;
+            if (seg.getOptionalTermination() != null) {
+                terminationCondition = unmapCreateContextRangeCondition(seg.getOptionalTermination(), unmapContext);
+            }
+            desc = new ContextDescriptorKeyedSegmented(segmentedItems, initCondition, terminationCondition);
         } else if (contextDetail instanceof ContextDetailCategory) {
             ContextDetailCategory category = (ContextDetailCategory) contextDetail;
             List<ContextDescriptorCategoryItem> categoryItems = new ArrayList<ContextDescriptorCategoryItem>();
@@ -1298,9 +1309,20 @@ public class StatementSpecMapper {
             List<ContextDetailPartitionItem> itemsdesc = new ArrayList<ContextDetailPartitionItem>();
             for (ContextDescriptorKeyedSegmentedItem item : seg.getItems()) {
                 FilterSpecRaw rawSpec = mapFilter(item.getFilter(), mapContext);
-                itemsdesc.add(new ContextDetailPartitionItem(rawSpec, item.getPropertyNames()));
+                itemsdesc.add(new ContextDetailPartitionItem(rawSpec, item.getPropertyNames(), item.getStreamName()));
             }
-            detail = new ContextDetailPartitioned(itemsdesc);
+            List<ContextDetailConditionFilter> optionalInit = null;
+            if (seg.getInitiationConditions() != null && !seg.getInitiationConditions().isEmpty()) {
+                optionalInit = new ArrayList<>();
+                for (ContextDescriptorConditionFilter filter : seg.getInitiationConditions()) {
+                    optionalInit.add((ContextDetailConditionFilter) mapCreateContextRangeCondition(filter, mapContext));
+                }
+            }
+            ContextDetailCondition optionalTermination = null;
+            if (seg.getTerminationCondition() != null) {
+                optionalTermination = mapCreateContextRangeCondition(seg.getTerminationCondition(), mapContext);
+            }
+            detail = new ContextDetailPartitioned(itemsdesc, optionalInit, optionalTermination);
         } else if (descriptor instanceof ContextDescriptorCategory) {
             ContextDescriptorCategory cat = (ContextDescriptorCategory) descriptor;
             FilterSpecRaw rawSpec = mapFilter(cat.getFilter(), mapContext);

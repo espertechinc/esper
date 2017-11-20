@@ -174,7 +174,7 @@ public class ContextControllerPartitionedUtil {
     // Compare filters in statement with filters in segmented context, addendum filter compilation
     public static void populateAddendumFilters(Object keyValue, List<FilterSpecCompiled> filtersSpecs, ContextDetailPartitioned segmentedSpec, StatementSpecCompiled optionalStatementSpecCompiled, IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> addendums) {
         for (FilterSpecCompiled filtersSpec : filtersSpecs) {
-            FilterValueSetParam[][] addendum = getAddendumFilters(keyValue, filtersSpec, segmentedSpec, optionalStatementSpecCompiled);
+            FilterValueSetParam[][] addendum = getAddendumFilters(keyValue, filtersSpec, segmentedSpec, true, optionalStatementSpecCompiled);
             if (addendum == null) {
                 continue;
             }
@@ -187,7 +187,7 @@ public class ContextControllerPartitionedUtil {
         }
     }
 
-    public static FilterValueSetParam[][] getAddendumFilters(Object keyValue, FilterSpecCompiled filtersSpec, ContextDetailPartitioned segmentedSpec, StatementSpecCompiled optionalStatementSpecCompiled) {
+    public static FilterValueSetParam[][] getAddendumFilters(Object keyValue, FilterSpecCompiled filtersSpec, ContextDetailPartitioned segmentedSpec, boolean includePartition, StatementSpecCompiled optionalStatementSpecCompiled) {
 
         // determine whether create-named-window
         boolean isCreateWindow = optionalStatementSpecCompiled != null && optionalStatementSpecCompiled.getCreateWindowDesc() != null;
@@ -198,6 +198,7 @@ public class ContextControllerPartitionedUtil {
                 boolean typeOrSubtype = EventTypeUtility.isTypeOrSubTypeOf(filtersSpec.getFilterForEventType(), partitionItem.getFilterSpecCompiled().getFilterForEventType());
                 if (typeOrSubtype) {
                     foundPartition = partitionItem;
+                    break;
                 }
             }
         } else {
@@ -226,7 +227,7 @@ public class ContextControllerPartitionedUtil {
             FilterValueSetParam filter = getFilterMayEqualOrNull(lookupable, keyValue);
             addendumFilters.add(filter);
         } else {
-            Object[] keys = ((MultiKeyUntyped) keyValue).getKeys();
+            Object[] keys = keyValue instanceof MultiKeyUntyped ? ((MultiKeyUntyped) keyValue).getKeys() : (Object[]) keyValue;
             for (int i = 0; i < foundPartition.getPropertyNames().size(); i++) {
                 String partitionPropertyName = foundPartition.getPropertyNames().get(i);
                 EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(partitionPropertyName);
@@ -241,7 +242,7 @@ public class ContextControllerPartitionedUtil {
         addendum[0] = addendumFilters.toArray(new FilterValueSetParam[addendumFilters.size()]);
 
         FilterValueSetParam[][] partitionFilters = foundPartition.getParametersCompiled();
-        if (partitionFilters != null) {
+        if (partitionFilters != null && includePartition) {
             addendum = ContextControllerAddendumUtil.addAddendum(partitionFilters, addendum[0]);
         }
 

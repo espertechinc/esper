@@ -82,6 +82,14 @@ public class TestSuiteContext extends TestCase {
         RegressionRunner.run(new ExecContextPartitionedPrioritized());
     }
 
+    public void testExecContextPartitionedWInitTermPrioritized() {
+        RegressionRunner.run(new ExecContextPartitionedWInitTermPrioritized());
+    }
+
+    public void testExecContextPartitionedWInitTermNotPrioritized() {
+        RegressionRunner.run(new ExecContextPartitionedWInitTermNotPrioritized());
+    }
+
     public void testExecContextSelectionAndFireAndForget() {
         RegressionRunner.run(new ExecContextSelectionAndFireAndForget());
     }

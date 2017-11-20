@@ -12,6 +12,10 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filter.FilterValueSetParam;
+
+import java.util.IdentityHashMap;
 
 /**
  * Factory for pattern context instances, creating context objects for each distinct pattern based on the
@@ -36,5 +40,6 @@ public interface PatternContextFactory {
 
     public PatternAgentInstanceContext createPatternAgentContext(PatternContext patternContext,
                                                                  AgentInstanceContext agentInstanceContext,
-                                                                 boolean hasConsumingFilter);
+                                                                 boolean hasConsumingFilter,
+                                                                 IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum);
 }

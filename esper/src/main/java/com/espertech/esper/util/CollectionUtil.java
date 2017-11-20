@@ -185,6 +185,13 @@ public class CollectionUtil {
         return copy;
     }
 
+    public static Object[] addValue(Object[] values, Object value) {
+        Object[] copy = new Object[values.length + 1];
+        System.arraycopy(values, 0, copy, 0, values.length);
+        copy[values.length] = value;
+        return copy;
+    }
+
     public static int findItem(String[] items, String item) {
         for (int i = 0; i < items.length; i++) {
             if (items[i].equals(item)) {

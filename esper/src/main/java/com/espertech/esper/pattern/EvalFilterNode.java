@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.pattern;
 
+import com.espertech.esper.core.context.mgr.ContextControllerAddendumUtil;
 import com.espertech.esper.filter.FilterValueSetParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +25,22 @@ public class EvalFilterNode extends EvalNodeBase {
     public EvalFilterNode(PatternAgentInstanceContext context, EvalFilterFactoryNode factoryNode) {
         super(context);
         this.factoryNode = factoryNode;
+
+        FilterValueSetParam[][] addendum = null;
         if (context.getAgentInstanceContext().getAgentInstanceFilterProxy() != null) {
-            this.addendumFilters = context.getAgentInstanceContext().getAgentInstanceFilterProxy().getAddendumFilters(factoryNode.getFilterSpec());
-        } else {
-            this.addendumFilters = null;
+            addendum = context.getAgentInstanceContext().getAgentInstanceFilterProxy().getAddendumFilters(factoryNode.getFilterSpec());
         }
+        if (context.getFilterAddendum() != null) {
+            FilterValueSetParam[][] contextAddendum = context.getFilterAddendum().get(factoryNode.getFilterSpec());
+            if (contextAddendum != null) {
+                if (addendum == null) {
+                    addendum = contextAddendum;
+                } else {
+                    addendum = ContextControllerAddendumUtil.multiplyAddendum(addendum, contextAddendum);
+                }
+            }
+        }
+        this.addendumFilters = addendum;
     }
 
     public EvalFilterFactoryNode getFactoryNode() {

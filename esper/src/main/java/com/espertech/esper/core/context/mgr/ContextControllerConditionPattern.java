@@ -57,7 +57,7 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         boolean allowResilient = contextStatePathKey.getLevel() == 1;
         PatternContext patternContext = stmtContext.getPatternContextFactory().createContext(stmtContext, streamNum, rootFactoryNode, new MatchedEventMapMeta(patternStreamSpec.getAllTags(), !patternStreamSpec.getArrayEventTypes().isEmpty()), allowResilient);
 
-        PatternAgentInstanceContext patternAgentInstanceContext = stmtContext.getPatternContextFactory().createPatternAgentContext(patternContext, agentInstanceContext, false);
+        PatternAgentInstanceContext patternAgentInstanceContext = stmtContext.getPatternContextFactory().createPatternAgentContext(patternContext, agentInstanceContext, false, filterAddendum == null ? null : filterAddendum.getFilterAddendum());
         EvalRootNode rootNode = EvalNodeUtil.makeRootNodeFromFactory(rootFactoryNode, patternAgentInstanceContext);
 
         if (priorMatches == null) {
@@ -74,11 +74,11 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         }
 
         if (callback.isInvoked) {
-            matchFound(Collections.<String, Object>emptyMap());
+            matchFound(Collections.<String, Object>emptyMap(), optionalTriggeringEvent);
         }
     }
 
-    public void matchFound(Map<String, Object> matchEvent) {
+    public void matchFound(Map<String, Object> matchEvent, EventBean optionalTriggeringEventPattern) {
         Map<String, Object> matchEventInclusive = null;
         if (endpointPatternSpec.isInclusive()) {
             if (matchEvent.size() < 2) {
@@ -95,7 +95,7 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
                 matchEventInclusive = ordered;
             }
         }
-        callback.rangeNotification(matchEvent, this, null, matchEventInclusive, filterAddendum);
+        callback.rangeNotification(matchEvent, this, null, matchEventInclusive, optionalTriggeringEventPattern, filterAddendum);
     }
 
     public void deactivate() {
@@ -130,10 +130,10 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
             this.condition = condition;
         }
 
-        public void matchFound(Map<String, Object> matchEvent) {
+        public void matchFound(Map<String, Object> matchEvent, EventBean optionalTriggeringEvent) {
             isInvoked = true;
             if (forwardCalls) {
-                condition.matchFound(matchEvent);
+                condition.matchFound(matchEvent, optionalTriggeringEvent);
             }
         }
 

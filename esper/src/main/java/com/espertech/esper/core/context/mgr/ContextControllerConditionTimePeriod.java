@@ -70,7 +70,7 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
                     InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionTimePeriod.this.agentInstanceContext.getStatementContext().getContextDescriptor());
                 }
                 scheduleHandle = null;  // terminates automatically unless scheduled again
-                callback.rangeNotification(Collections.<String, Object>emptyMap(), ContextControllerConditionTimePeriod.this, null, null, filterAddendum);
+                callback.rangeNotification(Collections.<String, Object>emptyMap(), ContextControllerConditionTimePeriod.this, null, null, null, filterAddendum);
                 if (InstrumentationHelper.ENABLED) {
                     InstrumentationHelper.get().aContextScheduledEval();
                 }

@@ -33,10 +33,10 @@ public class ContextControllerAddendumUtil {
 
     public static FilterValueSetParam[][] multiplyAddendum(FilterValueSetParam[][] filtersFirst, FilterValueSetParam[][] filtersSecond) {
 
-        if (filtersFirst.length == 0) {
+        if (filtersFirst == null || filtersFirst.length == 0) {
             return filtersSecond;
         }
-        if (filtersSecond.length == 0) {
+        if (filtersSecond == null || filtersSecond.length == 0) {
             return filtersFirst;
         }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.core.start;
 
+import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
@@ -19,16 +20,14 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.pattern.EvalFactoryNode;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.ZeroDepthStreamNoIterate;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Starts and provides the stop method for EPL statements.
@@ -48,7 +47,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
 
         // compile filter specs, if any
         Set<String> eventTypesReferenced = new HashSet<String>();
-        validateContextDetail(services, statementContext, eventTypesReferenced, context.getContextDetail(), agentInstanceContext);
+        validateContextDetail(services, statementContext, eventTypesReferenced, context.getContextDetail(), agentInstanceContext, context.getContextName());
         services.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), CollectionUtil.toArray(eventTypesReferenced));
 
         // define output event type
@@ -72,18 +71,71 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
         return new EPStatementStartResult(new ZeroDepthStreamNoIterate(statementResultEventType), stopMethod, destroyMethod);
     }
 
-    private void validateContextDetail(EPServicesContext servicesContext, StatementContext statementContext, Set<String> eventTypesReferenced, ContextDetail contextDetail, AgentInstanceContext agentInstanceContext) throws ExprValidationException {
+    private void validateContextDetail(EPServicesContext servicesContext, StatementContext statementContext, Set<String> eventTypesReferenced, ContextDetail contextDetail, AgentInstanceContext agentInstanceContext, String contextName) throws ExprValidationException {
         if (contextDetail instanceof ContextDetailPartitioned) {
             ContextDetailPartitioned segmented = (ContextDetailPartitioned) contextDetail;
+            Map<String, EventType> asNames = new HashMap<>();
+            boolean partitionHasNameAssignment = false;
             for (ContextDetailPartitionItem partition : segmented.getItems()) {
-                validateNotTable(servicesContext, partition.getFilterSpecRaw().getEventTypeName());
-                FilterStreamSpecRaw raw = new FilterStreamSpecRaw(partition.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
-                StreamSpecCompiled compiled = raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
-                if (!(compiled instanceof FilterStreamSpecCompiled)) {
-                    throw new ExprValidationException("Partition criteria may not include named windows");
-                }
-                FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) compiled;
+                FilterStreamSpecCompiled result = compilePartitonedFilterSpec(partition.getFilterSpecRaw(), eventTypesReferenced, statementContext, servicesContext);
                 partition.setFilterSpecCompiled(result.getFilterSpec());
+
+                EventPropertyGetter[] getters = new EventPropertyGetter[partition.getPropertyNames().size()];
+                for (int i = 0; i < partition.getPropertyNames().size(); i++) {
+                    String propertyName = partition.getPropertyNames().get(i);
+                    EventPropertyGetter getter = result.getFilterSpec().getFilterForEventType().getGetter(propertyName);
+                    getters[i] = getter;
+                }
+                partition.setGetters(getters);
+
+                if (partition.getAliasName() != null) {
+                    partitionHasNameAssignment = true;
+                    validateAsName(asNames, partition.getAliasName(), result.getFilterSpec().getFilterForEventType());
+                }
+            }
+            if (segmented.getOptionalInit() != null) {
+                asNames.clear();
+                for (ContextDetailConditionFilter initCondition : segmented.getOptionalInit()) {
+                    validateRewriteContextCondition(servicesContext, statementContext, initCondition, eventTypesReferenced, new MatchEventSpec(), Collections.emptySet());
+
+                    EventType filterForType = initCondition.getFilterSpecCompiled().getFilterForEventType();
+                    boolean found = false;
+                    for (ContextDetailPartitionItem partition : segmented.getItems()) {
+                        if (partition.getFilterSpecCompiled().getFilterForEventType() == filterForType) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        throw new ExprValidationException("Segmented context '" + contextName + "' requires that all of the event types that are listed in the initialized-by also appear in the partition-by, type '" + filterForType.getName() + "' is not one of the types listed in partition-by");
+                    }
+                    if (initCondition.getOptionalFilterAsName() != null) {
+                        if (partitionHasNameAssignment) {
+                            throw new ExprValidationException("Segmented context '" + contextName + "' requires that either partition-by or initialized-by assign stream names, but not both");
+                        }
+                        validateAsName(asNames, initCondition.getOptionalFilterAsName(), filterForType);
+                    }
+                }
+            }
+            if (segmented.getOptionalTermination() != null) {
+                MatchEventSpec matchEventSpec = new MatchEventSpec();
+                LinkedHashSet<String> allTags = new LinkedHashSet<String>();
+                for (ContextDetailPartitionItem partition : segmented.getItems()) {
+                    if (partition.getAliasName() != null) {
+                        allTags.add(partition.getAliasName());
+                        matchEventSpec.getTaggedEventTypes().put(partition.getAliasName(), new Pair<>(partition.getFilterSpecCompiled().getFilterForEventType(), partition.getFilterSpecRaw().getEventTypeName()));
+                    }
+                }
+                if (segmented.getOptionalInit() != null) {
+                    for (ContextDetailConditionFilter initCondition : segmented.getOptionalInit()) {
+                        if (initCondition.getOptionalFilterAsName() != null) {
+                            allTags.add(initCondition.getOptionalFilterAsName());
+                            matchEventSpec.getTaggedEventTypes().put(initCondition.getOptionalFilterAsName(), new Pair<>(initCondition.getFilterSpecCompiled().getFilterForEventType(), initCondition.getFilterSpecRaw().getEventTypeName()));
+                        }
+                    }
+                }
+                ContextDetailMatchPair endCondition = validateRewriteContextCondition(servicesContext, statementContext, segmented.getOptionalTermination(), eventTypesReferenced, matchEventSpec, allTags);
+                segmented.setOptionalTermination(endCondition.getCondition());
             }
         } else if (contextDetail instanceof ContextDetailCategory) {
 
@@ -144,12 +196,34 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             }
         } else if (contextDetail instanceof ContextDetailNested) {
             ContextDetailNested nested = (ContextDetailNested) contextDetail;
+            int level = 0;
             for (CreateContextDesc nestedContext : nested.getContexts()) {
-                validateContextDetail(servicesContext, statementContext, eventTypesReferenced, nestedContext.getContextDetail(), agentInstanceContext);
+                validateContextDetail(servicesContext, statementContext, eventTypesReferenced, nestedContext.getContextDetail(), agentInstanceContext, contextName);
+                level++;
             }
         } else {
             throw new IllegalStateException("Unrecognized context detail " + contextDetail);
         }
+    }
+
+    private void validateAsName(Map<String, EventType> asNames, String asName, EventType filterForType) throws ExprValidationException {
+        EventType existing = asNames.get(asName);
+        if (existing != null && !EventTypeUtility.isTypeOrSubTypeOf(filterForType, existing)) {
+            throw new ExprValidationException("Name '" + asName + "' already used for type '" + existing.getName() + "'");
+        }
+        if (existing == null) {
+            asNames.put(asName, filterForType);
+        }
+    }
+
+    private FilterStreamSpecCompiled compilePartitonedFilterSpec(FilterSpecRaw filterSpecRaw, Set<String> eventTypesReferenced, StatementContext statementContext, EPServicesContext servicesContext) throws ExprValidationException {
+        validateNotTable(servicesContext, filterSpecRaw.getEventTypeName());
+        FilterStreamSpecRaw raw = new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
+        StreamSpecCompiled compiled = raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
+        if (!(compiled instanceof FilterStreamSpecCompiled)) {
+            throw new ExprValidationException("Partition criteria may not include named windows");
+        }
+        return (FilterStreamSpecCompiled) compiled;
     }
 
     private void validateNotTable(EPServicesContext servicesContext, String eventTypeName) throws ExprValidationException {

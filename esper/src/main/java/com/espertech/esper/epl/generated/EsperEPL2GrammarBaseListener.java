@@ -1036,6 +1036,30 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCreateContextPartitionInit(EsperEPL2GrammarParser.CreateContextPartitionInitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCreateContextPartitionInit(EsperEPL2GrammarParser.CreateContextPartitionInitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCreateContextPartitionTerm(EsperEPL2GrammarParser.CreateContextPartitionTermContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCreateContextPartitionTerm(EsperEPL2GrammarParser.CreateContextPartitionTermContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCreateSchemaQual(EsperEPL2GrammarParser.CreateSchemaQualContext ctx) { }
 	/**
 	 * {@inheritDoc}

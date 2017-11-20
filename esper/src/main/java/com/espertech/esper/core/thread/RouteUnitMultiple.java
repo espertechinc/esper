@@ -47,7 +47,7 @@ public class RouteUnitMultiple implements RouteUnitRunnable {
 
     public void run() {
         try {
-            epRuntime.processStatementFilterMultiple(handle, callbackList, theEvent, filterVersion);
+            epRuntime.processStatementFilterMultiple(handle, callbackList, theEvent, filterVersion, 0);
 
             epRuntime.dispatch();
 

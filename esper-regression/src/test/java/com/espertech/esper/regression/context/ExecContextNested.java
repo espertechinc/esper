@@ -38,7 +38,6 @@ import java.io.Serializable;
 import java.util.*;
 
 import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
-import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalidFAFSyntax;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertEquals;
 
@@ -77,6 +76,32 @@ public class ExecContextNested implements RegressionExecution {
         runAssertionPartitionWithMultiPropsAndTerm(epService);
         runAssertionNestedOverlappingAndPattern(epService);
         runAssertionNestedNonOverlapping(epService);
+        runAssertionPartitionedOverPatternInitiated(epService);
+    }
+
+    private void runAssertionPartitionedOverPatternInitiated(EPServiceProvider epService) {
+        epService.getEPAdministrator().createEPL("create context TheContext " +
+                "context C0 partition by theString from SupportBean," +
+                "context C1 initiated by SupportBean(intPrimitive=1) terminated by SupportBean(intPrimitive=2)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context TheContext select theString, sum(longPrimitive) as theSum from SupportBean output last when terminated");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        sendSupportBean(epService, "A", 0, 1);
+        sendSupportBean(epService, "B", 0, 2);
+        sendSupportBean(epService, "C", 1, 3);
+        sendSupportBean(epService, "D", 1, 4);
+        sendSupportBean(epService, "A", 0, 5);
+        sendSupportBean(epService, "C", 0, 6);
+        assertFalse(listener.isInvoked());
+
+        sendSupportBean(epService, "C", 2, -10);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "theString,theSum".split(","), new Object[] {"C", -1L});
+
+        sendSupportBean(epService, "D", 2, 5);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "theString,theSum".split(","), new Object[] {"D", 9L});
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void runAssertionNestedContextWithFilterUDF(EPServiceProvider epService) {
@@ -245,7 +270,7 @@ public class ExecContextNested implements RegressionExecution {
         runAssertionPartitionOverlap(epService);
     }
 
-    protected static void runAssertionNestingFilterCorrectness(EPServiceProvider epService, boolean isolationAllowed) {
+    private void runAssertionNestingFilterCorrectness(EPServiceProvider epService, boolean isolationAllowed) {
         String eplContext;
         String eplSelect = "context TheContext select count(*) from SupportBean";
         EPStatementSPI spiCtx;
@@ -1321,6 +1346,12 @@ public class ExecContextNested implements RegressionExecution {
         assertEquals(0, ((ContextPartitionIdentifierInitiatedTerminated)nested.getIdentifiers()[0]).getStartTime());
         assertEquals("g2", ((ContextPartitionIdentifierCategory)nested.getIdentifiers()[1]).getLabel());
         EPAssertionUtil.assertEqualsExactOrder(new Object[] {"E1"}, ((ContextPartitionIdentifierPartitioned)nested.getIdentifiers()[2]).getKeys());
+    }
+
+    private void sendSupportBean(EPServiceProvider epService, String theString, int intPrimitive, long longPrimitive) {
+        SupportBean bean = new SupportBean(theString, intPrimitive);
+        bean.setLongPrimitive(longPrimitive);
+        epService.getEPRuntime().sendEvent(bean);
     }
 
     public static class TestEvent implements Serializable {

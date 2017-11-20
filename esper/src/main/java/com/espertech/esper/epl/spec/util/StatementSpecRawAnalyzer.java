@@ -186,6 +186,14 @@ public class StatementSpecRawAnalyzer {
                         expressions.addAll(item.getFilterSpecRaw().getFilterExpressions());
                     }
                 }
+                if (ks.getOptionalInit() != null) {
+                    for (ContextDetailConditionFilter filter : ks.getOptionalInit()) {
+                        collectExpressions(expressions, filter);
+                    }
+                }
+                if (ks.getOptionalTermination() != null) {
+                    collectExpressions(expressions, ks.getOptionalTermination());
+                }
             } else if (detail instanceof ContextDetailCategory) {
                 ContextDetailCategory cat = (ContextDetailCategory) detail;
                 for (ContextDetailCategoryItem item : cat.getItems()) {

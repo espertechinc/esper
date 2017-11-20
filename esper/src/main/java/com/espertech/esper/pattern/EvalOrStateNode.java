@@ -76,7 +76,7 @@ public class EvalOrStateNode extends EvalStateNode implements Evaluator {
         }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternOrEvaluateTrue(evalOrNode, matchEvent);
         }
@@ -90,7 +90,7 @@ public class EvalOrStateNode extends EvalStateNode implements Evaluator {
             quitInternal();     // Quit the remaining listeners
         }
 
-        this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted);
+        this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted, optionalTriggeringEvent);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aPatternOrEvaluateTrue(isQuitted);
         }

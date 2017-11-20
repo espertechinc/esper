@@ -237,7 +237,7 @@ public class NestedProperty implements Property {
             } else {
                 if (!(nestedType instanceof Map)) {
                     String message = "Nestable map type configuration encountered an unexpected value type of '"
-                            + nestedType.getClass() + " for property '" + propertyName + "', expected Class, Map.class or Map<String, Object> as value type";
+                            + nestedType.getClass() + "' for property '" + propertyName + "', expected Class, Map.class or Map<String, Object> as value type";
                     throw new PropertyAccessException(message);
                 }
             }

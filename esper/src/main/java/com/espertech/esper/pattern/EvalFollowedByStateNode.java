@@ -60,7 +60,7 @@ public class EvalFollowedByStateNode extends EvalStateNode implements Evaluator 
         }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         Integer index = nodes.get(fromNode);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternFollowedByEvaluateTrue(evalFollowedByNode, matchEvent, index);
@@ -87,7 +87,7 @@ public class EvalFollowedByStateNode extends EvalStateNode implements Evaluator 
                 isFollowedByQuitted = true;
             }
 
-            this.getParentEvaluator().evaluateTrue(matchEvent, this, isFollowedByQuitted);
+            this.getParentEvaluator().evaluateTrue(matchEvent, this, isFollowedByQuitted, optionalTriggeringEvent);
         } else {
             // Else start a new sub-expression for the next-in-line filter
             EvalNode child = evalFollowedByNode.getChildNodes()[index + 1];

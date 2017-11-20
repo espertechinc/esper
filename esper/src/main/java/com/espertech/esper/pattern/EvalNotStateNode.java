@@ -60,7 +60,7 @@ public class EvalNotStateNode extends EvalStateNode implements Evaluator {
         // The not node acts by inverting the truth
         // By default the child nodes are false. This not node acts inverts the truth and pretends the child is true,
         // raising an event up.
-        this.getParentEvaluator().evaluateTrue(beginState, this, false);
+        this.getParentEvaluator().evaluateTrue(beginState, this, false, null);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aPatternNotStart();
         }
@@ -75,7 +75,7 @@ public class EvalNotStateNode extends EvalStateNode implements Evaluator {
         }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternNotEvaluateTrue(evalNotNode, matchEvent);
         }

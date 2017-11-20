@@ -860,6 +860,26 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitCreateContextGroupItem(EsperEPL2GrammarParser.CreateContextGroupItemContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#createContextPartitionInit}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreateContextPartitionInit(EsperEPL2GrammarParser.CreateContextPartitionInitContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#createContextPartitionInit}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreateContextPartitionInit(EsperEPL2GrammarParser.CreateContextPartitionInitContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#createContextPartitionTerm}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreateContextPartitionTerm(EsperEPL2GrammarParser.CreateContextPartitionTermContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#createContextPartitionTerm}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreateContextPartitionTerm(EsperEPL2GrammarParser.CreateContextPartitionTermContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#createSchemaQual}.
 	 * @param ctx the parse tree
 	 */

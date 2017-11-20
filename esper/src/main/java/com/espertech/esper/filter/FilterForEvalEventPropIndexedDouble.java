@@ -47,7 +47,9 @@ public class FilterForEvalEventPropIndexedDouble implements FilterSpecParamFilte
 
         Number value;
         if (events == null) {
-            log.warn("Matching events for tag '" + resultEventAsName + "' returned a null result, using null value in filter criteria, for statement '" + statementName + "'");
+            if (log.isDebugEnabled()) {
+                log.debug("Matching events for tag '" + resultEventAsName + "' returned a null result, using null value in filter criteria, for statement '" + statementName + "'");
+            }
             return null;
         } else if (resultEventIndex > (events.length - 1)) {
             log.warn("Matching events for tag '" + resultEventAsName + "' returned no result for index " + resultEventIndex + " at array length " + events.length + ", using null value in filter criteria, for statement '" + statementName + "'");

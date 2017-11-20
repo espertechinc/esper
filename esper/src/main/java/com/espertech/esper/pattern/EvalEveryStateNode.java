@@ -116,7 +116,7 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator {
         }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternEveryEvaluateTrue(evalEveryNode, matchEvent);
         }
@@ -145,7 +145,7 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator {
         }
 
         // All nodes indicate to their parents that their child node did not quit, therefore a false for isQuitted
-        this.getParentEvaluator().evaluateTrue(matchEvent, this, false);
+        this.getParentEvaluator().evaluateTrue(matchEvent, this, false, optionalTriggeringEvent);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aPatternEveryEvaluateTrue();
         }

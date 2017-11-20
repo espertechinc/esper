@@ -193,6 +193,27 @@ public class ExecContextDocExamples implements RegressionExecution {
                 "from SensorEvent\n" +
                 "output snapshot when terminated\n" +
                 "// note: no group-by needed since \n");
+
+        create(epService, "create context PerCustId_TriggeredByLargeAmount\n" +
+                "  partition by custId from BankTxn \n" +
+                "  initiated by BankTxn(amount>100) as largeTxn");
+        create(epService, "context PerCustId_TriggeredByLargeAmount select context.largeTxn, custId, sum(amount) from BankTxn");
+        create(epService, "create context PerCustId_UntilExpired\n" +
+                "  partition by custId from BankTxn \n" +
+                "  terminated by BankTxn(expired=true)");
+        create(epService, "context PerCustId_UntilExpired select custId, sum(amount) from BankTxn output last when terminated");
+        create(epService, "create context PerCustId_TriggeredByLargeAmount_UntilExpired\n" +
+                "  partition by custId from BankTxn \n" +
+                "  initiated by BankTxn(amount>100) as txn\n" +
+                "  terminated by BankTxn(expired=true and user=txn.user)");
+        create(epService, "create context PerCust_AmountGreater100\n" +
+                "  partition by custId from BankTxn(amount>100)\n" +
+                "  initiated by BankTxn");
+        create(epService, "context PerCust_AmountGreater100 select custId, sum(amount) from BankTxn");
+        create(epService, "create context PerCust_TriggeredByLargeTxn\n" +
+                "  partition by custId from BankTxn\n" +
+                "  initiated by BankTxn(amount>100)");
+        create(epService, "context PerCust_TriggeredByLargeTxn select custId, sum(amount) from BankTxn");
     }
 
     private EPStatement create(EPServiceProvider epService, String epl) {
@@ -306,6 +327,8 @@ public class ExecContextDocExamples implements RegressionExecution {
         private String account;
         private long amount;
         private String customerName;
+        private boolean expired;
+        private String user;
 
         public String getCustId() {
             return custId;
@@ -321,6 +344,14 @@ public class ExecContextDocExamples implements RegressionExecution {
 
         public String getCustomerName() {
             return customerName;
+        }
+
+        public boolean isExpired() {
+            return expired;
+        }
+
+        public String getUser() {
+            return user;
         }
     }
 

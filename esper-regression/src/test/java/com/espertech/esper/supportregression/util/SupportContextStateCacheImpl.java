@@ -14,6 +14,7 @@ import com.espertech.esper.client.context.ContextPartitionState;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.core.context.mgr.*;
 import com.espertech.esper.epl.spec.ContextDetailInitiatedTerminated;
+import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import org.junit.Assert;
 
 import java.util.*;
@@ -42,6 +43,9 @@ public class SupportContextStateCacheImpl implements ContextStateCache {
             if (desc.getPayload() == null) {
                 Assert.assertNotNull(payloadReceived);
             } else {
+                if (payloadReceived instanceof ContextControllerPartitionedState) {
+                    payloadReceived = ((ContextControllerPartitionedState) payloadReceived).getPartitionKey();
+                }
                 EPAssertionUtil.assertEqualsAllowArray(text, desc.getPayload(), payloadReceived);
             }
         }
@@ -60,6 +64,9 @@ public class SupportContextStateCacheImpl implements ContextStateCache {
     public ContextStatePathValueBinding getBinding(Object bindingInfo) {
         if (bindingInfo instanceof ContextDetailInitiatedTerminated) {
             return new ContextStateCacheNoSave.ContextStateCacheNoSaveInitTermBinding();
+        }
+        if (bindingInfo == ContextControllerPartitionedState.class) {
+            return new ContextStateCacheNoSave.ContextStateCacheNoSavePartitionBinding();
         }
         return ContextStateCacheNoSave.DEFAULT_SPI_TEST_BINDING;
     }

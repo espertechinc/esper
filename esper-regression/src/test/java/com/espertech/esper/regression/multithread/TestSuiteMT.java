@@ -34,6 +34,10 @@ public class TestSuiteMT extends TestCase {
         RegressionRunner.run(new ExecMTContextInitiatedTerminatedWithNowParallel());
     }
 
+    public void testExecMTContextPartitionedWTerm() {
+        RegressionRunner.run(new ExecMTContextPartitionedWTerm());
+    }
+
     public void testExecMTContextListenerDispatch() {
         RegressionRunner.run(new ExecMTContextListenerDispatch());
     }

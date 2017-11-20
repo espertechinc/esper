@@ -111,7 +111,7 @@ public class EvalEveryDistinctStateExpireKeyNode extends EvalStateNode implement
         }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternEveryDistinctEvaluateTrue(everyNode, matchEvent);
         }
@@ -170,7 +170,7 @@ public class EvalEveryDistinctStateExpireKeyNode extends EvalStateNode implement
         }
 
         if (!haveSeenThis) {
-            this.getParentEvaluator().evaluateTrue(matchEvent, this, false);
+            this.getParentEvaluator().evaluateTrue(matchEvent, this, false, optionalTriggeringEvent);
         }
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aPatternEveryDistinctEvaluateTrue(null, keysFromNode, matchEventKey, haveSeenThis);

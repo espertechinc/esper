@@ -30,7 +30,7 @@ public class SupportPatternContextFactory {
             stmtContext = SupportStatementContextFactory.makeContext(scheduleService);
         }
         PatternContext context = new PatternContext(stmtContext, 1, new MatchedEventMapMeta(new String[0], false), false);
-        return new PatternAgentInstanceContext(context, SupportStatementContextFactory.makeAgentInstanceContext(), false);
+        return new PatternAgentInstanceContext(context, SupportStatementContextFactory.makeAgentInstanceContext(), false, null);
     }
 
     public static PatternContext makeContext() {

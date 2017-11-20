@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterValueSetParam;
 
@@ -21,13 +22,16 @@ public class ContextDetailPartitionItem implements Serializable {
     private static final long serialVersionUID = -4009763999241702138L;
     private final FilterSpecRaw filterSpecRaw;
     private final List<String> propertyNames;
+    private final String aliasName;
 
     private transient FilterSpecCompiled filterSpecCompiled;
     private transient FilterValueSetParam[][] parametersCompiled;
+    private transient EventPropertyGetter[] getters;
 
-    public ContextDetailPartitionItem(FilterSpecRaw filterSpecRaw, List<String> propertyNames) {
+    public ContextDetailPartitionItem(FilterSpecRaw filterSpecRaw, List<String> propertyNames, String aliasName) {
         this.filterSpecRaw = filterSpecRaw;
         this.propertyNames = propertyNames;
+        this.aliasName = aliasName;
     }
 
     public FilterSpecRaw getFilterSpecRaw() {
@@ -47,7 +51,19 @@ public class ContextDetailPartitionItem implements Serializable {
         this.parametersCompiled = filterSpecCompiled.getValueSet(null, null, null).getParameters();
     }
 
+    public EventPropertyGetter[] getGetters() {
+        return getters;
+    }
+
+    public void setGetters(EventPropertyGetter[] getters) {
+        this.getters = getters;
+    }
+
     public FilterValueSetParam[][] getParametersCompiled() {
         return parametersCompiled;
+    }
+
+    public String getAliasName() {
+        return aliasName;
     }
 }

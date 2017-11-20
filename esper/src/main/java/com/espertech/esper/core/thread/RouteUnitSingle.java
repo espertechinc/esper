@@ -44,7 +44,7 @@ public class RouteUnitSingle implements RouteUnitRunnable {
 
     public void run() {
         try {
-            epRuntime.processStatementFilterSingle(handleCallback.getAgentInstanceHandle(), handleCallback, theEvent, filterVersion);
+            epRuntime.processStatementFilterSingle(handleCallback.getAgentInstanceHandle(), handleCallback, theEvent, filterVersion, 0);
 
             epRuntime.dispatch();
 

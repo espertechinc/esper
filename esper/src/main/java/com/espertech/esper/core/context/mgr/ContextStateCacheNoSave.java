@@ -13,10 +13,12 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.spec.ContextDetailInitiatedTerminated;
+import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.SerializerUtil;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -32,6 +34,9 @@ public class ContextStateCacheNoSave implements ContextStateCache {
     public ContextStatePathValueBinding getBinding(Object bindingInfo) {
         if (bindingInfo instanceof ContextDetailInitiatedTerminated) {
             return new ContextStateCacheNoSaveInitTermBinding();
+        }
+        if (bindingInfo instanceof ContextDetailPartitioned) {
+            return new ContextStateCacheNoSavePartitionBinding();
         }
         return DEFAULT_SPI_TEST_BINDING;
     }
@@ -73,6 +78,25 @@ public class ContextStateCacheNoSave implements ContextStateCache {
         }
     }
 
+    public static class ContextStateCacheNoSavePartitionBinding implements ContextStatePathValueBinding {
+
+        public Object byteArrayToObject(byte[] bytes, EventAdapterService eventAdapterService) {
+            ContextControllerPartitionedState state = (ContextControllerPartitionedState) SerializerUtil.byteArrToObject(bytes);
+            hydrate(state.getInitEvents(), eventAdapterService);
+            return state;
+        }
+
+        public byte[] toByteArray(Object contextInfo) {
+            if (!(contextInfo instanceof ContextControllerPartitionedState)) {
+                contextInfo = new ContextControllerPartitionedState(contextInfo instanceof Object[] ? (Object[]) contextInfo : new Object[]{contextInfo}, Collections.emptyMap());
+            }
+            ContextControllerPartitionedState state = (ContextControllerPartitionedState) contextInfo;
+            Map<String, Object> serializableProps = dehydrate(state.getInitEvents());
+            ContextControllerPartitionedState serialized = new ContextControllerPartitionedState(state.getPartitionKey(), serializableProps);
+            return SerializerUtil.objectToByteArr(serialized);
+        }
+    }
+
     /**
      * For testing, only used within SPIs; Replaced by applicable EsperHA bindings.
      * Simple binding where any events get changed to type name and byte array.
@@ -81,32 +105,41 @@ public class ContextStateCacheNoSave implements ContextStateCache {
 
         public Object byteArrayToObject(byte[] bytes, EventAdapterService eventAdapterService) {
             ContextControllerInitTermState state = (ContextControllerInitTermState) SerializerUtil.byteArrToObject(bytes);
-            for (Map.Entry<String, Object> entry : state.getPatternData().entrySet()) {
-                if (entry.getValue() instanceof EventBeanNameValuePair) {
-                    EventBeanNameValuePair event = (EventBeanNameValuePair) entry.getValue();
-                    EventType type = eventAdapterService.getExistsTypeByName(event.getEventTypeName());
-                    Object underlying = SerializerUtil.byteArrToObject(event.getBytes());
-                    state.getPatternData().put(entry.getKey(), eventAdapterService.adapterForType(underlying, type));
-                }
-            }
+            hydrate(state.getPatternData(), eventAdapterService);
             return state;
         }
 
         public byte[] toByteArray(Object contextInfo) {
             ContextControllerInitTermState state = (ContextControllerInitTermState) contextInfo;
-            Map<String, Object> serializableProps = new HashMap<String, Object>();
-            if (state.getPatternData() != null) {
-                serializableProps.putAll(state.getPatternData());
-                for (Map.Entry<String, Object> entry : state.getPatternData().entrySet()) {
-                    if (entry.getValue() instanceof EventBean) {
-                        EventBean event = (EventBean) entry.getValue();
-                        serializableProps.put(entry.getKey(), new EventBeanNameValuePair(event.getEventType().getName(), SerializerUtil.objectToByteArr(event.getUnderlying())));
-                    }
-                }
-            }
+            Map<String, Object> serializableProps = dehydrate(state.getPatternData());
             ContextControllerInitTermState serialized = new ContextControllerInitTermState(state.getStartTime(), serializableProps);
             return SerializerUtil.objectToByteArr(serialized);
         }
+    }
+
+    private static void hydrate(Map<String, Object> state, EventAdapterService eventAdapterService) {
+        for (Map.Entry<String, Object> entry : state.entrySet()) {
+            if (entry.getValue() instanceof EventBeanNameValuePair) {
+                EventBeanNameValuePair event = (EventBeanNameValuePair) entry.getValue();
+                EventType type = eventAdapterService.getExistsTypeByName(event.getEventTypeName());
+                Object underlying = SerializerUtil.byteArrToObject(event.getBytes());
+                state.put(entry.getKey(), eventAdapterService.adapterForType(underlying, type));
+            }
+        }
+    }
+
+    private static Map<String, Object> dehydrate(Map<String, Object> state) {
+        Map<String, Object> serializableProps = new HashMap<String, Object>();
+        if (state != null) {
+            serializableProps.putAll(state);
+            for (Map.Entry<String, Object> entry : state.entrySet()) {
+                if (entry.getValue() instanceof EventBean) {
+                    EventBean event = (EventBean) entry.getValue();
+                    serializableProps.put(entry.getKey(), new EventBeanNameValuePair(event.getEventType().getName(), SerializerUtil.objectToByteArr(event.getUnderlying())));
+                }
+            }
+        }
+        return serializableProps;
     }
 
     private static class EventBeanNameValuePair implements Serializable {

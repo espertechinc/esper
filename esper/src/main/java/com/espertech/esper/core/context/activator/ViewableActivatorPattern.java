@@ -42,13 +42,13 @@ public class ViewableActivatorPattern implements ViewableActivator {
     }
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-        PatternAgentInstanceContext patternAgentInstanceContext = agentInstanceContext.getStatementContext().getPatternContextFactory().createPatternAgentContext(patternContext, agentInstanceContext, hasConsumingFilter);
+        PatternAgentInstanceContext patternAgentInstanceContext = agentInstanceContext.getStatementContext().getPatternContextFactory().createPatternAgentContext(patternContext, agentInstanceContext, hasConsumingFilter, null);
         EvalRootNode rootNode = EvalNodeUtil.makeRootNodeFromFactory(rootFactoryNode, patternAgentInstanceContext);
 
         final EventStream sourceEventStream = isCanIterate ? new ZeroDepthStreamIterable(eventType) : new ZeroDepthStreamNoIterate(eventType);
         final StatementContext statementContext = patternContext.getStatementContext();
         final PatternMatchCallback callback = new PatternMatchCallback() {
-            public void matchFound(Map<String, Object> matchEvent) {
+            public void matchFound(Map<String, Object> matchEvent, EventBean optionalTriggeringEvent) {
                 EventBean compositeEvent = statementContext.getEventAdapterService().adapterForTypedMap(matchEvent, eventType);
                 sourceEventStream.insert(compositeEvent);
             }

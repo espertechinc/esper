@@ -107,7 +107,7 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
             return JavaClassHelper.getArrayType(eventType[0].getUnderlyingType());
         }
         String message = "Nestable map type configuration encountered an unexpected value type of '"
-                + def.getClass() + " for property '" + propertyNameAtomic + "', expected Map or Class";
+                + def.getClass() + "' for property '" + propertyNameAtomic + "', expected Map or Class";
         throw new PropertyAccessException(message);
     }
 

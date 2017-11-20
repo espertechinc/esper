@@ -83,8 +83,8 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         }
     }
 
-    private void evaluateTrue(MatchedEventMap theEvent, boolean isQuitted) {
-        this.getParentEvaluator().evaluateTrue(theEvent, this, isQuitted);
+    private void evaluateTrue(MatchedEventMap theEvent, boolean isQuitted, EventBean optionalTriggeringEvent) {
+        this.getParentEvaluator().evaluateTrue(theEvent, this, isQuitted, optionalTriggeringEvent);
     }
 
     public EvalFilterNode getEvalFilterNode() {
@@ -133,7 +133,7 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
             isQuitted = true;
         }
 
-        this.evaluateTrue(passUp, isQuitted);
+        this.evaluateTrue(passUp, isQuitted, theEvent);
 
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aPatternFilterMatch(isQuitted);

@@ -12,6 +12,10 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filter.FilterValueSetParam;
+
+import java.util.IdentityHashMap;
 
 /**
  * Contains handles to implementations of services needed by evaluation nodes.
@@ -20,10 +24,12 @@ public class PatternAgentInstanceContext {
     private final PatternContext patternContext;
     private final AgentInstanceContext agentInstanceContext;
     private final EvalFilterConsumptionHandler consumptionHandler;
+    private final IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum;
 
-    public PatternAgentInstanceContext(PatternContext patternContext, AgentInstanceContext agentInstanceContext, boolean hasConsumingFilter) {
+    public PatternAgentInstanceContext(PatternContext patternContext, AgentInstanceContext agentInstanceContext, boolean hasConsumingFilter, IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum) {
         this.patternContext = patternContext;
         this.agentInstanceContext = agentInstanceContext;
+        this.filterAddendum = filterAddendum;
 
         if (hasConsumingFilter) {
             consumptionHandler = new EvalFilterConsumptionHandler();
@@ -46,5 +52,9 @@ public class PatternAgentInstanceContext {
 
     public StatementContext getStatementContext() {
         return agentInstanceContext.getStatementContext();
+    }
+
+    public IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> getFilterAddendum() {
+        return filterAddendum;
     }
 }

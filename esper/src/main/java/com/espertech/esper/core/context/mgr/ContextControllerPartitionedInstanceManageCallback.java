@@ -8,22 +8,14 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.pattern;
+package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filter.FilterHandleCallback;
 
-import java.util.Map;
+import java.util.Collection;
 
-/**
- * Callback interface for anything that requires to be informed of matching events which would be stored
- * in the MatchedEventMap structure passed to the implementation.
- */
-public interface PatternMatchCallback {
-    /**
-     * Indicate matching events.
-     *
-     * @param matchEvent contains a map of event tags and event objects
-     * @param optionalTriggeringEvent in case the pattern fired as a result of an event arriving, provides the event
-     */
-    public void matchFound(Map<String, Object> matchEvent, EventBean optionalTriggeringEvent);
+public interface ContextControllerPartitionedInstanceManageCallback {
+
+    public void createKey(Object key, EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches, String initConditionAsName);
 }

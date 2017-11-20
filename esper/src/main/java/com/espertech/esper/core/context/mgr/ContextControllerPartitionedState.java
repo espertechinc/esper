@@ -10,15 +10,33 @@
  */
 package com.espertech.esper.core.context.mgr;
 
-public class ContextControllerPartitionedState {
+import com.espertech.esper.client.EventBean;
 
-    private final Object partitionKey;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 
-    public ContextControllerPartitionedState(Object partitionKey) {
+public class ContextControllerPartitionedState implements Serializable {
+
+    private static final long serialVersionUID = 8041202585242419790L;
+    private final Object[] partitionKey;
+    private final Map<String, Object> initEvents;
+
+    public ContextControllerPartitionedState(Object[] partitionKey, Map<String, Object> initEvents) {
         this.partitionKey = partitionKey;
+        this.initEvents = initEvents;
     }
 
-    public Object getPartitionKey() {
+    public ContextControllerPartitionedState(Object[] partitionKey, String initConditionAsName, EventBean theEvent) {
+        this.partitionKey = partitionKey;
+        initEvents = initConditionAsName != null ? Collections.singletonMap(initConditionAsName, theEvent) : Collections.emptyMap();
+    }
+
+    public Object[] getPartitionKey() {
         return partitionKey;
+    }
+
+    public Map<String, Object> getInitEvents() {
+        return initEvents;
     }
 }

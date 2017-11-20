@@ -163,7 +163,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
         throw ContextControllerSelectorUtil.getInvalidSelector(new Class[0], contextPartitionSelector);
     }
 
-    public void rangeNotification(Map<String, Object> builtinProperties, ContextControllerCondition originCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, ContextInternalFilterAddendum filterAddendum) {
+    public void rangeNotification(Map<String, Object> builtinProperties, ContextControllerCondition originCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, ContextInternalFilterAddendum filterAddendum) {
         boolean endConditionNotification = originCondition != startCondition;
         boolean startNow = startCondition instanceof ContextControllerConditionImmediate;
         List<AgentInstance> agentInstancesLocksHeld = null;
@@ -394,7 +394,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
             int contextPartitionId = entry.getValue().getOptionalContextPartitionId();
 
             int assignedSubPathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle instanceHandle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, null, builtinProps, controllerState, filterAddendum, loadingExistingState || factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState(), () -> new ContextPartitionIdentifierInitiatedTerminated(builtinProps, startTime, endTime));
+            ContextControllerInstanceHandle instanceHandle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, new ContextControllerInitTermState(startTime, state.getPatternData()), builtinProps, controllerState, filterAddendum, loadingExistingState || factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState(), () -> new ContextPartitionIdentifierInitiatedTerminated(builtinProps, startTime, endTime));
             endConditions.put(endEndpoint, new ContextControllerInitTermInstance(instanceHandle, state.getPatternData(), startTime, endTime, assignedSubPathId));
 
             if (entry.getKey().getSubPath() > maxSubpathId) {

@@ -61,7 +61,7 @@ public class ContextPartitionIdentifierPartitioned extends ContextPartitionIdent
 
     public String toString() {
         return "ContextPartitionIdentifierPartitioned{" +
-                "keys=" + (keys == null ? null : Arrays.asList(keys)) +
+                "keys=" + Arrays.toString(keys) +
                 '}';
     }
 }

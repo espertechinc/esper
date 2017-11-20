@@ -21,6 +21,7 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
     private static final long serialVersionUID = -5135918405149193009L;
     private List<String> propertyNames;
     private Filter filter;
+    private String streamName;
 
     /**
      * Ctor.
@@ -37,6 +38,12 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
     public ContextDescriptorKeyedSegmentedItem(List<String> propertyNames, Filter filter) {
         this.propertyNames = propertyNames;
         this.filter = filter;
+    }
+
+    public ContextDescriptorKeyedSegmentedItem(List<String> propertyNames, Filter filter, String streamName) {
+        this.propertyNames = propertyNames;
+        this.filter = filter;
+        this.streamName = streamName;
     }
 
     /**
@@ -75,6 +82,22 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
         this.propertyNames = propertyNames;
     }
 
+    /**
+     * Returns the stream name.
+     * @return stream name
+     */
+    public String getStreamName() {
+        return streamName;
+    }
+
+    /**
+     * Sets the stream name.
+     * @param streamName stream name
+     */
+    public void setStreamName(String streamName) {
+        this.streamName = streamName;
+    }
+
     public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
         String delimiter = "";
         for (String prop : propertyNames) {
@@ -84,5 +107,8 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
         }
         writer.append(" from ");
         filter.toEPL(writer, formatter);
+        if (streamName != null) {
+            writer.append(" as ").append(streamName);
+        }
     }
 }

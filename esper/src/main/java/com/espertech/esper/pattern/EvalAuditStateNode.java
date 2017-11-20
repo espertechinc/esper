@@ -54,13 +54,13 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
         evalAuditNode.getFactoryNode().increaseRefCount(this, evalAuditNode.getContext().getPatternContext());
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (evalAuditNode.getFactoryNode().isAuditPattern() && AuditPath.isInfoEnabled()) {
             String message = toStringEvaluateTrue(this, evalAuditNode.getFactoryNode().getPatternExpr(), matchEvent, fromNode, isQuitted);
             AuditPath.auditLog(evalAuditNode.getContext().getStatementContext().getEngineURI(), evalAuditNode.getContext().getPatternContext().getStatementName(), AuditEnum.PATTERN, message);
         }
 
-        this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted);
+        this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted, optionalTriggeringEvent);
 
         if (isQuitted) {
             evalAuditNode.getFactoryNode().decreaseRefCount(this, evalAuditNode.getContext().getPatternContext());

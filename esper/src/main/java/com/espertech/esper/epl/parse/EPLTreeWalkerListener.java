@@ -3289,4 +3289,16 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     public void enterOnMergeDirectInsert(EsperEPL2GrammarParser.OnMergeDirectInsertContext ctx) {
     }
+
+    public void enterCreateContextPartitionInit(EsperEPL2GrammarParser.CreateContextPartitionInitContext ctx) {
+    }
+
+    public void exitCreateContextPartitionInit(EsperEPL2GrammarParser.CreateContextPartitionInitContext ctx) {
+    }
+
+    public void enterCreateContextPartitionTerm(EsperEPL2GrammarParser.CreateContextPartitionTermContext ctx) {
+    }
+
+    public void exitCreateContextPartitionTerm(EsperEPL2GrammarParser.CreateContextPartitionTermContext ctx) {
+    }
 }

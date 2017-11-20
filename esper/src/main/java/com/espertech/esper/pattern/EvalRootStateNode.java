@@ -95,7 +95,7 @@ public class EvalRootStateNode extends EvalStateNode implements Evaluator, Patte
         // no action
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternRootEvaluateTrue(matchEvent);
         }
@@ -105,7 +105,7 @@ public class EvalRootStateNode extends EvalStateNode implements Evaluator, Patte
             handleChildQuitEvent();
         }
 
-        callback.matchFound(matchEvent.getMatchingEventsAsMap());
+        callback.matchFound(matchEvent.getMatchingEventsAsMap(), optionalTriggeringEvent);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aPatternRootEvaluateTrue(topStateNode == null);
         }

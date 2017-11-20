@@ -11,6 +11,8 @@
 package com.espertech.esper.pattern;
 
 
+import com.espertech.esper.client.EventBean;
+
 /**
  * Interface for nodes in an expression evaluation state tree that are being informed by a child that the
  * event expression fragments (subtrees) which the child represents has turned true (evaluateTrue method)
@@ -19,12 +21,12 @@ package com.espertech.esper.pattern;
 public interface Evaluator {
     /**
      * Indicate a change in truth value to true.
-     *
-     * @param matchEvent is the container for events that caused the change in truth value
+     *  @param matchEvent is the container for events that caused the change in truth value
      * @param fromNode   is the node that indicates the change
      * @param isQuitted  is an indication of whether the node continues listenening or stops listening
+     * @param optionalTriggeringEvent in case the truth value changed to true in direct response to an event arriving, provides that event
      */
-    public void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted);
+    public void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent);
 
     /**
      * Indicate a change in truth value to false.

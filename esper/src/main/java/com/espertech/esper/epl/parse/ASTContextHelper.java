@@ -102,9 +102,19 @@ public class ASTContextHelper {
                 }
                 ASTExprHelper.exprCollectSubNodes(partition, 0, astExprNodeMap); // remove expressions
 
-                rawSpecs.add(new ContextDetailPartitionItem(filterSpec, propertyNames));
+                rawSpecs.add(new ContextDetailPartitionItem(filterSpec, propertyNames, partition.keywordAllowedIdent() == null ? null : partition.keywordAllowedIdent().getText()));
             }
-            return new ContextDetailPartitioned(rawSpecs);
+
+            List<ContextDetailConditionFilter> optionalInit = null;
+            if (ctx.createContextPartitionInit() != null) {
+                optionalInit = getContextPartitionInit(ctx.createContextPartitionInit().createContextFilter(), astExprNodeMap);
+            }
+
+            ContextDetailCondition optionalTermination = null;
+            if (ctx.createContextPartitionTerm() != null) {
+                optionalTermination = getContextCondition(ctx.createContextPartitionTerm().createContextRangePoint(), astExprNodeMap, astPatternNodeMap, propertyEvalSpec, false);
+            }
+            return new ContextDetailPartitioned(rawSpecs, optionalInit, optionalTermination);
         } else if (ctx.COALESCE() != null) {
             // hash
             List<EsperEPL2GrammarParser.CreateContextCoalesceItemContext> coalesces = ctx.createContextCoalesceItem();
@@ -148,6 +158,14 @@ public class ASTContextHelper {
         throw new IllegalStateException("Unrecognized context detail type");
     }
 
+    private static List<ContextDetailConditionFilter> getContextPartitionInit(List<EsperEPL2GrammarParser.CreateContextFilterContext> ctxs, Map<Tree, ExprNode> astExprNodeMap) {
+        List<ContextDetailConditionFilter> filters = new ArrayList<>(ctxs.size());
+        for (EsperEPL2GrammarParser.CreateContextFilterContext ctx : ctxs) {
+            filters.add(getContextDetailConditionFilter(ctx, null, astExprNodeMap));
+        }
+        return filters;
+    }
+
     private static ContextDetailCondition getContextCondition(EsperEPL2GrammarParser.CreateContextRangePointContext ctx, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec, boolean immediate) {
         if (ctx == null) {
             return ContextDetailConditionNever.INSTANCE;
@@ -167,18 +185,22 @@ public class ASTContextHelper {
             }
             return new ContextDetailConditionPattern(evalNode, inclusive, immediate);
         } else if (ctx.createContextFilter() != null) {
-            FilterSpecRaw filterSpecRaw = ASTFilterSpecHelper.walkFilterSpec(ctx.createContextFilter().eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
-            String asName = ctx.createContextFilter().i != null ? ctx.createContextFilter().i.getText() : null;
             if (immediate) {
                 throw ASTWalkException.from("Invalid use of 'now' with initiated-by stream, this combination is not supported");
             }
-            return new ContextDetailConditionFilter(filterSpecRaw, asName);
+            return getContextDetailConditionFilter(ctx.createContextFilter(), propertyEvalSpec, astExprNodeMap);
         } else if (ctx.AFTER() != null) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) ASTExprHelper.exprCollectSubNodes(ctx.timePeriod(), 0, astExprNodeMap).get(0);
             return new ContextDetailConditionTimePeriod(timePeriod, immediate);
         } else {
             throw new IllegalStateException("Unrecognized child type");
         }
+    }
+
+    private static ContextDetailConditionFilter getContextDetailConditionFilter(EsperEPL2GrammarParser.CreateContextFilterContext ctx, PropertyEvalSpec propertyEvalSpec, Map<Tree, ExprNode> astExprNodeMap) {
+        FilterSpecRaw filterSpecRaw = ASTFilterSpecHelper.walkFilterSpec(ctx.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
+        String asName = ctx.i != null ? ctx.i.getText() : null;
+        return new ContextDetailConditionFilter(filterSpecRaw, asName);
     }
 
     private static boolean checkNow(Token i) {

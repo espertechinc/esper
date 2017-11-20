@@ -117,7 +117,7 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator {
         return false;
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternAndEvaluateTrue(evalAndNode, matchEvent);
         }
@@ -196,7 +196,7 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator {
 
         // Send results to parent
         for (MatchedEventMap theEvent : result) {
-            this.getParentEvaluator().evaluateTrue(theEvent, this, quitted);
+            this.getParentEvaluator().evaluateTrue(theEvent, this, quitted, optionalTriggeringEvent);
         }
 
         if (InstrumentationHelper.ENABLED) {

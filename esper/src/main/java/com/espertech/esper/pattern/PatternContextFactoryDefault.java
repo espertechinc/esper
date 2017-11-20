@@ -12,6 +12,10 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filter.FilterValueSetParam;
+
+import java.util.IdentityHashMap;
 
 /**
  * Default pattern context factory.
@@ -25,7 +29,7 @@ public class PatternContextFactoryDefault implements PatternContextFactory {
         return new PatternContext(statementContext, streamId, matchedEventMapMeta, false);
     }
 
-    public PatternAgentInstanceContext createPatternAgentContext(PatternContext patternContext, AgentInstanceContext agentInstanceContext, boolean hasConsumingFilter) {
-        return new PatternAgentInstanceContext(patternContext, agentInstanceContext, hasConsumingFilter);
+    public PatternAgentInstanceContext createPatternAgentContext(PatternContext patternContext, AgentInstanceContext agentInstanceContext, boolean hasConsumingFilter, IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum) {
+        return new PatternAgentInstanceContext(patternContext, agentInstanceContext, hasConsumingFilter, filterAddendum);
     }
 }

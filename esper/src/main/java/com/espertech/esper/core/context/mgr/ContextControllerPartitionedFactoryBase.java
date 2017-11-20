@@ -20,6 +20,7 @@ import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistryFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetail;
+import com.espertech.esper.epl.spec.ContextDetailConditionFilter;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzer;
@@ -27,20 +28,24 @@ import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.pattern.MatchedEventMapMeta;
 
 import java.util.*;
 
 public abstract class ContextControllerPartitionedFactoryBase extends ContextControllerFactoryBase implements ContextControllerFactory {
 
-    private final ContextDetailPartitioned segmentedSpec;
+    protected final ContextDetailPartitioned segmentedSpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
+    private final List<FilterSpecCompiled> filtersTerminationMayNull;
 
     private Map<String, Object> contextBuiltinProps;
+    private MatchedEventMapMeta termConditionMatchEventMap;
 
     public ContextControllerPartitionedFactoryBase(ContextControllerFactoryContext factoryContext, ContextDetailPartitioned segmentedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
         this.segmentedSpec = segmentedSpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
+        this.filtersTerminationMayNull = segmentedSpec.getOptionalTermination() == null ? null : segmentedSpec.getOptionalTermination().getFilterSpecIfAny();
     }
 
     public boolean hasFiltersSpecsNestedContexts() {
@@ -50,6 +55,19 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
     public void validateFactory() throws ExprValidationException {
         Class[] propertyTypes = ContextControllerPartitionedUtil.validateContextDesc(factoryContext.getContextName(), segmentedSpec);
         contextBuiltinProps = ContextPropertyEventType.getPartitionType(segmentedSpec, propertyTypes);
+
+        LinkedHashSet<String> allTags = new LinkedHashSet<>();
+        for (ContextDetailPartitionItem item : segmentedSpec.getItems()) {
+            if (item.getAliasName() != null) {
+                allTags.add(item.getAliasName());
+            }
+        }
+        if (segmentedSpec.getOptionalInit() != null) {
+            for (ContextDetailConditionFilter filter : segmentedSpec.getOptionalInit()) {
+                ContextPropertyEventType.addEndpointTypes(factoryContext.getContextName(), filter, contextBuiltinProps, allTags);
+            }
+        }
+        termConditionMatchEventMap = new MatchedEventMapMeta(allTags, false);
     }
 
     public ContextControllerStatementCtxCache validateStatement(ContextControllerStatementBase statement) throws ExprValidationException {
@@ -64,10 +82,28 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
     }
 
     public void populateContextInternalFilterAddendums(ContextInternalFilterAddendum filterAddendum, Object key) {
-        if (filtersSpecsNestedContexts == null || filtersSpecsNestedContexts.isEmpty()) {
+        if (filtersSpecsNestedContexts == null) {
             return;
         }
         ContextControllerPartitionedUtil.populateAddendumFilters(key, filtersSpecsNestedContexts, segmentedSpec, null, filterAddendum.getFilterAddendum());
+    }
+
+    public void populateContextInternalFilterAddendumsTermination(ContextInternalFilterAddendum filterAddendum, Object key) {
+        if (filtersTerminationMayNull == null) {
+            return;
+        }
+        for (FilterSpecCompiled filtersSpec : filtersTerminationMayNull) {
+            FilterValueSetParam[][] addendum = ContextControllerPartitionedUtil.getAddendumFilters(key, filtersSpec, segmentedSpec, false, null);
+            if (addendum == null) {
+                continue;
+            }
+
+            FilterValueSetParam[][] existing = filterAddendum.getFilterAddendum().get(filtersSpec);
+            if (existing != null) {
+                addendum = ContextControllerAddendumUtil.multiplyAddendum(existing, addendum);
+            }
+            filterAddendum.getFilterAddendum().put(filtersSpec, addendum);
+        }
     }
 
     public FilterSpecLookupable getFilterLookupable(EventType eventType) {
@@ -98,6 +134,10 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
         return segmentedSpec;
     }
 
+    public MatchedEventMapMeta getTermConditionMatchEventMap() {
+        return termConditionMatchEventMap;
+    }
+
     public Map<String, Object> getContextBuiltinProps() {
         return contextBuiltinProps;
     }
@@ -108,6 +148,9 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
         }
         if (payload instanceof MultiKeyUntyped) {
             return new ContextPartitionIdentifierPartitioned(((MultiKeyUntyped) payload).getKeys());
+        }
+        if (payload instanceof ContextControllerPartitionedState) {
+            return new ContextPartitionIdentifierPartitioned(((ContextControllerPartitionedState) payload).getPartitionKey());
         }
         return new ContextPartitionIdentifierPartitioned(new Object[]{payload});
     }

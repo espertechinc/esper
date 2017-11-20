@@ -63,7 +63,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
         childState.start(beginState);
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         Integer index = nodes.get(fromNode);
 
         if (isQuitted) {
@@ -94,7 +94,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
                 isFollowedByQuitted = true;
             }
 
-            this.getParentEvaluator().evaluateTrue(matchEvent, this, isFollowedByQuitted);
+            this.getParentEvaluator().evaluateTrue(matchEvent, this, isFollowedByQuitted, optionalTriggeringEvent);
         } else {
             // Else start a new sub-expression for the next-in-line filter
             if (evalFollowedByNode.isTrackWithMax()) {

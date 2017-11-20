@@ -8,22 +8,23 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.pattern;
+package com.espertech.esper.core.context.mgr;
 
-import com.espertech.esper.client.EventBean;
+public class ContextControllerPartitionedEntry {
 
-import java.util.Map;
+    private final ContextControllerInstanceHandle instanceHandle;
+    private final ContextControllerCondition optionalTermination;
 
-/**
- * Callback interface for anything that requires to be informed of matching events which would be stored
- * in the MatchedEventMap structure passed to the implementation.
- */
-public interface PatternMatchCallback {
-    /**
-     * Indicate matching events.
-     *
-     * @param matchEvent contains a map of event tags and event objects
-     * @param optionalTriggeringEvent in case the pattern fired as a result of an event arriving, provides the event
-     */
-    public void matchFound(Map<String, Object> matchEvent, EventBean optionalTriggeringEvent);
+    public ContextControllerPartitionedEntry(ContextControllerInstanceHandle instanceHandle, ContextControllerCondition optionalTermination) {
+        this.instanceHandle = instanceHandle;
+        this.optionalTermination = optionalTermination;
+    }
+
+    public ContextControllerInstanceHandle getInstanceHandle() {
+        return instanceHandle;
+    }
+
+    public ContextControllerCondition getOptionalTermination() {
+        return optionalTermination;
+    }
 }

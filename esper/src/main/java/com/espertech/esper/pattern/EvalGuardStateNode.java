@@ -80,7 +80,7 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
         }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternGuardEvaluateTrue(evalGuardNode, matchEvent);
         }
@@ -97,7 +97,7 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
         if (!haveQuitted) {
             boolean guardPass = guard.inspect(matchEvent);
             if (guardPass) {
-                this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted);
+                this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted, optionalTriggeringEvent);
             }
         }
         if (InstrumentationHelper.ENABLED) {

@@ -113,7 +113,7 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator 
         }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted, EventBean optionalTriggeringEvent) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternMatchUntilEvaluateTrue(evalMatchUntilNode, matchEvent, fromNode == stateUntil);
         }
@@ -153,7 +153,7 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator 
             if ((isTightlyBound()) && (numMatches == lowerbounds)) {
                 quitInternal();
                 MatchedEventMap consolidated = consolidate(matchEvent, matchedEventArrays, evalMatchUntilNode.getFactoryNode().getTagsArrayed());
-                this.getParentEvaluator().evaluateTrue(consolidated, this, true);
+                this.getParentEvaluator().evaluateTrue(consolidated, this, true, optionalTriggeringEvent);
             } else {
                 // restart or keep started if not bounded, or not upper bounds, or upper bounds not reached
                 boolean restart = (!isBounded()) ||
@@ -182,7 +182,7 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator 
             if ((lowerbounds != null) && (numMatches < lowerbounds)) {
                 this.getParentEvaluator().evaluateFalse(this, true);
             } else {
-                this.getParentEvaluator().evaluateTrue(consolidated, this, true);
+                this.getParentEvaluator().evaluateTrue(consolidated, this, true, optionalTriggeringEvent);
             }
         }
         if (InstrumentationHelper.ENABLED) {

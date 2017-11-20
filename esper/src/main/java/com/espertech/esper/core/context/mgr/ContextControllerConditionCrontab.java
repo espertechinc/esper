@@ -63,7 +63,7 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
                     InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionCrontab.this.statementContext.getContextDescriptor());
                 }
                 scheduleHandle = null;  // terminates automatically unless scheduled again
-                callback.rangeNotification(Collections.<String, Object>emptyMap(), ContextControllerConditionCrontab.this, null, null, filterAddendum);
+                callback.rangeNotification(Collections.<String, Object>emptyMap(), ContextControllerConditionCrontab.this, null, null, null, filterAddendum);
                 if (InstrumentationHelper.ENABLED) {
                     InstrumentationHelper.get().aContextScheduledEval();
                 }

@@ -61,7 +61,7 @@ public class EvalObserverStateNode extends EvalStateNode implements ObserverEven
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qPatternObserverEvaluateTrue(evalObserverNode, matchEvent);
         }
-        this.getParentEvaluator().evaluateTrue(matchEvent, this, quitted);
+        this.getParentEvaluator().evaluateTrue(matchEvent, this, quitted, null);
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aPatternObserverEvaluateTrue();
         }

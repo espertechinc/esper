@@ -16,7 +16,6 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.filter.*;
 
 import java.util.Collection;
@@ -25,25 +24,21 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
 
     private final AgentInstanceContext agentInstanceContextCreateContext;
     private final EventPropertyGetter[] getters;
-    private final ContextControllerPartitionedInstanceCreateCallback callback;
+    private final ContextControllerPartitionedInstanceManageCallback callback;
     private final EPStatementHandleCallback filterHandle;
     private final FilterServiceEntry filterServiceEntry;
+    private final String optionInitConditionName;
 
-    public ContextControllerPartitionedFilterCallback(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContextCreateContext, ContextDetailPartitionItem partitionItem, ContextControllerPartitionedInstanceCreateCallback callback, ContextInternalFilterAddendum filterAddendum) {
+    public ContextControllerPartitionedFilterCallback(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContextCreateContext, EventPropertyGetter[] getters, FilterSpecCompiled filterSpec, ContextControllerPartitionedInstanceManageCallback callback, ContextInternalFilterAddendum filterAddendum, String optionInitConditionName) {
         this.agentInstanceContextCreateContext = agentInstanceContextCreateContext;
         this.callback = callback;
+        this.getters = getters;
+        this.optionInitConditionName = optionInitConditionName;
 
         filterHandle = new EPStatementHandleCallback(agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle(), this);
 
-        getters = new EventPropertyGetter[partitionItem.getPropertyNames().size()];
-        for (int i = 0; i < partitionItem.getPropertyNames().size(); i++) {
-            String propertyName = partitionItem.getPropertyNames().get(i);
-            EventPropertyGetter getter = partitionItem.getFilterSpecCompiled().getFilterForEventType().getGetter(propertyName);
-            getters[i] = getter;
-        }
-
-        FilterValueSetParam[][] addendum = filterAddendum != null ? filterAddendum.getFilterAddendum(partitionItem.getFilterSpecCompiled()) : null;
-        FilterValueSet filterValueSet = partitionItem.getFilterSpecCompiled().getValueSet(null, null, addendum);
+        FilterValueSetParam[][] addendum = filterAddendum != null ? filterAddendum.getFilterAddendum(filterSpec) : null;
+        FilterValueSet filterValueSet = filterSpec.getValueSet(null, null, addendum);
         filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
@@ -61,7 +56,7 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
             key = getters[0].get(theEvent);
         }
 
-        callback.create(key, theEvent);
+        callback.createKey(key, theEvent, allStmtMatches, optionInitConditionName);
     }
 
     public boolean isSubSelect() {

@@ -121,7 +121,7 @@ public class ContextPropertyEventType {
         return makeEventType(ContextPropertyEventType.LIST_PARTITION_PROPS, props);
     }
 
-    public static Map<String, Object> getPartitionBean(String contextName, int agentInstanceId, Object keyValue, List<String> propertyNames) {
+    public static Map<String, Object> getPartitionBean(String contextName, int agentInstanceId, Object keyValue, List<String> propertyNames, Map<String, Object> initEvents) {
         Object[] agentInstanceProperties;
         if (propertyNames.size() == 1) {
             agentInstanceProperties = new Object[]{keyValue};
@@ -135,6 +135,11 @@ public class ContextPropertyEventType {
         for (int i = 0; i < agentInstanceProperties.length; i++) {
             String propertyName = ContextPropertyEventType.PROP_CTX_KEY_PREFIX + (i + 1);
             props.put(propertyName, agentInstanceProperties[i]);
+        }
+        if (!initEvents.isEmpty()) {
+            for (Map.Entry<String, Object> entry : initEvents.entrySet()) {
+                props.put(entry.getKey(), entry.getValue());
+            }
         }
         return props;
     }

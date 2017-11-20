@@ -70,6 +70,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerCallback, InternalEventRouteDest {
     protected static final Logger log = LoggerFactory.getLogger(EPRuntimeImpl.class);
+    private static final int MAX_FILTER_FAULT_COUNT = 10;
 
     protected EPServicesContext services;
     protected boolean isLatchStatementInsertStream;
@@ -931,7 +932,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 long cpuTimeBefore = MetricUtil.getCPUCurrentThread();
                 long wallTimeBefore = MetricUtil.getWall();
 
-                processStatementFilterSingle(handle, handleCallback, theEvent, version);
+                processStatementFilterSingle(handle, handleCallback, theEvent, version, 0);
 
                 long wallTimeAfter = MetricUtil.getWall();
                 long cpuTimeAfter = MetricUtil.getCPUCurrentThread();
@@ -942,7 +943,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 if ((ThreadingOption.isThreadingEnabled) && (services.getThreadingService().isRouteThreading())) {
                     services.getThreadingService().submitRoute(new RouteUnitSingle(this, handleCallback, theEvent, version));
                 } else {
-                    processStatementFilterSingle(handle, handleCallback, theEvent, version);
+                    processStatementFilterSingle(handle, handleCallback, theEvent, version, 0);
                 }
             }
         }
@@ -959,7 +960,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 long cpuTimeBefore = MetricUtil.getCPUCurrentThread();
                 long wallTimeBefore = MetricUtil.getWall();
 
-                processStatementFilterMultiple(handle, callbackList, theEvent, version);
+                processStatementFilterMultiple(handle, callbackList, theEvent, version, 0);
 
                 long wallTimeAfter = MetricUtil.getWall();
                 long cpuTimeAfter = MetricUtil.getCPUCurrentThread();
@@ -974,7 +975,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 if ((ThreadingOption.isThreadingEnabled) && (services.getThreadingService().isRouteThreading())) {
                     services.getThreadingService().submitRoute(new RouteUnitMultiple(this, callbackList, theEvent, handle, version));
                 } else {
-                    processStatementFilterMultiple(handle, callbackList, theEvent, version);
+                    processStatementFilterMultiple(handle, callbackList, theEvent, version, 0);
                 }
             }
 
@@ -1065,13 +1066,13 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
     /**
      * Processing multiple filter matches for a statement.
-     *
-     * @param handle       statement handle
+     *  @param handle       statement handle
      * @param callbackList object containing callbacks
      * @param theEvent     to process
      * @param version      filter version
+     * @param filterFaultCount filter fault count
      */
-    public void processStatementFilterMultiple(EPStatementAgentInstanceHandle handle, Object callbackList, EventBean theEvent, long version) {
+    public void processStatementFilterMultiple(EPStatementAgentInstanceHandle handle, Object callbackList, EventBean theEvent, long version, int filterFaultCount) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qEventCP(theEvent, handle, services.getSchedulingService().getTime());
         }
@@ -1085,10 +1086,8 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 if (handle.getFilterFaultHandler() != null) {
                     handled = handle.getFilterFaultHandler().handleFilterFault(theEvent, version);
                 }
-                if (!handled) {
-                    if (handle.getStatementFilterVersion().getStmtFilterVersion() != Long.MAX_VALUE) {
-                        handleFilterFault(handle, theEvent);
-                    }
+                if (!handled && filterFaultCount < MAX_FILTER_FAULT_COUNT) {
+                    handleFilterFault(handle, theEvent, filterFaultCount);
                 }
             } else {
                 if (callbackList instanceof Collection) {
@@ -1117,13 +1116,13 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
     /**
      * Process a single match.
-     *
-     * @param handle         statement
+     *  @param handle         statement
      * @param handleCallback callback
      * @param theEvent       event to indicate
      * @param version        filter version
+     * @param filterFaultCount filter fault count
      */
-    public void processStatementFilterSingle(EPStatementAgentInstanceHandle handle, EPStatementHandleCallback handleCallback, EventBean theEvent, long version) {
+    public void processStatementFilterSingle(EPStatementAgentInstanceHandle handle, EPStatementHandleCallback handleCallback, EventBean theEvent, long version, int filterFaultCount) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qEventCP(theEvent, handle, services.getSchedulingService().getTime());
         }
@@ -1137,10 +1136,8 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 if (handle.getFilterFaultHandler() != null) {
                     handled = handle.getFilterFaultHandler().handleFilterFault(theEvent, version);
                 }
-                if (!handled) {
-                    if (handle.getStatementFilterVersion().getStmtFilterVersion() != Long.MAX_VALUE) {
-                        handleFilterFault(handle, theEvent);
-                    }
+                if (!handled && filterFaultCount < MAX_FILTER_FAULT_COUNT) {
+                    handleFilterFault(handle, theEvent, filterFaultCount);
                 }
             } else {
                 handleCallback.getFilterCallback().matchFound(theEvent, null);
@@ -1161,13 +1158,13 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         }
     }
 
-    protected void handleFilterFault(EPStatementAgentInstanceHandle faultingHandle, EventBean theEvent) {
+    protected void handleFilterFault(EPStatementAgentInstanceHandle faultingHandle, EventBean theEvent, int filterFaultCount) {
         ArrayDeque<FilterHandle> callbacksForStatement = new ArrayDeque<FilterHandle>();
         long version = services.getFilterService().evaluate(theEvent, callbacksForStatement, faultingHandle.getStatementId());
 
         if (callbacksForStatement.size() == 1) {
             EPStatementHandleCallback handleCallback = (EPStatementHandleCallback) callbacksForStatement.getFirst();
-            processStatementFilterSingle(handleCallback.getAgentInstanceHandle(), handleCallback, theEvent, version);
+            processStatementFilterSingle(handleCallback.getAgentInstanceHandle(), handleCallback, theEvent, version, filterFaultCount + 1);
             return;
         }
         if (callbacksForStatement.isEmpty()) {
@@ -1201,7 +1198,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 continue;
             }
 
-            processStatementFilterSingle(handle, handleCallback, theEvent, version);
+            processStatementFilterSingle(handle, handleCallback, theEvent, version, filterFaultCount + 1);
         }
 
         if (stmtCallbacks.isEmpty()) {
@@ -1212,7 +1209,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             EPStatementAgentInstanceHandle handle = entry.getKey();
             Object callbackList = entry.getValue();
 
-            processStatementFilterMultiple(handle, callbackList, theEvent, version);
+            processStatementFilterMultiple(handle, callbackList, theEvent, version, filterFaultCount + 1);
 
             if (isPrioritized && handle.isPreemptive()) {
                 break;
