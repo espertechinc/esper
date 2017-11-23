@@ -67,12 +67,7 @@ public class TestSortedDoubleVector extends TestCase {
 
         vector.add(99);
         vector.remove(99);
-        try {
-            vector.remove(99);
-            fail();
-        } catch (IllegalStateException ex) {
-            // expected
-        }
+        vector.remove(99);
 
         vector.add(Double.NaN);
         vector.remove(Double.NaN);

@@ -78,7 +78,6 @@ public class SortedDoubleVector {
      * Remove a value from the collection.
      *
      * @param value to remove
-     * @throws IllegalStateException if the value has not been added
      */
     public void remove(double value) {
         if (Double.isNaN(value)) {
@@ -87,11 +86,11 @@ public class SortedDoubleVector {
 
         int index = findInsertIndex(value);
         if (index == -1) {
-            throw new IllegalStateException("Value not found in collection");
+            return;
         }
         Double valueAtIndex = values.get(index);
         if ((valueAtIndex != null) && (!valueAtIndex.equals(value))) {
-            throw new IllegalStateException("Value not found in collection");
+            return;
         }
         values.remove(index);
     }
