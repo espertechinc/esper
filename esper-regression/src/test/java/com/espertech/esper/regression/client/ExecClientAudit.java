@@ -225,5 +225,9 @@ public class ExecClientAudit implements RegressionExecution {
         stmtTable.destroy();
         stmtIntoTable.destroy();
         stmtAccessTable.destroy();
+
+        // int-expression with endpoint-included
+        epService.getEPAdministrator().createEPL("@audit select * from SupportBean#keepall where intPrimitive in (1:3)");
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
     }
 }

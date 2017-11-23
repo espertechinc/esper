@@ -12,10 +12,10 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberBigDecimalCoercer;
@@ -157,16 +157,34 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         Iterator<ExprNode> it = Arrays.asList(this.getChildNodes()).iterator();
-        it.next().toEPL(writer, getPrecedence());
-        if (isNotBetween) {
-            writer.append(" not between ");
-        } else {
-            writer.append(" between ");
-        }
+        if (isLowEndpointIncluded && isHighEndpointIncluded) {
+            it.next().toEPL(writer, getPrecedence());
+            if (isNotBetween) {
+                writer.append(" not between ");
+            } else {
+                writer.append(" between ");
+            }
 
-        it.next().toEPL(writer, getPrecedence());
-        writer.append(" and ");
-        it.next().toEPL(writer, getPrecedence());
+            it.next().toEPL(writer, getPrecedence());
+            writer.append(" and ");
+            it.next().toEPL(writer, getPrecedence());
+        } else {
+            it.next().toEPL(writer, getPrecedence());
+            writer.write(" in ");
+            if (isLowEndpointIncluded) {
+                writer.write('[');
+            } else {
+                writer.write('(');
+            }
+            it.next().toEPL(writer, getPrecedence());
+            writer.write(':');
+            it.next().toEPL(writer, getPrecedence());
+            if (isHighEndpointIncluded) {
+                writer.write(']');
+            } else {
+                writer.write(')');
+            }
+        }
     }
 
     public ExprPrecedenceEnum getPrecedence() {
