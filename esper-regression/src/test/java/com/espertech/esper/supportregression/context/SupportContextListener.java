@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SupportContextListener implements ContextStateListener, ContextPartitionStateListener {
     private final EPServiceProvider engine;
@@ -39,6 +40,7 @@ public class SupportContextListener implements ContextStateListener, ContextPart
 
     public void onContextPartitionAllocated(ContextStateEventContextPartitionAllocated event) {
         events.add(event);
+        assertNotNull(engine.getEPAdministrator().getContextPartitionAdmin().getContextProperties(event.getContextName(), event.getId()));
     }
 
     public void onContextPartitionDeallocated(ContextStateEventContextPartitionDeallocated event) {
