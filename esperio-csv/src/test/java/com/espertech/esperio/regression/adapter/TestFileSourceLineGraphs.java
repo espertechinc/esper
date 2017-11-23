@@ -191,7 +191,7 @@ public class TestFileSourceLineGraphs extends TestCase {
         }
     }
 
-    private static class MyInvalidEvent {
+    public static class MyInvalidEvent {
         private int someInt;
 
         public int getSomeInt() {
