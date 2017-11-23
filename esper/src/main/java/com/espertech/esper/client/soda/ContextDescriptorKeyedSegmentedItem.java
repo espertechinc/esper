@@ -40,6 +40,13 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
         this.filter = filter;
     }
 
+    /**
+     * Ctor.
+     *
+     * @param propertyNames list of property names
+     * @param filter        event type name and optional filter predicates
+     * @param streamName    alias name
+     */
     public ContextDescriptorKeyedSegmentedItem(List<String> propertyNames, Filter filter, String streamName) {
         this.propertyNames = propertyNames;
         this.filter = filter;
