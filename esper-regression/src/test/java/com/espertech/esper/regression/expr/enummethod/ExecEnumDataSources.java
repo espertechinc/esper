@@ -18,6 +18,7 @@ import com.espertech.esper.supportregression.bean.bookexample.BookDesc;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.supportregression.bean.lrreport.LocationReportFactory;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
+import com.espertech.esper.util.CollectionUtil;
 
 import java.util.*;
 
@@ -59,6 +60,43 @@ public class ExecEnumDataSources implements RegressionExecution {
         runAssertionProperty(epService);
         runAssertionPrevFuncs(epService);
         runAssertionUDFStaticMethod(epService);
+        runAssertionPropertySchema(epService);
+        runAssertionPropertyInsertIntoAtEventBean(epService);
+    }
+
+    private void runAssertionPropertySchema(EPServiceProvider epService) {
+        epService.getEPAdministrator().createEPL("create schema OrderDetail(itemId string)");
+        epService.getEPAdministrator().createEPL("create schema OrderEvent(details OrderDetail[])");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select details.where(i => i.itemId = '001') as c0 from OrderEvent");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        Map<String, Object> detailOne = CollectionUtil.populateNameValueMap("itemId", "002");
+        Map<String, Object> detailTwo = CollectionUtil.populateNameValueMap("itemId", "001");
+        epService.getEPRuntime().sendEvent(CollectionUtil.populateNameValueMap("details", new Map[] {detailOne, detailTwo}), "OrderEvent");
+
+        Collection c = (Collection) listener.assertOneGetNewAndReset().get("c0");
+        EPAssertionUtil.assertEqualsExactOrder(c.toArray(), new Map[] {detailTwo});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionPropertyInsertIntoAtEventBean(EPServiceProvider epService) throws Exception {
+        String epl = "create objectarray schema StockTick(id string, price int);\n" +
+                "insert into TicksLarge select window(*).where(e => e.price > 100) @eventbean as ticksLargePrice\n" +
+                "from StockTick#time(10) having count(*) > 2;\n" +
+                "@name('out') select ticksLargePrice.where(e => e.price < 200) as ticksLargeLess200 from TicksLarge;\n";
+        String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
+        SupportUpdateListener listener = new SupportUpdateListener();
+        epService.getEPAdministrator().getStatement("out").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new Object[] {"E1", 90}, "StockTick");
+        epService.getEPRuntime().sendEvent(new Object[] {"E2", 120}, "StockTick");
+        epService.getEPRuntime().sendEvent(new Object[] {"E3", 95}, "StockTick");
+
+        assertEquals(1, ((Collection) listener.assertOneGetNewAndReset().get("ticksLargeLess200")).size());
+
+        epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
     private void runAssertionMatchRecognizeMeasures(EPServiceProvider epService, boolean select) {
