@@ -776,7 +776,7 @@ from LocationReport]]></programlisting>
 			</listitem>
 			<listitem>
 				<para>
-					A property of an event that is itself a collection of events or classes, i.e. an indexed property.
+					A property of an event that is itself a collection of events or classes, for example indexed properties, or selected properties when using insert-into and <literal>@eventbean</literal>.
 				</para>
 			</listitem>
 			<listitem>
@@ -883,7 +883,7 @@ from Item as item]]></programlisting>
 from pattern[every timer:interval(30)]]]></programlisting>
 
 			<para>
-			  The next example utilizes a subquery that counts zone events per name and finds those that have a count greater then 1:
+			  The next example utilizes a subquery that counts zone events per name and finds those that have a count greater than 1:
 			</para>			
 			<programlisting><![CDATA[select (select name, count(*) as cnt from Zone#keepall group by name)
   .where(v => cnt > 1) from LocationReport]]]></programlisting>
@@ -991,10 +991,11 @@ from Item]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="enumeration-ds-property">
-			<title>Event Property</title>
+			<title>Event Property and Insert-Into With <literal>@eventbean</literal></title>
 			
 			<para>
-				Indexed event properties are event properties that are a collection, array or iterable of scalar values or objects. 
+				Event properties that are a collection, array or iterable of scalar values or objects can be an input to enumeration methods. 
+				Event properties that hold a collection or array of events can be an input to enumeration methods. Use <literal>@eventbean</literal> in the <literal>select</literal>-clause with <literal>insert into</literal> to select events.
 			</para>
 			
 			<para>
@@ -1002,16 +1003,27 @@ from Item]]></programlisting>
 			</para>
 			
 			<para>
-			   The next sample query returns items that are less then 20 units away from the center, taking the <literal>items</literal> event property provided by each <literal>LocationReport</literal> event as input:
+			   The next sample query returns items that are less than 20 units away from the center, taking the <literal>items</literal> event property provided by each <literal>LocationReport</literal> event as input:
 			</para>
 			<programlisting><![CDATA[select items.where(p => distance(0, 0, p.location.x, p.location.y) < 20) as centeritems
 from LocationReport]]></programlisting>			
 
 			<para>
-			   The following example consists of two statements: The first statement declares an a new event type and the second statement invokes the <literal>sequenceEqual</literal> method to compare sequences contained in two properties of the same event:
+			   The next three EPL statements declare an <literal>OrderEvent</literal> type that contains <literal>OrderDetail</literal> events and a query that enumerates order detail:
 			</para>
-			<programlisting><![CDATA[create schema MyEvent (seqone String[], seqtwo String[])]]></programlisting>			
-			<programlisting><![CDATA[select seqone.sequenceEqual(seqtwo) from MyEvent]]></programlisting>			
+			<programlisting><![CDATA[create schema OrderDetail(itemId string)]]></programlisting>			
+			<programlisting><![CDATA[create schema OrderEvent(details OrderDetail[])]]></programlisting>			
+			<programlisting><![CDATA[select details.where(i => i.itemId = '001') from OrderEvent]]></programlisting>			
+
+			<para>
+			   The first query in this two-query explanation selects the events that have a <literal>price</literal> of greater than 100 from a 10-second time window if the count of events is at least 10. It inserts the
+			   events into stream <literal>TicksLarge</literal>. The use of <literal>@eventbean</literal> means that the event property <literal>ticksLargePrice</literal> holds events (and not underlying objects).
+			   The second query further filters the events and returns a collection of events that have <literal>price</literal> of less than 100.
+			</para>
+
+			<programlisting><![CDATA[insert into TicksLarge select window(*).where(e => e.price > 100) @eventbean as ticksLargePrice
+from StockTick#time(10) having count(*) > 10]]></programlisting>			
+			<programlisting><![CDATA[select ticksLargePrice.where(e => e.price < 200) as ticksLargeLess200 from TicksLarge]]></programlisting>			
 		</sect2>
 
 		<sect2 xml:id="enumeration-ds-accessagg">
@@ -1031,7 +1043,7 @@ from LocationReport]]></programlisting>
 
 			<para>
 				In this example query the <literal>window(*)</literal> aggregation function returns the last 10 seconds of item location reports for the same asset id as the incoming event. Among that last 10 seconds of events for the same asset id, the 
-				enumeration method returns those item location reports where the distance to center is less then 20, for each arriving Item event.
+				enumeration method returns those item location reports where the distance to center is less than 20, for each arriving Item event.
 			</para>
 			
 			<para>
@@ -1067,7 +1079,7 @@ from StockTick#time(10) group by symbol]]></programlisting>
 			
 			<para>
 				In this example query the <literal>prevwindow(stream)</literal> single-row function returns the last 10 seconds of item location reports, among which the 
-				enumeration method filters those item location reports where the distance to center is less then 20, for each Item event that arrived in the last 10 seconds considering passenger-type Item events only (see filter type = 'P').
+				enumeration method filters those item location reports where the distance to center is less than 20, for each Item event that arrived in the last 10 seconds considering passenger-type Item events only (see filter type = 'P').
 			</para>
 			
 			<para>
@@ -1465,7 +1477,7 @@ from LocationReport</programlisting>
 			<programlisting>select items.countOf() as cnt from LocationReport</programlisting>
 
 			<para>
-				This example statement counts the number of items that have a distance to center that is less then 20 units:
+				This example statement counts the number of items that have a distance to center that is less than 20 units:
 			</para>
 			<programlisting>select items.countOf(i => distance(i.location.x, i.location.y, 0, 0) &lt; 20) as cntcenter
 from LocationReport</programlisting>
@@ -1552,7 +1564,7 @@ from LocationReport as za unidirectional, LocationReport#length(10) as zb</progr
 {1, 2, 3}.firstOf(v => v / 2 > 1)   // Returns 3</programlisting>
 
 			<para>
-				In the following EPL sample the query returns the first item that has a distance to center that is less then 20 units:
+				In the following EPL sample the query returns the first item that has a distance to center that is less than 20 units:
 			</para>
 			<programlisting>select items.firstof(i =&gt; distance(i.location.x, i.location.y, 0, 0) &lt; 20) as firstcenter
 from LocationReport</programlisting>
@@ -1646,7 +1658,7 @@ from LocationReport as za unidirectional, LocationReport#length(10) as zb</progr
 {1, 2, 3}.lastOf(v => v &lt; 3)   // Returns 2</programlisting>
 
 			<para>
-				In the following EPL sample the query returns the last item that has a distance to center that is less then 20 units:
+				In the following EPL sample the query returns the last item that has a distance to center that is less than 20 units:
 			</para>
 			<programlisting>select items.lastof(i =&gt; distance(i.location.x, i.location.y, 0, 0) &lt; 20) as lastcenter 
 from LocationReport</programlisting>
@@ -2054,7 +2066,7 @@ from LocationReport</programlisting>
 {1, 2, -1, 4, 5, 6}.takeWhile((v,ind) => ind &lt; 5 and v &gt; 0)  // Returns {1, 2} (Take while index&lt;5 amd value&gt;0)</programlisting>
 
 			<para>
-				This example selects all items from a location report in the order provided until the first item that has a distance to center greater then 20 units:
+				This example selects all items from a location report in the order provided until the first item that has a distance to center greater than 20 units:
 			</para>
 			<programlisting>select items.takeWhile(i => distance(i.location.x, i.location.y, 0, 0) &lt; 20)
 from LocationReport</programlisting>
@@ -2094,7 +2106,7 @@ from LocationReport</programlisting>
 {1, 2, -1, 4, 5, 6}.takeWhileLast((v,ind) => ind &lt; 5 and v &gt; 0)  // Returns {4, 5, 6} (Take while index&lt;5 amd value&gt;0)</programlisting>
 
 			<para>
-				This example selects all items from a location report, starting from the last element and proceeding backwards, until the first item that has a distance to center greater then 20 units:
+				This example selects all items from a location report, starting from the last element and proceeding backwards, until the first item that has a distance to center greater than 20 units:
 			</para>
 			<programlisting>select items.takeWhile(i => distance(i.location.x, i.location.y, 0, 0) &lt; 20)
 from LocationReport</programlisting>

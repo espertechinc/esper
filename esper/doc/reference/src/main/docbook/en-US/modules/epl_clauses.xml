@@ -10,38 +10,27 @@
         <title>EPL Introduction</title>
 
         <para>
-			The Event Processing Language (EPL) is a SQL-standard language with extensions, offering <literal>SELECT</literal>, <literal>FROM</literal>, <literal>WHERE</literal>, <literal>GROUP BY</literal>, <literal>HAVING</literal> and <literal>ORDER BY</literal> clauses. Streams replace tables as the source of data with events replacing rows as the basic unit of data. Since events are composed of data, the SQL concepts of correlation through joins, filtering and aggregation through grouping can be effectively leveraged.
+			The Event Processing Language (EPL) is a SQL-standard language with extensions, offering <literal>SELECT</literal>, <literal>FROM</literal>, <literal>WHERE</literal>, <literal>GROUP BY</literal>, <literal>HAVING</literal> and <literal>ORDER BY</literal> clauses. Streams replace tables as the source of data with events replacing rows as the basic unit of data. Since events are composed of data, the SQL concepts of correlation through joins, subqueries and aggregation through grouping can be effectively leveraged.
         </para>
 
         <para>
-			The <literal>INSERT INTO</literal> clause is recast as a means of forwarding events to other streams for further downstream processing. External data accessible through JDBC may be queried and joined with the stream data. Additional clauses such as the <literal>PATTERN</literal> and <literal>OUTPUT</literal> clauses are also available to provide the missing SQL language constructs specific to event processing.
-        </para>
-
-        <para>
-			The purpose of the <literal>UPDATE</literal> clause is to update event properties. Update takes place before an event applies to any selecting statements or pattern statements.
-        </para>
-
-        <para>
-			EPL statements are used to derive and aggregate information from one or more streams of events, and to join or merge event streams. This section outlines EPL syntax.
+			The <literal>INSERT INTO</literal> clause is recast as a means of forwarding events to other streams for further processing. External data may be queried and joined with the stream data. Additional clauses such as the <literal>PATTERN</literal> and <literal>OUTPUT</literal> clauses are available to provide the missing SQL language constructs specific to event processing.
         </para>
         
         <para>
 			EPL statements can specify data windows. Similar to tables in a SQL statement, data windows define the subset of events to be analyzed. 
             Data windows can be combined to an intersection or union of sets of events.
+            Some of the often-used data windows are <literal>#length</literal>, <literal>#time</literal>, <literal>#unique</literal>, <literal>#lastevent</literal>, <literal>#firstevent</literal> and <literal>#keepall</literal>.
         </para>
         
         <para>
-			Some of the often-used data windows are <literal>#length</literal>, <literal>#time</literal>, <literal>#unique</literal>, <literal>#lastevent</literal>, <literal>#firstevent</literal> and <literal>#keepall</literal>.
-         </para>
-
-        <para>
-			EPL provides the concept of <emphasis>named window</emphasis>. Named windows are data windows that can be inserted-into and deleted-from by one or more statements, and that can queried by one or more statements. Named windows have a global character, being visible and shared across an engine instance beyond a single statement. Use the <literal>CREATE WINDOW</literal> clause to create named windows. Use the <literal>ON MERGE</literal> clause to atomically merge events into named window state, the <literal>INSERT INTO</literal> clause to insert data into a named window, the <literal>ON DELETE</literal> clause to remove events from a named window, the <literal>ON UPDATE</literal> clause to update events held by a named window and the <literal>ON SELECT</literal> clause to perform a query triggered by a pattern or arriving event on a named window. Finally, the name of the named window can occur in a statement's <literal>FROM</literal> clause to query a named window or include the named window in a join or subquery.
+			EPL provides the concept of <emphasis>named window</emphasis>. Named windows are data windows that can be used by multiple statements. 
+			The name of a named window can occur in a statement's <literal>FROM</literal> clause to query the named window or to include the named window in a join or subquery. 
         </para>
 
         <para>
 			EPL provides the concept of <emphasis>table</emphasis>. Tables are globally-visible data structures that typically have primary key columns and that can hold aggregation state. 
-			You can create tables using <literal>CREATE TABLE</literal>. An overview of named windows and tables, and a comparison between them, can be found at <xref linkend="nwtable-overview"/>.
-			The aforementioned <literal>ON SELECT/MERGE/UPDATE/INSERT/DELETE</literal>, <literal>INSERT INTO</literal> as well as joins and subqueries can be used with tables as well.
+			An overview of named windows and tables, and a comparison between them, can be found at <xref linkend="nwtable-overview"/>.
         </para>
 
         <para>
