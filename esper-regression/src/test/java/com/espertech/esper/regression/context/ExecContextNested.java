@@ -74,6 +74,37 @@ public class ExecContextNested implements RegressionExecution {
         runAssertionNestedOverlappingAndPattern(epService);
         runAssertionNestedNonOverlapping(epService);
         runAssertionPartitionedOverPatternInitiated(epService);
+        runAssertionInitWStartNow(epService);
+    }
+
+    private void runAssertionInitWStartNow(EPServiceProvider epService) {
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
+        epService.getEPAdministrator().createEPL("create context Ctx "
+                + "context C0 initiated by SupportBean as criteria terminated by SupportBean(theString='x'), "
+                + "context C1 start @now end (*,*,*,*,*,*/5)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context Ctx select context.C0.criteria as c0, event, count(*) as cnt from SupportBean_S0(p00=context.C0.criteria.theString) as event");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        SupportBean criteriaA = new SupportBean("A", 0);
+        epService.getEPRuntime().sendEvent(criteriaA);
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "B"));
+        epService.getEPRuntime().sendEvent(new SupportBean("B", 0));
+        assertFalse(listener.isInvoked());
+
+        SupportBean_S0 s0 = new SupportBean_S0(2, "A");
+        epService.getEPRuntime().sendEvent(s0);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,event,cnt".split(","), new Object[] {criteriaA, s0, 1L});
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(3, "A"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,cnt".split(","), new Object[] {criteriaA, 2L});
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(5000000));
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(4, "A"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,cnt".split(","), new Object[] {criteriaA, 1L});
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void runAssertionPartitionedOverPatternInitiated(EPServiceProvider epService) {

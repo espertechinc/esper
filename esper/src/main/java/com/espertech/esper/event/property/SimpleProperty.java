@@ -20,6 +20,7 @@ import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayPropertyGetterDefaultObjectArray;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.InternalEventPropDescriptor;
+import com.espertech.esper.event.map.MapEventBeanPropertyGetter;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
 import com.espertech.esper.event.map.MapPropertyGetterDefaultNoFragment;
 import com.espertech.esper.event.xml.*;
@@ -119,6 +120,9 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
         Object def = optionalMapPropTypes.get(propertyNameAtomic);
         if (def == null) {
             return null;
+        }
+        if (def instanceof EventType) {
+            return new MapEventBeanPropertyGetter(propertyNameAtomic, ((EventType) def).getUnderlyingType());
         }
         return new MapPropertyGetterDefaultNoFragment(propertyNameAtomic, eventAdapterService);
     }
