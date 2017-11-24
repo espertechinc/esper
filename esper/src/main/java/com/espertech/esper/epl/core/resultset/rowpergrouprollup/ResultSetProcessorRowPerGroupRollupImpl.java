@@ -273,14 +273,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
 
                 // Filter the having clause
                 if (optionalHavingClauses != null) {
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().qHavingClauseNonJoin(entry.getValue());
-                    }
-                    Boolean result = (Boolean) optionalHavingClauses[level.getLevelNumber()].evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                    }
-                    if ((result == null) || (!result)) {
+                    boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(optionalHavingClauses[level.getLevelNumber()], eventsPerStream, isNewData, agentInstanceContext);
+                    if (!passesHaving) {
                         continue;
                     }
                 }
@@ -365,14 +359,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
 
                 // Filter the having clause
                 if (optionalHavingClauses != null) {
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().qHavingClauseJoin(entry.getValue());
-                    }
-                    Boolean result = (Boolean) optionalHavingClauses[level.getLevelNumber()].evaluate(entry.getValue(), isNewData, agentInstanceContext);
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aHavingClauseJoin(result);
-                    }
-                    if ((result == null) || (!result)) {
+                    boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(optionalHavingClauses[level.getLevelNumber()], entry.getValue(), isNewData, agentInstanceContext);
+                    if (!passesHaving) {
                         continue;
                     }
                 }
@@ -740,14 +728,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         Object groupKey = level.computeSubkey(groupKeyComplete);
 
                         aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), level);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseNonJoin(aNewData);
-                        }
-                        Boolean result = (Boolean) havingPerLevel[level.getLevelNumber()].evaluate(eventsPerStream, true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingPerLevel[level.getLevelNumber()], eventsPerStream, true, agentInstanceContext);
+                        if (!passesHaving) {
                             continue;
                         }
 
@@ -772,14 +754,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         Object groupKey = level.computeSubkey(groupKeyComplete);
 
                         aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), level);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseNonJoin(anOldData);
-                        }
-                        Boolean result = (Boolean) havingPerLevel[level.getLevelNumber()].evaluate(eventsPerStream, false, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingPerLevel[level.getLevelNumber()], eventsPerStream, false, agentInstanceContext);
+                        if (!passesHaving) {
                             continue;
                         }
 
@@ -1075,14 +1051,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         Object groupKey = level.computeSubkey(groupKeyComplete);
 
                         aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), level);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-                        }
-                        Boolean result = (Boolean) havingPerLevel[level.getLevelNumber()].evaluate(eventsPerStream, true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingPerLevel[level.getLevelNumber()], eventsPerStream, true, agentInstanceContext);
+                        if (!passesHaving) {
                             continue;
                         }
 
@@ -1107,14 +1077,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                         Object groupKey = level.computeSubkey(groupKeyComplete);
 
                         aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), level);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-                        }
-                        Boolean result = (Boolean) havingPerLevel[level.getLevelNumber()].evaluate(eventsPerStream, false, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingPerLevel[level.getLevelNumber()], eventsPerStream, false, agentInstanceContext);
+                        if (!passesHaving) {
                             continue;
                         }
 
@@ -1539,7 +1503,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
     private void generateOutputBatchedGivenArray(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean>[] resultEvents, List<Object>[] optSortKeys) {
         List<EventBean> resultList = resultEvents[level.getLevelNumber()];
         List<Object> sortKeys = optSortKeys == null ? null : optSortKeys[level.getLevelNumber()];
-        generateOutputBatched(join, mk, level, eventsPerStream, isNewData, isSynthesize, resultList, sortKeys);
+        generateOutputBatched(mk, level, eventsPerStream, isNewData, isSynthesize, resultList, sortKeys);
     }
 
     private static CodegenMethodNode generateOutputBatchedGivenArrayCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -1551,26 +1515,18 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
                 .ifElse()
                 .assignRef("sortKeys", arrayAtIndex(ref("optSortKeys"), exprDotMethod(ref("level"), "getLevelNumber")))
                 .blockEnd()
-                .localMethod(generateOutputBatched, ref("join"), ref("mk"), ref("level"), ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, ref("resultList"), ref("sortKeys"));
+                .localMethod(generateOutputBatched, ref("mk"), ref("level"), ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, ref("resultList"), ref("sortKeys"));
         return instance.getMethods().addMethod(void.class, "generateOutputBatchedGivenArrayCodegen",
                 CodegenNamedParam.from(boolean.class, "join", Object.class, "mk", AggregationGroupByRollupLevel.class, "level", EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List[].class, "resultEvents", List[].class, "optSortKeys"),
                 ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
-    public void generateOutputBatched(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
+    public void generateOutputBatched(Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), level);
 
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() != null) {
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]);
-                else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean result = (Boolean) prototype.getPerLevelExpression().getOptionalHavingNodes()[level.getLevelNumber()].evaluate(eventsPerStream, isNewData, agentInstanceContext);
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                else InstrumentationHelper.get().aHavingClauseJoin(result);
-            }
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getPerLevelExpression().getOptionalHavingNodes()[level.getLevelNumber()], eventsPerStream, isNewData, agentInstanceContext);
+            if (!passesHaving) {
                 return;
             }
         }
@@ -1598,7 +1554,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             }
         };
         return instance.getMethods().addMethod(void.class, "generateOutputBatched",
-                CodegenNamedParam.from(boolean.class, "join", Object.class, "mk", AggregationGroupByRollupLevel.class, "level", EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "resultEvents", List.class, "optSortKeys"),
+                CodegenNamedParam.from(Object.class, "mk", AggregationGroupByRollupLevel.class, "level", EventBean[].class, "eventsPerStream", boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE, List.class, "resultEvents", List.class, "optSortKeys"),
                 ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
@@ -1606,16 +1562,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), level);
 
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() != null) {
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]);
-                else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean result = (Boolean) prototype.getPerLevelExpression().getOptionalHavingNodes()[level.getLevelNumber()].evaluate(eventsPerStream, isNewData, agentInstanceContext);
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                else InstrumentationHelper.get().aHavingClauseJoin(result);
-            }
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getPerLevelExpression().getOptionalHavingNodes()[level.getLevelNumber()], eventsPerStream, isNewData, agentInstanceContext);
+            if (!passesHaving) {
                 return;
             }
         }
@@ -2158,7 +2106,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             Map<Object, EventBean> eventsForLevel = eventPairs[level.getLevelNumber()];
             for (Map.Entry<Object, EventBean> pair : eventsForLevel.entrySet()) {
                 eventsPerStream[0] = pair.getValue();
-                generateOutputBatched(false, pair.getKey(), level, eventsPerStream, isNewData, generateSynthetic, events, sortKey);
+                generateOutputBatched(pair.getKey(), level, eventsPerStream, isNewData, generateSynthetic, events, sortKey);
             }
         }
     }
@@ -2174,7 +2122,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             {
                 CodegenBlock forEvents = forLevels.forEach(Map.Entry.class, "pair", exprDotMethod(arrayAtIndex(ref("eventPairs"), exprDotMethod(ref("level"), "getLevelNumber")), "entrySet"));
                 forEvents.assignArrayElement("eventsPerStream", constant(0), cast(EventBean.class, exprDotMethod(ref("pair"), "getValue")))
-                        .localMethod(generateOutputBatched, constantFalse(), exprDotMethod(ref("pair"), "getKey"), ref("level"), ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, ref("events"), ref("sortKey"));
+                        .localMethod(generateOutputBatched, exprDotMethod(ref("pair"), "getKey"), ref("level"), ref("eventsPerStream"), REF_ISNEWDATA, REF_ISSYNTHESIZE, ref("events"), ref("sortKey"));
             }
         };
 
@@ -2189,7 +2137,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         for (AggregationGroupByRollupLevel level : levels) {
             Map<Object, EventBean[]> eventsForLevel = eventPairs[level.getLevelNumber()];
             for (Map.Entry<Object, EventBean[]> pair : eventsForLevel.entrySet()) {
-                generateOutputBatched(false, pair.getKey(), level, pair.getValue(), isNewData, generateSynthetic, events, sortKey);
+                generateOutputBatched(pair.getKey(), level, pair.getValue(), isNewData, generateSynthetic, events, sortKey);
             }
         }
     }
@@ -2204,7 +2152,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             CodegenBlock forLevels = methodNode.getBlock().forEach(AggregationGroupByRollupLevel.class, "level", ref("levels"));
             {
                 CodegenBlock forEvents = forLevels.forEach(Map.Entry.class, "pair", exprDotMethod(arrayAtIndex(ref("eventPairs"), exprDotMethod(ref("level"), "getLevelNumber")), "entrySet"));
-                forEvents.localMethod(generateOutputBatched, constantFalse(), exprDotMethod(ref("pair"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("pair"), "getValue")), REF_ISNEWDATA, REF_ISSYNTHESIZE, ref("events"), ref("sortKey"));
+                forEvents.localMethod(generateOutputBatched, exprDotMethod(ref("pair"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("pair"), "getValue")), REF_ISNEWDATA, REF_ISSYNTHESIZE, ref("events"), ref("sortKey"));
             }
         };
 
@@ -2353,7 +2301,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
         for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
             Map<Object, EventBean[]> groupGenerators = outputLimitGroupRepsPerLevel[level.getLevelNumber()];
             for (Map.Entry<Object, EventBean[]> entry : groupGenerators.entrySet()) {
-                generateOutputBatched(false, entry.getKey(), level, entry.getValue(), true, generateSynthetic, newEvents, newEventsSortKey);
+                generateOutputBatched(entry.getKey(), level, entry.getValue(), true, generateSynthetic, newEvents, newEventsSortKey);
             }
         }
 
@@ -2390,7 +2338,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl implements ResultSetProcess
             methodNode.getBlock().forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                     .declareVar(Map.class, "groupGenerators", arrayAtIndex(ref("outputLimitGroupRepsPerLevel"), exprDotMethod(ref("level"), "getLevelNumber")))
                     .forEach(Map.Entry.class, "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
-                    .localMethod(generateOutputBatched, constantFalse(), exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("entry"), "getValue")), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"));
+                    .localMethod(generateOutputBatched, exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean[].class, exprDotMethod(ref("entry"), "getValue")), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"));
 
             methodNode.getBlock().declareVar(EventBean[].class, "newEventsArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYNULLFOREMPTYEVENTS, ref("newEvents")));
             if (forge.isSorting()) {

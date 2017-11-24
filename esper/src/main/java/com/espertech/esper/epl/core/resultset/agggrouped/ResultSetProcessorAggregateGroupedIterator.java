@@ -13,7 +13,6 @@ package com.espertech.esper.epl.core.resultset.agggrouped;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -80,13 +79,7 @@ public class ResultSetProcessorAggregateGroupedIterator implements Iterator<Even
             aggregationService.setCurrentAccess(groupKey, exprEvaluatorContext.getAgentInstanceId(), null);
 
             if (resultSetProcessor.hasHavingClause()) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-                }
                 boolean pass = resultSetProcessor.evaluateHavingClause(eventsPerStream, true, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseJoin(pass);
-                }
                 if (!pass) {
                     continue;
                 }

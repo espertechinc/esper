@@ -433,8 +433,7 @@ public class ResultSetProcessorSimpleImpl implements ResultSetProcessorSimple {
     }
 
     public boolean evaluateHavingClause(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Boolean pass = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, this.exprEvaluatorContext);
-        return pass == null ? false : pass;
+        return ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     public ExprEvaluatorContext getAgentInstanceContext() {

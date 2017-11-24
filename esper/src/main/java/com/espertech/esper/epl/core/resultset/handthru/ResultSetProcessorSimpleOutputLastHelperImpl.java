@@ -14,7 +14,6 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.event.EventBeanUtility;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Set;
 
@@ -44,13 +43,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
                 for (EventBean theEvent : newData) {
                     eventsPerStream[0] = theEvent;
 
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
-                    }
                     boolean passesHaving = processor.evaluateHavingClause(eventsPerStream, true, processor.getAgentInstanceContext());
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
-                    }
                     if (!passesHaving) {
                         continue;
                     }
@@ -61,13 +54,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
                 for (EventBean theEvent : oldData) {
                     eventsPerStream[0] = theEvent;
 
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
-                    }
                     boolean passesHaving = processor.evaluateHavingClause(eventsPerStream, false, processor.getAgentInstanceContext());
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
-                    }
                     if (!passesHaving) {
                         continue;
                     }
@@ -88,13 +75,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
         } else {
             if (newEvents != null && newEvents.size() > 0) {
                 for (MultiKey<EventBean> theEvent : newEvents) {
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());
-                    }
                     boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), true, processor.getAgentInstanceContext());
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
-                    }
                     if (!passesHaving) {
                         continue;
                     }
@@ -104,13 +85,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
             if (oldEvents != null && oldEvents.size() > 0) {
                 for (MultiKey<EventBean> theEvent : oldEvents) {
 
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());
-                    }
                     boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), false, processor.getAgentInstanceContext());
-                    if (InstrumentationHelper.ENABLED) {
-                        InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
-                    }
                     if (!passesHaving) {
                         continue;
                     }

@@ -1294,19 +1294,11 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qHavingClauseNonJoin(EventBean theEvent) {
+    public void qHavingClause(EventBean[] eventsPerStream) {
 
     }
 
-    public void aHavingClauseNonJoin(Boolean pass) {
-
-    }
-
-    public void qHavingClauseJoin(EventBean[] eventsPerStream) {
-
-    }
-
-    public void aHavingClauseJoin(Boolean pass) {
+    public void aHavingClause(Boolean pass) {
 
     }
 
@@ -1607,6 +1599,14 @@ public class InstrumentationDefault implements Instrumentation {
     }
 
     public void qaTableUpdatedEventWKeyAfter(EventBean theEvent) {
+
+    }
+
+    public void aResultSetProcessGroupedRowPerGroup(UniformPair<EventBean[]> pair) {
+
+    }
+
+    public void aResultSetProcessGroupedRowPerEvent(UniformPair<EventBean[]> pair) {
 
     }
 }

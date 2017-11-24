@@ -205,14 +205,8 @@ public class ResultSetProcessorUtil {
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -297,14 +291,8 @@ public class ResultSetProcessorUtil {
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -431,14 +419,8 @@ public class ResultSetProcessorUtil {
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -507,14 +489,8 @@ public class ResultSetProcessorUtil {
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -609,14 +585,8 @@ public class ResultSetProcessorUtil {
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -657,14 +627,8 @@ public class ResultSetProcessorUtil {
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -706,14 +670,8 @@ public class ResultSetProcessorUtil {
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -751,14 +709,8 @@ public class ResultSetProcessorUtil {
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
-            }
-            if ((passesHaving == null) || (!passesHaving)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 continue;
             }
 
@@ -1089,5 +1041,16 @@ public class ResultSetProcessorUtil {
      */
     public static UniformPair<EventBean[]> toPairNullIfNullIStream(EventBean istream) {
         return istream == null ? null : new UniformPair<>(new EventBean[] {istream}, null);
+    }
+
+    public static boolean evaluateHavingClause(ExprEvaluator havingEval, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qHavingClause(eventsPerStream);
+        }
+        Boolean pass = (Boolean) havingEval.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aHavingClause(pass);
+        }
+        return pass == null ? false : pass;
     }
 }

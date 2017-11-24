@@ -424,13 +424,13 @@ public class ResultSetProcessorRowForAllImpl implements ResultSetProcessorRowFor
                 this.clear();
             }
             if (prototype.isSelectRStream()) {
-                getSelectListEventAddToList(false, isSynthesize, oldEvents, true);
+                getSelectListEventAddToList(false, isSynthesize, oldEvents);
                 if (orderByProcessor != null) {
                     oldEventsSortKey.add(orderByProcessor.getSortKey(null, false, exprEvaluatorContext));
                 }
             }
             ResultSetProcessorUtil.applyAggJoinResult(aggregationService, exprEvaluatorContext, pair.getFirst(), pair.getSecond());
-            getSelectListEventAddToList(true, isSynthesize, newEvents, true);
+            getSelectListEventAddToList(true, isSynthesize, newEvents);
             if (orderByProcessor != null) {
                 newEventsSortKey.add(orderByProcessor.getSortKey(null, true, exprEvaluatorContext));
             }
@@ -571,13 +571,13 @@ public class ResultSetProcessorRowForAllImpl implements ResultSetProcessorRowFor
         EventBean[] eventsPerStream = new EventBean[1];
         for (UniformPair<EventBean[]> pair : viewEventsList) {
             if (prototype.isSelectRStream()) {
-                getSelectListEventAddToList(false, isSynthesize, oldEvents, false);
+                getSelectListEventAddToList(false, isSynthesize, oldEvents);
                 if (orderByProcessor != null) {
                     oldEventsSortKey.add(orderByProcessor.getSortKey(null, false, exprEvaluatorContext));
                 }
             }
             ResultSetProcessorUtil.applyAggViewResult(aggregationService, exprEvaluatorContext, pair.getFirst(), pair.getSecond(), eventsPerStream);
-            getSelectListEventAddToList(true, isSynthesize, newEvents, false);
+            getSelectListEventAddToList(true, isSynthesize, newEvents);
             if (orderByProcessor != null) {
                 newEventsSortKey.add(orderByProcessor.getSortKey(null, true, exprEvaluatorContext));
             }
@@ -720,17 +720,8 @@ public class ResultSetProcessorRowForAllImpl implements ResultSetProcessorRowFor
 
     private EventBean getSelectListEventSingle(boolean isNewData, boolean isSynthesize, boolean join) {
         if (prototype.getOptionalHavingNode() != null) {
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(null);
-                else InstrumentationHelper.get().qHavingClauseJoin(null);
-            }
-            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(null, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                else InstrumentationHelper.get().aHavingClauseJoin(result);
-            }
-
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), null, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 return null;
             }
         }
@@ -750,18 +741,10 @@ public class ResultSetProcessorRowForAllImpl implements ResultSetProcessorRowFor
         return instance.getMethods().addMethod(EventBean.class, "getSelectListEventSingle", CodegenNamedParam.from(boolean.class, NAME_ISNEWDATA, boolean.class, NAME_ISSYNTHESIZE), ResultSetProcessorRowForAllImpl.class, classScope, code);
     }
 
-    private void getSelectListEventAddToList(boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, boolean join) {
+    private void getSelectListEventAddToList(boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents) {
         if (prototype.getOptionalHavingNode() != null) {
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(null);
-                else InstrumentationHelper.get().qHavingClauseJoin(null);
-            }
-            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(null, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                else InstrumentationHelper.get().aHavingClauseJoin(result);
-            }
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), null, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 return;
             }
         }
@@ -784,16 +767,8 @@ public class ResultSetProcessorRowForAllImpl implements ResultSetProcessorRowFor
 
     public EventBean[] getSelectListEventsAsArray(boolean isNewData, boolean isSynthesize, boolean join) {
         if (prototype.getOptionalHavingNode() != null) {
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(null);
-                else InstrumentationHelper.get().qHavingClauseJoin(null);
-            }
-            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(null, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) {
-                if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                else InstrumentationHelper.get().aHavingClauseJoin(result);
-            }
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), null, isNewData, exprEvaluatorContext);
+            if (!passesHaving) {
                 return null;
             }
         }

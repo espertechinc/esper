@@ -248,10 +248,18 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         if (newData != null && newData.length == 1) {
             if (oldData == null || oldData.length == 0) {
-                return processViewResultNewDepthOne(newData, isSynthesize);
+                UniformPair<EventBean[]> pair = processViewResultNewDepthOne(newData, isSynthesize);
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aResultSetProcessGroupedRowPerEvent(pair);
+                }
+                return pair;
             }
             if (oldData.length == 1) {
-                return processViewResultPairDepthOne(newData, oldData, isSynthesize);
+                UniformPair<EventBean[]> pair = processViewResultPairDepthOne(newData, oldData, isSynthesize);
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aResultSetProcessGroupedRowPerEvent(pair);
+                }
+                return pair;
             }
         }
 
@@ -317,14 +325,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseNonJoin(outputEvents[countInputRows]);
-                }
-                Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                }
-                if ((result == null) || (!result)) {
+                boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+                if (!passesHaving) {
                     continue;
                 }
             }
@@ -507,14 +509,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-                }
-                Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseJoin(result);
-                }
-                if ((result == null) || (!result)) {
+                boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+                if (!passesHaving) {
                     continue;
                 }
             }
@@ -635,14 +631,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
             aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), null);
 
             if (prototype.getOptionalHavingNode() != null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseNonJoin(candidate);
-                }
-                Boolean pass = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseNonJoin(pass);
-                }
-                if ((pass == null) || (!pass)) {
+                boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, true, agentInstanceContext);
+                if (!passesHaving) {
                     continue;
                 }
             }
@@ -834,14 +824,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-                }
-                Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseJoin(result);
-                }
-                if ((result == null) || (!result)) {
+                boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+                if (!passesHaving) {
                     count++;
                     continue;
                 }
@@ -891,14 +875,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         // Filter the having clause
         if (prototype.getOptionalHavingNode() != null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseJoin(result);
-            }
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+            if (!passesHaving) {
                 return null;
             }
         }
@@ -932,14 +910,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseNonJoin(outputEvents[count]);
-                }
-                Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                }
-                if ((result == null) || (!result)) {
+                boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+                if (!passesHaving) {
                     continue;
                 }
             }
@@ -994,14 +966,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseJoin(row.getArray());
-                }
-                Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(row.getArray(), isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseJoin(result);
-                }
-                if ((result == null) || (!result)) {
+                boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), row.getArray(), isNewData, agentInstanceContext);
+                if (!passesHaving) {
                     continue;
                 }
             }
@@ -1321,14 +1287,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-                        }
-                        Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, true, agentInstanceContext);
+                        if (!passesHaving) {
                             count++;
                             continue;
                         }
@@ -1351,14 +1311,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-                        }
-                        Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, true, agentInstanceContext);
+                        if (!passesHaving) {
                             count++;
                             continue;
                         }
@@ -1881,14 +1835,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseNonJoin(newData[i]);
-                        }
-                        Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, true, agentInstanceContext);
+                        if (!passesHaving) {
                             continue;
                         }
 
@@ -1908,14 +1856,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().qHavingClauseNonJoin(oldData[i]);
-                        }
-                        Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) {
-                            InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                        }
-                        if ((result == null) || (!result)) {
+                        boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, true, agentInstanceContext);
+                        if (!passesHaving) {
                             continue;
                         }
 
@@ -2275,14 +2217,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
         // Filter the having clause
         if (prototype.getOptionalHavingNode() != null) {
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
-            }
-            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-            if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().aHavingClauseJoin(result);
-            }
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+            if (!passesHaving) {
                 return;
             }
         }
@@ -2328,14 +2264,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null) {
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qHavingClauseNonJoin(outputEvents[count]);
-                }
-                Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().aHavingClauseNonJoin(result);
-                }
-                if ((result == null) || (!result)) {
+                boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+                if (!passesHaving) {
                     count++;
                     continue;
                 }
@@ -2384,8 +2314,7 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
     }
 
     public boolean evaluateHavingClause(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Boolean pass = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        return pass == null ? false : pass;
+        return ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     public boolean isSelectRStream() {
@@ -2456,8 +2385,8 @@ public class ResultSetProcessorAggregateGroupedImpl implements ResultSetProcesso
         aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), null);
 
         if (prototype.getOptionalHavingNode() != null) {
-            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
-            if ((result == null) || (!result)) {
+            boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, agentInstanceContext);
+            if (!passesHaving) {
                 return null;
             }
         }

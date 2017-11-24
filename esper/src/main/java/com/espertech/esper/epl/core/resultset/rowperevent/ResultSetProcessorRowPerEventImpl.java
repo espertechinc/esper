@@ -919,7 +919,6 @@ public class ResultSetProcessorRowPerEventImpl implements ResultSetProcessorRowP
     }
 
     public boolean evaluateHavingClause(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Boolean pass = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        return pass == null ? false : pass;
+        return ResultSetProcessorUtil.evaluateHavingClause(prototype.getOptionalHavingNode(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 }

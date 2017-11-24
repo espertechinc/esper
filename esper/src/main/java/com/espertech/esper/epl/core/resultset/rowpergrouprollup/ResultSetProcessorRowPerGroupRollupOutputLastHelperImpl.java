@@ -134,7 +134,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
         for (AggregationGroupByRollupLevel level : processor.getGroupByRollupDesc().getLevels()) {
             Map<Object, EventBean[]> groupGenerators = outputLimitGroupRepsPerLevel[level.getLevelNumber()];
             for (Map.Entry<Object, EventBean[]> entry : groupGenerators.entrySet()) {
-                processor.generateOutputBatched(isJoin, entry.getKey(), level, entry.getValue(), true, isSynthesize, newEvents, null);
+                processor.generateOutputBatched(entry.getKey(), level, entry.getValue(), true, isSynthesize, newEvents, null);
             }
         }
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);

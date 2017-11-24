@@ -562,9 +562,13 @@ public interface Instrumentation {
 
     void aResultSetProcessGroupedRowPerGroup(EventBean[] selectNewEvents, EventBean[] selectOldEvents);
 
+    void aResultSetProcessGroupedRowPerGroup(UniformPair<EventBean[]> pair);
+
     void qResultSetProcessGroupedRowPerEvent();
 
     void aResultSetProcessGroupedRowPerEvent(EventBean[] selectNewEvents, EventBean[] selectOldEvents);
+
+    void aResultSetProcessGroupedRowPerEvent(UniformPair<EventBean[]> pair);
 
     void qResultSetProcessComputeGroupKeys(boolean enter, ExprNode[] groupKeyNodeExpressions, EventBean[] eventsPerStream);
 
@@ -692,13 +696,9 @@ public interface Instrumentation {
 
     void aWhereClauseIR();
 
-    void qHavingClauseNonJoin(EventBean theEvent);
+    void qHavingClause(EventBean[] eventsPerStream);
 
-    void aHavingClauseNonJoin(Boolean pass);
-
-    void qHavingClauseJoin(EventBean[] eventsPerStream);
-
-    void aHavingClauseJoin(Boolean pass);
+    void aHavingClause(Boolean pass);
 
     void qOrderBy(EventBean[] evalEventsPerStream, OrderByElementEval[] orderBy);
 
