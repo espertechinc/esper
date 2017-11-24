@@ -2342,6 +2342,14 @@ public class ConfigurationEngineDefaults implements Serializable {
             setAll(true);
         }
 
+        /**
+         * Returns flag whether any byte code generation is enabled.
+         * @return flag
+         */
+        public boolean isEnabledAny() {
+            return enablePropertyGetter | enableExpression | enableSelectClause | enableResultSet | enableAggregation;
+        }
+
         private void setAll(boolean value) {
             enablePropertyGetter = value;
             enableExpression = value;

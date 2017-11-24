@@ -30,11 +30,11 @@ import com.espertech.esper.filter.FilterFaultHandler;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.filter.FilterValueSetParam;
-import org.codehaus.janino.util.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class ContextManagerNested extends ContextManagerBase implements ContextManager, ContextControllerLifecycleCallback, ContextIteratorHandler, FilterFaultHandler {
     private static final Logger log = LoggerFactory.getLogger(ContextManagerNested.class);
@@ -355,7 +355,8 @@ public class ContextManagerNested extends ContextManagerBase implements ContextM
             ContextControllerState states,
             ContextInternalFilterAddendum filterAddendum,
             boolean isRecoveringResilient,
-            ContextPartitionState state, Producer<ContextPartitionIdentifier> identifier) {
+            ContextPartitionState state,
+            Supplier<ContextPartitionIdentifier> identifier) {
 
         // detect non-leaf
         int nestingLevel = originator.getFactory().getFactoryContext().getNestingLevel();   // starts at 1 for root
@@ -438,7 +439,7 @@ public class ContextManagerNested extends ContextManagerBase implements ContextM
         ContextControllerTreeAgentInstanceList agentInstanceList = new ContextControllerTreeAgentInstanceList(filterVersion, partitionKey, contextProperties, newInstances, state);
         entry.getAgentInstances().put(assignedContextId, agentInstanceList);
 
-        ContextStateEventUtil.dispatchPartition(listenersLazy, () -> new ContextStateEventContextPartitionAllocated(servicesContext.getEngineURI(), contextName, assignedContextId, identifier.produce()), ContextPartitionStateListener::onContextPartitionAllocated);
+        ContextStateEventUtil.dispatchPartition(listenersLazy, () -> new ContextStateEventContextPartitionAllocated(servicesContext.getEngineURI(), contextName, assignedContextId, identifier.get()), ContextPartitionStateListener::onContextPartitionAllocated);
 
         return new ContextManagerNestedInstanceHandle(subPathId, originator, assignedContextId, false, agentInstanceList);
     }

@@ -28,9 +28,9 @@ import com.espertech.esper.filter.FilterFaultHandler;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.filter.FilterValueSetParam;
-import org.codehaus.janino.util.Producer;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class ContextManagerImpl extends ContextManagerBase implements ContextManager, ContextControllerLifecycleCallback, ContextIteratorHandler, FilterFaultHandler {
 
@@ -149,7 +149,7 @@ public class ContextManagerImpl extends ContextManagerBase implements ContextMan
             ContextInternalFilterAddendum filterAddendum,
             boolean isRecoveringResilient,
             ContextPartitionState state,
-            Producer<ContextPartitionIdentifier> identifier) {
+            Supplier<ContextPartitionIdentifier> identifier) {
 
         // assign context id
         int assignedContextId;
@@ -184,7 +184,7 @@ public class ContextManagerImpl extends ContextManagerBase implements ContextMan
         agentInstances.put(assignedContextId, agentInstanceList);
 
         // dispatch event
-        ContextStateEventUtil.dispatchPartition(listenersLazy, () -> new ContextStateEventContextPartitionAllocated(servicesContext.getEngineURI(), contextName, assignedContextId, identifier.produce()), ContextPartitionStateListener::onContextPartitionAllocated);
+        ContextStateEventUtil.dispatchPartition(listenersLazy, () -> new ContextStateEventContextPartitionAllocated(servicesContext.getEngineURI(), contextName, assignedContextId, identifier.get()), ContextPartitionStateListener::onContextPartitionAllocated);
 
         return new ContextNestedHandleImpl(subPathId, assignedContextId, agentInstanceList);
     }
