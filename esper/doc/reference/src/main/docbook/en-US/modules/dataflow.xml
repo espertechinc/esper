@@ -593,7 +593,7 @@ epService.getEPAdministrator().createEPL(epl);]]></programlisting>
   // BeaconSource that produces 10 object-array events populating
   // the price property with a random value.
   BeaconSource -> stream.three {
-    iterations : 1,
+    iterations : 10,
     interval : 10, // every 10 seconds
     initialDelay : 5, // start after 5 seconds
     price : Math.random() * 100
