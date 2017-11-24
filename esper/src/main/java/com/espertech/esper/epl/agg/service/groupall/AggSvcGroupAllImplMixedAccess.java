@@ -41,7 +41,7 @@ public class AggSvcGroupAllImplMixedAccess implements AggregationService {
         }
         for (int i = 0; i < factory.evaluators.length; i++) {
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, aggregators[i], factory.accessAggSpecs[i].getAggregationExpression());
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, aggregators[i], factory.aggregators[i].getAggregationExpression());
             }
             Object columnResult = factory.evaluators[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
             aggregators[i].enter(columnResult);
@@ -72,7 +72,7 @@ public class AggSvcGroupAllImplMixedAccess implements AggregationService {
 
         for (int i = 0; i < factory.evaluators.length; i++) {
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, aggregators[i], factory.accessAggSpecs[i].getAggregationExpression());
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, aggregators[i], factory.aggregators[i].getAggregationExpression());
             }
             Object columnResult = factory.evaluators[i].evaluate(eventsPerStream, false, exprEvaluatorContext);
             aggregators[i].leave(columnResult);
