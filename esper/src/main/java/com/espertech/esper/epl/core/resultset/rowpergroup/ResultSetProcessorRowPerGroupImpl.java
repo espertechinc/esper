@@ -2250,7 +2250,7 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
         return keys;
     }
 
-    private EventBean shortcutEvalGivenKey(EventBean[] eventsPerStream, Object groupKey, boolean isNewData, boolean isSynthesize) {
+    EventBean shortcutEvalGivenKey(EventBean[] eventsPerStream, Object groupKey, boolean isNewData, boolean isSynthesize) {
         aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), null);
 
         if (prototype.getOptionalHavingNode() != null) {
@@ -2262,7 +2262,7 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
         return selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
     }
 
-    private static CodegenMethodNode shortcutEvalGivenKeyCodegen(ExprForge optionalHavingNode, CodegenClassScope classScope, CodegenInstanceAux instance) {
+    static CodegenMethodNode shortcutEvalGivenKeyCodegen(ExprForge optionalHavingNode, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethodNode> code = methodNode -> {
             methodNode.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull());
             if (optionalHavingNode != null) {
@@ -2339,7 +2339,7 @@ public class ResultSetProcessorRowPerGroupImpl implements ResultSetProcessorRowP
         return ResultSetProcessorUtil.toPairNullIfAllNullSingle(istream, rstream);
     }
 
-    private static CodegenMethodNode processViewResultNewDepthOneCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
+    static CodegenMethodNode processViewResultNewDepthOneCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethodNode shortcutEvalGivenKey = shortcutEvalGivenKeyCodegen(forge.getOptionalHavingNode(), classScope, instance);
         CodegenMethodNode generateGroupKeySingle = ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
 
