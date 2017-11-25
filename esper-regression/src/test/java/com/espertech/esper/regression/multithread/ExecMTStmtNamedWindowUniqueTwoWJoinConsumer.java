@@ -137,7 +137,7 @@ public class ExecMTStmtNamedWindowUniqueTwoWJoinConsumer implements RegressionEx
             assertEquals("multiple row deliveries: " + countMultiDeliveries, 0, countMultiDeliveries);
             // the number of non-monotone delivers should be small but not zero
             // this is because when the event get generated and when the event actually gets processed may not be in the same order
-            assertTrue("count not monotone: " + countNotMonotone, countNotMonotone < 50);
+            assertTrue("count not monotone: " + countNotMonotone, countNotMonotone < 100);
             assertTrue(delivered.size() >= 197); // its possible to not have 199 since there may not be events on one side of the join
         } else {
             assertTrue("multiple row deliveries: " + countMultiDeliveries, countMultiDeliveries > 0);

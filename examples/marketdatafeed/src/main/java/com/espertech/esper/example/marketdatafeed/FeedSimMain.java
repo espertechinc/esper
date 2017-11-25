@@ -160,5 +160,7 @@ public class FeedSimMain implements Runnable {
                 // no action
             }
         }
+
+        epService.destroy();
     }
 }

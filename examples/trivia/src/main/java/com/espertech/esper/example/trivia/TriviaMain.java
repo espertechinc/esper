@@ -68,6 +68,8 @@ public class TriviaMain {
 
             printScore(round.getQuestionId(), TriviaHelper.getScores(engine));
         }
+
+        engine.destroy();
     }
 
     private List<Round> parse(String testdata) {

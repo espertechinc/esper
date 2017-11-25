@@ -128,6 +128,8 @@ public class NamedWindowQueryMain {
         endTime = System.currentTimeMillis();
         deltaSec = (endTime - startTime) / 1000.0;
         log.info("Executing on-select query " + numOnEventQueryExecutions + " times took " + deltaSec + " seconds");
+
+        epService.destroy();
     }
 
     public void update(String result) {

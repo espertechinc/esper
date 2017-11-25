@@ -121,6 +121,8 @@ public class AutoIdSimMain implements Runnable {
                 }
             }
         }
+
+        epService.destroy();
     }
 
     private void sendEvent(EPRuntime epRuntime) {

@@ -263,9 +263,11 @@ public class ExecDataflowOpBeaconSource implements RegressionExecution {
         DefaultSupportCaptureOp<Object> futureFour = new DefaultSupportCaptureOp<>(2);
         options = new EPDataFlowInstantiationOptions()
                 .operatorProvider(new DefaultSupportGraphOpProvider(futureFour));
-        epService.getEPRuntime().getDataFlowRuntime().instantiate("MyDataFlowFour", options).start();
+        EPDataFlowInstance instance = epService.getEPRuntime().getDataFlowRuntime().instantiate("MyDataFlowFour", options);
+        instance.start();
         output = futureFour.get(1, TimeUnit.SECONDS);
         assertEquals(2, output.length);
+        instance.cancel();
 
         // test Beacon with define typed
         epService.getEPAdministrator().createEPL("create objectarray schema MyTestOAType(p1 string)");

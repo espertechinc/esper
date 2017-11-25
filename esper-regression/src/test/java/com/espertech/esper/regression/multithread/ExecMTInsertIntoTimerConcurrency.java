@@ -59,9 +59,11 @@ public class ExecMTInsertIntoTimerConcurrency implements RegressionExecution {
 
         // Adjust here for long-running test
         Thread.sleep(3000);
+        sendTickEventRunnable.setShutdown(true);
 
         executorService.shutdown();
         executorService.awaitTermination(1, TimeUnit.SECONDS);
+        epServiceProvider.destroy();
     }
 
     private void createEPL(String epl, UpdateListener updateListener) {
@@ -89,6 +91,7 @@ public class ExecMTInsertIntoTimerConcurrency implements RegressionExecution {
 
     class SendEventRunnable implements Callable<Object> {
         private int maxSent;
+        private boolean shutdown;
 
         public SendEventRunnable(int maxSent) {
             this.maxSent = maxSent;
@@ -108,9 +111,17 @@ public class ExecMTInsertIntoTimerConcurrency implements RegressionExecution {
                 if (count > maxSent) {
                     break;
                 }
+
+                if (shutdown) {
+                    break;
+                }
             }
 
             return null;
+        }
+
+        public void setShutdown(boolean shutdown) {
+            this.shutdown = shutdown;
         }
     }
 }

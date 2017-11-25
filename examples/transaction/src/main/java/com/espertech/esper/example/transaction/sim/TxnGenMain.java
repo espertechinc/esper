@@ -141,5 +141,7 @@ public class TxnGenMain implements Runnable {
         } catch (IOException ex) {
             throw new RuntimeException("Error outputting events: " + ex.getMessage(), ex);
         }
+
+        epService.destroy();
     }
 }

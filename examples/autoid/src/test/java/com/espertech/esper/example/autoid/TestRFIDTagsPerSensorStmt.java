@@ -33,12 +33,16 @@ public class TestRFIDTagsPerSensorStmt extends TestCase {
         }
         config.configure(url);
 
-        epService = EPServiceProviderManager.getProvider("AutoIdSim", config);
+        epService = EPServiceProviderManager.getProvider("RFIDTags", config);
         epService.initialize();
 
         listener = new SupportUpdateListener();
         RFIDTagsPerSensorStmt rfidStmt = new RFIDTagsPerSensorStmt(epService.getEPAdministrator());
         rfidStmt.addListener(listener);
+    }
+
+    public void tearDown() throws Exception {
+        epService.destroy();
     }
 
     public void testEvents() throws Exception {

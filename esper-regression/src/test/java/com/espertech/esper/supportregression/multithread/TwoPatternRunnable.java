@@ -39,9 +39,7 @@ public class TwoPatternRunnable implements Runnable {
         EPStatement statement = engine.getEPAdministrator().createPattern(stmtText);
         statement.addListener(listener);
 
-        int countLoops = 0;
         while (!isShutdown) {
-            countLoops++;
             List<SupportTradeEvent> matches = new ArrayList<SupportTradeEvent>();
 
             for (int i = 0; i < 10000; i++) {
@@ -53,6 +51,10 @@ public class TwoPatternRunnable implements Runnable {
                     bean = new SupportTradeEvent(i, "101", 10);
                 }
                 engine.getEPRuntime().sendEvent(bean);
+
+                if (isShutdown) {
+                    break;
+                }
             }
 
             // check results

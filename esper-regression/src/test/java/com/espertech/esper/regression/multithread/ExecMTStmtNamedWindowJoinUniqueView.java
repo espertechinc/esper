@@ -49,9 +49,14 @@ public class ExecMTStmtNamedWindowJoinUniqueView implements RegressionExecution 
             runnables.add(new MyRunnable(epService.getEPRuntime()));
         }
 
-        for (Runnable toRun : runnables) {
+        for (MyRunnable toRun : runnables) {
             es.submit(toRun);
         }
+        Thread.sleep(2000);
+        for (MyRunnable toRun : runnables) {
+            toRun.setShutdown(true);
+        }
+
         es.shutdown();
         es.awaitTermination(20, TimeUnit.SECONDS);
 
@@ -64,6 +69,7 @@ public class ExecMTStmtNamedWindowJoinUniqueView implements RegressionExecution 
         private final EPRuntime runtime;
 
         private Exception exception;
+        private boolean shutdown;
 
         public MyRunnable(EPRuntime runtime) {
             this.runtime = runtime;
@@ -76,6 +82,10 @@ public class ExecMTStmtNamedWindowJoinUniqueView implements RegressionExecution 
                     runtime.sendEvent(new MyEventA("key2", (int) (Math.random() * 1000000)));
                     runtime.sendEvent(new MyEventB("key1", (int) (Math.random() * 1000000)));
                     runtime.sendEvent(new MyEventB("key2", (int) (Math.random() * 1000000)));
+
+                    if (shutdown) {
+                        break;
+                    }
                 }
             } catch (Exception ex) {
                 this.exception = ex;
@@ -84,6 +94,10 @@ public class ExecMTStmtNamedWindowJoinUniqueView implements RegressionExecution 
 
         public Exception getException() {
             return exception;
+        }
+
+        public void setShutdown(boolean shutdown) {
+            this.shutdown = shutdown;
         }
     }
 

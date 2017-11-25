@@ -42,6 +42,10 @@ public class TestTicksFalloffStatement extends TestCase {
         epService.getEPRuntime().sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
     }
 
+    public void tearDown() throws Exception {
+        epService.destroy();
+    }
+
     public void testFlow() {
 
         sendEvents(1000, 50, 150); // Set time to 1 second, send 100 feed A and 150 feed B

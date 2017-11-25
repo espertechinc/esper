@@ -258,7 +258,7 @@ public class ExecInsertIntoPopulateUnderlying implements RegressionExecution {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanCtorOne", SupportBeanCtorOne.class);
 
         String text = "insert into SupportBeanCtorOne select 1 from SupportBean";
-        tryInvalid(epService, text, "Error starting statement: Failed to find a suitable constructor for class '" + SupportBeanCtorOne.class.getName() + "': Could not find constructor in class '" + SupportBeanCtorOne.class.getName() + "' with matching parameter number and expected parameter type(s) 'int' (nearest matching constructor taking type(s) 'String, Integer, int, boolean') [insert into SupportBeanCtorOne select 1 from SupportBean]");
+        tryInvalid(epService, text, "Error starting statement: Failed to find a suitable constructor for class '" + SupportBeanCtorOne.class.getName() + "': Could not find constructor in class '" + SupportBeanCtorOne.class.getName() + "' with matching parameter number and expected parameter type(s) 'int'");
 
         text = "insert into SupportBean(intPrimitive) select 1L from SupportBean";
         tryInvalid(epService, text, "Error starting statement: Invalid assignment of column 'intPrimitive' of type 'long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [insert into SupportBean(intPrimitive) select 1L from SupportBean]");

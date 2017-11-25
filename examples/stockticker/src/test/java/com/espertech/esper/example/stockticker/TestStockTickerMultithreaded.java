@@ -42,6 +42,10 @@ public class TestStockTickerMultithreaded extends TestCase implements StockTicke
         new StockTickerMonitor(epService, listener);
     }
 
+    public void tearDown() throws Exception {
+        epService.destroy();
+    }
+
     public void testMultithreaded() {
         //performTest(3, 1000000, 100000, 60);  // on fast systems
         performTest(3, 50000, 10000, 15);   // for unit tests on slow machines

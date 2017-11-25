@@ -29,6 +29,8 @@ public class TestCycleDetect extends TestCase {
         engine.getEPRuntime().sendEvent(new TransactionEvent("C", "D", 30));
         Collection vertices = (Collection) listener.assertOneGetNewAndReset().get("out");
         EPAssertionUtil.assertEqualsAnyOrder(vertices.toArray(), new Object[]{"A", "B", "C", "D"});
+
+        engine.destroy();
     }
 
     public void testCycleDetection() {

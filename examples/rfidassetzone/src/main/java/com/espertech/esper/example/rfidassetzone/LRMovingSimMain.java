@@ -152,6 +152,8 @@ public class LRMovingSimMain implements Runnable {
         int ratioZoneSplit = 1000000;       // usually 1000000;
 
         tryPerf(numSeconds, numAssetGroups, numThreads, ratioZoneMove, ratioZoneSplit);
+
+        epService.destroy();
     }
 
     private void tryPerf(int numSeconds, int numAssetGroups, int numThreads, int ratioZoneMove, int ratioZoneSplit) {

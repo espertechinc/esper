@@ -32,6 +32,10 @@ public class TestAssetZoneMoveStmt extends TestCase {
         listener = new SupportUpdateListener();
     }
 
+    public void tearDown() throws Exception {
+        epService.destroy();
+    }
+
     public void testStmt() {
         LRMovingZoneStmt.createStmt(epService, 60, listener);
 

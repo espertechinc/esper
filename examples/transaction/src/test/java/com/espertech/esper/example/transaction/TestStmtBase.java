@@ -29,6 +29,10 @@ public abstract class TestStmtBase extends TestCase {
         epService.initialize();
     }
 
+    public void tearDown() throws Exception {
+        epService.destroy();
+    }
+
     protected void sendEvent(Object theEvent) {
         epService.getEPRuntime().sendEvent(theEvent);
     }

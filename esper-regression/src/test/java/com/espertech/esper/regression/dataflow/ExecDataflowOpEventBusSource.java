@@ -153,6 +153,8 @@ public class ExecDataflowOpEventBusSource implements RegressionExecution {
         assertEquals("MyEventOA", collector.getLast().getEvent().getEventType().getName());
         assertEquals(false, collector.getLast().isSubmitEventBean());
 
+        instance.cancel();
+
         epService.getEPAdministrator().destroyAllStatements();
     }
 

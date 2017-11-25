@@ -1,16 +1,22 @@
 package com.espertech.esper.example.qos_sla.monitor;
 
 import com.espertech.esper.client.EPRuntime;
+import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
 import junit.framework.TestCase;
 
 public class TestErrorRateMonitor extends TestCase {
-    private EPRuntime runtime;
+    private EPServiceProvider epService;
 
     public void setUp() {
         ErrorRateMonitor.start();
-        runtime = EPServiceProviderManager.getDefaultProvider().getEPRuntime();
+        epService = EPServiceProviderManager.getDefaultProvider();
+        epService.initialize();
+    }
+
+    public void tearDown() throws Exception {
+        epService.destroy();
     }
 
     public void testAlert() throws Exception {
@@ -30,6 +36,6 @@ public class TestErrorRateMonitor extends TestCase {
 
     private void sendEvent(boolean success) {
         OperationMeasurement measurement = new OperationMeasurement("myService", "myCustomer", 10000, success);
-        runtime.sendEvent(measurement);
+        epService.getEPRuntime().sendEvent(measurement);
     }
 }
