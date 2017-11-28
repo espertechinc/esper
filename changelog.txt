@@ -3,17 +3,39 @@ Esper Changelog
 
 Changes in version 7.0.0
 ------------------------
-  - For certain cases of output-rate-limiting it uses less memory by making the previously-available "enable_outputlimit_opt" hint the default. 
-  - Code generation for all of result set processing, aggregation, having-clause, order-by
+  - Janino is now a compile-time dependency. At runtime Janino is required by default; Janino is not required when byte code generation is disabled in the configuration.
   - The following dependent jar files are upgraded:
     - ANTLR runtime library version is now 4.7 (antlr-runtime-4.7.jar, previously antlr-runtime-4.5.3.jar)
     - CGLIB version is now 3.2.5 (cglib-nodep-3.2.5.jar, previously cglib-nodep-3.2.4.jar)
     - SLF4J is now 1.7.25 (slf4j-api-1.7.25.jar, optionally use with Log4J by adding slf4j-log4j12-1.7.25.jar, previously at slf4j-api-1.7.21.jar)
-  - Minor change to the order of properties when using create-schema with 'copyfrom': The copied properties are now always first and explicitly-listed properties are added last.
- 
-Minor API Change:
-  - Event property types are boxed types except when the event type is a Java class and the property type is a primitive type.
-    Expressions return boxed types.
+  - Byte code generation ... generates byte code for all of result set processing, aggregation, having-clause, order-by and any interdependent expressions
+  - Support for keyed contexts to have initiated-by and terminated-by
+  - Support for obtaining context properties from context admin API
+  - Support for registering listeners that receive context- and context-partition related activity
+  - Support for on-merge to insert a new row without the need for a where-clause or match-clause
+   
+API or EPL Changes:
+  - Event property types are boxed types except when the event type is a Java class and the property type is a primitive type. Expressions return boxed types.
+  - In "create schema" when using "copyfrom" the copied properties are now always first and explicitly-listed properties are added last, in respect to property order.
+  - The "groupwin" grouped window specification is now only allowed once per stream. In previous releases, in queries without more than one data window, it could be used multiple times.
+  - In output-rate-limiting, the "enable_outputlimit_opt" hint is now the default behavior, resulting in output-rate-limiting needing less memory for most cases
+    
+Bug fixes
+  - Fixed issue LGT-873-30098 Groupwin produces null-results for expression batch window without groups
+  - Fixed issue KUL-860-35888 Script expression taking subquery result as parameter throws NPE  
+  - Fixed issue #93 audit for in-expression with open/closed range has incorrect text
+  - Fixed issue PIM-661-90074 propertyexception occurs with nestedcontext when initiatedby-event selected  
+  - Fixed issue EDK-438-50100 NPE in get-context-partitions for 3-lvl context
+  - Fixed issue GQR-172-75175 Stack overflow processing filters
+  - Fixed issue JPT-362-46168 Enumeration method on match-recognize measures-clause matches returns invalid results
+  - Fixed issue QXJ-283-37230 Create-schema 'copyfrom' results in property order that is incompatible with object-array underlying
+  - Fixed issue UFD-602-37122 Chained max-enumeration-method results in validation exception
+  - Fixed issue MNO-830-58619-0 Lastever and firstever aggregation functions with wildcard incorrect property type
+  - Fixed issue MNO-830-58619-1 NPE validating union enumeration method
+  - Fixed issue MNO-830-58619-3 Min-function with datetime method throws parse exception  
+  - Fixed issue FNP-470-45830 Backtick to escape stream name throws unrecognized
+  - Fixed issue SMC-627-22819 Method join parameterized by streams not executing in dependency order
+  - Many other improvements across the code and documentation that are not explicitly listed above   
 
 Changes in version 6.1.0
 ------------------------
@@ -44,7 +66,7 @@ Changes in version 6.0.1
 ------------------------
   - Requires Java 8
   - The following dependent jar files are upgraded:
-    - ANTLR runtime library version is now 4.5.3 (antlr-runtime-4.5.3.jar) (previously antlr-runtime-4.5.3.jar)
+    - ANTLR runtime library version is now 4.5.3 (antlr-runtime-4.5.3.jar) (previously antlr-runtime-4.3.jar)
     - CGLIB version is now 3.2.4 (cglib-nodep-3.2.4.jar) (previously cglib-nodep-3.1.jar)
     - SLF4J is now required (slf4j-api-1.7.21.jar) (commons-logging is no longer used) (optionally use with Log4J by adding slf4j-log4j12-1.7.21.jar)
   - Support for subqueries to use a having-clause
