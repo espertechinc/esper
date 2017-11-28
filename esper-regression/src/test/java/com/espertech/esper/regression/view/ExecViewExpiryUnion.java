@@ -618,7 +618,7 @@ public class ExecViewExpiryUnion implements RegressionExecution {
         tryInvalid(epService, text, "Error starting statement: Error attaching view to parent view: Groupwin view for this merge view could not be found among parent views [select theString from SupportBean#groupwin(theString)#unique(theString)#merge(intPrimitive) retain-union]");
 
         text = "select theString from SupportBean#groupwin(theString)#groupwin(intPrimitive)#unique(theString)#unique(intPrimitive) retain-union";
-        tryInvalid(epService, text, "Error starting statement: Multiple groupwin views are not allowed in conjuntion with multiple data windows [select theString from SupportBean#groupwin(theString)#groupwin(intPrimitive)#unique(theString)#unique(intPrimitive) retain-union]");
+        tryInvalid(epService, text, "Error starting statement: Multiple groupwin-declarations are not supported [select theString from SupportBean#groupwin(theString)#groupwin(intPrimitive)#unique(theString)#unique(intPrimitive) retain-union]");
     }
 
     private void sendEvent(EPServiceProvider epService, String theString, int intPrimitive, int intBoxed, double doublePrimitive) {

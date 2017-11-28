@@ -84,11 +84,6 @@ public class TestUnivariateStatisticsView extends TestCase {
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL.getName()) == Double.class);
     }
 
-    public void testCopyView() throws Exception {
-        UnivariateStatisticsView copied = (UnivariateStatisticsView) myView.cloneView();
-        assertTrue(myView.getFieldExpression().equals(copied.getFieldExpression()));
-    }
-
     private void checkNew(long countE, double sumE, double avgE, double stdevpaE, double stdevE, double varianceE) {
         Iterator<EventBean> iterator = myView.iterator();
         checkValues(iterator.next(), countE, sumE, avgE, stdevpaE, stdevE, varianceE);

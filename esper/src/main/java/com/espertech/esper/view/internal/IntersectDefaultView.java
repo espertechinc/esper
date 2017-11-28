@@ -26,7 +26,7 @@ import java.util.List;
  * view retains all events that is in all of the data windows at the same time (an intersection)
  * and removes all events that leave any of the data windows.
  */
-public class IntersectDefaultView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer {
+public class IntersectDefaultView extends ViewSupport implements LastPostObserver, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final IntersectViewFactory factory;
     protected final View[] views;
@@ -46,10 +46,6 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
 
     public View[] getViewContained() {
         return views;
-    }
-
-    public View cloneView() {
-        return factory.makeView(agentInstanceViewFactoryContext);
     }
 
     public void update(EventBean[] newData, EventBean[] oldData) {

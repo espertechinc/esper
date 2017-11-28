@@ -58,15 +58,6 @@ public class TestMergeView extends TestCase {
         SupportViewDataChecker.checkNewData(childView, new EventBean[]{tradeBeans[1], tradeBeans[2]});
     }
 
-    public void testCopyView() throws Exception {
-        SupportBeanClassView parent = new SupportBeanClassView(SupportMarketDataBean.class);
-        myView.setParent(parent);
-
-        MergeView copied = (MergeView) myView.cloneView();
-        assertEquals(myView.getGroupFieldNames(), copied.getGroupFieldNames());
-        assertEquals(myView.getEventType(), SupportEventTypeFactory.createBeanType(SupportBean.class));
-    }
-
     private EventBean makeTradeBean(String symbol, int price) {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, 0L, "");
         return SupportEventBeanFactory.createObject(bean);

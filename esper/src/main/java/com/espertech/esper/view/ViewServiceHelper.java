@@ -130,11 +130,24 @@ public class ViewServiceHelper {
         List<View> newViews = new LinkedList<View>();
         Viewable parent = parentViewable;
 
+        boolean grouped = false;
         for (int i = 0; i < viewFactories.size(); i++) {
             ViewFactory viewFactory = viewFactories.get(i);
+            if (viewFactory instanceof MergeViewFactoryMarker) {
+                grouped = false;
+            }
 
             // Create the new view object
-            View currentView = viewFactory.makeView(viewFactoryChainContext);
+            View currentView;
+            if (grouped) {
+                currentView = viewFactory.makeViewGroupDelegate();
+            } else {
+                currentView = viewFactory.makeView(viewFactoryChainContext);
+            }
+
+            if (viewFactory instanceof GroupByViewFactoryMarker) {
+                grouped = true;
+            }
 
             newViews.add(currentView);
             parent.addView(currentView);
@@ -240,9 +253,9 @@ public class ViewServiceHelper {
      * The method will then attempt to determine if any child views of that view also match
      * specifications.
      *
-     * @param rootViewable  is the top rootViewable event stream to which all views are attached as child views
-     *                      This parameter is changed by this method, ie. specifications are removed if they match existing views.
-     * @param viewFactories is the view specifications for making views
+     * @param rootViewable         is the top rootViewable event stream to which all views are attached as child views
+     *                             This parameter is changed by this method, ie. specifications are removed if they match existing views.
+     * @param viewFactories        is the view specifications for making views
      * @param agentInstanceContext agent instance context
      * @return a pair of (A) the stream if no views matched, or the last child view that matched (B) the full list
      * of parent views
@@ -304,6 +317,7 @@ public class ViewServiceHelper {
         List<ViewFactory> factoryChain = new ArrayList<ViewFactory>();
 
         boolean grouped = false;
+        int groupCount = 0;
         for (ViewSpec spec : viewSpecList) {
             // Create the new view factory
             ViewFactory viewFactory = statementContext.getViewResolutionService().create(spec.getObjectNamespace(), spec.getObjectName());
@@ -325,10 +339,15 @@ public class ViewServiceHelper {
 
             if (viewFactory instanceof GroupByViewFactoryMarker) {
                 grouped = true;
+                groupCount++;
             }
             if (viewFactory instanceof MergeViewFactoryMarker) {
                 grouped = false;
             }
+        }
+
+        if (groupCount > 1) {
+            throw new ViewProcessingException("Multiple groupwin-declarations are not supported");
         }
 
         return factoryChain;

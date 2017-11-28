@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-public class FirstTimeView extends ViewSupport implements CloneableView, StoppableView, DataWindowView, StopCallback {
+public class FirstTimeView extends ViewSupport implements StoppableView, DataWindowView, StopCallback {
     private final FirstTimeViewFactory timeFirstViewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     protected final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
@@ -57,10 +57,6 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
         scheduleCallback();
 
         agentInstanceContext.addTerminationCallback(this);
-    }
-
-    public View cloneView() {
-        return timeFirstViewFactory.makeView(agentInstanceContext);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {

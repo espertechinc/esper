@@ -78,12 +78,6 @@ public class TestWeightedAverageView extends TestCase {
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE.getName()) == Double.class);
     }
 
-    public void testCopyView() throws Exception {
-        WeightedAverageView copied = (WeightedAverageView) myView.cloneView();
-        assertTrue(myView.getFieldNameWeight().equals(copied.getFieldNameWeight()));
-        assertTrue(myView.getFieldNameX().equals(copied.getFieldNameX()));
-    }
-
     private void checkNew(double avgE) {
         Iterator<EventBean> iterator = myView.iterator();
         checkValues(iterator.next(), avgE);

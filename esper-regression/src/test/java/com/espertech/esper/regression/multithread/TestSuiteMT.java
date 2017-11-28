@@ -182,10 +182,6 @@ public class TestSuiteMT extends TestCase {
         RegressionRunner.run(new ExecMTStmtPatternFollowedBy());
     }
 
-    public void testExecMTStmtSharedView() {
-        RegressionRunner.run(new ExecMTStmtSharedView());
-    }
-
     public void testExecMTStmtStateless() {
         RegressionRunner.run(new ExecMTStmtStateless());
     }

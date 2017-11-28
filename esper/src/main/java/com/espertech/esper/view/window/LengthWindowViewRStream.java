@@ -23,7 +23,7 @@ import java.util.LinkedHashSet;
  * This view is a moving window extending the specified number of elements into the past,
  * allowing in addition to remove events efficiently for remove-stream events received by the view.
  */
-public class LengthWindowViewRStream extends ViewSupport implements DataWindowView, CloneableView {
+public class LengthWindowViewRStream extends ViewSupport implements DataWindowView {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final LengthWindowViewFactory lengthWindowViewFactory;
     private final int size;
@@ -45,10 +45,6 @@ public class LengthWindowViewRStream extends ViewSupport implements DataWindowVi
         this.lengthWindowViewFactory = lengthWindowViewFactory;
         this.size = size;
         indexedEvents = new LinkedHashSet<EventBean>();
-    }
-
-    public View cloneView() {
-        return lengthWindowViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

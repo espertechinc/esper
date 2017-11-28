@@ -80,12 +80,6 @@ public class TestRegressionLinestView extends TestCase {
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.REGRESSION__YINTERCEPT.getName()) == Double.class);
     }
 
-    public void testCopyView() throws Exception {
-        RegressionLinestView copied = (RegressionLinestView) myView.cloneView();
-        assertTrue(myView.getExpressionX().equals(copied.getExpressionX()));
-        assertTrue(myView.getExpressionY().equals(copied.getExpressionY()));
-    }
-
     private void checkNew(double slopeE, double yinterceptE) {
         Iterator<EventBean> iterator = myView.iterator();
         checkValues(iterator.next(), slopeE, yinterceptE);

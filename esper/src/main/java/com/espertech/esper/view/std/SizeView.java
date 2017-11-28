@@ -16,8 +16,6 @@ import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.view.CloneableView;
-import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewFieldEnum;
 import com.espertech.esper.view.ViewSupport;
 import com.espertech.esper.view.stat.StatViewAdditionalProps;
@@ -31,7 +29,7 @@ import java.util.Map;
  * The view computes a single long-typed count of the number of events passed through it similar
  * to the base statistics COUNT column.
  */
-public class SizeView extends ViewSupport implements CloneableView {
+public class SizeView extends ViewSupport {
     private final AgentInstanceContext agentInstanceContext;
     private final EventType eventType;
     private final StatViewAdditionalProps additionalProps;
@@ -44,10 +42,6 @@ public class SizeView extends ViewSupport implements CloneableView {
         this.agentInstanceContext = agentInstanceContext;
         this.eventType = eventType;
         this.additionalProps = additionalProps;
-    }
-
-    public View cloneView() {
-        return new SizeView(agentInstanceContext, eventType, additionalProps);
     }
 
     public final EventType getEventType() {

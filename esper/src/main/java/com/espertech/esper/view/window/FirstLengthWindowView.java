@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
  * <p>
  * Remove stream events delete from the data window.
  */
-public class FirstLengthWindowView extends ViewSupport implements DataWindowView, CloneableView {
+public class FirstLengthWindowView extends ViewSupport implements DataWindowView {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final FirstLengthWindowViewFactory lengthFirstFactory;
     private final int size;
@@ -41,10 +41,6 @@ public class FirstLengthWindowView extends ViewSupport implements DataWindowView
         this.lengthFirstFactory = lengthFirstWindowViewFactory;
         this.size = size;
         indexedEvents = new LinkedHashSet<EventBean>();
-    }
-
-    public View cloneView() {
-        return lengthFirstFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

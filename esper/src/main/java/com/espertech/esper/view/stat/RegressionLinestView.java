@@ -17,8 +17,6 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.view.CloneableView;
-import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewFactory;
 import com.espertech.esper.view.ViewFieldEnum;
 
@@ -31,13 +29,9 @@ import java.util.Map;
  * This class accepts most of its behaviour from its parent, {@link com.espertech.esper.view.stat.BaseBivariateStatisticsView}. It adds
  * the usage of the regression bean and the appropriate schema.
  */
-public class RegressionLinestView extends BaseBivariateStatisticsView implements CloneableView {
+public class RegressionLinestView extends BaseBivariateStatisticsView {
     public RegressionLinestView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xFieldName, ExprEvaluator xEval, ExprNode yFieldName, ExprEvaluator yEval, EventType eventType, StatViewAdditionalProps additionalProps) {
         super(viewFactory, agentInstanceContext, xFieldName, xEval, yFieldName, yEval, eventType, additionalProps);
-    }
-
-    public View cloneView() {
-        return new RegressionLinestView(viewFactory, agentInstanceContext, this.getExpressionX(), this.getExpressionXEval(), this.getExpressionY(), this.getExpressionYEval(), eventType, additionalProps);
     }
 
     public EventType getEventType() {

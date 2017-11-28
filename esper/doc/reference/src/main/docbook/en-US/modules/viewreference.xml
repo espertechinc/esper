@@ -1092,6 +1092,10 @@ following conditions occurs, whichever occurs first: the data window has collect
 				</para>
 				
 				<para>
+					You can specify a single <literal>groupwin</literal> per stream. Multiple <literal>groupwin</literal> declarations for the same stream are not allowed.
+				</para>
+
+				<para>
 					Use <literal>group by</literal> instead of the grouped data window to control how aggregations are grouped.
 				</para>
 

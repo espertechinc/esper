@@ -31,7 +31,7 @@ import java.util.Set;
  * by keeping set-like semantics. See {@link TimeAccumView} for the same behavior without
  * remove stream handling.
  */
-public class TimeAccumViewRStream extends ViewSupport implements CloneableView, DataWindowView, StoppableView, StopCallback {
+public class TimeAccumViewRStream extends ViewSupport implements DataWindowView, StoppableView, StopCallback {
     // View parameters
     private final TimeAccumViewFactory factory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
@@ -73,10 +73,6 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
         agentInstanceContext.addTerminationCallback(this);
-    }
-
-    public View cloneView() {
-        return factory.makeView(agentInstanceContext);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {

@@ -12,13 +12,12 @@ package com.espertech.esper.supportunit.view;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
-import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class SupportBeanClassView extends SupportBaseView implements CloneableView {
+public class SupportBeanClassView extends SupportBaseView {
     private static List<SupportBeanClassView> instances = new LinkedList<SupportBeanClassView>();
     private Class clazz;
 
@@ -30,10 +29,6 @@ public class SupportBeanClassView extends SupportBaseView implements CloneableVi
         super(SupportEventTypeFactory.createBeanType(clazz));
         this.clazz = clazz;
         instances.add(this);
-    }
-
-    public View cloneView() {
-        return new SupportBeanClassView(clazz);
     }
 
     public void update(EventBean[] newData, EventBean[] oldData) {

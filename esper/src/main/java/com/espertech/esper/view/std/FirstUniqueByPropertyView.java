@@ -32,7 +32,7 @@ import java.util.Map;
  * <p>
  * The view swallows any insert stream events that provide no new distinct set of property values.
  */
-public class FirstUniqueByPropertyView extends ViewSupport implements CloneableView, DataWindowView {
+public class FirstUniqueByPropertyView extends ViewSupport implements DataWindowView {
     private final FirstUniqueByPropertyViewFactory viewFactory;
     private EventBean[] eventsPerStream = new EventBean[1];
     protected final Map<Object, EventBean> firstEvents = new HashMap<Object, EventBean>();
@@ -41,10 +41,6 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
     public FirstUniqueByPropertyView(FirstUniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.viewFactory = viewFactory;
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
-    }
-
-    public View cloneView() {
-        return viewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

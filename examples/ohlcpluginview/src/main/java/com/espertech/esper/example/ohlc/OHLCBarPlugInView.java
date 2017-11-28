@@ -18,8 +18,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.view.CloneableView;
-import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,7 @@ import java.util.Iterator;
  * - No need for a data window retaining events if using a custom view
  * - Unlimited number of groups (minute timestamps) makes the group-by clause hard to use
  */
-public class OHLCBarPlugInView extends ViewSupport implements CloneableView {
+public class OHLCBarPlugInView extends ViewSupport {
     private final static int LATE_EVENT_SLACK_SECONDS = 5;
     private final static Logger log = LoggerFactory.getLogger(OHLCBarPlugInView.class);
 
@@ -105,10 +103,6 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView {
 
     public Iterator<EventBean> iterator() {
         throw new UnsupportedOperationException("Not supported");
-    }
-
-    public View cloneView() {
-        return new OHLCBarPlugInView(agentInstanceViewFactoryContext, timestampExpression, valueExpression);
     }
 
     private void applyValue(double value) {

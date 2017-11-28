@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.view.internal.ViewGroupDelegate;
 
 import java.util.List;
 
@@ -82,4 +83,8 @@ public interface ViewFactory {
      * @return readable name
      */
     public String getViewName();
+
+    default public View makeViewGroupDelegate() {
+        return new ViewGroupDelegate(this);
+    }
 }

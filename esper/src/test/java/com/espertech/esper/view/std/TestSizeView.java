@@ -98,10 +98,6 @@ public class TestSizeView extends TestCase {
         assertEquals(Long.class, eventType.getPropertyType(ViewFieldEnum.SIZE_VIEW__SIZE.getName()));
     }
 
-    public void testCopyView() throws Exception {
-        assertTrue(myView.cloneView() instanceof SizeView);
-    }
-
     private void checkNewData(long expectedSize) {
         EventBean[] newData = childView.getLastNewData();
         checkData(newData, expectedSize);

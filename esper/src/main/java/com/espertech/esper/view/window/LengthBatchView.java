@@ -36,7 +36,7 @@ import java.util.Iterator;
  * <p>
  * If there are no events in the current and prior batch, the view will not invoke the update method of child views.
  */
-public class LengthBatchView extends ViewSupport implements CloneableView, DataWindowView {
+public class LengthBatchView extends ViewSupport implements DataWindowView {
     // View parameters
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final LengthBatchViewFactory lengthBatchViewFactory;
@@ -67,10 +67,6 @@ public class LengthBatchView extends ViewSupport implements CloneableView, DataW
         if (size <= 0) {
             throw new IllegalArgumentException("Invalid size parameter, size=" + size);
         }
-    }
-
-    public View cloneView() {
-        return lengthBatchViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

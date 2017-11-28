@@ -24,7 +24,7 @@ import java.util.LinkedHashSet;
  * This view is a keep-all data window that simply keeps all events added.
  * It in addition allows to remove events efficiently for the remove-stream events received by the view.
  */
-public class KeepAllView extends ViewSupport implements DataWindowView, CloneableView {
+public class KeepAllView extends ViewSupport implements DataWindowView {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final KeepAllViewFactory keepAllViewFactory;
     protected LinkedHashSet<EventBean> indexedEvents;
@@ -39,10 +39,6 @@ public class KeepAllView extends ViewSupport implements DataWindowView, Cloneabl
 
     public ViewFactory getViewFactory() {
         return keepAllViewFactory;
-    }
-
-    public View cloneView() {
-        return keepAllViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

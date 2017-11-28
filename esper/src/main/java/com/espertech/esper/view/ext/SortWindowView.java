@@ -40,7 +40,7 @@ import java.util.TreeMap;
  * <p>
  * Old values removed from a prior view are removed from the sort view.
  */
-public class SortWindowView extends ViewSupport implements DataWindowView, CloneableView {
+public class SortWindowView extends ViewSupport implements DataWindowView {
     private final SortWindowViewFactory sortWindowViewFactory;
     private final EventBean[] eventsPerStream = new EventBean[1];
     private final int sortWindowSize;
@@ -87,10 +87,6 @@ public class SortWindowView extends ViewSupport implements DataWindowView, Clone
      */
     protected final int getSortWindowSize() {
         return sortWindowSize;
-    }
-
-    public View cloneView() {
-        return sortWindowViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     public final EventType getEventType() {

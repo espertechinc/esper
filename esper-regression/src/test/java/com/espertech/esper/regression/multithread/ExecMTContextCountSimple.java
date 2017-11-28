@@ -57,6 +57,7 @@ public class ExecMTContextCountSimple implements RegressionExecution {
             future[i] = threadPool.submit(callable);
         }
 
+        Thread.sleep(2000);
         threadPool.shutdown();
         threadPool.awaitTermination(10, TimeUnit.SECONDS);
 

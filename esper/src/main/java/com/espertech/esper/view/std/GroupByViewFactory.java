@@ -19,6 +19,7 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.view.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +41,19 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
      * List of criteria expressions.
      */
     protected ExprNode[] criteriaExpressions;
-
     protected ExprEvaluator[] criteriaExpressionEvals;
+    protected String[] propertyNames;
 
     private EventType eventType;
 
     protected boolean isReclaimAged;
-    protected double reclaimMaxAge;
-    protected double reclaimFrequency;
+    protected long reclaimMaxAge;
+    protected long reclaimFrequency;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
 
+        TimeAbacus timeAbacus = viewFactoryContext.getStatementContext().getEngineImportService().getTimeAbacus();
         Hint reclaimGroupAged = HintEnum.RECLAIM_GROUP_AGED.getHint(viewFactoryContext.getStatementContext().getAnnotations());
 
         if (reclaimGroupAged != null) {
@@ -61,7 +63,7 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
                 throw new ViewParameterException("Required hint value for hint '" + HintEnum.RECLAIM_GROUP_AGED + "' has not been provided");
             }
             try {
-                reclaimMaxAge = Double.parseDouble(hintValueMaxAge);
+                reclaimMaxAge = timeAbacus.deltaForSecondsDouble(Double.parseDouble(hintValueMaxAge));
             } catch (RuntimeException ex) {
                 throw new ViewParameterException("Required hint value for hint '" + HintEnum.RECLAIM_GROUP_AGED + "' value '" + hintValueMaxAge + "' could not be parsed as a double value");
             }
@@ -71,13 +73,13 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
                 reclaimFrequency = reclaimMaxAge;
             } else {
                 try {
-                    reclaimFrequency = Double.parseDouble(hintValueFrequency);
+                    reclaimFrequency = timeAbacus.deltaForSecondsDouble(Double.parseDouble(hintValueFrequency));
                 } catch (RuntimeException ex) {
                     throw new ViewParameterException("Required hint value for hint '" + HintEnum.RECLAIM_GROUP_FREQ + "' value '" + hintValueFrequency + "' could not be parsed as a double value");
                 }
             }
-            if (reclaimMaxAge < 0.100) {
-                log.warn("Reclaim max age parameter is less then 100 milliseconds, are your sure?");
+            if (reclaimMaxAge < 1) {
+                log.warn("Reclaim max age parameter is less then 1, are your sure?");
             }
 
             if (log.isDebugEnabled()) {
@@ -96,6 +98,11 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
 
         this.eventType = parentEventType;
         this.criteriaExpressionEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteriaExpressions, statementContext.getEngineImportService(), GroupByViewFactory.class, false, statementContext.getStatementName());
+
+        propertyNames = new String[criteriaExpressions.length];
+        for (int i = 0; i < criteriaExpressions.length; i++) {
+            propertyNames[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
+        }
     }
 
     /**
@@ -109,9 +116,9 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         if (isReclaimAged) {
-            return new GroupByViewReclaimAged(agentInstanceViewFactoryContext, criteriaExpressions, criteriaExpressionEvals, reclaimMaxAge, reclaimFrequency);
+            return new GroupByViewReclaimAged(this, agentInstanceViewFactoryContext);
         }
-        return new GroupByViewImpl(agentInstanceViewFactoryContext, criteriaExpressions, criteriaExpressionEvals);
+        return new GroupByViewImpl(this, agentInstanceViewFactoryContext);
     }
 
     public EventType getEventType() {
@@ -119,31 +126,18 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
     }
 
     public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
-        if (!(view instanceof GroupByView)) {
-            return false;
-        }
-
-        if (isReclaimAged) {
-            return false;
-        }
-
-        GroupByView myView = (GroupByView) view;
-        if (!ExprNodeUtility.deepEquals(myView.getCriteriaExpressions(), criteriaExpressions, false)) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public boolean isReclaimAged() {
         return isReclaimAged;
     }
 
-    public double getReclaimMaxAge() {
+    public long getReclaimMaxAge() {
         return reclaimMaxAge;
     }
 
-    public double getReclaimFrequency() {
+    public long getReclaimFrequency() {
         return reclaimFrequency;
     }
 
@@ -153,5 +147,9 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
 
     public ExprEvaluator[] getCriteriaExpressionEvals() {
         return criteriaExpressionEvals;
+    }
+
+    public String[] getPropertyNames() {
+        return propertyNames;
     }
 }

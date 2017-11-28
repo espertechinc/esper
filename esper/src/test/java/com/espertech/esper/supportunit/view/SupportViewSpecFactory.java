@@ -51,12 +51,8 @@ public class SupportViewSpecFactory {
     public static List<ViewSpec> makeSpecListTwo() throws Exception {
         List<ViewSpec> specifications = new LinkedList<ViewSpec>();
 
-        ViewSpec specOne = makeSpec("std", "groupwin",
-                new Class[]{String.class}, new String[]{"theString"});
         ViewSpec specTwo = makeSpec("win", "length",
                 new Class[]{int.class}, new String[]{"100"});
-
-        specifications.add(specOne);
         specifications.add(specTwo);
 
         return specifications;

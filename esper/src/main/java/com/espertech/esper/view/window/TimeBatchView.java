@@ -43,7 +43,7 @@ import java.util.Iterator;
  * If there are no events in the current and prior batch, the view will not invoke the update method of child views.
  * In that case also, no next callback is scheduled with the scheduling service until the next event arrives.
  */
-public class TimeBatchView extends ViewSupport implements CloneableView, StoppableView, StopCallback, DataWindowView {
+public class TimeBatchView extends ViewSupport implements StoppableView, StopCallback, DataWindowView {
     // View parameters
     private final TimeBatchViewFactory timeBatchViewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
@@ -100,10 +100,6 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
         }
 
         agentInstanceContext.addTerminationCallback(this);
-    }
-
-    public View cloneView() {
-        return timeBatchViewFactory.makeView(agentInstanceContext);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {

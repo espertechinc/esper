@@ -25,7 +25,7 @@ import java.util.*;
 /**
  * This view simply adds a property to the events posted to it. This is useful for the group-merge views.
  */
-public final class AddPropertyValueOptionalView extends ViewSupport implements CloneableView, StoppableView {
+public final class AddPropertyValueOptionalView extends ViewSupport implements StoppableView {
     private final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final String[] propertyNames;
     private final Object propertyValues;
@@ -51,10 +51,6 @@ public final class AddPropertyValueOptionalView extends ViewSupport implements C
         this.eventType = mergedResultEventType;
         this.agentInstanceContext = agentInstanceContext;
         this.newToOldEventMap = Collections.emptyMap();
-    }
-
-    public View cloneView() {
-        return new AddPropertyValueOptionalView(agentInstanceContext, propertyNames, propertyValues, eventType);
     }
 
     public void setParent(Viewable parent) {

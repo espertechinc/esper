@@ -13,23 +13,18 @@ package com.espertech.esper.view.internal;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.util.CollectionUtil;
-import com.espertech.esper.view.*;
+import com.espertech.esper.view.GroupableView;
+import com.espertech.esper.view.ViewFactory;
+import com.espertech.esper.view.ViewSupport;
 
 import java.util.Iterator;
 
-public class NoopView extends ViewSupport implements DataWindowView {
+public class ViewGroupDelegate extends ViewSupport implements GroupableView {
 
-    private final NoopViewFactory viewFactory;
+    private final ViewFactory viewFactory;
 
-    public NoopView(NoopViewFactory viewFactory) {
+    public ViewGroupDelegate(ViewFactory viewFactory) {
         this.viewFactory = viewFactory;
-    }
-
-    public ViewFactory getViewFactory() {
-        return viewFactory;
-    }
-
-    public void update(EventBean[] newData, EventBean[] oldData) {
     }
 
     public EventType getEventType() {
@@ -37,9 +32,17 @@ public class NoopView extends ViewSupport implements DataWindowView {
     }
 
     public Iterator<EventBean> iterator() {
+        if (parent != null) {
+            return parent.iterator();
+        }
         return CollectionUtil.NULL_EVENT_ITERATOR;
     }
 
-    public void visitView(ViewDataVisitor viewDataVisitor) {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        // no action
+    }
+
+    public ViewFactory getViewFactory() {
+        return viewFactory;
     }
 }

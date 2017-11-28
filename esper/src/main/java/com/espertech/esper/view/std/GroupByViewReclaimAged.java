@@ -17,8 +17,6 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.view.*;
 import org.slf4j.Logger;
@@ -26,49 +24,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class GroupByViewReclaimAged extends ViewSupport implements CloneableView, GroupByView {
-    private final ExprNode[] criteriaExpressions;
-    private final ExprEvaluator[] criteriaEvaluators;
+public class GroupByViewReclaimAged extends ViewSupport implements GroupByView {
+    protected final GroupByViewFactory groupByViewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
-    private final long reclaimMaxAge;
-    private final long reclaimFrequency;
 
     private EventBean[] eventsPerStream = new EventBean[1];
-    protected String[] propertyNames;
 
-    protected final Map<Object, GroupByViewAgedEntry> subViewsPerKey = new HashMap<Object, GroupByViewAgedEntry>();
+    protected final Map<Object, GroupByViewAgedEntry> subViewPerKey = new HashMap<Object, GroupByViewAgedEntry>();
     private final HashMap<GroupByViewAgedEntry, Pair<Object, Object>> groupedEvents = new HashMap<GroupByViewAgedEntry, Pair<Object, Object>>();
     private Long nextSweepTime = null;
 
-    /**
-     * Constructor.
-     *
-     * @param agentInstanceContext    contains required view services
-     * @param criteriaExpressions     is the fields from which to pull the values to group by
-     * @param reclaimMaxAgeSeconds    age after which to reclaim group
-     * @param reclaimFrequencySeconds frequency in which to check for groups to reclaim
-     * @param criteriaEvaluators      evaluators
-     */
-    public GroupByViewReclaimAged(AgentInstanceViewFactoryChainContext agentInstanceContext,
-                                  ExprNode[] criteriaExpressions,
-                                  ExprEvaluator[] criteriaEvaluators,
-                                  double reclaimMaxAgeSeconds, double reclaimFrequencySeconds) {
+    public GroupByViewReclaimAged(GroupByViewFactory groupByViewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext) {
+        this.groupByViewFactory = groupByViewFactory;
         this.agentInstanceContext = agentInstanceContext;
-        this.criteriaExpressions = criteriaExpressions;
-        this.criteriaEvaluators = criteriaEvaluators;
-
-        TimeAbacus timeAbacus = agentInstanceContext.getStatementContext().getEngineImportService().getTimeAbacus();
-        this.reclaimMaxAge = timeAbacus.deltaForSecondsDouble(reclaimMaxAgeSeconds);
-        this.reclaimFrequency = timeAbacus.deltaForSecondsDouble(reclaimFrequencySeconds);
-
-        propertyNames = new String[criteriaExpressions.length];
-        for (int i = 0; i < criteriaExpressions.length; i++) {
-            propertyNames[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
-        }
-    }
-
-    public View cloneView() {
-        return new GroupByViewReclaimAged(agentInstanceContext, criteriaExpressions, criteriaEvaluators, reclaimMaxAge, reclaimFrequency);
     }
 
     /**
@@ -77,7 +45,11 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
      * @return field name providing group-by key.
      */
     public ExprNode[] getCriteriaExpressions() {
-        return criteriaExpressions;
+        return groupByViewFactory.getCriteriaExpressions();
+    }
+
+    public GroupByViewFactory getViewFactory() {
+        return groupByViewFactory;
     }
 
     public final EventType getEventType() {
@@ -89,9 +61,9 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
         long currentTime = agentInstanceContext.getTimeProvider().getTime();
         if ((nextSweepTime == null) || (nextSweepTime <= currentTime)) {
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
-                log.debug("Reclaiming groups older then " + reclaimMaxAge + " msec and every " + reclaimFrequency + "msec in frequency");
+                log.debug("Reclaiming groups older then " + groupByViewFactory.getReclaimMaxAge() + " msec and every " + groupByViewFactory.getReclaimFrequency() + "msec in frequency");
             }
-            nextSweepTime = currentTime + reclaimFrequency;
+            nextSweepTime = currentTime + groupByViewFactory.getReclaimFrequency();
             sweep(currentTime);
         }
 
@@ -103,18 +75,18 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
             Object groupByValuesKey = getGroupKey(theEvent);
 
             // Get child views that belong to this group-by value combination
-            GroupByViewAgedEntry subViews = this.subViewsPerKey.get(groupByValuesKey);
+            GroupByViewAgedEntry subView = this.subViewPerKey.get(groupByValuesKey);
 
             // If this is a new group-by value, the list of subviews is null and we need to make clone sub-views
-            if (subViews == null) {
-                Object subviewsList = GroupByViewImpl.makeSubViews(this, propertyNames, groupByValuesKey, agentInstanceContext);
-                subViews = new GroupByViewAgedEntry(subviewsList, currentTime);
-                subViewsPerKey.put(groupByValuesKey, subViews);
+            if (subView == null) {
+                View subview = GroupByViewUtil.makeSubView(this, groupByValuesKey, agentInstanceContext);
+                subView = new GroupByViewAgedEntry(subview, currentTime);
+                subViewPerKey.put(groupByValuesKey, subView);
             } else {
-                subViews.setLastUpdateTime(currentTime);
+                subView.setLastUpdateTime(currentTime);
             }
 
-            GroupByViewImpl.updateChildViews(subViews.getSubviewHolder(), newDataToPost, null);
+            subView.getSubview().update(newData, null);
         } else {
 
             // Algorithm for dispatching multiple events
@@ -134,7 +106,7 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
             for (Map.Entry<GroupByViewAgedEntry, Pair<Object, Object>> entry : groupedEvents.entrySet()) {
                 EventBean[] newEvents = GroupByViewImpl.convertToArray(entry.getValue().getFirst());
                 EventBean[] oldEvents = GroupByViewImpl.convertToArray(entry.getValue().getSecond());
-                GroupByViewImpl.updateChildViews(entry.getKey(), newEvents, oldEvents);
+                entry.getKey().getSubview().update(newEvents, oldEvents);
             }
 
             groupedEvents.clear();
@@ -145,14 +117,14 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
         Object groupByValuesKey = getGroupKey(theEvent);
 
         // Get child views that belong to this group-by value combination
-        GroupByViewAgedEntry subViews = this.subViewsPerKey.get(groupByValuesKey);
+        GroupByViewAgedEntry subViews = this.subViewPerKey.get(groupByValuesKey);
 
         // If this is a new group-by value, the list of subviews is null and we need to make clone sub-views
         if (subViews == null) {
-            Object subviewsList = GroupByViewImpl.makeSubViews(this, propertyNames, groupByValuesKey, agentInstanceContext);
+            View subview = GroupByViewUtil.makeSubView(this, groupByValuesKey, agentInstanceContext);
             long currentTime = agentInstanceContext.getStatementContext().getTimeProvider().getTime();
-            subViews = new GroupByViewAgedEntry(subviewsList, currentTime);
-            subViewsPerKey.put(groupByValuesKey, subViews);
+            subViews = new GroupByViewAgedEntry(subview, currentTime);
+            subViewPerKey.put(groupByValuesKey, subViews);
         } else {
             subViews.setLastUpdateTime(agentInstanceContext.getStatementContext().getTimeProvider().getTime());
         }
@@ -177,36 +149,28 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
     }
 
     public final String toString() {
-        return this.getClass().getName() + " groupFieldNames=" + Arrays.toString(criteriaExpressions);
+        return this.getClass().getName() + " groupFieldNames=" + Arrays.toString(groupByViewFactory.getPropertyNames());
     }
 
     public void visitViewContainer(ViewDataVisitorContained viewDataVisitor) {
-        viewDataVisitor.visitPrimary(GroupByViewImpl.VIEWNAME, subViewsPerKey.size());
-        for (Map.Entry<Object, GroupByViewAgedEntry> entry : subViewsPerKey.entrySet()) {
-            GroupByViewImpl.visitView(viewDataVisitor, entry.getKey(), entry.getValue().getSubviewHolder());
+        viewDataVisitor.visitPrimary(GroupByViewImpl.VIEWNAME, subViewPerKey.size());
+        for (Map.Entry<Object, GroupByViewAgedEntry> entry : subViewPerKey.entrySet()) {
+            GroupByViewImpl.visitView(viewDataVisitor, entry.getKey(), entry.getValue().getSubview());
         }
     }
 
     private void sweep(long currentTime) {
         ArrayDeque<Object> removed = new ArrayDeque<Object>();
-        for (Map.Entry<Object, GroupByViewAgedEntry> entry : subViewsPerKey.entrySet()) {
+        for (Map.Entry<Object, GroupByViewAgedEntry> entry : subViewPerKey.entrySet()) {
             long age = currentTime - entry.getValue().getLastUpdateTime();
-            if (age > reclaimMaxAge) {
+            if (age > groupByViewFactory.getReclaimMaxAge()) {
                 removed.add(entry.getKey());
             }
         }
 
         for (Object key : removed) {
-            GroupByViewAgedEntry entry = subViewsPerKey.remove(key);
-            Object subviewHolder = entry.getSubviewHolder();
-            if (subviewHolder instanceof List) {
-                List<View> subviews = (List<View>) subviewHolder;
-                for (View view : subviews) {
-                    removeSubview(view);
-                }
-            } else if (subviewHolder instanceof View) {
-                removeSubview((View) subviewHolder);
-            }
+            GroupByViewAgedEntry entry = subViewPerKey.remove(key);
+            removeSubview(entry.getSubview());
         }
     }
 
@@ -220,41 +184,24 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
             return false;
         }
         if (!hasViews()) {
-            subViewsPerKey.clear();
+            subViewPerKey.clear();
             return true;
         }
         GroupableView removedView = (GroupableView) view;
         Deque<Object> removedKeys = null;
-        for (Map.Entry<Object, GroupByViewAgedEntry> entry : subViewsPerKey.entrySet()) {
-            Object value = entry.getValue().getSubviewHolder();
-            if (value instanceof View) {
-                GroupableView subview = (GroupableView) value;
-                if (compareViews(subview, removedView)) {
-                    if (removedKeys == null) {
-                        removedKeys = new ArrayDeque<Object>();
-                    }
-                    removedKeys.add(entry.getKey());
+        for (Map.Entry<Object, GroupByViewAgedEntry> entry : subViewPerKey.entrySet()) {
+            View value = entry.getValue().getSubview();
+            GroupableView subview = (GroupableView) value;
+            if (compareViews(subview, removedView)) {
+                if (removedKeys == null) {
+                    removedKeys = new ArrayDeque<Object>();
                 }
-            } else if (value instanceof List) {
-                List<View> subviews = (List<View>) value;
-                for (int i = 0; i < subviews.size(); i++) {
-                    GroupableView subview = (GroupableView) subviews.get(i);
-                    if (compareViews(subview, removedView)) {
-                        subviews.remove(i);
-                        if (subviews.isEmpty()) {
-                            if (removedKeys == null) {
-                                removedKeys = new ArrayDeque<Object>();
-                            }
-                            removedKeys.add(entry.getKey());
-                        }
-                        break;
-                    }
-                }
+                removedKeys.add(entry.getKey());
             }
         }
         if (removedKeys != null) {
             for (Object key : removedKeys) {
-                subViewsPerKey.remove(key);
+                subViewPerKey.remove(key);
             }
         }
         return true;
@@ -290,6 +237,7 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
 
     private Object getGroupKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
+        ExprEvaluator[] criteriaEvaluators = groupByViewFactory.getCriteriaExpressionEvals();
         if (criteriaEvaluators.length == 1) {
             return criteriaEvaluators[0].evaluate(eventsPerStream, true, agentInstanceContext);
         }

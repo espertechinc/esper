@@ -41,7 +41,7 @@ import java.util.Map;
  * The type of the field returning the unique value can be any type but should override equals and hashCode()
  * as the type plays the role of a key in a map storing unique values.
  */
-public class UniqueByPropertyView extends ViewSupport implements CloneableView, DataWindowView {
+public class UniqueByPropertyView extends ViewSupport implements DataWindowView {
     private final UniqueByPropertyViewFactory viewFactory;
     protected final Map<Object, EventBean> mostRecentEvents = new HashMap<Object, EventBean>();
     private final EventBean[] eventsPerStream = new EventBean[1];
@@ -50,10 +50,6 @@ public class UniqueByPropertyView extends ViewSupport implements CloneableView, 
     public UniqueByPropertyView(UniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.viewFactory = viewFactory;
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
-    }
-
-    public View cloneView() {
-        return new UniqueByPropertyView(viewFactory, agentInstanceViewFactoryContext);
     }
 
     /**

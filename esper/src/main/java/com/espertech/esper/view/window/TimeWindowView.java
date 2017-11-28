@@ -38,7 +38,7 @@ import java.util.Iterator;
  * as the system-time-based timeWindow moves on. However child views receive updates containing new data
  * as soon as the new data arrives.
  */
-public class TimeWindowView extends ViewSupport implements CloneableView, DataWindowView, ScheduleAdjustmentCallback, StoppableView, StopCallback {
+public class TimeWindowView extends ViewSupport implements DataWindowView, ScheduleAdjustmentCallback, StoppableView, StopCallback {
     private final TimeWindowViewFactory timeWindowViewFactory;
     private final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
     protected final TimeWindow timeWindow;
@@ -85,10 +85,6 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
 
     public void adjust(long delta) {
         timeWindow.adjust(delta);
-    }
-
-    public View cloneView() {
-        return timeWindowViewFactory.makeView(agentInstanceContext);
     }
 
     /**

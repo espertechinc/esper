@@ -15,7 +15,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.IterablesListIterator;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 import org.slf4j.Logger;
@@ -33,7 +32,7 @@ import java.util.*;
  * The parent view of this view is generally the AddPropertyValueView that adds the grouped-by information
  * back into the data.
  */
-public final class MergeView extends ViewSupport implements CloneableView, MergeViewMarker {
+public final class MergeView extends ViewSupport implements MergeViewMarker {
     private final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final Collection<View> parentViews;
     private final ExprNode[] groupFieldNames;
@@ -53,10 +52,6 @@ public final class MergeView extends ViewSupport implements CloneableView, Merge
         this.agentInstanceContext = agentInstanceContext;
         this.groupFieldNames = groupCriteria;
         this.eventType = resultEventType;
-    }
-
-    public View cloneView() {
-        return new MergeView(agentInstanceContext, groupFieldNames, eventType, removable);
     }
 
     /**

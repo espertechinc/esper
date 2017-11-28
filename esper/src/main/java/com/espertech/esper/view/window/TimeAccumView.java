@@ -37,7 +37,7 @@ import java.util.Iterator;
  * The view is continuous, the insert stream consists of arriving events. The remove stream
  * only posts current window contents when no more events arrive for a given timer interval.
  */
-public class TimeAccumView extends ViewSupport implements CloneableView, DataWindowView, StoppableView, StopCallback {
+public class TimeAccumView extends ViewSupport implements DataWindowView, StoppableView, StopCallback {
     // View parameters
     private final TimeAccumViewFactory factory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
@@ -82,10 +82,6 @@ public class TimeAccumView extends ViewSupport implements CloneableView, DataWin
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
         agentInstanceContext.addTerminationCallback(this);
-    }
-
-    public View cloneView() {
-        return factory.makeView(agentInstanceContext);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {

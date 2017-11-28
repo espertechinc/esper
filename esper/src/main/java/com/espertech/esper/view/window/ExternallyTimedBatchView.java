@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * Batch window based on timestamp of arriving events.
  */
-public class ExternallyTimedBatchView extends ViewSupport implements DataWindowView, CloneableView {
+public class ExternallyTimedBatchView extends ViewSupport implements DataWindowView {
     private final ExternallyTimedBatchViewFactory factory;
     private final ExprNode timestampExpression;
     private final ExprEvaluator timestampExpressionEval;
@@ -75,10 +75,6 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
         this.viewUpdatedCollection = viewUpdatedCollection;
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
         this.referenceTimestamp = optionalReferencePoint;
-    }
-
-    public View cloneView() {
-        return factory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

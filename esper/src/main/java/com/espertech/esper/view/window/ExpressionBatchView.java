@@ -18,7 +18,6 @@ import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewDataVisitor;
 import com.espertech.esper.view.ViewFactory;
 
@@ -53,10 +52,6 @@ public class ExpressionBatchView extends ExpressionViewBase {
 
     public String getViewName() {
         return dataWindowViewFactory.getViewName();
-    }
-
-    public View cloneView() {
-        return dataWindowViewFactory.makeView(agentInstanceContext);
     }
 
     /**

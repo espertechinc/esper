@@ -49,10 +49,6 @@ public class MyTrendSpotterView extends ViewSupport {
         eventType = createEventType(agentInstanceContext.getStatementContext());
     }
 
-    public View cloneView(AgentInstanceViewFactoryChainContext agentInstanceContext) {
-        return new MyTrendSpotterView(agentInstanceContext, expression);
-    }
-
     /**
      * Returns expression to report statistics on.
      *

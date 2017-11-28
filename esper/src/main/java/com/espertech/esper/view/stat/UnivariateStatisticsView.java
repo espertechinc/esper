@@ -28,7 +28,7 @@ import java.util.Map;
  * View for computing statistics, which the view exposes via fields representing the sum, count, standard deviation
  * for sample and for population and variance.
  */
-public class UnivariateStatisticsView extends ViewSupport implements CloneableView, DerivedValueView {
+public class UnivariateStatisticsView extends ViewSupport implements DerivedValueView {
     private final UnivariateStatisticsViewFactory viewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     protected final BaseStatisticsBean baseStatisticsBean = new BaseStatisticsBean();
@@ -40,10 +40,6 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
     public UnivariateStatisticsView(UnivariateStatisticsViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext) {
         this.viewFactory = viewFactory;
         this.agentInstanceContext = agentInstanceContext;
-    }
-
-    public View cloneView() {
-        return viewFactory.makeView(agentInstanceContext);
     }
 
     /**

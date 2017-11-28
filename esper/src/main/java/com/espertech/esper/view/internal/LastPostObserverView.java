@@ -12,7 +12,6 @@ package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.Viewable;
 
@@ -21,7 +20,7 @@ import java.util.Iterator;
 /**
  * A view that retains the last update.
  */
-public final class LastPostObserverView implements View, CloneableView {
+public final class LastPostObserverView implements View {
     private Viewable parent;
     private final int streamId;
     private LastPostObserver observer;
@@ -42,10 +41,6 @@ public final class LastPostObserverView implements View, CloneableView {
      */
     public void setObserver(LastPostObserver observer) {
         this.observer = observer;
-    }
-
-    public View cloneView() {
-        return new LastPostObserverView(streamId);
     }
 
     public final EventType getEventType() {

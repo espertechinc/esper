@@ -51,14 +51,6 @@ public class TestSuiteView extends TestCase {
         RegressionRunner.run(new ExecViewGroupWinSharedViewStartStop());
     }
 
-    public void testExecViewGroupWinTypes() {
-        RegressionRunner.run(new ExecViewGroupWinTypes());
-    }
-
-    public void testExecViewGroupWithinGroup() {
-        RegressionRunner.run(new ExecViewGroupWithinGroup());
-    }
-
     public void testExecViewInheritAndInterface() {
         RegressionRunner.run(new ExecViewInheritAndInterface());
     }

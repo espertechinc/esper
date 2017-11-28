@@ -872,11 +872,6 @@ public EventType getEventType() {
 						The <literal>iterator</literal> method supplies an (optional) iterator to allow an application to pull or request results from an <literal>EPStatement</literal>
 					</para>
 				</listitem>
-				<listitem>
-					<para>
-						The <literal>cloneView</literal> method must make a configured copy of the view to enable the view to work in a grouping context together with a <literal>#groupwin</literal> parent view
-					</para>
-				</listitem>
 			</itemizedlist>
 
 			<para>
@@ -939,7 +934,7 @@ public EventType getEventType() {
 			<programlisting><![CDATA[agentInstanceContext.getTerminationCallbacks().add(this);]]></programlisting>
 
 			<para>
-				Please refer to the sample views for a code sample on how to implement <literal>iterator</literal> and <literal>cloneView</literal> methods.
+				Please refer to the sample views for a code sample on how to implement the <literal>iterator</literal> method.
 			</para>
 
 			<para>
@@ -1003,7 +998,7 @@ public EventType getEventType() {
 			<title>Requirement for Grouped Views</title>
 			
 			<para>
-				Grouped views are views that operate under the <literal>#groupwin</literal> view. When operating under one or more <literal>#groupwin</literal> views, the engine instantiates a single view instance when the statement starts, and a new view instance per group criteria dynamically as new group criteria become known. 
+				Grouped views are views that operate under the <literal>#groupwin</literal> view. When operating under <literal>#groupwin</literal>, the engine instantiates a single instance when the statement starts, and a new instance per group criteria dynamically as new group criteria become known. 
 			</para>
 		
 			<para>
@@ -1012,13 +1007,8 @@ public EventType getEventType() {
 			<programlisting><![CDATA[select * from StockTick#groupwin(symbol).custom:trendspotter(price)]]></programlisting>
 
 			<para>
-				Your view must implement the <literal>com.espertech.esper.view.CloneableView</literal> interface to indicate your view may create new views. This code snippet shows a sample implementation of the <literal>cloneView</literal> method required by the interface:
+				Your view must implement the <literal>com.espertech.esper.view.GroupableView</literal> interface to indicate that the view can handle grouped windows.
 			</para>		
-			
-			<programlisting><![CDATA[public View cloneView() {
-  return new MyPlugInView(...);	// pass any parameters along
-}]]></programlisting>
-
 		</sect2>
     </sect1>
 

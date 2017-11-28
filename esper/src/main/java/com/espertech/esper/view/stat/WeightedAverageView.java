@@ -29,7 +29,7 @@ import java.util.Map;
  * as   (sum(price * volume) / sum(volume)).
  * Example: weighted_avg("price", "volume")
  */
-public class WeightedAverageView extends ViewSupport implements CloneableView, DerivedValueView {
+public class WeightedAverageView extends ViewSupport implements DerivedValueView {
     private final WeightedAverageViewFactory viewFactory;
     private final AgentInstanceViewFactoryChainContext agentInstanceContext;
 
@@ -45,10 +45,6 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
     public WeightedAverageView(WeightedAverageViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext) {
         this.viewFactory = viewFactory;
         this.agentInstanceContext = agentInstanceContext;
-    }
-
-    public View cloneView() {
-        return viewFactory.makeView(agentInstanceContext);
     }
 
     /**

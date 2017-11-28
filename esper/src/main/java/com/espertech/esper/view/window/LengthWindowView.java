@@ -23,7 +23,7 @@ import java.util.Iterator;
 /**
  * This view is a moving window extending the specified number of elements into the past.
  */
-public class LengthWindowView extends ViewSupport implements DataWindowView, CloneableView {
+public class LengthWindowView extends ViewSupport implements DataWindowView {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final LengthWindowViewFactory lengthWindowViewFactory;
     private final int size;
@@ -47,10 +47,6 @@ public class LengthWindowView extends ViewSupport implements DataWindowView, Clo
         this.lengthWindowViewFactory = lengthWindowViewFactory;
         this.size = size;
         this.viewUpdatedCollection = viewUpdatedCollection;
-    }
-
-    public View cloneView() {
-        return lengthWindowViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

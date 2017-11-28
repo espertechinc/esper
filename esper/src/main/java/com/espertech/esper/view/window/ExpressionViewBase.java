@@ -26,7 +26,6 @@ import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.StopCallback;
-import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.DataWindowView;
 import com.espertech.esper.view.StoppableView;
 import com.espertech.esper.view.ViewSupport;
@@ -38,7 +37,7 @@ import java.util.Set;
 /**
  * This view is a moving window extending the into the past until the expression passed to it returns false.
  */
-public abstract class ExpressionViewBase extends ViewSupport implements DataWindowView, CloneableView, StoppableView, VariableChangeCallback, StopCallback {
+public abstract class ExpressionViewBase extends ViewSupport implements DataWindowView, StoppableView, VariableChangeCallback, StopCallback {
 
     protected final ViewUpdatedCollection viewUpdatedCollection;
     protected final ExprEvaluator expiryExpression;

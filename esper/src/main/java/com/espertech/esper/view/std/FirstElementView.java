@@ -24,7 +24,7 @@ import java.util.Iterator;
  * <p>
  * The view thus never posts a remove stream unless explicitly deleted from when used with a named window.
  */
-public class FirstElementView extends ViewSupport implements CloneableView, DataWindowView {
+public class FirstElementView extends ViewSupport implements DataWindowView {
     /**
      * The first new element posted from a parent view.
      */
@@ -33,10 +33,6 @@ public class FirstElementView extends ViewSupport implements CloneableView, Data
 
     public FirstElementView(FirstElementViewFactory viewFactory) {
         this.viewFactory = viewFactory;
-    }
-
-    public View cloneView() {
-        return new FirstElementView(viewFactory);
     }
 
     public final EventType getEventType() {

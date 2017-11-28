@@ -20,7 +20,10 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
-import com.espertech.esper.view.*;
+import com.espertech.esper.view.DataWindowView;
+import com.espertech.esper.view.ViewDataVisitor;
+import com.espertech.esper.view.ViewFactory;
+import com.espertech.esper.view.ViewSupport;
 
 import java.util.*;
 
@@ -35,7 +38,7 @@ import java.util.*;
  * <p>
  * Old values removed from a another view are removed from the sort view.
  */
-public class RankWindowView extends ViewSupport implements DataWindowView, CloneableView {
+public class RankWindowView extends ViewSupport implements DataWindowView {
     private final RankWindowViewFactory rankWindowViewFactory;
     private final EventBean[] eventsPerStream = new EventBean[1];
     private final int sortWindowSize;
@@ -57,10 +60,6 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
 
         sortedEvents = new TreeMap<>(rankWindowViewFactory.comparator);
         uniqueKeySortKeys = new HashMap<>();
-    }
-
-    public View cloneView() {
-        return rankWindowViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     public final EventType getEventType() {

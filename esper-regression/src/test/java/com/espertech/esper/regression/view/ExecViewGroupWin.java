@@ -27,6 +27,7 @@ import com.espertech.esper.util.EventRepresentationChoice;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ExecViewGroupWin implements RegressionExecution {
@@ -41,12 +42,114 @@ public class ExecViewGroupWin implements RegressionExecution {
         if (!InstrumentationHelper.ENABLED) {
             runAssertionReclaimAgedHint(epService);
         }
-        runAssertionInvalidGroupByNoChild(epService);
         runAssertionStats(epService);
         runAssertionLengthWindowGrouped(epService);
         runAssertionExpressionGrouped(epService);
         runAssertionCorrel(epService);
         runAssertionLinest(epService);
+        runAssertionExpressionBatch(epService);
+        runAssertionMultiProperty(epService);
+        runAssertionInvalid(epService);
+    }
+
+    private void runAssertionInvalid(EPServiceProvider epService) {
+        String epl;
+
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epl = "select * from SupportBean#groupwin(theString)#length(1)#groupwin(theString)#uni(intPrimitive)";
+        SupportMessageAssertUtil.tryInvalid(epService, epl,
+                "Error starting statement: Multiple groupwin-declarations are not supported");
+
+        epl = "select avg(price), symbol from " + SupportMarketDataBean.class.getName() + "#length(100)#groupwin(symbol)";
+        SupportMessageAssertUtil.tryInvalid(epService, epl,
+                "Error starting statement: Invalid use of the 'groupwin' view, the view requires one or more child views to group, or consider using the group-by clause");
+
+        epl = "select * from SupportBean#keepall#groupwin(theString)#length(2)";
+        SupportMessageAssertUtil.tryInvalid(epService, epl,
+                "Error starting statement: The groupwin view must occur in the first position in conjunction with multiple data windows");
+
+        epl = "select * from SupportBean#groupwin(theString)#length(2)#merge(theString)#keepall";
+        SupportMessageAssertUtil.tryInvalid(epService, epl,
+                "Error starting statement: The merge view cannot be used in conjunction with multiple data windows");
+    }
+
+    private void runAssertionMultiProperty(EPServiceProvider epService) {
+        final String SYMBOL_MSFT = "MSFT";
+        final String SYMBOL_GE = "GE";
+        final String FEED_INFO = "INFO";
+        final String FEED_REU = "REU";
+
+        // Listen to all ticks
+        EPStatement viewGrouped = epService.getEPAdministrator().createEPL(
+                "select irstream datapoints as size, symbol, feed, volume from " + SupportMarketDataBean.class.getName() +
+                        "#groupwin(symbol, feed, volume)#uni(price) order by symbol, feed, volume");
+        SupportUpdateListener listener = new SupportUpdateListener();
+
+        // Counts per symbol, feed and volume the events
+        viewGrouped.addListener(listener);
+
+        ArrayList<Map<String, Object>> mapList = new ArrayList<>();
+
+        // Set up a map of expected values
+
+        Map<String, Object> expectedValues[] = new HashMap[10];
+        for (int i = 0; i < expectedValues.length; i++) {
+            expectedValues[i] = new HashMap<>();
+        }
+
+        // Send one event, check results
+        sendEvent(epService, SYMBOL_GE, FEED_INFO, 1);
+
+        populateMap(expectedValues[0], SYMBOL_GE, FEED_INFO, 1L, 0);
+        mapList.add(expectedValues[0]);
+        EPAssertionUtil.assertPropsPerRow(listener.getLastOldData(), mapList);
+        populateMap(expectedValues[0], SYMBOL_GE, FEED_INFO, 1L, 1);
+        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), mapList);
+        EPAssertionUtil.assertPropsPerRow(viewGrouped.iterator(), mapList);
+
+        // Send a couple of events
+        sendEvent(epService, SYMBOL_GE, FEED_INFO, 1);
+        sendEvent(epService, SYMBOL_GE, FEED_INFO, 2);
+        sendEvent(epService, SYMBOL_GE, FEED_INFO, 1);
+        sendEvent(epService, SYMBOL_GE, FEED_REU, 99);
+        sendEvent(epService, SYMBOL_MSFT, FEED_INFO, 100);
+
+        populateMap(expectedValues[1], SYMBOL_MSFT, FEED_INFO, 100, 0);
+        mapList.clear();
+        mapList.add(expectedValues[1]);
+        EPAssertionUtil.assertPropsPerRow(listener.getLastOldData(), mapList);
+        populateMap(expectedValues[1], SYMBOL_MSFT, FEED_INFO, 100, 1);
+        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), mapList);
+
+        populateMap(expectedValues[0], SYMBOL_GE, FEED_INFO, 1, 3);
+        populateMap(expectedValues[2], SYMBOL_GE, FEED_INFO, 2, 1);
+        populateMap(expectedValues[3], SYMBOL_GE, FEED_REU, 99, 1);
+        mapList.clear();
+        mapList.add(expectedValues[0]);
+        mapList.add(expectedValues[2]);
+        mapList.add(expectedValues[3]);
+        mapList.add(expectedValues[1]);
+        EPAssertionUtil.assertPropsPerRow(viewGrouped.iterator(), mapList);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionExpressionBatch(EPServiceProvider epService) throws Exception {
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        String epl = "@Name('create_var') create variable long ENGINE_TIME;\n" +
+                "@Name('engine_time_update') on pattern[every timer:interval(10 seconds)] set ENGINE_TIME = current_timestamp();\n" +
+                "@Name('out_null') select window(*) from SupportBean#groupwin(theString)#expr_batch(oldest_timestamp.plus(9 seconds) < ENGINE_TIME);";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+
+        SupportUpdateListener listener = new SupportUpdateListener();
+        epService.getEPAdministrator().getStatement("out_null").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(5000));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(10000));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(11000));
+
+        assertFalse(listener.isInvoked());
     }
 
     private void runAssertionObjectArrayEvent(EPServiceProvider epService) {
@@ -138,16 +241,6 @@ public class ExecViewGroupWin implements RegressionExecution {
         EventBean[] iterator = EPAssertionUtil.iteratorToArray(stmt.iterator());
         assertTrue(iterator.length <= 6 * maxEventsPerSlot);
         stmt.destroy();
-    }
-
-    private void runAssertionInvalidGroupByNoChild(EPServiceProvider epService) {
-        String stmtText = "select avg(price), symbol from " + SupportMarketDataBean.class.getName() + "#length(100)#groupwin(symbol)";
-
-        try {
-            epService.getEPAdministrator().createEPL(stmtText);
-        } catch (EPStatementException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Invalid use of the 'groupwin' view, the view requires one or more child views to group, or consider using the group-by clause [");
-        }
     }
 
     private void runAssertionStats(EPServiceProvider epService) {
@@ -382,5 +475,17 @@ public class ExecViewGroupWin implements RegressionExecution {
         CurrentTimeEvent theEvent = new CurrentTimeEvent(timeInMSec);
         EPRuntime runtime = epService.getEPRuntime();
         runtime.sendEvent(theEvent);
+    }
+
+    private void populateMap(Map<String, Object> map, String symbol, String feed, long volume, long size) {
+        map.put("symbol", symbol);
+        map.put("feed", feed);
+        map.put("volume", volume);
+        map.put("size", size);
+    }
+
+    private void sendEvent(EPServiceProvider epService, String symbol, String feed, long volume) {
+        SupportMarketDataBean theEvent = new SupportMarketDataBean(symbol, 0, volume, feed);
+        epService.getEPRuntime().sendEvent(theEvent);
     }
 }

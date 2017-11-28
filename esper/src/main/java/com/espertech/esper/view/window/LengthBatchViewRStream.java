@@ -22,7 +22,7 @@ import java.util.LinkedHashSet;
 /**
  * Same as the {@link LengthBatchView}, this view also supports fast-remove from the batch for remove stream events.
  */
-public class LengthBatchViewRStream extends ViewSupport implements CloneableView, DataWindowView {
+public class LengthBatchViewRStream extends ViewSupport implements DataWindowView {
     // View parameters
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final LengthBatchViewFactory lengthBatchViewFactory;
@@ -49,10 +49,6 @@ public class LengthBatchViewRStream extends ViewSupport implements CloneableView
         if (size <= 0) {
             throw new IllegalArgumentException("Invalid size parameter, size=" + size);
         }
-    }
-
-    public View cloneView() {
-        return lengthBatchViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

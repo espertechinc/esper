@@ -107,7 +107,7 @@ public final class ViewServiceImpl implements ViewService {
 
     private List<ViewFactory> getRetainViewFactories(EventType parentEventType, List<ViewFactory> viewFactories, boolean isUnion, StatementContext context)
             throws ViewProcessingException {
-        Set<Integer> groupByFactory = new HashSet<Integer>();
+        Set<Integer> groupByFactory = new HashSet<>();
         Set<Integer> mergeFactory = new HashSet<Integer>();
         List<ViewFactory> derivedValueViews = new ArrayList<ViewFactory>();
         List<ViewFactory> dataWindowViews = new ArrayList<ViewFactory>();
@@ -124,14 +124,11 @@ public final class ViewServiceImpl implements ViewService {
             }
         }
 
-        if (groupByFactory.size() > 1) {
-            throw new ViewProcessingException("Multiple groupwin views are not allowed in conjuntion with multiple data windows");
-        }
         if ((!groupByFactory.isEmpty()) && (groupByFactory.iterator().next() != 0)) {
-            throw new ViewProcessingException("The groupwin view must occur in the first position in conjuntion with multiple data windows");
+            throw new ViewProcessingException("The groupwin view must occur in the first position in conjunction with multiple data windows");
         }
         if ((!groupByFactory.isEmpty()) && (mergeFactory.iterator().next() != (viewFactories.size() - 1))) {
-            throw new ViewProcessingException("The merge view cannot be used in conjuntion with multiple data windows");
+            throw new ViewProcessingException("The merge view cannot be used in conjunction with multiple data windows");
         }
 
         GroupByViewFactoryMarker groupByViewFactory = null;

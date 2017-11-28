@@ -79,12 +79,6 @@ public class TestCorrelationView extends TestCase {
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.CORRELATION__CORRELATION.getName()) == Double.class);
     }
 
-    public void testCopyView() throws Exception {
-        CorrelationView copied = (CorrelationView) myView.cloneView();
-        assertTrue(myView.getExpressionX().equals(copied.getExpressionX()));
-        assertTrue(myView.getExpressionY().equals(copied.getExpressionY()));
-    }
-
     private void checkNew(double correlationE) {
         Iterator<EventBean> iterator = myView.iterator();
         checkValues(iterator.next(), correlationE);

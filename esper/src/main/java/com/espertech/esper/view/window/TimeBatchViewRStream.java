@@ -28,7 +28,7 @@ import java.util.LinkedHashSet;
 /**
  * Same as the {@link TimeBatchView}, this view also supports fast-remove from the batch for remove stream events.
  */
-public class TimeBatchViewRStream extends ViewSupport implements CloneableView, StoppableView, StopCallback, DataWindowView {
+public class TimeBatchViewRStream extends ViewSupport implements StoppableView, StopCallback, DataWindowView {
     // View parameters
     private final TimeBatchViewFactory timeBatchViewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
@@ -78,10 +78,6 @@ public class TimeBatchViewRStream extends ViewSupport implements CloneableView, 
             isCallbackScheduled = true;
         }
         agentInstanceContext.addTerminationCallback(this);
-    }
-
-    public View cloneView() {
-        return timeBatchViewFactory.makeView(agentInstanceContext);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {

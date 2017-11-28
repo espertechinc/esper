@@ -45,7 +45,7 @@ import java.util.TreeMap;
  * The view accepts 2 parameters. The first parameter is the field name to get the event timestamp value from,
  * the second parameter defines the interval size.
  */
-public class TimeOrderView extends ViewSupport implements DataWindowView, CloneableView, StoppableView, StopCallback {
+public class TimeOrderView extends ViewSupport implements DataWindowView, StoppableView, StopCallback {
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final ViewFactory viewFactory;
     private final ExprNode timestampExpression;
@@ -102,10 +102,6 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
         return timeDeltaComputation;
-    }
-
-    public View cloneView() {
-        return viewFactory.makeView(agentInstanceContext);
     }
 
     public final EventType getEventType() {

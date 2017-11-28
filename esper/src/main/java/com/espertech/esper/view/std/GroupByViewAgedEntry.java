@@ -10,17 +10,19 @@
  */
 package com.espertech.esper.view.std;
 
+import com.espertech.esper.view.View;
+
 public class GroupByViewAgedEntry {
-    private final Object subviewHolder;
+    private final View subview;
     private long lastUpdateTime;
 
-    public GroupByViewAgedEntry(Object subviewHolder, long lastUpdateTime) {
-        this.subviewHolder = subviewHolder;
+    public GroupByViewAgedEntry(View subview, long lastUpdateTime) {
+        this.subview = subview;
         this.lastUpdateTime = lastUpdateTime;
     }
 
-    public Object getSubviewHolder() {
-        return subviewHolder;
+    public View getSubview() {
+        return subview;
     }
 
     public long getLastUpdateTime() {

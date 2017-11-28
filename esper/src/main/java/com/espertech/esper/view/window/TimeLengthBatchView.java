@@ -38,7 +38,7 @@ import java.util.Iterator;
  * <p>
  * The view starts the first interval when the view is created.
  */
-public class TimeLengthBatchView extends ViewSupport implements CloneableView, StoppableView, StopCallback, DataWindowView {
+public class TimeLengthBatchView extends ViewSupport implements StoppableView, StopCallback, DataWindowView {
     private static final Logger log = LoggerFactory.getLogger(TimeLengthBatchView.class);
 
     // View parameters
@@ -91,10 +91,6 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
         }
 
         agentInstanceContext.addTerminationCallback(this);
-    }
-
-    public View cloneView() {
-        return timeLengthBatchViewFactory.makeView(agentInstanceContext);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {

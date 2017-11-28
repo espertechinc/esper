@@ -81,14 +81,6 @@ public class TestUniqueByPropertyView extends TestCase {
         SupportViewDataChecker.checkNewData(childView, null);
     }
 
-    public void testCopyView() throws Exception {
-        SupportBeanClassView parent = new SupportBeanClassView(SupportMarketDataBean.class);
-        myView.setParent(parent);
-
-        UniqueByPropertyView copied = (UniqueByPropertyView) myView.cloneView();
-        assertEquals(myView.getCriteriaExpressions()[0], copied.getCriteriaExpressions()[0]);
-    }
-
     private EventBean makeTradeBean(String symbol, int price) {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, 0L, "");
         return SupportEventBeanFactory.createObject(bean);

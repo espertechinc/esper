@@ -43,7 +43,7 @@ import java.util.Iterator;
  * ((Tn - T1) &gt; t == true) then event X1 is pushed as oldData out of the window. It is assumed that
  * events are sent in in their natural order and the timestamp values are ascending.
  */
-public class ExternallyTimedWindowView extends ViewSupport implements DataWindowView, CloneableView {
+public class ExternallyTimedWindowView extends ViewSupport implements DataWindowView {
     private final ExternallyTimedWindowViewFactory externallyTimedWindowViewFactory;
     private final ExprNode timestampExpression;
     private final ExprEvaluator timestampExpressionEval;
@@ -80,10 +80,6 @@ public class ExternallyTimedWindowView extends ViewSupport implements DataWindow
         this.viewUpdatedCollection = viewUpdatedCollection;
         this.timeWindow = new TimeWindow(agentInstanceViewFactoryContext.isRemoveStream());
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
-    }
-
-    public View cloneView() {
-        return externallyTimedWindowViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**

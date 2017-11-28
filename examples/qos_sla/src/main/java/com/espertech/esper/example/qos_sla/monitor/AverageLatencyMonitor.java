@@ -24,7 +24,7 @@ public class AverageLatencyMonitor {
 
         EPStatement statView = admin.createEPL(
                 "select * from " + OperationMeasurement.class.getName() +
-                        "#groupwin(customerId)#groupwin(operationName)" +
+                        "#groupwin(customerId, operationName)" +
                         "#length(100)#uni(latency)");
 
         statView.addListener(new AverageLatencyListener(10000));

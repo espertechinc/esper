@@ -43,10 +43,6 @@ public class MyFlushedSimpleView extends ViewSupport implements StopCallback {
         }
     }
 
-    public View cloneView(AgentInstanceViewFactoryChainContext agentInstanceContext) {
-        return new MyFlushedSimpleView(agentInstanceContext);
-    }
-
     public final void update(EventBean[] newData, EventBean[] oldData) {
         if (newData != null) {
             for (int i = 0; i < newData.length; i++) {

@@ -34,7 +34,7 @@ import java.util.Iterator;
  * last event is not null +
  * new data from index zero to N-1, where N is the index of the last element in new data
  */
-public class LastElementView extends ViewSupport implements CloneableView, DataWindowView {
+public class LastElementView extends ViewSupport implements DataWindowView {
     private final LastElementViewFactory viewFactory;
 
     /**
@@ -44,10 +44,6 @@ public class LastElementView extends ViewSupport implements CloneableView, DataW
 
     public LastElementView(LastElementViewFactory viewFactory) {
         this.viewFactory = viewFactory;
-    }
-
-    public View cloneView() {
-        return new LastElementView(viewFactory);
     }
 
     public final EventType getEventType() {
