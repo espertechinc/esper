@@ -268,6 +268,9 @@ public class ExecViewExpressionBatch implements RegressionExecution {
 
         tryInvalid(epService, "select * from SupportBean#expr_batch((select * from SupportBean#lastevent))",
                 "Error starting statement: Error attaching view to event stream: Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context [select * from SupportBean#expr_batch((select * from SupportBean#lastevent))]");
+
+        tryInvalid(epService, "select * from SupportBean#expr_batch(null < 0)",
+                "Error starting statement: Error attaching view to event stream: Invalid parameter expression 0 for Expression-batch view: Failed to validate view parameter expression 'null<0': Implicit conversion from datatype 'null' to numeric is not allowed");
     }
 
     private void runAssertionNamedWindowDelete(EPServiceProvider epService) {

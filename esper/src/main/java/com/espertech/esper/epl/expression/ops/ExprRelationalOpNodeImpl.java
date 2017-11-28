@@ -71,12 +71,12 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprRelati
         if ((typeOne != String.class) || (typeTwo != String.class)) {
             if (!JavaClassHelper.isNumeric(typeOne)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
-                        typeOne.getSimpleName() +
+                        (typeOne == null ? "null" : typeOne.getSimpleName()) +
                         "' to numeric is not allowed");
             }
             if (!JavaClassHelper.isNumeric(typeTwo)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
-                        typeTwo.getSimpleName() +
+                        (typeTwo == null ? "null" : typeTwo.getSimpleName()) +
                         "' to numeric is not allowed");
             }
         }
