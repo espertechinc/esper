@@ -175,7 +175,7 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForge 
     private CodegenExpression getGroupKeyCountCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethodNode method = parent.makeChild(int.class, AggSvcGroupByRollupForge.class, classScope);
         method.getBlock().declareVar(int.class, "size", constant(1));
-        for (int i = 0; i < rollupDesc.getLevels().length; i++) {
+        for (int i = 0; i < rollupDesc.getNumLevelsAggregation(); i++) {
             method.getBlock().assignCompound("size", "+", exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERGROUP, constant(i)), "size"));
         }
         method.getBlock().methodReturn(ref("size"));
