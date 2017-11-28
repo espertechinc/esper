@@ -16,6 +16,8 @@ import com.espertech.esper.client.hook.EPLScriptContext;
 import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
+import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.script.jsr223.ExpressionScriptCompiledJSR223;
 import com.espertech.esper.epl.script.jsr223.JSR223Helper;
 import com.espertech.esper.epl.script.mvel.ExpressionScriptCompiledMVEL;
@@ -36,7 +38,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
 
     private final String defaultDialect;
     private final ExpressionScriptProvided script;
-    private final List<ExprNode> parameters;
+    private List<ExprNode> parameters;
 
     private transient ExprNodeScriptEvaluator evaluator;
 
@@ -121,6 +123,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
             inputParamNames[i] = script.getParameterNames().get(i);
             forges[i] = validatedParameters.get(i).getForge();
         }
+        this.parameters = validatedParameters;
 
         // Compile script
         if (script.getCompiled() == null) {
@@ -166,6 +169,24 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         // Prepare evaluator - this sets the evaluator
         prepareEvaluator(validationContext.getStatementName(), inputParamNames, forges, returnType, eventTypeCollection);
         return null;
+    }
+
+    @Override
+    public void accept(ExprNodeVisitor visitor) {
+        super.accept(visitor);
+        ExprNodeUtility.acceptParams(visitor, parameters);
+    }
+
+    @Override
+    public void accept(ExprNodeVisitorWithParent visitor) {
+        super.accept(visitor);
+        ExprNodeUtility.acceptParams(visitor, parameters);
+    }
+
+    @Override
+    public void acceptChildnodes(ExprNodeVisitorWithParent visitor, ExprNode parent) {
+        super.acceptChildnodes(visitor, parent);
+        ExprNodeUtility.acceptParams(visitor, parameters, this);
     }
 
     private void compileScript(ExprForge[] forges, EngineImportService engineImportService)

@@ -52,6 +52,30 @@ public class ExecScriptExpression implements RegressionExecution {
         runAssertionParserMVELSelectNoArgConstant(epService);
         runAssertionJavaScriptStatelessReturnPassArgs(epService);
         runAssertionMVELStatelessReturnPassArgs(epService);
+        runAssertionSubqueryParam(epService);
+    }
+
+    private void runAssertionSubqueryParam(EPServiceProvider epService) throws Exception {
+        String epl = "expression double js:myJSFunc(stringvalue) [\n" +
+                "  calcScore(stringvalue);\n" +
+                "  function calcScore(stringvalue) {\n" +
+                "    return parseFloat(stringvalue);\n" +
+                "  }\n" +
+                "]\n" +
+                "select myJSFunc((select theString from SupportBean#lastevent)) as c0 from SupportBean_S0";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("20", 0));
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
+        assertEquals(20d, listener.assertOneGetNewAndReset().get("c0"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean("30", 0));
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
+        assertEquals(30d, listener.assertOneGetNewAndReset().get("c0"));
+
+        stmt.destroy();
     }
 
     private void runAssertionQuoteEscape(EPServiceProvider epService) throws Exception {

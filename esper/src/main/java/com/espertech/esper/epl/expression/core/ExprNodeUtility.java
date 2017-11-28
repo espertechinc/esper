@@ -1172,25 +1172,37 @@ public class ExprNodeUtility {
 
     public static void acceptChain(ExprNodeVisitor visitor, List<ExprChainedSpec> chainSpec) {
         for (ExprChainedSpec chain : chainSpec) {
-            for (ExprNode param : chain.getParameters()) {
-                param.accept(visitor);
-            }
+            acceptParams(visitor, chain.getParameters());
+        }
+    }
+
+    public static void acceptParams(ExprNodeVisitor visitor, List<ExprNode> params) {
+        for (ExprNode param : params) {
+            param.accept(visitor);
         }
     }
 
     public static void acceptChain(ExprNodeVisitorWithParent visitor, List<ExprChainedSpec> chainSpec) {
         for (ExprChainedSpec chain : chainSpec) {
-            for (ExprNode param : chain.getParameters()) {
-                param.accept(visitor);
-            }
+            acceptParams(visitor, chain.getParameters());
+        }
+    }
+
+    public static void acceptParams(ExprNodeVisitorWithParent visitor, List<ExprNode> params) {
+        for (ExprNode param : params) {
+            param.accept(visitor);
         }
     }
 
     public static void acceptChain(ExprNodeVisitorWithParent visitor, List<ExprChainedSpec> chainSpec, ExprNode parent) {
         for (ExprChainedSpec chain : chainSpec) {
-            for (ExprNode param : chain.getParameters()) {
-                param.acceptChildnodes(visitor, parent);
-            }
+            acceptParams(visitor, chain.getParameters(), parent);
+        }
+    }
+
+    public static void acceptParams(ExprNodeVisitorWithParent visitor, List<ExprNode> params, ExprNode parent) {
+        for (ExprNode param : params) {
+            param.acceptChildnodes(visitor, parent);
         }
     }
 
