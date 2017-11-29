@@ -11,6 +11,7 @@
 package com.espertech.esper.codegen.compile;
 
 public class CodegenCompilerException extends Exception {
+    private static final long serialVersionUID = 8791067524481989469L;
     private final String code;
 
     public CodegenCompilerException(String message, Throwable cause, String code) {

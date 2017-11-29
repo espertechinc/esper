@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public final class FilterSpecParamAdvancedIndexQuadTreePointRegion extends FilterSpecParam {
     private static final Logger log = LoggerFactory.getLogger(FilterSpecParamAdvancedIndexQuadTreePointRegion.class);
+    private static final long serialVersionUID = -6532439019770165132L;
 
     private FilterSpecParamFilterForEvalDouble xEval;
     private FilterSpecParamFilterForEvalDouble yEval;

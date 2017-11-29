@@ -36,7 +36,7 @@ public class ASTContextHelper {
 
         EsperEPL2GrammarParser.CreateContextChoiceContext choice = ctx.createContextDetail().createContextChoice();
         if (choice != null) {
-            contextDetail = walkChoice(choice, astExprNodeMap, astPatternNodeMap, propertyEvalSpec, filterSpec);
+            contextDetail = walkChoice(choice, astExprNodeMap, astPatternNodeMap, propertyEvalSpec);
         } else {
             contextDetail = walkNested(ctx.createContextDetail().contextContextNested(), astExprNodeMap, astPatternNodeMap, propertyEvalSpec, filterSpec);
         }
@@ -46,14 +46,14 @@ public class ASTContextHelper {
     private static ContextDetail walkNested(List<EsperEPL2GrammarParser.ContextContextNestedContext> nestedContexts, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec, FilterSpecRaw filterSpec) {
         List<CreateContextDesc> contexts = new ArrayList<CreateContextDesc>(nestedContexts.size());
         for (EsperEPL2GrammarParser.ContextContextNestedContext nestedctx : nestedContexts) {
-            ContextDetail contextDetail = walkChoice(nestedctx.createContextChoice(), astExprNodeMap, astPatternNodeMap, propertyEvalSpec, filterSpec);
+            ContextDetail contextDetail = walkChoice(nestedctx.createContextChoice(), astExprNodeMap, astPatternNodeMap, propertyEvalSpec);
             CreateContextDesc desc = new CreateContextDesc(nestedctx.name.getText(), contextDetail);
             contexts.add(desc);
         }
         return new ContextDetailNested(contexts);
     }
 
-    private static ContextDetail walkChoice(EsperEPL2GrammarParser.CreateContextChoiceContext ctx, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec, FilterSpecRaw filterSpec) {
+    private static ContextDetail walkChoice(EsperEPL2GrammarParser.CreateContextChoiceContext ctx, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec) {
 
         // temporal fixed (start+end) and overlapping (initiated/terminated)
         if (ctx.START() != null || ctx.INITIATED() != null) {
@@ -91,7 +91,7 @@ public class ASTContextHelper {
             List<ContextDetailPartitionItem> rawSpecs = new ArrayList<ContextDetailPartitionItem>();
             for (EsperEPL2GrammarParser.CreateContextPartitionItemContext partition : partitions) {
 
-                filterSpec = ASTFilterSpecHelper.walkFilterSpec(partition.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
+                FilterSpecRaw filterSpec = ASTFilterSpecHelper.walkFilterSpec(partition.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
                 propertyEvalSpec = null;
 
                 List<String> propertyNames = new ArrayList<String>();
@@ -121,7 +121,7 @@ public class ASTContextHelper {
             List<ContextDetailHashItem> rawSpecs = new ArrayList<ContextDetailHashItem>(coalesces.size());
             for (EsperEPL2GrammarParser.CreateContextCoalesceItemContext coalesce : coalesces) {
                 ExprChainedSpec func = ASTLibFunctionHelper.getLibFunctionChainSpec(coalesce.libFunctionNoClass(), astExprNodeMap);
-                filterSpec = ASTFilterSpecHelper.walkFilterSpec(coalesce.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
+                FilterSpecRaw filterSpec = ASTFilterSpecHelper.walkFilterSpec(coalesce.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
                 propertyEvalSpec = null;
                 rawSpecs.add(new ContextDetailHashItem(func, filterSpec));
             }
@@ -151,7 +151,7 @@ public class ASTContextHelper {
                 String name = grp.i.getText();
                 items.add(new ContextDetailCategoryItem(exprNode, name));
             }
-            filterSpec = ASTFilterSpecHelper.walkFilterSpec(ctx.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
+            FilterSpecRaw filterSpec = ASTFilterSpecHelper.walkFilterSpec(ctx.eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
             return new ContextDetailCategory(items, filterSpec);
         }
 

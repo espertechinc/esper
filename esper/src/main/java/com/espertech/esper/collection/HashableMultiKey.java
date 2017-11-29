@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public final class HashableMultiKey implements Serializable {
+    private static final long serialVersionUID = -7019971786796246533L;
     private final Object[] keys;
 
     /**

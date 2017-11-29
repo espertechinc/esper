@@ -16,6 +16,7 @@ import com.espertech.esper.pattern.MatchedEventMap;
 
 public class FilterForEvalContextPropString implements FilterSpecParamFilterForEval {
 
+    private static final long serialVersionUID = 5250506869921316777L;
     private transient final EventPropertyGetter getter;
     private final String propertyName;
 

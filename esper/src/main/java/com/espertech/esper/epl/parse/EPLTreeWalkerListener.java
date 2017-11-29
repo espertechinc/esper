@@ -460,7 +460,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         boolean eventsAnnotation = false;
         if (ctx.selectionListElementAnno() != null) {
             String annotation = ctx.selectionListElementAnno().i.getText().toLowerCase(Locale.ENGLISH);
-            if (annotation.equals("eventbean") || annotation.equals("eventbean")) {
+            if (annotation.equals("eventbean")) {
                 eventsAnnotation = true;
             } else {
                 throw ASTWalkException.from("Failed to recognize select-expression annotation '" + annotation + "', expected 'eventbean'", tokenStream, ctx);

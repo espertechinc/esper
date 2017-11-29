@@ -20,6 +20,7 @@ import java.io.StringWriter;
 
 public class ExprAppDotMethodImpl extends ExprNodeBase implements FilterSpecCompilerAdvIndexDescProvider, FilterExprAnalyzerAffectorProvider {
 
+    private static final long serialVersionUID = 2457510084054173183L;
     private final EngineImportApplicationDotMethod desc;
 
     public ExprAppDotMethodImpl(EngineImportApplicationDotMethod desc) {

@@ -22,6 +22,7 @@ import com.espertech.esper.epl.expression.core.ExprWildcard;
  */
 public class ExprFirstLastEverNode extends ExprAggregateNodeBase {
 
+    private static final long serialVersionUID = -7305990054785137679L;
     private final boolean first;
 
     /**

@@ -2319,6 +2319,7 @@ public class ConfigurationEngineDefaults implements Serializable {
      * Code generation settings.
      */
     public static class ByteCodeGeneration implements Serializable {
+        private static final long serialVersionUID = -4582655217918634675L;
         private boolean enablePropertyGetter = false;
         private boolean enableExpression = true;
         private boolean enableSelectClause = false;

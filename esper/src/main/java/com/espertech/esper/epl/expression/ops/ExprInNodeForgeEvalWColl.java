@@ -208,9 +208,7 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
                 CodegenBlock ifRightNotNull = reftype.isPrimitive() ? block : block.ifRefNotNull(refname);
                 {
                     if (!leftTypeUncoerced.isPrimitive()) {
-                        if (!leftTypeUncoerced.isPrimitive()) {
-                            ifRightNotNull.ifRefNullReturnNull("left");
-                        }
+                        ifRightNotNull.ifRefNullReturnNull("left");
                     }
                     if (!forge.isMustCoerce()) {
                         ifRightNotNull.ifCondition(CodegenLegoCompareEquals.codegenEqualsNonNullNoCoerce(ref("leftCoerced"), leftTypeCoerced, ref(refname), reftype))
