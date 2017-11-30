@@ -22,7 +22,6 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
-import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.LazyAllocatedMap;
 
 import java.util.*;
@@ -35,7 +34,6 @@ public class StatementSpecMapContext {
     private final EngineImportService engineImportService;
     private final VariableService variableService;
     private final ConfigurationInformation configuration;
-    private final SchedulingService schedulingService;
     private final String engineURI;
     private final PatternNodeFactory patternNodeFactory;
     private final NamedWindowMgmtService namedWindowMgmtService;
@@ -52,12 +50,11 @@ public class StatementSpecMapContext {
     private String contextName;
     private Set<ExprTableAccessNode> tableNodes = new HashSet<ExprTableAccessNode>(1);
 
-    public StatementSpecMapContext(EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, ContextDescriptor contextDescriptor, TableService tableService) {
+    public StatementSpecMapContext(EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, ContextDescriptor contextDescriptor, TableService tableService) {
         this.engineImportService = engineImportService;
         this.variableService = variableService;
         this.configuration = configuration;
         this.variableNames = new HashSet<String>();
-        this.schedulingService = schedulingService;
         this.engineURI = engineURI;
         this.patternNodeFactory = patternNodeFactory;
         this.namedWindowMgmtService = namedWindowMgmtService;
@@ -119,10 +116,6 @@ public class StatementSpecMapContext {
      */
     public Set<String> getVariableNames() {
         return variableNames;
-    }
-
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
     }
 
     public String getEngineURI() {

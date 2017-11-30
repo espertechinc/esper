@@ -58,8 +58,6 @@ import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.guard.GuardEnum;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.rowregex.*;
-import com.espertech.esper.schedule.SchedulingService;
-import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.type.*;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.LazyAllocatedMap;
@@ -144,12 +142,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     private final CommonTokenStream tokenStream;
     private final EngineImportService engineImportService;
     private final VariableService variableService;
-    private final TimeProvider timeProvider;
-    private final ExprEvaluatorContext exprEvaluatorContext;
     private final SelectClauseStreamSelectorEnum defaultStreamSelector;
     private final String engineURI;
     private final ConfigurationInformation configurationInformation;
-    private final SchedulingService schedulingService;
     private final PatternNodeFactory patternNodeFactory;
     private final ContextManagementService contextManagementService;
     private final List<String> scriptBodies;
@@ -161,7 +156,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public EPLTreeWalkerListener(CommonTokenStream tokenStream,
                                  EngineImportService engineImportService,
                                  VariableService variableService,
-                                 SchedulingService schedulingService,
                                  SelectClauseStreamSelectorEnum defaultStreamSelector,
                                  String engineURI,
                                  ConfigurationInformation configurationInformation,
@@ -174,12 +168,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         this.engineImportService = engineImportService;
         this.variableService = variableService;
         this.defaultStreamSelector = defaultStreamSelector;
-        this.timeProvider = schedulingService;
         this.patternNodeFactory = patternNodeFactory;
-        this.exprEvaluatorContext = new ExprEvaluatorContextTimeOnly(timeProvider);
         this.engineURI = engineURI;
         this.configurationInformation = configurationInformation;
-        this.schedulingService = schedulingService;
         this.contextManagementService = contextManagementService;
         this.scriptBodies = scriptBodies;
         this.exprDeclaredService = exprDeclaredService;
@@ -941,7 +932,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                     }
                     String toCompile = "select * from java.lang.Object where " + expression;
                     StatementSpecRaw raw = EPAdministratorHelper.compileEPL(toCompile, expression, false, null, SelectClauseStreamSelectorEnum.ISTREAM_ONLY,
-                            engineImportService, variableService, schedulingService, engineURI, configurationInformation, patternNodeFactory, contextManagementService, exprDeclaredService, tableService);
+                            engineImportService, variableService, engineURI, configurationInformation, patternNodeFactory, contextManagementService, exprDeclaredService, tableService);
 
                     if ((raw.getSubstitutionParameters() != null) && (raw.getSubstitutionParameters().size() > 0)) {
                         throw ASTWalkException.from("EPL substitution parameters are not allowed in SQL ${...} expressions, consider using a variable instead");
@@ -1073,7 +1064,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitOutputLimit(EsperEPL2GrammarParser.OutputLimitContext ctx) {
-        OutputLimitSpec spec = ASTOutputLimitHelper.buildOutputLimitSpec(tokenStream, ctx, astExprNodeMap, variableService, engineURI, timeProvider, exprEvaluatorContext);
+        OutputLimitSpec spec = ASTOutputLimitHelper.buildOutputLimitSpec(tokenStream, ctx, astExprNodeMap);
         statementSpec.setOutputLimitSpec(spec);
         if (spec.getVariableName() != null) {
             statementSpec.setHasVariables(true);

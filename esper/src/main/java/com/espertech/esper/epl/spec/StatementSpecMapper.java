@@ -59,7 +59,6 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceUtil;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.rowregex.*;
-import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.type.MinMaxTypeEnum;
@@ -115,13 +114,13 @@ public class StatementSpecMapper {
         return unmapExpressionDeepRowRegex(pattern, new StatementSpecUnMapContext());
     }
 
-    public static StatementSpecRaw map(EPStatementObjectModel sodaStatement, EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, TableService tableService) {
+    public static StatementSpecRaw map(EPStatementObjectModel sodaStatement, EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, TableService tableService) {
         com.espertech.esper.core.context.util.ContextDescriptor contextDescriptor = null;
         if (sodaStatement.getContextName() != null) {
             contextDescriptor = contextManagementService.getContextDescriptor(sodaStatement.getContextName());
         }
 
-        StatementSpecMapContext mapContext = new StatementSpecMapContext(engineImportService, variableService, configuration, schedulingService, engineURI, patternNodeFactory, namedWindowMgmtService, contextManagementService, exprDeclaredService, contextDescriptor, tableService);
+        StatementSpecMapContext mapContext = new StatementSpecMapContext(engineImportService, variableService, configuration, engineURI, patternNodeFactory, namedWindowMgmtService, contextManagementService, exprDeclaredService, contextDescriptor, tableService);
 
         StatementSpecRaw raw = map(sodaStatement, mapContext);
         if (mapContext.isHasVariables()) {
@@ -2948,7 +2947,7 @@ public class StatementSpecMapper {
                 }
                 String toCompile = "select * from java.lang.Object where " + expression;
                 StatementSpecRaw rawSqlExpr = EPAdministratorHelper.compileEPL(toCompile, expression, false, null, SelectClauseStreamSelectorEnum.ISTREAM_ONLY,
-                        mapContext.getEngineImportService(), mapContext.getVariableService(), mapContext.getSchedulingService(), mapContext.getEngineURI(), mapContext.getConfiguration(), mapContext.getPatternNodeFactory(), mapContext.getContextManagementService(), mapContext.getExprDeclaredService(), mapContext.getTableService());
+                        mapContext.getEngineImportService(), mapContext.getVariableService(), mapContext.getEngineURI(), mapContext.getConfiguration(), mapContext.getPatternNodeFactory(), mapContext.getContextManagementService(), mapContext.getExprDeclaredService(), mapContext.getTableService());
 
                 if ((rawSqlExpr.getSubstitutionParameters() != null) && (rawSqlExpr.getSubstitutionParameters().size() > 0)) {
                     throw ASTWalkException.from("EPL substitution parameters are not allowed in SQL ${...} expressions, consider using a variable instead");

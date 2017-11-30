@@ -13,7 +13,6 @@ package com.espertech.esper.supportunit.epl.parse;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
@@ -26,7 +25,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 public class SupportEPLTreeWalkerFactory {
     public static EPLTreeWalkerListener makeWalker(CommonTokenStream tokenStream, EngineImportService engineImportService, VariableService variableService) {
-        return new EPLTreeWalkerListener(tokenStream, engineImportService, variableService, new SupportSchedulingServiceImpl(), SelectClauseStreamSelectorEnum.ISTREAM_ONLY, "uri", new Configuration(), new PatternNodeFactoryImpl(), null, null, new ExprDeclaredServiceImpl(), new TableServiceImpl());
+        return new EPLTreeWalkerListener(tokenStream, engineImportService, variableService, SelectClauseStreamSelectorEnum.ISTREAM_ONLY, "uri", new Configuration(), new PatternNodeFactoryImpl(), null, null, new ExprDeclaredServiceImpl(), new TableServiceImpl());
     }
 
     public static EPLTreeWalkerListener makeWalker(CommonTokenStream tokenStream) {

@@ -12,7 +12,7 @@ package com.espertech.esper.codegen.compile;
 
 import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.util.IdentifierUtil;
+import com.espertech.esper.codegen.util.IdentifierUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

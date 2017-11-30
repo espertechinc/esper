@@ -61,7 +61,7 @@ public class ExcludePlanHintExprUtil {
         String toCompile = "select * from java.lang.Object#time(" + hint + ")";
         StatementSpecRaw raw = EPAdministratorHelper.compileEPL(toCompile, hint, false, null,
                 SelectClauseStreamSelectorEnum.ISTREAM_ONLY, statementContext.getEngineImportService(),
-                statementContext.getVariableService(), statementContext.getSchedulingService(),
+                statementContext.getVariableService(),
                 statementContext.getEngineURI(), statementContext.getConfigSnapshot(),
                 new PatternNodeFactoryImpl(), new ContextManagementServiceImpl(statementContext.getEngineURI()),
                 new ExprDeclaredServiceImpl(), new TableServiceImpl());

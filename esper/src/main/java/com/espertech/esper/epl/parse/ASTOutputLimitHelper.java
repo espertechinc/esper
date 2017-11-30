@@ -10,13 +10,10 @@
  */
 package com.espertech.esper.epl.parse;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.spec.*;
-import com.espertech.esper.epl.variable.VariableService;
-import com.espertech.esper.schedule.TimeProvider;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.Tree;
@@ -28,7 +25,7 @@ import java.util.Map;
  * Builds an output limit spec from an output limit AST node.
  */
 public class ASTOutputLimitHelper {
-    public static OutputLimitSpec buildOutputLimitSpec(CommonTokenStream tokenStream, EsperEPL2GrammarParser.OutputLimitContext ctx, Map<Tree, ExprNode> astExprNodeMap, VariableService variableService, String engineURI, TimeProvider timeProvider, ExprEvaluatorContext exprEvaluatorContext) {
+    public static OutputLimitSpec buildOutputLimitSpec(CommonTokenStream tokenStream, EsperEPL2GrammarParser.OutputLimitContext ctx, Map<Tree, ExprNode> astExprNodeMap) {
         OutputLimitLimitType displayLimit = OutputLimitLimitType.DEFAULT;
         if (ctx.k != null) {
             switch (ctx.k.getType()) {

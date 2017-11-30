@@ -25,7 +25,6 @@ import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.pattern.PatternNodeFactory;
-import com.espertech.esper.schedule.SchedulingService;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.Tree;
 import org.slf4j.Logger;
@@ -66,13 +65,12 @@ public class EPAdministratorHelper {
      */
     public static StatementSpecRaw compileEPL(String eplStatement, String eplStatementForErrorMsg, boolean addPleaseCheck, String statementName, EPServicesContext services, SelectClauseStreamSelectorEnum defaultStreamSelector) {
         return compileEPL(eplStatement, eplStatementForErrorMsg, addPleaseCheck, statementName, defaultStreamSelector,
-                services.getEngineImportService(), services.getVariableService(), services.getSchedulingService(), services.getEngineURI(), services.getConfigSnapshot(), services.getPatternNodeFactory(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
+                services.getEngineImportService(), services.getVariableService(), services.getEngineURI(), services.getConfigSnapshot(), services.getPatternNodeFactory(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
     }
 
     public static StatementSpecRaw compileEPL(String eplStatement, String eplStatementForErrorMsg, boolean addPleaseCheck, String statementName, SelectClauseStreamSelectorEnum defaultStreamSelector,
                                               EngineImportService engineImportService,
                                               VariableService variableService,
-                                              SchedulingService schedulingService,
                                               String engineURI,
                                               ConfigurationInformation configSnapshot,
                                               PatternNodeFactory patternNodeFactory,
@@ -86,7 +84,7 @@ public class EPAdministratorHelper {
         ParseResult parseResult = ParseHelper.parse(eplStatement, eplStatementForErrorMsg, addPleaseCheck, eplParseRule, true);
         Tree ast = parseResult.getTree();
 
-        EPLTreeWalkerListener walker = new EPLTreeWalkerListener(parseResult.getTokenStream(), engineImportService, variableService, schedulingService, defaultStreamSelector, engineURI, configSnapshot, patternNodeFactory, contextManagementService, parseResult.getScripts(), exprDeclaredService, tableService);
+        EPLTreeWalkerListener walker = new EPLTreeWalkerListener(parseResult.getTokenStream(), engineImportService, variableService, defaultStreamSelector, engineURI, configSnapshot, patternNodeFactory, contextManagementService, parseResult.getScripts(), exprDeclaredService, tableService);
 
         try {
             ParseHelper.walk(ast, walker, eplStatement, eplStatementForErrorMsg);
@@ -119,7 +117,7 @@ public class EPAdministratorHelper {
         }
 
         // Walk
-        EPLTreeWalkerListener walker = new EPLTreeWalkerListener(parseResult.getTokenStream(), services.getEngineImportService(), services.getVariableService(), services.getSchedulingService(), defaultStreamSelector, services.getEngineURI(), services.getConfigSnapshot(), services.getPatternNodeFactory(), services.getContextManagementService(), parseResult.getScripts(), services.getExprDeclaredService(), services.getTableService());
+        EPLTreeWalkerListener walker = new EPLTreeWalkerListener(parseResult.getTokenStream(), services.getEngineImportService(), services.getVariableService(), defaultStreamSelector, services.getEngineURI(), services.getConfigSnapshot(), services.getPatternNodeFactory(), services.getContextManagementService(), parseResult.getScripts(), services.getExprDeclaredService(), services.getTableService());
         try {
             ParseHelper.walk(ast, walker, expression, expressionForErrorMessage);
         } catch (ASTWalkException ex) {

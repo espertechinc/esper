@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.util;
+package com.espertech.esper.codegen.util;
 
 public class IdentifierUtil {
     public static String getIdentifierMayStartNumeric(String str) {
