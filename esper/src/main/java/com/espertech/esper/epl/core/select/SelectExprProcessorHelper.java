@@ -38,9 +38,9 @@ import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
+import com.espertech.esper.epl.util.EventRepresentationUtil;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
-import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
@@ -542,7 +542,7 @@ public class SelectExprProcessorHelper {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceMap(insertIntoTargetType, expression.getForge(), eventAdapterService);
                     } else if (insertIntoTargetType instanceof BeanEventType && JavaClassHelper.isSubclassOrImplementsInterface(returnType, insertIntoTargetType.getUnderlyingType())) {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceNative(insertIntoTargetType, expression.getForge(), eventAdapterService);
-                    } else if (insertIntoTargetType instanceof AvroSchemaEventType && returnType.getName().equals(AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME)) {
+                    } else if (insertIntoTargetType instanceof AvroSchemaEventType && returnType.getName().equals(JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME)) {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceAvro(insertIntoTargetType, expression.getForge(), eventAdapterService);
                     } else if (insertIntoTargetType instanceof WrapperEventType) {
                         // for native event types as they got renamed, they become wrappers

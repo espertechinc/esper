@@ -20,7 +20,7 @@ import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.IndexAssertion;
 import com.espertech.esper.supportregression.util.IndexAssertionEventSend;
 import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.generic.GenericData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

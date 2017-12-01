@@ -21,7 +21,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_ST0_Container;
 import com.espertech.esper.supportregression.bean.SupportCollection;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

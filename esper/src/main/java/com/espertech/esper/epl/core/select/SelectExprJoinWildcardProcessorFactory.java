@@ -19,13 +19,13 @@ import com.espertech.esper.epl.spec.CreateSchemaDesc;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
+import com.espertech.esper.epl.util.EventRepresentationUtil;
 import com.espertech.esper.event.EventAdapterException;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.CollectionUtil;
-import com.espertech.esper.util.EventRepresentationUtil;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -34,19 +34,19 @@ import java.util.Map;
 
 public class SelectExprJoinWildcardProcessorFactory {
     public static SelectExprProcessorForge create(Collection<Integer> assignedTypeNumberStack,
-                                             int statementId,
-                                             String statementName,
-                                             String[] streamNames,
-                                             EventType[] streamTypes,
-                                             EventAdapterService eventAdapterService,
-                                             InsertIntoDesc insertIntoDesc,
-                                             SelectExprEventTypeRegistry selectExprEventTypeRegistry,
-                                             EngineImportService engineImportService,
-                                             Annotation[] annotations,
-                                             ConfigurationInformation configuration,
-                                             TableService tableService,
-                                             String engineURI,
-                                             boolean isFireAndForget) throws ExprValidationException {
+                                                  int statementId,
+                                                  String statementName,
+                                                  String[] streamNames,
+                                                  EventType[] streamTypes,
+                                                  EventAdapterService eventAdapterService,
+                                                  InsertIntoDesc insertIntoDesc,
+                                                  SelectExprEventTypeRegistry selectExprEventTypeRegistry,
+                                                  EngineImportService engineImportService,
+                                                  Annotation[] annotations,
+                                                  ConfigurationInformation configuration,
+                                                  TableService tableService,
+                                                  String engineURI,
+                                                  boolean isFireAndForget) throws ExprValidationException {
         if ((streamNames.length < 2) || (streamTypes.length < 2) || (streamNames.length != streamTypes.length)) {
             throw new IllegalArgumentException("Stream names and types parameter length is invalid, expected use of this class is for join statements");
         }

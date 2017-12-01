@@ -25,7 +25,7 @@ import com.espertech.esper.supportregression.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Arrays;

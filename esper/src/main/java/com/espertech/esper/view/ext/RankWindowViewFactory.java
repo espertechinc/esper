@@ -15,7 +15,6 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.*;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
 
@@ -131,7 +130,7 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
             useCollatorSort = statementContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
         }
 
-        comparator = CollectionUtil.getComparatorHashableMultiKeys(sortCriteriaExpressions, useCollatorSort, isDescendingValues); // hashable-key comparator since we may remove sort keys
+        comparator = ExprNodeUtility.getComparatorHashableMultiKeys(sortCriteriaExpressions, useCollatorSort, isDescendingValues); // hashable-key comparator since we may remove sort keys
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {

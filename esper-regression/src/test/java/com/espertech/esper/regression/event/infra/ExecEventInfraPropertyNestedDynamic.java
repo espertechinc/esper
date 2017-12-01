@@ -17,7 +17,7 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.event.SupportEventInfra;
 import com.espertech.esper.supportregression.event.ValueWithExistsFlag;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import com.espertech.esper.util.JavaClassHelper;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;

@@ -25,6 +25,7 @@ import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.core.start.EPStatementStartMethodSelectDesc;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportUtil;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
@@ -38,7 +39,6 @@ import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtHandler;
 import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtSvc;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
-import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.StatementStopServiceImpl;
 import com.espertech.esper.view.ViewEnumHelper;
@@ -273,7 +273,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory {
 
     private ContextControllerFactoryService getContextControllerFactoryService(Annotation[] annotations, EngineImportService engineImportService) {
         try {
-            ContextStateCache replacementCache = (ContextStateCache) JavaClassHelper.getAnnotationHook(annotations, HookType.CONTEXT_STATE_CACHE, ContextStateCache.class, engineImportService);
+            ContextStateCache replacementCache = (ContextStateCache) EngineImportUtil.getAnnotationHook(annotations, HookType.CONTEXT_STATE_CACHE, ContextStateCache.class, engineImportService);
             if (replacementCache != null) {
                 return new ContextControllerFactoryServiceImpl(replacementCache);
             }

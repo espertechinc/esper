@@ -10,17 +10,9 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.client.ConfigurationException;
-import com.espertech.esper.client.annotation.Hook;
-import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.engineimport.EngineImportException;
-import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.event.EventAdapterException;
-import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -43,6 +35,8 @@ import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuil
  * <p> is this a numeric type.
  */
 public class JavaClassHelper {
+
+    public final static String APACHE_AVRO_GENERIC_RECORD_CLASSNAME = "org.apache.avro.generic.GenericData$Record";
 
     public static boolean isImplementsCharSequence(Class type) {
         if (type == String.class || type == CharSequence.class) {
@@ -464,13 +458,10 @@ public class JavaClassHelper {
      * @return true if primitive or boxed float or double
      */
     public static boolean isFloatingPointClass(Class clazz) {
-        if ((clazz == Float.class) ||
+        return (clazz == Float.class) ||
                 (clazz == Double.class) ||
                 (clazz == float.class) ||
-                (clazz == double.class)) {
-            return true;
-        }
-        return false;
+                (clazz == double.class);
     }
 
     /**
@@ -518,11 +509,8 @@ public class JavaClassHelper {
      * @param clazz to check
      * @return true for big number
      */
-    public static boolean isBigNumberType(Class clazz) {
-        if ((clazz == BigInteger.class) || (clazz == BigDecimal.class)) {
-            return true;
-        }
-        return false;
+    static boolean isBigNumberType(Class clazz) {
+        return (clazz == BigInteger.class) || (clazz == BigDecimal.class);
     }
 
     /**
@@ -826,10 +814,8 @@ public class JavaClassHelper {
      * @param className            is the name to recognize
      * @param classForNameProvider lookup of class for class name
      * @return class
-     * @throws EventAdapterException is throw if the class cannot be identified
      */
-    public static Class getClassForSimpleName(String className, ClassForNameProvider classForNameProvider)
-            throws EventAdapterException {
+    public static Class getClassForSimpleName(String className, ClassForNameProvider classForNameProvider) {
         if (("string".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
                 ("varchar".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
                 ("varchar2".equals(className.toLowerCase(Locale.ENGLISH).trim()))) {
@@ -1202,7 +1188,7 @@ public class JavaClassHelper {
         if (propertyType == java.sql.Timestamp.class) {
             return false;
         }
-        if (propertyType.getName().equals(AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME)) {
+        if (propertyType.getName().equals(APACHE_AVRO_GENERIC_RECORD_CLASSNAME)) {
             return false;
         }
         return true;
@@ -1370,109 +1356,6 @@ public class JavaClassHelper {
         return (Class) typeParam;
     }
 
-    /**
-     * Returns an instance of a hook as specified by an annotation.
-     *
-     * @param annotations         to search
-     * @param hookType            type to look for
-     * @param interfaceExpected   interface required
-     * @param engineImportService for resolving references
-     * @return hook instance
-     * @throws ExprValidationException if instantiation failed
-     */
-    public static Object getAnnotationHook(Annotation[] annotations, HookType hookType, Class interfaceExpected, EngineImportService engineImportService)
-            throws ExprValidationException {
-        if (annotations == null) {
-            return null;
-        }
-        String hookClass = null;
-        for (int i = 0; i < annotations.length; i++) {
-            if (!(annotations[i] instanceof Hook)) {
-                continue;
-            }
-            Hook hook = (Hook) annotations[i];
-            if (hook.type() != hookType) {
-                continue;
-            }
-            hookClass = hook.hook();
-        }
-        if (hookClass == null) {
-            return null;
-        }
-
-        Class clazz;
-        try {
-            clazz = engineImportService.resolveClass(hookClass, false);
-        } catch (Exception e) {
-            throw new ExprValidationException("Failed to resolve hook provider of hook type '" + hookType +
-                    "' import '" + hookClass + "' :" + e.getMessage());
-        }
-
-        if (!JavaClassHelper.isImplementsInterface(clazz, interfaceExpected)) {
-            throw new ExprValidationException("Hook provider for hook type '" + hookType + "' " +
-                    "class '" + clazz.getName() + "' does not implement the required '" + interfaceExpected.getSimpleName() +
-                    "' interface");
-        }
-
-        Object hook;
-        try {
-            hook = clazz.newInstance();
-        } catch (Exception e) {
-            throw new ExprValidationException("Failed to instantiate hook provider of hook type '" + hookType + "' " +
-                    "class '" + clazz.getName() + "' :" + e.getMessage());
-        }
-
-        return hook;
-    }
-
-    /**
-     * Resolve a string constant as a possible enumeration value, returning null if not resolved.
-     *
-     * @param constant            to resolve
-     * @param engineImportService for engine-level use to resolve enums, can be null
-     * @param isAnnotation        whether we are in an annotation
-     * @return null or enumeration value
-     * @throws ExprValidationException if there is an error accessing the enum
-     */
-    public static Object resolveIdentAsEnumConst(String constant, EngineImportService engineImportService, boolean isAnnotation)
-            throws ExprValidationException {
-        int lastDotIndex = constant.lastIndexOf('.');
-        if (lastDotIndex == -1) {
-            return null;
-        }
-        String className = constant.substring(0, lastDotIndex);
-        String constName = constant.substring(lastDotIndex + 1);
-
-        // un-escape
-        className = unescape(className);
-        constName = unescape(constName);
-
-        Class clazz;
-        try {
-            clazz = engineImportService.resolveClass(className, isAnnotation);
-        } catch (EngineImportException e) {
-            return null;
-        }
-
-        Field field;
-        try {
-            field = clazz.getField(constName);
-        } catch (NoSuchFieldException e) {
-            return null;
-        }
-
-        int modifiers = field.getModifiers();
-        if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers)) {
-            try {
-                return field.get(null);
-            } catch (IllegalAccessException e) {
-                throw new ExprValidationException("Exception accessing field '" + field.getName() + "': " + e.getMessage(), e);
-            }
-        }
-
-        return null;
-    }
-
     public static Class getArrayType(Class resultType) {
         return Array.newInstance(resultType, 0).getClass();
     }
@@ -1580,7 +1463,7 @@ public class JavaClassHelper {
         return true;
     }
 
-    public static Map<String, Object> getClassObjectFromPropertyTypeNames(Properties properties, ClassForNameProvider classForNameProvider) {
+    public static Map<String, Object> getClassObjectFromPropertyTypeNames(Properties properties, ClassForNameProvider classForNameProvider) throws ClassNotFoundException {
         Map<String, Object> propertyTypes = new LinkedHashMap<String, Object>();
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String className = (String) entry.getValue();
@@ -1592,12 +1475,7 @@ public class JavaClassHelper {
             // use the boxed type for primitives
             String boxedClassName = JavaClassHelper.getBoxedClassName(className);
 
-            Class clazz;
-            try {
-                clazz = classForNameProvider.classForName(boxedClassName);
-            } catch (ClassNotFoundException ex) {
-                throw new ConfigurationException("Unable to load class '" + boxedClassName + "', class not found", ex);
-            }
+            Class clazz = classForNameProvider.classForName(boxedClassName);
 
             propertyTypes.put((String) entry.getKey(), clazz);
         }
@@ -1742,7 +1620,7 @@ public class JavaClassHelper {
                 return true;
             }
         }
-        return found;
+        return false;
     }
 
     public static Pair<String, Boolean> isGetArrayType(String type) {
@@ -1754,7 +1632,7 @@ public class JavaClassHelper {
         return new Pair<String, Boolean>(typeOnly.trim(), true);
     }
 
-    public static Class[] takeFirstN(Class[] classes, int numToTake) {
+    static Class[] takeFirstN(Class[] classes, int numToTake) {
         Class[] shrunk = new Class[numToTake];
         System.arraycopy(classes, 0, shrunk, 0, shrunk.length);
         return shrunk;
@@ -1764,12 +1642,5 @@ public class JavaClassHelper {
         Type[] shrunk = new Type[numToTake];
         System.arraycopy(types, 0, shrunk, 0, shrunk.length);
         return shrunk;
-    }
-
-    private static String unescape(String name) {
-        if (name.startsWith("`") && name.endsWith("`")) {
-            return name.substring(1, name.length() - 1);
-        }
-        return name;
     }
 }

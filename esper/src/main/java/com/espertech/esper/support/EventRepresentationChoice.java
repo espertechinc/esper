@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.util;
+package com.espertech.esper.support;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.annotation.EventRepresentation;
@@ -16,6 +16,7 @@ import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Collections;
 import java.util.HashSet;

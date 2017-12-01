@@ -20,7 +20,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.bean.SupportBean_S2;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.ArrayHandlingUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 public class ExecOuterFullJoin3Stream implements RegressionExecution {
     private final static String[] FIELDS = new String[]{"s0.p00", "s0.p01", "s1.p10", "s1.p11", "s2.p20", "s2.p21"};

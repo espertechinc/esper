@@ -21,7 +21,7 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 import java.util.ArrayList;
 import java.util.Collection;

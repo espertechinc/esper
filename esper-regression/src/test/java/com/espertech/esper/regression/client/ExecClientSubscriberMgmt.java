@@ -20,7 +20,7 @@ import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.subscriber.SupportSubscriberRowByRowSpecificNStmt;
 import com.espertech.esper.supportregression.subscriber.SupportSubscriberRowByRowSpecificWStmt;
 import com.espertech.esper.supportregression.util.SupportStmtAwareUpdateListener;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 import java.util.ArrayList;
 import java.util.List;

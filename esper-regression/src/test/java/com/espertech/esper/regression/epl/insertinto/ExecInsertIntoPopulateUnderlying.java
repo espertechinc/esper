@@ -20,7 +20,7 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;

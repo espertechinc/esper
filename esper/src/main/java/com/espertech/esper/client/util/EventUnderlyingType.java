@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.client.util;
 
-import com.espertech.esper.event.avro.AvroConstantsNoDep;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public enum EventUnderlyingType {
 
     private final static String OA_TYPE_NAME = Object[].class.getName();
     private final static String MAP_TYPE_NAME = Map.class.getName();
-    private final static String AVRO_TYPE_NAME = AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME;
+    private final static String AVRO_TYPE_NAME = JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME;
 
     static {
         OBJECTARRAY.underlyingClassName = OA_TYPE_NAME;

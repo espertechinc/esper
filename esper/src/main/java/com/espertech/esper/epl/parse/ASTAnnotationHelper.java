@@ -12,10 +12,10 @@ package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportUtil;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.spec.AnnotationDesc;
-import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +80,7 @@ public class ASTAnnotationHelper {
         String enumValueText = ctx.getText();
         Object enumValue;
         try {
-            enumValue = JavaClassHelper.resolveIdentAsEnumConst(enumValueText, engineImportService, true);
+            enumValue = EngineImportUtil.resolveIdentAsEnumConst(enumValueText, engineImportService, true);
         } catch (ExprValidationException e) {
             throw ASTWalkException.from("Annotation value '" + enumValueText + "' is not recognized as an enumeration value, please check imports or use a primitive or string type");
         }

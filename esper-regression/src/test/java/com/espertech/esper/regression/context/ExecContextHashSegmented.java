@@ -29,7 +29,7 @@ import com.espertech.esper.supportregression.context.SupportHashCodeFuncGranular
 import com.espertech.esper.supportregression.context.SupportSelectorByHashCode;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.AgentInstanceAssertionUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.generic.GenericData;
 
 import java.util.*;

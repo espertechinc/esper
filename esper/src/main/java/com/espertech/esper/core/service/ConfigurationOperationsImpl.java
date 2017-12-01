@@ -205,7 +205,14 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations {
 
     public void addEventType(String eventTypeName, Properties typeMap) {
         checkTableExists(eventTypeName);
-        Map<String, Object> types = JavaClassHelper.getClassObjectFromPropertyTypeNames(typeMap, engineImportService.getClassForNameProvider());
+
+        Map<String, Object> types;
+        try {
+            types = JavaClassHelper.getClassObjectFromPropertyTypeNames(typeMap, engineImportService.getClassForNameProvider());
+        } catch (ClassNotFoundException ex) {
+            throw new ConfigurationException("Unable to load class, class not found: " + ex.getMessage(), ex);
+        }
+
         try {
             eventAdapterService.addNestableMapType(eventTypeName, types, null, false, true, true, false, false);
         } catch (EventAdapterException t) {

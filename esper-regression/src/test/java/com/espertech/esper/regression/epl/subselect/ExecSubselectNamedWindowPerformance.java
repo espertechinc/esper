@@ -18,7 +18,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanRange;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

@@ -24,7 +24,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanTwo;
 import com.espertech.esper.supportregression.bean.SupportBean_A;
 import com.espertech.esper.supportregression.bean.SupportBean_ST0;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 import java.util.LinkedList;
 import java.util.List;

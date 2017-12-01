@@ -19,6 +19,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.spec.ColumnDesc;
 import com.espertech.esper.epl.spec.CreateSchemaDesc;
+import com.espertech.esper.epl.util.EventRepresentationUtil;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
@@ -26,7 +27,6 @@ import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.event.property.*;
-import com.espertech.esper.util.EventRepresentationUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -759,12 +759,12 @@ public class EventTypeUtility {
     }
 
     public static EventPropertyGetterSPI getNestableGetter(String propertyName,
-                                                        Map<String, PropertySetDescriptorItem> propertyGetters,
-                                                        Map<String, EventPropertyGetterSPI> propertyGetterCache,
-                                                        Map<String, Object> nestableTypes,
-                                                        EventAdapterService eventAdapterService,
-                                                        EventTypeNestableGetterFactory factory,
-                                                        boolean isObjectArray) {
+                                                           Map<String, PropertySetDescriptorItem> propertyGetters,
+                                                           Map<String, EventPropertyGetterSPI> propertyGetterCache,
+                                                           Map<String, Object> nestableTypes,
+                                                           EventAdapterService eventAdapterService,
+                                                           EventTypeNestableGetterFactory factory,
+                                                           boolean isObjectArray) {
         EventPropertyGetterSPI cachedGetter = propertyGetterCache.get(propertyName);
         if (cachedGetter != null) {
             return cachedGetter;

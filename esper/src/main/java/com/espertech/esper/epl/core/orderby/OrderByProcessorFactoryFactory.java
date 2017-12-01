@@ -19,7 +19,6 @@ import com.espertech.esper.epl.spec.OrderByItem;
 import com.espertech.esper.epl.spec.RowLimitSpec;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.variable.VariableService;
-import com.espertech.esper.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +34,12 @@ public class OrderByProcessorFactoryFactory {
     private static final Logger log = LoggerFactory.getLogger(OrderByProcessorFactoryFactory.class);
 
     public static OrderByProcessorFactoryForge getProcessor(List<SelectClauseExprCompiledSpec> selectionList,
-                                                       List<OrderByItem> orderByList,
-                                                       RowLimitSpec rowLimitSpec,
-                                                       VariableService variableService,
-                                                       boolean isSortUsingCollator,
-                                                       String optionalContextName,
-                                                       OrderByElementForge[][] orderByRollup)
+                                                            List<OrderByItem> orderByList,
+                                                            RowLimitSpec rowLimitSpec,
+                                                            VariableService variableService,
+                                                            boolean isSortUsingCollator,
+                                                            String optionalContextName,
+                                                            OrderByElementForge[][] orderByRollup)
             throws ExprValidationException {
         // Get the order by expression nodes
         List<ExprNode> orderByNodes = new ArrayList<ExprNode>();
@@ -114,7 +113,7 @@ public class OrderByProcessorFactoryFactory {
             nodes[i] = orderBy[i].getExprNode();
             descending[i] = orderBy[i].isDescending();
         }
-        return CollectionUtil.getComparatorHashableMultiKeys(nodes, isSortUsingCollator, descending);
+        return ExprNodeUtility.getComparatorHashableMultiKeys(nodes, isSortUsingCollator, descending);
     }
 
     private static OrderByElementForge[] toElementArray(List<OrderByItem> orderByList) {

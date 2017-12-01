@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.EventPropertyDescriptor;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.engineimport.EngineImportApplicationDotMethod;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportUtil;
 import com.espertech.esper.epl.core.streamtype.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.*;
@@ -347,7 +350,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
         }
 
         // try resolve as enumeration class with value
-        Object enumconstant = JavaClassHelper.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getEngineImportService(), false);
+        Object enumconstant = EngineImportUtil.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getEngineImportService(), false);
         if (enumconstant != null) {
 
             // try resolve method

@@ -20,7 +20,7 @@ import com.espertech.esper.client.soda.*;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import com.espertech.esper.util.SerializableObjectCopier;
 import org.apache.avro.Schema;
 

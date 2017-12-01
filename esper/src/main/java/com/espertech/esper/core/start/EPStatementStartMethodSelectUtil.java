@@ -28,6 +28,7 @@ import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
+import com.espertech.esper.epl.core.engineimport.EngineImportUtil;
 import com.espertech.esper.epl.core.poll.MethodPollingViewableFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryFactory;
@@ -61,7 +62,6 @@ import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.rowregex.EventRowRegexNFAViewFactory;
 import com.espertech.esper.type.OuterJoinType;
-import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.ViewFactoryChain;
@@ -181,8 +181,8 @@ public class EPStatementStartMethodSelectUtil {
                 // Create view factories and parent view based on a database SQL statement
                 validateNoViews(streamSpec, "Historical data");
                 DBStatementStreamSpec sqlStreamSpec = (DBStatementStreamSpec) streamSpec;
-                SQLColumnTypeConversion typeConversionHook = (SQLColumnTypeConversion) JavaClassHelper.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLCOL, SQLColumnTypeConversion.class, statementContext.getEngineImportService());
-                SQLOutputRowConversion outputRowConversionHook = (SQLOutputRowConversion) JavaClassHelper.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLROW, SQLOutputRowConversion.class, statementContext.getEngineImportService());
+                SQLColumnTypeConversion typeConversionHook = (SQLColumnTypeConversion) EngineImportUtil.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLCOL, SQLColumnTypeConversion.class, statementContext.getEngineImportService());
+                SQLOutputRowConversion outputRowConversionHook = (SQLOutputRowConversion) EngineImportUtil.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLROW, SQLOutputRowConversion.class, statementContext.getEngineImportService());
                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = defaultAgentInstanceContext.getEpStatementAgentInstanceHandle();
                 HistoricalEventViewable historicalEventViewable = DatabasePollingViewableFactory.createDBStatementView(statementContext.getStatementId(), i, sqlStreamSpec, services.getDatabaseRefService(), services.getEventAdapterService(), epStatementAgentInstanceHandle, typeConversionHook, outputRowConversionHook,
                         statementContext.getConfigSnapshot().getEngineDefaults().getLogging().isEnableJDBC(), services.getDataCacheFactory(), statementContext);

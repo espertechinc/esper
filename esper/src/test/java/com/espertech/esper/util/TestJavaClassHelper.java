@@ -849,7 +849,7 @@ public class TestJavaClassHelper extends TestCase {
         }
     }
 
-    public void testGetClassObjectFromPropertyTypeNames() {
+    public void testGetClassObjectFromPropertyTypeNames() throws Exception {
         Properties props = new Properties();
         props.put("p0", "string");
         props.put("p1", "int");

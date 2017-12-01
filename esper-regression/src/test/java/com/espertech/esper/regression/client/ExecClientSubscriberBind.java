@@ -17,7 +17,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.subscriber.*;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

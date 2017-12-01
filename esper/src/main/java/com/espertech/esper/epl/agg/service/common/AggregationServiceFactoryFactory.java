@@ -21,6 +21,7 @@ import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.agg.service.groupby.*;
 import com.espertech.esper.epl.agg.util.*;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.engineimport.EngineImportUtil;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateLocalGroupByDesc;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
@@ -273,7 +274,7 @@ public class AggregationServiceFactoryFactory {
         if (localGroupDesc != null) {
             localGroupByPlan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggForges, methodAggFactories, accessFactories, localGroupDesc, groupByNodes, accessorPairsForge, engineImportService, isFireAndForget, statementName);
             try {
-                AggregationLocalLevelHook hook = (AggregationLocalLevelHook) JavaClassHelper.getAnnotationHook(annotations, HookType.INTERNAL_AGGLOCALLEVEL, AggregationLocalLevelHook.class, engineImportService);
+                AggregationLocalLevelHook hook = (AggregationLocalLevelHook) EngineImportUtil.getAnnotationHook(annotations, HookType.INTERNAL_AGGLOCALLEVEL, AggregationLocalLevelHook.class, engineImportService);
                 if (hook != null) {
                     hook.planned(localGroupDesc, localGroupByPlan);
                 }

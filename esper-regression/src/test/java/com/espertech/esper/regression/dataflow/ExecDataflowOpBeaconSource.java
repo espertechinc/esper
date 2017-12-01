@@ -23,7 +23,7 @@ import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.dataflow.SupportDataFlowAssertionUtil;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Map;

@@ -22,7 +22,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanCopyMethod;
 import com.espertech.esper.supportregression.bean.SupportBeanErrorTestingOne;
 import com.espertech.esper.supportregression.bean.SupportBeanReadOnly;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 

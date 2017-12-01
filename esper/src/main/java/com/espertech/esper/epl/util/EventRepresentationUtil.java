@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.util;
+package com.espertech.esper.epl.util;
 
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.annotation.EventRepresentation;

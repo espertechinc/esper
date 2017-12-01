@@ -17,7 +17,6 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.NullIterator;
-import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
@@ -70,37 +69,6 @@ public class CollectionUtil {
                 // no action
             }
         };
-    }
-
-    public static Comparator<Object> getComparatorHashableMultiKeys(ExprNode[] sortCriteria, boolean isSortUsingCollator, boolean[] isDescendingValues) {
-        // determine string-type sorting
-        boolean hasStringTypes = false;
-        boolean[] stringTypes = new boolean[sortCriteria.length];
-
-        int count = 0;
-        for (int i = 0; i < sortCriteria.length; i++) {
-            if (sortCriteria[i].getForge().getEvaluationType() == String.class) {
-                hasStringTypes = true;
-                stringTypes[count] = true;
-            }
-            count++;
-        }
-
-        if (sortCriteria.length > 1) {
-            if ((!hasStringTypes) || (!isSortUsingCollator)) {
-                HashableMultiKeyComparator comparatorMK = new HashableMultiKeyComparator(isDescendingValues);
-                return new HashableMultiKeyCastingComparator(comparatorMK);
-            } else {
-                HashableMultiKeyCollatingComparator comparatorMk = new HashableMultiKeyCollatingComparator(isDescendingValues, stringTypes);
-                return new HashableMultiKeyCastingComparator(comparatorMk);
-            }
-        } else {
-            if ((!hasStringTypes) || (!isSortUsingCollator)) {
-                return new ObjectComparator(isDescendingValues[0]);
-            } else {
-                return new ObjectCollatingComparator(isDescendingValues[0]);
-            }
-        }
     }
 
     public static String toString(Collection<Integer> stack, String delimiterChars) {

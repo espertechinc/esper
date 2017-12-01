@@ -25,7 +25,7 @@ import com.espertech.esper.supportregression.client.SupportAuditCallback;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.util.AuditContext;
 import com.espertech.esper.util.AuditPath;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -22,7 +22,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanTimestamp;
 import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 
 import java.util.*;
 

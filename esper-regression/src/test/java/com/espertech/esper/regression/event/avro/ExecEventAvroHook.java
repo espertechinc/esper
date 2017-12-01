@@ -24,7 +24,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import com.espertech.esper.util.TypeWidener;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;

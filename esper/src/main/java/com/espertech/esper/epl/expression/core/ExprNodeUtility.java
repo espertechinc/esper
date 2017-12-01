@@ -18,6 +18,7 @@ import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.Pair;
@@ -25,10 +26,7 @@ import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperSubselect;
-import com.espertech.esper.epl.core.engineimport.EngineImportException;
-import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.core.engineimport.EngineImportSingleRowDesc;
-import com.espertech.esper.epl.core.engineimport.EngineImportUndefinedException;
+import com.espertech.esper.epl.core.engineimport.*;
 import com.espertech.esper.epl.core.select.BindProcessorEvaluatorStreamTable;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
@@ -39,7 +37,6 @@ import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
@@ -63,10 +60,7 @@ import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.ScheduleSpecUtil;
-import com.espertech.esper.util.CollectionUtil;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.SimpleNumberCoercer;
-import com.espertech.esper.util.SimpleNumberCoercerFactory;
+import com.espertech.esper.util.*;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
@@ -87,6 +81,37 @@ public class ExprNodeUtility {
     public static final ExprForge[] EMPTY_FORGE_ARRAY = new ExprForge[0];
     public static final ExprDeclaredNode[] EMPTY_DECLARED_ARR = new ExprDeclaredNode[0];
     public static final ExpressionScriptProvided[] EMPTY_SCRIPTS = new ExpressionScriptProvided[0];
+
+    public static Comparator<Object> getComparatorHashableMultiKeys(ExprNode[] sortCriteria, boolean isSortUsingCollator, boolean[] isDescendingValues) {
+        // determine string-type sorting
+        boolean hasStringTypes = false;
+        boolean[] stringTypes = new boolean[sortCriteria.length];
+
+        int count = 0;
+        for (int i = 0; i < sortCriteria.length; i++) {
+            if (sortCriteria[i].getForge().getEvaluationType() == String.class) {
+                hasStringTypes = true;
+                stringTypes[count] = true;
+            }
+            count++;
+        }
+
+        if (sortCriteria.length > 1) {
+            if ((!hasStringTypes) || (!isSortUsingCollator)) {
+                HashableMultiKeyComparator comparatorMK = new HashableMultiKeyComparator(isDescendingValues);
+                return new HashableMultiKeyCastingComparator(comparatorMK);
+            } else {
+                HashableMultiKeyCollatingComparator comparatorMk = new HashableMultiKeyCollatingComparator(isDescendingValues, stringTypes);
+                return new HashableMultiKeyCastingComparator(comparatorMk);
+            }
+        } else {
+            if ((!hasStringTypes) || (!isSortUsingCollator)) {
+                return new ObjectComparator(isDescendingValues[0]);
+            } else {
+                return new ObjectCollatingComparator(isDescendingValues[0]);
+            }
+        }
+    }
 
     public static Object evaluateValidationTimeNoStreams(ExprEvaluator evaluator, ExprEvaluatorContext context, String expressionName) throws ExprValidationException {
         try {
@@ -561,7 +586,7 @@ public class ExprNodeUtility {
 
     private static ExprConstantNode resolveIdentAsEnumConst(String constant, EngineImportService engineImportService)
             throws ExprValidationException {
-        Object enumValue = JavaClassHelper.resolveIdentAsEnumConst(constant, engineImportService, false);
+        Object enumValue = EngineImportUtil.resolveIdentAsEnumConst(constant, engineImportService, false);
         if (enumValue != null) {
             return new ExprConstantNodeImpl(enumValue);
         }

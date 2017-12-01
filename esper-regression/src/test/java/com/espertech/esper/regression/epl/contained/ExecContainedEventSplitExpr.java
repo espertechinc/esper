@@ -20,11 +20,11 @@ import com.espertech.esper.client.hook.EPLScriptContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
-import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.script.SupportScriptUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
+import com.espertech.esper.util.JavaClassHelper;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
@@ -290,7 +290,7 @@ public class ExecContainedEventSplitExpr implements RegressionExecution {
                     "Event type 'WordEvent' underlying type java.util.Map cannot be assigned a value of type");
         } else if (eventRepresentationEnum.isAvroEvent()) {
             tryInvalid(epService, "select * from SentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
-                    "Event type 'WordEvent' underlying type " + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + " cannot be assigned a value of type");
+                    "Event type 'WordEvent' underlying type " + JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME + " cannot be assigned a value of type");
         } else {
             fail();
         }

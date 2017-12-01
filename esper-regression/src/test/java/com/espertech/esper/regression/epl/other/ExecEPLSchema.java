@@ -19,14 +19,13 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
-import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_ST0;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.support.SupportEventTypeAssertionUtil;
@@ -298,7 +297,7 @@ public class ExecEPLSchema implements RegressionExecution {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 string)");
         String expectedTwo = !eventRepresentationEnum.isAvroEvent() ?
                 "Error starting statement: Event type named 'MyEventType' has already been declared with differing column name or type information: Type by name 'MyEventType' expects 1 properties but receives 2 properties [" :
-                "Error starting statement: Event type named 'MyEventType' has already been declared with differing column name or type information: Type by name 'MyEventType' is not a compatible type (target type underlying is '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "')";
+                "Error starting statement: Event type named 'MyEventType' has already been declared with differing column name or type information: Type by name 'MyEventType' is not a compatible type (target type underlying is '" + JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME + "')";
         tryInvalid(epService, "create schema MyEventType as (col1 string, col2 string)", expectedTwo);
 
         tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema MyEventTypeT1 as () inherit ABC",

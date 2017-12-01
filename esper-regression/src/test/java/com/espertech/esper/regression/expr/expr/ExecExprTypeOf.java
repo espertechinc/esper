@@ -19,7 +19,7 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;

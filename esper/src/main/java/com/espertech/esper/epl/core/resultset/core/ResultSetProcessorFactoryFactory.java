@@ -27,6 +27,7 @@ import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryFactory;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceForgeDesc;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
+import com.espertech.esper.epl.core.engineimport.EngineImportUtil;
 import com.espertech.esper.epl.core.orderby.OrderByElementForge;
 import com.espertech.esper.epl.core.orderby.OrderByProcessorFactoryFactory;
 import com.espertech.esper.epl.core.orderby.OrderByProcessorFactoryForge;
@@ -63,7 +64,6 @@ import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 import com.espertech.esper.epl.view.OutputConditionPolledFactoryFactory;
 import com.espertech.esper.event.NativeEventType;
 import com.espertech.esper.util.CollectionUtil;
-import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -565,7 +565,7 @@ public class ResultSetProcessorFactoryFactory {
 
         // callback when hook reporting enabled
         try {
-            GroupByRollupPlanHook hook = (GroupByRollupPlanHook) JavaClassHelper.getAnnotationHook(validationContext.getAnnotations(), HookType.INTERNAL_GROUPROLLUP_PLAN, GroupByRollupPlanHook.class, validationContext.getEngineImportService());
+            GroupByRollupPlanHook hook = (GroupByRollupPlanHook) EngineImportUtil.getAnnotationHook(validationContext.getAnnotations(), HookType.INTERNAL_GROUPROLLUP_PLAN, GroupByRollupPlanHook.class, validationContext.getEngineImportService());
             if (hook != null) {
                 hook.query(new GroupByRollupPlanDesc(validated, rollup));
             }

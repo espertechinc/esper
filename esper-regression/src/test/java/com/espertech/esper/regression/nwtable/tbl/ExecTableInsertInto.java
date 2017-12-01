@@ -22,7 +22,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.bean.SupportBean_S2;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.generic.GenericData;
 
 import java.util.HashMap;

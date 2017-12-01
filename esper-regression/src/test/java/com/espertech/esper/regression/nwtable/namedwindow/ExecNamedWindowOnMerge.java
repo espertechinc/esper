@@ -20,7 +20,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.bookexample.OrderBean;
 import com.espertech.esper.supportregression.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.support.EventRepresentationChoice;
 import org.apache.avro.generic.GenericData;
 
 import java.util.LinkedHashMap;
