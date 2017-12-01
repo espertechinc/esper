@@ -18,7 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 
 /**
  * Represents the min/max(distinct? ...) aggregate function is an expression tree.

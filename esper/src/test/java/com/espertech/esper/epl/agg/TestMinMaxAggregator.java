@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.agg;
 
 import com.espertech.esper.epl.agg.aggregator.AggregatorMinMax;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import junit.framework.TestCase;
 
 public class TestMinMaxAggregator extends TestCase {

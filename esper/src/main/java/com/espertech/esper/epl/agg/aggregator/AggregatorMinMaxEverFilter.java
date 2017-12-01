@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.agg.aggregator;
 
 import com.espertech.esper.epl.agg.service.common.AggregatorUtil;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 
 /**
  * Min/max aggregator for all values, not considering events leaving the aggregation (i.e. ever).

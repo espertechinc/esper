@@ -39,7 +39,7 @@ import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import com.espertech.esper.util.LazyAllocatedMap;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.Tree;

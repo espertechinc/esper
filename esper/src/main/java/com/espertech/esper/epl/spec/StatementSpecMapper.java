@@ -61,7 +61,7 @@ import com.espertech.esper.pattern.*;
 import com.espertech.esper.rowregex.*;
 import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.MathArithTypeEnum;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.PlaceholderParseException;

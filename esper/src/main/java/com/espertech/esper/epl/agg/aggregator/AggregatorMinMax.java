@@ -20,7 +20,7 @@ import com.espertech.esper.collection.SortedRefCountedSet;
 import com.espertech.esper.epl.agg.factory.AggregationMethodFactoryMinMax;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 

@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.type;
+package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenBlock;
@@ -19,9 +19,7 @@ import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberBigDecimalCoercer;
 import com.espertech.esper.util.SimpleNumberBigIntegerCoercer;

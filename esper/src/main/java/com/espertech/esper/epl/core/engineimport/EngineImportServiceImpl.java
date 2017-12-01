@@ -35,7 +35,7 @@ import com.espertech.esper.event.EventPropertyGetterCompiler;
 import com.espertech.esper.event.EventPropertyGetterIndexedSPI;
 import com.espertech.esper.event.EventPropertyGetterMappedSPI;
 import com.espertech.esper.event.EventPropertyGetterSPI;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import com.espertech.esper.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

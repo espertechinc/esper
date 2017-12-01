@@ -29,7 +29,7 @@ import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 
 public class AggregationMethodFactoryMinMax implements AggregationMethodFactory {
     protected final ExprMinMaxAggrNode parent;

@@ -18,7 +18,7 @@ import com.espertech.esper.codegen.base.CodegenMembersColumnized;
 import com.espertech.esper.epl.agg.factory.AggregationMethodFactoryMinMax;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
-import static com.espertech.esper.type.MinMaxTypeEnum.MAX;
+import static com.espertech.esper.epl.expression.core.MinMaxTypeEnum.MAX;
 
 /**
  * Min/max aggregator for all values, not considering events leaving the aggregation (i.e. ever).
