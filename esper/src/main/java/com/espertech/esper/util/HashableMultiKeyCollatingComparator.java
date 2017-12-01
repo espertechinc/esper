@@ -19,7 +19,7 @@ import java.util.Comparator;
 /**
  * A comparator on multikeys with string values and using the Collator for comparing. The multikeys must contain the same number of values.
  */
-public final class HashableMultiKeyCollatingComparator implements Comparator<HashableMultiKey>, MetaDefItem, Serializable {
+public final class HashableMultiKeyCollatingComparator implements Comparator<HashableMultiKey>, Serializable {
     private final boolean[] isDescendingValues;
     private final boolean[] stringTypedValue;
     private transient Collator collator = null;

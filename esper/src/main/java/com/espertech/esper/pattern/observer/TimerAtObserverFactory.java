@@ -17,7 +17,6 @@ import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.ScheduleSpecUtil;
-import com.espertech.esper.util.MetaDefItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,7 @@ import java.util.List;
 /**
  * Factory for 'crontab' observers that indicate truth when a time point was reached.
  */
-public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Serializable {
+public class TimerAtObserverFactory implements ObserverFactory, Serializable {
     private static final long serialVersionUID = -4463261229142331396L;
 
     /**

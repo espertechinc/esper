@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.List;
 /**
  * Specification for property evaluation.
  */
-public class PropertyEvalSpec implements MetaDefItem, Serializable {
+public class PropertyEvalSpec implements Serializable {
     private List<PropertyEvalAtom> atoms;
     private static final long serialVersionUID = -8843638696605082278L;
 

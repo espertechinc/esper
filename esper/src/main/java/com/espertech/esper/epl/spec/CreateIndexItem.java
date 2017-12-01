@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 /**
  * Specification for creating a named window index column.
  */
-public class CreateIndexItem implements MetaDefItem, Serializable {
+public class CreateIndexItem implements Serializable {
     private static final long serialVersionUID = 1739215547545216200L;
     private final List<ExprNode> expressions;
     private final String type;

@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 
 /**
  * Spec for defining a row limit.
  */
-public class RowLimitSpec implements MetaDefItem, Serializable {
+public class RowLimitSpec implements Serializable {
     private final Integer numRows;
     private final Integer optionalOffset;
 

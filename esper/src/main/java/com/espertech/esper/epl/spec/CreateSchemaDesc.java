@@ -12,7 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.soda.CreateSchemaClauseTypeDef;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.Set;
 /**
  * Specification for creating an event type/schema.
  */
-public class CreateSchemaDesc implements MetaDefItem, Serializable {
+public class CreateSchemaDesc implements Serializable {
     private static final long serialVersionUID = 8400789369907593190L;
 
     private final String schemaName;

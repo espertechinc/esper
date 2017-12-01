@@ -16,7 +16,7 @@ import java.util.Comparator;
 /**
  * A comparator on objects that takes a boolean array for ascending/descending.
  */
-public final class ObjectComparator implements Comparator<Object>, MetaDefItem, Serializable {
+public final class ObjectComparator implements Comparator<Object>, Serializable {
     private static final long serialVersionUID = -2139033245746311007L;
     private final boolean isDescendingValue;
 

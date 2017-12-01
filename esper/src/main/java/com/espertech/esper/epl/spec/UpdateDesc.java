@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 /**
  * Specification for the update statement.
  */
-public class UpdateDesc implements MetaDefItem, Serializable {
+public class UpdateDesc implements Serializable {
     private final String optionalStreamName;
     private final List<OnTriggerSetAssignment> assignments;
     private ExprNode optionalWhereClause;

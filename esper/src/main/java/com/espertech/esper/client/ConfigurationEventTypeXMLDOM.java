@@ -12,7 +12,6 @@ package com.espertech.esper.client;
 
 import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
@@ -44,7 +43,7 @@ import java.util.Map;
  * root element name occurs in multiple namespaces.
  * </p>
  */
-public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable {
+public class ConfigurationEventTypeXMLDOM implements Serializable {
     private String rootElementName;
 
     // Root element namespace.

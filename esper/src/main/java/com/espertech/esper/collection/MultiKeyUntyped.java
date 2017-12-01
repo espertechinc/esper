@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.collection;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -20,7 +18,7 @@ import java.util.Arrays;
  * The class allows a Map that uses MultiKeyUntyped entries for key values to use multiple objects as keys.
  * It calculates the hashCode from the key objects on construction and caches the hashCode.
  */
-public final class MultiKeyUntyped implements MetaDefItem, Serializable {
+public final class MultiKeyUntyped implements Serializable {
     private final Object[] keys;
     private final int hashCode;
     private static final long serialVersionUID = -3890626073105861216L;

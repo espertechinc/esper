@@ -10,15 +10,13 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * Descriptor for create-table statements.
  */
-public class CreateTableDesc implements MetaDefItem, Serializable {
+public class CreateTableDesc implements Serializable {
     private static final long serialVersionUID = -2708705726609018664L;
 
     private final String tableName;

@@ -10,15 +10,13 @@
  */
 package com.espertech.esper.type;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.Set;
 
 /**
  * Interface to generate a set of integers from parameters that include ranges, lists and frequencies.
  */
-public interface NumberSetParameter extends MetaDefItem, Serializable {
+public interface NumberSetParameter extends Serializable {
     /**
      * Returns true if all values between and including min and max are supplied by the parameter.
      *

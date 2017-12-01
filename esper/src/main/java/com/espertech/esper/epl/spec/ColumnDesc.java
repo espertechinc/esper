@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 
 /**
  * Describes a column name and type.
  */
-public class ColumnDesc implements MetaDefItem, Serializable {
+public class ColumnDesc implements Serializable {
     private static final long serialVersionUID = -3508097717971934622L;
 
     private final String name;

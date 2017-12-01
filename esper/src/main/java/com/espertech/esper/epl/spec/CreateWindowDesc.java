@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 /**
  * Specification for creating a named window.
  */
-public class CreateWindowDesc implements MetaDefItem, Serializable {
+public class CreateWindowDesc implements Serializable {
     private String windowName;
     private List<ViewSpec> viewSpecs;
     private boolean isInsert;

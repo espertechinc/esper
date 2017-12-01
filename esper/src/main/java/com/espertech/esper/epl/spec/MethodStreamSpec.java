@@ -13,7 +13,6 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -23,7 +22,7 @@ import java.util.Set;
 /**
  * Specification object for historical data poll via database SQL statement.
  */
-public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled, MetaDefItem, Serializable {
+public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled, Serializable {
     private String ident;
     private String className;
     private String methodName;

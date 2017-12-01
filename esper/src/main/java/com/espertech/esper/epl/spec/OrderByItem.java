@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -19,7 +18,7 @@ import java.util.Collection;
 /**
  * Specification object to an element in the order-by expression.
  */
-public class OrderByItem implements MetaDefItem, Serializable {
+public class OrderByItem implements Serializable {
     public static final OrderByItem[] EMPTY_ORDERBY_ARRAY = new OrderByItem[0];
 
     private ExprNode exprNode;

@@ -19,7 +19,6 @@ import com.espertech.esper.pattern.MatchedEventConvertor;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.List;
 /**
  * Factory for making observer instances.
  */
-public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefItem, Serializable {
+public class TimerIntervalObserverFactory implements ObserverFactory, Serializable {
     private static final long serialVersionUID = -2808651894497586884L;
 
     private final static String NAME = "Timer-interval observer";

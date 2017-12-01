@@ -12,7 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.rowregex.RowRegexExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import java.util.List;
 /**
  * Specification for match_recognize.
  */
-public class MatchRecognizeSpec implements MetaDefItem, Serializable {
+public class MatchRecognizeSpec implements Serializable {
     private List<ExprNode> partitionByExpressions;
     private List<MatchRecognizeMeasureItem> measures;
     private RowRegexExprNode pattern;

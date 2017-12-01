@@ -13,7 +13,6 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprSubstitutionNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.*;
@@ -21,7 +20,7 @@ import java.util.*;
 /**
  * Specification object representing a complete EPL statement including all EPL constructs.
  */
-public class StatementSpecRaw implements MetaDefItem, Serializable {
+public class StatementSpecRaw implements Serializable {
     private ExpressionDeclDesc expressionDeclDesc;
     private OnTriggerDesc onTriggerDesc;
     private UpdateDesc updateDesc;

@@ -18,7 +18,7 @@ import java.util.Comparator;
 /**
  * A comparator on multikeys. The multikeys must contain the same number of values.
  */
-public final class HashableMultiKeyComparator implements Comparator<HashableMultiKey>, MetaDefItem, Serializable {
+public final class HashableMultiKeyComparator implements Comparator<HashableMultiKey>, Serializable {
     private final boolean[] isDescendingValues;
     private static final long serialVersionUID = -5990983090238885417L;
 

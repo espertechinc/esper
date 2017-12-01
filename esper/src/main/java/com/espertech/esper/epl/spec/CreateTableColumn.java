@@ -11,12 +11,11 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class CreateTableColumn implements MetaDefItem, Serializable {
+public class CreateTableColumn implements Serializable {
     private static final long serialVersionUID = 5158525273388684702L;
 
     private final String columnName;

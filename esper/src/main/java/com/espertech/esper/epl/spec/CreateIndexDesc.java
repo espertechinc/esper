@@ -10,15 +10,13 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * Specification for creating a named window.
  */
-public class CreateIndexDesc implements MetaDefItem, Serializable {
+public class CreateIndexDesc implements Serializable {
     private static final long serialVersionUID = -6758785746637089810L;
 
     private final boolean unique;

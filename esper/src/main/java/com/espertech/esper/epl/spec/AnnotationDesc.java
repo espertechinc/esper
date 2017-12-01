@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -20,7 +19,7 @@ import java.util.List;
 /**
  * Describes an annotation.
  */
-public class AnnotationDesc implements MetaDefItem, Serializable {
+public class AnnotationDesc implements Serializable {
     private static final long serialVersionUID = 5474641956626793366L;
     private String name;
 

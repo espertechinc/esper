@@ -12,7 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.List;
 /**
  * Spec for defining an output rate
  */
-public class OutputLimitSpec implements MetaDefItem, Serializable {
+public class OutputLimitSpec implements Serializable {
     private final OutputLimitLimitType displayLimit;
     private final OutputLimitRateType rateType;
     private final Double rate;

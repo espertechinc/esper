@@ -10,15 +10,13 @@
  */
 package com.espertech.esper.filter;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.Comparator;
 
 /**
  * Sort comparator for filter parameters that sorts filter parameters according to filter operator type.
  */
-public class FilterSpecParamComparator implements Comparator<FilterOperator>, MetaDefItem, Serializable {
+public class FilterSpecParamComparator implements Comparator<FilterOperator>, Serializable {
     /**
      * Defines the sort order among filter operator types. The idea is to sort EQUAL-type operators first
      * then RANGE then other operators, ie. sorting from a more restrictive (usually, not necessarily,

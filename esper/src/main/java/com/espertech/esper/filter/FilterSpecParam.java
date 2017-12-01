@@ -12,7 +12,6 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -21,7 +20,7 @@ import java.util.Collection;
  * This class represents one filter parameter in an {@link FilterSpecCompiled} filter specification.
  * <p> Each filerting parameter has an attribute name and operator type.
  */
-public abstract class FilterSpecParam implements MetaDefItem, Serializable {
+public abstract class FilterSpecParam implements Serializable {
     public final static FilterSpecParam[] EMPTY_PARAM_ARRAY = new FilterSpecParam[0];
 
     /**

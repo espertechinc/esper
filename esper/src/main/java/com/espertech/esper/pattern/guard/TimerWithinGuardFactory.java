@@ -15,7 +15,6 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.List;
 /**
  * Factory for {@link TimerWithinGuard} instances.
  */
-public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Serializable {
+public class TimerWithinGuardFactory implements GuardFactory, Serializable {
     private static final long serialVersionUID = -1026320055174163611L;
 
     /**

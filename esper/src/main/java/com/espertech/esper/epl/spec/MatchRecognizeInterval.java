@@ -19,14 +19,13 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
 /**
  * Interval specification within match_recognize.
  */
-public class MatchRecognizeInterval implements MetaDefItem, Serializable {
+public class MatchRecognizeInterval implements Serializable {
     private ExprTimePeriod timePeriodExpr;
     private boolean orTerminated;
     private ExprTimePeriodEvalDeltaConst timeDeltaComputation;

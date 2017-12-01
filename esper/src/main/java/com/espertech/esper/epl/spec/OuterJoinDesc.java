@@ -16,7 +16,6 @@ import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.type.OuterJoinType;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -24,7 +23,7 @@ import java.util.Collection;
 /**
  * Contains the ON-clause criteria in an outer join.
  */
-public class OuterJoinDesc implements MetaDefItem, Serializable {
+public class OuterJoinDesc implements Serializable {
     public static final OuterJoinDesc[] EMPTY_OUTERJOIN_ARRAY = new OuterJoinDesc[0];
 
     private OuterJoinType outerJoinType;

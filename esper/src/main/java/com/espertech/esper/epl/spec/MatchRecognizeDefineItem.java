@@ -11,14 +11,13 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
 /**
  * Specification for a "define" construct within a match_recognize.
  */
-public class MatchRecognizeDefineItem implements MetaDefItem, Serializable {
+public class MatchRecognizeDefineItem implements Serializable {
     private String identifier;
     private ExprNode expression;
     private static final long serialVersionUID = -7736241770279336651L;

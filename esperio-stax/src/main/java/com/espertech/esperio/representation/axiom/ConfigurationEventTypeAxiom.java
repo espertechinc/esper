@@ -14,7 +14,6 @@ import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.event.EventAdapterException;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import javax.xml.namespace.QName;
 import java.io.Serializable;
@@ -34,7 +33,7 @@ import java.util.Map;
  * For XPath expressions that must refer to namespace prefixes those prefixes and their
  * namespace name must be supplied to the engine. A default namespace can be supplied as well.
  */
-public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable {
+public class ConfigurationEventTypeAxiom implements Serializable {
     private String rootElementName;
 
     // Root element namespace.

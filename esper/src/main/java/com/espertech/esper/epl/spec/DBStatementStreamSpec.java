@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -20,7 +19,7 @@ import java.util.Set;
 /**
  * Specification object for historical data poll via database SQL statement.
  */
-public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled, MetaDefItem, Serializable {
+public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled, Serializable {
     private String databaseName;
     private String sqlWithSubsParams;
     private String metadataSQL;

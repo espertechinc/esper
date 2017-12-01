@@ -11,12 +11,11 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class ForClauseItemSpec implements MetaDefItem, Serializable {
+public class ForClauseItemSpec implements Serializable {
     private static final long serialVersionUID = 4374267047749646423L;
 
     private String keyword;

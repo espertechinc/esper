@@ -16,7 +16,6 @@ import com.espertech.esper.pattern.MatchedEventConvertor;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.List;
 /**
  * Factory for {@link com.espertech.esper.pattern.guard.TimerWithinGuard} instances.
  */
-public class ExpressionGuardFactory implements GuardFactory, MetaDefItem, Serializable {
+public class ExpressionGuardFactory implements GuardFactory, Serializable {
     private static final long serialVersionUID = -5107582730824731419L;
 
     protected ExprNode expression;

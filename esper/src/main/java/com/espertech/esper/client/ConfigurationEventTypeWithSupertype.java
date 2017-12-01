@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.client;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -19,7 +17,7 @@ import java.util.Set;
 /**
  * Configuration object for event types with super-types and timestamp.
  */
-public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Serializable {
+public class ConfigurationEventTypeWithSupertype implements Serializable {
     private static final long serialVersionUID = 6770441816508380856L;
 
     private Set<String> superTypes;

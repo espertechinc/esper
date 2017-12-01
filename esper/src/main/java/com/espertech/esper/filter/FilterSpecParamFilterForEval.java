@@ -12,11 +12,10 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.pattern.MatchedEventMap;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
-public interface FilterSpecParamFilterForEval extends MetaDefItem, Serializable {
+public interface FilterSpecParamFilterForEval extends Serializable {
     /**
      * Returns the filter value representing the endpoint.
      *

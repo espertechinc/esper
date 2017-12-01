@@ -12,7 +12,6 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
@@ -22,7 +21,7 @@ import java.io.Serializable;
  * Use by {@link EPRuntimeImpl} for determining callback-statement affinity and locking of statement
  * resources.
  */
-public class EPStatementHandle implements MetaDefItem, Serializable {
+public class EPStatementHandle implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private final String statementName;

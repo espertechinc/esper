@@ -11,14 +11,13 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
 /**
  * Specification for measure definition item within match_recognize.
  */
-public class MatchRecognizeMeasureItem implements MetaDefItem, Serializable {
+public class MatchRecognizeMeasureItem implements Serializable {
     private ExprNode expr;
     private String name;
     private static final long serialVersionUID = 1609117378292500082L;

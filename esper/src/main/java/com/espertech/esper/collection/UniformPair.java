@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.collection;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 
 /**
@@ -19,7 +17,7 @@ import java.io.Serializable;
  * the objects that form the pair equal, ie. first pair first object equals (.equals) the second pair first object,
  * and the first pair second object equals the second pair second object.
  */
-public final class UniformPair<T> implements MetaDefItem, Serializable {
+public final class UniformPair<T> implements Serializable {
     private T first;
     private T second;
     private static final long serialVersionUID = -4974328655156016696L;

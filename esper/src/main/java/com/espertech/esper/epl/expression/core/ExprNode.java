@@ -12,12 +12,11 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.Collection;
 
-public interface ExprNode extends ExprNodeRenderable, ExprValidator, MetaDefItem, Serializable {
+public interface ExprNode extends ExprNodeRenderable, ExprValidator, Serializable {
 
     /**
      * Returns precedence.

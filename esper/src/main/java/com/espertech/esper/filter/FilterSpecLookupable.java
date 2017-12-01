@@ -12,12 +12,11 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.io.StringWriter;
 
-public class FilterSpecLookupable implements MetaDefItem, Serializable {
+public class FilterSpecLookupable implements Serializable {
     private static final long serialVersionUID = 3576828533611557509L;
     private final String expression;
     private transient final EventPropertyGetter getter;

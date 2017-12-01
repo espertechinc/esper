@@ -17,7 +17,7 @@ import java.util.Comparator;
 /**
  * A comparator on objects that takes a boolean array for ascending/descending.
  */
-public final class ObjectCollatingComparator implements Comparator<Object>, MetaDefItem, Serializable {
+public final class ObjectCollatingComparator implements Comparator<Object>, Serializable {
     private static final long serialVersionUID = 2147404623473097358L;
     private final boolean isDescendingValue;
     private transient Collator collator = null;

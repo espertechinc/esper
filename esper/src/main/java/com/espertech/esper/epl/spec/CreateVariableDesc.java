@@ -11,14 +11,13 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
 /**
  * Descriptor for create-variable statements.
  */
-public class CreateVariableDesc implements MetaDefItem, Serializable {
+public class CreateVariableDesc implements Serializable {
     private String variableType;
     private String variableName;
     private ExprNode assignment;

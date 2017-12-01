@@ -15,12 +15,11 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefItem, Serializable {
+public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, Serializable {
     private static final long serialVersionUID = 6650243610865501435L;
 
     /**

@@ -11,14 +11,13 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
 /**
  * Atom in a specification for property evaluation.
  */
-public class PropertyEvalAtom implements MetaDefItem, Serializable {
+public class PropertyEvalAtom implements Serializable {
     private final ExprNode splitterExpression;
     private final String optionalResultEventType;
     private final String optionalAsName;

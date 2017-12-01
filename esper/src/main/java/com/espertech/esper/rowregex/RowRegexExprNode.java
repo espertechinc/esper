@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.rowregex;
 
-import com.espertech.esper.util.MetaDefItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,7 @@ import java.util.List;
 /**
  * Base node for
  */
-public abstract class RowRegexExprNode implements MetaDefItem, Serializable {
+public abstract class RowRegexExprNode implements Serializable {
     private static final Logger log = LoggerFactory.getLogger(RowRegexExprNode.class);
     private static final long serialVersionUID = 0L;
 

@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.client.soda;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -20,7 +18,7 @@ import java.util.List;
 /**
  * Specification for the update clause.
  */
-public class UpdateClause implements MetaDefItem, Serializable {
+public class UpdateClause implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String eventType;

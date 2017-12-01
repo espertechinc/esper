@@ -10,13 +10,11 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForClauseSpec implements MetaDefItem, Serializable {
+public class ForClauseSpec implements Serializable {
     private static final long serialVersionUID = -8529660985454535028L;
 
     private List<ForClauseItemSpec> clauses;

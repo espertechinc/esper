@@ -12,7 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.List;
  * A object construction specification can be equal to another specification. This information can be
  * important to determine reuse of any object.
  */
-public abstract class ObjectSpec implements MetaDefItem, Serializable {
+public abstract class ObjectSpec implements Serializable {
     private final String objectNamespace;
     private final String objectName;
     private final List<ExprNode> objectParameters;

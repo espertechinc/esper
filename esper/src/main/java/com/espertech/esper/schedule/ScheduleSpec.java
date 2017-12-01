@@ -12,7 +12,6 @@ package com.espertech.esper.schedule;
 
 import com.espertech.esper.type.CronParameter;
 import com.espertech.esper.type.ScheduleUnit;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.*;
@@ -23,7 +22,7 @@ import java.util.*;
  * There is always an element in the specification for each unit minutes, hours, day of month, month, and day of week.
  * There is optionally an element in the specification for the unit seconds.
  */
-public final class ScheduleSpec implements MetaDefItem, Serializable {
+public final class ScheduleSpec implements Serializable {
     // Per unit hold the set of valid integer values, or null if wildcarded.
     // The seconds unit is optional.
     private final EnumMap<ScheduleUnit, SortedSet<Integer>> unitValues;

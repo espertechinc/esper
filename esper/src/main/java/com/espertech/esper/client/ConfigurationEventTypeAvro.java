@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.client;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 
 /**
  * Configuration for Avro event types.
  */
-public class ConfigurationEventTypeAvro extends ConfigurationEventTypeWithSupertype implements MetaDefItem, Serializable {
+public class ConfigurationEventTypeAvro extends ConfigurationEventTypeWithSupertype implements Serializable {
     private static final long serialVersionUID = 6514448750173344310L;
     private String avroSchemaText;
     private Object avroSchema;

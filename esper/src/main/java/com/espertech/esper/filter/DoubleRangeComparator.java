@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.filter;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -20,7 +18,7 @@ import java.util.Comparator;
  * <p>Sorts double ranges as this:     sort by min asc, max asc.
  * I.e. same minimum value sorts maximum value ascending.
  */
-public final class DoubleRangeComparator implements Comparator<DoubleRange>, MetaDefItem, Serializable {
+public final class DoubleRangeComparator implements Comparator<DoubleRange>, Serializable {
     private static final long serialVersionUID = 5806978023193814183L;
 
     public final int compare(DoubleRange r1, DoubleRange r2) {

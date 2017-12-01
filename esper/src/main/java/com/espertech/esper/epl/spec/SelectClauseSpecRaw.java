@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +18,7 @@ import java.util.List;
 /**
  * Encapsulates the parsed select expressions in a select-clause in an EPL statement.
  */
-public class SelectClauseSpecRaw implements MetaDefItem, Serializable {
+public class SelectClauseSpecRaw implements Serializable {
     private boolean isDistinct;
     private List<SelectClauseElementRaw> selectClauseElements;
     private static final long serialVersionUID = -6530225321409268186L;

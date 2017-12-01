@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.List;
  * Event type and expression nodes in this filter specification are not yet validated, optimized for resolved
  * against actual streams.
  */
-public class FilterSpecRaw implements MetaDefItem, Serializable {
+public class FilterSpecRaw implements Serializable {
     private String eventTypeName;
     private List<ExprNode> filterExpressions;
     private PropertyEvalSpec optionalPropertyEvalSpec;

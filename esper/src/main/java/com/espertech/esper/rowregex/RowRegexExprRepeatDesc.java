@@ -12,12 +12,11 @@ package com.espertech.esper.rowregex;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.io.StringWriter;
 
-public class RowRegexExprRepeatDesc implements MetaDefItem, Serializable {
+public class RowRegexExprRepeatDesc implements Serializable {
     private static final long serialVersionUID = -5731091962097679923L;
     private final ExprNode lower;
     private final ExprNode upper;

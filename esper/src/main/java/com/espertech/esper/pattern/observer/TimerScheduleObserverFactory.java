@@ -17,7 +17,6 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
-import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -27,7 +26,7 @@ import java.util.*;
 /**
  * Factory for ISO8601 repeating interval observers that indicate truth when a time point was reached.
  */
-public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefItem, Serializable {
+public class TimerScheduleObserverFactory implements ObserverFactory, Serializable {
     private final static String NAME_OBSERVER = "Timer-schedule observer";
 
     private final static String ISO_NAME = "iso";
