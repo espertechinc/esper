@@ -20,7 +20,7 @@ import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.epl.metric.MetricReportingService;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
-import com.espertech.esper.epl.spec.StatementSpecMapper;
+import com.espertech.esper.epl.specmapper.StatementSpecMapper;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;

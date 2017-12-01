@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.spec;
+package com.espertech.esper.epl.specmapper;
 
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
@@ -18,6 +18,8 @@ import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.spec.ExpressionDeclItem;
+import com.espertech.esper.epl.spec.ExpressionScriptProvided;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.pattern.PatternNodeFactory;

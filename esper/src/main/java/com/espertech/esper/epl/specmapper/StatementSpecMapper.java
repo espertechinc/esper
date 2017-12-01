@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.spec;
+package com.espertech.esper.epl.specmapper;
 
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EPException;
@@ -52,6 +52,7 @@ import com.espertech.esper.epl.parse.ASTAggregationHelper;
 import com.espertech.esper.epl.parse.ASTTableExprHelper;
 import com.espertech.esper.epl.parse.ASTWalkException;
 import com.espertech.esper.epl.script.ExprNodeScript;
+import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableService;
@@ -300,7 +301,7 @@ public class StatementSpecMapper {
         }
         CreateTableClause clause = new CreateTableClause(desc.getTableName());
         List<com.espertech.esper.client.soda.CreateTableColumn> cols = new ArrayList<com.espertech.esper.client.soda.CreateTableColumn>();
-        for (CreateTableColumn col : desc.getColumns()) {
+        for (com.espertech.esper.epl.spec.CreateTableColumn col : desc.getColumns()) {
             Expression optExpr = col.getOptExpression() != null ? unmapExpressionDeep(col.getOptExpression(), unmapContext) : null;
             List<AnnotationPart> annots = unmapAnnotations(col.getAnnotations());
             com.espertech.esper.client.soda.CreateTableColumn coldesc = new com.espertech.esper.client.soda.CreateTableColumn(col.getColumnName(), optExpr, col.getOptTypeName(), col.getOptTypeIsArray(), col.getOptTypeIsPrimitiveArray(), annots, col.getPrimaryKey());
@@ -1492,11 +1493,11 @@ public class StatementSpecMapper {
             return;
         }
 
-        List<CreateTableColumn> cols = new ArrayList<CreateTableColumn>();
+        List<com.espertech.esper.epl.spec.CreateTableColumn> cols = new ArrayList<com.espertech.esper.epl.spec.CreateTableColumn>();
         for (com.espertech.esper.client.soda.CreateTableColumn desc : createTable.getColumns()) {
             ExprNode optNode = desc.getOptionalExpression() != null ? mapExpressionDeep(desc.getOptionalExpression(), mapContext) : null;
             List<AnnotationDesc> annotations = mapAnnotations(desc.getAnnotations());
-            cols.add(new CreateTableColumn(desc.getColumnName(), optNode, desc.getOptionalTypeName(), desc.getOptionalTypeIsArray(), desc.getOptionalTypeIsPrimitiveArray(), annotations, desc.getPrimaryKey()));
+            cols.add(new com.espertech.esper.epl.spec.CreateTableColumn(desc.getColumnName(), optNode, desc.getOptionalTypeName(), desc.getOptionalTypeIsArray(), desc.getOptionalTypeIsPrimitiveArray(), annotations, desc.getPrimaryKey()));
         }
 
         CreateTableDesc agg = new CreateTableDesc(createTable.getTableName(), cols);

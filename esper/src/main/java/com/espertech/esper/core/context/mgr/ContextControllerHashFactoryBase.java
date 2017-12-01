@@ -26,8 +26,8 @@ import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailHash;
 import com.espertech.esper.epl.spec.ContextDetailHashItem;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
-import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzer;
-import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzerResult;
+import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzer;
+import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.filter.*;
 

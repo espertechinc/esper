@@ -19,6 +19,8 @@ import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.core.deploy.EPDeploymentAdminImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.specmapper.StatementSpecMapper;
+import com.espertech.esper.epl.specmapper.StatementSpecUnMapResult;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.pattern.EvalFactoryNode;
 import org.slf4j.Logger;

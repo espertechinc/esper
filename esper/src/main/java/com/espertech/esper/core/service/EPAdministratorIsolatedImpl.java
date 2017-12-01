@@ -16,7 +16,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
-import com.espertech.esper.epl.spec.StatementSpecMapper;
+import com.espertech.esper.epl.specmapper.StatementSpecMapper;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.filter.FilterSet;
 import com.espertech.esper.schedule.ScheduleSet;

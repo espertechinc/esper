@@ -44,7 +44,7 @@ import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.*;
-import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
+import com.espertech.esper.epl.util.StatementSpecRawAnalyzer;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.view.OutputProcessViewCallback;

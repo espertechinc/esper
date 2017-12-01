@@ -8,9 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.spec;
+package com.espertech.esper.epl.specmapper;
 
 import com.espertech.esper.client.soda.EPStatementObjectModel;
+import com.espertech.esper.epl.spec.SubstitutionParameterExpressionBase;
 
 import java.util.List;
 

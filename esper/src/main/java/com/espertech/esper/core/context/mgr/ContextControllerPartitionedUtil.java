@@ -19,7 +19,7 @@ import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
-import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzerResult;
+import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.util.JavaClassHelper;
