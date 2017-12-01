@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.view.internal;
 
-import com.espertech.esper.collection.FlushedEventBuffer;
+import com.espertech.esper.event.FlushedEventBuffer;
 
 /**
  * Observer interface to a stream publishing new and old events.

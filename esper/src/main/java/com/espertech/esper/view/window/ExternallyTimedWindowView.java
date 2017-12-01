@@ -12,7 +12,7 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.collection.TimeWindow;
+import com.espertech.esper.view.internal.TimeWindow;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;

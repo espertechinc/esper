@@ -8,10 +8,12 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.collection;
+package com.espertech.esper.epl.view;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.ArrayEventIterator;
+import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.event.EventBeanReader;
 import com.espertech.esper.event.EventBeanReaderDefaultImpl;
 import com.espertech.esper.event.EventBeanUtility;

@@ -12,7 +12,7 @@ package com.espertech.esper.epl.table.mgmt;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.collection.FilteredEventIterator;
+import com.espertech.esper.epl.util.FilteredEventIterator;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.view.ViewSupport;
 

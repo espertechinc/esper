@@ -8,22 +8,30 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.collection;
+package com.espertech.esper.view.internal;
 
-import java.util.ArrayDeque;
+public final class TimeWindowPair {
+    private long timestamp;
+    private Object eventHolder;
 
-public final class TimeWindowIterator extends MixedEventBeanAndCollectionIteratorBase {
-    /**
-     * Ctor.
-     *
-     * @param window is the time-slotted collection
-     */
-    public TimeWindowIterator(ArrayDeque<TimeWindowPair> window) {
-        super(window.iterator());
-        init();
+    public TimeWindowPair(long timestamp, Object eventHolder) {
+        this.timestamp = timestamp;
+        this.eventHolder = eventHolder;
     }
 
-    protected Object getValue(Object iteratorKeyValue) {
-        return ((TimeWindowPair) iteratorKeyValue).getEventHolder();
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public Object getEventHolder() {
+        return eventHolder;
+    }
+
+    public void setEventHolder(Object eventHolder) {
+        this.eventHolder = eventHolder;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

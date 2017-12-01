@@ -11,6 +11,7 @@
 package com.espertech.esper.collection;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.event.FlushedEventBuffer;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 

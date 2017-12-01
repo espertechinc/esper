@@ -13,6 +13,7 @@ package com.espertech.esper.collection;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.view.internal.TimeWindow;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -8,28 +8,35 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.collection;
+package com.espertech.esper.core.service;
 
-import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 
 import java.util.Iterator;
 
 /**
- * Implements the safe iterator. The class is passed a lock that is locked already, to release
- * when the close method closes the iterator.
+ * Implements the iterator with table evaluation concern.
  */
-public class SafeIteratorWTableImpl<E> extends SafeIteratorImpl<E> {
+public class UnsafeIteratorWTableImpl<E> implements Iterator<E> {
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
+    private final Iterator<E> inner;
 
-    public SafeIteratorWTableImpl(StatementAgentInstanceLock iteratorLock, Iterator<E> underlying, TableExprEvaluatorContext tableExprEvaluatorContext) {
-        super(iteratorLock, underlying);
+    public UnsafeIteratorWTableImpl(TableExprEvaluatorContext tableExprEvaluatorContext, Iterator<E> inner) {
         this.tableExprEvaluatorContext = tableExprEvaluatorContext;
+        this.inner = inner;
     }
 
-    @Override
-    public void close() {
-        super.close();
+    public boolean hasNext() {
+        return inner.hasNext();
+    }
+
+    public E next() {
+        E e = inner.next();
         tableExprEvaluatorContext.releaseAcquiredLocks();
+        return e;
+    }
+
+    public void remove() {
+        inner.remove();
     }
 }

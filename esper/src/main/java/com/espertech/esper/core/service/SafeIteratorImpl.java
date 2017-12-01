@@ -8,10 +8,9 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.collection;
+package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.SafeIterator;
-import com.espertech.esper.core.service.StatementAgentInstanceLock;
 
 import java.util.Iterator;
 

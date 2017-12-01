@@ -12,9 +12,6 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.context.ContextPartitionSelector;
-import com.espertech.esper.collection.SafeIteratorImpl;
-import com.espertech.esper.collection.SafeIteratorWTableImpl;
-import com.espertech.esper.collection.UnsafeIteratorWTableImpl;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.view.Viewable;

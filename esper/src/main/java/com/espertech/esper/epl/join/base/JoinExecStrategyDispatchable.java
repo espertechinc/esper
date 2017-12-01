@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.join.base;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.FlushedEventBuffer;
+import com.espertech.esper.event.FlushedEventBuffer;
 import com.espertech.esper.core.service.EPStatementDispatch;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.internal.BufferObserver;

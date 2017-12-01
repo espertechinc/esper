@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.supportunit.view;
 
-import com.espertech.esper.collection.FlushedEventBuffer;
+import com.espertech.esper.event.FlushedEventBuffer;
 import com.espertech.esper.view.internal.BufferObserver;
 
 public class SupportBufferObserver implements BufferObserver {

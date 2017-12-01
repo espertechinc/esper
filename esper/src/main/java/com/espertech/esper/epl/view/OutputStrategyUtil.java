@@ -12,7 +12,6 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.collection.EventDistinctIterator;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.service.StatementContext;

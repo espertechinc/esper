@@ -13,6 +13,8 @@ package com.espertech.esper.collection;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.supportunit.event.EventFactoryHelper;
+import com.espertech.esper.view.internal.TimeWindowIterator;
+import com.espertech.esper.view.internal.TimeWindowPair;
 import junit.framework.TestCase;
 
 import java.util.ArrayDeque;
