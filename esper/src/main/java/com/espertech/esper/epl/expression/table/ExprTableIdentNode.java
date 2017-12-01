@@ -12,7 +12,7 @@ package com.espertech.esper.epl.expression.table;
 
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoEvaluateSelf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;

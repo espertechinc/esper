@@ -8,14 +8,21 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.core;
+package com.espertech.esper.codegen.util;
 
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+public class CodegenClassUtil {
+    public static Class getComponentTypeOutermost(Class clazz) {
+        if (!clazz.isArray()) {
+            return clazz;
+        }
+        return getComponentTypeOutermost(clazz.getComponentType());
+    }
 
-public class CodeGenerationServiceDefault<T> implements CodeGenerationService<T>  {
-    public static final CodeGenerationService INSTANCE = new CodeGenerationServiceDefault();
-
-    public T generate(CodegenClass clazz, Class<T> result) throws ExprValidationException {
-        throw new ExprValidationException("Code generation is not enabled");
+    public static int getNumberOfDimensions(Class clazz) {
+        if (clazz.getComponentType() == null) {
+            return 0;
+        } else {
+            return getNumberOfDimensions(clazz.getComponentType()) + 1;
+        }
     }
 }

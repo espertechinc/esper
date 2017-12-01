@@ -14,7 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenNamedMethods;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.agg.factory.AggregationStateLinearForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;

@@ -15,7 +15,7 @@ import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;

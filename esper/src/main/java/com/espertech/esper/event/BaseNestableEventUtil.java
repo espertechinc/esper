@@ -16,7 +16,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoPropertyBeanOrUnd;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;

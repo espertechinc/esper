@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.model.blocks;
+package com.espertech.esper.epl.expression.codegen;
 
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.util.JavaClassHelper;

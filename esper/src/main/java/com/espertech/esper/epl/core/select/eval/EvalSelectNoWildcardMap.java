@@ -15,7 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoMayVoid;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoMayVoid;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;

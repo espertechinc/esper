@@ -16,7 +16,7 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.core.CodegenNamedParam;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.collection.ArrayEventIterator;
 import com.espertech.esper.collection.MultiKey;

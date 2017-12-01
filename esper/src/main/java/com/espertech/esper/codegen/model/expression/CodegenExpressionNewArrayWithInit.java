@@ -11,10 +11,12 @@
 package com.espertech.esper.codegen.model.expression;
 
 import com.espertech.esper.codegen.core.CodeGenerationHelper;
-import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Map;
 import java.util.Set;
+
+import static com.espertech.esper.codegen.util.CodegenClassUtil.getComponentTypeOutermost;
+import static com.espertech.esper.codegen.util.CodegenClassUtil.getNumberOfDimensions;
 
 public class CodegenExpressionNewArrayWithInit implements CodegenExpression {
     private final Class component;
@@ -26,8 +28,8 @@ public class CodegenExpressionNewArrayWithInit implements CodegenExpression {
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        int numDimensions = JavaClassHelper.getNumberOfDimensions(component);
-        Class outermostType = JavaClassHelper.getComponentTypeOutermost(component);
+        int numDimensions = getNumberOfDimensions(component);
+        Class outermostType = getComponentTypeOutermost(component);
         builder.append("new ");
         CodeGenerationHelper.appendClassName(builder, outermostType, null, imports);
         builder.append("[]");

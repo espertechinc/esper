@@ -14,7 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoEvaluateSelf;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoEvaluateSelf;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;

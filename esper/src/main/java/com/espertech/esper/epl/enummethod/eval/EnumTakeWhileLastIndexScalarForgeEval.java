@@ -12,7 +12,7 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.*;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoBooleanExpression;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoBooleanExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenNames;
 import com.espertech.esper.epl.enummethod.codegen.EnumForgeCodegenParams;

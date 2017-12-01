@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.codegen.model.blocks;
+package com.espertech.esper.epl.expression.codegen;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenBlock;
@@ -18,7 +18,7 @@ import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
-import static com.espertech.esper.codegen.model.blocks.CodegenLegoPropertyBeanOrUnd.AccessType.*;
+import static com.espertech.esper.epl.expression.codegen.CodegenLegoPropertyBeanOrUnd.AccessType.*;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**

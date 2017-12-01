@@ -11,16 +11,16 @@
 package com.espertech.esper.codegen.compile;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.codegen.core.*;
 import com.espertech.esper.codegen.base.CodegenMember;
+import com.espertech.esper.codegen.core.*;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.*;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.codegen.compile.CodeGenerationUtil.*;
 import static com.espertech.esper.codegen.core.CodeGenerationHelper.appendClassName;
+import static com.espertech.esper.codegen.util.CodegenClassUtil.getComponentTypeOutermost;
 
 public class CodegenClassGenerator {
 
@@ -62,7 +62,7 @@ public class CodegenClassGenerator {
                 continue;
             }
             if (clazz.isArray()) {
-                compileImports(JavaClassHelper.getComponentTypeOutermost(clazz), imports, assignments);
+                compileImports(getComponentTypeOutermost(clazz), imports, assignments);
             } else {
                 compileImports(clazz, imports, assignments);
             }

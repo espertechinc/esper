@@ -17,7 +17,7 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenCtor;
 import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.core.CodegenTypedParam;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;

@@ -17,7 +17,7 @@ import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenNamedMethods;
 import com.espertech.esper.codegen.core.CodegenNamedParam;
-import com.espertech.esper.codegen.model.blocks.CodegenLegoMethodExpression;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.HashableMultiKey;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
