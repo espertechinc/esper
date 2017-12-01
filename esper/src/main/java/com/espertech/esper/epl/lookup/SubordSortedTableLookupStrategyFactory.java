@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.lookup;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.join.exec.sorted.SortedAccessStrategy;
 import com.espertech.esper.epl.join.exec.sorted.SortedAccessStrategyFactory;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -30,7 +30,7 @@ public class SubordSortedTableLookupStrategyFactory implements SubordTableLookup
     public SubordSortedTableLookupStrategyFactory(boolean isNWOnTrigger, int numStreams, SubordPropRangeKey rangeKey) {
         this.rangeKey = rangeKey;
         this.strategy = SortedAccessStrategyFactory.make(isNWOnTrigger, -1, numStreams, rangeKey);
-        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.RANGE, ExprNodeUtility.toExpressionStringsMinPrecedence(rangeKey.getRangeInfo().getExpressions()));
+        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.RANGE, ExprNodeUtilityCore.toExpressionStringsMinPrecedence(rangeKey.getRangeInfo().getExpressions()));
     }
 
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {

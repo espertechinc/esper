@@ -28,6 +28,7 @@ import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -92,7 +93,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         }
 
         // validate that the streams referenced in the criteria are a single stream's
-        Set<Integer> streams = ExprNodeUtility.getIdentStreamNumbers(positionalParams[0]);
+        Set<Integer> streams = ExprNodeUtilityRich.getIdentStreamNumbers(positionalParams[0]);
         if (streams.size() > 1 || streams.isEmpty()) {
             throw new ExprValidationException(getErrorPrefix() + " requires that any parameter expressions evaluate properties of the same stream");
         }
@@ -252,7 +253,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     @Override
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append(getAggregationFunctionName());
-        ExprNodeUtility.toExpressionStringParams(writer, this.positionalParams);
+        ExprNodeUtilityCore.toExpressionStringParams(writer, this.positionalParams);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

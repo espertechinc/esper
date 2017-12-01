@@ -15,10 +15,10 @@ import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
 import com.espertech.esper.util.JavaClassHelper;
@@ -101,7 +101,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         ExternallyTimedBatchView myView = (ExternallyTimedBatchView) view;
         ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
-                (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression, false))) {
+                (!ExprNodeUtilityCore.deepEquals(myView.getTimestampExpression(), timestampExpression, false))) {
             return false;
         }
         return myView.isEmpty();

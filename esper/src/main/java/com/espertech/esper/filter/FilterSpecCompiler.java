@@ -17,7 +17,6 @@ import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
-import com.espertech.esper.core.start.EPStatementStartMethodHelperSubselect;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
@@ -35,6 +34,7 @@ import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.util.EPLValidationUtil;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.TimeProvider;
@@ -195,16 +195,16 @@ public final class FilterSpecCompiler {
                                 streamTypeService.getEventTypes()[0], streamTypeService.getStreamNames()[0], streamTypeService.getStreamNames()[0],
                                 taggedEventTypes, arrayEventTypes);
                     } catch (ExprValidationException ex) {
-                        throw new ExprValidationException("Failed to validate " + EPStatementStartMethodHelperSubselect.getSubqueryInfoText(count, subselect) + ": " + ex.getMessage(), ex);
+                        throw new ExprValidationException("Failed to validate " + ExprNodeUtilityRich.getSubqueryInfoText(count, subselect) + ": " + ex.getMessage(), ex);
                     }
                 }
             }
 
-            ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, node, validationContext);
+            ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(exprNodeOrigin, node, validationContext);
             validatedNodes.add(validated);
 
             if ((validated.getForge().getEvaluationType() != Boolean.class) && ((validated.getForge().getEvaluationType() != boolean.class))) {
-                throw new ExprValidationException("Filter expression not returning a boolean value: '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated) + "'");
+                throw new ExprValidationException("Filter expression not returning a boolean value: '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validated) + "'");
             }
         }
 
@@ -293,7 +293,7 @@ public final class FilterSpecCompiler {
                 ExprNode selectExpression = compiled.getSelectExpression();
                 ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
                 ExprValidationContext validationContext = new ExprValidationContext(subselectTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), viewResourceDelegateSubselect, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-                selectExpression = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SUBQUERYSELECT, selectExpression, validationContext);
+                selectExpression = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SUBQUERYSELECT, selectExpression, validationContext);
                 subselect.setSelectClause(new ExprNode[]{selectExpression}, validationContext.getEngineImportService(), validationContext.getStatementName());
                 subselect.setSelectAsNames(new String[]{compiled.getAssignedName()});
 
@@ -303,7 +303,7 @@ public final class FilterSpecCompiler {
                 if (aggExprNodes.size() > 0) {
                     // Other stream properties, if there is aggregation, cannot be under aggregation.
                     for (ExprAggregateNode aggNode : aggExprNodes) {
-                        List<Pair<Integer, String>> propertiesNodesAggregated = ExprNodeUtility.getExpressionProperties(aggNode, true);
+                        List<Pair<Integer, String>> propertiesNodesAggregated = ExprNodeUtilityRich.getExpressionProperties(aggNode, true);
                         for (Pair<Integer, String> pair : propertiesNodesAggregated) {
                             if (pair.getFirst() != 0) {
                                 throw new ExprValidationException("Subselect aggregation function cannot aggregate across correlated properties");
@@ -312,7 +312,7 @@ public final class FilterSpecCompiler {
                     }
 
                     // This stream (stream 0) properties must either all be under aggregation, or all not be.
-                    List<Pair<Integer, String>> propertiesNotAggregated = ExprNodeUtility.getExpressionProperties(selectExpression, false);
+                    List<Pair<Integer, String>> propertiesNotAggregated = ExprNodeUtilityRich.getExpressionProperties(selectExpression, false);
                     for (Pair<Integer, String> pair : propertiesNotAggregated) {
                         if (pair.getFirst() == 0) {
                             throw new ExprValidationException("Subselect properties must all be within aggregation functions");

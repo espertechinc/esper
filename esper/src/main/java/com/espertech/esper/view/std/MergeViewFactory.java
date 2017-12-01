@@ -15,8 +15,8 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewFactory;
 import com.espertech.esper.view.ViewFactoryContext;
@@ -51,7 +51,7 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker {
                 continue;
             }
             GroupByViewFactoryMarker candidateGroupByView = (GroupByViewFactoryMarker) parentView;
-            if (ExprNodeUtility.deepEquals(candidateGroupByView.getCriteriaExpressions(), unvalidated, false)) {
+            if (ExprNodeUtilityCore.deepEquals(candidateGroupByView.getCriteriaExpressions(), unvalidated, false)) {
                 groupByViewFactory = candidateGroupByView;
             }
         }
@@ -76,7 +76,7 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker {
         boolean parentContainsMergeKeys = true;
         String[] fieldNames = new String[criteriaExpressions.length];
         for (int i = 0; i < criteriaExpressions.length; i++) {
-            String name = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
+            String name = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
             fieldNames[i] = name;
             try {
                 if (!(parentEventType.isProperty(name))) {
@@ -118,7 +118,7 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker {
         }
 
         MergeView myView = (MergeView) view;
-        if (!ExprNodeUtility.deepEquals(myView.getGroupFieldNames(), criteriaExpressions, false)) {
+        if (!ExprNodeUtilityCore.deepEquals(myView.getGroupFieldNames(), criteriaExpressions, false)) {
             return false;
         }
         return true;

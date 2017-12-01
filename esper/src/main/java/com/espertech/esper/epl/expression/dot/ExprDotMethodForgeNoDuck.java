@@ -14,9 +14,9 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import net.sf.cglib.reflect.FastMethod;
@@ -48,7 +48,7 @@ public class ExprDotMethodForgeNoDuck implements ExprDotForge {
     }
 
     public ExprDotEval getDotEvaluator() {
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parameters);
+        ExprEvaluator[] evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parameters);
         if (type == Type.WRAPARRAY) {
             return new ExprDotMethodForgeNoDuckEvalWrapArray(this, evaluators);
         } else if (type == Type.PLAIN) {

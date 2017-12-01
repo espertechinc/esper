@@ -19,6 +19,7 @@ import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.engineimport.EngineImportSingleRowDesc;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastMethod;
@@ -38,9 +39,9 @@ public class ContextControllerHashedGetterSingleRow implements EventPropertyGett
 
     public ContextControllerHashedGetterSingleRow(String statementName, String functionName, Pair<Class, EngineImportSingleRowDesc> func, List<ExprNode> parameters, int granularity, EngineImportService engineImportService, EventType eventType, EventAdapterService eventAdapterService, int statementId, TableService tableService, String engineURI)
             throws ExprValidationException {
-        ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(func.getFirst().getName(), null, func.getSecond().getMethodName(), parameters, engineImportService, eventAdapterService, statementId, true, eventType, new ExprNodeUtilResolveExceptionHandlerDefault(func.getSecond().getMethodName(), true), func.getSecond().getMethodName(), tableService, engineURI);
+        ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtilityRich.resolveMethodAllowWildcardAndStream(func.getFirst().getName(), null, func.getSecond().getMethodName(), parameters, engineImportService, eventAdapterService, statementId, true, eventType, new ExprNodeUtilResolveExceptionHandlerDefault(func.getSecond().getMethodName(), true), func.getSecond().getMethodName(), tableService, engineURI);
         this.statementName = statementName;
-        this.evaluators = ExprNodeUtility.getEvaluatorsNoCompile(staticMethodDesc.getChildForges());
+        this.evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(staticMethodDesc.getChildForges());
         this.granularity = granularity;
         this.fastMethod = staticMethodDesc.getFastMethod();
     }

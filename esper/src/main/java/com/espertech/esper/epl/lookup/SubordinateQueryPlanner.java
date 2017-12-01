@@ -13,10 +13,10 @@ package com.espertech.esper.epl.lookup;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.index.quadtree.SubordTableLookupStrategyFactoryQuadTree;
 import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;
@@ -183,7 +183,7 @@ public class SubordinateQueryPlanner {
         if (!provision.getFactory().providesIndexForOperation(op.getKey().getOperationName(), op.getValue().getPositionalExpressions())) {
             return false;
         }
-        return ExprNodeUtility.deepEquals(index.getKey().getAdvancedIndexDesc().getIndexedExpressions(), op.getKey().getExprNodes(), true);
+        return ExprNodeUtilityCore.deepEquals(index.getKey().getAdvancedIndexDesc().getIndexedExpressions(), op.getKey().getExprNodes(), true);
     }
 
     private static SubordinateQueryIndexDesc findOrSuggestIndex(

@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprInstanceofNode;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprInstanceOfNode extends TestCase {
@@ -88,6 +88,6 @@ public class TestExprInstanceOfNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("instanceof(\"\"," + SupportBean.class.getName() + ",int,string)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(instanceofNodes[1]));
+        assertEquals("instanceof(\"\"," + SupportBean.class.getName() + ",int,string)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(instanceofNodes[1]));
     }
 }

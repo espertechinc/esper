@@ -48,7 +48,7 @@ public class ExprGroupingNode extends ExprNodeBase implements ExprForge, ExprEva
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
-        ExprNodeUtility.toExpressionStringWFunctionName("grouping", this.getChildNodes(), writer);
+        ExprNodeUtilityCore.toExpressionStringWFunctionName("grouping", this.getChildNodes(), writer);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

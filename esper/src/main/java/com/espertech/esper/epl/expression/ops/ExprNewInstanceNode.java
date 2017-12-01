@@ -73,7 +73,7 @@ public class ExprNewInstanceNode extends ExprNodeBase {
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("new ");
         writer.write(classIdent);
-        ExprNodeUtility.toExpressionStringParams(writer, this.getChildNodes());
+        ExprNodeUtilityCore.toExpressionStringParams(writer, this.getChildNodes());
     }
 
     public ExprPrecedenceEnum getPrecedence() {

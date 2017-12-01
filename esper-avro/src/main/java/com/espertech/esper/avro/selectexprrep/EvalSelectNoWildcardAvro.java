@@ -25,6 +25,7 @@ import com.espertech.esper.epl.core.select.*;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerException;
@@ -91,7 +92,7 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor, SelectExpr
     }
     public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(forges, engineImportService, EvalSelectNoWildcardAvro.class, isFireAndForget, statementName);
+            evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(forges, engineImportService, EvalSelectNoWildcardAvro.class, isFireAndForget, statementName);
         }
         return this;
     }

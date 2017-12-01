@@ -39,7 +39,7 @@ import com.espertech.esper.epl.core.viewres.ViewResourceDelegateUnverified;
 import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerified;
 import com.espertech.esper.epl.db.DatabasePollingViewableFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototype;
@@ -208,7 +208,7 @@ public class EPStatementStartMethodSelectUtil {
                 TableMetadata metadata = services.getTableService().getTableMetadata(tableStreamSpec.getTableName());
                 ExprEvaluator[] tableFilterEvals = null;
                 if (tableStreamSpec.getFilterExpressions().size() > 0) {
-                    tableFilterEvals = ExprNodeUtility.getEvaluatorsMayCompile(tableStreamSpec.getFilterExpressions(), statementContext.getEngineImportService(), EPStatementStartMethodSelectUtil.class, false, statementContext.getStatementName());
+                    tableFilterEvals = ExprNodeUtilityRich.getEvaluatorsMayCompile(tableStreamSpec.getFilterExpressions(), statementContext.getEngineImportService(), EPStatementStartMethodSelectUtil.class, false, statementContext.getStatementName());
                 }
                 EPLValidationUtil.validateContextName(true, metadata.getTableName(), metadata.getContextName(), statementSpec.getOptionalContextName(), false);
                 eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createTable(metadata, tableFilterEvals);

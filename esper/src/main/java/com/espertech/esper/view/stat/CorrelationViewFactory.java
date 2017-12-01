@@ -14,10 +14,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
 
@@ -86,8 +86,8 @@ public class CorrelationViewFactory implements ViewFactory {
         }
 
         CorrelationView other = (CorrelationView) view;
-        if (!ExprNodeUtility.deepEquals(other.getExpressionX(), expressionX, false) ||
-                (!ExprNodeUtility.deepEquals(other.getExpressionY(), expressionY, false))) {
+        if (!ExprNodeUtilityCore.deepEquals(other.getExpressionX(), expressionX, false) ||
+                (!ExprNodeUtilityCore.deepEquals(other.getExpressionY(), expressionY, false))) {
             return false;
         }
 

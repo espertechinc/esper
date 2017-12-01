@@ -16,6 +16,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
+import com.espertech.esper.epl.spec.StatementSpecMapper;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.filter.FilterSet;
 import com.espertech.esper.schedule.ScheduleSet;
@@ -56,7 +57,7 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI {
     }
 
     public EPStatement createEPLStatementId(String eplStatement, String statementName, Object userObject, Integer optionalStatementId) throws EPException {
-        SelectClauseStreamSelectorEnum defaultStreamSelector = SelectClauseStreamSelectorEnum.mapFromSODA(unisolatedServices.getConfigSnapshot().getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
+        SelectClauseStreamSelectorEnum defaultStreamSelector = StatementSpecMapper.mapFromSODA(unisolatedServices.getConfigSnapshot().getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
         StatementSpecRaw statementSpec = EPAdministratorHelper.compileEPL(eplStatement, eplStatement, true, statementName, unisolatedServices, defaultStreamSelector);
         EPStatement statement = unisolatedServices.getStatementLifecycleSvc().createAndStart(statementSpec, eplStatement, false, statementName, userObject, services, optionalStatementId, null);
         EPStatementSPI stmtSpi = (EPStatementSPI) statement;

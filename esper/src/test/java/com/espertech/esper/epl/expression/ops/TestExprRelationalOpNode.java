@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.RelationalOpEnum;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprRelationalOpNode extends TestCase {
@@ -95,7 +95,7 @@ public class TestExprRelationalOpNode extends TestCase {
     public void testToExpressionString() throws Exception {
         opNode.addChildNode(new SupportExprNode(10));
         opNode.addChildNode(new SupportExprNode(5));
-        assertEquals("10>=5", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(opNode));
+        assertEquals("10>=5", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(opNode));
     }
 
     private ExprRelationalOpNode makeNode(Object valueLeft, Class typeLeft, Object valueRight, Class typeRight) throws Exception {

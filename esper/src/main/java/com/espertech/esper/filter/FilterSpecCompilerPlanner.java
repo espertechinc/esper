@@ -16,7 +16,7 @@ import com.espertech.esper.collection.CombinationEnumeration;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
@@ -208,7 +208,7 @@ public class FilterSpecCompilerPlanner {
 
     private static ExprAndNode makeValidateAndNode(List<ExprNode> remainingExprNodes, FilterSpecCompilerArgs args)
             throws ExprValidationException {
-        ExprAndNode andNode = ExprNodeUtility.connectExpressionsByLogicalAnd(remainingExprNodes);
+        ExprAndNode andNode = ExprNodeUtilityRich.connectExpressionsByLogicalAnd(remainingExprNodes);
         ExprValidationContext validationContext = new ExprValidationContext(args.streamTypeService, args.engineImportService, args.statementExtensionSvcContext, null, args.timeProvider, args.variableService, args.tableService, args.exprEvaluatorContext, args.eventAdapterService, args.statementName, args.statementId, args.annotations, args.contextDescriptor, false, false, true, false, null, false);
         andNode.validate(validationContext);
         return andNode;

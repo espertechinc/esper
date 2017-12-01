@@ -16,11 +16,12 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.epl.SupportSelectExprFactory;
 import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc1Stream;
@@ -184,8 +185,8 @@ public class TestResultSetProcessorFactory extends TestCase {
                 outputLimitSpec,
                 OrderByItem.toArray(orderByList),
                 null,
-                ExprNodeUtility.EMPTY_DECLARED_ARR,
-                ExprNodeUtility.EMPTY_SCRIPTS,
+                ExprNodeUtilityRich.EMPTY_DECLARED_ARR,
+                ExprNodeUtilityRich.EMPTY_SCRIPTS,
                 null,
                 null,
                 CollectionUtil.STRINGARRAY_EMPTY,
@@ -198,6 +199,6 @@ public class TestResultSetProcessorFactory extends TestCase {
                 null,
                 null,
                 null,
-                null, new GroupByClauseExpressions(ExprNodeUtility.toArray(groupByNodes)), null, null);
+                null, new GroupByClauseExpressions(ExprNodeUtilityCore.toArray(groupByNodes)), null, null);
     }
 }

@@ -18,9 +18,9 @@ import com.espertech.esper.client.hook.VirtualDataWindowEventConsumerRemove;
 import com.espertech.esper.collection.ArrayEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
@@ -279,7 +279,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
                 return indexedResult;
             }
             ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(Math.min(indexedResult.size(), 16));
-            ExprNodeUtility.applyFilterExpressionIterable(indexedResult.iterator(), filterExpr.getForge().getExprEvaluator(), exprEvaluatorContext, deque);
+            ExprNodeUtilityCore.applyFilterExpressionIterable(indexedResult.iterator(), filterExpr.getForge().getExprEvaluator(), exprEvaluatorContext, deque);
             return deque;
         }
 
@@ -290,7 +290,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         }
         ArrayDeque<EventBean> list = new ArrayDeque<EventBean>();
         if (filterExpr != null) {
-            ExprNodeUtility.applyFilterExpressionIterable(it, filterExpr.getForge().getExprEvaluator(), agentInstanceContext, list);
+            ExprNodeUtilityCore.applyFilterExpressionIterable(it, filterExpr.getForge().getExprEvaluator(), agentInstanceContext, list);
         } else {
             while (it.hasNext()) {
                 list.add(it.next());

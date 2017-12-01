@@ -20,6 +20,8 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.util.EPLScheduleExpressionUtil;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.pattern.EvalFactoryNode;
 import com.espertech.esper.schedule.ScheduleSpec;
@@ -166,7 +168,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 // validate parameters
                 StreamTypeServiceImpl streamTypes = new StreamTypeServiceImpl(result.getFilterSpec().getFilterForEventType(), null, true, statementContext.getEngineURI());
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypes, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
-                ExprNodeUtility.validate(ExprNodeOrigin.CONTEXT, Collections.singletonList(hashItem.getFunction()), validationContext);
+                ExprNodeUtilityRich.validate(ExprNodeOrigin.CONTEXT, Collections.singletonList(hashItem.getFunction()), validationContext);
             }
         } else if (contextDetail instanceof ContextDetailInitiatedTerminated) {
             ContextDetailInitiatedTerminated def = (ContextDetailInitiatedTerminated) contextDetail;
@@ -190,8 +192,8 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 StreamTypeServiceImpl types = new StreamTypeServiceImpl(filter.getFilterSpecCompiled().getFilterForEventType(), filter.getOptionalFilterAsName(), true, servicesContext.getEngineURI());
                 ExprValidationContext validationContext = new ExprValidationContext(types, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
                 for (int i = 0; i < distinctExpressions.length; i++) {
-                    ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i]);
-                    distinctExpressions[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i], validationContext);
+                    ExprNodeUtilityRich.validatePlainExpression(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i]);
+                    distinctExpressions[i] = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i], validationContext);
                 }
             }
         } else if (contextDetail instanceof ContextDetailNested) {
@@ -235,8 +237,8 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
     private ContextDetailMatchPair validateRewriteContextCondition(EPServicesContext servicesContext, StatementContext statementContext, ContextDetailCondition endpoint, Set<String> eventTypesReferenced, MatchEventSpec priorMatches, Set<String> priorAllTags) throws ExprValidationException {
         if (endpoint instanceof ContextDetailConditionCrontab) {
             ContextDetailConditionCrontab crontab = (ContextDetailConditionCrontab) endpoint;
-            ExprEvaluator[] scheduleSpecEvaluators = ExprNodeUtility.crontabScheduleValidate(ExprNodeOrigin.CONTEXTCONDITION, crontab.getCrontab(), statementContext, false);
-            ScheduleSpec schedule = ExprNodeUtility.crontabScheduleBuild(scheduleSpecEvaluators, new ExprEvaluatorContextStatement(statementContext, false));
+            ExprEvaluator[] scheduleSpecEvaluators = EPLScheduleExpressionUtil.crontabScheduleValidate(ExprNodeOrigin.CONTEXTCONDITION, crontab.getCrontab(), statementContext, false);
+            ScheduleSpec schedule = EPLScheduleExpressionUtil.crontabScheduleBuild(scheduleSpecEvaluators, new ExprEvaluatorContextStatement(statementContext, false));
             crontab.setSchedule(schedule);
             return new ContextDetailMatchPair(crontab, new MatchEventSpec(), new LinkedHashSet<String>());
         }
@@ -244,10 +246,10 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
         if (endpoint instanceof ContextDetailConditionTimePeriod) {
             ContextDetailConditionTimePeriod timePeriod = (ContextDetailConditionTimePeriod) endpoint;
             ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(servicesContext.getEngineURI(), false), statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
-            ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTEXTCONDITION, timePeriod.getTimePeriod(), validationContext);
+            ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CONTEXTCONDITION, timePeriod.getTimePeriod(), validationContext);
             if (timePeriod.getTimePeriod().isConstantResult()) {
                 if (timePeriod.getTimePeriod().evaluateAsSeconds(null, true, null) < 0) {
-                    throw new ExprValidationException("Invalid negative time period expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(timePeriod.getTimePeriod()) + "'");
+                    throw new ExprValidationException("Invalid negative time period expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(timePeriod.getTimePeriod()) + "'");
                 }
             }
             return new ContextDetailMatchPair(timePeriod, new MatchEventSpec(), new LinkedHashSet<String>());

@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.pattern;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,17 +112,17 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase {
     public void toPrecedenceFreeEPL(StringWriter writer) {
         if (singleBound != null) {
             writer.append("[");
-            writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(singleBound));
+            writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(singleBound));
             writer.append("] ");
         } else {
             if (lowerBounds != null || upperBounds != null) {
                 writer.append("[");
                 if (lowerBounds != null) {
-                    writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(lowerBounds));
+                    writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(lowerBounds));
                 }
                 writer.append(":");
                 if (upperBounds != null) {
-                    writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(upperBounds));
+                    writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(upperBounds));
                 }
                 writer.append("] ");
             }

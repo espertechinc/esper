@@ -27,6 +27,7 @@ import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTableList;
 import com.espertech.esper.epl.spec.MethodStreamSpec;
 import com.espertech.esper.epl.table.mgmt.TableService;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
@@ -111,7 +112,7 @@ public class MethodPollingViewable implements HistoricalEventViewable {
         ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true);
         final List<ExprNode> validatedInputParameters = new ArrayList<ExprNode>();
         for (ExprNode exprNode : methodStreamSpec.getExpressions()) {
-            ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.METHODINVJOIN, exprNode, validationContext);
+            ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.METHODINVJOIN, exprNode, validationContext);
             validatedInputParameters.add(validated);
             validated.accept(visitor);
         }
@@ -130,16 +131,16 @@ public class MethodPollingViewable implements HistoricalEventViewable {
                     if (methodStreamSpec.getExpressions().size() == 0) {
                         return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting no parameters in method: " + e.getMessage());
                     }
-                    Class[] resultTypes = ExprNodeUtility.getExprResultTypes(validatedInputParameters);
+                    Class[] resultTypes = ExprNodeUtilityCore.getExprResultTypes(validatedInputParameters);
                     return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting a method where parameters are typed '" +
                             JavaClassHelper.getParameterAsString(resultTypes) + "': " + e.getMessage());
                 }
             };
-            ExprNodeUtilMethodDesc desc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(
+            ExprNodeUtilMethodDesc desc = ExprNodeUtilityRich.resolveMethodAllowWildcardAndStream(
                     metadata.getMethodProviderClass().getName(), metadata.isStaticMethod() ? null : metadata.getMethodProviderClass(),
                     methodStreamSpec.getMethodName(), validatedInputParameters, engineImportService, eventAdapterService, statementContext.getStatementId(),
                     false, null, handler, methodStreamSpec.getMethodName(), tableService, statementContext.getEngineURI());
-            validatedExprNodes = ExprNodeUtility.getEvaluatorsMayCompile(desc.getChildForges(), engineImportService, this.getClass(), streamTypeService.isOnDemandStreams(), statementContext.getStatementName());
+            validatedExprNodes = ExprNodeUtilityRich.getEvaluatorsMayCompile(desc.getChildForges(), engineImportService, this.getClass(), streamTypeService.isOnDemandStreams(), statementContext.getStatementName());
 
             // Construct polling strategy as a method invocation
             Object invocationTarget = metadata.getInvocationTarget();
@@ -183,7 +184,7 @@ public class MethodPollingViewable implements HistoricalEventViewable {
         } else {
             // script-based evaluation
             pollExecStrategy = new MethodPollingExecStrategyScript(metadata.getScriptExpression());
-            validatedExprNodes = ExprNodeUtility.getEvaluatorsMayCompile(validatedInputParameters, engineImportService, this.getClass(), streamTypeService.isOnDemandStreams(), statementContext.getStatementName());
+            validatedExprNodes = ExprNodeUtilityRich.getEvaluatorsMayCompile(validatedInputParameters, engineImportService, this.getClass(), streamTypeService.isOnDemandStreams(), statementContext.getStatementName());
         }
     }
 

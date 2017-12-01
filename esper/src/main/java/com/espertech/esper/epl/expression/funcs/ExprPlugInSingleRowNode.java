@@ -23,6 +23,7 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.filter.FilterSpecLookupable;
 
 import java.io.StringWriter;
@@ -85,12 +86,12 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
             // We disallow context properties in a filter-optimizable expression if they are passed in since
             // the evaluation is context-free and shared.
             ExprNodeContextPropertiesVisitor visitor = new ExprNodeContextPropertiesVisitor();
-            ExprNodeUtility.acceptChain(visitor, chainSpec);
+            ExprNodeUtilityRich.acceptChain(visitor, chainSpec);
             eligible = !visitor.isFound();
         }
         if (eligible) {
             ExprNodeStreamRequiredVisitor visitor = new ExprNodeStreamRequiredVisitor();
-            ExprNodeUtility.acceptChain(visitor, chainSpec);
+            ExprNodeUtilityRich.acceptChain(visitor, chainSpec);
             for (int stream : visitor.getStreamsRequired()) {
                 if (stream != 0) {
                     eligible = false;
@@ -103,11 +104,11 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     public FilterSpecLookupable getFilterLookupable() {
         checkValidated(forge);
         ExprDotNodeForgeStaticMethodEval eval = (ExprDotNodeForgeStaticMethodEval) forge.getExprEvaluator();
-        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), eval, forge.getEvaluationType(), true);
+        return new FilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), eval, forge.getEvaluationType(), true);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
-        ExprNodeUtility.toExpressionString(chainSpec, writer, false, functionName);
+        ExprNodeUtilityRich.toExpressionString(chainSpec, writer, false, functionName);
     }
 
     public ExprPrecedenceEnum getPrecedence() {
@@ -132,7 +133,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        ExprNodeUtility.validate(ExprNodeOrigin.PLUGINSINGLEROWPARAM, chainSpec, validationContext);
+        ExprNodeUtilityRich.validate(ExprNodeOrigin.PLUGINSINGLEROWPARAM, chainSpec, validationContext);
 
         // get first chain item
         List<ExprChainedSpec> chainList = new ArrayList<ExprChainedSpec>(chainSpec);
@@ -144,7 +145,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         if (validationContext.getStreamTypeService().getEventTypes().length > 0) {
             streamZeroType = validationContext.getStreamTypeService().getEventTypes()[0];
         }
-        final ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(clazz.getName(), null, firstItem.getName(), firstItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName(), true), functionName, validationContext.getTableService(), validationContext.getStreamTypeService().getEngineURIQualifier());
+        final ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtilityRich.resolveMethodAllowWildcardAndStream(clazz.getName(), null, firstItem.getName(), firstItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName(), true), functionName, validationContext.getTableService(), validationContext.getStreamTypeService().getEngineURIQualifier());
 
         boolean allowValueCache = true;
         boolean isReturnsConstantResult;
@@ -180,27 +181,27 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     @Override
     public void accept(ExprNodeVisitor visitor) {
         super.accept(visitor);
-        ExprNodeUtility.acceptChain(visitor, chainSpec);
+        ExprNodeUtilityRich.acceptChain(visitor, chainSpec);
     }
 
     @Override
     public void accept(ExprNodeVisitorWithParent visitor) {
         super.accept(visitor);
-        ExprNodeUtility.acceptChain(visitor, chainSpec, this);
+        ExprNodeUtilityRich.acceptChain(visitor, chainSpec, this);
     }
 
     @Override
     public void acceptChildnodes(ExprNodeVisitorWithParent visitor, ExprNode parent) {
         super.acceptChildnodes(visitor, parent);
-        ExprNodeUtility.acceptChain(visitor, chainSpec, this);
+        ExprNodeUtilityRich.acceptChain(visitor, chainSpec, this);
     }
 
     @Override
     public void replaceUnlistedChildNode(ExprNode nodeToReplace, ExprNode newNode) {
-        ExprNodeUtility.replaceChainChildNode(nodeToReplace, newNode, chainSpec);
+        ExprNodeUtilityRich.replaceChainChildNode(nodeToReplace, newNode, chainSpec);
     }
 
     public List<ExprNode> getAdditionalNodes() {
-        return ExprNodeUtility.collectChainParameters(chainSpec);
+        return ExprNodeUtilityRich.collectChainParameters(chainSpec);
     }
 }

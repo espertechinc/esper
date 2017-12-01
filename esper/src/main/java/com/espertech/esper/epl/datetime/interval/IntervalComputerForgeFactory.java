@@ -191,7 +191,7 @@ public class IntervalComputerForgeFactory {
                     return new ExprOptionalConstantForge(forge, null);
                 }
             }
-        } else if (ExprNodeUtility.isConstantValueExpr(exprNode)) {
+        } else if (ExprNodeUtilityCore.isConstantValueExpr(exprNode)) {
             ExprConstantNode constantNode = (ExprConstantNode) exprNode;
             long l = ((Number) constantNode.getConstantValue(null)).longValue();
             return new ExprOptionalConstantForge(new IntervalDeltaExprMSecConstForge(l), l);

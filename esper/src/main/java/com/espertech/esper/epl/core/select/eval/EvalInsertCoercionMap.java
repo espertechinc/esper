@@ -29,7 +29,6 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.MappedEventBean;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class EvalInsertCoercionMap implements SelectExprProcessor, SelectExprProcessorForge {
 

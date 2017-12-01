@@ -12,8 +12,8 @@ package com.espertech.esper.epl.agg.service.common;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.EventTypeUtility;
 
 public class AggregationStateKeyWStream implements AggregationStateKey {
@@ -39,7 +39,7 @@ public class AggregationStateKeyWStream implements AggregationStateKey {
 
         if (streamNum != that.streamNum) return false;
         if (stateType != that.stateType) return false;
-        if (!ExprNodeUtility.deepEquals(criteraExprNodes, that.criteraExprNodes, false)) return false;
+        if (!ExprNodeUtilityCore.deepEquals(criteraExprNodes, that.criteraExprNodes, false)) return false;
         if (eventType != null) {
             if (that.eventType == null) {
                 return false;
@@ -50,7 +50,7 @@ public class AggregationStateKeyWStream implements AggregationStateKey {
         if (filterExprNode == null) {
             return that.filterExprNode == null;
         }
-        return that.filterExprNode != null && ExprNodeUtility.deepEquals(filterExprNode, that.filterExprNode, false);
+        return that.filterExprNode != null && ExprNodeUtilityCore.deepEquals(filterExprNode, that.filterExprNode, false);
     }
 
     public int hashCode() {

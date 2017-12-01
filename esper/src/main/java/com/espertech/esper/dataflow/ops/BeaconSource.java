@@ -21,6 +21,7 @@ import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.event.EventBeanManufacturer;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
@@ -94,9 +95,9 @@ public class BeaconSource implements DataFlowSourceOperator {
                 final Object providedProperty = allProperties.get(writeable.getPropertyName());
                 if (providedProperty instanceof ExprNode) {
                     ExprNode exprNode = (ExprNode) providedProperty;
-                    ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
+                    ExprNode validated = EPLValidationUtil.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
                     final ExprEvaluator exprEvaluator = ExprNodeCompiler.allocateEvaluator(validated.getForge(), context.getServicesContext().getEngineImportService(), BeaconSource.class, false, context.getStatementContext().getStatementName());
-                    final TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated), validated.getForge().getEvaluationType(),
+                    final TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validated), validated.getForge().getEvaluationType(),
                             writeable.getType(), writeable.getPropertyName(), false, typeWidenerCustomizer, context.getStatementContext().getStatementName(), context.getEngine().getURI());
                     if (widener != null) {
                         evaluators[index] = new ExprEvaluator() {
@@ -140,7 +141,7 @@ public class BeaconSource implements DataFlowSourceOperator {
         evaluators = new ExprEvaluator[props.size()];
         for (String propertyName : props) {
             ExprNode exprNode = (ExprNode) allProperties.get(propertyName);
-            ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
+            ExprNode validated = EPLValidationUtil.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
             final Object value = validated.getForge().getExprEvaluator().evaluate(null, true, context.getAgentInstanceContext());
             if (value == null) {
                 types.put(propertyName, null);

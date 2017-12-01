@@ -19,6 +19,7 @@ import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.pattern.observer.TimerScheduleISO8601Parser;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.util.*;
@@ -85,11 +86,11 @@ public class ExprCastNode extends ExprNodeBase {
         Class fromType = this.getChildNodes()[0].getForge().getEvaluationType();
 
         // determine date format parameter
-        Map<String, ExprNamedParameterNode> namedParams = ExprNodeUtility.getNamedExpressionsHandleDups(Arrays.asList(this.getChildNodes()));
-        ExprNodeUtility.validateNamed(namedParams, new String[]{"dateformat"});
+        Map<String, ExprNamedParameterNode> namedParams = ExprNodeUtilityRich.getNamedExpressionsHandleDups(Arrays.asList(this.getChildNodes()));
+        ExprNodeUtilityRich.validateNamed(namedParams, new String[]{"dateformat"});
         ExprNamedParameterNode dateFormatParameter = namedParams.get("dateformat");
         if (dateFormatParameter != null) {
-            ExprNodeUtility.validateNamedExpectType(dateFormatParameter, new Class[]{String.class, DateFormat.class, DateTimeFormatter.class});
+            ExprNodeUtilityRich.validateNamedExpectType(dateFormatParameter, new Class[]{String.class, DateFormat.class, DateTimeFormatter.class});
         }
 
         // identify target type
@@ -1128,7 +1129,7 @@ public class ExprCastNode extends ExprNodeBase {
                 }
             }
         } else {
-            Object dateFormatObject = ExprNodeUtility.evaluateValidationTimeNoStreams(formatForge.getExprEvaluator(), validationContext.getExprEvaluatorContext(), "date format");
+            Object dateFormatObject = ExprNodeUtilityCore.evaluateValidationTimeNoStreams(formatForge.getExprEvaluator(), validationContext.getExprEvaluatorContext(), "date format");
             if (!java8Formatter) {
                 if (!(dateFormatObject instanceof DateFormat)) {
                     throw getFailedExpected(DateFormat.class, dateFormatObject);

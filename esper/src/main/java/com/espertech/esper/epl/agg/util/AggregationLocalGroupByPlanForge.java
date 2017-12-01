@@ -15,8 +15,9 @@ import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.service.common.AggregationStateFactory;
 import com.espertech.esper.epl.agg.service.common.AggregatorUtil;
 import com.espertech.esper.epl.agg.service.groupbylocal.AggSvcLocalGroupByForge;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 
 public class AggregationLocalGroupByPlanForge {
 
@@ -58,7 +59,7 @@ public class AggregationLocalGroupByPlanForge {
         AggregationLocalGroupByColumn[] columns = new AggregationLocalGroupByColumn[columnsForges.length];
         for (int i = 0; i < columns.length; i++) {
             AggregationLocalGroupByColumnForge forge = columnsForges[i];
-            ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsMayCompile(forge.getPartitionForges(), stmtContext.getEngineImportService(), AggSvcLocalGroupByForge.class, isFireAndForget, stmtContext.getStatementName());
+            ExprEvaluator[] evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(forge.getPartitionForges(), stmtContext.getEngineImportService(), AggSvcLocalGroupByForge.class, isFireAndForget, stmtContext.getStatementName());
             AggregationAccessorSlotPair pair = forge.getPair() == null ? null : AggregatorUtil.getAccessorForForge(forge.getPair(), stmtContext.getEngineImportService(), isFireAndForget, stmtContext.getStatementName());
             columns[i] = new AggregationLocalGroupByColumn(forge.isDefaultGroupLevel(), evaluators, forge.getMethodOffset(), forge.isMethodAgg(), pair, forge.getLevelNum());
         }
@@ -73,10 +74,10 @@ public class AggregationLocalGroupByPlanForge {
     }
 
     private AggregationLocalGroupByLevel makeLevel(AggregationLocalGroupByLevelForge forge, StatementContext stmtContext, boolean isFireAndForget) {
-        ExprEvaluator[] methodEvaluators = ExprNodeUtility.getEvaluatorsMayCompileWMultiValue(forge.getMethodForges(), stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
+        ExprEvaluator[] methodEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompileWMultiValue(forge.getMethodForges(), stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
         AggregationStateFactory[] stateFactories = AggregatorUtil.getAccesssFactoriesFromForges(forge.getAccessStateForges(), stmtContext, isFireAndForget);
-        ExprEvaluator[] partitionEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(forge.getPartitionForges(), stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
-        Class[] partitionEvaluatorsTypes = ExprNodeUtility.getExprResultTypes(forge.getPartitionForges());
+        ExprEvaluator[] partitionEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(forge.getPartitionForges(), stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
+        Class[] partitionEvaluatorsTypes = ExprNodeUtilityCore.getExprResultTypes(forge.getPartitionForges());
         return new AggregationLocalGroupByLevel(methodEvaluators, forge.getMethodFactories(), stateFactories, partitionEvaluators, partitionEvaluatorsTypes, forge.isDefaultLevel());
     }
 }

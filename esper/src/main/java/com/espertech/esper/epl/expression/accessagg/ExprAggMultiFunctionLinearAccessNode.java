@@ -31,6 +31,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -114,7 +115,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             containedType = streamTypeService.getEventTypes()[0];
             resultType = containedType.getUnderlyingType();
             TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(containedType);
-            forge = ExprNodeUtility.makeUnderlyingForge(0, resultType, tableMetadata);
+            forge = ExprNodeUtilityRich.makeUnderlyingForge(0, resultType, tableMetadata);
             istreamOnly = getIstreamOnly(streamTypeService, 0);
             if ((stateType == AggregationStateType.WINDOW) && istreamOnly && !streamTypeService.isOnDemandStreams()) {
                 throw makeUnboundValidationEx(stateType);
@@ -130,11 +131,11 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             containedType = type;
             resultType = type.getUnderlyingType();
             TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(type);
-            forge = ExprNodeUtility.makeUnderlyingForge(streamNum, resultType, tableMetadata);
+            forge = ExprNodeUtilityRich.makeUnderlyingForge(streamNum, resultType, tableMetadata);
         } else {
             // validate when neither wildcard nor "stream.*"
             ExprNode child = childNodes[0];
-            Set<Integer> streams = ExprNodeUtility.getIdentStreamNumbers(child);
+            Set<Integer> streams = ExprNodeUtilityRich.getIdentStreamNumbers(child);
             if (streams.isEmpty() || (streams.size() > 1)) {
                 throw new ExprValidationException(getErrorPrefix(stateType) + " requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead");
             }
@@ -199,13 +200,13 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
         if (tableMetadata == null && !isFafWindow && (istreamOnly || streamTypeService.isOnDemandStreams())) {
             if (optionalFilter != null) {
-                positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+                positionalParams = ExprNodeUtilityCore.addExpression(positionalParams, optionalFilter);
             }
             AggregationMethodFactory factory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinearUnbounded(validationContext.getStatementExtensionSvcContext(), this, containedType, accessorResultType, streamNum, optionalFilter != null);
             return new LinearAggregationFactoryDesc(factory, containedType, scalarCollectionComponentType);
         }
 
-        AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, AggregationStateTypeWStream.DATAWINDOWACCESS_LINEAR, new ExprNode[0], optionalFilter);
+        AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, AggregationStateTypeWStream.DATAWINDOWACCESS_LINEAR, ExprNodeUtilityCore.EMPTY_EXPR_ARRAY, optionalFilter);
 
         ExprForge optionalFilterForge = optionalFilter == null ? null : optionalFilter.getForge();
         boolean join = validationContext.getStreamTypeService().getEventTypes().length > 1;
@@ -299,7 +300,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             ExprNode paramNode = childNodes[0];
             StreamTypeServiceImpl streams = TableServiceUtil.streamTypeFromTableColumn(tableAccess, validationContext.getStreamTypeService().getEngineURIQualifier());
             ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
-            paramNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
+            paramNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
             ExprForge paramNodeForge = paramNode.getForge();
             AggregationAccessorForge accessor;
             if (stateType == AggregationStateType.FIRST) {
@@ -348,7 +349,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             ExprNode paramNode = childNodes[0];
             StreamTypeServiceImpl streams = TableServiceUtil.streamTypeFromTableColumn(tableAccess, validationContext.getStreamTypeService().getEngineURIQualifier());
             ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
-            paramNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
+            paramNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
             Class paramNodeType = paramNode.getForge().getEvaluationType();
             ExprForge paramNodeEval = paramNode.getForge();
             ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this,
@@ -373,7 +374,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append(stateType.toString().toLowerCase(Locale.ENGLISH));
-        ExprNodeUtility.toExpressionStringParams(writer, this.getChildNodes());
+        ExprNodeUtilityCore.toExpressionStringParams(writer, this.getChildNodes());
     }
 
     public AggregationStateType getStateType() {

@@ -14,9 +14,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprOrderedExpr;
 import com.espertech.esper.view.*;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
@@ -84,13 +85,13 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
                 sortCriteriaExpressions[i - 1] = validated[i];
             }
         }
-        sortCriteriaEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(sortCriteriaExpressions, statementContext.getEngineImportService(), SortWindowViewFactory.class, false, statementContext.getStatementName());
+        sortCriteriaEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(sortCriteriaExpressions, statementContext.getEngineImportService(), SortWindowViewFactory.class, false, statementContext.getStatementName());
 
         if (statementContext.getConfigSnapshot() != null) {
             useCollatorSort = statementContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
         }
 
-        comparator = ExprNodeUtility.getComparatorHashableMultiKeys(sortCriteriaExpressions, useCollatorSort, isDescendingValues); // hashable-key comparator since we may remove sort keys
+        comparator = ExprNodeUtilityCore.getComparatorHashableMultiKeys(sortCriteriaExpressions, useCollatorSort, isDescendingValues); // hashable-key comparator since we may remove sort keys
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
@@ -116,7 +117,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
         int sortWindowSize = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
         if ((other.getSortWindowSize() != sortWindowSize) ||
                 (!compare(other.getIsDescendingValues(), isDescendingValues)) ||
-                (!ExprNodeUtility.deepEquals(other.getSortCriteriaExpressions(), sortCriteriaExpressions, false))) {
+                (!ExprNodeUtilityCore.deepEquals(other.getSortCriteriaExpressions(), sortCriteriaExpressions, false))) {
             return false;
         }
 

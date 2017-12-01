@@ -18,6 +18,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregationPlugInNodeMarker;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -61,7 +62,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
             parameterTypes[count] = child.getForge().getEvaluationType();
             expressions[count] = child;
 
-            if (!ExprNodeUtility.hasRemoveStreamForAggregations(child, validationContext.getStreamTypeService(), validationContext.isResettingAggregations())) {
+            if (!ExprNodeUtilityRich.hasRemoveStreamForAggregations(child, validationContext.getStreamTypeService(), validationContext.isResettingAggregations())) {
                 hasDataWindows = false;
             }
 
@@ -79,7 +80,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
         if (optionalFilter != null) {
             namedParameters = new LinkedHashMap<>();
             namedParameters.put("filter", Collections.singletonList(optionalFilter));
-            positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+            positionalParams = ExprNodeUtilityCore.addExpression(positionalParams, optionalFilter);
         }
 
         AggregationValidationContext context = new AggregationValidationContext(parameterTypes, isConstant, constant, super.isDistinct(), hasDataWindows, expressions, namedParameters);

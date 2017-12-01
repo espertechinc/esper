@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 public class QueryGraphValueEntryHashKeyedExpr extends QueryGraphValueEntryHashKeyed {
     private static final long serialVersionUID = 1069112032977675596L;
@@ -28,11 +28,11 @@ public class QueryGraphValueEntryHashKeyedExpr extends QueryGraphValueEntryHashK
     }
 
     public boolean isConstant() {
-        return ExprNodeUtility.isConstantValueExpr(super.getKeyExpr());
+        return ExprNodeUtilityCore.isConstantValueExpr(super.getKeyExpr());
     }
 
     public String toQueryPlan() {
-        return ExprNodeUtility.toExpressionStringMinPrecedenceSafe(getKeyExpr());
+        return ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(getKeyExpr());
     }
 }
 

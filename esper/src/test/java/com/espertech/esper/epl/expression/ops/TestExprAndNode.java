@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.epl.SupportBoolExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprAndNode extends TestCase {
@@ -72,7 +72,7 @@ public class TestExprAndNode extends TestCase {
         andNode.addChildNode(new SupportExprNode(true));
         andNode.addChildNode(new SupportExprNode(false));
 
-        assertEquals("true and false", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(andNode));
+        assertEquals("true and false", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(andNode));
     }
 
     public void testEqualsNode() {

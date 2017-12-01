@@ -28,7 +28,6 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventAdapterService;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.exprDotMethod;
 
 public class EvalInsertCoercionAvro implements SelectExprProcessor, SelectExprProcessorForge {
 

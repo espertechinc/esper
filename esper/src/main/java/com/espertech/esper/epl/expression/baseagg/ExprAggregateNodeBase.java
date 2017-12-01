@@ -20,6 +20,7 @@ import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.common.AggregationResultFuture;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -119,16 +120,16 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         this.optionalAggregateLocalGroupByDesc = paramDesc.getOptLocalGroupBy();
         this.optionalFilter = paramDesc.getOptionalFilter();
         if (optionalAggregateLocalGroupByDesc != null) {
-            ExprNodeUtility.validateNoSpecialsGroupByExpressions(optionalAggregateLocalGroupByDesc.getPartitionExpressions());
+            ExprNodeUtilityRich.validateNoSpecialsGroupByExpressions(optionalAggregateLocalGroupByDesc.getPartitionExpressions());
         }
         if (optionalFilter != null) {
-            ExprNodeUtility.validateNoSpecialsGroupByExpressions(new ExprNode[] {optionalFilter});
+            ExprNodeUtilityRich.validateNoSpecialsGroupByExpressions(new ExprNode[] {optionalFilter});
         }
         if (optionalFilter != null && isFilterExpressionAsLastParameter()) {
             if (paramDesc.getPositionalParams().length > 1) {
                 throw new ExprValidationException("Only a single filter expression can be provided");
             }
-            positionalParams = ExprNodeUtility.addExpression(paramDesc.getPositionalParams(), optionalFilter);
+            positionalParams = ExprNodeUtilityCore.addExpression(paramDesc.getPositionalParams(), optionalFilter);
         } else {
             positionalParams = paramDesc.getPositionalParams();
         }

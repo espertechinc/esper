@@ -14,11 +14,11 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenCtor;
+import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.core.CodegenTypedParam;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.agg.service.common.AggregationService;
-import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.epl.core.resultset.core.*;
 import com.espertech.esper.epl.core.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.epl.core.resultset.rowforall.ResultSetProcessorRowForAll;
@@ -26,12 +26,13 @@ import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCompiler;
 import com.espertech.esper.epl.core.select.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 import java.util.Collections;
@@ -87,7 +88,7 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
         this.outputConditionType = outputConditionType;
         this.numStreams = numStreams;
-        this.groupKeyTypes = ExprNodeUtility.getExprResultTypes(groupKeyNodeExpressions);
+        this.groupKeyTypes = ExprNodeUtilityCore.getExprResultTypes(groupKeyNodeExpressions);
     }
 
     public ResultSetProcessorFactory getResultSetProcessorFactory(StatementContext stmtContext, boolean isFireAndForget) {
@@ -100,7 +101,7 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
             groupKeyNodes = null;
         } else {
             groupKeyNode = null;
-            groupKeyNodes = ExprNodeUtility.getEvaluatorsMayCompile(groupKeyNodeExpressions, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
+            groupKeyNodes = ExprNodeUtilityRich.getEvaluatorsMayCompile(groupKeyNodeExpressions, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
         }
 
         ExprEvaluator optionalHavingEval = optionalHavingNode == null ? null : ExprNodeCompiler.allocateEvaluator(optionalHavingNode, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());

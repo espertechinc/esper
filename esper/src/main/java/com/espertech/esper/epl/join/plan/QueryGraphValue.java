@@ -10,13 +10,16 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.CollectionUtil;
 
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 
 /**
  * Property lists stored as a value for each stream-to-stream relationship, for use by {@link QueryGraph}.
@@ -156,7 +159,7 @@ public class QueryGraphValue {
         String delimiter = "";
         for (QueryGraphValueDesc desc : items) {
             writer.append(delimiter);
-            writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceAsList(desc.getIndexExprs()));
+            writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceAsList(desc.getIndexExprs()));
             writer.append(": ");
             writer.append(desc.getEntry().toString());
             delimiter = ", ";
@@ -212,7 +215,7 @@ public class QueryGraphValue {
         QueryGraphValueEntryCustom found = null;
         for (QueryGraphValueDesc desc : items) {
             if (desc.getEntry() instanceof QueryGraphValueEntryCustom) {
-                if (ExprNodeUtility.deepEquals(desc.getIndexExprs(), indexExpressions, true)) {
+                if (ExprNodeUtilityCore.deepEquals(desc.getIndexExprs(), indexExpressions, true)) {
                     found = (QueryGraphValueEntryCustom) desc.getEntry();
                     break;
                 }
@@ -248,7 +251,7 @@ public class QueryGraphValue {
 
     private QueryGraphValueDesc findEntry(ExprNode[] search) {
         for (QueryGraphValueDesc desc : items) {
-            if (ExprNodeUtility.deepEquals(search, desc.getIndexExprs(), true)) {
+            if (ExprNodeUtilityCore.deepEquals(search, desc.getIndexExprs(), true)) {
                 return desc;
             }
         }

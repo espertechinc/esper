@@ -13,8 +13,8 @@ package com.espertech.esper.view.stat;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
@@ -87,7 +87,7 @@ public class TestRegressionLinestViewFactory extends TestCase {
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListMD(parameters));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
         RegressionLinestView view = (RegressionLinestView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
-        assertEquals(fieldNameX, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getExpressionX()));
-        assertEquals(fieldNameY, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getExpressionY()));
+        assertEquals(fieldNameX, ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getExpressionX()));
+        assertEquals(fieldNameY, ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getExpressionY()));
     }
 }

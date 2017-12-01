@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.EventBeanWriter;
 import com.espertech.esper.util.TypeWidener;
 
@@ -47,7 +47,7 @@ public class InternalEventRouterEntry {
         this.priority = priority;
         this.isDrop = drop;
         this.optionalWhereClause = optionalWhereClause;
-        this.assignments = ExprNodeUtility.getEvaluatorsNoCompile(assignments);
+        this.assignments = ExprNodeUtilityCore.getEvaluatorsNoCompile(assignments);
         this.writer = writer;
         this.wideners = wideners;
         this.outputView = outputView;

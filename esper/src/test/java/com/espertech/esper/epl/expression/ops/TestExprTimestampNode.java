@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimestampNode;
@@ -61,6 +61,6 @@ public class TestExprTimestampNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("current_timestamp()", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(node));
+        assertEquals("current_timestamp()", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(node));
     }
 }

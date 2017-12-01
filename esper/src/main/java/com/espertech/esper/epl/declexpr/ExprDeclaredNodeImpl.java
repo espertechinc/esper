@@ -26,6 +26,7 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.spec.ExpressionDeclItem;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.util.SerializableObjectCopier;
 
@@ -70,7 +71,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
                 if (pair.getFirst() == null) {
                     expressionBodyCopy = context;
                 } else {
-                    ExprNodeUtility.replaceChildNode(pair.getFirst(), pair.getSecond(), context);
+                    ExprNodeUtilityCore.replaceChildNode(pair.getFirst(), pair.getSecond(), context);
                 }
             }
         }
@@ -129,7 +130,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (prototype.isAlias()) {
             try {
-                expressionBodyCopy = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.ALIASEXPRBODY, expressionBodyCopy, validationContext);
+                expressionBodyCopy = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.ALIASEXPRBODY, expressionBodyCopy, validationContext);
             } catch (ExprValidationException ex) {
                 String message = "Error validating expression alias '" + prototype.getName() + "': " + ex.getMessage();
                 throw new ExprValidationException(message, ex);
@@ -150,7 +151,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         // validate chain
         List<ExprNode> validated = new ArrayList<ExprNode>();
         for (ExprNode expr : chainParameters) {
-            validated.add(ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRPARAM, expr, validationContext));
+            validated.add(ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRPARAM, expr, validationContext));
         }
         chainParameters = validated;
 
@@ -196,7 +197,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         // validate expression body in this context
         try {
             ExprValidationContext expressionBodyContext = new ExprValidationContext(copyTypes, validationContext);
-            expressionBodyCopy = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, expressionBodyCopy, expressionBodyContext);
+            expressionBodyCopy = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, expressionBodyCopy, expressionBodyContext);
         } catch (ExprValidationException ex) {
             String message = "Error validating expression declaration '" + prototype.getName() + "': " + ex.getMessage();
             throw new ExprValidationException(message, ex);
@@ -234,7 +235,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         }
         ExprDeclaredForgeBase declaredForge = (ExprDeclaredForgeBase) forge;
         ExprEvaluator evaluator = declaredForge.getInnerForge().getExprEvaluator();
-        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(evaluator), forge.getEvaluationType(), true);
+        return new FilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(evaluator), forge.getEvaluationType(), true);
     }
 
     public boolean isConstantResult() {
@@ -247,7 +248,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         }
 
         ExprDeclaredNodeImpl otherExprCaseNode = (ExprDeclaredNodeImpl) node;
-        return ExprNodeUtility.deepEquals(expressionBodyCopy, otherExprCaseNode, false);
+        return ExprNodeUtilityCore.deepEquals(expressionBodyCopy, otherExprCaseNode, false);
     }
 
     public void accept(ExprNodeVisitor visitor) {

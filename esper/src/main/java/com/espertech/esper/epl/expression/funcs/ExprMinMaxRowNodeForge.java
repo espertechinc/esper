@@ -14,10 +14,10 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 public class ExprMinMaxRowNodeForge implements ExprForge {
     private final ExprMinMaxRowNode parent;
@@ -33,8 +33,8 @@ public class ExprMinMaxRowNodeForge implements ExprForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
-        return new ExprMinMaxRowNodeForgeEval(this, evaluators, ExprNodeUtility.getForges(parent.getChildNodes()));
+        ExprEvaluator[] evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
+        return new ExprMinMaxRowNodeForgeEval(this, evaluators, ExprNodeUtilityCore.getForges(parent.getChildNodes()));
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

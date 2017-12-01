@@ -87,7 +87,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprForge, ExprEv
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // all nodes must either be int, frequency or range
-        evaluators = ExprNodeUtility.getEvaluatorsNoCompile(this.getChildNodes());
+        evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(this.getChildNodes());
         for (int i = 0; i < this.getChildNodes().length; i++) {
             Class type = this.getChildNodes()[i].getForge().getEvaluationType();
             if ((type == FrequencyParameter.class) || (type == RangeParameter.class)) {

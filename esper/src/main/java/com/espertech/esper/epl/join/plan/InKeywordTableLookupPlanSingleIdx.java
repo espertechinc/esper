@@ -11,9 +11,9 @@
 package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.exec.base.InKeywordSingleTableLookupStrategyExpr;
 import com.espertech.esper.epl.join.exec.base.JoinExecTableLookupStrategy;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -57,12 +57,12 @@ public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan {
             evaluators[i] = expressions[i].getForge().getExprEvaluator();
         }
         return new InKeywordSingleTableLookupStrategyExpr(evaluators,
-                super.getLookupStream(), single, new LookupStrategyDesc(LookupStrategyType.INKEYWORDSINGLEIDX, ExprNodeUtility.toExpressionStringsMinPrecedence(expressions)));
+                super.getLookupStream(), single, new LookupStrategyDesc(LookupStrategyType.INKEYWORDSINGLEIDX, ExprNodeUtilityCore.toExpressionStringsMinPrecedence(expressions)));
     }
 
     public String toString() {
         return this.getClass().getSimpleName() + " " +
                 super.toString() +
-                " keyProperties=" + ExprNodeUtility.toExpressionStringMinPrecedenceAsList(expressions);
+                " keyProperties=" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceAsList(expressions);
     }
 }

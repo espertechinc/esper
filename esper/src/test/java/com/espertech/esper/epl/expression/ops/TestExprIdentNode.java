@@ -12,14 +12,14 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,10 +132,10 @@ public class TestExprIdentNode extends TestCase {
         for (int i = 0; i < identNodes.length; i++) {
             identNodes[i].validate(SupportExprValidationContextFactory.make(streamTypeService));
         }
-        assertEquals("mapped('a')", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(identNodes[0]));
-        assertEquals("nested.nestedValue", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(identNodes[1]));
-        assertEquals("s2.indexed[1]", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(identNodes[2]));
-        assertEquals("s0.intPrimitive", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(identNodes[3]));
+        assertEquals("mapped('a')", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(identNodes[0]));
+        assertEquals("nested.nestedValue", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(identNodes[1]));
+        assertEquals("s2.indexed[1]", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(identNodes[2]));
+        assertEquals("s0.intPrimitive", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(identNodes[3]));
     }
 
     public void testEqualsNode() throws Exception {

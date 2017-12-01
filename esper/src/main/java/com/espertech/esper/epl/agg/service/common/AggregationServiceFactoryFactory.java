@@ -39,6 +39,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.util.EPLValidationUtil;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
@@ -221,7 +222,7 @@ public class AggregationServiceFactoryFactory {
             EPLValidationUtil.validateContextName(true, intoTableSpec.getName(), metadata.getContextName(), optionalContextName, false);
 
             // validate group keys
-            Class[] groupByTypes = ExprNodeUtility.getExprResultTypes(groupByNodes);
+            Class[] groupByTypes = ExprNodeUtilityCore.getExprResultTypes(groupByNodes);
             ExprTableNodeUtil.validateExpressions(intoTableSpec.getName(), groupByTypes, "group-by", groupByNodes,
                     metadata.getKeyTypes(), "group-by");
 
@@ -375,7 +376,7 @@ public class AggregationServiceFactoryFactory {
         }
 
         // check single group-by partition and it matches the group-by clause
-        if (partitions.size() == 1 && ExprNodeUtility.deepEqualsIgnoreDupAndOrder(partitions.get(0).getPartitionExpr(), groupByNodes)) {
+        if (partitions.size() == 1 && ExprNodeUtilityCore.deepEqualsIgnoreDupAndOrder(partitions.get(0).getPartitionExpr(), groupByNodes)) {
             return null;
         }
         return new AggregationGroupByLocalGroupDesc(aggregations.size(), partitions.toArray(new AggregationGroupByLocalGroupLevel[partitions.size()]));
@@ -383,7 +384,7 @@ public class AggregationServiceFactoryFactory {
 
     private static List<AggregationServiceAggExpressionDesc> findPartition(List<AggregationGroupByLocalGroupLevel> partitions, ExprNode[] partitionExpressions) {
         for (AggregationGroupByLocalGroupLevel level : partitions) {
-            if (ExprNodeUtility.deepEqualsIgnoreDupAndOrder(level.getPartitionExpr(), partitionExpressions)) {
+            if (ExprNodeUtilityCore.deepEqualsIgnoreDupAndOrder(level.getPartitionExpr(), partitionExpressions)) {
                 return level.getExpressions();
             }
         }
@@ -407,7 +408,7 @@ public class AggregationServiceFactoryFactory {
             // determine assigned name
             String columnName = findColumnNameForAggregation(selectClauseNamedNodes, declaredExpressions, aggDesc.getAggregationNode());
             if (columnName == null) {
-                throw new ExprValidationException("Failed to find an expression among the select-clause expressions for expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(aggDesc.getAggregationNode()) + "'");
+                throw new ExprValidationException("Failed to find an expression among the select-clause expressions for expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(aggDesc.getAggregationNode()) + "'");
             }
 
             // determine binding metadata
@@ -433,7 +434,7 @@ public class AggregationServiceFactoryFactory {
             methodIndex++;
             int targetIndex = methodEntry.getValue().getMethodOffset();
             ExprForge[] forges = methodAggForgesList.get(methodIndex);
-            ExprEvaluator evaluator = ExprNodeUtility.getEvaluatorMayCompileWMultiValue(forges, engineImportService, AggregationServiceFactoryFactory.class, isFireAndForget, statementName);
+            ExprEvaluator evaluator = ExprNodeUtilityRich.getEvaluatorMayCompileWMultiValue(forges, engineImportService, AggregationServiceFactoryFactory.class, isFireAndForget, statementName);
             methodPairs[methodIndex] = new TableColumnMethodPair(evaluator, forges, targetIndex, methodEntry.getKey().getAggregationNode());
             methodEntry.getKey().setColumnNum(targetIndex);
         }
@@ -500,9 +501,9 @@ public class AggregationServiceFactoryFactory {
                 tableName +
                 "' column '" +
                 columnName + "', expecting '" +
-                ExprNodeUtility.toExpressionStringMinPrecedenceSafe(aggregationRequired) +
+                ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(aggregationRequired) +
                 "' and received '" +
-                ExprNodeUtility.toExpressionStringMinPrecedenceSafe(aggregationProvided) +
+                ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(aggregationProvided) +
                 "'";
     }
 
@@ -519,10 +520,10 @@ public class AggregationServiceFactoryFactory {
             if (!aggNode.equalsNode(aggNodeToAdd, false)) {
                 continue;
             }
-            if (!ExprNodeUtility.deepEquals(aggNode.getPositionalParams(), aggNodeToAdd.getPositionalParams(), false)) {
+            if (!ExprNodeUtilityCore.deepEquals(aggNode.getPositionalParams(), aggNodeToAdd.getPositionalParams(), false)) {
                 continue;
             }
-            if (!ExprNodeUtility.deepEqualsNullChecked(aggNode.getOptionalFilter(), aggNodeToAdd.getOptionalFilter(), false)) {
+            if (!ExprNodeUtilityCore.deepEqualsNullChecked(aggNode.getOptionalFilter(), aggNodeToAdd.getOptionalFilter(), false)) {
                 continue;
             }
             if (aggNode.getOptionalLocalGroupBy() != null || aggNodeToAdd.getOptionalLocalGroupBy() != null) {
@@ -530,7 +531,7 @@ public class AggregationServiceFactoryFactory {
                         (aggNode.getOptionalLocalGroupBy() != null && aggNodeToAdd.getOptionalLocalGroupBy() == null)) {
                     continue;
                 }
-                if (!ExprNodeUtility.deepEqualsIgnoreDupAndOrder(aggNode.getOptionalLocalGroupBy().getPartitionExpressions(), aggNodeToAdd.getOptionalLocalGroupBy().getPartitionExpressions())) {
+                if (!ExprNodeUtilityCore.deepEqualsIgnoreDupAndOrder(aggNode.getOptionalLocalGroupBy().getPartitionExpressions(), aggNodeToAdd.getOptionalLocalGroupBy().getPartitionExpressions())) {
                     continue;
                 }
             }

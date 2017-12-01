@@ -14,7 +14,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
@@ -461,9 +461,9 @@ public class ExecClientVirtualDataWindow implements RegressionExecution, IndexBa
         assertEquals("MyVDW", startEvent.getNamedWindowName());
         assertEquals("IndexOne", startEvent.getIndexName());
         assertEquals(2, startEvent.getFields().size());
-        assertEquals("col3", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(startEvent.getFields().get(0).getExpressions().get(0)));
+        assertEquals("col3", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(startEvent.getFields().get(0).getExpressions().get(0)));
         assertEquals("hash", startEvent.getFields().get(0).getType());
-        assertEquals("col2", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(startEvent.getFields().get(1).getExpressions().get(0)));
+        assertEquals("col2", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(startEvent.getFields().get(1).getExpressions().get(0)));
         assertEquals("btree", startEvent.getFields().get(1).getType());
         assertFalse(startEvent.isUnique());
 

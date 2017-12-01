@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.ops.*;
 import com.espertech.esper.epl.join.util.Eligibility;
 import com.espertech.esper.epl.join.util.EligibilityDesc;
@@ -109,7 +109,7 @@ public class FilterExprAnalyzer {
             return;
         }
         Map.Entry<Integer, List<ExprNode>> entry = perStreamExprs.entrySet().iterator().next();
-        ExprNode[] exprNodes = ExprNodeUtility.toArray(entry.getValue());
+        ExprNode[] exprNodes = ExprNodeUtilityCore.toArray(entry.getValue());
         for (ExprNode node : exprNodes) {
             Class exprType = node.getForge().getEvaluationType();
             if (JavaClassHelper.getBoxedType(exprType) != testExprType) {
@@ -175,7 +175,7 @@ public class FilterExprAnalyzer {
         }
 
         for (Map.Entry<Integer, List<ExprNode>> entry : perStreamExprs.entrySet()) {
-            ExprNode[] exprNodes = ExprNodeUtility.toArray(entry.getValue());
+            ExprNode[] exprNodes = ExprNodeUtilityCore.toArray(entry.getValue());
             if (entry.getKey() == null) {
                 queryGraph.addInSetSingleIndexUnkeyed(testIdent.getStreamId(), testIdent, exprNodes);
                 continue;

@@ -12,9 +12,9 @@ package com.espertech.esper.epl.datetime.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.lookup.AdvancedIndexConfigContextPartition;
@@ -65,10 +65,10 @@ public class FilterExprAnalyzerDTIntervalAffector implements FilterExprAnalyzerA
             return;
         }
 
-        ExprIdentNode targetStartExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, targetStreamNum, targetStartProp);
-        ExprIdentNode targetEndExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, targetStreamNum, targetEndProp);
-        ExprIdentNode parameterStartExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, parameterStreamNum, parameterStartProp);
-        ExprIdentNode parameterEndExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, parameterStreamNum, parameterEndProp);
+        ExprIdentNode targetStartExpr = ExprNodeUtilityCore.getExprIdentNode(typesPerStream, targetStreamNum, targetStartProp);
+        ExprIdentNode targetEndExpr = ExprNodeUtilityCore.getExprIdentNode(typesPerStream, targetStreamNum, targetEndProp);
+        ExprIdentNode parameterStartExpr = ExprNodeUtilityCore.getExprIdentNode(typesPerStream, parameterStreamNum, parameterStartProp);
+        ExprIdentNode parameterEndExpr = ExprNodeUtilityCore.getExprIdentNode(typesPerStream, parameterStreamNum, parameterEndProp);
 
         if (targetStartExpr.getForge().getEvaluationType() != parameterStartExpr.getForge().getEvaluationType()) {
             return;
@@ -91,8 +91,8 @@ public class FilterExprAnalyzerDTIntervalAffector implements FilterExprAnalyzerA
 
             boolean noDuration = parameterEndProp.equals(parameterStartProp) && targetEndProp.equals(targetStartProp);
             if (!noDuration) {
-                ExprIdentNode leftEndExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, targetStreamNum, targetEndProp);
-                ExprIdentNode rightEndExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, parameterStreamNum, parameterEndProp);
+                ExprIdentNode leftEndExpr = ExprNodeUtilityCore.getExprIdentNode(typesPerStream, targetStreamNum, targetEndProp);
+                ExprIdentNode rightEndExpr = ExprNodeUtilityCore.getExprIdentNode(typesPerStream, parameterStreamNum, parameterEndProp);
                 queryGraph.addStrictEquals(targetStreamNum, targetEndProp, leftEndExpr,
                         parameterStreamNum, parameterEndProp, rightEndExpr);
             }

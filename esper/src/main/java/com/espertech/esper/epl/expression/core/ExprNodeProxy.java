@@ -81,7 +81,7 @@ public class ExprNodeProxy implements java.lang.reflect.InvocationHandler {
     private Object handleGetForge(Method m, Object[] args) throws Exception {
         String expressionToString = "undefined";
         try {
-            expressionToString = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode);
+            expressionToString = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprNode);
         } catch (RuntimeException ex) {
             // no action
         }

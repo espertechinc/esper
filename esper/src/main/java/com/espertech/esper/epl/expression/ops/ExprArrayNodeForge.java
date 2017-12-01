@@ -65,7 +65,7 @@ public class ExprArrayNodeForge implements ExprForge, ExprEnumerationForge {
 
             };
         }
-        return new ExprArrayNodeForgeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes()));
+        return new ExprArrayNodeForgeEval(this, ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes()));
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
@@ -129,7 +129,7 @@ public class ExprArrayNodeForge implements ExprForge, ExprEnumerationForge {
                 }
             };
         } else {
-            return new ExprArrayNodeForgeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes()));
+            return new ExprArrayNodeForgeEval(this, ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes()));
         }
     }
 

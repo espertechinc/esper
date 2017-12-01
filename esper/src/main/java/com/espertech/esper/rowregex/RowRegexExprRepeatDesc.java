@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.rowregex;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -43,14 +43,14 @@ public class RowRegexExprRepeatDesc implements Serializable {
     public void toExpressionString(StringWriter writer) {
         writer.write("{");
         if (single != null) {
-            writer.write(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(single));
+            writer.write(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(single));
         } else {
             if (lower != null) {
-                writer.write(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(lower));
+                writer.write(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(lower));
             }
             writer.write(",");
             if (upper != null) {
-                writer.write(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(upper));
+                writer.write(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(upper));
             }
         }
         writer.write("}");

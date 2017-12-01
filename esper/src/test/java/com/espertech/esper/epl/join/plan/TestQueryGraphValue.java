@@ -11,10 +11,10 @@
 package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.bean.BeanEventType;
 import junit.framework.TestCase;
 
@@ -85,7 +85,7 @@ public class TestQueryGraphValue extends TestCase {
             QueryGraphValueEntryRange r = (QueryGraphValueEntryRange) desc.getEntry();
 
             assertEquals(ranges[count][3], r.getType());
-            assertEquals(ranges[count][4], ExprNodeUtility.toExpressionStringMinPrecedenceSafe(desc.getIndexExprs()[0]));
+            assertEquals(ranges[count][4], ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(desc.getIndexExprs()[0]));
 
             if (r instanceof QueryGraphValueEntryRangeRelOp) {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) r;

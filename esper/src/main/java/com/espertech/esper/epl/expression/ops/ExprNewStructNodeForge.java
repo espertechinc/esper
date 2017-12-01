@@ -34,7 +34,7 @@ public class ExprNewStructNodeForge implements ExprTypableReturnForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
+        ExprEvaluator[] evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
         return new ExprNewStructNodeForgeEval(this, evaluators);
     }
 

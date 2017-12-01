@@ -102,7 +102,7 @@ public class AggregationMethodFactoryCount implements AggregationMethodFactory {
             return ExprMethodAggUtil.getDefaultForges(new ExprNode[]{childNodes[1]}, join, typesPerStream);
         }
         if (childNodes[0] instanceof ExprWildcard && childNodes.length == 1) {
-            return ExprNodeUtility.EMPTY_FORGE_ARRAY;
+            return ExprNodeUtilityCore.EMPTY_FORGE_ARRAY;
         }
         return ExprMethodAggUtil.getDefaultForges(childNodes, join, typesPerStream);
     }

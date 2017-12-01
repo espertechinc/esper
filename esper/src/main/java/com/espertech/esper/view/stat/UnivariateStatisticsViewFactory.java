@@ -15,9 +15,9 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
 
@@ -78,7 +78,7 @@ public class UnivariateStatisticsViewFactory implements ViewFactory {
         }
 
         UnivariateStatisticsView other = (UnivariateStatisticsView) view;
-        if (!ExprNodeUtility.deepEquals(other.getFieldExpression(), fieldExpression, false)) {
+        if (!ExprNodeUtilityCore.deepEquals(other.getFieldExpression(), fieldExpression, false)) {
             return false;
         }
 

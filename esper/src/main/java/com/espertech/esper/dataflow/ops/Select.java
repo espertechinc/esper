@@ -39,7 +39,6 @@ import com.espertech.esper.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
@@ -47,6 +46,7 @@ import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.view.OutputProcessViewCallback;
 import com.espertech.esper.event.EventBeanAdapterFactory;
 import com.espertech.esper.filter.FilterSpecCompiled;
@@ -168,7 +168,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
         StreamSpecCompiled[] streamSpecArray = streamSpecCompileds.toArray(new StreamSpecCompiled[streamSpecCompileds.size()]);
         StatementSpecCompiled compiled = new StatementSpecCompiled(null, null, null, null, null, null, null, SelectClauseStreamSelectorEnum.ISTREAM_ONLY,
                 selectClauseCompiled, streamSpecArray, outerJoinArray, select.getFilterExprRootNode(), select.getHavingExprRootNode(), outputLimitSpec,
-                orderByArray, ExprSubselectNode.EMPTY_SUBSELECT_ARRAY, ExprNodeUtility.EMPTY_DECLARED_ARR, ExprNodeUtility.EMPTY_SCRIPTS, select.getReferencedVariables(),
+                orderByArray, ExprSubselectNode.EMPTY_SUBSELECT_ARRAY, ExprNodeUtilityRich.EMPTY_DECLARED_ARR, ExprNodeUtilityRich.EMPTY_SCRIPTS, select.getReferencedVariables(),
                 select.getRowLimitSpec(), CollectionUtil.STRINGARRAY_EMPTY, mergedAnnotations, null, null, null, null, null, null, null, null, null, groupByExpressions, null, null);
 
         // create viewable per port

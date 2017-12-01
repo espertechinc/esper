@@ -12,7 +12,7 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.view.GroupableView;
 import com.espertech.esper.view.View;
 
@@ -59,7 +59,7 @@ public class GroupByViewUtil {
             // Determine if view is our merge view
             if (subView instanceof MergeViewMarker) {
                 MergeViewMarker mergeView = (MergeViewMarker) subView;
-                if (ExprNodeUtility.deepEquals(mergeView.getGroupFieldNames(), groupByView.getViewFactory().getCriteriaExpressions(), false)) {
+                if (ExprNodeUtilityCore.deepEquals(mergeView.getGroupFieldNames(), groupByView.getViewFactory().getCriteriaExpressions(), false)) {
                     if (mergeView.getEventType() != copyView.getEventType()) {
                         // We found our merge view - install a new data merge view on top of it
                         AddPropertyValueOptionalView addPropertyView = new AddPropertyValueOptionalView(agentInstanceContext, groupByView.getViewFactory().getPropertyNames(), groupByValues, mergeView.getEventType());

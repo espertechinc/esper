@@ -11,10 +11,11 @@
 package com.espertech.esper.pattern;
 
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,7 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase {
         this.distinctExpressions = distinctExpressions;
         this.timeDeltaComputation = timeDeltaComputation;
         this.expiryTimeExp = expiryTimeExp;
-        this.distinctExpressionsArray = ExprNodeUtility.getEvaluatorsMayCompile(distinctExpressions, engineImportService, this.getClass(), false, statementName);
+        this.distinctExpressionsArray = ExprNodeUtilityRich.getEvaluatorsMayCompile(distinctExpressions, engineImportService, this.getClass(), false, statementName);
     }
 
     public boolean isFilterChildNonQuitting() {
@@ -112,10 +113,10 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase {
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append("every-distinct(");
-        ExprNodeUtility.toExpressionStringParameterList(distinctExpressions, writer);
+        ExprNodeUtilityCore.toExpressionStringParameterList(distinctExpressions, writer);
         if (expiryTimeExp != null) {
             writer.append(",");
-            writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expiryTimeExp));
+            writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expiryTimeExp));
         }
         writer.append(") ");
         this.getChildNodes().get(0).toEPL(writer, getPrecedence());

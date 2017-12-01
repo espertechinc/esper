@@ -30,6 +30,7 @@ import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.util.EPLExpressionParamType;
 import com.espertech.esper.epl.util.EPLValidationUtil;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
@@ -207,7 +208,7 @@ public abstract class ExprDotForgeEnumMethodBase implements ExprDotForgeEnumMeth
         ExprNode filter = goesNode.getChildNodes()[0];
         try {
             ExprValidationContext filterValidationContext = new ExprValidationContext(types, validationContext);
-            filter = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, filter, filterValidationContext);
+            filter = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, filter, filterValidationContext);
         } catch (ExprValidationException ex) {
             throw new ExprValidationException("Error validating enumeration method '" + enumMethodUsedName + "' parameter " + parameterNum + ": " + ex.getMessage(), ex);
         }

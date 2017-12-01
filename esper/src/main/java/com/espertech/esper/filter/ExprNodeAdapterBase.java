@@ -55,7 +55,7 @@ public class ExprNodeAdapterBase {
             }
             return result;
         } catch (RuntimeException ex) {
-            String message = "Error evaluating expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "' statement '" + getStatementName() + "': " + ex.getMessage();
+            String message = "Error evaluating expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprNode) + "' statement '" + getStatementName() + "': " + ex.getMessage();
             log.error(message, ex);
             throw new EPException(message, ex);
         }

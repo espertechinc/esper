@@ -12,9 +12,9 @@ package com.espertech.esper.epl.join.base;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryHashKeyed;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.PropertyIndexedEventTable;
@@ -66,6 +66,6 @@ public class HistoricalIndexLookupStrategyIndex implements HistoricalIndexLookup
     }
 
     public String toQueryPlan() {
-        return this.getClass().getSimpleName() + " evaluators " + ExprNodeUtility.printEvaluators(evaluators);
+        return this.getClass().getSimpleName() + " evaluators " + ExprNodeUtilityCore.printEvaluators(evaluators);
     }
 }

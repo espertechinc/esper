@@ -20,6 +20,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
@@ -51,7 +52,7 @@ public class ExcludePlanHintExprUtil {
                                     ExprNode[] expressions) {
         String[] texts = new String[expressions.length];
         for (int i = 0; i < expressions.length; i++) {
-            texts[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expressions[i]);
+            texts[i] = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expressions[i]);
         }
         Object[] event = new Object[]{fromStreamnum, toStreamnum, fromStreamname, toStreamname, opname, texts};
         return new ObjectArrayEventBean(event, OAEXPRESSIONTYPE);
@@ -66,7 +67,7 @@ public class ExcludePlanHintExprUtil {
                 new PatternNodeFactoryImpl(), new ContextManagementServiceImpl(statementContext.getEngineURI()),
                 new ExprDeclaredServiceImpl(), new TableServiceImpl());
         ExprNode expr = raw.getStreamSpecs().get(0).getViewSpecs()[0].getObjectParameters().get(0);
-        ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.HINT, expr, statementContext, OAEXPRESSIONTYPE, false);
+        ExprNode validated = EPLValidationUtil.validateSimpleGetSubtree(ExprNodeOrigin.HINT, expr, statementContext, OAEXPRESSIONTYPE, false);
         return validated.getForge();
     }
 }

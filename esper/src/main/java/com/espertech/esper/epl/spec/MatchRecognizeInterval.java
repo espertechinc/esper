@@ -13,7 +13,7 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
@@ -98,6 +98,6 @@ public class MatchRecognizeInterval implements Serializable {
     }
 
     public void validate(ExprValidationContext validationContext) throws ExprValidationException {
-        timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGINTERVAL, timePeriodExpr, validationContext);
+        timePeriodExpr = (ExprTimePeriod) ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGINTERVAL, timePeriodExpr, validationContext);
     }
 }

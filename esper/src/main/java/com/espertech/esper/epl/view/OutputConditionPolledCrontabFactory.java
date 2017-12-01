@@ -16,6 +16,7 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.ScheduleSpecUtil;
@@ -38,7 +39,7 @@ public final class OutputConditionPolledCrontabFactory implements OutputConditio
         expressions = new ExprEvaluator[scheduleSpecExpressionList.size()];
         int count = 0;
         for (ExprNode parameters : scheduleSpecExpressionList) {
-            ExprNode node = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, parameters, validationContext);
+            ExprNode node = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, parameters, validationContext);
             expressions[count++] = ExprNodeCompiler.allocateEvaluator(node.getForge(), statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
         }
     }

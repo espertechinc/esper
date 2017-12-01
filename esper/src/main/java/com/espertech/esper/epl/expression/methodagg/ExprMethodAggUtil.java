@@ -17,7 +17,7 @@ import com.espertech.esper.epl.expression.core.*;
 public class ExprMethodAggUtil {
     public static ExprForge[] getDefaultForges(ExprNode[] childNodes, boolean join, EventType[] typesPerStream) throws ExprValidationException {
         if (childNodes.length == 0) {
-            return ExprNodeUtility.EMPTY_FORGE_ARRAY;
+            return ExprNodeUtilityCore.EMPTY_FORGE_ARRAY;
         }
         ExprForge[] forges = new ExprForge[childNodes.length];
         for (int i = 0; i < childNodes.length; i++) {

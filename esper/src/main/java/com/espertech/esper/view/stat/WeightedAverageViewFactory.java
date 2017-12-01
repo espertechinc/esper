@@ -14,10 +14,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
 
@@ -81,8 +81,8 @@ public class WeightedAverageViewFactory implements ViewFactory {
         }
 
         WeightedAverageView myView = (WeightedAverageView) view;
-        if ((!ExprNodeUtility.deepEquals(fieldNameWeight, myView.getFieldNameWeight(), false)) ||
-                (!ExprNodeUtility.deepEquals(fieldNameX, myView.getFieldNameX(), false))) {
+        if ((!ExprNodeUtilityCore.deepEquals(fieldNameWeight, myView.getFieldNameWeight(), false)) ||
+                (!ExprNodeUtilityCore.deepEquals(fieldNameX, myView.getFieldNameX(), false))) {
             return false;
         }
         return true;

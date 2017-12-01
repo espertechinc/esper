@@ -12,8 +12,7 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
@@ -30,7 +29,7 @@ public class TestUniqueByPropertyView extends TestCase {
         // Set up length window view and a test child view
         UniqueByPropertyViewFactory factory = new UniqueByPropertyViewFactory();
         factory.criteriaExpressions = SupportExprNodeFactory.makeIdentNodesMD("symbol");
-        factory.criteriaExpressionsEvals = ExprNodeUtility.getEvaluatorsNoCompile(factory.criteriaExpressions);
+        factory.criteriaExpressionsEvals = ExprNodeUtilityCore.getEvaluatorsNoCompile(factory.criteriaExpressions);
         myView = new UniqueByPropertyView(factory, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);

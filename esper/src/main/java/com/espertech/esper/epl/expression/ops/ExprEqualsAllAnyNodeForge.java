@@ -33,7 +33,7 @@ public class ExprEqualsAllAnyNodeForge implements ExprForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
+        ExprEvaluator[] evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
         if (parent.isAll()) {
             if (!hasCollectionOrArray) {
                 return new ExprEqualsAllAnyNodeForgeEvalAllNoColl(this, evaluators);

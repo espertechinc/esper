@@ -15,9 +15,9 @@ import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpecForge;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpecForge;
 import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.util.Comparator;
 
@@ -47,7 +47,7 @@ public class SortedAggregationStateFactoryFactory {
 
     public AggregationStateFactoryForge makeForge() {
         boolean sortUsingCollator = engineImportService.isSortUsingCollator();
-        Comparator<Object> comparator = ExprNodeUtility.getComparatorHashableMultiKeys(expressions, sortUsingCollator, sortDescending); // hashable-key comparator since we may remove sort keys
+        Comparator<Object> comparator = ExprNodeUtilityCore.getComparatorHashableMultiKeys(expressions, sortUsingCollator, sortDescending); // hashable-key comparator since we may remove sort keys
 
         if (ever) {
             AggregationStateMinMaxByEverSpecForge spec = new AggregationStateMinMaxByEverSpecForge(streamNum, expressions, parent.isMax(), comparator, null, optionalFilter);

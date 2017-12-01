@@ -11,7 +11,7 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.spec.ContextDetailInitiatedTerminated;
 
 public class ContextControllerInitTermFactoryImpl extends ContextControllerInitTermFactoryBase implements ContextControllerFactory {
@@ -24,7 +24,7 @@ public class ContextControllerInitTermFactoryImpl extends ContextControllerInitT
         this.binding = factoryContext.getStateCache().getBinding(detail);
 
         if (detail.getDistinctExpressions() != null && detail.getDistinctExpressions().length > 0) {
-            distinctEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(detail.getDistinctExpressions(), factoryContext.getServicesContext().getEngineImportService(), ContextControllerInitTermFactoryImpl.class, false, factoryContext.getAgentInstanceContextCreate().getStatementName());
+            distinctEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(detail.getDistinctExpressions(), factoryContext.getServicesContext().getEngineImportService(), ContextControllerInitTermFactoryImpl.class, false, factoryContext.getAgentInstanceContextCreate().getStatementName());
         } else {
             distinctEvaluators = null;
         }

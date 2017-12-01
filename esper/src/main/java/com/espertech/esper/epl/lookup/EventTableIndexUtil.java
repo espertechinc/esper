@@ -29,6 +29,7 @@ import com.espertech.esper.epl.join.hint.IndexHintInstructionIndexName;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.spec.CreateIndexItem;
 import com.espertech.esper.epl.spec.CreateIndexType;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,15 +74,15 @@ public class EventTableIndexUtil {
         // validate index expressions: valid and plain expressions
         ExprValidationContext validationContextColumns = getValidationContext(eventType, statementContext);
         ExprNode[] columns = columnDesc.getExpressions().toArray(new ExprNode[columnDesc.getExpressions().size()]);
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CREATEINDEXCOLUMN, columns, validationContextColumns);
-        ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CREATEINDEXCOLUMN, columns);
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CREATEINDEXCOLUMN, columns, validationContextColumns);
+        ExprNodeUtilityRich.validatePlainExpression(ExprNodeOrigin.CREATEINDEXCOLUMN, columns);
 
         // validate parameters, may not depend on props
         ExprNode[] parameters = null;
         if (columnDesc.getParameters() != null && !columnDesc.getParameters().isEmpty()) {
             parameters = columnDesc.getParameters().toArray(new ExprNode[columnDesc.getParameters().size()]);
-            ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CREATEINDEXPARAMETER, parameters, validationContextColumns);
-            ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CREATEINDEXPARAMETER, parameters);
+            ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CREATEINDEXPARAMETER, parameters, validationContextColumns);
+            ExprNodeUtilityRich.validatePlainExpression(ExprNodeOrigin.CREATEINDEXPARAMETER, parameters);
 
             // validate no stream dependency of parameters
             ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(false);
@@ -115,11 +116,11 @@ public class EventTableIndexUtil {
         }
         ExprNode expression = columnDesc.getExpressions().get(0);
         if (!(expression instanceof ExprIdentNode)) {
-            throw new ExprValidationException("Invalid index expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expression) + "'");
+            throw new ExprValidationException("Invalid index expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expression) + "'");
         }
         ExprIdentNode identNode = (ExprIdentNode) expression;
         if (identNode.getFullUnresolvedName().contains(".")) {
-            throw new ExprValidationException("Invalid index expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expression) + "'");
+            throw new ExprValidationException("Invalid index expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expression) + "'");
         }
 
         String columnName = identNode.getFullUnresolvedName();

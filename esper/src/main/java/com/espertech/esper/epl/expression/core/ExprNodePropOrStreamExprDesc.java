@@ -29,6 +29,6 @@ public class ExprNodePropOrStreamExprDesc implements ExprNodePropOrStreamDesc {
     }
 
     public String getTextual() {
-        return "expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(originator) + "' against stream " + streamNum;
+        return "expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(originator) + "' against stream " + streamNum;
     }
 }

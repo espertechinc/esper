@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.pattern;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.spec.PatternObserverSpec;
 import com.espertech.esper.pattern.observer.ObserverFactory;
 import org.slf4j.Logger;
@@ -87,7 +87,7 @@ public class EvalObserverFactoryNode extends EvalNodeFactoryBase {
         writer.write(":");
         writer.write(patternObserverSpec.getObjectName());
         writer.write("(");
-        ExprNodeUtility.toExpressionStringParameterList(patternObserverSpec.getObjectParameters(), writer);
+        ExprNodeUtilityCore.toExpressionStringParameterList(patternObserverSpec.getObjectParameters(), writer);
         writer.write(")");
     }
 

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.table;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 
 import java.io.StringWriter;
 
@@ -70,11 +71,11 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
 
     protected void validateGroupKeys(TableMetadata metadata, ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length > 0) {
-            groupKeyEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(this.getChildNodes(), validationContext.getEngineImportService(), ExprTableAccessNode.class, validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
+            groupKeyEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(this.getChildNodes(), validationContext.getEngineImportService(), ExprTableAccessNode.class, validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
         } else {
             groupKeyEvaluators = new ExprEvaluator[0];
         }
-        Class[] typesReturned = ExprNodeUtility.getExprResultTypes(this.getChildNodes());
+        Class[] typesReturned = ExprNodeUtilityCore.getExprResultTypes(this.getChildNodes());
         ExprTableNodeUtil.validateExpressions(tableName, typesReturned, "key", this.getChildNodes(), metadata.getKeyTypes(), "key");
     }
 

@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
 
 /**

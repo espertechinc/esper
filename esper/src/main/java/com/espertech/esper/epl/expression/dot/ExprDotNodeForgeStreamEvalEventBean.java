@@ -23,7 +23,6 @@ import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class ExprDotNodeForgeStreamEvalEventBean implements ExprEvaluator {
     private final ExprDotNodeForgeStream forge;

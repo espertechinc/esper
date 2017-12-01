@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.epl.index.quadtree;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.lookup.AdvancedIndexDesc;
@@ -34,6 +34,6 @@ public class AdvancedIndexFactoryProviderPointRegionQuadTree extends AdvancedInd
         ExprEvaluator yEval = indexDesc.getIndexedExpressions()[1].getForge().getExprEvaluator();
         AdvancedIndexConfigStatementPointRegionQuadtree indexStatementConfigs = new AdvancedIndexConfigStatementPointRegionQuadtree(xEval, yEval);
 
-        return new EventAdvancedIndexProvisionDesc(indexDesc, ExprNodeUtility.getEvaluatorsNoCompile(parameters), EventAdvancedIndexFactoryQuadTreePointRegion.INSTANCE, indexStatementConfigs);
+        return new EventAdvancedIndexProvisionDesc(indexDesc, ExprNodeUtilityCore.getEvaluatorsNoCompile(parameters), EventAdvancedIndexFactoryQuadTreePointRegion.INSTANCE, indexStatementConfigs);
     }
 }

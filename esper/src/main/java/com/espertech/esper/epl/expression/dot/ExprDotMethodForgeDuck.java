@@ -15,8 +15,8 @@ import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 
@@ -44,7 +44,7 @@ public class ExprDotMethodForgeDuck implements ExprDotForge {
     }
 
     public ExprDotEval getDotEvaluator() {
-        return new ExprDotMethodForgeDuckEval(this, ExprNodeUtility.getEvaluatorsNoCompile(parameters));
+        return new ExprDotMethodForgeDuckEval(this, ExprNodeUtilityCore.getEvaluatorsNoCompile(parameters));
     }
 
     public CodegenExpression codegen(CodegenExpression inner, Class innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

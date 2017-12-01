@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.index.service;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.table.*;
 import com.espertech.esper.epl.lookup.AdvancedIndexConfigContextPartition;
 
@@ -24,7 +24,7 @@ public class EventTableFactoryCustomIndex implements EventTableFactory {
     public EventTableFactoryCustomIndex(String indexName, int indexedStreamNum, EventType eventType, boolean unique, EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
         this.eventType = eventType;
         this.advancedIndexProvisionDesc = advancedIndexProvisionDesc;
-        String[] expressions = ExprNodeUtility.toExpressionStringMinPrecedenceAsArray(advancedIndexProvisionDesc.getIndexDesc().getIndexedExpressions());
+        String[] expressions = ExprNodeUtilityCore.toExpressionStringMinPrecedenceAsArray(advancedIndexProvisionDesc.getIndexDesc().getIndexedExpressions());
         this.organization = new EventTableOrganization(indexName, unique, false, indexedStreamNum, expressions, EventTableOrganizationType.APPLICATION);
     }
 

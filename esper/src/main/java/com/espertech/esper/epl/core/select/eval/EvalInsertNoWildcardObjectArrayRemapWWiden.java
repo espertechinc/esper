@@ -23,7 +23,7 @@ import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.util.TypeWidener;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
@@ -46,7 +46,7 @@ public class EvalInsertNoWildcardObjectArrayRemapWWiden implements SelectExprPro
 
     public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+            evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
         }
         return this;
     }

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
@@ -54,9 +54,9 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter {
         arithNodeChild.addChildNode(new SupportExprNode(2));
 
         maxNode.addChildNode(arithNodeChild);
-        assertEquals("max(4-2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(maxNode));
+        assertEquals("max(4-2)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(maxNode));
         minNode.addChildNode(arithNodeChild);
-        assertEquals("min(4-2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(minNode));
+        assertEquals("min(4-2)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(minNode));
     }
 
     public void testValidate() {

@@ -12,8 +12,8 @@ package com.espertech.esper.epl.core.orderby;
 
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OrderByItem;
 import com.espertech.esper.epl.spec.RowLimitSpec;
@@ -95,7 +95,7 @@ public class OrderByProcessorFactoryFactory {
         for (ExprAggregateNode orderAgg : orderAggNodes) {
             boolean inSelect = false;
             for (ExprAggregateNode selectAgg : selectAggNodes) {
-                if (ExprNodeUtility.deepEquals(selectAgg, orderAgg, false)) {
+                if (ExprNodeUtilityCore.deepEquals(selectAgg, orderAgg, false)) {
                     inSelect = true;
                     break;
                 }
@@ -113,7 +113,7 @@ public class OrderByProcessorFactoryFactory {
             nodes[i] = orderBy[i].getExprNode();
             descending[i] = orderBy[i].isDescending();
         }
-        return ExprNodeUtility.getComparatorHashableMultiKeys(nodes, isSortUsingCollator, descending);
+        return ExprNodeUtilityCore.getComparatorHashableMultiKeys(nodes, isSortUsingCollator, descending);
     }
 
     private static OrderByElementForge[] toElementArray(List<OrderByItem> orderByList) {

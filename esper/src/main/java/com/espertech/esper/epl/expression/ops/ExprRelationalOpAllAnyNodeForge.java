@@ -14,10 +14,10 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.type.RelationalOpEnum;
 
 public class ExprRelationalOpAllAnyNodeForge implements ExprForge {
@@ -32,7 +32,7 @@ public class ExprRelationalOpAllAnyNodeForge implements ExprForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return new ExprRelationalOpAllAnyNodeForgeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes()));
+        return new ExprRelationalOpAllAnyNodeForgeEval(this, ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes()));
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

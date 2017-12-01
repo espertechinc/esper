@@ -76,7 +76,7 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprForge, ExprE
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        evaluators = ExprNodeUtility.getEvaluatorsNoCompile(this.getChildNodes());
+        evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(this.getChildNodes());
         Class typeOne = this.getChildNodes()[0].getForge().getEvaluationType();
         Class typeTwo = this.getChildNodes()[1].getForge().getEvaluationType();
         if ((!(JavaClassHelper.isNumericNonFP(typeOne))) || (!(JavaClassHelper.isNumericNonFP(typeTwo)))) {

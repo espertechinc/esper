@@ -11,13 +11,13 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprRegexpNode extends TestCase {
@@ -70,8 +70,8 @@ public class TestExprRegexpNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("s0.theString regexp \"[a-z][a-z]\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(regexpNodeNormal));
-        assertEquals("s0.theString not regexp \"[a-z][a-z]\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(regexpNodeNot));
+        assertEquals("s0.theString regexp \"[a-z][a-z]\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(regexpNodeNormal));
+        assertEquals("s0.theString not regexp \"[a-z][a-z]\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(regexpNodeNot));
     }
 
     private EventBean[] makeEvent(String stringValue) {

@@ -12,8 +12,8 @@ package com.espertech.esper.epl.agg.rollup;
 
 import com.espertech.esper.collection.CombinationEnumeration;
 import com.espertech.esper.collection.MultiKeyInt;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.spec.*;
@@ -43,7 +43,7 @@ public class GroupByExpressionHelper {
             for (int i = 0; i < distinctGroupByExpressions.size(); i++) {
                 ExprNode other = distinctGroupByExpressions.get(i);
                 // find same expression
-                if (ExprNodeUtility.deepEquals(exprNode, other, false)) {
+                if (ExprNodeUtilityCore.deepEquals(exprNode, other, false)) {
                     expressionToIndex.put(exprNode, i);
                     found = true;
                     break;
@@ -96,7 +96,7 @@ public class GroupByExpressionHelper {
                 String delimiter = "";
                 for (int i = 0; i < ex.getIndexes().length; i++) {
                     writer.append(delimiter);
-                    writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(groupByExpressions[ex.getIndexes()[i]]));
+                    writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(groupByExpressions[ex.getIndexes()[i]]));
                     delimiter = ", ";
                 }
                 throw new ExprValidationException("Failed to validate the group-by clause, found duplicate specification of expressions (" + writer.toString() + ")");

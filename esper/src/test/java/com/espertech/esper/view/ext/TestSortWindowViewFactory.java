@@ -14,7 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.view.TestViewSupport;
@@ -86,9 +86,9 @@ public class TestSortWindowViewFactory extends TestCase {
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
         SortWindowView view = (SortWindowView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
         assertEquals(size, view.getSortWindowSize());
-        assertEquals(fieldNames[0], ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getSortCriteriaExpressions()[0]));
+        assertEquals(fieldNames[0], ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getSortCriteriaExpressions()[0]));
         if (fieldNames.length > 0) {
-            assertEquals(fieldNames[1], ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getSortCriteriaExpressions()[1]));
+            assertEquals(fieldNames[1], ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getSortCriteriaExpressions()[1]));
         }
     }
 }

@@ -12,8 +12,8 @@ package com.espertech.esper.view.ext;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
@@ -31,9 +31,9 @@ public class TestSortWindowView extends TestCase {
         ExprNode[] expressions = SupportExprNodeFactory.makeIdentNodesMD("volume");
         SortWindowViewFactory factory = new SortWindowViewFactory();
         factory.sortCriteriaExpressions = expressions;
-        factory.sortCriteriaEvaluators = ExprNodeUtility.getEvaluatorsNoCompile(expressions);
+        factory.sortCriteriaEvaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(expressions);
         factory.isDescendingValues = new boolean[]{false};
-        factory.comparator = ExprNodeUtility.getComparatorHashableMultiKeys(factory.sortCriteriaExpressions, false, factory.isDescendingValues);
+        factory.comparator = ExprNodeUtilityCore.getComparatorHashableMultiKeys(factory.sortCriteriaExpressions, false, factory.isDescendingValues);
         myView = new SortWindowView(factory, 5, null, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
@@ -94,9 +94,9 @@ public class TestSortWindowView extends TestCase {
         ExprNode[] expressions = SupportExprNodeFactory.makeIdentNodesMD("volume", "price");
         SortWindowViewFactory factory = new SortWindowViewFactory();
         factory.sortCriteriaExpressions = expressions;
-        factory.sortCriteriaEvaluators = ExprNodeUtility.getEvaluatorsNoCompile(expressions);
+        factory.sortCriteriaEvaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(expressions);
         factory.isDescendingValues = new boolean[]{false, true};
-        factory.comparator = ExprNodeUtility.getComparatorHashableMultiKeys(factory.sortCriteriaExpressions, false, factory.isDescendingValues);
+        factory.comparator = ExprNodeUtilityCore.getComparatorHashableMultiKeys(factory.sortCriteriaExpressions, false, factory.isDescendingValues);
         myView = new SortWindowView(factory, 5, null, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);

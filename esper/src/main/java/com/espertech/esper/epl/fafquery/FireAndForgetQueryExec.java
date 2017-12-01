@@ -15,9 +15,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.CombinationEnumeration;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.index.quadtree.EventTableQuadTree;
 import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValue;
@@ -248,7 +248,7 @@ public class FireAndForgetQueryExec {
                         if (!provision.getFactory().providesIndexForOperation(op.getKey().getOperationName(), op.getValue().getPositionalExpressions())) {
                             continue;
                         }
-                        if (ExprNodeUtility.deepEquals(entry.getKey().getAdvancedIndexDesc().getIndexedExpressions(), op.getKey().getExprNodes(), true)) {
+                        if (ExprNodeUtilityCore.deepEquals(entry.getKey().getAdvancedIndexDesc().getIndexedExpressions(), op.getKey().getExprNodes(), true)) {
                             values = op.getValue();
                             table = entry.getValue().getTable();
                             indexName = metadata.getExplicitIndexNameIfExplicit();
@@ -342,10 +342,7 @@ public class FireAndForgetQueryExec {
             }
 
             if (hook != null) {
-                hook.fireAndForget(new QueryPlanIndexDescFAF(
-                    new IndexNameAndDescPair[]{
-                        new IndexNameAndDescPair(indexNameOrNull, eventTableOrNull != null ? eventTableOrNull.getProviderClass().getSimpleName() : null)
-                    }));
+                hook.fireAndForget(new QueryPlanIndexDescFAF(new IndexNameAndDescPair[]{new IndexNameAndDescPair(indexNameOrNull, eventTableOrNull != null ? eventTableOrNull.getProviderClass().getSimpleName() : null)}));
             }
         }
     }

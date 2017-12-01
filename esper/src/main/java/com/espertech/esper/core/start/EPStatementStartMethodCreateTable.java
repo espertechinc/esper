@@ -36,6 +36,7 @@ import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableServiceUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeUtility;
@@ -209,7 +210,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
                 }
                 if (clazz != null) {
                     ExprTypedNoEvalNode typeNode = new ExprTypedNoEvalNode(propname, clazz);
-                    ExprNodeUtility.replaceChildNode(columnExpressionType, identNode, typeNode);
+                    ExprNodeUtilityCore.replaceChildNode(columnExpressionType, identNode, typeNode);
                 } else {
                     if (optionalProvidedType == null) {
                         if (ex != null) {
@@ -222,9 +223,9 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
         }
 
         // validate
-        ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CREATETABLECOLUMN, columnExpressionType, validationContext);
+        ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CREATETABLECOLUMN, columnExpressionType, validationContext);
         if (!(validated instanceof ExprAggregateNode)) {
-            throw new ExprValidationException("Expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated) + "' is not an aggregation");
+            throw new ExprValidationException("Expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validated) + "' is not an aggregation");
         }
 
         return (ExprAggregateNode) validated;

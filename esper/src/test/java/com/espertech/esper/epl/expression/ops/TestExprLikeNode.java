@@ -11,13 +11,13 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprLikeNode extends TestCase {
@@ -82,9 +82,9 @@ public class TestExprLikeNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("s0.theString like \"%abc__\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(likeNodeNormal));
-        assertEquals("s0.theString not like \"%abc__\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(likeNodeNot));
-        assertEquals("s0.theString like \"%abc__\" escape \"!\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(likeNodeNormalEscaped));
+        assertEquals("s0.theString like \"%abc__\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(likeNodeNormal));
+        assertEquals("s0.theString not like \"%abc__\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(likeNodeNot));
+        assertEquals("s0.theString like \"%abc__\" escape \"!\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(likeNodeNormalEscaped));
     }
 
     private EventBean[] makeEvent(String stringValue) {

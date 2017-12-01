@@ -94,7 +94,7 @@ public class AvroRecastFactory {
 
             TypeWidener widener;
             try {
-                widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
+                widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
                         writable.getType(), columnName, false, typeWidenerCustomizer, statementName, engineURI);
             } catch (TypeWidenerException ex) {
                 throw new ExprValidationException(ex.getMessage(), ex);

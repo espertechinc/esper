@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -39,9 +39,9 @@ public class TestExprMinMaxRowNode extends TestCase {
     public void testToExpressionString() throws Exception {
         minMaxNode.addChildNode(new SupportExprNode(9d));
         minMaxNode.addChildNode(new SupportExprNode(6));
-        assertEquals("max(9.0,6)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(minMaxNode));
+        assertEquals("max(9.0,6)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(minMaxNode));
         minMaxNode.addChildNode(new SupportExprNode(0.5d));
-        assertEquals("max(9.0,6,0.5)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(minMaxNode));
+        assertEquals("max(9.0,6,0.5)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(minMaxNode));
     }
 
     public void testValidate() {

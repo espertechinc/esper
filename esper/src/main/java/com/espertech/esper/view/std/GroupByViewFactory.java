@@ -16,10 +16,11 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.view.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,11 +98,11 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
         }
 
         this.eventType = parentEventType;
-        this.criteriaExpressionEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteriaExpressions, statementContext.getEngineImportService(), GroupByViewFactory.class, false, statementContext.getStatementName());
+        this.criteriaExpressionEvals = ExprNodeUtilityRich.getEvaluatorsMayCompile(criteriaExpressions, statementContext.getEngineImportService(), GroupByViewFactory.class, false, statementContext.getStatementName());
 
         propertyNames = new String[criteriaExpressions.length];
         for (int i = 0; i < criteriaExpressions.length; i++) {
-            propertyNames[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
+            propertyNames[i] = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
         }
     }
 

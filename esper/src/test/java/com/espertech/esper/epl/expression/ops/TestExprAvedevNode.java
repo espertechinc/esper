@@ -12,7 +12,7 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.methodagg.ExprAvedevNode;
 import com.espertech.esper.epl.expression.methodagg.ExprStddevNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -28,7 +28,7 @@ public class TestExprAvedevNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("avedev(5)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
+        assertEquals("avedev(5)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
     }
 
     public void testEqualsNode() throws Exception {

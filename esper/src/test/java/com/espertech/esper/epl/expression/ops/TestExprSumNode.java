@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -52,7 +52,7 @@ public class TestExprSumNode extends TestExprAggregateNodeAdapter {
         sumNode = new ExprSumNode(false);
         sumNode.addChildNode(arithNodeChild);
 
-        assertEquals("sum(4-2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(sumNode));
+        assertEquals("sum(4-2)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(sumNode));
     }
 
     public void testValidate() {

@@ -19,9 +19,9 @@ import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
@@ -50,20 +50,20 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
     private final Class[] groupKeyTypes;
 
     ResultSetProcessorAggregateGroupedFactory(EventType resultEventType,
-                                                     SelectExprProcessor selectExprProcessor,
-                                                     ExprNode[] groupKeyNodeExpressions,
-                                                     ExprEvaluator groupKeyNode,
-                                                     ExprEvaluator[] groupKeyNodes,
-                                                     ExprEvaluator optionalHavingNode,
-                                                     boolean isSelectRStream,
-                                                     boolean isUnidirectional,
-                                                     OutputLimitSpec outputLimitSpec,
-                                                     boolean isSorting,
-                                                     boolean isHistoricalOnly,
-                                                     ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
-                                                     OutputConditionPolledFactory optionalOutputFirstConditionFactory,
-                                                     ResultSetProcessorOutputConditionType outputConditionType,
-                                                     int numStreams) {
+                                              SelectExprProcessor selectExprProcessor,
+                                              ExprNode[] groupKeyNodeExpressions,
+                                              ExprEvaluator groupKeyNode,
+                                              ExprEvaluator[] groupKeyNodes,
+                                              ExprEvaluator optionalHavingNode,
+                                              boolean isSelectRStream,
+                                              boolean isUnidirectional,
+                                              OutputLimitSpec outputLimitSpec,
+                                              boolean isSorting,
+                                              boolean isHistoricalOnly,
+                                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                              OutputConditionPolledFactory optionalOutputFirstConditionFactory,
+                                              ResultSetProcessorOutputConditionType outputConditionType,
+                                              int numStreams) {
         this.selectExprProcessor = selectExprProcessor;
         this.resultEventType = resultEventType;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
@@ -79,7 +79,7 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
         this.outputConditionType = outputConditionType;
         this.numStreams = numStreams;
-        this.groupKeyTypes = ExprNodeUtility.getExprResultTypes(groupKeyNodeExpressions);
+        this.groupKeyTypes = ExprNodeUtilityCore.getExprResultTypes(groupKeyNodeExpressions);
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {

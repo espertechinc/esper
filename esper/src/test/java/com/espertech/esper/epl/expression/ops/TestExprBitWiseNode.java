@@ -10,12 +10,13 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.type.BitWiseOpEnum;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class TestExprBitWiseNode extends TestCase {
         _bitWiseNode = new ExprBitWiseNode(BitWiseOpEnum.BAND);
         _bitWiseNode.addChildNode(new SupportExprNode(Long.class));
         _bitWiseNode.addChildNode(new SupportExprNode(Long.class));
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, _bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, _bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
         assertEquals(Long.class, _bitWiseNode.getForge().getEvaluationType());
     }
 
@@ -71,7 +72,7 @@ public class TestExprBitWiseNode extends TestCase {
         log.debug(".testEvaluate");
         _bitWiseNode.addChildNode(new SupportExprNode(new Integer(10)));
         _bitWiseNode.addChildNode(new SupportExprNode(new Integer(12)));
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, _bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, _bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
         assertEquals(8, _bitWiseNode.getForge().getExprEvaluator().evaluate(null, false, null));
     }
 
@@ -87,7 +88,7 @@ public class TestExprBitWiseNode extends TestCase {
         _bitWiseNode = new ExprBitWiseNode(BitWiseOpEnum.BAND);
         _bitWiseNode.addChildNode(new SupportExprNode(4));
         _bitWiseNode.addChildNode(new SupportExprNode(2));
-        assertEquals("4&2", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(_bitWiseNode));
+        assertEquals("4&2", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(_bitWiseNode));
     }
 
     static Logger log = LoggerFactory.getLogger(TestExprBitWiseNode.class);

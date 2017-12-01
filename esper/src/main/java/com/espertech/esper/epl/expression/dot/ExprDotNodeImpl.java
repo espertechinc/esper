@@ -29,6 +29,7 @@ import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodRe
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
@@ -68,7 +69,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
         }
 
         // validate all parameters
-        ExprNodeUtility.validate(ExprNodeOrigin.DOTNODEPARAMETER, chainSpec, validationContext);
+        ExprNodeUtilityRich.validate(ExprNodeOrigin.DOTNODEPARAMETER, chainSpec, validationContext);
 
         // determine if there are enumeration method expressions in the chain
         boolean hasEnumerationMethod = false;
@@ -85,7 +86,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
                 chainSpec.size() > 1 && chainSpec.get(0).isProperty()) {
             Pair<ExprNode, List<ExprChainedSpec>> tableNode = validationContext.getTableService().getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.getEngineImportService());
             if (tableNode != null) {
-                ExprNode node = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DOTNODE, tableNode.getFirst(), validationContext);
+                ExprNode node = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.DOTNODE, tableNode.getFirst(), validationContext);
                 if (tableNode.getSecond().isEmpty()) {
                     return node;
                 }
@@ -362,7 +363,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
                 }
             };
             EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(), methodSpec.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getTableService(), streamTypeService.getEngineURIQualifier());
+            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtilityRich.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(), methodSpec.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getTableService(), streamTypeService.getEngineURIQualifier());
 
             // method resolved, hook up
             modifiedChain.remove(0);    // we identified this piece
@@ -389,7 +390,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
             streamZeroType = validationContext.getStreamTypeService().getEventTypes()[0];
         }
 
-        ExprNodeUtilMethodDesc method = ExprNodeUtility.resolveMethodAllowWildcardAndStream(firstItem.getName(), null, secondItem.getName(), secondItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName() + "." + secondItem.getName(), false), secondItem.getName(), validationContext.getTableService(), streamTypeService.getEngineURIQualifier());
+        ExprNodeUtilMethodDesc method = ExprNodeUtilityRich.resolveMethodAllowWildcardAndStream(firstItem.getName(), null, secondItem.getName(), secondItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName() + "." + secondItem.getName(), false), secondItem.getName(), validationContext.getTableService(), streamTypeService.getEngineURIQualifier());
 
         boolean isConstantParameters = method.isAllConstants() && isUDFCache;
         boolean isReturnsConstantResult = isConstantParameters && modifiedChain.isEmpty();
@@ -459,21 +460,21 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
 
     public void accept(ExprNodeVisitor visitor) {
         super.accept(visitor);
-        ExprNodeUtility.acceptChain(visitor, chainSpec);
+        ExprNodeUtilityRich.acceptChain(visitor, chainSpec);
     }
 
     public void accept(ExprNodeVisitorWithParent visitor) {
         super.accept(visitor);
-        ExprNodeUtility.acceptChain(visitor, chainSpec);
+        ExprNodeUtilityRich.acceptChain(visitor, chainSpec);
     }
 
     public void acceptChildnodes(ExprNodeVisitorWithParent visitor, ExprNode parent) {
         super.acceptChildnodes(visitor, parent);
-        ExprNodeUtility.acceptChain(visitor, chainSpec, this);
+        ExprNodeUtilityRich.acceptChain(visitor, chainSpec, this);
     }
 
     public void replaceUnlistedChildNode(ExprNode nodeToReplace, ExprNode newNode) {
-        ExprNodeUtility.replaceChainChildNode(nodeToReplace, newNode, chainSpec);
+        ExprNodeUtilityRich.replaceChainChildNode(nodeToReplace, newNode, chainSpec);
     }
 
     public List<ExprChainedSpec> getChainSpec() {
@@ -507,9 +508,9 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         if (this.getChildNodes().length != 0) {
-            writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this.getChildNodes()[0]));
+            writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this.getChildNodes()[0]));
         }
-        ExprNodeUtility.toExpressionString(chainSpec, writer, this.getChildNodes().length != 0, null);
+        ExprNodeUtilityRich.toExpressionString(chainSpec, writer, this.getChildNodes().length != 0, null);
     }
 
     public ExprPrecedenceEnum getPrecedence() {
@@ -539,7 +540,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
 
     @Override
     public List<ExprNode> getAdditionalNodes() {
-        return ExprNodeUtility.collectChainParameters(chainSpec);
+        return ExprNodeUtilityRich.collectChainParameters(chainSpec);
     }
 
     public String isVariableOpGetName(VariableService variableService) {
@@ -618,8 +619,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
             }
         }
 
-        ExprNode[] lhs = ExprNodeUtility.toArray(lhsExpressionsValues);
-        ExprNode[] rhs = ExprNodeUtility.toArray(compared.getChainSpec().get(0).getParameters());
+        ExprNode[] lhs = ExprNodeUtilityCore.toArray(lhsExpressionsValues);
+        ExprNode[] rhs = ExprNodeUtilityCore.toArray(compared.getChainSpec().get(0).getParameters());
 
         EngineImportApplicationDotMethod predefined;
         if (pointInsideRectangle) {

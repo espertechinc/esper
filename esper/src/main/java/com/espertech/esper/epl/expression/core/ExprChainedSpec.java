@@ -60,7 +60,7 @@ public class ExprChainedSpec implements Serializable {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        return ExprNodeUtility.deepEquals(parameters, that.parameters);
+        return ExprNodeUtilityCore.deepEquals(parameters, that.parameters);
     }
 
     @Override

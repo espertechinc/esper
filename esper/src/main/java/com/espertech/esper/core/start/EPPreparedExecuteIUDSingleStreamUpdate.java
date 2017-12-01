@@ -24,6 +24,7 @@ import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelperFactory;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventTypeSPI;
 
 /**
@@ -48,7 +49,7 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
         // validate update expressions
         try {
             for (OnTriggerSetAssignment assignment : updateSpec.getAssignments()) {
-                ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.UPDATEASSIGN, assignment.getExpression(), validationContext);
+                ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.UPDATEASSIGN, assignment.getExpression(), validationContext);
                 assignment.setExpression(validated);
                 EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an update-clause");
             }

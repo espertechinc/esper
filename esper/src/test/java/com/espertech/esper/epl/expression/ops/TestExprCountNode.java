@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprWildcardImpl;
 import com.espertech.esper.epl.expression.methodagg.ExprCountNode;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
@@ -34,8 +34,8 @@ public class TestExprCountNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("count(5)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
-        assertEquals("count(*)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(wildcardCount));
+        assertEquals("count(5)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
+        assertEquals("count(*)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(wildcardCount));
     }
 
     public void testEqualsNode() throws Exception {

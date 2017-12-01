@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprNode extends TestCase {
@@ -41,7 +42,7 @@ public class TestExprNode extends TestCase {
         parent_2.addChildNode(supportNode2_1);
         parent_2.addChildNode(supportNode2_2);
 
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, SupportExprValidationContextFactory.makeEmpty());
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, SupportExprValidationContextFactory.makeEmpty());
 
         assertEquals(1, supportNode1_1.getValidateCountSnapshot());
         assertEquals(2, supportNode1_2.getValidateCountSnapshot());
@@ -53,50 +54,50 @@ public class TestExprNode extends TestCase {
     }
 
     public void testDeepEquals() throws Exception {
-        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make2SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd(), false));
-        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeEqualsNode(), SupportExprNodeFactory.makeMathNode(), false));
-        assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.makeMathNode(), false));
-        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.make2SubNodeAnd(), false));
-        assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make3SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd(), false));
+        assertFalse(ExprNodeUtilityCore.deepEquals(SupportExprNodeFactory.make2SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd(), false));
+        assertFalse(ExprNodeUtilityCore.deepEquals(SupportExprNodeFactory.makeEqualsNode(), SupportExprNodeFactory.makeMathNode(), false));
+        assertTrue(ExprNodeUtilityCore.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.makeMathNode(), false));
+        assertFalse(ExprNodeUtilityCore.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.make2SubNodeAnd(), false));
+        assertTrue(ExprNodeUtilityCore.deepEquals(SupportExprNodeFactory.make3SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd(), false));
     }
 
     public void testParseMappedProp() {
-        ExprNodeUtility.MappedPropertyParseResult result = ExprNodeUtility.parseMappedProperty("a.b('c')");
+        ExprNodeUtilityRich.MappedPropertyParseResult result = ExprNodeUtilityRich.parseMappedProperty("a.b('c')");
         assertEquals("a", result.getClassName());
         assertEquals("b", result.getMethodName());
         assertEquals("c", result.getArgString());
 
-        result = ExprNodeUtility.parseMappedProperty("SupportStaticMethodLib.delimitPipe('POLYGON ((100.0 100, \", 100 100, 400 400))')");
+        result = ExprNodeUtilityRich.parseMappedProperty("SupportStaticMethodLib.delimitPipe('POLYGON ((100.0 100, \", 100 100, 400 400))')");
         assertEquals("SupportStaticMethodLib", result.getClassName());
         assertEquals("delimitPipe", result.getMethodName());
         assertEquals("POLYGON ((100.0 100, \", 100 100, 400 400))", result.getArgString());
 
-        result = ExprNodeUtility.parseMappedProperty("a.b.c.d.e('f.g.h,u.h')");
+        result = ExprNodeUtilityRich.parseMappedProperty("a.b.c.d.e('f.g.h,u.h')");
         assertEquals("a.b.c.d", result.getClassName());
         assertEquals("e", result.getMethodName());
         assertEquals("f.g.h,u.h", result.getArgString());
 
-        result = ExprNodeUtility.parseMappedProperty("a.b.c.d.E(\"hfhf f f f \")");
+        result = ExprNodeUtilityRich.parseMappedProperty("a.b.c.d.E(\"hfhf f f f \")");
         assertEquals("a.b.c.d", result.getClassName());
         assertEquals("E", result.getMethodName());
         assertEquals("hfhf f f f ", result.getArgString());
 
-        result = ExprNodeUtility.parseMappedProperty("c.d.getEnumerationSource(\"kf\"kf'kf\")");
+        result = ExprNodeUtilityRich.parseMappedProperty("c.d.getEnumerationSource(\"kf\"kf'kf\")");
         assertEquals("c.d", result.getClassName());
         assertEquals("getEnumerationSource", result.getMethodName());
         assertEquals("kf\"kf'kf", result.getArgString());
 
-        result = ExprNodeUtility.parseMappedProperty("c.d.getEnumerationSource('kf\"kf'kf\"')");
+        result = ExprNodeUtilityRich.parseMappedProperty("c.d.getEnumerationSource('kf\"kf'kf\"')");
         assertEquals("c.d", result.getClassName());
         assertEquals("getEnumerationSource", result.getMethodName());
         assertEquals("kf\"kf'kf\"", result.getArgString());
 
-        result = ExprNodeUtility.parseMappedProperty("f('a')");
+        result = ExprNodeUtilityRich.parseMappedProperty("f('a')");
         assertEquals(null, result.getClassName());
         assertEquals("f", result.getMethodName());
         assertEquals("a", result.getArgString());
 
-        assertNull(ExprNodeUtility.parseMappedProperty("('a')"));
-        assertNull(ExprNodeUtility.parseMappedProperty(""));
+        assertNull(ExprNodeUtilityRich.parseMappedProperty("('a')"));
+        assertNull(ExprNodeUtilityRich.parseMappedProperty(""));
     }
 }

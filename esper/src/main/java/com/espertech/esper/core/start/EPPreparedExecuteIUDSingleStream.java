@@ -18,11 +18,11 @@ import com.espertech.esper.core.service.EPPreparedQueryResult;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.CollectionUtil;
 import org.slf4j.Logger;
@@ -103,7 +103,7 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
         ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(typeService.getStreamNames(), statementContext);
         QueryGraph queryGraph = new QueryGraph(1, excludePlanHint, false);
         if (statementSpec.getFilterRootNode() != null) {
-            ExprNodeUtility.validateFilterWQueryGraphSafe(queryGraph, statementSpec.getFilterRootNode(), statementContext, typeService);
+            EPLValidationUtil.validateFilterWQueryGraphSafe(queryGraph, statementSpec.getFilterRootNode(), statementContext, typeService);
         }
 
         // validate expressions

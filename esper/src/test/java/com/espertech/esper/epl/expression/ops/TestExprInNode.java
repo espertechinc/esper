@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -79,8 +79,8 @@ public class TestExprInNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("s0.intPrimitive in (1,2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(inNodeNormal));
-        assertEquals("s0.intPrimitive not in (1,2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(inNodeNotIn));
+        assertEquals("s0.intPrimitive in (1,2)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(inNodeNormal));
+        assertEquals("s0.intPrimitive not in (1,2)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(inNodeNotIn));
     }
 
     private EventBean[] makeEvent(int intPrimitive) {

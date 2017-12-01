@@ -14,9 +14,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.view.*;
 
 import java.util.List;
@@ -53,7 +54,7 @@ public class UniqueByPropertyViewFactory implements DataWindowViewFactoryUniqueC
         }
 
         this.eventType = parentEventType;
-        this.criteriaExpressionsEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteriaExpressions, statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
+        this.criteriaExpressionsEvals = ExprNodeUtilityRich.getEvaluatorsMayCompile(criteriaExpressions, statementContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
@@ -70,7 +71,7 @@ public class UniqueByPropertyViewFactory implements DataWindowViewFactoryUniqueC
         }
 
         UniqueByPropertyView myView = (UniqueByPropertyView) view;
-        if (!ExprNodeUtility.deepEquals(criteriaExpressions, myView.getCriteriaExpressions(), false)) {
+        if (!ExprNodeUtilityCore.deepEquals(criteriaExpressions, myView.getCriteriaExpressions(), false)) {
             return false;
         }
 
@@ -78,7 +79,7 @@ public class UniqueByPropertyViewFactory implements DataWindowViewFactoryUniqueC
     }
 
     public Set<String> getUniquenessCandidatePropertyNames() {
-        return ExprNodeUtility.getPropertyNamesIfAllProps(criteriaExpressions);
+        return ExprNodeUtilityCore.getPropertyNamesIfAllProps(criteriaExpressions);
     }
 
     public String getViewName() {

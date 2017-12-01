@@ -14,9 +14,9 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class PropertyEvaluatorNested implements PropertyEvaluator {
                     if (whereClauses[level] != null) {
                         for (EventBean theEvent : fragments) {
                             eventsPerStream[level + 1] = theEvent;
-                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                            if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                                 events.add(theEvent);
                             }
                         }
@@ -83,7 +83,7 @@ public class PropertyEvaluatorNested implements PropertyEvaluator {
                     if (whereClauses[level] != null) {
                         for (EventBean next : fragments) {
                             eventsPerStream[level + 1] = next;
-                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                            if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                                 populateEvents(next, level + 1, events, exprEvaluatorContext);
                             }
                         }
@@ -99,7 +99,7 @@ public class PropertyEvaluatorNested implements PropertyEvaluator {
                 if (level == lastLevel) {
                     if (whereClauses[level] != null) {
                         eventsPerStream[level + 1] = fragment;
-                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                        if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                             events.add(fragment);
                         }
                     } else {
@@ -108,7 +108,7 @@ public class PropertyEvaluatorNested implements PropertyEvaluator {
                 } else {
                     if (whereClauses[level] != null) {
                         eventsPerStream[level + 1] = fragment;
-                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                        if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                             populateEvents(fragment, level + 1, events, exprEvaluatorContext);
                         }
                     } else {

@@ -51,6 +51,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.onaction.TableOnViewFactory;
 import com.espertech.esper.epl.table.onaction.TableOnViewFactoryFactory;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.OnSetVariableViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactoryFactory;
@@ -295,7 +296,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
         SubSelectStrategyCollection subSelectStrategyCollection = EPStatementStartMethodHelperSubselect.planSubSelect(services, statementContext, isQueryPlanLogging(services), subSelectStreamDesc, new String[]{streamSpec.getOptionalStreamName()}, new EventType[]{activatorResult.activatorResultEventType}, new String[]{activatorResult.triggerEventTypeName}, statementSpec.getDeclaredExpressions(), contextPropertyRegistry);
 
         for (OnTriggerSetAssignment assignment : desc.getAssignments()) {
-            ExprNode validated = ExprNodeUtility.getValidatedAssignment(assignment, validationContext);
+            ExprNode validated = ExprNodeUtilityRich.getValidatedAssignment(assignment, validationContext);
             assignment.setExpression(validated);
         }
 
@@ -483,7 +484,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
             OnTriggerWindowUpdateDesc updateDesc = (OnTriggerWindowUpdateDesc) onTriggerDesc;
             ExprValidationContext validationContext = new ExprValidationContext(assignmentTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
             for (OnTriggerSetAssignment assignment : updateDesc.getAssignments()) {
-                ExprNode validated = ExprNodeUtility.getValidatedAssignment(assignment, validationContext);
+                ExprNode validated = ExprNodeUtilityRich.getValidatedAssignment(assignment, validationContext);
                 assignment.setExpression(validated);
                 EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an on-update-clause");
             }
@@ -664,7 +665,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
 
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-        return ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, deleteJoinExpr, validationContext);
+        return ExprNodeUtilityRich.getValidatedSubtree(exprNodeOrigin, deleteJoinExpr, validationContext);
     }
 
     private List<SelectClauseElementCompiled> validateInsertSelect(List<SelectClauseElementRaw> selectClause, StreamTypeService insertTypeSvc, List<String> insertColumns, StatementContext statementContext, ExprEvaluatorContextStatement evaluatorContextStmt) throws ExprValidationException {
@@ -689,13 +690,13 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase 
             } else if (raw instanceof SelectClauseExprRawSpec) {
                 SelectClauseExprRawSpec exprSpec = (SelectClauseExprRawSpec) raw;
                 ExprValidationContext validationContext = new ExprValidationContext(insertTypeSvc, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-                ExprNode exprCompiled = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprSpec.getSelectExpression(), validationContext);
+                ExprNode exprCompiled = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, exprSpec.getSelectExpression(), validationContext);
                 String resultName = exprSpec.getOptionalAsName();
                 if (resultName == null) {
                     if (insertColumns.size() > colIndex) {
                         resultName = insertColumns.get(colIndex);
                     } else {
-                        resultName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprCompiled);
+                        resultName = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprCompiled);
                     }
                 }
                 compiledSelect.add(new SelectClauseExprCompiledSpec(exprCompiled, resultName, exprSpec.getOptionalAsName(), exprSpec.isEvents()));

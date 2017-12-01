@@ -26,11 +26,11 @@ import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.declexpr.ExprDeclaredHelper;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
 import com.espertech.esper.epl.spec.MethodStreamSpec;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
@@ -103,7 +103,7 @@ public class MethodPollingViewableFactory {
             if (scriptExpression != null) {
                 eventTypeNameProvidedUDFOrScript = scriptExpression.getEventTypeNameAnnotation();
                 strategy = MethodPollingExecStrategyEnum.TARGET_SCRIPT;
-                ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.METHODINVJOIN, scriptExpression, statementContext, null, false);
+                EPLValidationUtil.validateSimpleGetSubtree(ExprNodeOrigin.METHODINVJOIN, scriptExpression, statementContext, null, false);
             } else if (variableMetaData != null) {
                 variableName = variableMetaData.getVariableName();
                 if (variableMetaData.getContextPartitionName() != null) {

@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.epl.agg.aggregator.AggregatorAvg;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.methodagg.ExprAvgNode;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -44,8 +44,8 @@ public class TestExprAvgNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("avg(5)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
-        assertEquals("avg(distinct 6)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(avgNodeDistinct));
+        assertEquals("avg(5)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
+        assertEquals("avg(distinct 6)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(avgNodeDistinct));
     }
 
     public void testEqualsNode() throws Exception {

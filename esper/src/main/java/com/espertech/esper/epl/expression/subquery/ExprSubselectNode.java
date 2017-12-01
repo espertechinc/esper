@@ -23,6 +23,7 @@ import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
@@ -158,7 +159,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
      */
     public void setSelectClause(ExprNode[] selectClause, EngineImportService engineImportService, String statementName) {
         this.selectClause = selectClause;
-        this.selectClauseEvaluator = ExprNodeUtility.getEvaluatorsMayCompile(selectClause, engineImportService, ExprSubselectNode.class, false, statementName);
+        this.selectClauseEvaluator = ExprNodeUtilityRich.getEvaluatorsMayCompile(selectClause, engineImportService, ExprSubselectNode.class, false, statementName);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

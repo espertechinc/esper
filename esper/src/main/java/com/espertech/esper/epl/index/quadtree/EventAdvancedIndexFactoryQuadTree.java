@@ -11,10 +11,10 @@
 package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.table.EventTableOrganization;
 import com.espertech.esper.epl.lookup.*;
 
@@ -33,7 +33,7 @@ public abstract class EventAdvancedIndexFactoryQuadTree implements EventAdvanced
         ExprEvaluator height = positionalExpressions.get(3).getForge().getExprEvaluator();
         String[] expressions = new String[positionalExpressions.size()];
         for (Map.Entry<Integer, ExprNode> entry : positionalExpressions.entrySet()) {
-            expressions[entry.getKey()] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(entry.getValue());
+            expressions[entry.getKey()] = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(entry.getValue());
         }
         LookupStrategyDesc lookupStrategyDesc = new LookupStrategyDesc(LookupStrategyType.ADVANCED, expressions);
         return new SubordTableLookupStrategyFactoryQuadTree(x, y, width, height, isNWOnTrigger, numOuterstreams, lookupStrategyDesc);

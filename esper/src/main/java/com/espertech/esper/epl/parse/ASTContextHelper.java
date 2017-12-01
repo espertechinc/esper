@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.parse;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
@@ -61,7 +62,7 @@ public class ASTContextHelper {
             ExprNode[] distinctExpressions = null;
             if (ctx.createContextDistinct() != null) {
                 if (ctx.createContextDistinct().expressionList() == null) {
-                    distinctExpressions = new ExprNode[0];
+                    distinctExpressions = ExprNodeUtilityCore.EMPTY_EXPR_ARRAY;
                 } else {
                     distinctExpressions = ASTExprHelper.exprCollectSubNodesPerNode(ctx.createContextDistinct().expressionList().expression(), astExprNodeMap);
                 }

@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprConstantNode;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
@@ -40,10 +40,10 @@ public class TestExprConstantNode extends TestCase {
 
     public void testToExpressionString() throws Exception {
         constantNode = new ExprConstantNodeImpl("5");
-        assertEquals("\"5\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(constantNode));
+        assertEquals("\"5\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(constantNode));
 
         constantNode = new ExprConstantNodeImpl(10);
-        assertEquals("10", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(constantNode));
+        assertEquals("10", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(constantNode));
     }
 
     public void testEqualsNode() {

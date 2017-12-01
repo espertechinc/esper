@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNodePreviousType;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprPreviousNode extends TestCase {
@@ -47,7 +47,7 @@ public class TestExprPreviousNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("prev(s1.intPrimitive,s1.doublePrimitive)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(prevNode));
+        assertEquals("prev(s1.intPrimitive,s1.doublePrimitive)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(prevNode));
     }
 
     private void tryInvalidValidate(ExprPreviousNode exprPrevNode) throws Exception {

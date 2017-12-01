@@ -13,7 +13,7 @@ package com.espertech.esper.view.stat;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
@@ -85,6 +85,6 @@ public class TestUnivariateStatisticsViewFactory extends TestCase {
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListMD(parameters));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
         UnivariateStatisticsView view = (UnivariateStatisticsView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
-        assertEquals(fieldName, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getFieldExpression()));
+        assertEquals(fieldName, ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getFieldExpression()));
     }
 }

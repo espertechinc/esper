@@ -12,7 +12,7 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.view.TestViewSupport;
@@ -54,6 +54,6 @@ public class TestUniqueByPropertyViewFactory extends TestCase {
         factory.setViewParameters(null, TestViewSupport.toExprListBean(new Object[]{param}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportBean.class), SupportStatementContextFactory.makeContext(), null, null);
         UniqueByPropertyView view = (UniqueByPropertyView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
-        assertEquals(fieldName, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getCriteriaExpressions()[0]));
+        assertEquals(fieldName, ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getCriteriaExpressions()[0]));
     }
 }

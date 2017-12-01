@@ -31,6 +31,7 @@ import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.epl.spec.OutputLimitRateType;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.view.OutputConditionExpressionFactory;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.DataWindowViewFactory;
@@ -81,7 +82,7 @@ public class EPStatementStartMethodHelperValidate {
             // Validate where clause, initializing nodes to the stream ids used
             try {
                 ExprValidationContext validationContext = new ExprValidationContext(typeService, engineImportService, statementContext.getStatementExtensionServicesContext(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, intoTableName, false);
-                optionalFilterNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, optionalFilterNode, validationContext);
+                optionalFilterNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.FILTER, optionalFilterNode, validationContext);
                 if (optionalFilterNode.getForge().getEvaluationType() != boolean.class && optionalFilterNode.getForge().getEvaluationType() != Boolean.class) {
                     throw new ExprValidationException("The where-clause filter expression must return a boolean value");
                 }
@@ -94,7 +95,7 @@ public class EPStatementStartMethodHelperValidate {
                     throw new ExprValidationException("An aggregate function may not appear in a WHERE clause (use the HAVING clause)");
                 }
             } catch (ExprValidationException ex) {
-                log.debug(".validateNodes Validation exception for filter=" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(optionalFilterNode), ex);
+                log.debug(".validateNodes Validation exception for filter=" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(optionalFilterNode), ex);
                 throw new EPStatementException("Error validating expression: " + ex.getMessage(), ex, statementContext.getExpression());
             }
         }
@@ -108,7 +109,7 @@ public class EPStatementStartMethodHelperValidate {
 
                 ExprNode outputLimitWhenNode = statementSpec.getOutputLimitSpec().getWhenExpressionNode();
                 if (outputLimitWhenNode != null) {
-                    outputLimitWhenNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitWhenNode, validationContext);
+                    outputLimitWhenNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitWhenNode, validationContext);
                     statementSpec.getOutputLimitSpec().setWhenExpressionNode(outputLimitWhenNode);
 
                     if (JavaClassHelper.getBoxedType(outputLimitWhenNode.getForge().getEvaluationType()) != Boolean.class) {
@@ -122,7 +123,7 @@ public class EPStatementStartMethodHelperValidate {
                     if (statementSpec.getOutputLimitSpec().getRateType() != OutputLimitRateType.WHEN_EXPRESSION && statementSpec.getOutputLimitSpec().getRateType() != OutputLimitRateType.TERM) {
                         throw new ExprValidationException("A terminated-and expression must be used with the OUTPUT WHEN clause");
                     }
-                    ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr(), validationContext);
+                    ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr(), validationContext);
                     statementSpec.getOutputLimitSpec().setAndAfterTerminateExpr(validated);
 
                     if (JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType()) != Boolean.class) {
@@ -176,7 +177,7 @@ public class EPStatementStartMethodHelperValidate {
             return;
         }
         for (OnTriggerSetAssignment assign : assignments) {
-            ExprNode node = ExprNodeUtility.getValidatedAssignment(assign, validationContext);
+            ExprNode node = ExprNodeUtilityRich.getValidatedAssignment(assign, validationContext);
             assign.setExpression(node);
             EPStatementStartMethodHelperValidate.validateNoAggregations(node, "An aggregate function may not appear in a OUTPUT LIMIT clause");
         }
@@ -198,9 +199,9 @@ public class EPStatementStartMethodHelperValidate {
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         try {
             ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-            ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.JOINON, equalsNode, validationContext);
+            ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.JOINON, equalsNode, validationContext);
         } catch (ExprValidationException ex) {
-            log.debug("Validation exception for outer join node=" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(equalsNode), ex);
+            log.debug("Validation exception for outer join node=" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(equalsNode), ex);
             throw new EPStatementException("Error validating expression: " + ex.getMessage(), statementContext.getExpression());
         }
 
@@ -239,7 +240,7 @@ public class EPStatementStartMethodHelperValidate {
 
     protected static ExprNode validateExprNoAgg(ExprNodeOrigin exprNodeOrigin, ExprNode exprNode, StreamTypeService streamTypeService, StatementContext statementContext, ExprEvaluatorContext exprEvaluatorContext, String errorMsg, boolean allowTableConsumption) throws ExprValidationException {
         ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, allowTableConsumption, false, null, false);
-        ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, exprNode, validationContext);
+        ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(exprNodeOrigin, exprNode, validationContext);
         validateNoAggregations(validated, errorMsg);
         return validated;
     }

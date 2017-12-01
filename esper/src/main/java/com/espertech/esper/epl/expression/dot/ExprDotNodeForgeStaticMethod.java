@@ -54,7 +54,7 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprEvaluator[] childEvals = ExprNodeUtility.getEvaluatorsNoCompile(childForges);
+        ExprEvaluator[] childEvals = ExprNodeUtilityCore.getEvaluatorsNoCompile(childForges);
         return new ExprDotNodeForgeStaticMethodEval(this, childEvals, ExprDotNodeUtility.getEvaluators(chainForges));
     }
 

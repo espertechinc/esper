@@ -13,15 +13,15 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
-import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.epl.expression.codegen.CodegenLegoCompareEquals;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.codegen.base.CodegenMethodScope;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoCompareEquals;
+import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -134,12 +134,12 @@ public class ExprInNodeForgeEvalWColl implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprInNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
+        ExprForge[] forges = ExprNodeUtilityCore.getForges(forge.getForgeRenderable().getChildNodes());
         boolean isNot = forge.getForgeRenderable().isNotIn();
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprInNodeForgeEvalWColl.class, codegenClassScope);
 
         CodegenBlock block = methodNode.getBlock()
-            .declareVar(boolean.class, "hasNullRow", constantFalse());
+                .declareVar(boolean.class, "hasNullRow", constantFalse());
 
         Class leftTypeUncoerced = forges[0].getEvaluationType();
         Class leftTypeCoerced = forge.getCoercionType();

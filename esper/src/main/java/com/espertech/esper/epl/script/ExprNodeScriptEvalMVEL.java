@@ -46,7 +46,7 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase implements Ex
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parameters);
+            evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parameters);
         }
         Map<String, Object> paramsList = getMVELScriptParamsList(context);
         for (int i = 0; i < names.length; i++) {

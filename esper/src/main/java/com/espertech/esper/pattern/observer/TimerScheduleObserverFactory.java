@@ -15,6 +15,7 @@ import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
 
@@ -50,8 +51,8 @@ public class TimerScheduleObserverFactory implements ObserverFactory, Serializab
         // obtains name parameters
         Map<String, ExprNamedParameterNode> namedExpressions;
         try {
-            namedExpressions = ExprNodeUtility.getNamedExpressionsHandleDups(parameters);
-            ExprNodeUtility.validateNamed(namedExpressions, NAMED_PARAMETERS);
+            namedExpressions = ExprNodeUtilityRich.getNamedExpressionsHandleDups(parameters);
+            ExprNodeUtilityRich.validateNamed(namedExpressions, NAMED_PARAMETERS);
         } catch (ExprValidationException e) {
             throw new ObserverParameterException(e.getMessage(), e);
         }
@@ -60,7 +61,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, Serializab
         ExprNamedParameterNode isoStringExpr = namedExpressions.get(ISO_NAME);
         if (namedExpressions.size() == 1 && isoStringExpr != null) {
             try {
-                allConstantResult = ExprNodeUtility.validateNamedExpectType(isoStringExpr, new Class[]{String.class});
+                allConstantResult = ExprNodeUtilityRich.validateNamedExpectType(isoStringExpr, new Class[]{String.class});
             } catch (ExprValidationException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
             }
@@ -79,13 +80,13 @@ public class TimerScheduleObserverFactory implements ObserverFactory, Serializab
             }
             try {
                 if (dateNamedNode != null) {
-                    allConstantResult = ExprNodeUtility.validateNamedExpectType(dateNamedNode, new Class[]{String.class, Calendar.class, Date.class, Long.class, LocalDateTime.class, ZonedDateTime.class});
+                    allConstantResult = ExprNodeUtilityRich.validateNamedExpectType(dateNamedNode, new Class[]{String.class, Calendar.class, Date.class, Long.class, LocalDateTime.class, ZonedDateTime.class});
                 }
                 if (repetitionsNamedNode != null) {
-                    allConstantResult &= ExprNodeUtility.validateNamedExpectType(repetitionsNamedNode, new Class[]{Integer.class, Long.class});
+                    allConstantResult &= ExprNodeUtilityRich.validateNamedExpectType(repetitionsNamedNode, new Class[]{Integer.class, Long.class});
                 }
                 if (periodNamedNode != null) {
-                    allConstantResult &= ExprNodeUtility.validateNamedExpectType(periodNamedNode, new Class[]{TimePeriod.class});
+                    allConstantResult &= ExprNodeUtilityRich.validateNamedExpectType(periodNamedNode, new Class[]{TimePeriod.class});
                 }
             } catch (ExprValidationException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
@@ -183,7 +184,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, Serializab
                     ZonedDateTime zdt = (ZonedDateTime) param;
                     optionalDate = GregorianCalendar.from(zdt);
                 } else if (param == null) {
-                    throw new EPException("Null date-time value returned from " + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(dateNode));
+                    throw new EPException("Null date-time value returned from " + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(dateNode));
                 } else {
                     throw new EPException("Unrecognized date-time value " + param.getClass());
                 }

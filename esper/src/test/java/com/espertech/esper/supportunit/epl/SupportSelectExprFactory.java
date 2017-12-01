@@ -16,6 +16,7 @@ import com.espertech.esper.epl.expression.ops.ExprMathNode;
 import com.espertech.esper.epl.spec.SelectClauseElementCompiled;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.spec.SelectClauseExprRawSpec;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.support.SupportExprValidationContextFactory;
 
@@ -107,7 +108,7 @@ public class SupportSelectExprFactory {
         top.addChildNode(c2);
         c1.addChildNode(c1_1);
 
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, top, SupportExprValidationContextFactory.makeEmpty());
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, top, SupportExprValidationContextFactory.makeEmpty());
 
         List<SelectClauseExprRawSpec> selectionList = new LinkedList<SelectClauseExprRawSpec>();
         selectionList.add(new SelectClauseExprRawSpec(top, null, false));

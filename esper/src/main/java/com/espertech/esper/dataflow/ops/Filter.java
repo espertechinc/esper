@@ -18,7 +18,11 @@ import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.event.EventBeanSPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +60,7 @@ public class Filter implements DataFlowOpLifecycle {
         EventType eventType = prepareContext.getInputPorts().get(0).getTypeDesc().getEventType();
         singleOutputPort = prepareContext.getOutputPorts().size() == 1;
 
-        ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWFILTER, filter, prepareContext.getStatementContext(), eventType, false);
+        ExprNode validated = EPLValidationUtil.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWFILTER, filter, prepareContext.getStatementContext(), eventType, false);
         evaluator = ExprNodeCompiler.allocateEvaluator(validated.getForge(), prepareContext.getServicesContext().getEngineImportService(), Filter.class, false, prepareContext.getStatementContext().getStatementName());
         theEvent = prepareContext.getServicesContext().getEventAdapterService().getShellForType(eventType);
         eventsPerStream[0] = theEvent;

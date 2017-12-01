@@ -11,9 +11,9 @@
 package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.util.JavaClassHelper;
@@ -274,7 +274,7 @@ public class QueryPlanIndexBuilder {
                 List<QueryGraphValuePairInKWMultiIdx> inkwMultis = queryGraphValue.getInKeywordMulti();
                 if (!inkwMultis.isEmpty()) {
                     QueryGraphValuePairInKWMultiIdx multi = inkwMultis.get(0);
-                    inKeywordMultiIdxProp = new SubordPropInKeywordMultiIndex(ExprNodeUtility.getIdentResolvedPropertyNames(multi.getIndexed()), multi.getIndexed()[0].getForge().getEvaluationType(), multi.getKey().getKeyExpr());
+                    inKeywordMultiIdxProp = new SubordPropInKeywordMultiIndex(ExprNodeUtilityCore.getIdentResolvedPropertyNames(multi.getIndexed()), multi.getIndexed()[0].getForge().getEvaluationType(), multi.getKey().getKeyExpr());
                 }
 
                 if (inKeywordSingleIdxProp != null && inKeywordMultiIdxProp != null) {

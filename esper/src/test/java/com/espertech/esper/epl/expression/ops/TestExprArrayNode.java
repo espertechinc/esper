@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.support.SupportExprValidationContextFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import junit.framework.TestCase;
 
 public class TestExprArrayNode extends TestCase {
@@ -74,10 +74,10 @@ public class TestExprArrayNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("{}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[0]));
-        assertEquals("{2,3}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[1]));
-        assertEquals("{1.5,1}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[2]));
-        assertEquals("{\"a\",1}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[3]));
+        assertEquals("{}", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(arrayNodes[0]));
+        assertEquals("{2,3}", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(arrayNodes[1]));
+        assertEquals("{1.5,1}", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(arrayNodes[2]));
+        assertEquals("{\"a\",1}", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(arrayNodes[3]));
     }
 
     public void testEqualsNode() {

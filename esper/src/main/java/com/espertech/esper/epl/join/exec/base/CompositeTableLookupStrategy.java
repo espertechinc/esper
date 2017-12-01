@@ -12,9 +12,9 @@ package com.espertech.esper.epl.join.exec.base;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexQuery;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexQueryFactory;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryHashKeyed;
@@ -50,7 +50,7 @@ public class CompositeTableLookupStrategy implements JoinExecTableLookupStrategy
         for (QueryGraphValueEntryRange pair : rangeKeyPairs) {
             ExprNode[] expressions = pair.getExpressions();
             for (ExprNode node : expressions) {
-                expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(node));
+                expressionTexts.add(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(node));
             }
         }
         lookupStrategyDesc = new LookupStrategyDesc(LookupStrategyType.COMPOSITE, expressionTexts.toArray(new String[expressionTexts.size()]));

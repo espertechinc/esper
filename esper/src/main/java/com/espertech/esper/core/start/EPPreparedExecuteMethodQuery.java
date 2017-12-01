@@ -34,6 +34,7 @@ import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StreamSpecCompiled;
 import com.espertech.esper.epl.spec.TableQueryStreamSpec;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewProviderForAgentInstance;
 import com.espertech.esper.event.EventBeanReader;
@@ -122,7 +123,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
                 try {
                     ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
                     ExprValidationContext validationContext = new ExprValidationContext(types, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, true);
-                    ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, statementSpec.getFilterRootNode(), validationContext);
+                    ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.FILTER, statementSpec.getFilterRootNode(), validationContext);
                     FilterExprAnalyzer.analyze(validated, queryGraph, false);
                 } catch (Exception ex) {
                     log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
@@ -350,7 +351,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
 
     private Collection<EventBean> getFiltered(Collection<EventBean> snapshot, List<ExprNode> filterExpressions) {
         ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(Math.min(snapshot.size(), 16));
-        ExprNodeUtility.applyFilterExpressionsIterable(snapshot, filterExpressions, agentInstanceContext, deque);
+        ExprNodeUtilityCore.applyFilterExpressionsIterable(snapshot, filterExpressions, agentInstanceContext, deque);
         return deque;
     }
 

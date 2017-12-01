@@ -24,6 +24,7 @@ import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
@@ -323,7 +324,7 @@ public class SelectExprInsertEventBeanFactory {
         // assign
         WriteablePropertyDescriptor[] writableProperties = writablePropertiesList.toArray(new WriteablePropertyDescriptor[writablePropertiesList.size()]);
         ExprForge[] exprForges = forgesList.toArray(new ExprForge[forgesList.size()]);
-        ExprEvaluator[] exprEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(exprForges, engineImportService, SelectExprInsertEventBeanFactory.class, typeService.isOnDemandStreams(), statementName);
+        ExprEvaluator[] exprEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(exprForges, engineImportService, SelectExprInsertEventBeanFactory.class, typeService.isOnDemandStreams(), statementName);
         TypeWidener[] wideners = widenersList.toArray(new TypeWidener[widenersList.size()]);
 
         EventBeanManufacturer eventManufacturer;
@@ -341,7 +342,7 @@ public class SelectExprInsertEventBeanFactory {
 
         Pair<FastConstructor, ExprForge[]> pair = InstanceManufacturerUtil.getManufacturer(beanEventType.getUnderlyingType(), engineImportService, forges, expressionReturnTypes);
         EventBeanManufacturerCtor eventManufacturer = new EventBeanManufacturerCtor(pair.getFirst(), beanEventType, eventAdapterService);
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsMayCompile(pair.getSecond(), engineImportService, SelectExprInsertEventBeanFactory.class, false, statementName);
+        ExprEvaluator[] evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(pair.getSecond(), engineImportService, SelectExprInsertEventBeanFactory.class, false, statementName);
         return new SelectExprInsertNativeNoWiden(beanEventType, eventManufacturer, pair.getSecond(), evaluators);
     }
 
@@ -388,7 +389,7 @@ public class SelectExprInsertEventBeanFactory {
         // assign
         WriteablePropertyDescriptor[] writableProperties = writablePropertiesList.toArray(new WriteablePropertyDescriptor[writablePropertiesList.size()]);
         ExprForge[] exprForges = forgesList.toArray(new ExprForge[forgesList.size()]);
-        ExprEvaluator[] exprEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(exprForges, engineImportService, SelectExprInsertEventBeanFactory.class, isFireAndForget, statementName);
+        ExprEvaluator[] exprEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(exprForges, engineImportService, SelectExprInsertEventBeanFactory.class, isFireAndForget, statementName);
         TypeWidener[] wideners = widenersList.toArray(new TypeWidener[widenersList.size()]);
 
         EventBeanManufacturer eventManufacturer;
@@ -542,7 +543,7 @@ public class SelectExprInsertEventBeanFactory {
 
         public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
             if (exprEvaluators == null) {
-                exprEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(exprForges, engineImportService, this.getClass(), isFireAndForget, statementName);
+                exprEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(exprForges, engineImportService, this.getClass(), isFireAndForget, statementName);
             }
             return this;
         }

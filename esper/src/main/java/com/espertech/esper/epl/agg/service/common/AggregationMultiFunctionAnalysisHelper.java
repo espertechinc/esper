@@ -16,8 +16,8 @@ import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateLocalGroupByDesc;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class AggregationMultiFunctionAnalysisHelper {
             }
             // if there is no local-group by, but there is group-by-clause, and the ident-over matches, use that
             if (optionalOver == null && groupByNodes.length > 0 && ident.optionalLocalGroupBy != null &&
-                    ExprNodeUtility.deepEqualsIgnoreDupAndOrder(groupByNodes, ident.optionalLocalGroupBy.getPartitionExpressions())) {
+                    ExprNodeUtilityCore.deepEqualsIgnoreDupAndOrder(groupByNodes, ident.optionalLocalGroupBy.getPartitionExpressions())) {
                 return ident;
             }
             if (optionalOver == null && ident.optionalLocalGroupBy == null) {
@@ -75,7 +75,7 @@ public class AggregationMultiFunctionAnalysisHelper {
             }
             if (optionalOver != null &&
                     ident.optionalLocalGroupBy != null &&
-                    ExprNodeUtility.deepEqualsIgnoreDupAndOrder(optionalOver.getPartitionExpressions(), ident.optionalLocalGroupBy.getPartitionExpressions())) {
+                    ExprNodeUtilityCore.deepEqualsIgnoreDupAndOrder(optionalOver.getPartitionExpressions(), ident.optionalLocalGroupBy.getPartitionExpressions())) {
                 return ident;
             }
         }

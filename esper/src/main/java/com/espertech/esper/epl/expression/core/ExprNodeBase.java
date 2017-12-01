@@ -24,14 +24,13 @@ import java.util.Collection;
 public abstract class ExprNodeBase implements ExprNode {
     private static final long serialVersionUID = 0L;
 
-    private static final ExprNode[] EMPTY_EXPR_ARRAY = new ExprNode[0];
     private ExprNode[] childNodes;
 
     /**
      * Constructor creates a list of child nodes.
      */
     public ExprNodeBase() {
-        childNodes = EMPTY_EXPR_ARRAY;
+        childNodes = ExprNodeUtilityCore.EMPTY_EXPR_ARRAY;
     }
 
     public abstract void toPrecedenceFreeEPL(StringWriter writer);

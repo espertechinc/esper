@@ -12,10 +12,11 @@ package com.espertech.esper.epl.agg.access;
 
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 
 import java.util.Comparator;
 
@@ -65,8 +66,8 @@ public class AggregationStateSortedSpecForge {
     }
 
     public AggregationStateSortedSpec toEvaluator(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
-        ExprEvaluator[] criteriaExpressionEvals = ExprNodeUtility.getEvaluatorsMayCompile(criteria, engineImportService, this.getClass(), isFireAndForget, statementName);
-        Class[] criteriaTypes = ExprNodeUtility.getExprResultTypes(criteria);
+        ExprEvaluator[] criteriaExpressionEvals = ExprNodeUtilityRich.getEvaluatorsMayCompile(criteria, engineImportService, this.getClass(), isFireAndForget, statementName);
+        Class[] criteriaTypes = ExprNodeUtilityCore.getExprResultTypes(criteria);
         ExprEvaluator optionalFilterEval = optionalFilter == null ? null : ExprNodeCompiler.allocateEvaluator(optionalFilter, engineImportService, this.getClass(), isFireAndForget, statementName);
         return new AggregationStateSortedSpec(streamId, criteriaExpressionEvals, criteriaTypes, comparator, criteriaKeyBinding, optionalFilterEval);
     }

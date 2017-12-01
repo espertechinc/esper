@@ -23,7 +23,7 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 
 public class EvalInsertNoWildcardObjectArrayRemap implements SelectExprProcessor, SelectExprProcessorForge {
 
@@ -53,7 +53,7 @@ public class EvalInsertNoWildcardObjectArrayRemap implements SelectExprProcessor
 
     public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+            evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
         }
         return this;
     }

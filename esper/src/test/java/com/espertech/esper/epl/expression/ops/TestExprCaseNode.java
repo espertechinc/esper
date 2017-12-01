@@ -11,14 +11,14 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCaseNode;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,10 +95,10 @@ public class TestExprCaseNode extends TestCase {
 
     public void testToExpressionString() throws Exception {
         ExprCaseNode _caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
-        assertEquals("case when s0.intPrimitive=1 then \"a\" when s0.intPrimitive=2 then \"b\" else \"c\" end", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(_caseNode));
+        assertEquals("case when s0.intPrimitive=1 then \"a\" when s0.intPrimitive=2 then \"b\" else \"c\" end", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(_caseNode));
 
         _caseNode = SupportExprNodeFactory.makeCaseSyntax2Node();
-        assertEquals("case s0.intPrimitive when 1 then \"a\" when 2 then \"b\" else \"c\" end", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(_caseNode));
+        assertEquals("case s0.intPrimitive when 1 then \"a\" when 2 then \"b\" else \"c\" end", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(_caseNode));
     }
 
     private void tryInvalidValidate(ExprCaseNode exprCaseNode) throws Exception {

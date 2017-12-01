@@ -27,10 +27,11 @@ import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCompiler;
 import com.espertech.esper.epl.core.select.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
@@ -95,7 +96,7 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         this.outputConditionType = outputConditionType;
         this.numStreams = numStreams;
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
-        this.groupKeyTypes = ExprNodeUtility.getExprResultTypes(groupKeyNodeExpressions);
+        this.groupKeyTypes = ExprNodeUtilityCore.getExprResultTypes(groupKeyNodeExpressions);
     }
 
     public ResultSetProcessorFactory getResultSetProcessorFactory(StatementContext stmtContext, boolean isFireAndForget) {
@@ -108,7 +109,7 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
             groupKeyNodes = null;
         } else {
             groupKeyNode = null;
-            groupKeyNodes = ExprNodeUtility.getEvaluatorsMayCompile(groupKeyNodeExpressions, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
+            groupKeyNodes = ExprNodeUtilityRich.getEvaluatorsMayCompile(groupKeyNodeExpressions, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
         }
 
         ExprEvaluator optionalHavingEval = optionalHavingNode == null ? null : ExprNodeCompiler.allocateEvaluator(optionalHavingNode, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());

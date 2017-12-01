@@ -38,7 +38,7 @@ public class ExprOrNode extends ExprNodeBase implements ExprForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return new ExprOrNodeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(this.getChildNodes()));
+        return new ExprOrNodeEval(this, ExprNodeUtilityCore.getEvaluatorsNoCompile(this.getChildNodes()));
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

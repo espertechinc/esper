@@ -109,13 +109,13 @@ public final class FilterSpecCompilerMakeParamUtil {
         AdvancedIndexConfigContextPartitionQuadTree config = (AdvancedIndexConfigContextPartitionQuadTree) filterDesc.getIndexSpec();
 
         StringWriter builder = new StringWriter();
-        ExprNodeUtility.toExpressionString(keyExpressions[0], builder);
+        ExprNodeUtilityCore.toExpressionString(keyExpressions[0], builder);
         builder.append(",");
-        ExprNodeUtility.toExpressionString(keyExpressions[1], builder);
+        ExprNodeUtilityCore.toExpressionString(keyExpressions[1], builder);
         builder.append(",");
-        ExprNodeUtility.toExpressionString(keyExpressions[2], builder);
+        ExprNodeUtilityCore.toExpressionString(keyExpressions[2], builder);
         builder.append(",");
-        ExprNodeUtility.toExpressionString(keyExpressions[3], builder);
+        ExprNodeUtilityCore.toExpressionString(keyExpressions[3], builder);
         builder.append("/");
         builder.append(filterDesc.getIndexName().toLowerCase(Locale.ENGLISH));
         builder.append("/");
@@ -160,7 +160,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         } else if (indexExpression instanceof ExprContextPropertyNode) {
             ExprContextPropertyNode node = (ExprContextPropertyNode) indexExpression;
             resolved = new FilterForEvalContextPropDouble(node.getGetter(), node.getPropertyName());
-        } else if (ExprNodeUtility.isConstantValueExpr(indexExpression)) {
+        } else if (ExprNodeUtilityCore.isConstantValueExpr(indexExpression)) {
             ExprConstantNode constantNode = (ExprConstantNode) indexExpression;
             double d = ((Number) constantNode.getConstantValue(exprEvaluatorContext)).doubleValue();
             resolved = new FilterForEvalConstantDouble(d);
@@ -168,12 +168,12 @@ public final class FilterSpecCompilerMakeParamUtil {
         if (resolved != null) {
             return resolved;
         }
-        throw new ExprValidationException("Invalid filter-indexable expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(indexExpression) + "' in respect to index '" + indexName + "': expected either a constant, context-builtin or property from a previous pattern match");
+        throw new ExprValidationException("Invalid filter-indexable expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(indexExpression) + "' in respect to index '" + indexName + "': expected either a constant, context-builtin or property from a previous pattern match");
     }
 
     private static EventPropertyGetter resolveFilterIndexRequiredGetter(String indexName, ExprNode keyExpression) throws ExprValidationException {
         if (!(keyExpression instanceof ExprIdentNode)) {
-            throw new ExprValidationException("Invalid filter-index lookup expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExpression) + "' in respect to index '" + indexName + "': expected an event property name");
+            throw new ExprValidationException("Invalid filter-index lookup expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(keyExpression) + "' in respect to index '" + indexName + "': expected an event property name");
         }
         return ((ExprIdentNode) keyExpression).getExprEvaluatorIdent().getGetter();
     }
@@ -199,7 +199,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         ExprNode commonExpressionNode;
         ExprNode lhs = childNodes[0].getChildNodes()[0];
         ExprNode rhs = childNodes[0].getChildNodes()[1];
-        if (ExprNodeUtility.deepEquals(lhs, rhs, false)) {
+        if (ExprNodeUtilityCore.deepEquals(lhs, rhs, false)) {
             return constituent;
         }
         if (isExprExistsInAllEqualsChildNodes(childNodes, lhs)) {
@@ -215,7 +215,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         in.addChildNode(commonExpressionNode);
         for (int i = 0; i < constituent.getChildNodes().length; i++) {
             ExprNode child = constituent.getChildNodes()[i];
-            int nodeindex = ExprNodeUtility.deepEquals(commonExpressionNode, childNodes[i].getChildNodes()[0], false) ? 1 : 0;
+            int nodeindex = ExprNodeUtilityCore.deepEquals(commonExpressionNode, childNodes[i].getChildNodes()[0], false) ? 1 : 0;
             in.addChildNode(child.getChildNodes()[nodeindex]);
         }
 
@@ -260,7 +260,7 @@ public final class FilterSpecCompilerMakeParamUtil {
 
     private static FilterSpecParamFilterForEval handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName) {
         // constant
-        if (ExprNodeUtility.isConstantValueExpr(endpoint)) {
+        if (ExprNodeUtilityCore.isConstantValueExpr(endpoint)) {
             ExprConstantNode node = (ExprConstantNode) endpoint;
             Object value = node.getConstantValue(exprEvaluatorContext);
             if (value == null) {
@@ -310,7 +310,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         it.next();  // ignore the first node as it's the identifier
         while (it.hasNext()) {
             ExprNode subNode = it.next();
-            if (ExprNodeUtility.isConstantValueExpr(subNode)) {
+            if (ExprNodeUtilityCore.isConstantValueExpr(subNode)) {
                 ExprConstantNode constantNode = (ExprConstantNode) subNode;
                 Object constant = constantNode.getConstantValue(exprEvaluatorContext);
                 if (constant instanceof Collection) {
@@ -436,7 +436,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         ExprNode right = constituent.getChildNodes()[1];
 
         // check identifier and constant combination
-        if ((ExprNodeUtility.isConstantValueExpr(right)) && (left instanceof ExprFilterOptimizableNode)) {
+        if ((ExprNodeUtilityCore.isConstantValueExpr(right)) && (left instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 ExprConstantNode constantNode = (ExprConstantNode) right;
@@ -446,7 +446,7 @@ public final class FilterSpecCompilerMakeParamUtil {
                 return new FilterSpecParamConstant(lookupable, op, constant);
             }
         }
-        if ((ExprNodeUtility.isConstantValueExpr(left)) && (right instanceof ExprFilterOptimizableNode)) {
+        if ((ExprNodeUtilityCore.isConstantValueExpr(left)) && (right instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) right;
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 ExprConstantNode constantNode = (ExprConstantNode) left;
@@ -604,10 +604,10 @@ public final class FilterSpecCompilerMakeParamUtil {
         for (ExprNode child : childNodes) {
             ExprNode lhs = child.getChildNodes()[0];
             ExprNode rhs = child.getChildNodes()[1];
-            if (!ExprNodeUtility.deepEquals(lhs, search, false) && !ExprNodeUtility.deepEquals(rhs, search, false)) {
+            if (!ExprNodeUtilityCore.deepEquals(lhs, search, false) && !ExprNodeUtilityCore.deepEquals(rhs, search, false)) {
                 return false;
             }
-            if (ExprNodeUtility.deepEquals(lhs, rhs, false)) {
+            if (ExprNodeUtilityCore.deepEquals(lhs, rhs, false)) {
                 return false;
             }
         }

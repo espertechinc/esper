@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCastNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -68,6 +68,6 @@ public class TestExprCastNode extends TestCase {
 
     public void testToExpressionString() throws Exception {
         castNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals("cast(10,long)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(castNodes[0]));
+        assertEquals("cast(10,long)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(castNodes[0]));
     }
 }

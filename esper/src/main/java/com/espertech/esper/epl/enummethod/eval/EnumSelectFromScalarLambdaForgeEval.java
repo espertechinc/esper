@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Deque;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class EnumSelectFromScalarLambdaForgeEval implements EnumEval {
 

@@ -12,7 +12,7 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.filter.FilterSpecCompiled;
@@ -161,8 +161,8 @@ public class StatementSpecCompiled {
         outputLimitSpec = null;
         orderByList = OrderByItem.EMPTY_ORDERBY_ARRAY;
         subSelectExpressions = ExprSubselectNode.EMPTY_SUBSELECT_ARRAY;
-        declaredExpressions = ExprNodeUtility.EMPTY_DECLARED_ARR;
-        scripts = ExprNodeUtility.EMPTY_SCRIPTS;
+        declaredExpressions = ExprNodeUtilityRich.EMPTY_DECLARED_ARR;
+        scripts = ExprNodeUtilityRich.EMPTY_SCRIPTS;
         variableReferences = new HashSet<String>();
         rowLimitSpec = null;
         eventTypeReferences = new String[0];

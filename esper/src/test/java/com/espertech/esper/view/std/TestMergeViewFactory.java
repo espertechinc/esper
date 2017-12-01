@@ -12,7 +12,7 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
@@ -74,9 +74,9 @@ public class TestMergeViewFactory extends TestCase {
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListMD(parameters));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, parents);
         MergeView view = (MergeView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
-        assertEquals(fieldNames[0], ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getGroupFieldNames()[0]));
+        assertEquals(fieldNames[0], ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getGroupFieldNames()[0]));
         if (fieldNames.length > 0) {
-            assertEquals(fieldNames[1], ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getGroupFieldNames()[1]));
+            assertEquals(fieldNames[1], ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getGroupFieldNames()[1]));
         }
     }
 }

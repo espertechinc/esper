@@ -27,6 +27,7 @@ import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
@@ -114,14 +115,14 @@ public class SelectExprProcessorFactory {
                     groupedDeliveryExpr = new ExprNode[item.getExpressions().size()];
                     ExprValidationContext validationContext = new ExprValidationContext(type, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, intoTableClause == null ? null : intoTableClause.getName(), false);  // no context descriptor available
                     for (int i = 0; i < item.getExpressions().size(); i++) {
-                        groupedDeliveryExpr[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FORCLAUSE, item.getExpressions().get(i), validationContext);
+                        groupedDeliveryExpr[i] = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.FORCLAUSE, item.getExpressions().get(i), validationContext);
                     }
                     forDelivery = true;
                 }
             }
 
             BindProcessorForge bindProcessor = new BindProcessorForge(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService);
-            ExprEvaluator[] groupedDeliveryEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupedDeliveryExpr, engineImportService, SelectExprProcessorFactory.class, typeService.isOnDemandStreams(), statementName);
+            ExprEvaluator[] groupedDeliveryEvals = ExprNodeUtilityRich.getEvaluatorsMayCompile(groupedDeliveryExpr, engineImportService, SelectExprProcessorFactory.class, typeService.isOnDemandStreams(), statementName);
             statementResultService.setSelectClause(bindProcessor.getExpressionTypes(), bindProcessor.getColumnNamesAssigned(), forDelivery, groupedDeliveryEvals, exprEvaluatorContext);
             return new SelectExprResultProcessor(statementResultService, synthetic, bindProcessor);
         }

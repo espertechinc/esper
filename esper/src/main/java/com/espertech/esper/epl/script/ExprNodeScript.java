@@ -24,6 +24,7 @@ import com.espertech.esper.epl.script.mvel.ExpressionScriptCompiledMVEL;
 import com.espertech.esper.epl.script.mvel.MVELHelper;
 import com.espertech.esper.epl.spec.ExpressionScriptCompiled;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -74,7 +75,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append(script.getName());
-        ExprNodeUtility.toExpressionStringIncludeParen(parameters, writer);
+        ExprNodeUtilityCore.toExpressionStringIncludeParen(parameters, writer);
     }
 
     public ExprPrecedenceEnum getPrecedence() {
@@ -96,7 +97,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         ExprNodeScript that = (ExprNodeScript) node;
 
         if (script != null ? !script.equals(that.script) : that.script != null) return false;
-        return ExprNodeUtility.deepEquals(parameters, that.parameters);
+        return ExprNodeUtilityCore.deepEquals(parameters, that.parameters);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
@@ -112,7 +113,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         // validate all expression parameters
         List<ExprNode> validatedParameters = new ArrayList<ExprNode>();
         for (ExprNode expr : parameters) {
-            validatedParameters.add(ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SCRIPTPARAMS, expr, validationContext));
+            validatedParameters.add(ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SCRIPTPARAMS, expr, validationContext));
         }
 
         // set up map of input parameter names and evaluators
@@ -174,19 +175,19 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
     @Override
     public void accept(ExprNodeVisitor visitor) {
         super.accept(visitor);
-        ExprNodeUtility.acceptParams(visitor, parameters);
+        ExprNodeUtilityCore.acceptParams(visitor, parameters);
     }
 
     @Override
     public void accept(ExprNodeVisitorWithParent visitor) {
         super.accept(visitor);
-        ExprNodeUtility.acceptParams(visitor, parameters);
+        ExprNodeUtilityCore.acceptParams(visitor, parameters);
     }
 
     @Override
     public void acceptChildnodes(ExprNodeVisitorWithParent visitor, ExprNode parent) {
         super.acceptChildnodes(visitor, parent);
-        ExprNodeUtility.acceptParams(visitor, parameters, this);
+        ExprNodeUtilityCore.acceptParams(visitor, parameters, this);
     }
 
     private void compileScript(ExprForge[] forges, EngineImportService engineImportService)

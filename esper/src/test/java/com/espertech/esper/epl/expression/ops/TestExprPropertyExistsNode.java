@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprPropertyExistsNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -79,6 +79,6 @@ public class TestExprPropertyExistsNode extends TestCase {
 
     public void testToExpressionString() throws Exception {
         existsNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals("exists(s0.dummy?)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(existsNodes[0]));
+        assertEquals("exists(s0.dummy?)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(existsNodes[0]));
     }
 }

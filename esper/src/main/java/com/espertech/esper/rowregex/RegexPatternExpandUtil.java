@@ -13,9 +13,10 @@ package com.espertech.esper.rowregex;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.PermutationEnumeration;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SerializableObjectCopier;
@@ -239,7 +240,7 @@ public class RegexPatternExpandUtil {
     }
 
     private static void validateExpression(ExprNode repeat) throws ExprValidationException {
-        ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.MATCHRECOGPATTERN, repeat);
+        ExprNodeUtilityRich.validatePlainExpression(ExprNodeOrigin.MATCHRECOGPATTERN, repeat);
         if (!repeat.isConstantResult()) {
             throw new ExprValidationException(getPatternQuantifierExpressionText(repeat) + " must return a constant value");
         }
@@ -272,6 +273,6 @@ public class RegexPatternExpandUtil {
     }
 
     private static String getPatternQuantifierExpressionText(ExprNode exprNode) {
-        return "pattern quantifier '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "'";
+        return "pattern quantifier '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprNode) + "'";
     }
 }

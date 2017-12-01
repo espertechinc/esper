@@ -13,7 +13,7 @@ package com.espertech.esper.view.window;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenDelta;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -92,7 +92,7 @@ public class TestExternallyTimedWindowViewFactory extends TestCase {
         factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(parameters));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportBean.class), SupportStatementContextFactory.makeContext(), null, null);
         ExternallyTimedWindowView view = (ExternallyTimedWindowView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
-        assertEquals(fieldName, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getTimestampExpression()));
+        assertEquals(fieldName, ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(view.getTimestampExpression()));
         assertTrue(new ExprTimePeriodEvalDeltaConstGivenDelta(msec).equalsTimePeriod(view.getTimeDeltaComputation()));
     }
 }

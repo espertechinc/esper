@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
 
 /**
  * Getter for a key property identified by a given key value, using vanilla reflection.

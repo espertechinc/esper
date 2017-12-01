@@ -17,7 +17,6 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.core.CodegenCtor;
 import com.espertech.esper.codegen.core.CodegenInstanceAux;
 import com.espertech.esper.codegen.core.CodegenTypedParam;
-import com.espertech.esper.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
@@ -31,14 +30,16 @@ import com.espertech.esper.epl.core.resultset.rowforall.ResultSetProcessorRowFor
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCompiler;
 import com.espertech.esper.epl.core.select.SelectExprProcessorForge;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenNames;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 import java.util.Collections;
@@ -104,7 +105,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
         this.outputConditionType = outputConditionType;
         this.numStreams = numStreams;
-        this.groupKeyTypes = ExprNodeUtility.getExprResultTypes(groupKeyNodeExpressions);
+        this.groupKeyTypes = ExprNodeUtilityCore.getExprResultTypes(groupKeyNodeExpressions);
     }
 
     public ResultSetProcessorFactory getResultSetProcessorFactory(StatementContext stmtContext, boolean isFireAndForget) {
@@ -124,7 +125,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         }
 
         GroupByRollupPerLevelExpression perLevelEvals = new GroupByRollupPerLevelExpression(selectExprProcessors, havingEvals);
-        ExprEvaluator[] groupKeyEvals = ExprNodeUtility.getEvaluatorsMayCompile(groupKeyNodeExpressions, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
+        ExprEvaluator[] groupKeyEvals = ExprNodeUtilityRich.getEvaluatorsMayCompile(groupKeyNodeExpressions, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
 
         return new ResultSetProcessorRowPerGroupRollupFactory(resultEventType, perLevelEvals, groupKeyNodeExpressions, groupKeyEvals, isSelectRStream, isUnidirectional, outputLimitSpec, isSorting, groupByRollupDesc, isJoin, isHistoricalOnly,
                 optionalOutputFirstConditionFactory, resultSetProcessorHelperFactory, outputConditionType, numStreams, unbounded);

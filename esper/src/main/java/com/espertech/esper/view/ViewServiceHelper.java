@@ -17,8 +17,8 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewFactory;
 import com.espertech.esper.view.std.GroupByViewFactoryMarker;
@@ -40,7 +40,7 @@ public class ViewServiceHelper {
         }
         if (viewFactory.get(0) instanceof GroupByViewFactoryMarker) {
             ExprNode[] criteria = ((GroupByViewFactoryMarker) viewFactory.get(0)).getCriteriaExpressions();
-            Set<String> groupedCriteria = ExprNodeUtility.getPropertyNamesIfAllProps(criteria);
+            Set<String> groupedCriteria = ExprNodeUtilityCore.getPropertyNamesIfAllProps(criteria);
             if (groupedCriteria == null) {
                 return null;
             }

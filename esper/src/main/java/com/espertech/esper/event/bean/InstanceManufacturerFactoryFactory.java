@@ -18,7 +18,7 @@ import net.sf.cglib.reflect.FastConstructor;
 public class InstanceManufacturerFactoryFactory {
     public static InstanceManufacturerFactory getManufacturer(Class targetClass, EngineImportService engineImportService, ExprNode[] childNodes)
             throws ExprValidationException {
-        ExprForge[] forgesUnmodified = ExprNodeUtility.getForges(childNodes);
+        ExprForge[] forgesUnmodified = ExprNodeUtilityCore.getForges(childNodes);
         Object[] returnTypes = new Object[forgesUnmodified.length];
         for (int i = 0; i < forgesUnmodified.length; i++) {
             returnTypes[i] = forgesUnmodified[i].getEvaluationType();

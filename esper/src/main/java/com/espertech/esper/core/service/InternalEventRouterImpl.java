@@ -20,6 +20,7 @@ import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.spec.UpdateDesc;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventBeanCopyMethod;
 import com.espertech.esper.event.EventBeanWriter;
 import com.espertech.esper.event.EventTypeSPI;
@@ -125,7 +126,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
         List<String> properties = new ArrayList<String>();
         for (int i = 0; i < desc.getAssignments().size(); i++) {
             OnTriggerSetAssignment xxx = desc.getAssignments().get(i);
-            Pair<String, ExprNode> assignmentPair = ExprNodeUtility.checkGetAssignmentToProp(xxx.getExpression());
+            Pair<String, ExprNode> assignmentPair = ExprNodeUtilityRich.checkGetAssignmentToProp(xxx.getExpression());
             if (assignmentPair == null) {
                 throw new ExprValidationException("Missing property assignment expression in assignment number " + i);
             }
@@ -136,7 +137,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
             }
 
             try {
-                wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getForge().getEvaluationType(),
+                wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getForge().getEvaluationType(),
                         writableProperty.getPropertyType(), assignmentPair.getFirst(), false, null, null, engineURI);
             } catch (TypeWidenerException ex) {
                 throw new ExprValidationException(ex.getMessage(), ex);
@@ -247,7 +248,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
             ExprNode[] expressions = new ExprNode[entry.getKey().getAssignments().size()];
             for (int i = 0; i < entry.getKey().getAssignments().size(); i++) {
                 OnTriggerSetAssignment assignment = entry.getKey().getAssignments().get(i);
-                Pair<String, ExprNode> assignmentPair = ExprNodeUtility.checkGetAssignmentToProp(assignment.getExpression());
+                Pair<String, ExprNode> assignmentPair = ExprNodeUtilityRich.checkGetAssignmentToProp(assignment.getExpression());
                 expressions[i] = assignmentPair.getSecond();
                 properties.add(assignmentPair.getFirst());
                 eventPropertiesWritten.add(assignmentPair.getFirst());

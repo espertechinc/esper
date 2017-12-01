@@ -10,8 +10,9 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
@@ -43,7 +44,7 @@ public class TestExprMathNode extends TestCase {
         arithNode.addChildNode(new SupportExprNode(5));
         arithNode.addChildNode(arithNodeChild);
 
-        assertEquals("5*(4-2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arithNode));
+        assertEquals("5*(4-2)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(arithNode));
     }
 
     public void testValidate() {
@@ -69,7 +70,7 @@ public class TestExprMathNode extends TestCase {
     public void testEvaluate() throws Exception {
         arithNode.addChildNode(new SupportExprNode(new Integer(10)));
         arithNode.addChildNode(new SupportExprNode(new Double(1.5)));
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, arithNode, SupportExprValidationContextFactory.makeEmpty());
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, arithNode, SupportExprValidationContextFactory.makeEmpty());
         assertEquals(11.5d, arithNode.getForge().getExprEvaluator().evaluate(null, false, null));
 
         arithNode = makeNode(null, Integer.class, 5d, Double.class);

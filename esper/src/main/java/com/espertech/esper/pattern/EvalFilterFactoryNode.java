@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.pattern;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.spec.FilterSpecRaw;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import org.slf4j.Logger;
@@ -123,7 +123,7 @@ public class EvalFilterFactoryNode extends EvalNodeFactoryBase {
         writer.append(rawFilterSpec.getEventTypeName());
         if (rawFilterSpec.getFilterExpressions() != null && rawFilterSpec.getFilterExpressions().size() > 0) {
             writer.append("(");
-            ExprNodeUtility.toExpressionStringParameterList(rawFilterSpec.getFilterExpressions(), writer);
+            ExprNodeUtilityCore.toExpressionStringParameterList(rawFilterSpec.getFilterExpressions(), writer);
             writer.append(")");
         }
         if (consumptionLevel != null) {

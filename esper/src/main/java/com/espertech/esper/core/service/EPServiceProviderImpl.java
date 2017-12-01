@@ -20,6 +20,7 @@ import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.epl.metric.MetricReportingService;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
+import com.espertech.esper.epl.spec.StatementSpecMapper;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
@@ -506,7 +507,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI {
 
         // New admin
         ConfigurationOperations configOps = new ConfigurationOperationsImpl(services.getEventAdapterService(), services.getEventTypeIdGenerator(), services.getEngineImportService(), services.getVariableService(), services.getEngineSettingsService(), services.getValueAddEventService(), services.getMetricsReportingService(), services.getStatementEventTypeRefService(), services.getStatementVariableRefService(), services.getPlugInViews(), services.getFilterService(), services.getPatternSubexpressionPoolSvc(), services.getMatchRecognizeStatePoolEngineSvc(), services.getTableService(), configSnapshot.getTransientConfiguration());
-        SelectClauseStreamSelectorEnum defaultStreamSelector = SelectClauseStreamSelectorEnum.mapFromSODA(configSnapshot.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
+        SelectClauseStreamSelectorEnum defaultStreamSelector = StatementSpecMapper.mapFromSODA(configSnapshot.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
         EPAdministratorSPI adminSPI;
         String adminClassName = configSnapshot.getEngineDefaults().getAlternativeContext().getAdmin();
         EPAdministratorContext adminContext = new EPAdministratorContext(runtimeSPI, services, configOps, defaultStreamSelector);

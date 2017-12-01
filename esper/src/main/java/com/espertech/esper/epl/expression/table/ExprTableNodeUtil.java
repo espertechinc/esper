@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.expression.table;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -47,7 +47,7 @@ public class ExprTableNodeUtil {
                         " expression for use with table '" +
                         tableName +
                         "', the " + providedName + " expression '" +
-                        ExprNodeUtility.toExpressionStringMinPrecedenceAsList(providedExpr) + "' returns '" +
+                        ExprNodeUtilityCore.toExpressionStringMinPrecedenceAsList(providedExpr) + "' returns '" +
                         JavaClassHelper.getClassNameFullyQualPretty(actual) + "' but the table expects '" +
                         JavaClassHelper.getClassNameFullyQualPretty(expected) + "'");
             }

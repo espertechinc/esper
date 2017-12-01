@@ -47,7 +47,7 @@ public class ExprTimePeriodForge implements ExprForge {
 
     public ExprTimePeriodEvalDeltaConst constEvaluator(ExprEvaluatorContext context) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
+            evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
         }
         if (!parent.isHasMonth() && !parent.isHasYear()) {
             double seconds = evaluateAsSeconds(null, true, context);
@@ -109,7 +109,7 @@ public class ExprTimePeriodForge implements ExprForge {
 
     public ExprEvaluator[] getEvaluators() {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
+            evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
         }
         return evaluators;
     }
@@ -119,7 +119,7 @@ public class ExprTimePeriodForge implements ExprForge {
             InstrumentationHelper.get().qExprTimePeriod(parent);
         }
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
+            evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
         }
         double seconds = 0;
         for (int i = 0; i < adders.length; i++) {
@@ -128,7 +128,7 @@ public class ExprTimePeriodForge implements ExprForge {
                 if (InstrumentationHelper.ENABLED) {
                     InstrumentationHelper.get().aExprTimePeriod(null);
                 }
-                throw makeTimePeriodParamNullException(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this.parent));
+                throw makeTimePeriodParamNullException(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this.parent));
             }
             seconds += adders[i].compute(result);
         }
@@ -148,7 +148,7 @@ public class ExprTimePeriodForge implements ExprForge {
             ExprForge forge = parent.getChildNodes()[i].getForge();
             Class evaluationType = forge.getEvaluationType();
             block.assignRef("result", SimpleNumberCoercerFactory.SimpleNumberCoercerDouble.codegenDoubleMayNullBoxedIncludeBig(forge.evaluateCodegen(evaluationType, methodNode, exprSymbol, codegenClassScope), evaluationType, methodNode, codegenClassScope));
-            block.ifRefNull("result").blockThrow(staticMethod(ExprTimePeriodForge.class, "makeTimePeriodParamNullException", constant(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this.parent))));
+            block.ifRefNull("result").blockThrow(staticMethod(ExprTimePeriodForge.class, "makeTimePeriodParamNullException", constant(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this.parent))));
             block.assignRef("seconds", op(ref("seconds"), "+", adders[i].computeCodegen(ref("result"))));
         }
         block.methodReturn(ref("seconds"));
@@ -171,7 +171,7 @@ public class ExprTimePeriodForge implements ExprForge {
 
     public TimePeriod evaluateGetTimePeriod(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
+            evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
         }
 
         int exprCtr = 0;

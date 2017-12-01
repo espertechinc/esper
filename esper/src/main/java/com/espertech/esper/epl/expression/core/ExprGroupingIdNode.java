@@ -53,7 +53,7 @@ public class ExprGroupingIdNode extends ExprNodeBase implements ExprForge, ExprE
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
-        ExprNodeUtility.toExpressionStringWFunctionName("grouping_id", this.getChildNodes(), writer);
+        ExprNodeUtilityCore.toExpressionStringWFunctionName("grouping_id", this.getChildNodes(), writer);
     }
 
     public ExprPrecedenceEnum getPrecedence() {

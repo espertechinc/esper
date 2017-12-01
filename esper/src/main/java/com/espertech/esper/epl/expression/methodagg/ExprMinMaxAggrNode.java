@@ -15,7 +15,7 @@ import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
@@ -51,7 +51,7 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
             if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE) {
                 hasDataWindows = true;
             } else {
-                hasDataWindows = ExprNodeUtility.hasRemoveStreamForAggregations(child, validationContext.getStreamTypeService(), validationContext.isResettingAggregations());
+                hasDataWindows = ExprNodeUtilityRich.hasRemoveStreamForAggregations(child, validationContext.getStreamTypeService(), validationContext.isResettingAggregations());
             }
         }
 

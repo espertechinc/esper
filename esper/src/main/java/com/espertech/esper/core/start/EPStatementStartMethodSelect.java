@@ -23,7 +23,7 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.agg.service.common.AggregationService;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
@@ -209,7 +209,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase {
             for (ExprTableAccessNode node : statementSpec.getTableNodes()) {
                 if (node.getTableName().equals(statementSpec.getIntoTableSpec().getName())) {
                     throw new ExprValidationException("Invalid use of table '" + statementSpec.getIntoTableSpec().getName() + "', aggregate-into requires write-only, the expression '" +
-                            ExprNodeUtility.toExpressionStringMinPrecedenceSafe(statementSpec.getTableNodes()[0]) + "' is not allowed");
+                            ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(statementSpec.getTableNodes()[0]) + "' is not allowed");
                 }
             }
         }

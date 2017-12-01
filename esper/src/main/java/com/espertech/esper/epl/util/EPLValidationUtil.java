@@ -10,14 +10,67 @@
  */
 package com.espertech.esper.epl.util;
 
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
+import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
+import com.espertech.esper.epl.join.hint.ExcludePlanHint;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzer;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.util.JavaClassHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EPLValidationUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(ExprNodeUtilityCore.class);
+
+    public static QueryGraph validateFilterGetQueryGraphSafe(ExprNode filterExpression, StatementContext statementContext, StreamTypeServiceImpl typeService) {
+        ExcludePlanHint excludePlanHint = null;
+        try {
+            excludePlanHint = ExcludePlanHint.getHint(typeService.getStreamNames(), statementContext);
+        } catch (ExprValidationException ex) {
+            log.warn("Failed to consider exclude-plan hint: " + ex.getMessage(), ex);
+        }
+
+        QueryGraph queryGraph = new QueryGraph(1, excludePlanHint, false);
+        validateFilterWQueryGraphSafe(queryGraph, filterExpression, statementContext, typeService);
+        return queryGraph;
+    }
+
+    public static void validateFilterWQueryGraphSafe(QueryGraph queryGraph, ExprNode filterExpression, StatementContext statementContext, StreamTypeServiceImpl typeService) {
+        try {
+            ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
+            ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, true);
+            ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.FILTER, filterExpression, validationContext);
+            FilterExprAnalyzer.analyze(validated, queryGraph, false);
+        } catch (Exception ex) {
+            log.warn("Unexpected exception analyzing filterable expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(filterExpression) + "': " + ex.getMessage(), ex);
+        }
+    }
+
+    public static ExprNode validateSimpleGetSubtree(ExprNodeOrigin origin, ExprNode expression, StatementContext statementContext, EventType optionalEventType, boolean allowBindingConsumption)
+            throws ExprValidationException {
+
+        ExprNodeUtilityRich.validatePlainExpression(origin, expression);
+
+        StreamTypeServiceImpl streamTypes;
+        if (optionalEventType != null) {
+            streamTypes = new StreamTypeServiceImpl(optionalEventType, null, true, statementContext.getEngineURI());
+        } else {
+            streamTypes = new StreamTypeServiceImpl(statementContext.getEngineURI(), false);
+        }
+
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypes, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, allowBindingConsumption, false, null, false);
+        return ExprNodeUtilityRich.getValidatedSubtree(origin, expression, validationContext);
+    }
+
+    public static ExprValidationContext getExprValidationContextStatementOnly(StatementContext statementContext) {
+        return new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+    }
 
     public static void validateParameterNumber(String invocableName, String invocableCategory, boolean isFunction, int expectedEnum, int receivedNum) throws ExprValidationException {
         if (expectedEnum != receivedNum) {

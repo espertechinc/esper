@@ -24,6 +24,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.named.NamedWindowOnMergeHelper;
 import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.util.UuidGenerator;
 
 import java.util.Arrays;
@@ -65,14 +66,14 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
             count++;
             if (compiled instanceof SelectClauseExprCompiledSpec) {
                 SelectClauseExprCompiledSpec expr = (SelectClauseExprCompiledSpec) compiled;
-                ExprNode validatedExpression = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, expr.getSelectExpression(), validationContext);
+                ExprNode validatedExpression = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, expr.getSelectExpression(), validationContext);
                 expr.setSelectExpression(validatedExpression);
                 if (expr.getAssignedName() == null) {
                     if (expr.getProvidedName() == null) {
                         if (assignedSequentialNames != null && count < assignedSequentialNames.length) {
                             expr.setAssignedName(assignedSequentialNames[count]);
                         } else {
-                            expr.setAssignedName(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr.getSelectExpression()));
+                            expr.setAssignedName(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expr.getSelectExpression()));
                         }
                     } else {
                         expr.setAssignedName(expr.getProvidedName());

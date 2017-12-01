@@ -344,7 +344,7 @@ public class JoinSetComposerPrototypeFactory {
             if (!multis.isEmpty()) {
                 QueryGraphValuePairInKWMultiIdx multi = multis.get(0);
                 HistoricalIndexLookupStrategyInKeywordMulti strategy = new HistoricalIndexLookupStrategyInKeywordMulti(streamViewStreamNum, multi.getKey().getKeyExpr());
-                PollResultIndexingStrategyIndexSingleArray indexing = new PollResultIndexingStrategyIndexSingleArray(polledViewStreamNum, polledViewType, ExprNodeUtility.getIdentResolvedPropertyNames(multi.getIndexed()));
+                PollResultIndexingStrategyIndexSingleArray indexing = new PollResultIndexingStrategyIndexSingleArray(polledViewStreamNum, polledViewType, ExprNodeUtilityCore.getIdentResolvedPropertyNames(multi.getIndexed()));
                 return new Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy>(strategy, indexing);
             }
 

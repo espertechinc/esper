@@ -28,6 +28,7 @@ import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNodePreviousType;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.join.plan.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
@@ -393,18 +394,18 @@ public class SupportExprNodeFactory {
         variableService.createNewVariable(null, "var1", String.class.getName(), false, false, false, "my_variable_value", engineImportService);
         variableService.allocateVariableState("var1", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
 
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, new ExprValidationContext(streamTypeService, SupportEngineImportServiceFactory.make(), null, viewResources, null, variableService, null, new SupportExprEvaluatorContext(null), null, null, 1, null, null, false, false, false, false, null, false));
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, new ExprValidationContext(streamTypeService, SupportEngineImportServiceFactory.make(), null, viewResources, null, variableService, null, new SupportExprEvaluatorContext(null), null, null, 1, null, null, false, false, false, false, null, false));
     }
 
     public static void validate1StreamBean(ExprNode topNode) throws Exception {
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventType, "s0", false, "uri");
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, SupportExprValidationContextFactory.make(streamTypeService));
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, SupportExprValidationContextFactory.make(streamTypeService));
     }
 
     public static void validate1StreamMD(ExprNode topNode) throws Exception {
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class);
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventType, "s0", false, "uri");
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, SupportExprValidationContextFactory.make(streamTypeService));
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, SupportExprValidationContextFactory.make(streamTypeService));
     }
 }

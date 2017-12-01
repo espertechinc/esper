@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 public class QueryGraphValueEntryRangeRelOp extends QueryGraphValueEntryRange {
 
@@ -38,7 +38,7 @@ public class QueryGraphValueEntryRangeRelOp extends QueryGraphValueEntryRange {
     }
 
     public String toQueryPlan() {
-        return getType().getStringOp() + " on " + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expression);
+        return getType().getStringOp() + " on " + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expression);
     }
 
     public ExprNode[] getExpressions() {

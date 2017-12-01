@@ -13,8 +13,8 @@ package com.espertech.esper.core.start;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.common.AggregationRowPair;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
@@ -94,7 +94,7 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
                 return indexedResult;
             }
             ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(Math.min(indexedResult.size(), 16));
-            ExprNodeUtility.applyFilterExpressionIterable(indexedResult.iterator(), filterExpr.getForge().getExprEvaluator(), agentInstanceContext, deque);
+            ExprNodeUtilityCore.applyFilterExpressionIterable(indexedResult.iterator(), filterExpr.getForge().getExprEvaluator(), agentInstanceContext, deque);
             return deque;
         }
 
@@ -106,7 +106,7 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
         }
         ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(sourceCollection.size());
         if (filterExpr != null) {
-            ExprNodeUtility.applyFilterExpressionIterable(sourceCollection.iterator(), filterExpr.getForge().getExprEvaluator(), agentInstanceContext, deque);
+            ExprNodeUtilityCore.applyFilterExpressionIterable(sourceCollection.iterator(), filterExpr.getForge().getExprEvaluator(), agentInstanceContext, deque);
         } else {
             while (it.hasNext()) {
                 deque.add(it.next());

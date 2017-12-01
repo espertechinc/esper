@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
@@ -128,7 +128,7 @@ public class TestExprEqualsNode extends TestCase {
     public void testToExpressionString() throws Exception {
         equalsNodes[0].addChildNode(new SupportExprNode(true));
         equalsNodes[0].addChildNode(new SupportExprNode(false));
-        assertEquals("true=false", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(equalsNodes[0]));
+        assertEquals("true=false", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(equalsNodes[0]));
     }
 
     private ExprEqualsNode makeNode(Object valueLeft, Object valueRight, boolean isNot) throws Exception {

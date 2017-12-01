@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.io.Serializable;
 import java.util.List;
@@ -98,7 +98,7 @@ public abstract class ObjectSpec implements Serializable {
             ExprNode otherParam = other.objectParameters.get(index);
             index++;
 
-            if (!ExprNodeUtility.deepEquals(thisParam, otherParam, false)) {
+            if (!ExprNodeUtilityCore.deepEquals(thisParam, otherParam, false)) {
                 return false;
             }
         }
@@ -123,7 +123,7 @@ public abstract class ObjectSpec implements Serializable {
         if (objectParameters != null) {
             for (ExprNode param : objectParameters) {
                 buffer.append(delimiter);
-                buffer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(param));
+                buffer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(param));
                 delimiter = ',';
             }
         }

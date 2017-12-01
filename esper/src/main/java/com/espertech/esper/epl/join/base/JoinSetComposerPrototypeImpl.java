@@ -28,6 +28,7 @@ import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewProviderForAgentInstance;
 import com.espertech.esper.view.DerivedValueView;
@@ -298,7 +299,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
             }
         }
 
-        ExprAndNode andNode = ExprNodeUtility.connectExpressionsByLogicalAnd(expressions);
+        ExprAndNode andNode = ExprNodeUtilityRich.connectExpressionsByLogicalAnd(expressions);
         try {
             andNode.validate(null);
         } catch (ExprValidationException ex) {

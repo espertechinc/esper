@@ -29,13 +29,13 @@ import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.DependencyGraph;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.epl.expression.core.PopulateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,7 +287,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             throws ExprValidationException {
 
         Map<Integer, Object> operators = new HashMap<Integer, Object>();
-        ExprValidationContext exprValidationContext = ExprNodeUtility.getExprValidationContextStatementOnly(statementContext);
+        ExprValidationContext exprValidationContext = EPLValidationUtil.getExprValidationContextStatementOnly(statementContext);
 
         for (Map.Entry<Integer, OperatorMetadataDescriptor> operatorEntry : operatorClasses.entrySet()) {
             Object operator = instantiateOperator(desc.getGraphName(), operatorEntry.getKey(), operatorEntry.getValue(), desc.getOperators().get(operatorEntry.getKey()), options, exprValidationContext);

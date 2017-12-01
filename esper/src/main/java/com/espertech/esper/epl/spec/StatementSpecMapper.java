@@ -72,6 +72,43 @@ import java.util.*;
  * Helper for mapping internal representations of a statement to the SODA object model for statements.
  */
 public class StatementSpecMapper {
+
+    /**
+     * Maps the SODA-selector to the internal representation
+     *
+     * @param selector is the SODA-selector to map
+     * @return internal stream selector
+     */
+    public static SelectClauseStreamSelectorEnum mapFromSODA(StreamSelector selector) {
+        if (selector == StreamSelector.ISTREAM_ONLY) {
+            return SelectClauseStreamSelectorEnum.ISTREAM_ONLY;
+        } else if (selector == StreamSelector.RSTREAM_ONLY) {
+            return SelectClauseStreamSelectorEnum.RSTREAM_ONLY;
+        } else if (selector == StreamSelector.RSTREAM_ISTREAM_BOTH) {
+            return SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH;
+        } else {
+            throw new IllegalArgumentException("Invalid selector '" + selector + "' encountered");
+        }
+    }
+
+    /**
+     * Maps the internal stream selector to the SODA-representation
+     *
+     * @param selector is the internal selector to map
+     * @return SODA stream selector
+     */
+    public static StreamSelector mapFromSODA(SelectClauseStreamSelectorEnum selector) {
+        if (selector == SelectClauseStreamSelectorEnum.ISTREAM_ONLY) {
+            return StreamSelector.ISTREAM_ONLY;
+        } else if (selector == SelectClauseStreamSelectorEnum.RSTREAM_ONLY) {
+            return StreamSelector.RSTREAM_ONLY;
+        } else if (selector == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH) {
+            return StreamSelector.RSTREAM_ISTREAM_BOTH;
+        } else {
+            throw new IllegalArgumentException("Invalid selector '" + selector + "' encountered");
+        }
+    }
+
     /**
      * Unmap expresission.
      *
@@ -1244,7 +1281,7 @@ public class StatementSpecMapper {
 
     private static SelectClause unmapSelect(SelectClauseSpecRaw selectClauseSpec, SelectClauseStreamSelectorEnum selectStreamSelectorEnum, StatementSpecUnMapContext unmapContext) {
         SelectClause clause = SelectClause.create();
-        clause.setStreamSelector(SelectClauseStreamSelectorEnum.mapFromSODA(selectStreamSelectorEnum));
+        clause.setStreamSelector(StatementSpecMapper.mapFromSODA(selectStreamSelectorEnum));
         clause.addElements(unmapSelectClauseElements(selectClauseSpec.getSelectExprList(), unmapContext));
         clause.setDistinct(selectClauseSpec.isDistinct());
         return clause;
@@ -1275,7 +1312,7 @@ public class StatementSpecMapper {
         if (insertIntoDesc == null) {
             return null;
         }
-        StreamSelector selector = SelectClauseStreamSelectorEnum.mapFromSODA(insertIntoDesc.getStreamSelector());
+        StreamSelector selector = mapFromSODA(insertIntoDesc.getStreamSelector());
         return InsertIntoClause.create(insertIntoDesc.getEventTypeName(),
                 insertIntoDesc.getColumnNames().toArray(new String[insertIntoDesc.getColumnNames().size()]), selector);
     }
@@ -1299,7 +1336,7 @@ public class StatementSpecMapper {
             ContextDetailCondition end = mapCreateContextRangeCondition(desc.getEndCondition(), mapContext);
             ExprNode[] distinctExpressions = null;
             if (desc.getOptionalDistinctExpressions() != null && desc.getOptionalDistinctExpressions().size() > 0) {
-                distinctExpressions = ExprNodeUtility.toArray(mapExpressionDeep(desc.getOptionalDistinctExpressions(), mapContext));
+                distinctExpressions = ExprNodeUtilityCore.toArray(mapExpressionDeep(desc.getOptionalDistinctExpressions(), mapContext));
             }
             detail = new ContextDetailInitiatedTerminated(start, end, desc.isOverlapping(), distinctExpressions);
         } else if (descriptor instanceof ContextDescriptorKeyedSegmented) {
@@ -1583,7 +1620,7 @@ public class StatementSpecMapper {
         }
 
         String eventTypeName = insertInto.getStreamName();
-        InsertIntoDesc desc = new InsertIntoDesc(SelectClauseStreamSelectorEnum.mapFromSODA(insertInto.getStreamSelector()), eventTypeName);
+        InsertIntoDesc desc = new InsertIntoDesc(mapFromSODA(insertInto.getStreamSelector()), eventTypeName);
 
         for (String name : insertInto.getColumnNames()) {
             desc.add(name);
@@ -1596,7 +1633,7 @@ public class StatementSpecMapper {
             return;
         }
         SelectClauseSpecRaw spec = mapSelectRaw(selectClause, mapContext);
-        raw.setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.mapFromSODA(selectClause.getStreamSelector()));
+        raw.setSelectStreamDirEnum(mapFromSODA(selectClause.getStreamSelector()));
         raw.setSelectClauseSpec(spec);
     }
 

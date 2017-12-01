@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.join.exec.composite;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryHashKeyed;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryRange;
 import com.espertech.esper.epl.lookup.SubordPropHashKey;
@@ -28,7 +28,7 @@ public class CompositeIndexQueryFactory {
         if (keyExpr.size() > 0) {
             List<QueryGraphValueEntryHashKeyed> hashKeys = new ArrayList<QueryGraphValueEntryHashKeyed>();
             for (SubordPropHashKey keyExp : keyExpr) {
-                expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExp.getHashKey().getKeyExpr()));
+                expressionTexts.add(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(keyExp.getHashKey().getKeyExpr()));
                 hashKeys.add(keyExp.getHashKey());
             }
             queries.add(new CompositeIndexQueryKeyed(isNWOnTrigger, -1, numOuterStreams, hashKeys, coercionKeyTypes));

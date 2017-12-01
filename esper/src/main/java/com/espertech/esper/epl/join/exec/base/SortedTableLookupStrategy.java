@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.join.exec.base;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.exec.sorted.SortedAccessStrategy;
 import com.espertech.esper.epl.join.exec.sorted.SortedAccessStrategyFactory;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryRange;
@@ -68,6 +68,6 @@ public class SortedTableLookupStrategy implements JoinExecTableLookupStrategy {
     }
 
     public LookupStrategyDesc getStrategyDesc() {
-        return new LookupStrategyDesc(LookupStrategyType.RANGE, ExprNodeUtility.toExpressionStringsMinPrecedence(rangeKeyPair.getExpressions()));
+        return new LookupStrategyDesc(LookupStrategyType.RANGE, ExprNodeUtilityCore.toExpressionStringsMinPrecedence(rangeKeyPair.getExpressions()));
     }
 }

@@ -101,7 +101,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
                 return null;
             }
         };
-        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), getter, String.class, true);
+        return new FilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), getter, String.class, true);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

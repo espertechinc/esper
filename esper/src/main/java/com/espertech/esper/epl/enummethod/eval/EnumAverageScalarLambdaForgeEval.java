@@ -30,7 +30,6 @@ import com.espertech.esper.util.SimpleNumberCoercerFactory;
 import java.util.Collection;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 public class EnumAverageScalarLambdaForgeEval implements EnumEval {
 

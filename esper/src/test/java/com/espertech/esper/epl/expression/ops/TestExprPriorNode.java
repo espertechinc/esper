@@ -11,15 +11,15 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategyRandomAccess;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.view.internal.PriorEventBufferUnbound;
 import junit.framework.TestCase;
 
@@ -60,7 +60,7 @@ public class TestExprPriorNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("prior(1,s0.doublePrimitive)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(priorNode));
+        assertEquals("prior(1,s0.doublePrimitive)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(priorNode));
     }
 
     private EventBean makeEvent(double doublePrimitive) {

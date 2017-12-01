@@ -20,9 +20,9 @@ import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputConditionType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
@@ -87,7 +87,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
         this.outputConditionType = outputConditionType;
         this.numStreams = numStreams;
-        this.groupKeyTypes = ExprNodeUtility.getExprResultTypes(groupKeyNodeExpressions);
+        this.groupKeyTypes = ExprNodeUtilityCore.getExprResultTypes(groupKeyNodeExpressions);
         this.unbounded = unbounded;
     }
 

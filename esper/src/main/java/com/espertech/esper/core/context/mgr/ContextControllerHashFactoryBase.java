@@ -18,7 +18,10 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.stmt.*;
 import com.espertech.esper.epl.core.engineimport.EngineImportSingleRowDesc;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailHash;
 import com.espertech.esper.epl.spec.ContextDetailHashItem;
@@ -192,7 +195,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             }
 
             // create and register expression
-            String expression = item.getFunction().getName() + "(" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
+            String expression = item.getFunction().getName() + "(" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
             FilterSpecLookupable lookupable = new FilterSpecLookupable(expression, getter, Integer.class, true);
             item.setLookupable(lookupable);
             factoryContext.getServicesContext().getFilterNonPropertyRegisteryService().registerNonPropertyExpression(factoryContext.getAgentInstanceContextCreate().getStatementName(), item.getFilterSpecCompiled().getFilterForEventType(), lookupable);

@@ -38,7 +38,7 @@ public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprName
         if (this.getChildNodes().length > 1) {
             writer.append("(");
         }
-        ExprNodeUtility.toExpressionStringParameterList(this.getChildNodes(), writer);
+        ExprNodeUtilityCore.toExpressionStringParameterList(this.getChildNodes(), writer);
         if (this.getChildNodes().length > 1) {
             writer.append(")");
         }

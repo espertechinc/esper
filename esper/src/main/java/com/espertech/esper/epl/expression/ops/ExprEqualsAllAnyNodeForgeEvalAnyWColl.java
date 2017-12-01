@@ -17,10 +17,10 @@ import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -147,7 +147,7 @@ public class ExprEqualsAllAnyNodeForgeEvalAnyWColl implements ExprEvaluator {
     }
 
     public static CodegenExpression codegen(ExprEqualsAllAnyNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        ExprForge[] forges = ExprNodeUtility.getForges(forge.getForgeRenderable().getChildNodes());
+        ExprForge[] forges = ExprNodeUtilityCore.getForges(forge.getForgeRenderable().getChildNodes());
         boolean isNot = forge.getForgeRenderable().isNot();
 
         CodegenMethodNode methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsAllAnyNodeForgeEvalAnyWColl.class, codegenClassScope);

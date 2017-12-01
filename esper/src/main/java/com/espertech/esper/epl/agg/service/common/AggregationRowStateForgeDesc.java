@@ -15,7 +15,7 @@ import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPairForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 
 import static com.espertech.esper.epl.agg.service.common.AggregatorUtil.*;
 
@@ -49,7 +49,7 @@ public class AggregationRowStateForgeDesc {
     }
 
     public AggregationRowStateEvalDesc toEval(StatementContext stmtContext, boolean isFireAndForget) {
-        ExprEvaluator[] methodEvals = methodForges == null ? METHODAGG_EMPTYEVALUATORS : ExprNodeUtility.getEvaluatorsMayCompileWMultiValue(methodForges, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
+        ExprEvaluator[] methodEvals = methodForges == null ? METHODAGG_EMPTYEVALUATORS : ExprNodeUtilityRich.getEvaluatorsMayCompileWMultiValue(methodForges, stmtContext.getEngineImportService(), this.getClass(), isFireAndForget, stmtContext.getStatementName());
         AggregationStateFactory[] accessFactories = accessFactoriesForges == null ? ACCESSAGG_EMPTY_STATEFACTORY : AggregatorUtil.getAccesssFactoriesFromForges(this.accessFactoriesForges, stmtContext, isFireAndForget);
         AggregationAccessorSlotPair[] accessAccessors = accessAccessorsForges == null ? ACCESSAGG_EMPTY_ACCESSORS : AggregatorUtil.getAccessorsForForges(this.accessAccessorsForges, stmtContext.getEngineImportService(), isFireAndForget, stmtContext.getStatementName());
         return new AggregationRowStateEvalDesc(methodEvals, methodFactories == null ? METHODAGG_EMPTYFACTORIES : methodFactories, accessAccessors, accessFactories);

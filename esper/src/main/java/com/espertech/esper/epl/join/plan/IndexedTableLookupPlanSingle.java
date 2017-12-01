@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.join.exec.base.IndexedTableLookupStrategySingle;
 import com.espertech.esper.epl.join.exec.base.IndexedTableLookupStrategySingleExpr;
 import com.espertech.esper.epl.join.exec.base.JoinExecTableLookupStrategy;
@@ -50,7 +50,7 @@ public class IndexedTableLookupPlanSingle extends TableLookupPlan {
         if (hashKey instanceof QueryGraphValueEntryHashKeyedExpr) {
             QueryGraphValueEntryHashKeyedExpr expr = (QueryGraphValueEntryHashKeyedExpr) hashKey;
             return new IndexedTableLookupStrategySingleExpr(expr.getKeyExpr(), super.getLookupStream(), index,
-                    new LookupStrategyDesc(LookupStrategyType.SINGLEEXPR, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr.getKeyExpr())}));
+                    new LookupStrategyDesc(LookupStrategyType.SINGLEEXPR, new String[]{ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expr.getKeyExpr())}));
         } else if (hashKey instanceof QueryGraphValueEntryHashKeyedProp) {
             QueryGraphValueEntryHashKeyedProp prop = (QueryGraphValueEntryHashKeyedProp) hashKey;
             return new IndexedTableLookupStrategySingle(eventTypes[this.getLookupStream()], prop.getKeyProperty(), index);

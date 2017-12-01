@@ -28,6 +28,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.rettype.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -438,6 +439,6 @@ public class ExprDotNodeUtility {
             }
         };
         EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-        return ExprNodeUtility.resolveMethodAllowWildcardAndStream(methodTarget.getName(), methodTarget, methodName, parameters, validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, exceptionHandler, methodName, validationContext.getTableService(), validationContext.getStreamTypeService().getEngineURIQualifier());
+        return ExprNodeUtilityRich.resolveMethodAllowWildcardAndStream(methodTarget.getName(), methodTarget, methodName, parameters, validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, exceptionHandler, methodName, validationContext.getTableService(), validationContext.getStreamTypeService().getEngineURIQualifier());
     }
 }

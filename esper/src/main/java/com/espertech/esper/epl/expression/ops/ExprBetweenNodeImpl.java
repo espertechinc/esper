@@ -105,7 +105,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
         }
 
         // Must be either numeric or string
-        ExprForge[] forges = ExprNodeUtility.getForges(this.getChildNodes());
+        ExprForge[] forges = ExprNodeUtilityCore.getForges(this.getChildNodes());
         Class typeOne = JavaClassHelper.getBoxedType(forges[0].getEvaluationType());
         Class typeTwo = JavaClassHelper.getBoxedType(forges[1].getEvaluationType());
         Class typeThree = JavaClassHelper.getBoxedType(forges[2].getEvaluationType());

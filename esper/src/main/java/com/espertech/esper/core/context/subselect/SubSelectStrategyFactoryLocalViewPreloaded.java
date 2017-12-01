@@ -24,9 +24,10 @@ import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerified;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;
@@ -43,6 +44,7 @@ import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.named.NamedWindowTailViewInstance;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.subquery.*;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewFactory;
@@ -223,10 +225,10 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             Collection<EventBean> eventsInWindow;
             if (namedSpec.getFilterExpressions() != null && !namedSpec.getFilterExpressions().isEmpty()) {
                 StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), consumerView.getEventType().getName(), false, services.getEngineURI());
-                QueryGraph queryGraph = ExprNodeUtility.validateFilterGetQueryGraphSafe(ExprNodeUtility.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions()), agentInstanceContext.getStatementContext(), types);
+                QueryGraph queryGraph = EPLValidationUtil.validateFilterGetQueryGraphSafe(ExprNodeUtilityRich.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions()), agentInstanceContext.getStatementContext(), types);
                 Collection<EventBean> snapshot = consumerView.snapshotNoLock(queryGraph, agentInstanceContext.getStatementContext().getAnnotations());
                 eventsInWindow = new ArrayList<EventBean>(snapshot.size());
-                ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
+                ExprNodeUtilityCore.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
             } else {
                 eventsInWindow = new ArrayList<EventBean>();
                 for (Iterator<EventBean> it = consumerView.iterator(); it.hasNext(); ) {

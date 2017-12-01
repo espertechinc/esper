@@ -220,7 +220,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
         for (int i = 0; i < selectClause.length; i++) {
             String assignedName = this.selectAsNames[i];
             if (assignedName == null) {
-                assignedName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(selectClause[i]);
+                assignedName = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(selectClause[i]);
             }
             if (uniqueNames.add(assignedName)) {
                 type.put(assignedName, selectClause[i].getForge().getEvaluationType());
@@ -232,7 +232,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
     }
 
     public String getMultirowMessage() {
-        return "Subselect of statement '" + statementName + "' returned more then one row in subselect " + subselectNumber + " '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this) + "', returning null result";
+        return "Subselect of statement '" + statementName + "' returned more then one row in subselect " + subselectNumber + " '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this) + "', returning null result";
     }
 
     protected Map<String, Object> evaluateRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

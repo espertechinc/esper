@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 public class QueryGraphValueEntryCustomKey implements QueryGraphValueEntry {
     private final String operationName;
@@ -37,7 +37,7 @@ public class QueryGraphValueEntryCustomKey implements QueryGraphValueEntry {
         QueryGraphValueEntryCustomKey that = (QueryGraphValueEntryCustomKey) o;
 
         if (!operationName.equals(that.operationName)) return false;
-        return ExprNodeUtility.deepEquals(exprNodes, that.exprNodes, true);
+        return ExprNodeUtilityCore.deepEquals(exprNodes, that.exprNodes, true);
     }
 
     public int hashCode() {

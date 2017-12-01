@@ -15,9 +15,9 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
 import com.espertech.esper.util.JavaClassHelper;
@@ -88,7 +88,7 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
         TimeOrderView other = (TimeOrderView) view;
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!timeDeltaComputation.equalsTimePeriod(other.getTimeDeltaComputation())) ||
-                (!ExprNodeUtility.deepEquals(other.getTimestampExpression(), timestampExpression, false))) {
+                (!ExprNodeUtilityCore.deepEquals(other.getTimestampExpression(), timestampExpression, false))) {
             return false;
         }
 

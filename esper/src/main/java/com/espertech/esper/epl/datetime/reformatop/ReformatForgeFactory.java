@@ -16,7 +16,7 @@ import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.ForgeFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.rettype.EPType;
@@ -83,7 +83,7 @@ public class ReformatForgeFactory implements ForgeFactory {
             return new ReformatEvalForge(CalendarEvalStatics.YEAR, LocalDateTimeEvalStatics.YEAR, ZonedDateTimeEvalStatics.YEAR, timeZone, timeAbacus);
         }
         if (method == DatetimeMethodEnum.BETWEEN) {
-            if (ExprNodeUtility.isAllConstants(parameters)) {
+            if (ExprNodeUtilityRich.isAllConstants(parameters)) {
                 return new ReformatBetweenConstantParamsForge(parameters, timeZone);
             }
             return new ReformatBetweenNonConstantParamsForge(parameters, timeZone);

@@ -15,7 +15,7 @@ import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public abstract class EvalSelectStreamBase implements SelectExprProcessor, Selec
 
     public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+            evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(context.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
         }
         return this;
     }

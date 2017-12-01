@@ -20,6 +20,7 @@ import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
@@ -100,7 +101,7 @@ public class StatementSelectionUtil {
         if (JavaClassHelper.getBoxedType(returnType) != Boolean.class) {
             throw new EPException("Invalid expression, expected a boolean return type for expression and received '" +
                     JavaClassHelper.getClassNameFullyQualPretty(returnType) +
-                    "' for expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expression) + "'");
+                    "' for expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expression) + "'");
         }
         ExprEvaluator evaluator = expression.getForge().getExprEvaluator();
 
@@ -127,7 +128,7 @@ public class StatementSelectionUtil {
 
         try {
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(STATEMENT_META_EVENT_TYPE, null, true, engine.getURI());
-            exprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SCRIPTPARAMS, exprNode, new ExprValidationContext(streamTypeService, engine.getEngineImportService(),
+            exprNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SCRIPTPARAMS, exprNode, new ExprValidationContext(streamTypeService, engine.getEngineImportService(),
                     null, null, engine.getTimeProvider(), null, null, null, engine.getEventAdapterService(), "no-name-assigned", -1, null, null, true, false, false, false, null, true));
         } catch (Exception ex) {
             return new Pair<ExprNode, String>(null, "Error validating expression: " + ex.getMessage());

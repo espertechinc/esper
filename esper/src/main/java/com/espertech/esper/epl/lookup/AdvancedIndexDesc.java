@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.lookup;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.io.StringWriter;
 
@@ -33,7 +33,7 @@ public class AdvancedIndexDesc {
     }
 
     public boolean equalsAdvancedIndex(AdvancedIndexDesc that) {
-        return indexTypeName.equals(that.indexTypeName) && ExprNodeUtility.deepEquals(indexedExpressions, that.indexedExpressions, true);
+        return indexTypeName.equals(that.indexTypeName) && ExprNodeUtilityCore.deepEquals(indexedExpressions, that.indexedExpressions, true);
     }
 
     public String toQueryPlan() {
@@ -43,7 +43,7 @@ public class AdvancedIndexDesc {
         StringWriter writer = new StringWriter();
         writer.append(indexTypeName);
         writer.append("(");
-        ExprNodeUtility.toExpressionStringMinPrecedenceAsList(indexedExpressions, writer);
+        ExprNodeUtilityCore.toExpressionStringMinPrecedenceAsList(indexedExpressions, writer);
         writer.append(")");
         return writer.toString();
     }

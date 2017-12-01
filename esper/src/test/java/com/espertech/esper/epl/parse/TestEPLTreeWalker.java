@@ -21,6 +21,7 @@ import com.espertech.esper.epl.expression.ops.*;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.pattern.*;
@@ -153,9 +154,9 @@ public class TestEPLTreeWalker extends TestCase {
         assertEquals("A_INDEX", createIndex.getIndexName());
         assertEquals("B_NAMEDWIN", createIndex.getWindowName());
         assertEquals(2, createIndex.getColumns().size());
-        assertEquals("c", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(createIndex.getColumns().get(0).getExpressions().get(0)));
+        assertEquals("c", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(createIndex.getColumns().get(0).getExpressions().get(0)));
         assertEquals(CreateIndexType.HASH.getNameLower(), createIndex.getColumns().get(0).getType());
-        assertEquals("d", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(createIndex.getColumns().get(1).getExpressions().get(0)));
+        assertEquals("d", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(createIndex.getColumns().get(1).getExpressions().get(0)));
         assertEquals(CreateIndexType.BTREE.getNameLower(), createIndex.getColumns().get(1).getType());
     }
 
@@ -282,7 +283,7 @@ public class TestEPLTreeWalker extends TestCase {
         assertEquals("prop1", ((ExprIdentNode) (assign.getExpression().getChildNodes()[0])).getFullUnresolvedName());
         assertTrue(assign.getExpression().getChildNodes()[1] instanceof ExprConstantNode);
 
-        assertEquals("a=b", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(raw.getFilterExprRootNode()));
+        assertEquals("a=b", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(raw.getFilterExprRootNode()));
     }
 
     public void testWalkOnSelectNoInsert() throws Exception {
@@ -725,11 +726,11 @@ public class TestEPLTreeWalker extends TestCase {
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(text);
         FilterSpecRaw filterSpec = ((FilterStreamSpecRaw) walker.getStatementSpec().getStreamSpecs().get(0)).getRawFilterSpec();
         assertEquals(2, filterSpec.getOptionalPropertyEvalSpec().getAtoms().size());
-        assertEquals("a.b", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(filterSpec.getOptionalPropertyEvalSpec().getAtoms().get(0).getSplitterExpression()));
+        assertEquals("a.b", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(filterSpec.getOptionalPropertyEvalSpec().getAtoms().get(0).getSplitterExpression()));
         assertEquals(0, filterSpec.getOptionalPropertyEvalSpec().getAtoms().get(0).getOptionalSelectClause().getSelectExprList().size());
 
         PropertyEvalAtom atomTwo = filterSpec.getOptionalPropertyEvalSpec().getAtoms().get(1);
-        assertEquals("e", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(atomTwo.getSplitterExpression()));
+        assertEquals("e", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(atomTwo.getSplitterExpression()));
         assertEquals("f", atomTwo.getOptionalAsName());
         assertNotNull(atomTwo.getOptionalWhereClause());
         List<SelectClauseElementRaw> list = atomTwo.getOptionalSelectClause().getSelectExprList();
@@ -1334,7 +1335,7 @@ public class TestEPLTreeWalker extends TestCase {
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode exprNode = walker.getStatementSpec().getFilterRootNode().getChildNodes()[0];
         ExprBitWiseNode bitWiseNode = (ExprBitWiseNode) (exprNode);
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
         return bitWiseNode.getForge().getExprEvaluator().evaluate(null, false, null);
     }
 
@@ -1343,7 +1344,7 @@ public class TestEPLTreeWalker extends TestCase {
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode exprNode = (walker.getStatementSpec().getFilterRootNode().getChildNodes()[0]);
-        exprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprNode, SupportExprValidationContextFactory.makeEmpty());
+        exprNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, exprNode, SupportExprValidationContextFactory.makeEmpty());
         return exprNode.getForge().getExprEvaluator().evaluate(null, false, null);
     }
 
@@ -1352,7 +1353,7 @@ public class TestEPLTreeWalker extends TestCase {
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode filterExprNode = walker.getStatementSpec().getFilterRootNode();
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, filterExprNode, SupportExprValidationContextFactory.makeEmpty());
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, filterExprNode, SupportExprValidationContextFactory.makeEmpty());
         return filterExprNode.getForge().getExprEvaluator().evaluate(null, false, null);
     }
 

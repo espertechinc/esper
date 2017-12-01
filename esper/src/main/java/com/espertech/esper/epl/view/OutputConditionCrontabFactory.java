@@ -12,7 +12,11 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.util.EPLScheduleExpressionUtil;
 import com.espertech.esper.schedule.ScheduleSpec;
 
 import java.util.List;
@@ -28,12 +32,12 @@ public class OutputConditionCrontabFactory implements OutputConditionFactory {
                                          StatementContext statementContext,
                                          boolean isStartConditionOnCreation)
             throws ExprValidationException {
-        this.scheduleSpecEvaluators = ExprNodeUtility.crontabScheduleValidate(ExprNodeOrigin.OUTPUTLIMIT, scheduleSpecExpressionList, statementContext, false);
+        this.scheduleSpecEvaluators = EPLScheduleExpressionUtil.crontabScheduleValidate(ExprNodeOrigin.OUTPUTLIMIT, scheduleSpecExpressionList, statementContext, false);
         this.isStartConditionOnCreation = isStartConditionOnCreation;
     }
 
     public OutputCondition make(AgentInstanceContext agentInstanceContext, OutputCallback outputCallback) {
-        ScheduleSpec scheduleSpec = ExprNodeUtility.crontabScheduleBuild(scheduleSpecEvaluators, agentInstanceContext);
+        ScheduleSpec scheduleSpec = EPLScheduleExpressionUtil.crontabScheduleBuild(scheduleSpecEvaluators, agentInstanceContext);
         return new OutputConditionCrontab(outputCallback, agentInstanceContext, isStartConditionOnCreation, scheduleSpec);
     }
 }

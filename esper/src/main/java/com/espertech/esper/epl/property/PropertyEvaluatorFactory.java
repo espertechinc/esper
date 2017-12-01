@@ -24,6 +24,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.*;
 import com.espertech.esper.schedule.TimeProvider;
@@ -95,7 +96,7 @@ public class PropertyEvaluatorFactory {
 
             // evaluate splitter expression
             if (containedEventEval == null) {
-                ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CONTAINEDEVENT, atom.getSplitterExpression());
+                ExprNodeUtilityRich.validatePlainExpression(ExprNodeOrigin.CONTAINEDEVENT, atom.getSplitterExpression());
 
                 EventType[] availableTypes = streamEventTypes.toArray(new EventType[streamEventTypes.size()]);
                 String[] availableStreamNames = streamNames.toArray(new String[streamNames.size()]);
@@ -103,13 +104,13 @@ public class PropertyEvaluatorFactory {
                 Arrays.fill(isIStreamOnly, true);
                 StreamTypeService streamTypeService = new StreamTypeServiceImpl(availableTypes, availableStreamNames, isIStreamOnly, engineURI, false, false);
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, validateContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
-                ExprNode validatedExprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getSplitterExpression(), validationContext);
+                ExprNode validatedExprNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getSplitterExpression(), validationContext);
                 ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(validatedExprNode.getForge(), engineImportService, PropertyEvaluatorFactory.class, false, statementName);
 
                 // determine result type
                 if (atom.getOptionalResultEventType() == null) {
                     throw new ExprValidationException("Missing @type(name) declaration providing the event type name of the return type for expression '" +
-                            ExprNodeUtility.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "'");
+                            ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "'");
                 }
                 streamEventType = eventAdapterService.getExistsTypeByName(atom.getOptionalResultEventType());
                 if (streamEventType == null) {
@@ -146,11 +147,11 @@ public class PropertyEvaluatorFactory {
                     } else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class)) {
                         // fine, assumed to return the right type
                     } else {
-                        throw new ExprValidationException("Return type of expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "' is '" + returnType.getName() + "', expected an Iterable or array result");
+                        throw new ExprValidationException("Return type of expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()) + "' is '" + returnType.getName() + "', expected an Iterable or array result");
                     }
                     containedEventEval = new ContainedEventEvalExprNode(evaluator, eventBeanFactory);
                 }
-                expressionText = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedExprNode);
+                expressionText = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validatedExprNode);
                 fragmentEventType = new FragmentEventType(streamEventType, true, false);
             }
 
@@ -167,7 +168,7 @@ public class PropertyEvaluatorFactory {
                 Arrays.fill(isIStreamOnly, true);
                 StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false, false);
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, validateContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
-                ExprNode whereClause = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getOptionalWhereClause(), validationContext);
+                ExprNode whereClause = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, atom.getOptionalWhereClause(), validationContext);
                 whereClauses[i] = ExprNodeCompiler.allocateEvaluator(whereClause.getForge(), engineImportService, PropertyEvaluatorFactory.class, false, statementName);
             }
 
@@ -192,14 +193,14 @@ public class PropertyEvaluatorFactory {
                         cumulativeSelectClause.add(streamSpec);
                     } else if (raw instanceof SelectClauseExprRawSpec) {
                         SelectClauseExprRawSpec exprSpec = (SelectClauseExprRawSpec) raw;
-                        ExprNode exprCompiled = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, exprSpec.getSelectExpression(), validationContext);
+                        ExprNode exprCompiled = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CONTAINEDEVENT, exprSpec.getSelectExpression(), validationContext);
                         String resultName = exprSpec.getOptionalAsName();
                         if (resultName == null) {
-                            resultName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprCompiled);
+                            resultName = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprCompiled);
                         }
                         cumulativeSelectClause.add(new SelectClauseExprCompiledSpec(exprCompiled, resultName, exprSpec.getOptionalAsName(), exprSpec.isEvents()));
 
-                        String isMinimal = ExprNodeUtility.isMinimalExpression(exprCompiled);
+                        String isMinimal = ExprNodeUtilityRich.isMinimalExpression(exprCompiled);
                         if (isMinimal != null) {
                             throw new ExprValidationException("Expression in a property-selection may not utilize " + isMinimal);
                         }

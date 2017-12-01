@@ -10,14 +10,14 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.epl.SupportBoolExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
-import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprNotNode extends TestCase {
@@ -79,7 +79,7 @@ public class TestExprNotNode extends TestCase {
 
     public void testToExpressionString() throws Exception {
         notNode.addChildNode(new SupportExprNode(true));
-        assertEquals("not true", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(notNode));
+        assertEquals("not true", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(notNode));
     }
 
     public void testEqualsNode() throws Exception {

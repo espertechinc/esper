@@ -25,6 +25,7 @@ import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.CreateVariableDesc;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.*;
 import com.espertech.esper.util.DestroyCallback;
 import com.espertech.esper.view.ViewProcessingException;
@@ -56,7 +57,7 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
             StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[0], new String[0], new boolean[0], services.getEngineURI(), false, false);
             ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
             ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
-            ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.VARIABLEASSIGN, createDesc.getAssignment(), validationContext);
+            ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.VARIABLEASSIGN, createDesc.getAssignment(), validationContext);
             value = validated.getForge().getExprEvaluator().evaluate(null, true, evaluatorContextStmt);
         }
 

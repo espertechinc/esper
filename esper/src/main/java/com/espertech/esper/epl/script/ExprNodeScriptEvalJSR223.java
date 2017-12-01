@@ -45,7 +45,7 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements 
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parameters);
+            evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parameters);
         }
         Bindings bindings = getBindings(context);
         for (int i = 0; i < names.length; i++) {

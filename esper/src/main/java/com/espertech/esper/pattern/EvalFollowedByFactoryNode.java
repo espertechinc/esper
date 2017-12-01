@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.pattern;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -130,7 +130,7 @@ public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase {
                     writer.append(" -> ");
                 } else {
                     writer.append(" -[");
-                    writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(optionalMaxExpression));
+                    writer.append(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(optionalMaxExpression));
                     writer.append("]> ");
                 }
                 getChildNodes().get(i).toEPL(writer, PatternExpressionPrecedenceEnum.MINIMUM);

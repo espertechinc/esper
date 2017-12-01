@@ -14,10 +14,10 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 public class ExprCoalesceNodeForge implements ExprForge {
     private final ExprCoalesceNode parent;
@@ -39,7 +39,7 @@ public class ExprCoalesceNodeForge implements ExprForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        return new ExprCoalesceNodeForgeEval(this, ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes()));
+        return new ExprCoalesceNodeForgeEval(this, ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes()));
     }
 
     public Class getEvaluationType() {

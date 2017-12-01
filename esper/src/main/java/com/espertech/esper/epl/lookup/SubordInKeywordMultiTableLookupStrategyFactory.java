@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.epl.lookup;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 
@@ -29,7 +29,7 @@ public class SubordInKeywordMultiTableLookupStrategyFactory implements SubordTab
         this.streamCountOuter = streamCountOuter;
         this.evaluator = exprNode.getForge().getExprEvaluator();
         this.isNWOnTrigger = isNWOnTrigger;
-        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.INKEYWORDMULTIIDX, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode)});
+        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.INKEYWORDMULTIIDX, new String[]{ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprNode)});
     }
 
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {

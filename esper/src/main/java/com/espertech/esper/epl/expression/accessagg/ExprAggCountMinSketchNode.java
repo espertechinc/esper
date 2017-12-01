@@ -28,11 +28,9 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.epl.expression.core.PopulateFieldValueSetter;
-import com.espertech.esper.epl.expression.core.PopulateFieldWValueDescriptor;
-import com.espertech.esper.epl.expression.core.PopulateUtil;
 
 import java.util.Collection;
 import java.util.Map;
@@ -166,7 +164,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
             if (tableAccessColumn == null) {
                 throw new ExprValidationException(getMessagePrefix() + "requires the use of a table-access expression");
             }
-            ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, this.getChildNodes(), context);
+            ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, this.getChildNodes(), context);
         }
 
         // obtain evaluator

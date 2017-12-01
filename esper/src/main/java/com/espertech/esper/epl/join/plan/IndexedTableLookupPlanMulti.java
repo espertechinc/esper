@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.exec.base.IndexedTableLookupStrategy;
 import com.espertech.esper.epl.join.exec.base.IndexedTableLookupStrategyExpr;
 import com.espertech.esper.epl.join.exec.base.JoinExecTableLookupStrategy;
@@ -56,7 +56,7 @@ public class IndexedTableLookupPlanMulti extends TableLookupPlan {
         for (int i = 0; i < keyProps.length; i++) {
             isStrictlyProps = isStrictlyProps && keyProperties.get(i) instanceof QueryGraphValueEntryHashKeyedProp;
             evaluators[i] = keyProperties.get(i).getKeyExpr().getForge().getExprEvaluator();
-            expressions[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyProperties.get(i).getKeyExpr());
+            expressions[i] = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(keyProperties.get(i).getKeyExpr());
 
             if (keyProperties.get(i) instanceof QueryGraphValueEntryHashKeyedProp) {
                 keyProps[i] = ((QueryGraphValueEntryHashKeyedProp) keyProperties.get(i)).getKeyProperty();

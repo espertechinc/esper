@@ -152,6 +152,6 @@ public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode impl
         if (!subpropName.equals(that.subpropName)) {
             return false;
         }
-        return ExprNodeUtility.deepEquals(aggregateAccessMultiValueNode, that.aggregateAccessMultiValueNode, false);
+        return ExprNodeUtilityCore.deepEquals(aggregateAccessMultiValueNode, that.aggregateAccessMultiValueNode, false);
     }
 }

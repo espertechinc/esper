@@ -52,7 +52,7 @@ public class CalendarOpUtil {
         }
 
         ClassEPType input = (ClassEPType) inputType;
-        Object format = ExprNodeUtility.evaluateValidationTimeNoStreams(exprNode.getForge().getExprEvaluator(), exprEvaluatorContext, "date format");
+        Object format = ExprNodeUtilityCore.evaluateValidationTimeNoStreams(exprNode.getForge().getExprEvaluator(), exprEvaluatorContext, "date format");
         if (format == null) {
             throw new ExprValidationException(getMessage(methodName) + " invalid null format object");
         }
@@ -94,7 +94,7 @@ public class CalendarOpUtil {
     }
 
     private static String validateConstant(String methodName, ExprNode exprNode) {
-        if (ExprNodeUtility.isConstantValueExpr(exprNode)) {
+        if (ExprNodeUtilityCore.isConstantValueExpr(exprNode)) {
             return null;
         }
         return getMessage(methodName) + " requires a constant string-type parameter as its first parameter";

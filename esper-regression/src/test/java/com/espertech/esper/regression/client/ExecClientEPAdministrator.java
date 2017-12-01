@@ -15,8 +15,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.core.service.EPAdministratorSPI;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.pattern.EvalFactoryNode;
@@ -243,7 +243,7 @@ public class ExecClientEPAdministrator implements RegressionExecution {
         assertFalse(funcnode.getChainSpec().get(0).isProperty());
 
         ExprNode node = spi.compileExpression("value=5 and /* comment */ true");
-        assertEquals("value=5 and true", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(node));
+        assertEquals("value=5 and true", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(node));
 
         Expression expr = spi.compileExpressionToSODA("value=5 and true");
         StringWriter buf = new StringWriter();

@@ -13,8 +13,8 @@ package com.espertech.esper.epl.expression.methodagg;
 import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
@@ -49,7 +49,7 @@ public class ExprNthAggNode extends ExprAggregateNodeBase {
         int size = num.intValue();
 
         if (optionalFilter != null) {
-            this.positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+            this.positionalParams = ExprNodeUtilityCore.addExpression(positionalParams, optionalFilter);
         }
 
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeNth(validationContext.getStatementExtensionSvcContext(), this, first.getForge().getEvaluationType(), size);

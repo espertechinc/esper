@@ -16,7 +16,7 @@ import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPlanDesc;
 import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.supportregression.epl.SupportGroupRollupPlanHook;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 
@@ -140,7 +140,7 @@ public class ExecQuerytypeRollupPlanningAndSODA implements RegressionExecution {
                 received[i] = new String[level.getRollupKeys().length];
                 for (int j = 0; j < received[i].length; j++) {
                     int key = level.getRollupKeys()[j];
-                    received[i][j] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(plan.getExpressions()[key]);
+                    received[i][j] = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(plan.getExpressions()[key]);
                 }
             }
         }

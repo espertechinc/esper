@@ -13,9 +13,9 @@ package com.espertech.esper.epl.property;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class PropertyEvaluatorSimple implements PropertyEvaluator {
             if (filter == null) {
                 return rows;
             }
-            return ExprNodeUtility.applyFilterExpression(filter, theEvent, (EventBean[]) result, exprEvaluatorContext);
+            return ExprNodeUtilityCore.applyFilterExpression(filter, theEvent, (EventBean[]) result, exprEvaluatorContext);
         } catch (RuntimeException ex) {
             log.error("Unexpected error evaluating property expression for event of type '" +
                     theEvent.getEventType().getName() +

@@ -16,9 +16,9 @@ import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.common.AggregationServiceAggExpressionDesc;
 import com.espertech.esper.epl.agg.service.common.AggregationStateFactoryForge;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class AggregationGroupByLocalGroupByAnalyzer {
     public static AggregationLocalGroupByPlanForge analyze(ExprForge[][] methodForges, AggregationMethodFactory[] methodFactories, AggregationStateFactoryForge[] accessAggregations, AggregationGroupByLocalGroupDesc localGroupDesc, ExprNode[] groupByExpressions, AggregationAccessorSlotPairForge[] accessors, EngineImportService engineImportService, boolean fireAndForget, String statementName) {
 
         if (groupByExpressions == null) {
-            groupByExpressions = ExprNodeUtility.EMPTY_EXPR_ARRAY;
+            groupByExpressions = ExprNodeUtilityCore.EMPTY_EXPR_ARRAY;
         }
 
         AggregationLocalGroupByColumnForge[] columns = new AggregationLocalGroupByColumnForge[localGroupDesc.getNumColumns()];
@@ -53,7 +53,7 @@ public class AggregationGroupByLocalGroupByAnalyzer {
             if (levelDesc.getPartitionExpr().length == 0) {
                 continue;
             }
-            boolean isDefaultLevel = groupByExpressions != null && ExprNodeUtility.deepEqualsIgnoreDupAndOrder(groupByExpressions, levelDesc.getPartitionExpr());
+            boolean isDefaultLevel = groupByExpressions != null && ExprNodeUtilityCore.deepEqualsIgnoreDupAndOrder(groupByExpressions, levelDesc.getPartitionExpr());
             if (isDefaultLevel) {
                 AggregationLocalGroupByLevelForge level = getLevel(0, levelDesc, methodForges, methodFactories, accessAggregations, columns, isDefaultLevel, accessors, engineImportService, fireAndForget, statementName);
                 levelsList.add(level);
@@ -68,7 +68,7 @@ public class AggregationGroupByLocalGroupByAnalyzer {
             if (levelDesc.getPartitionExpr().length == 0) {
                 continue;
             }
-            boolean isDefaultLevel = groupByExpressions != null && ExprNodeUtility.deepEqualsIgnoreDupAndOrder(groupByExpressions, levelDesc.getPartitionExpr());
+            boolean isDefaultLevel = groupByExpressions != null && ExprNodeUtilityCore.deepEqualsIgnoreDupAndOrder(groupByExpressions, levelDesc.getPartitionExpr());
             if (isDefaultLevel) {
                 continue;
             }
@@ -97,7 +97,7 @@ public class AggregationGroupByLocalGroupByAnalyzer {
     private static AggregationLocalGroupByLevelForge getLevel(int levelNumber, AggregationGroupByLocalGroupLevel level, ExprForge[][] methodForgesAll, AggregationMethodFactory[] methodFactoriesAll, AggregationStateFactoryForge[] accessForges, AggregationLocalGroupByColumnForge[] columns, boolean defaultLevel, AggregationAccessorSlotPairForge[] accessors, EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
 
         ExprNode[] partitionExpr = level.getPartitionExpr();
-        ExprForge[] partitionForges = ExprNodeUtility.getForges(partitionExpr);
+        ExprForge[] partitionForges = ExprNodeUtilityCore.getForges(partitionExpr);
 
         List<ExprForge[]> methodForges = new ArrayList<>();
         List<AggregationMethodFactory> methodFactories = new ArrayList<>();

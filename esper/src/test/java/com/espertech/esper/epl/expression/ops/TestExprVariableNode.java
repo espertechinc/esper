@@ -12,7 +12,7 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.core.ExprVariableNodeImpl;
 import com.espertech.esper.epl.variable.VariableService;
@@ -57,7 +57,7 @@ public class TestExprVariableNode extends TestCase {
     }
 
     public void testToExpressionString() throws Exception {
-        assertEquals("var1", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(varNode));
+        assertEquals("var1", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(varNode));
     }
 
     private void tryInvalidValidate(ExprVariableNodeImpl varNode) throws Exception {

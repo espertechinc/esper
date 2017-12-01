@@ -25,7 +25,7 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.CollectionUtil;
 
@@ -47,7 +47,7 @@ public class EvalSelectNoWildcardMap implements SelectExprProcessor, SelectExprP
 
     public SelectExprProcessor getSelectExprProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
         if (evaluators == null) {
-            evaluators = ExprNodeUtility.getEvaluatorsMayCompile(selectContext.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
+            evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(selectContext.getExprForges(), engineImportService, this.getClass(), isFireAndForget, statementName);
         }
         return this;
     }

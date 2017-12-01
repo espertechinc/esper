@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCoalesceNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -100,6 +100,6 @@ public class TestExprCoalesceNode extends TestCase {
 
     public void testToExpressionString() throws Exception {
         coalesceNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
-        assertEquals("coalesce(null,null,4)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(coalesceNodes[0]));
+        assertEquals("coalesce(null,null,4)", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(coalesceNodes[0]));
     }
 }

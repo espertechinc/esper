@@ -60,6 +60,7 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.visitor.*;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 import com.espertech.esper.epl.view.OutputConditionPolledFactoryFactory;
 import com.espertech.esper.event.NativeEventType;
@@ -153,7 +154,7 @@ public class ResultSetProcessorFactoryFactory {
 
         validateSelectAssignColNames(selectClauseSpec, namedSelectionList, validationContext);
         if (statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getSelectClausePerLevel() != null) {
-            ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.GROUPBY, statementSpec.getGroupByExpressions().getSelectClausePerLevel(), validationContext);
+            ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.GROUPBY, statementSpec.getGroupByExpressions().getSelectClausePerLevel(), validationContext);
         }
         boolean isUsingWildcard = selectClauseSpec.isUsingWildcard();
 
@@ -216,9 +217,9 @@ public class ResultSetProcessorFactoryFactory {
 
         // Validate having clause, if present
         if (optionalHavingNode != null) {
-            optionalHavingNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.HAVING, optionalHavingNode, validationContext);
+            optionalHavingNode = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.HAVING, optionalHavingNode, validationContext);
             if (statementSpec.getGroupByExpressions() != null) {
-                ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.GROUPBY, statementSpec.getGroupByExpressions().getOptHavingNodePerLevel(), validationContext);
+                ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.GROUPBY, statementSpec.getGroupByExpressions().getOptHavingNodePerLevel(), validationContext);
             }
         }
 
@@ -234,11 +235,11 @@ public class ResultSetProcessorFactoryFactory {
             }
 
             Boolean isDescending = orderByList.get(i).isDescending();
-            OrderByItem validatedOrderBy = new OrderByItem(ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.ORDERBY, orderByNode, validationContext), isDescending);
+            OrderByItem validatedOrderBy = new OrderByItem(ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.ORDERBY, orderByNode, validationContext), isDescending);
             orderByList.set(i, validatedOrderBy);
 
             if (statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getOptOrderByPerLevel() != null) {
-                ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.GROUPBY, statementSpec.getGroupByExpressions().getOptOrderByPerLevel(), validationContext);
+                ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.GROUPBY, statementSpec.getGroupByExpressions().getOptOrderByPerLevel(), validationContext);
             }
         }
 
@@ -282,7 +283,7 @@ public class ResultSetProcessorFactoryFactory {
             if (statementSpec.getGroupByExpressions() != null) {
                 ExprAggregateNodeUtil.getAggregatesBottomUp(statementSpec.getGroupByExpressions().getOptHavingNodePerLevel(), havingAggregateExprNodes);
             }
-            propertiesAggregatedHaving = ExprNodeUtility.getAggregatedProperties(havingAggregateExprNodes);
+            propertiesAggregatedHaving = ExprNodeUtilityRich.getAggregatedProperties(havingAggregateExprNodes);
         }
         if (!allowAggregation && !havingAggregateExprNodes.isEmpty()) {
             throw new ExprValidationException("Aggregation functions are not allowed in this context");
@@ -304,7 +305,7 @@ public class ResultSetProcessorFactoryFactory {
 
         // Analyze rollup
         GroupByRollupInfo groupByRollupInfo = analyzeValidateGroupBy(statementSpec.getGroupByExpressions(), validationContext);
-        ExprNode[] groupByNodesValidated = groupByRollupInfo == null ? new ExprNode[0] : groupByRollupInfo.getExprNodes();
+        ExprNode[] groupByNodesValidated = groupByRollupInfo == null ? ExprNodeUtilityCore.EMPTY_EXPR_ARRAY : groupByRollupInfo.getExprNodes();
         AggregationGroupByRollupDesc groupByRollupDesc = groupByRollupInfo == null ? null : groupByRollupInfo.getRollupDesc();
 
         // Construct the appropriate aggregation service
@@ -341,11 +342,11 @@ public class ResultSetProcessorFactoryFactory {
         boolean hasOrderBy = orderByProcessorFactory != null;
 
         // Get a list of event properties being aggregated in the select clause, if any
-        ExprNodePropOrStreamSet propertiesGroupBy = ExprNodeUtility.getGroupByPropertiesValidateHasOne(groupByNodesValidated);
+        ExprNodePropOrStreamSet propertiesGroupBy = ExprNodeUtilityRich.getGroupByPropertiesValidateHasOne(groupByNodesValidated);
         // Figure out all non-aggregated event properties in the select clause (props not under a sum/avg/max aggregation node)
-        ExprNodePropOrStreamSet nonAggregatedPropsSelect = ExprNodeUtility.getNonAggregatedProps(typeService.getEventTypes(), selectNodes, contextPropertyRegistry);
+        ExprNodePropOrStreamSet nonAggregatedPropsSelect = ExprNodeUtilityRich.getNonAggregatedProps(typeService.getEventTypes(), selectNodes, contextPropertyRegistry);
         if (optionalHavingNode != null) {
-            ExprNodeUtility.addNonAggregatedProps(optionalHavingNode, nonAggregatedPropsSelect, typeService.getEventTypes(), contextPropertyRegistry);
+            ExprNodeUtilityRich.addNonAggregatedProps(optionalHavingNode, nonAggregatedPropsSelect, typeService.getEventTypes(), contextPropertyRegistry);
         }
 
         // Validate the having-clause (selected aggregate nodes and all in group-by are allowed)
@@ -413,7 +414,7 @@ public class ResultSetProcessorFactoryFactory {
             // (3)
             // There is no group-by clause and there are aggregate functions with event properties in the select clause (aggregation case)
             // or having class, and all event properties are aggregated (all properties are under aggregation functions).
-            boolean hasStreamSelect = ExprNodeUtility.hasStreamSelect(selectNodes);
+            boolean hasStreamSelect = ExprNodeUtilityRich.hasStreamSelect(selectNodes);
             if ((nonAggregatedPropsSelect.isEmpty()) && !hasStreamSelect && !isUsingWildcard && !isUsingStreamSelect && localGroupByMatchesGroupBy && (viewResourceDelegate == null || viewResourceDelegate.getPreviousRequests().isEmpty())) {
                 log.debug(".getProcessor Using ResultSetProcessorRowForAll");
                 ResultSetProcessorRowForAllForge forge = new ResultSetProcessorRowForAllForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, resultSetProcessorHelperFactory, hasOrderBy, outputConditionType);
@@ -454,7 +455,7 @@ public class ResultSetProcessorFactoryFactory {
         }
 
         // Figure out if all non-aggregated event properties in the order-by clause are listed in the select expression
-        ExprNodePropOrStreamSet nonAggregatedPropsOrderBy = ExprNodeUtility.getNonAggregatedProps(typeService.getEventTypes(), orderByNodes, contextPropertyRegistry);
+        ExprNodePropOrStreamSet nonAggregatedPropsOrderBy = ExprNodeUtilityRich.getNonAggregatedProps(typeService.getEventTypes(), orderByNodes, contextPropertyRegistry);
 
         reasonMessage = nonAggregatedPropsSelect.notContainsAll(nonAggregatedPropsOrderBy);
         boolean allInSelect = reasonMessage == null;
@@ -512,11 +513,11 @@ public class ResultSetProcessorFactoryFactory {
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
         if (outputLimitSpec.getAfterTimePeriodExpr() != null) {
-            ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getAfterTimePeriodExpr(), validationContext);
+            ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getAfterTimePeriodExpr(), validationContext);
             outputLimitSpec.setAfterTimePeriodExpr(timePeriodExpr);
         }
         if (outputLimitSpec.getTimePeriodExpr() != null) {
-            ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getTimePeriodExpr(), validationContext);
+            ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getTimePeriodExpr(), validationContext);
             outputLimitSpec.setTimePeriodExpr(timePeriodExpr);
             if (timePeriodExpr.isConstantResult() && timePeriodExpr.evaluateAsSeconds(null, true, new ExprEvaluatorContextStatement(statementContext, false)) <= 0) {
                 throw new ExprValidationException("Invalid time period expression returns a zero or negative time interval");
@@ -534,7 +535,7 @@ public class ResultSetProcessorFactoryFactory {
     private static boolean analyzeLocalGroupBy(ExprNode[] groupByNodesValidated, List<ExprAggregateNode> aggNodes) {
         for (ExprAggregateNode agg : aggNodes) {
             if (agg.getOptionalLocalGroupBy() != null) {
-                if (!ExprNodeUtility.deepEqualsIsSubset(agg.getOptionalLocalGroupBy().getPartitionExpressions(), groupByNodesValidated)) {
+                if (!ExprNodeUtilityCore.deepEqualsIsSubset(agg.getOptionalLocalGroupBy().getPartitionExpressions(), groupByNodesValidated)) {
                     return false;
                 }
             }
@@ -549,12 +550,12 @@ public class ResultSetProcessorFactoryFactory {
         }
 
         // validate that group-by expressions are somewhat-plain expressions
-        ExprNodeUtility.validateNoSpecialsGroupByExpressions(groupBy.getGroupByNodes());
+        ExprNodeUtilityRich.validateNoSpecialsGroupByExpressions(groupBy.getGroupByNodes());
 
         // validate each expression
         ExprNode[] validated = new ExprNode[groupBy.getGroupByNodes().length];
         for (int i = 0; i < validated.length; i++) {
-            validated[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.GROUPBY, groupBy.getGroupByNodes()[i], validationContext);
+            validated[i] = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.GROUPBY, groupBy.getGroupByNodes()[i], validationContext);
         }
 
         if (groupBy.getGroupByRollupLevels() == null) {
@@ -595,7 +596,7 @@ public class ResultSetProcessorFactoryFactory {
         // for each expression in the group-by clause determine which properties it refers to
         ExprNodePropOrStreamSet[] propsPerGroupByExpr = new ExprNodePropOrStreamSet[groupByNodesValidated.length];
         for (int i = 0; i < groupByNodesValidated.length; i++) {
-            propsPerGroupByExpr[i] = ExprNodeUtility.getGroupByPropertiesValidateHasOne(new ExprNode[]{groupByNodesValidated[i]});
+            propsPerGroupByExpr[i] = ExprNodeUtilityRich.getGroupByPropertiesValidateHasOne(new ExprNode[]{groupByNodesValidated[i]});
         }
 
         // for each level obtain a separate select expression processor
@@ -698,7 +699,7 @@ public class ResultSetProcessorFactoryFactory {
             int result = found ? 0 : 1;
             ExprConstantNodeImpl constant = new ExprConstantNodeImpl(result, Integer.class);
             if (groupingNodePair.getFirst() != null) {
-                ExprNodeUtility.replaceChildNode(groupingNodePair.getFirst(), groupingNodePair.getSecond(), constant);
+                ExprNodeUtilityCore.replaceChildNode(groupingNodePair.getFirst(), groupingNodePair.getSecond(), constant);
             } else {
                 exprNode = constant;
             }
@@ -727,7 +728,7 @@ public class ResultSetProcessorFactoryFactory {
 
             ExprConstantNodeImpl constant = new ExprConstantNodeImpl(result, Integer.class);
             if (groupingIdNodePair.getFirst() != null) {
-                ExprNodeUtility.replaceChildNode(groupingIdNodePair.getFirst(), groupingIdNodePair.getSecond(), constant);
+                ExprNodeUtilityCore.replaceChildNode(groupingIdNodePair.getFirst(), groupingIdNodePair.getSecond(), constant);
             } else {
                 exprNode = constant;
             }
@@ -760,13 +761,13 @@ public class ResultSetProcessorFactoryFactory {
 
             ExprConstantNodeImpl constant = new ExprConstantNodeImpl(null, node.getSecond().getForge().getEvaluationType());
             if (node.getFirst() != null) {
-                ExprNodeUtility.replaceChildNode(node.getFirst(), node.getSecond(), constant);
+                ExprNodeUtilityCore.replaceChildNode(node.getFirst(), node.getSecond(), constant);
             } else {
                 exprNode = constant;
             }
         }
 
-        return ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, exprNode, validationContext);
+        return ExprNodeUtilityRich.getValidatedSubtree(exprNodeOrigin, exprNode, validationContext);
     }
 
     private static int[] getGroupExprCombination(ExprNode[] groupByNodes, ExprNode[] childNodes)
@@ -776,9 +777,9 @@ public class ResultSetProcessorFactoryFactory {
             boolean found = false;
 
             for (int i = 0; i < groupByNodes.length; i++) {
-                if (ExprNodeUtility.deepEquals(child, groupByNodes[i], false)) {
+                if (ExprNodeUtilityCore.deepEquals(child, groupByNodes[i], false)) {
                     if (indexes.contains(i)) {
-                        throw new ExprValidationException("Duplicate expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(child) + "' among grouping function parameters");
+                        throw new ExprValidationException("Duplicate expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(child) + "' among grouping function parameters");
                     }
                     indexes.add(i);
                     found = true;
@@ -786,7 +787,7 @@ public class ResultSetProcessorFactoryFactory {
             }
 
             if (!found) {
-                throw new ExprValidationException("Failed to find expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(child) + "' among group-by expressions");
+                throw new ExprValidationException("Failed to find expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(child) + "' among group-by expressions");
             }
         }
         return CollectionUtil.intArray(indexes);
@@ -799,12 +800,12 @@ public class ResultSetProcessorFactoryFactory {
             SelectClauseElementCompiled element = selectClauseSpec.getSelectExprList()[i];
             if (element instanceof SelectClauseExprCompiledSpec) {
                 SelectClauseExprCompiledSpec expr = (SelectClauseExprCompiledSpec) element;
-                ExprNode validatedExpression = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, expr.getSelectExpression(), validationContext);
+                ExprNode validatedExpression = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, expr.getSelectExpression(), validationContext);
 
                 // determine an element name if none assigned
                 String asName = expr.getAssignedName();
                 if (asName == null) {
-                    asName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedExpression);
+                    asName = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validatedExpression);
                 }
 
                 expr.setAssignedName(asName);
@@ -825,7 +826,7 @@ public class ResultSetProcessorFactoryFactory {
             ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true);
             havingNode.accept(visitor);
             List<ExprNodePropOrStreamDesc> allPropertiesHaving = visitor.getRefs();
-            ExprNodePropOrStreamSet aggPropertiesHaving = ExprNodeUtility.getAggregatedProperties(aggregateNodesHaving);
+            ExprNodePropOrStreamSet aggPropertiesHaving = ExprNodeUtilityRich.getAggregatedProperties(aggregateNodesHaving);
 
             aggPropertiesHaving.removeFromList(allPropertiesHaving);
             propertiesGroupedBy.removeFromList(allPropertiesHaving);

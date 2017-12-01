@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.lookup;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.PropertyIndexedEventTable;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
@@ -32,7 +32,7 @@ public class SubordIndexedTableLookupStrategyExprFactory implements SubordTableL
         String[] expressions = new String[evaluators.length];
         for (int i = 0; i < hashKeys.size(); i++) {
             evaluators[i] = hashKeys.get(i).getHashKey().getKeyExpr().getForge().getExprEvaluator();
-            expressions[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(hashKeys.get(i).getHashKey().getKeyExpr());
+            expressions[i] = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(hashKeys.get(i).getHashKey().getKeyExpr());
         }
         this.isNWOnTrigger = isNWOnTrigger;
         this.numStreamsOuter = numStreamsOuter;
@@ -48,6 +48,6 @@ public class SubordIndexedTableLookupStrategyExprFactory implements SubordTableL
     }
 
     public String toQueryPlan() {
-        return this.getClass().getSimpleName() + " evaluators " + ExprNodeUtility.printEvaluators(evaluators);
+        return this.getClass().getSimpleName() + " evaluators " + ExprNodeUtilityCore.printEvaluators(evaluators);
     }
 }

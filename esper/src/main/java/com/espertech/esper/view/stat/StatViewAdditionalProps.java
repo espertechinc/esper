@@ -63,7 +63,7 @@ public class StatViewAdditionalProps {
                 copyAllProperties = true;
             }
 
-            additionalProps.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated[i]));
+            additionalProps.add(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validated[i]));
             lastValueTypes.add(validated[i].getForge().getEvaluationType());
             ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(validated[i].getForge(), engineImportService, StatViewAdditionalProps.class, false, statementName);
             lastValueEvals.add(evaluator);

@@ -12,9 +12,9 @@ package com.espertech.esper.epl.property;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.FragmentEventType;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,7 @@ public class PropertyEvaluatorAccumulative {
                     if (whereClauses[level] != null) {
                         for (EventBean theEvent : fragments) {
                             eventsPerStream[level + 1] = theEvent;
-                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                            if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                                 EventBean[] eventsPerRow = new EventBean[levels];
                                 System.arraycopy(eventsPerStream, 0, eventsPerRow, 0, levels);
                                 events.add(eventsPerRow);
@@ -99,7 +99,7 @@ public class PropertyEvaluatorAccumulative {
                     if (whereClauses[level] != null) {
                         for (EventBean next : fragments) {
                             eventsPerStream[level + 1] = next;
-                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                            if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                                 populateEvents(eventsPerStream, next, level + 1, events, exprEvaluatorContext);
                             }
                         }
@@ -115,7 +115,7 @@ public class PropertyEvaluatorAccumulative {
                 if (level == lastLevel) {
                     if (whereClauses[level] != null) {
                         eventsPerStream[level + 1] = fragment;
-                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                        if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                             EventBean[] eventsPerRow = new EventBean[levels];
                             System.arraycopy(eventsPerStream, 0, eventsPerRow, 0, levels);
                             events.add(eventsPerRow);
@@ -129,7 +129,7 @@ public class PropertyEvaluatorAccumulative {
                 } else {
                     if (whereClauses[level] != null) {
                         eventsPerStream[level + 1] = fragment;
-                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                        if (ExprNodeUtilityCore.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                             populateEvents(eventsPerStream, fragment, level + 1, events, exprEvaluatorContext);
                         }
                     } else {

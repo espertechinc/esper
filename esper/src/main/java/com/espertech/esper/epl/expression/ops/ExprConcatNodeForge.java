@@ -15,10 +15,10 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
 import com.espertech.esper.epl.expression.core.ExprForgeComplexityEnum;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 public class ExprConcatNodeForge implements ExprForge {
     private final ExprConcatNode parent;
@@ -34,7 +34,7 @@ public class ExprConcatNodeForge implements ExprForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsNoCompile(parent.getChildNodes());
+        ExprEvaluator[] evaluators = ExprNodeUtilityCore.getEvaluatorsNoCompile(parent.getChildNodes());
         if (threadingProfile == ConfigurationEngineDefaults.ThreadingProfile.LARGE) {
             return new ExprConcatNodeForgeEvalWNew(this, evaluators);
         } else {

@@ -15,8 +15,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.spec.MatchRecognizeSkipEnum;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
@@ -83,7 +83,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             regexPartitionStateRepo = repoFactory.makeSingle(prevGetter, agentInstanceContext, this, factory.matchRecognizeSpec.getInterval() != null, terminationStateCompare);
         } else {
             RegexPartitionStateRepoGroupMeta stateRepoGroupMeta = new RegexPartitionStateRepoGroupMeta(factory.matchRecognizeSpec.getInterval() != null,
-                    ExprNodeUtility.toArray(factory.matchRecognizeSpec.getPartitionByExpressions()),
+                    ExprNodeUtilityCore.toArray(factory.matchRecognizeSpec.getPartitionByExpressions()),
                     factory.partitionByEvals, agentInstanceContext);
             regexPartitionStateRepo = repoFactory.makePartitioned(prevGetter, stateRepoGroupMeta, agentInstanceContext, this, factory.matchRecognizeSpec.getInterval() != null, terminationStateCompare);
         }

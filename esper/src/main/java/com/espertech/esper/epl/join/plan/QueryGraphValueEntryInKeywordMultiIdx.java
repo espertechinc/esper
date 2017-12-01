@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.io.Serializable;
 
@@ -28,7 +28,7 @@ public class QueryGraphValueEntryInKeywordMultiIdx implements QueryGraphValueEnt
     }
 
     public String toQueryPlan() {
-        return "in-keyword multi-indexed single keyed lookup " + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExpr);
+        return "in-keyword multi-indexed single keyed lookup " + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(keyExpr);
     }
 }
 

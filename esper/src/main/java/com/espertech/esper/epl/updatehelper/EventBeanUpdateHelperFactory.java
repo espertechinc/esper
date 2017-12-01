@@ -19,6 +19,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.*;
 import com.espertech.esper.util.*;
 
@@ -48,7 +49,7 @@ public class EventBeanUpdateHelperFactory {
             EventBeanUpdateItem updateItem;
 
             // determine whether this is a "property=value" assignment, we use property setters in this case
-            Pair<String, ExprNode> possibleAssignment = ExprNodeUtility.checkGetAssignmentToProp(assignment.getExpression());
+            Pair<String, ExprNode> possibleAssignment = ExprNodeUtilityRich.checkGetAssignmentToProp(assignment.getExpression());
 
             // handle assignment "property = value"
             if (possibleAssignment != null) {
@@ -70,7 +71,7 @@ public class EventBeanUpdateHelperFactory {
                 properties.add(propertyName);
                 TypeWidener widener;
                 try {
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getForge().getEvaluationType(),
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getForge().getEvaluationType(),
                         writableProperty.getPropertyType(), propertyName, false, typeWidenerCustomizer, statementName, engineURI);
                 } catch (TypeWidenerException ex) {
                     throw new ExprValidationException(ex.getMessage(), ex);

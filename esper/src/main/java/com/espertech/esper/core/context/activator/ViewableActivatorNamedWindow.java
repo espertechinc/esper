@@ -14,7 +14,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.named.NamedWindowConsumerDesc;
 import com.espertech.esper.epl.named.NamedWindowConsumerView;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
@@ -32,7 +32,7 @@ public class ViewableActivatorNamedWindow implements ViewableActivator {
     public ViewableActivatorNamedWindow(NamedWindowProcessor processor, List<ExprNode> filterExpressions, PropertyEvaluator optPropertyEvaluator, EngineImportService engineImportService, String statementName) {
         this.processor = processor;
         this.filterExpressions = filterExpressions.toArray(new ExprNode[filterExpressions.size()]);
-        this.filterEvaluators = ExprNodeUtility.getEvaluatorsMayCompile(filterExpressions, engineImportService, this.getClass(), false, statementName);
+        this.filterEvaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(filterExpressions, engineImportService, this.getClass(), false, statementName);
         this.optPropertyEvaluator = optPropertyEvaluator;
     }
 

@@ -44,6 +44,7 @@ import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzer;
 import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
 import com.espertech.esper.epl.util.EventRepresentationUtil;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
@@ -1086,14 +1087,14 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
 
                     if (spec.getCreateWindowDesc().getInsertFilter() != null) {
                         ExprNode insertIntoFilter = spec.getCreateWindowDesc().getInsertFilter();
-                        String checkMinimal = ExprNodeUtility.isMinimalExpression(insertIntoFilter);
+                        String checkMinimal = ExprNodeUtilityRich.isMinimalExpression(insertIntoFilter);
                         if (checkMinimal != null) {
                             throw new ExprValidationException("Create window where-clause may not have " + checkMinimal);
                         }
                         StreamTypeService streamTypeService = new StreamTypeServiceImpl(selectFromType, selectFromTypeName, true, statementContext.getEngineURI());
                         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
                         ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
-                        ExprNode insertFilter = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CREATEWINDOWFILTER, spec.getCreateWindowDesc().getInsertFilter(), validationContext);
+                        ExprNode insertFilter = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.CREATEWINDOWFILTER, spec.getCreateWindowDesc().getInsertFilter(), validationContext);
                         spec.getCreateWindowDesc().setInsertFilter(insertFilter);
                     }
 
@@ -1135,8 +1136,8 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
                 spec.getOutputLimitSpec(),
                 OrderByItem.toArray(spec.getOrderByList()),
                 ExprSubselectNode.toArray(subselectNodes),
-                ExprNodeUtility.toArray(declaredNodes),
-                spec.getScriptExpressions() == null || spec.getScriptExpressions().isEmpty() ? ExprNodeUtility.EMPTY_SCRIPTS : spec.getScriptExpressions().toArray(new ExpressionScriptProvided[spec.getScriptExpressions().size()]),
+                ExprNodeUtilityRich.toArray(declaredNodes),
+                spec.getScriptExpressions() == null || spec.getScriptExpressions().isEmpty() ? ExprNodeUtilityRich.EMPTY_SCRIPTS : spec.getScriptExpressions().toArray(new ExpressionScriptProvided[spec.getScriptExpressions().size()]),
                 spec.getReferencedVariables(),
                 spec.getRowLimitSpec(),
                 CollectionUtil.toArray(eventTypeReferences),
@@ -1369,7 +1370,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
             SelectClauseExprRawSpec exprSpec = (SelectClauseExprRawSpec) raw;
             ExprNode validatedExpression;
             try {
-                validatedExpression = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprSpec.getSelectExpression(), validationContext);
+                validatedExpression = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.SELECT, exprSpec.getSelectExpression(), validationContext);
             } catch (ExprValidationException e) {
                 throw new EPStatementException(e.getMessage(), e, eplStatement);
             }
@@ -1377,7 +1378,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
             // determine an element name if none assigned
             String asName = exprSpec.getOptionalAsName();
             if (asName == null) {
-                asName = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedExpression);
+                asName = ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(validatedExpression);
             }
 
             // check for fragments

@@ -14,8 +14,8 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.ops.ExprNewInstanceNodeForge;
 import net.sf.cglib.reflect.FastConstructor;
 
@@ -31,7 +31,7 @@ public class InstanceManufacturerFactoryFastCtor implements InstanceManufacturer
     }
 
     public InstanceManufacturer makeEvaluator() {
-        return new InstanceManufacturerFastCtor(this, ExprNodeUtility.getEvaluatorsNoCompile(forges));
+        return new InstanceManufacturerFastCtor(this, ExprNodeUtilityCore.getEvaluatorsNoCompile(forges));
     }
 
     public CodegenExpression codegen(ExprNewInstanceNodeForge forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

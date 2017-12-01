@@ -12,9 +12,9 @@ package com.espertech.esper.epl.datetime.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.join.util.RangeFilterAnalyzer;
@@ -42,7 +42,7 @@ public class FilterExprAnalyzerDTBetweenAffector implements FilterExprAnalyzerAf
     }
 
     public void apply(QueryGraph queryGraph) {
-        ExprIdentNode targetExpr = ExprNodeUtility.getExprIdentNode(typesPerStream, targetStreamNum, targetPropertyName);
+        ExprIdentNode targetExpr = ExprNodeUtilityCore.getExprIdentNode(typesPerStream, targetStreamNum, targetPropertyName);
         RangeFilterAnalyzer.apply(targetExpr, start, end, includeLow, includeHigh, false, queryGraph);
     }
 

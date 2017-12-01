@@ -26,6 +26,7 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGiven
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.filter.FilterSpecCompiled;
@@ -338,10 +339,10 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                             timeDeltaComputation = new ExprTimePeriodEvalDeltaConstGivenDelta(timeExpire);
                             expiryTimeExp = expr;
                         } else {
-                            log.warn("Invalid seconds-expire " + timeExpire + " for " + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr));
+                            log.warn("Invalid seconds-expire " + timeExpire + " for " + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expr));
                         }
                     } else {
-                        log.warn("Every-distinct node utilizes an expression returning a constant value, please check expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr) + "', not adding expression to distinct-value expression list");
+                        log.warn("Every-distinct node utilizes an expression returning a constant value, please check expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expr) + "', not adding expression to distinct-value expression list");
                     }
                 } else {
                     distinctExpressions.add(expr);
@@ -412,7 +413,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                             throw new ExprValidationException(errorMessage);
                         }
 
-                        ExprNode validatedExpr = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FOLLOWEDBYMAX, maxExpr, validationContext);
+                        ExprNode validatedExpr = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.FOLLOWEDBYMAX, maxExpr, validationContext);
                         validated.add(validatedExpr);
                         Class returnType = validatedExpr.getForge().getEvaluationType();
                         if ((returnType == null) || (!JavaClassHelper.isNumeric(returnType))) {
@@ -436,7 +437,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
     private static ExprNode validateBounds(ExprNode bounds, ExprValidationContext validationContext) throws ExprValidationException {
         String message = "Match-until bounds value expressions must return a numeric value";
         if (bounds != null) {
-            ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.PATTERNMATCHUNTILBOUNDS, bounds, validationContext);
+            ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.PATTERNMATCHUNTILBOUNDS, bounds, validationContext);
             Class returnType = validated.getForge().getEvaluationType();
             if ((returnType == null) || (!JavaClassHelper.isNumeric(returnType))) {
                 throw new ExprValidationException(message);
@@ -496,7 +497,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
         }
         List<ExprNode> validated = new ArrayList<ExprNode>();
         for (ExprNode node : objectParameters) {
-            validated.add(ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, node, validationContext));
+            validated.add(ExprNodeUtilityRich.getValidatedSubtree(exprNodeOrigin, node, validationContext));
         }
         return validated;
     }

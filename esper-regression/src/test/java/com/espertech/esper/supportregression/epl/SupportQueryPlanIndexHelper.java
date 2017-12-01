@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.supportregression.epl;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.join.plan.*;
 import org.junit.Assert;
 
@@ -130,16 +130,16 @@ public class SupportQueryPlanIndexHelper {
         } else if (expectedPlan instanceof InKeywordTableLookupPlanMultiIdx && actualPlan instanceof InKeywordTableLookupPlanMultiIdx) {
             InKeywordTableLookupPlanMultiIdx inExpected = (InKeywordTableLookupPlanMultiIdx) expectedPlan;
             InKeywordTableLookupPlanMultiIdx inActual = (InKeywordTableLookupPlanMultiIdx) actualPlan;
-            assertTrue(ExprNodeUtility.deepEquals(inExpected.getKeyExpr(), inActual.getKeyExpr(), false));
+            assertTrue(ExprNodeUtilityCore.deepEquals(inExpected.getKeyExpr(), inActual.getKeyExpr(), false));
         } else if (expectedPlan instanceof InKeywordTableLookupPlanSingleIdx && actualPlan instanceof InKeywordTableLookupPlanSingleIdx) {
             InKeywordTableLookupPlanSingleIdx inExpected = (InKeywordTableLookupPlanSingleIdx) expectedPlan;
             InKeywordTableLookupPlanSingleIdx inActual = (InKeywordTableLookupPlanSingleIdx) actualPlan;
-            assertTrue(ExprNodeUtility.deepEquals(inExpected.getExpressions(), inActual.getExpressions(), false));
+            assertTrue(ExprNodeUtilityCore.deepEquals(inExpected.getExpressions(), inActual.getExpressions(), false));
         } else if (expectedPlan instanceof SortedTableLookupPlan && actualPlan instanceof SortedTableLookupPlan) {
             SortedTableLookupPlan inExpected = (SortedTableLookupPlan) expectedPlan;
             SortedTableLookupPlan inActual = (SortedTableLookupPlan) actualPlan;
             assertEquals(inExpected.getLookupStream(), inActual.getLookupStream());
-            assertTrue(ExprNodeUtility.deepEquals(inExpected.getRangeKeyPair().getExpressions(), inActual.getRangeKeyPair().getExpressions(), false));
+            assertTrue(ExprNodeUtilityCore.deepEquals(inExpected.getRangeKeyPair().getExpressions(), inActual.getRangeKeyPair().getExpressions(), false));
         } else {
             Assert.fail("Failed to compare plan for stream " + streamNum + ", found type " + actualPlan.getClass());
         }

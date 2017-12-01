@@ -11,14 +11,14 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.client.ConfigurationEngineDefaults;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.MathArithTypeEnum;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ public class TestExprConcatNode extends TestCase {
         concatNode = new ExprConcatNode();
         concatNode.addChildNode(new SupportExprNode("a"));
         concatNode.addChildNode(new SupportExprNode("b"));
-        assertEquals("\"a\"||\"b\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(concatNode));
+        assertEquals("\"a\"||\"b\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(concatNode));
         concatNode.addChildNode(new SupportExprNode("c"));
-        assertEquals("\"a\"||\"b\"||\"c\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(concatNode));
+        assertEquals("\"a\"||\"b\"||\"c\"", ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(concatNode));
     }
 
     public void testValidate() {

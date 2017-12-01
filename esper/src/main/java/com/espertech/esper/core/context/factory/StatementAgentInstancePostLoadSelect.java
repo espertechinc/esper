@@ -11,9 +11,9 @@
 package com.espertech.esper.core.context.factory;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.base.JoinSetComposerDesc;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.named.NamedWindowTailViewInstance;
@@ -62,13 +62,13 @@ public class StatementAgentInstancePostLoadSelect implements StatementAgentInsta
                 Collection<EventBean> snapshot = nwtail.snapshotNoLock(namedWindowPostloadFilters[stream], annotations);
                 if (namedWindowFilters[stream] != null) {
                     eventsInWindow = new ArrayList<EventBean>(snapshot.size());
-                    ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedWindowFilters[stream], exprEvaluatorContext, eventsInWindow);
+                    ExprNodeUtilityCore.applyFilterExpressionsIterable(snapshot, namedWindowFilters[stream], exprEvaluatorContext, eventsInWindow);
                 } else {
                     eventsInWindow = snapshot;
                 }
             } else if (namedWindowFilters[stream] != null && !namedWindowFilters[stream].isEmpty()) {
                 eventsInWindow = new ArrayDeque<EventBean>();
-                ExprNodeUtility.applyFilterExpressionsIterable(streamViews[stream], namedWindowFilters[stream], exprEvaluatorContext, eventsInWindow);
+                ExprNodeUtilityCore.applyFilterExpressionsIterable(streamViews[stream], namedWindowFilters[stream], exprEvaluatorContext, eventsInWindow);
             } else {
                 eventsInWindow = new ArrayDeque<EventBean>();
                 for (EventBean aConsumerView : streamViews[stream]) {

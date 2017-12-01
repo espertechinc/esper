@@ -22,6 +22,7 @@ import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
 import com.espertech.esper.epl.index.service.FilterExprAnalyzerAffectorIndexProvision;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.lookup.AdvancedIndexConfigContextPartition;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.filter.FilterSpecCompilerAdvIndexDesc;
 import com.espertech.esper.util.CollectionUtil;
 
@@ -82,8 +83,8 @@ public abstract class EngineImportApplicationDotMethodBase implements EngineImpo
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DOTNODEPARAMETER, lhs, validationContext);
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DOTNODEPARAMETER, rhs, validationContext);
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.DOTNODEPARAMETER, lhs, validationContext);
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.DOTNODEPARAMETER, rhs, validationContext);
 
         forge = validateAll(lhsName, lhs, rhsName, rhs, validationContext);
 
@@ -162,7 +163,7 @@ public abstract class EngineImportApplicationDotMethodBase implements EngineImpo
             throw new ExprValidationException("Invalid index type '" + indexTypeName + "', expected '" + indexTypeName() + "'");
         }
 
-        optionalIndexConfig = provider.validateConfigureFilterIndex(optionalIndexName, indexTypeName, ExprNodeUtility.toArray(params), validationContext);
+        optionalIndexConfig = provider.validateConfigureFilterIndex(optionalIndexName, indexTypeName, ExprNodeUtilityCore.toArray(params), validationContext);
     }
 
     private ExprValidationException getIndexNameMessage(String message) {

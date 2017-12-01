@@ -13,8 +13,9 @@ package com.espertech.esper.epl.expression.methodagg;
 import com.espertech.esper.epl.agg.service.common.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
@@ -49,7 +50,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
             if (first instanceof ExprTimePeriod) {
                 double secInterval = ((ExprTimePeriod) first).evaluateAsSeconds(null, true, validationContext.getExprEvaluatorContext());
                 intervalTime = validationContext.getEngineImportService().getTimeAbacus().deltaForSecondsDouble(secInterval);
-            } else if (ExprNodeUtility.isConstantValueExpr(first)) {
+            } else if (ExprNodeUtilityCore.isConstantValueExpr(first)) {
                 if (!JavaClassHelper.isNumeric(first.getForge().getEvaluationType())) {
                     throw new ExprValidationException(message);
                 }
@@ -60,7 +61,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
             }
 
             if (optionalFilter == null) {
-                this.positionalParams = ExprNodeUtility.EMPTY_EXPR_ARRAY;
+                this.positionalParams = ExprNodeUtilityCore.EMPTY_EXPR_ARRAY;
             } else {
                 this.positionalParams = new ExprNode[]{optionalFilter};
             }
@@ -83,12 +84,12 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
                 throw new ExprValidationException("The rate aggregation function accepts an expression returning a numeric value to accumulate as an optional second parameter");
             }
         }
-        boolean hasDataWindows = ExprNodeUtility.hasRemoveStreamForAggregations(first, validationContext.getStreamTypeService(), validationContext.isResettingAggregations());
+        boolean hasDataWindows = ExprNodeUtilityRich.hasRemoveStreamForAggregations(first, validationContext.getStreamTypeService(), validationContext.isResettingAggregations());
         if (!hasDataWindows) {
             throw new ExprValidationException("The rate aggregation function in the timestamp-property notation requires data windows");
         }
         if (optionalFilter != null) {
-            positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+            positionalParams = ExprNodeUtilityCore.addExpression(positionalParams, optionalFilter);
         }
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, false, -1, validationContext.getTimeProvider(), validationContext.getEngineImportService().getTimeAbacus());
     }

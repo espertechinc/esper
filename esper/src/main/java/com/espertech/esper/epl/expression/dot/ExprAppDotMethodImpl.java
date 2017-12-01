@@ -63,13 +63,13 @@ public class ExprAppDotMethodImpl extends ExprNodeBase implements FilterSpecComp
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.append(desc.getLhsName());
         writer.append("(");
-        ExprNodeUtility.toExpressionStringMinPrecedenceAsList(desc.getLhs(), writer);
+        ExprNodeUtilityCore.toExpressionStringMinPrecedenceAsList(desc.getLhs(), writer);
         writer.append(").");
         writer.append(desc.getDotMethodName());
         writer.append("(");
         writer.append(desc.getRhsName());
         writer.append("(");
-        ExprNodeUtility.toExpressionStringMinPrecedenceAsList(desc.getRhs(), writer);
+        ExprNodeUtilityCore.toExpressionStringMinPrecedenceAsList(desc.getRhs(), writer);
         writer.append("))");
     }
 
@@ -85,7 +85,7 @@ public class ExprAppDotMethodImpl extends ExprNodeBase implements FilterSpecComp
         if (!desc.getLhsName().equals(other.getDesc().getLhsName())) return false;
         if (!desc.getDotMethodName().equals(other.getDesc().getDotMethodName())) return false;
         if (!desc.getRhsName().equals(other.getDesc().getRhsName())) return false;
-        if (!ExprNodeUtility.deepEquals(desc.getLhs(), other.getDesc().getLhs(), false)) return false;
-        return ExprNodeUtility.deepEquals(desc.getRhs(), other.getDesc().getRhs(), false);
+        if (!ExprNodeUtilityCore.deepEquals(desc.getLhs(), other.getDesc().getLhs(), false)) return false;
+        return ExprNodeUtilityCore.deepEquals(desc.getRhs(), other.getDesc().getRhs(), false);
     }
 }

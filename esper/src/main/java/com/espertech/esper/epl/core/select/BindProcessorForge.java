@@ -12,12 +12,12 @@ package com.espertech.esper.epl.core.select;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.SelectClauseElementCompiled;
 import com.espertech.esper.epl.spec.SelectClauseElementWildcard;
@@ -25,6 +25,7 @@ import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 
 import java.util.ArrayList;
 
@@ -87,7 +88,7 @@ public class BindProcessorForge {
                 if (expr.getAssignedName() != null) {
                     columnNames.add(expr.getAssignedName());
                 } else {
-                    columnNames.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr.getSelectExpression()));
+                    columnNames.add(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(expr.getSelectExpression()));
                 }
             } else {
                 throw new IllegalStateException("Unrecognized select expression element of type " + element.getClass());
@@ -100,7 +101,7 @@ public class BindProcessorForge {
     }
 
     public BindProcessor getBindProcessor(EngineImportService engineImportService, boolean isFireAndForget, String statementName) {
-        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluatorsMayCompile(expressionForges, engineImportService, this.getClass(), isFireAndForget, statementName);
+        ExprEvaluator[] evaluators = ExprNodeUtilityRich.getEvaluatorsMayCompile(expressionForges, engineImportService, this.getClass(), isFireAndForget, statementName);
         return new BindProcessor(this, evaluators);
     }
 

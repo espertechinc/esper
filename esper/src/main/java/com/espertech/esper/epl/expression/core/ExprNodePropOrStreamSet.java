@@ -142,7 +142,7 @@ public class ExprNodePropOrStreamSet {
             if (expression.getStreamNum() != exprItem.getStreamNum()) {
                 continue;
             }
-            if (ExprNodeUtility.deepEquals(expression.getOriginator(), exprItem.getOriginator(), false)) {
+            if (ExprNodeUtilityCore.deepEquals(expression.getOriginator(), exprItem.getOriginator(), false)) {
                 return true;
             }
         }

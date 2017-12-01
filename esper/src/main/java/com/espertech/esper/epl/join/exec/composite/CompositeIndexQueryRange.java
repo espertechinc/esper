@@ -11,9 +11,9 @@
 package com.espertech.esper.epl.join.exec.composite;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.plan.QueryGraphRangeEnum;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryRange;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryRangeIn;
@@ -34,11 +34,11 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
         if (rangeProp.getType().isRange()) {
             QueryGraphValueEntryRangeIn rangeIn = (QueryGraphValueEntryRangeIn) rangeProp;
             ExprEvaluator start = rangeIn.getExprStart().getForge().getExprEvaluator();
-            expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(rangeIn.getExprStart()));
+            expressionTexts.add(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(rangeIn.getExprStart()));
             boolean includeStart = rangeProp.getType().isIncludeStart();
 
             ExprEvaluator end = rangeIn.getExprEnd().getForge().getExprEvaluator();
-            expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(rangeIn.getExprEnd()));
+            expressionTexts.add(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(rangeIn.getExprEnd()));
             boolean includeEnd = rangeProp.getType().isIncludeEnd();
 
             if (!rangeProp.getType().isRangeInverted()) {
@@ -49,7 +49,7 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
         } else {
             QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeProp;
             ExprEvaluator key = relOp.getExpression().getForge().getExprEvaluator();
-            expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(relOp.getExpression()));
+            expressionTexts.add(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(relOp.getExpression()));
             if (rangeProp.getType() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
                 strategy = new CompositeAccessStrategyGE(isNWOnTrigger, lookupStream, numStreams, key, coercionType);
             } else if (rangeProp.getType() == QueryGraphRangeEnum.GREATER) {

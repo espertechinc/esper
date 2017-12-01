@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;

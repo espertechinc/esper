@@ -14,6 +14,7 @@ import com.espertech.esper.client.dataflow.EPDataFlowOperatorParameterProvider;
 import com.espertech.esper.client.dataflow.EPDataFlowOperatorParameterProviderContext;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.bean.PropertyHelper;
 import com.espertech.esper.event.property.MappedProperty;
@@ -281,11 +282,11 @@ public class PopulateUtil {
                 }
             } else {
                 ExprNode exprNode = (ExprNode) value;
-                ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, exprNode, exprValidationContext);
+                ExprNode validated = ExprNodeUtilityRich.getValidatedSubtree(exprNodeOrigin, exprNode, exprValidationContext);
                 exprValidationContext.getVariableService().setLocalVersion();
                 ExprEvaluator evaluator = validated.getForge().getExprEvaluator();
                 if (evaluator == null) {
-                    throw new ExprValidationException("Failed to evaluate expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "'");
+                    throw new ExprValidationException("Failed to evaluate expression '" + ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(exprNode) + "'");
                 }
                 value = evaluator.evaluate(null, true, null);
             }

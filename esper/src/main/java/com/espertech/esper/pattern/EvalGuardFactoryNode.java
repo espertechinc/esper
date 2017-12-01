@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.pattern;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.spec.PatternGuardSpec;
 import com.espertech.esper.pattern.guard.GuardEnum;
 import com.espertech.esper.pattern.guard.GuardFactory;
@@ -99,7 +99,7 @@ public class EvalGuardFactoryNode extends EvalNodeFactoryBase {
             writer.write(patternGuardSpec.getObjectName());
         }
         writer.write("(");
-        ExprNodeUtility.toExpressionStringParameterList(patternGuardSpec.getObjectParameters(), writer);
+        ExprNodeUtilityCore.toExpressionStringParameterList(patternGuardSpec.getObjectParameters(), writer);
         writer.write(")");
     }
 

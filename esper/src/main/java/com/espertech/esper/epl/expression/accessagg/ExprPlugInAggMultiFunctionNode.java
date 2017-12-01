@@ -25,6 +25,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregationPlugInNodeMarke
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionHandler;
@@ -61,7 +62,7 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
     public AggregationMethodFactory validateAggregationParamsWBinding(ExprValidationContext validationContext, TableMetadataColumnAggregation tableAccessColumn) throws ExprValidationException {
         // validate using the context provided by the 'outside' streams to determine parameters
         // at this time 'inside' expressions like 'window(intPrimitive)' are not handled
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, this.getChildNodes(), validationContext);
+        ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, this.getChildNodes(), validationContext);
         return validateAggregationInternal(validationContext, tableAccessColumn);
     }
 

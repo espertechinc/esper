@@ -19,6 +19,7 @@ import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventBeanCopyMethod;
 import com.espertech.esper.event.EventPropertyWriter;
@@ -71,7 +72,7 @@ public class VariableReadWritePackage {
         List<VariableTriggerSetDesc> assignmentList = new ArrayList<VariableTriggerSetDesc>();
 
         for (OnTriggerSetAssignment expressionWithAssignments : assignments) {
-            Pair<String, ExprNode> possibleVariableAssignment = ExprNodeUtility.checkGetAssignmentToVariableOrProp(expressionWithAssignments.getExpression());
+            Pair<String, ExprNode> possibleVariableAssignment = ExprNodeUtilityRich.checkGetAssignmentToVariableOrProp(expressionWithAssignments.getExpression());
             if (possibleVariableAssignment == null) {
                 throw new ExprValidationException("Missing variable assignment expression in assignment number " + count);
             }
