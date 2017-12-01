@@ -12,7 +12,6 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.event.EventBeanUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,7 @@ public class AuditPath {
     }
 
     public static void auditInsertInto(String engineURI, String statementName, EventBean theEvent) {
-        auditLog(engineURI, statementName, AuditEnum.INSERT, EventBeanUtility.summarize(theEvent));
+        auditLog(engineURI, statementName, AuditEnum.INSERT, EventBeanSummarizer.summarize(theEvent));
     }
 
     public static void auditContextPartition(String engineURI, String statementName, boolean allocate, int agentInstanceId) {

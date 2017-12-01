@@ -12,7 +12,7 @@ package com.espertech.esper.regression.event.xml;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 
 import static org.junit.Assert.assertEquals;
 

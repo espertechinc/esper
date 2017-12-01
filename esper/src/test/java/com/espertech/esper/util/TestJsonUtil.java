@@ -14,7 +14,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 import java.util.Collection;

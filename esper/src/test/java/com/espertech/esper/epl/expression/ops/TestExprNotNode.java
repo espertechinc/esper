@@ -17,7 +17,7 @@ import com.espertech.esper.supportunit.epl.SupportBoolExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.MinMaxTypeEnum;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprNotNode extends TestCase {

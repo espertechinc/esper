@@ -14,7 +14,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 import org.w3c.dom.Node;
 
 import javax.xml.xpath.XPathConstants;

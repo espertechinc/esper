@@ -27,6 +27,7 @@ import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
+import com.espertech.esper.util.TypeWidenerException;
 import com.espertech.esper.util.TypeWidenerFactory;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -76,7 +77,12 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor, SelectExpr
             } else {
                 String propertyName = selectExprForgeContext.getColumnNames()[i];
                 Class propertyType = resultEventType.getPropertyType(propertyName);
-                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(propertyName, forgeEvaluationType, propertyType, propertyName, true, typeWidenerCustomizer, statementName, engineURI);
+                TypeWidener widener;
+                try {
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(propertyName, forgeEvaluationType, propertyType, propertyName, true, typeWidenerCustomizer, statementName, engineURI);
+                } catch (TypeWidenerException ex) {
+                    throw new ExprValidationException(ex.getMessage(), ex);
+                }
                 if (widener != null) {
                     forges[i] = new SelectExprProcessorEvalAvroArrayCoercer(forge, widener, propertyType);
                 }

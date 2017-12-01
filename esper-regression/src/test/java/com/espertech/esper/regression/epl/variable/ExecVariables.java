@@ -21,8 +21,8 @@ import com.espertech.esper.filter.*;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 

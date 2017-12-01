@@ -19,7 +19,7 @@ import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventBeanSPI;
-import com.espertech.esper.event.EventBeanUtility;
+import com.espertech.esper.util.EventBeanSummarizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,7 +183,7 @@ public class LogSink implements DataFlowOpLifecycle {
 
     public static class ConsoleOpRendererSummary implements ConsoleOpRenderer {
         public void render(EventBean theEvent, StringWriter writer) {
-            EventBeanUtility.summarize(theEvent, writer);
+            EventBeanSummarizer.summarize(theEvent, writer);
         }
     }
 

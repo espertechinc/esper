@@ -20,7 +20,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.util.EventRepresentationChoice;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 
 import java.util.Collections;
 

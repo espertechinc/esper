@@ -16,8 +16,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 

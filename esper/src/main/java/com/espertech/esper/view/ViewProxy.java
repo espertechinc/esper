@@ -12,8 +12,8 @@ package com.espertech.esper.view;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
+import com.espertech.esper.util.EventBeanSummarizer;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.Method;
@@ -52,7 +52,7 @@ public class ViewProxy implements java.lang.reflect.InvocationHandler {
         if (AuditPath.isInfoEnabled()) {
             EventBean[] newData = (EventBean[]) args[0];
             EventBean[] oldData = (EventBean[]) args[1];
-            AuditPath.auditLog(engineURI, statementName, AuditEnum.VIEW, viewName + " insert {" + EventBeanUtility.summarize(newData) + "} remove {" + EventBeanUtility.summarize(oldData) + "}");
+            AuditPath.auditLog(engineURI, statementName, AuditEnum.VIEW, viewName + " insert {" + EventBeanSummarizer.summarize(newData) + "} remove {" + EventBeanSummarizer.summarize(oldData) + "}");
         }
         return result;
     }

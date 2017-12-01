@@ -15,7 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.type.MinMaxTypeEnum;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprMinMaxRowNode extends TestCase {

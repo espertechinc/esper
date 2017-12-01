@@ -15,7 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.RelationalOpEnum;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprRelationalOpNode extends TestCase {

@@ -42,7 +42,6 @@ import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceUtil;
-import com.espertech.esper.type.DoubleValue;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.annotation.Annotation;
@@ -565,7 +564,7 @@ public class AggregationServiceFactoryFactory {
         } else {
             final Double valueDouble;
             try {
-                valueDouble = DoubleValue.parseString(hintValue);
+                valueDouble = Double.parseDouble(hintValue);
             } catch (RuntimeException ex) {
                 throw new ExprValidationException("Failed to parse hint parameter value '" + hintValue + "' as a double-typed seconds value or variable name");
             }

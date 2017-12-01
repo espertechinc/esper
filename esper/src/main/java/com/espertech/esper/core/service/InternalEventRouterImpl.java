@@ -25,6 +25,7 @@ import com.espertech.esper.event.EventBeanWriter;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.util.NullableObject;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerException;
 import com.espertech.esper.util.TypeWidenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,8 @@ public class InternalEventRouterImpl implements InternalEventRouter {
 
     /**
      * Ctor.
-     * @param engineURI engine URI
+     *
+     * @param engineURI           engine URI
      * @param engineImportService engine imports
      */
     public InternalEventRouterImpl(String engineURI, EngineImportService engineImportService) {
@@ -133,8 +135,12 @@ public class InternalEventRouterImpl implements InternalEventRouter {
                 throw new ExprValidationException("Property '" + assignmentPair.getFirst() + "' is not available for write access");
             }
 
-            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getForge().getEvaluationType(),
-                    writableProperty.getPropertyType(), assignmentPair.getFirst(), false, null, null, engineURI);
+            try {
+                wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getForge().getEvaluationType(),
+                        writableProperty.getPropertyType(), assignmentPair.getFirst(), false, null, null, engineURI);
+            } catch (TypeWidenerException ex) {
+                throw new ExprValidationException(ex.getMessage(), ex);
+            }
             properties.add(assignmentPair.getFirst());
         }
 

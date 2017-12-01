@@ -17,8 +17,7 @@ import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.parse.CaseInsensitiveInputStream;
 import com.espertech.esper.epl.parse.ExceptionConvertor;
 import com.espertech.esper.epl.parse.ParseHelper;
-import com.espertech.esper.type.IntValue;
-import com.espertech.esper.type.StringValue;
+import com.espertech.esper.util.StringValue;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
@@ -194,7 +193,7 @@ public class PropertyParser {
             throw new PropertyAccessException("Invalid zero-length string provided as an event property name");
         }
         if (atomic.lb != null) {
-            int index = IntValue.parseString(atomic.ni.getText());
+            int index = Integer.parseInt(atomic.ni.getText());
             if (!isRootedInDynamic && atomic.q == null) {
                 return new IndexedProperty(prop, index);
             } else {

@@ -13,18 +13,14 @@ package com.espertech.esper.epl.core.select;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.codegen.base.CodegenBlock;
-import com.espertech.esper.codegen.base.CodegenClassScope;
-import com.espertech.esper.codegen.base.CodegenMember;
-import com.espertech.esper.codegen.base.CodegenMethodScope;
-import com.espertech.esper.epl.expression.codegen.CodegenLegoMayVoid;
+import com.espertech.esper.codegen.base.*;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
+import com.espertech.esper.epl.expression.codegen.CodegenLegoMayVoid;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
@@ -191,11 +187,19 @@ public class SelectExprInsertEventBeanFactory {
 
                 Object columnType = expressionReturnTypes[i];
                 if (columnType == null) {
-                    TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    try {
+                        TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    } catch (TypeWidenerException ex) {
+                        throw new ExprValidationException(ex.getMessage(), ex);
+                    }
                 } else if (columnType instanceof EventType) {
                     EventType columnEventType = (EventType) columnType;
                     final Class returnType = columnEventType.getUnderlyingType();
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    try {
+                        widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    } catch (TypeWidenerException ex) {
+                        throw new ExprValidationException(ex.getMessage(), ex);
+                    }
 
                     // handle evaluator returning an event
                     if (JavaClassHelper.isSubclassOrImplementsInterface(returnType, desc.getType())) {
@@ -235,7 +239,11 @@ public class SelectExprInsertEventBeanFactory {
                     final Class arrayReturnType = Array.newInstance(componentReturnType, 0).getClass();
 
                     boolean allowObjectArrayToCollectionConversion = eventType instanceof AvroSchemaEventType;
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    try {
+                        widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    } catch (TypeWidenerException ex) {
+                        throw new ExprValidationException(ex.getMessage(), ex);
+                    }
 
                     final ExprForge inner = forge;
                     forge = new ExprForgeStreamWithInner(inner, componentReturnType);
@@ -247,7 +255,11 @@ public class SelectExprInsertEventBeanFactory {
                             "', column and parameter types mismatch";
                     throw new ExprValidationException(message);
                 } else {
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    try {
+                        widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    } catch (TypeWidenerException ex) {
+                        throw new ExprValidationException(ex.getMessage(), ex);
+                    }
                 }
 
                 selectedWritable = desc;
@@ -283,7 +295,11 @@ public class SelectExprInsertEventBeanFactory {
                         continue;
                     }
 
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    try {
+                        widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                    } catch (TypeWidenerException ex) {
+                        throw new ExprValidationException(ex.getMessage(), ex);
+                    }
                     selectedWritable = writableDesc;
 
                     final String propertyName = eventPropDescriptor.getPropertyName();
@@ -346,7 +362,11 @@ public class SelectExprInsertEventBeanFactory {
                     continue;
                 }
 
-                widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, engineURI);
+                try {
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, engineURI);
+                } catch (TypeWidenerException ex) {
+                    throw new ExprValidationException(ex.getMessage(), ex);
+                }
                 selectedWritable = desc;
                 break;
             }

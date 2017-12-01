@@ -16,7 +16,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanCombinedProps;
 import com.espertech.esper.supportregression.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 
 import java.util.HashMap;
 import java.util.Map;

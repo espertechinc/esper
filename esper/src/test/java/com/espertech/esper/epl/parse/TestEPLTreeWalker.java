@@ -30,7 +30,7 @@ import com.espertech.esper.supportunit.bean.*;
 import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.OuterJoinType;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

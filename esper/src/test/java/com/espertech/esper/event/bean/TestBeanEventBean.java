@@ -14,7 +14,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.supportunit.bean.*;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

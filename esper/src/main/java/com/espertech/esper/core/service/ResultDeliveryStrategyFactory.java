@@ -14,9 +14,9 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPSubscriberException;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerException;
 import com.espertech.esper.util.TypeWidenerFactory;
 
 import java.lang.reflect.Method;
@@ -348,7 +348,7 @@ public class ResultDeliveryStrategyFactory {
         }
         try {
             return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, selectClauseType, parameterType, "Method Parameter " + columnNum, false, null, statementName, engineURI);
-        } catch (ExprValidationException e) {
+        } catch (TypeWidenerException e) {
             throw new EPException("Unexpected exception assigning select clause columns to subscriber method " + method + ": " + e.getMessage(), e);
         }
     }

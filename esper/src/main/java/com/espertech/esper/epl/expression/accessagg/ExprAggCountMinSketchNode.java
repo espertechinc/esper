@@ -30,9 +30,9 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.PopulateFieldValueSetter;
-import com.espertech.esper.util.PopulateFieldWValueDescriptor;
-import com.espertech.esper.util.PopulateUtil;
+import com.espertech.esper.epl.expression.core.PopulateFieldValueSetter;
+import com.espertech.esper.epl.expression.core.PopulateFieldWValueDescriptor;
+import com.espertech.esper.epl.expression.core.PopulateUtil;
 
 import java.util.Collection;
 import java.util.Map;

@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.util;
+package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
@@ -16,13 +16,12 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.*;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.service.EPAdministratorSPI;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.bean.BeanEventType;
+import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

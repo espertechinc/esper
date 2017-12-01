@@ -13,8 +13,8 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
+import com.espertech.esper.util.EventBeanSummarizer;
 import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +141,7 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
             if (value instanceof EventBean) {
                 writer.write(((EventBean) value).getUnderlying().toString());
             } else if (value instanceof EventBean[]) {
-                writer.write(EventBeanUtility.summarize((EventBean[]) value));
+                writer.write(EventBeanSummarizer.summarize((EventBean[]) value));
             }
             delimiter = ", ";
         }

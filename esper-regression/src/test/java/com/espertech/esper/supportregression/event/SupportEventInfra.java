@@ -13,7 +13,7 @@ package com.espertech.esper.supportregression.event;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 import org.w3c.dom.Attr;

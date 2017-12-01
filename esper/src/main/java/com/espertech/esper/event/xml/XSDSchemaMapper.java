@@ -26,10 +26,7 @@ import org.w3c.dom.DOMErrorHandler;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.LSInput;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -75,7 +72,11 @@ public class XSDSchemaMapper {
         String baseURI = null;
         URL url = null;
         if (schemaResource != null) {
-            url = ResourceLoader.resolveClassPathOrURLResource("schema", schemaResource, engineImportService.getClassLoader());
+            try {
+                url = ResourceLoader.resolveClassPathOrURLResource("schema", schemaResource, engineImportService.getClassLoader());
+            } catch (FileNotFoundException e) {
+                throw new ConfigurationException(e.getMessage(), e);
+            }
             baseURI = url.toURI().toString();
         } else {
             input = new LSInputImpl(schemaText);

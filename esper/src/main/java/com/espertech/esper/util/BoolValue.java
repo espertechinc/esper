@@ -10,8 +10,19 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import java.util.Locale;
 
-public interface PopulateFieldValueSetter {
-    public void set(Object value) throws ExprValidationException;
+public final class BoolValue {
+    /**
+     * Parse the boolean string.
+     *
+     * @param value is a bool value
+     * @return parsed boolean
+     */
+    public static boolean parseString(String value) {
+        if (!(value.toLowerCase(Locale.ENGLISH).equals("true")) && (!(value.toLowerCase(Locale.ENGLISH).equals("false")))) {
+            throw new IllegalArgumentException("Boolean value '" + value + "' cannot be converted to boolean");
+        }
+        return Boolean.parseBoolean(value);
+    }
 }

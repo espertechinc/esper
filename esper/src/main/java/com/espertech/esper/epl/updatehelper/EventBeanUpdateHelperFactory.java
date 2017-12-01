@@ -23,6 +23,7 @@ import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.event.*;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
+import com.espertech.esper.util.TypeWidenerException;
 import com.espertech.esper.util.TypeWidenerFactory;
 
 import java.util.ArrayList;
@@ -71,8 +72,13 @@ public class EventBeanUpdateHelperFactory {
                 boolean notNullableField = writableProperty.getPropertyType().isPrimitive();
 
                 properties.add(propertyName);
-                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getForge().getEvaluationType(),
+                TypeWidener widener;
+                try {
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getForge().getEvaluationType(),
                         writableProperty.getPropertyType(), propertyName, false, typeWidenerCustomizer, statementName, engineURI);
+                } catch (TypeWidenerException ex) {
+                    throw new ExprValidationException(ex.getMessage(), ex);
+                }
 
                 // check event type assignment
                 if (optionalTriggeringEventType != null && possibleAssignment.getSecond() instanceof ExprIdentNode) {

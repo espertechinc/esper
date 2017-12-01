@@ -12,8 +12,8 @@ package com.espertech.esper.event.xml;
 
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.parse.ASTUtil;
-import com.espertech.esper.type.IntValue;
 import com.espertech.esper.util.ExecutionPathDebugLog;
+import com.espertech.esper.util.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,13 +72,13 @@ public class SimpleXMLPropertyParser {
 
         String unescapedIdent = ASTUtil.unescapeDot(ctx.eventPropertyIdent().getText());
         if (ctx.lb != null) {
-            int index = IntValue.parseString(ctx.number().getText());
+            int index = Integer.parseInt(ctx.number().getText());
             int xPathPosition = index + 1;
             return '/' + prefix + unescapedIdent + "[position() = " + xPathPosition + ']';
         }
 
         if (ctx.lp != null) {
-            String key = com.espertech.esper.type.StringValue.parseString(ctx.s.getText());
+            String key = StringValue.parseString(ctx.s.getText());
             return '/' + prefix + unescapedIdent + "[@id='" + key + "']";
         }
 

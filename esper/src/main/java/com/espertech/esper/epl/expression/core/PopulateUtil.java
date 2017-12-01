@@ -8,18 +8,19 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.util;
+package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.dataflow.EPDataFlowOperatorParameterProvider;
 import com.espertech.esper.client.dataflow.EPDataFlowOperatorParameterProviderContext;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.bean.PropertyHelper;
 import com.espertech.esper.event.property.MappedProperty;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

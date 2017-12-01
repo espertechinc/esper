@@ -21,7 +21,6 @@ import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterException;
 import com.espertech.esper.event.avro.AvroConstantsNoDep;
-import com.espertech.esper.type.*;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -785,8 +784,8 @@ public class JavaClassHelper {
     /**
      * Returns the class given a fully-qualified class name.
      *
-     * @param className is the fully-qualified class name, java primitive types included.
-     * @param classForNameProvider       lookup of class for class name
+     * @param className            is the fully-qualified class name, java primitive types included.
+     * @param classForNameProvider lookup of class for class name
      * @return class for name
      * @throws ClassNotFoundException if the class cannot be found
      */
@@ -824,8 +823,8 @@ public class JavaClassHelper {
      * <p>
      * Recognizes "int" as Integer.class and "strIng" as String.class, and "Integer" as Integer.class, and so on.
      *
-     * @param className is the name to recognize
-     * @param classForNameProvider       lookup of class for class name
+     * @param className            is the name to recognize
+     * @param classForNameProvider lookup of class for class name
      * @return class
      * @throws EventAdapterException is throw if the class cannot be identified
      */
@@ -960,22 +959,22 @@ public class JavaClassHelper {
             return BoolValue.parseString(text.toLowerCase(Locale.ENGLISH).trim());
         }
         if (classBoxed == Byte.class) {
-            return ByteValue.parseString(text.trim());
+            return Byte.decode(text.trim());
         }
         if (classBoxed == Short.class) {
-            return ShortValue.parseString(text.trim());
+            return Short.parseShort(text.trim());
         }
         if (classBoxed == Long.class) {
             return LongValue.parseString(text.trim());
         }
         if (classBoxed == Float.class) {
-            return FloatValue.parseString(text.trim());
+            return Float.parseFloat(text.trim());
         }
         if (classBoxed == Double.class) {
-            return DoubleValue.parseString(text.trim());
+            return Double.parseDouble(text.trim());
         }
         if (classBoxed == Integer.class) {
-            return IntValue.parseString(text.trim());
+            return Integer.parseInt(text.trim());
         }
         return null;
     }

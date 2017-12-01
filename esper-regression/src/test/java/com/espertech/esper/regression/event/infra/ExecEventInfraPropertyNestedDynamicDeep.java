@@ -19,7 +19,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanDynRoot;
 import com.espertech.esper.supportregression.event.SupportEventInfra;
 import com.espertech.esper.supportregression.event.ValueWithExistsFlag;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;

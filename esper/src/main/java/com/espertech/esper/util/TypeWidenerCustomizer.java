@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-
 public interface TypeWidenerCustomizer {
-    public TypeWidener widenerFor(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, String statementName, String engineURI) throws ExprValidationException;
+    public TypeWidener widenerFor(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, String statementName, String engineURI) throws TypeWidenerException;
 }

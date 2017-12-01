@@ -30,6 +30,7 @@ import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
+import com.espertech.esper.util.TypeWidenerException;
 import com.espertech.esper.util.TypeWidenerFactory;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -91,8 +92,14 @@ public class AvroRecastFactory {
             }
             Schema.Field resultTypeField = resultType.getSchemaAvro().getField(writable.getPropertyName());
 
-            TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
-                    writable.getType(), columnName, false, typeWidenerCustomizer, statementName, engineURI);
+            TypeWidener widener;
+            try {
+                widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
+                        writable.getType(), columnName, false, typeWidenerCustomizer, statementName, engineURI);
+            } catch (TypeWidenerException ex) {
+                throw new ExprValidationException(ex.getMessage(), ex);
+            }
+
             items.add(new Item(resultTypeField.pos(), -1, exprNode.getForge(), widener));
             written.add(writable);
         }

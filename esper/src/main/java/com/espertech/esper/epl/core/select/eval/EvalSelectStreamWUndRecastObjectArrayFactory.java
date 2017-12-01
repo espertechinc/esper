@@ -25,6 +25,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerException;
 import com.espertech.esper.util.TypeWidenerFactory;
 
 import java.util.ArrayList;
@@ -82,8 +83,14 @@ public class EvalSelectStreamWUndRecastObjectArrayFactory {
                 throw new ExprValidationException("Failed to find column '" + columnName + "' in target type '" + oaResultType.getName() + "'");
             }
 
-            TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
+            TypeWidener widener;
+            try {
+                widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
                     writable.getType(), columnName, false, null, statementName, engineURI);
+            } catch (TypeWidenerException ex) {
+                throw new ExprValidationException(ex.getMessage(), ex);
+            }
+
             items.add(new Item(count, -1, forge, widener));
             written.add(writable);
             count++;

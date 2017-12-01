@@ -8,53 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.type;
+package com.espertech.esper.util;
 
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestLongValue extends TestCase {
-    public void testLong() {
-        LongValue lvp = new LongValue();
-
-        assertTrue(lvp.getValueObject() == null);
-        lvp.parse("10");
-        assertTrue(lvp.getValueObject().equals(10L));
-        assertTrue(lvp.getLong() == 10L);
-        lvp.setLong(200);
-        assertTrue(lvp.getLong() == 200L);
-        assertTrue(lvp.getValueObject().equals(200L));
-
-        try {
-            lvp.setBoolean(false);
-            assertTrue(false);
-        } catch (Exception ex) {
-            // Expected exception
-        }
-
-        try {
-            lvp.setInt(20);
-            assertTrue(false);
-        } catch (Exception ex) {
-            // Expected exception
-        }
-
-        try {
-            lvp.setString("test");
-            assertTrue(false);
-        } catch (Exception ex) {
-            // Expected exception
-        }
-
-        try {
-            lvp = new LongValue();
-            lvp.getLong();
-        } catch (Exception ex) {
-            // Expected exception
-        }
-    }
-
     public void testParseLong() {
         tryValid("0", 0);
         tryValid("11", 11);

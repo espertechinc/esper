@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.client.EPException;
-
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -27,8 +26,9 @@ public class ResourceLoader {
      * @param urlOrClasspathResource is a URL string or classpath-relative filename
      * @param classLoader class loader
      * @return URL or null if resolution was unsuccessful
+     * @throws FileNotFoundException resource not found
      */
-    public static URL resolveClassPathOrURLResource(String resourceName, String urlOrClasspathResource, ClassLoader classLoader) {
+    public static URL resolveClassPathOrURLResource(String resourceName, String urlOrClasspathResource, ClassLoader classLoader) throws FileNotFoundException {
         URL url;
         try {
             url = new URL(urlOrClasspathResource);
@@ -61,8 +61,9 @@ public class ResourceLoader {
      * @param resource     is the classpath-relative filename to resolve into a URL
      * @param classLoader class loader
      * @return URL for resource
+     * @throws FileNotFoundException resource not found
      */
-    public static URL getClasspathResourceAsURL(String resourceName, String resource, ClassLoader classLoader) {
+    public static URL getClasspathResourceAsURL(String resourceName, String resource, ClassLoader classLoader) throws FileNotFoundException {
         String stripped = resource.startsWith("/") ?
                 resource.substring(1) : resource;
 
@@ -77,10 +78,8 @@ public class ResourceLoader {
             url = ResourceLoader.class.getClassLoader().getResource(stripped);
         }
         if (url == null) {
-            throw new EPException(resourceName + " resource '" + resource + "' not found");
+            throw new FileNotFoundException(resourceName + " resource '" + resource + "' not found");
         }
         return url;
     }
-
-
 }

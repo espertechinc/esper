@@ -20,6 +20,7 @@ import com.espertech.esper.collection.MultiKeyUntypedEventPair;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.util.EventBeanSummarizer;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.PrintWriter;
@@ -644,78 +645,6 @@ public class EventBeanUtility {
         return second != null && first.equals(second);
     }
 
-    public static String summarize(EventBean theEvent) {
-        if (theEvent == null) {
-            return "(null)";
-        }
-        StringWriter writer = new StringWriter();
-        summarize(theEvent, writer);
-        return writer.toString();
-    }
-
-    public static void summarize(EventBean theEvent, StringWriter writer) {
-        if (theEvent == null) {
-            writer.write("(null)");
-            return;
-        }
-        writer.append(theEvent.getEventType().getName());
-        writer.append("[");
-        summarizeUnderlying(theEvent.getUnderlying(), writer);
-        writer.append("]");
-    }
-
-    public static String summarizeUnderlying(Object underlying) {
-        if (underlying == null) {
-            return "(null)";
-        }
-        StringWriter writer = new StringWriter();
-        summarizeUnderlying(underlying, writer);
-        return writer.toString();
-    }
-
-    public static void summarizeUnderlying(Object underlying, StringWriter writer) {
-        if (underlying.getClass().isArray()) {
-            if (underlying instanceof Object[]) {
-                writer.append(Arrays.toString((Object[]) underlying));
-            } else {
-                String delimiter = "";
-                writer.append("[");
-                for (int i = 0; i < Array.getLength(underlying); i++) {
-                    writer.append(delimiter);
-                    delimiter = ",";
-                    Object value = Array.get(underlying, i);
-                    if (value != null) {
-                        writer.append(value.toString());
-                    } else {
-                        writer.append("(null)");
-                    }
-                }
-                writer.append("]");
-            }
-        } else {
-            writer.append(underlying.toString());
-        }
-    }
-
-    public static String summarize(EventBean[] events) {
-        if (events == null) {
-            return "(null)";
-        }
-        if (events.length == 0) {
-            return "(empty)";
-        }
-        StringWriter writer = new StringWriter();
-        String delimiter = "";
-        for (int i = 0; i < events.length; i++) {
-            writer.write(delimiter);
-            writer.write("event ");
-            writer.write(Integer.toString(i));
-            writer.write(":");
-            summarize(events[i], writer);
-            delimiter = ", ";
-        }
-        return writer.toString();
-    }
 
     public static void safeArrayCopy(EventBean[] eventsPerStream, EventBean[] eventsLambda) {
         if (eventsPerStream.length <= eventsLambda.length) {
@@ -796,9 +725,9 @@ public class EventBeanUtility {
             buf.append(entry.getKey());
             buf.append("=");
             if (entry.getValue() instanceof EventBean) {
-                buf.append(EventBeanUtility.summarize((EventBean) entry.getValue()));
+                buf.append(EventBeanSummarizer.summarize((EventBean) entry.getValue()));
             } else if (entry.getValue() instanceof EventBean[]) {
-                buf.append(EventBeanUtility.summarize((EventBean[]) entry.getValue()));
+                buf.append(EventBeanSummarizer.summarize((EventBean[]) entry.getValue()));
             } else if (entry.getValue() == null) {
                 buf.append("null");
             } else {

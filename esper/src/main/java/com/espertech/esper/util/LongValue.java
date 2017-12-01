@@ -8,29 +8,22 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.type;
+package com.espertech.esper.util;
 
-import junit.framework.TestCase;
-
-public class TestStringValue extends TestCase {
-    public void testParse() {
-        assertEquals("a", StringValue.parseString("\"a\""));
-        assertEquals("", StringValue.parseString("\"\""));
-        assertEquals("", StringValue.parseString("''"));
-        assertEquals("b", StringValue.parseString("'b'"));
-    }
-
-    public void testInvalid() {
-        tryInvalid("\"");
-        tryInvalid("'");
-    }
-
-    private void tryInvalid(String invalidString) {
-        try {
-            StringValue.parseString(invalidString);
-        } catch (IllegalArgumentException ex) {
-            // Expected exception
+public final class LongValue {
+    /**
+     * Parse the string containing a long value.
+     *
+     * @param value is the textual long value
+     * @return long value
+     */
+    public static long parseString(String value) {
+        if ((value.endsWith("L")) || ((value.endsWith("l")))) {
+            value = value.substring(0, value.length() - 1);
         }
-
+        if (value.startsWith("+")) {
+            value = value.substring(1);
+        }
+        return Long.parseLong(value);
     }
 }

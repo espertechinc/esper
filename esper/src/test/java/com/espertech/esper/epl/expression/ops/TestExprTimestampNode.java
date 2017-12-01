@@ -17,8 +17,8 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimestampNode;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
-import com.espertech.esper.util.support.SupportExprEvaluatorContext;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprEvaluatorContext;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprTimestampNode extends TestCase {

@@ -21,7 +21,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.supportunit.core.SupportEPStatementSPI;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.util.support.SupportExprEvaluatorContext;
+import com.espertech.esper.support.SupportExprEvaluatorContext;
 import junit.framework.TestCase;
 
 public class TestUpdateDispatchView extends TestCase {

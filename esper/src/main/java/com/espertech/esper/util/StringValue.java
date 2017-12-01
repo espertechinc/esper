@@ -8,65 +8,9 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.type;
+package com.espertech.esper.util;
 
-/**
- * Placeholder for a String value in an event expression.
- */
-public final class StringValue extends PrimitiveValueBase {
-    private String stringValue;
-
-    /**
-     * Constructor.
-     *
-     * @param stringValue sets initial value
-     */
-    public StringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
-
-    /**
-     * Constructor.
-     */
-    public StringValue() {
-    }
-
-    public PrimitiveValueType getType() {
-        return PrimitiveValueType.STRING;
-    }
-
-    /**
-     * Parse the string array returning a string array.
-     *
-     * @param values - string array
-     * @return typed array
-     */
-    public static String[] parseString(String[] values) {
-        String[] result = new String[values.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = parseString(values[i]);
-        }
-        return result;
-    }
-
-    public final void parse(String value) {
-        stringValue = parseString(value);
-    }
-
-    public final Object getValueObject() {
-        return stringValue;
-    }
-
-    public final void setString(String x) {
-        this.stringValue = x;
-    }
-
-    public final String toString() {
-        if (stringValue == null) {
-            return "null";
-        }
-        return stringValue;
-    }
+public final class StringValue {
 
     /**
      * Parse the string literal consisting of text between double-quotes or single-quotes.

@@ -8,14 +8,29 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.supportunit.epl;
+package com.espertech.esper.util;
 
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
+import junit.framework.TestCase;
 
-public class SupportExprNodeUtil {
-    public static void validate(ExprNode node) throws ExprValidationException {
-        node.validate(SupportExprValidationContextFactory.makeEmpty());
+public class TestStringValue extends TestCase {
+    public void testParse() {
+        assertEquals("a", StringValue.parseString("\"a\""));
+        assertEquals("", StringValue.parseString("\"\""));
+        assertEquals("", StringValue.parseString("''"));
+        assertEquals("b", StringValue.parseString("'b'"));
+    }
+
+    public void testInvalid() {
+        tryInvalid("\"");
+        tryInvalid("'");
+    }
+
+    private void tryInvalid(String invalidString) {
+        try {
+            StringValue.parseString(invalidString);
+        } catch (IllegalArgumentException ex) {
+            // Expected exception
+        }
+
     }
 }

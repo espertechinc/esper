@@ -12,7 +12,7 @@ package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
-import com.espertech.esper.type.*;
+import com.espertech.esper.util.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -87,9 +87,9 @@ public class ASTConstantHelper {
         } else if (tokenType == EsperEPL2GrammarLexer.FloatingPointLiteral) {
             String numberText = number.getText();
             if (numberText.endsWith("f") || numberText.endsWith("F")) {
-                return FloatValue.parseString(number.getText()) * factor;
+                return Float.parseFloat(number.getText()) * factor;
             } else {
-                return DoubleValue.parseString(number.getText()) * factor;
+                return Double.parseDouble(number.getText()) * factor;
             }
         }
         throw ASTWalkException.from("Encountered unrecognized constant", number.getText());
@@ -98,7 +98,7 @@ public class ASTConstantHelper {
     private static Object parseIntLongByte(String arg, int factor) {
         // try to parse as an int first, else try to parse as a long
         try {
-            return IntValue.parseString(arg) * factor;
+            return Integer.parseInt(arg) * factor;
         } catch (NumberFormatException e1) {
             try {
                 return LongValue.parseString(arg) * factor;

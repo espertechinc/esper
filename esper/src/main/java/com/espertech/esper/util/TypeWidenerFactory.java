@@ -11,10 +11,9 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -50,10 +49,10 @@ public class TypeWidenerFactory {
      * @param engineURI engine URI
      * @param statementName statement name
      * @return type widender
-     * @throws ExprValidationException if type validation fails
+     * @throws TypeWidenerException if type validation fails
      */
     public static TypeWidener getCheckPropertyAssignType(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, boolean allowObjectArrayToCollectionConversion, TypeWidenerCustomizer customizer, String statementName, String engineURI)
-            throws ExprValidationException {
+            throws TypeWidenerException {
         Class columnClassBoxed = JavaClassHelper.getBoxedType(columnType);
         Class targetClassBoxed = JavaClassHelper.getBoxedType(writeablePropertyType);
 
@@ -70,7 +69,7 @@ public class TypeWidenerFactory {
                         "' of null type to event property '" + writeablePropertyName +
                         "' typed as '" + writeablePropertyType.getName() +
                         "', nullable type mismatch";
-                throw new ExprValidationException(message);
+                throw new TypeWidenerException(message);
             }
         } else if (columnClassBoxed != targetClassBoxed) {
             if (columnClassBoxed == String.class && targetClassBoxed == Character.class) {
@@ -96,7 +95,7 @@ public class TypeWidenerFactory {
                         "' to event property '" + writeablePropertyName +
                         "' typed as '" + writablePropName +
                         "', column and parameter types mismatch";
-                throw new ExprValidationException(message);
+                throw new TypeWidenerException(message);
             }
 
             if (JavaClassHelper.isNumeric(writeablePropertyType)) {

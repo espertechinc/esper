@@ -13,10 +13,10 @@ package com.espertech.esper.view.stream;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.Audit;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecParam;
 import com.espertech.esper.util.AuditPath;
+import com.espertech.esper.util.EventBeanSummarizer;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.EventStream;
 
@@ -86,9 +86,9 @@ public class EventStreamProxy implements java.lang.reflect.InvocationHandler {
                 Object arg = args[0];
                 String events = "(undefined)";
                 if (arg instanceof EventBean[]) {
-                    events = EventBeanUtility.summarize((EventBean[]) arg);
+                    events = EventBeanSummarizer.summarize((EventBean[]) arg);
                 } else if (arg instanceof EventBean) {
-                    events = EventBeanUtility.summarize((EventBean) arg);
+                    events = EventBeanSummarizer.summarize((EventBean) arg);
                 }
                 AuditPath.auditLog(engineURI, statementName, AuditEnum.STREAM, eventTypeAndFilter + " inserted " + events);
             }

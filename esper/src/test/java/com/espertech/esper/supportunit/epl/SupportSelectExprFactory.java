@@ -17,7 +17,7 @@ import com.espertech.esper.epl.spec.SelectClauseElementCompiled;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.spec.SelectClauseExprRawSpec;
 import com.espertech.esper.type.MathArithTypeEnum;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 
 import java.util.LinkedList;
 import java.util.List;

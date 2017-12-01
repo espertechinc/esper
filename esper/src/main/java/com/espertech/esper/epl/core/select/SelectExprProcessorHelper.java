@@ -14,17 +14,17 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.codegen.base.CodegenBlock;
 import com.espertech.esper.codegen.base.CodegenClassScope;
+import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.service.common.AggregationGroupByRollupLevel;
-import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.engineimport.EngineImportException;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
-import com.espertech.esper.epl.core.select.eval.*;
-import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.core.resultset.core.GroupByRollupInfo;
+import com.espertech.esper.epl.core.select.eval.*;
+import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
@@ -914,7 +914,11 @@ public class SelectExprProcessorHelper {
             }
 
             Class targetPropType = resultEventType.getPropertyType(colName);
-            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(colName, sourceColumnType, targetPropType, colName, false, eventAdapterService.getTypeWidenerCustomizer(resultEventType), statementName, engineURI);
+            try {
+                wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(colName, sourceColumnType, targetPropType, colName, false, eventAdapterService.getTypeWidenerCustomizer(resultEventType), statementName, engineURI);
+            } catch (TypeWidenerException ex) {
+                throw new ExprValidationException(ex.getMessage(), ex);
+            }
         }
 
         if (!needRemap) {
@@ -1115,8 +1119,12 @@ public class SelectExprProcessorHelper {
             Class expected = written.get(i).getType();
             Map.Entry<String, Object> provided = writtenOffered.get(i);
             if (provided.getValue() instanceof Class) {
-                wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(provided.getKey(), (Class) provided.getValue(),
-                        expected, written.get(i).getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                try {
+                    wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(provided.getKey(), (Class) provided.getValue(),
+                            expected, written.get(i).getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
+                } catch (TypeWidenerException ex) {
+                    throw new ExprValidationException(ex.getMessage(), ex);
+                }
             }
         }
         final boolean hasWideners = !CollectionUtil.isAllNullArray(wideners);

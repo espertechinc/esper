@@ -13,14 +13,14 @@ package com.espertech.esper.epl.named;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.epl.util.FilteredEventIterator;
-import com.espertech.esper.event.FlushedEventBuffer;
 import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.property.PropertyEvaluator;
-import com.espertech.esper.event.EventBeanUtility;
+import com.espertech.esper.epl.util.FilteredEventIterator;
+import com.espertech.esper.event.FlushedEventBuffer;
 import com.espertech.esper.util.AuditPath;
+import com.espertech.esper.util.EventBeanSummarizer;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.ViewSupport;
 
@@ -62,7 +62,7 @@ public class NamedWindowConsumerView extends ViewSupport implements StopCallback
     public void update(EventBean[] newData, EventBean[] oldData) {
         if (audit) {
             if (AuditPath.isInfoEnabled()) {
-                AuditPath.auditLog(exprEvaluatorContext.getEngineURI(), exprEvaluatorContext.getStatementName(), AuditEnum.STREAM, eventType.getName() + " insert {" + EventBeanUtility.summarize(newData) + "} remove {" + EventBeanUtility.summarize(oldData) + "}");
+                AuditPath.auditLog(exprEvaluatorContext.getEngineURI(), exprEvaluatorContext.getStatementName(), AuditEnum.STREAM, eventType.getName() + " insert {" + EventBeanSummarizer.summarize(newData) + "} remove {" + EventBeanSummarizer.summarize(oldData) + "}");
             }
         }
 

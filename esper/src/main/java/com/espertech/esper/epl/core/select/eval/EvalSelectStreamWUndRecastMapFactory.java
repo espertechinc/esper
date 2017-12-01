@@ -26,6 +26,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerException;
 import com.espertech.esper.util.TypeWidenerFactory;
 
 import java.util.ArrayList;
@@ -81,11 +82,15 @@ public class EvalSelectStreamWUndRecastMapFactory {
                 throw new ExprValidationException("Failed to find column '" + columnName + "' in target type '" + mapResultType.getName() + "'");
             }
 
-            TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
-                    writable.getType(), columnName, false, null, statementName, engineURI);
-            items.add(new Item(count, null, exprNode.getForge(), widener));
-            written.add(writable);
-            count++;
+            try {
+                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getForge().getEvaluationType(),
+                        writable.getType(), columnName, false, null, statementName, engineURI);
+                items.add(new Item(count, null, exprNode.getForge(), widener));
+                written.add(writable);
+                count++;
+            } catch (TypeWidenerException ex) {
+                throw new ExprValidationException(ex.getMessage(), ex);
+            }
         }
 
         // make manufacturer

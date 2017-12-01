@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.client.dataflow.io;
 
-import com.espertech.esper.event.EventBeanUtility;
+import com.espertech.esper.util.EventBeanSummarizer;
 import com.espertech.esper.util.SerializerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class DataInputToObjectCollectorSerializable implements DataInputToObject
         context.getDataInput().readFully(bytes);
         Object event = SerializerUtil.byteArrToObject(bytes);
         if (log.isDebugEnabled()) {
-            log.debug("Submitting event " + EventBeanUtility.summarizeUnderlying(event));
+            log.debug("Submitting event " + EventBeanSummarizer.summarizeUnderlying(event));
         }
         context.getEmitter().submit(event);
     }

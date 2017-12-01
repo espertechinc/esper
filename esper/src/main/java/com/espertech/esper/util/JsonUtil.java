@@ -13,6 +13,7 @@ package com.espertech.esper.util;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.PopulateUtil;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.parse.ASTJsonHelper;
 import com.espertech.esper.epl.parse.ParseHelper;

@@ -35,7 +35,7 @@ import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.DependencyGraph;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.PopulateUtil;
+import com.espertech.esper.epl.expression.core.PopulateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,7 +19,7 @@ import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
 import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.type.MinMaxTypeEnum;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import com.espertech.esper.support.SupportExprValidationContextFactory;
 
 public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter {
     private ExprMinMaxAggrNode maxNode;

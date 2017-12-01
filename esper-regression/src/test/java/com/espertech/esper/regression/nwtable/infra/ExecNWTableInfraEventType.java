@@ -15,8 +15,8 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
-import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 
 public class ExecNWTableInfraEventType implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {

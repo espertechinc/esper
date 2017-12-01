@@ -8,14 +8,8 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.supportunit.epl;
+package com.espertech.esper.epl.expression.core;
 
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.support.SupportExprValidationContextFactory;
-
-public class SupportExprNodeUtil {
-    public static void validate(ExprNode node) throws ExprValidationException {
-        node.validate(SupportExprValidationContextFactory.makeEmpty());
-    }
+public interface PopulateFieldValueSetter {
+    public void set(Object value) throws ExprValidationException;
 }

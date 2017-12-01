@@ -21,8 +21,8 @@ import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
-import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 
 import java.util.Collection;
 import java.util.Collections;
