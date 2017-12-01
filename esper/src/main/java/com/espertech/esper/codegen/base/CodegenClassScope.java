@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.codegen.base;
 
-import com.espertech.esper.util.NullableObject;
-
 import java.util.IdentityHashMap;
 
 public class CodegenClassScope {
@@ -37,7 +35,7 @@ public class CodegenClassScope {
 
         int memberNumber = currentMemberNumber++;
         CodegenMember member = new CodegenMember(new CodegenMemberId(memberNumber), clazz, object);
-        members.put(object != null ? object : new NullableObject<>(null), member);
+        members.put(object != null ? object : new Object(), member);
         return member;
     }
 

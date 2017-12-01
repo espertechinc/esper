@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.codegen.core;
 
-import com.espertech.esper.util.UuidGenerator;
+import java.util.UUID;
 
 public class CodeGenerationIDGenerator {
     public static String generateClassName(Class interfaceClass) {
-        return interfaceClass.getSimpleName() + "_c" + UuidGenerator.generateNoDash();
+        return interfaceClass.getSimpleName() + "_c" + UUID.randomUUID().toString().replace("-", "");
     }
 }
