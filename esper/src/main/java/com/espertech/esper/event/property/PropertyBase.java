@@ -25,7 +25,7 @@ public abstract class PropertyBase implements Property {
      * @param propertyName is the name of the property
      */
     public PropertyBase(String propertyName) {
-        this.propertyNameAtomic = PropertyParser.unescapeBacktick(propertyName);
+        this.propertyNameAtomic = PropertyParser.unescapeBacktickForProperty(propertyName);
     }
 
     /**

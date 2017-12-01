@@ -91,7 +91,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
 
     public ExprForge getForge() {
         if (resolvedPropertyName == null) {
-            throw ExprNodeUtility.checkValidatedException();
+            throw checkValidatedException();
         }
         return this;
     }
@@ -174,7 +174,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             }
         }
 
-        String unescapedPropertyName = PropertyParser.unescapeBacktick(unresolvedPropertyName);
+        String unescapedPropertyName = PropertyParser.unescapeBacktickForProperty(unresolvedPropertyName);
         Pair<PropertyResolutionDescriptor, String> propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(validationContext.getStreamTypeService(), unescapedPropertyName, streamOrPropertyName, false);
         resolvedStreamName = propertyInfoPair.getSecond();
         int streamNum = propertyInfoPair.getFirst().getStreamNum();
@@ -302,7 +302,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         if (streamOrPropertyName != null) {
             writer.append(ASTUtil.unescapeDot(streamOrPropertyName)).append('.');
         }
-        writer.append(ASTUtil.unescapeDot(PropertyParser.unescapeBacktick(unresolvedPropertyName)));
+        writer.append(ASTUtil.unescapeDot(PropertyParser.unescapeBacktickForProperty(unresolvedPropertyName)));
     }
 
     public ExprPrecedenceEnum getPrecedence() {

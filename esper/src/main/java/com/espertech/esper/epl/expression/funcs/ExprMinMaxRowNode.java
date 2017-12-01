@@ -36,12 +36,12 @@ public class ExprMinMaxRowNode extends ExprNodeBase {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 

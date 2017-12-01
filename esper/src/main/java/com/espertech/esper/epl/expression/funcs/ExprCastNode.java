@@ -59,12 +59,12 @@ public class ExprCastNode extends ExprNodeBase {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 
@@ -246,12 +246,12 @@ public class ExprCastNode extends ExprNodeBase {
     }
 
     public boolean isConstantResult() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.isConstant();
     }
 
     public Class getTargetType() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getEvaluationType();
     }
 

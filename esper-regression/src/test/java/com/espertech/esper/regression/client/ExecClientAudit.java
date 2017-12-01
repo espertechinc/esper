@@ -26,6 +26,7 @@ import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.util.AuditContext;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.support.EventRepresentationChoice;
+import com.espertech.esper.util.EPServiceProviderName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public class ExecClientAudit implements RegressionExecution {
         AuditContext cb = callback.getAudits().get(0);
         assertEquals("SupportBean(theString=...) inserted SupportBean[SupportBean(E1, 1)]", cb.getMessage());
         assertEquals("ABC", cb.getStatementName());
-        assertEquals(EPServiceProviderSPI.DEFAULT_ENGINE_URI, cb.getEngineURI());
+        assertEquals(EPServiceProviderName.DEFAULT_ENGINE_URI, cb.getEngineURI());
         assertEquals(AuditEnum.STREAM, cb.getCategory());
         AuditPath.setAuditCallback(null);
         stmtInput.destroy();

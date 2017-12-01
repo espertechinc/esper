@@ -17,9 +17,9 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.streamtype.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypesException;
-import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
 import com.espertech.esper.util.LevenshteinDistance;
+import com.espertech.esper.util.StringValue;
 
 public class ExprIdentNodeUtil {
     public static Pair<PropertyResolutionDescriptor, String> getTypeFromStream(StreamTypeService streamTypeService, String propertyNameNestable, boolean explicitPropertiesOnly, boolean obtainFragment)
@@ -56,7 +56,7 @@ public class ExprIdentNodeUtil {
 
         // try to resolve the property name and stream name as it is (ie. stream name as a stream name)
         StreamTypesException typeExceptionOne;
-        String streamOrPropertyName = ASTUtil.unescapeBacktick(streamOrPropertyNameMayEscaped);
+        String streamOrPropertyName = StringValue.unescapeBacktick(streamOrPropertyNameMayEscaped);
         try {
             propertyInfo = streamTypeService.resolveByStreamAndPropName(streamOrPropertyName, unresolvedPropertyName, obtainFragment);
             // resolves with a stream name, return descriptor and stream name

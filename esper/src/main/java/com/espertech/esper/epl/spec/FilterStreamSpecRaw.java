@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
@@ -26,6 +25,7 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiler;
+import com.espertech.esper.util.EPServiceProviderName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,8 +150,8 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
         }
 
         String engineURIQualifier = engineURI;
-        if (engineURI == null || EPServiceProviderSPI.DEFAULT_ENGINE_URI.equals(engineURI)) {
-            engineURIQualifier = EPServiceProviderSPI.DEFAULT_ENGINE_URI_QUALIFIER;
+        if (engineURI == null || EPServiceProviderName.DEFAULT_ENGINE_URI.equals(engineURI)) {
+            engineURIQualifier = EPServiceProviderName.DEFAULT_ENGINE_URI_QUALIFIER;
         }
 
         // The event name can be prefixed by the engine URI, i.e. "select * from default.MyEvent"

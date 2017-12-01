@@ -42,12 +42,12 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 

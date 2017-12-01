@@ -14,6 +14,7 @@ import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.codahale_metrics.metrics.MetricNameFactory;
 import com.espertech.esper.metrics.codahale_metrics.metrics.Metrics;
 import com.espertech.esper.metrics.codahale_metrics.metrics.core.*;
+import com.espertech.esper.util.EPServiceProviderName;
 import junit.framework.TestCase;
 
 import javax.management.ObjectInstance;
@@ -28,7 +29,7 @@ public class TestCodahaleMetricsJMX extends TestCase {
 
     public void testMetricsJMX() throws Exception {
 
-        String engineURI = EPServiceProviderSPI.DEFAULT_ENGINE_URI;
+        String engineURI = EPServiceProviderName.DEFAULT_ENGINE_URI;
         List<MetricName> metricNames = new ArrayList<MetricName>();
 
         // Exposes a single "value" attribute

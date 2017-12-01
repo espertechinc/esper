@@ -35,12 +35,12 @@ public class ExprNewStructNode extends ExprNodeBase {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 
@@ -78,7 +78,7 @@ public class ExprNewStructNode extends ExprNodeBase {
     }
 
     public boolean isConstantResult() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.isAllConstants();
     }
 

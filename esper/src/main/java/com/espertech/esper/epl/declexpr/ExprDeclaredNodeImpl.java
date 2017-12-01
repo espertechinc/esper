@@ -35,8 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.espertech.esper.epl.expression.core.ExprNodeUtility.checkValidated;
-
 /**
  * Expression instance as declared elsewhere.
  */

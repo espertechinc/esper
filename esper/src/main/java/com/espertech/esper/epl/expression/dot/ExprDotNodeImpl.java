@@ -405,7 +405,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
     }
 
     public FilterExprAnalyzerAffector getAffector(boolean isOuterJoin) {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return isOuterJoin ? null : forge.getFilterExprAnalyzerAffector();
     }
 
@@ -481,27 +481,27 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public boolean isConstantResult() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.isReturnsConstantResult();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 
     public Integer getStreamReferencedIfAny() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getStreamNumReferenced();
     }
 
     public String getRootPropertyNameIfAny() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getRootPropertyName();
     }
 

@@ -59,12 +59,12 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprBetweenNode
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return this.forge;
     }
 

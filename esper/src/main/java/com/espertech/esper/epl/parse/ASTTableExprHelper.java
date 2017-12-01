@@ -24,6 +24,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.util.LazyAllocatedMap;
+import com.espertech.esper.util.StringValue;
 
 import java.util.*;
 
@@ -52,7 +53,7 @@ public class ASTTableExprHelper {
             return null;
         }
 
-        int index = ASTUtil.unescapedIndexOfDot(subproperty);
+        int index = StringValue.unescapedIndexOfDot(subproperty);
         if (index == -1) {
             if (metadata.getKeyTypes().length > 0) {
                 return null;
@@ -80,7 +81,7 @@ public class ASTTableExprHelper {
     public static ExprTableAccessNode checkTableNameGetExprForProperty(TableService tableService, String propertyName) {
 
         // handle "var_name" alone, without chained, like an simple event property
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             if (tableService.getTableMetadata(propertyName) != null) {
                 return new ExprTableAccessNodeTopLevel(propertyName);
@@ -107,7 +108,7 @@ public class ASTTableExprHelper {
             String classIdent,
             List<ExprChainedSpec> chain) {
 
-        int index = ASTUtil.unescapedIndexOfDot(classIdent);
+        int index = StringValue.unescapedIndexOfDot(classIdent);
 
         // handle special case "table.keys()" function
         if (index == -1) {

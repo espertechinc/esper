@@ -1136,16 +1136,6 @@ public class ExprNodeUtility {
         }
     }
 
-    public static void checkValidated(ExprForge forge) {
-        if (forge == null) {
-            throw checkValidatedException();
-        }
-    }
-
-    public static IllegalStateException checkValidatedException() {
-        return new IllegalStateException("Expression has not been validated");
-    }
-
     /**
      * Encapsulates the parse result parsing a mapped property as a class and method name with args.
      */

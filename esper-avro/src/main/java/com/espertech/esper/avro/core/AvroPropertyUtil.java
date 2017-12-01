@@ -18,6 +18,7 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.PropertySetDescriptorItem;
 import com.espertech.esper.event.property.*;
+import com.espertech.esper.util.StringValue;
 import org.apache.avro.Schema;
 
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public class AvroPropertyUtil {
         }
 
         // see if this is a nested property
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (prop instanceof IndexedProperty) {

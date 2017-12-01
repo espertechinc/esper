@@ -12,6 +12,7 @@ package com.espertech.esper.client;
 
 import com.espertech.esper.core.service.EPServiceProviderImpl;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.util.EPServiceProviderName;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +30,7 @@ public final class EPServiceProviderManager {
      * @return default instance of the service.
      */
     public static EPServiceProvider getDefaultProvider() {
-        return getProvider(EPServiceProviderSPI.DEFAULT_ENGINE_URI, new Configuration());
+        return getProvider(EPServiceProviderName.DEFAULT_ENGINE_URI, new Configuration());
     }
 
     /**
@@ -40,7 +41,7 @@ public final class EPServiceProviderManager {
      * @throws ConfigurationException to indicate a configuration problem
      */
     public static EPServiceProvider getDefaultProvider(Configuration configuration) throws ConfigurationException {
-        return getProvider(EPServiceProviderSPI.DEFAULT_ENGINE_URI, configuration);
+        return getProvider(EPServiceProviderName.DEFAULT_ENGINE_URI, configuration);
     }
 
     /**
@@ -65,7 +66,7 @@ public final class EPServiceProviderManager {
      * @throws ConfigurationException to indicate a configuration problem
      */
     public static EPServiceProvider getProvider(String providerURI, Configuration configuration) throws ConfigurationException {
-        String providerURINonNull = (providerURI == null) ? EPServiceProviderSPI.DEFAULT_ENGINE_URI : providerURI;
+        String providerURINonNull = (providerURI == null) ? EPServiceProviderName.DEFAULT_ENGINE_URI : providerURI;
 
         if (runtimes.containsKey(providerURINonNull)) {
             EPServiceProviderSPI provider = runtimes.get(providerURINonNull);
@@ -94,7 +95,7 @@ public final class EPServiceProviderManager {
      * @return EPServiceProvider for the given provider URI.
      */
     public static EPServiceProvider getExistingProvider(String providerURI) {
-        String providerURINonNull = (providerURI == null) ? EPServiceProviderSPI.DEFAULT_ENGINE_URI : providerURI;
+        String providerURINonNull = (providerURI == null) ? EPServiceProviderName.DEFAULT_ENGINE_URI : providerURI;
         EPServiceProviderSPI provider = runtimes.get(providerURINonNull);
         if (provider == null || provider.isDestroyed()) {
             return null;

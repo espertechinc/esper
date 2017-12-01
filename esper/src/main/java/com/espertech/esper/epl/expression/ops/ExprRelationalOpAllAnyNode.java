@@ -44,7 +44,7 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 

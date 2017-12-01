@@ -25,12 +25,12 @@ public class ExprCoalesceNode extends ExprNodeBase {
     private transient ExprCoalesceNodeForge forge;
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 

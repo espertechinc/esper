@@ -14,11 +14,11 @@ import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
+import com.espertech.esper.util.EPServiceProviderName;
 import com.espertech.esper.util.LevenshteinDistance;
+import com.espertech.esper.util.StringValue;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
      * @param isIStreamOnly     true for no datawindow for stream
      * @param engineURI         - engine URI
      * @param isOnDemandStreams - true to indicate that all streams are on-demand pull-based
-     * @param optionalStreams - if there are any streams that may not provide events, applicable to outer joins
+     * @param optionalStreams   - if there are any streams that may not provide events, applicable to outer joins
      */
     public StreamTypeServiceImpl(EventType[] eventTypes, String[] streamNames, boolean[] isIStreamOnly, String engineURI, boolean isOnDemandStreams, boolean optionalStreams) {
         this.eventTypes = eventTypes;
@@ -76,8 +76,8 @@ public class StreamTypeServiceImpl implements StreamTypeService {
         this.isOnDemandStreams = isOnDemandStreams;
         this.optionalStreams = optionalStreams;
 
-        if (engineURI == null || EPServiceProviderSPI.DEFAULT_ENGINE_URI.equals(engineURI)) {
-            engineURIQualifier = EPServiceProviderSPI.DEFAULT_ENGINE_URI_QUALIFIER;
+        if (engineURI == null || EPServiceProviderName.DEFAULT_ENGINE_URI.equals(engineURI)) {
+            engineURIQualifier = EPServiceProviderName.DEFAULT_ENGINE_URI_QUALIFIER;
         } else {
             engineURIQualifier = engineURI;
         }
@@ -218,7 +218,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             desc = findByPropertyName(streamAndPropertyName, obtainFragment);
         } catch (PropertyNotFoundException ex) {
             // Attempt to resolve by extracting a stream name
-            int index = ASTUtil.unescapedIndexOfDot(streamAndPropertyName);
+            int index = StringValue.unescapedIndexOfDot(streamAndPropertyName);
             if (index == -1) {
                 throw ex;
             }
@@ -388,7 +388,7 @@ public class StreamTypeServiceImpl implements StreamTypeService {
             return null;
         }
 
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             return null;
         }

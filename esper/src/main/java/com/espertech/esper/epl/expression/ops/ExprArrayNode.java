@@ -35,27 +35,27 @@ public class ExprArrayNode extends ExprNodeBase {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public boolean isConstantResult() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getConstantResult() != null;
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 
     public ExprEnumerationEval getExprEvaluatorEnumeration() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluatorEnumeration();
     }
 
     public Class getComponentTypeCollection() throws ExprValidationException {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getArrayReturnType();
     }
 

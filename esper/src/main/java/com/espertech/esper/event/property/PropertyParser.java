@@ -13,7 +13,6 @@ package com.espertech.esper.event.property;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
-import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.parse.CaseInsensitiveInputStream;
 import com.espertech.esper.epl.parse.ExceptionConvertor;
 import com.espertech.esper.epl.parse.ParseHelper;
@@ -188,7 +187,7 @@ public class PropertyParser {
     }
 
     private static Property makeProperty(EsperEPL2GrammarParser.EventPropertyAtomicContext atomic, boolean isRootedInDynamic) {
-        String prop = ASTUtil.unescapeDot(atomic.eventPropertyIdent().getText());
+        String prop = StringValue.unescapeDot(atomic.eventPropertyIdent().getText());
         if (prop.length() == 0) {
             throw new PropertyAccessException("Invalid zero-length string provided as an event property name");
         }
@@ -215,7 +214,7 @@ public class PropertyParser {
         }
     }
 
-    public static String unescapeBacktick(String unescapedPropertyName) {
+    public static String unescapeBacktickForProperty(String unescapedPropertyName) {
         if (unescapedPropertyName.startsWith("`") && unescapedPropertyName.endsWith("`")) {
             return unescapedPropertyName.substring(1, unescapedPropertyName.length() - 1);
         }

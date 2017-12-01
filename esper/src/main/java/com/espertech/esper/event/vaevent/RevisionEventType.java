@@ -16,6 +16,7 @@ import com.espertech.esper.event.*;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.property.*;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.StringValue;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -87,7 +88,7 @@ public class RevisionEventType implements EventTypeSPI {
         }
 
         // see if this is a nested property
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (prop instanceof SimpleProperty) {
@@ -187,7 +188,7 @@ public class RevisionEventType implements EventTypeSPI {
         }
 
         // see if this is a nested property
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             return null;
         }

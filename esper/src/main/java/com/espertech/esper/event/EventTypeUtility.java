@@ -28,6 +28,7 @@ import com.espertech.esper.event.map.MapEventPropertyGetter;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.event.property.*;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +129,7 @@ public class EventTypeUtility {
         if (descriptor != null) {
             return descriptor;
         }
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             return null;
         }
@@ -596,7 +597,7 @@ public class EventTypeUtility {
         }
 
         // see if this is a nested property
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             // dynamic simple property
             if (propertyName.endsWith("?")) {
@@ -779,7 +780,7 @@ public class EventTypeUtility {
         }
 
         // see if this is a nested property
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (prop instanceof DynamicProperty) {

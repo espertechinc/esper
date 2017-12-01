@@ -35,7 +35,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 

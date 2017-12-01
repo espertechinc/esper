@@ -14,16 +14,16 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionDeclarationContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
+import com.espertech.esper.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.*;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
-import com.espertech.esper.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.util.EPServiceProviderName;
 
 import java.util.Collection;
 
@@ -259,13 +259,13 @@ public class ExecClientAggregationMultiFunctionPlugIn implements RegressionExecu
         for (int i = 0; i < 2; i++) {
             PlugInAggregationMultiFunctionDeclarationContext contextDecl = SupportAggMFFactory.getFunctionDeclContexts().get(i);
             assertEquals(i == 0 ? "se1" : "se2", contextDecl.getFunctionName());
-            assertEquals(EPServiceProviderSPI.DEFAULT_ENGINE_URI, contextDecl.getEngineURI());
+            assertEquals(EPServiceProviderName.DEFAULT_ENGINE_URI, contextDecl.getEngineURI());
             assertFalse(contextDecl.isDistinct());
             assertNotNull(contextDecl.getConfiguration());
 
             PlugInAggregationMultiFunctionValidationContext contextValid = SupportAggMFFactory.getFunctionHandlerValidationContexts().get(i);
             assertEquals(i == 0 ? "se1" : "se2", contextValid.getFunctionName());
-            assertEquals(EPServiceProviderSPI.DEFAULT_ENGINE_URI, contextValid.getEngineURI());
+            assertEquals(EPServiceProviderName.DEFAULT_ENGINE_URI, contextValid.getEngineURI());
             assertNotNull(contextValid.getParameterExpressions());
             assertNotNull(contextValid.getAllParameterExpressions());
             assertNotNull(contextValid.getConfig());

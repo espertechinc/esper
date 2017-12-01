@@ -39,7 +39,7 @@ public class ExprInNodeImpl extends ExprNodeBase implements ExprInNode {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 

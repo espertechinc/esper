@@ -36,18 +36,6 @@ import javax.naming.Context;
  */
 public interface EPServiceProviderSPI extends EPServiceProvider {
     /**
-     * For the default provider instance, which carries a null provider URI,
-     * the URI value is "default".
-     */
-    public static final String DEFAULT_ENGINE_URI = "default";
-
-    /**
-     * For the default provider instance, which carries a "default" provider URI,
-     * the property name qualification and stream name qualification may use "default".
-     */
-    public static final String DEFAULT_ENGINE_URI_QUALIFIER = "default";
-
-    /**
      * Returns statement management service for the engine.
      *
      * @return the StatementLifecycleSvc

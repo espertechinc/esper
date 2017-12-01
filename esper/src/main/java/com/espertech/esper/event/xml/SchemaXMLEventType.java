@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.event.xml;
 
-import com.espertech.esper.client.*;
-import com.espertech.esper.epl.parse.ASTUtil;
+import com.espertech.esper.client.ConfigurationEventTypeXMLDOM;
+import com.espertech.esper.client.EventPropertyDescriptor;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeMetadata;
@@ -19,6 +21,7 @@ import com.espertech.esper.event.ExplicitPropertyDescriptor;
 import com.espertech.esper.event.property.IndexedProperty;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
+import com.espertech.esper.util.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -192,7 +195,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
     private Class doResolvePropertyType(String propertyExpression, boolean allowSimpleProperties) {
 
         // see if this is an indexed property
-        int index = ASTUtil.unescapedIndexOfDot(propertyExpression);
+        int index = StringValue.unescapedIndexOfDot(propertyExpression);
         if ((!allowSimpleProperties) && (index == -1)) {
             // parse, can be an indexed property
             Property property = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
@@ -234,7 +237,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
 
         if (!allowSimpleProperties) {
             // see if this is an indexed property
-            int index = ASTUtil.unescapedIndexOfDot(propertyExpression);
+            int index = StringValue.unescapedIndexOfDot(propertyExpression);
             if (index == -1) {
                 // parse, can be an indexed property
                 Property property = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);

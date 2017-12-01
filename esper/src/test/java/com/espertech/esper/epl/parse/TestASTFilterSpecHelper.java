@@ -12,6 +12,7 @@ package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
+import com.espertech.esper.util.StringValue;
 import junit.framework.TestCase;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -91,7 +92,7 @@ public class TestASTFilterSpecHelper extends TestCase {
         for (int i = 0; i < inout.length; i++) {
             String input = (String) inout[i][0];
             int expected = (Integer) inout[i][1];
-            assertEquals("for input " + input, expected, ASTUtil.unescapedIndexOfDot(input));
+            assertEquals("for input " + input, expected, StringValue.unescapedIndexOfDot(input));
         }
     }
 

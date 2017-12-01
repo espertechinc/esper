@@ -50,7 +50,6 @@ import com.espertech.esper.epl.expression.time.ExprTimestampNode;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.parse.ASTAggregationHelper;
 import com.espertech.esper.epl.parse.ASTTableExprHelper;
-import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.parse.ASTWalkException;
 import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -61,11 +60,11 @@ import com.espertech.esper.pattern.*;
 import com.espertech.esper.rowregex.*;
 import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.MathArithTypeEnum;
-import com.espertech.esper.epl.expression.core.MinMaxTypeEnum;
 import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.PlaceholderParseException;
 import com.espertech.esper.util.PlaceholderParser;
+import com.espertech.esper.util.StringValue;
 
 import java.util.*;
 
@@ -1684,7 +1683,7 @@ public class StatementSpecMapper {
                     mapContext.getConfiguration().getEngineDefaults().getExpression().isDivisionByZeroReturnsNull());
         } else if (expr instanceof PropertyValueExpression) {
             PropertyValueExpression prop = (PropertyValueExpression) expr;
-            int indexDot = ASTUtil.unescapedIndexOfDot(prop.getPropertyName());
+            int indexDot = StringValue.unescapedIndexOfDot(prop.getPropertyName());
 
             // handle without nesting
             if (indexDot == -1) {

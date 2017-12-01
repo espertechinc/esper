@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
+import com.espertech.esper.util.StringValue;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+
+import static com.espertech.esper.util.StringValue.unescapeBacktick;
 
 /**
  * Utility class for AST node handling.
@@ -219,36 +222,6 @@ public class ASTUtil {
     }
 
     /**
-     * Find the index of an unescaped dot (.) character, or return -1 if none found.
-     *
-     * @param identifier text to find an un-escaped dot character
-     * @return index of first unescaped dot
-     */
-    public static int unescapedIndexOfDot(String identifier) {
-        int indexof = identifier.indexOf(".");
-        if (indexof == -1) {
-            return -1;
-        }
-
-        for (int i = 0; i < identifier.length(); i++) {
-            char c = identifier.charAt(i);
-            if (c != '.') {
-                continue;
-            }
-
-            if (i > 0) {
-                if (identifier.charAt(i - 1) == '\\') {
-                    continue;
-                }
-            }
-
-            return i;
-        }
-
-        return -1;
-    }
-
-    /**
      * Un-Escape all escaped dot characters in the text (identifier only) passed in.
      *
      * @param identifierToUnescape text to un-escape
@@ -295,30 +268,6 @@ public class ASTUtil {
         return buf.toString();
     }
 
-    public static String unescapeBacktick(String text) {
-        int indexof = text.indexOf("`");
-        if (indexof == -1) {
-            return text;
-        }
-
-        StringBuilder builder = new StringBuilder();
-        int index = -1;
-        int max = text.length() - 1;
-        boolean skip = false;
-        do {
-            index++;
-            char c = text.charAt(index);
-            if (c == '`') {
-                skip = !skip;
-            } else {
-                builder.append(c);
-            }
-        }
-        while (index < max);
-
-        return builder.toString();
-    }
-
     public static String unescapeClassIdent(EsperEPL2GrammarParser.ClassIdentifierContext classIdentCtx) {
         return unescapeEscapableStr(classIdentCtx.escapableStr(), ".");
     }
@@ -348,6 +297,6 @@ public class ASTUtil {
     }
 
     public static String getStreamNameUnescapedOptional(EsperEPL2GrammarParser.IdentOrTickedContext ctx) {
-        return ctx != null ? ASTUtil.unescapeBacktick(ctx.getText()) : null;
+        return ctx != null ? StringValue.unescapeBacktick(ctx.getText()) : null;
     }
 }

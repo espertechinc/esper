@@ -18,6 +18,7 @@ import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
 import com.espertech.esper.util.GraphUtil;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.StringValue;
 
 import java.util.*;
 
@@ -336,7 +337,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         }
 
         // see if this is a nested property
-        int index = ASTUtil.unescapedIndexOfDot(propertyName);
+        int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             // dynamic simple property
             if (propertyName.endsWith("?")) {

@@ -60,32 +60,32 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod {
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprTimePeriodEvalDeltaConst constEvaluator(ExprEvaluatorContext context) {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.constEvaluator(context);
     }
 
     public ExprTimePeriodEvalDeltaNonConst nonconstEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.nonconstEvaluator();
     }
 
     public CodegenExpression evaluateGetTimePeriodCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.evaluateGetTimePeriodCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
     public CodegenExpression evaluateAsSecondsCodegen(CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.evaluateAsSecondsCodegen(codegenMethodScope, exprSymbol, codegenClassScope);
     }
 
@@ -95,17 +95,17 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod {
      * @return true for variable present, false for not present
      */
     public boolean hasVariable() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.isHasVariable();
     }
 
     public TimePeriod evaluateGetTimePeriod(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.evaluateGetTimePeriod(eventsPerStream, newData, context);
     }
 
     public double evaluateAsSeconds(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.evaluateAsSeconds(eventsPerStream, newData, context);
     }
 

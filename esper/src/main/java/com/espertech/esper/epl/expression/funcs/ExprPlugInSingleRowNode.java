@@ -50,12 +50,12 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     }
 
     public ExprEvaluator getExprEvaluator() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.getExprEvaluator();
     }
 
     public ExprForge getForge() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge;
     }
 
@@ -65,7 +65,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
 
     @Override
     public boolean isConstantResult() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         return forge.isReturnsConstantResult();
     }
 
@@ -101,7 +101,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     }
 
     public FilterSpecLookupable getFilterLookupable() {
-        ExprNodeUtility.checkValidated(forge);
+        checkValidated(forge);
         ExprDotNodeForgeStaticMethodEval eval = (ExprDotNodeForgeStaticMethodEval) forge.getExprEvaluator();
         return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), eval, forge.getEvaluationType(), true);
     }
