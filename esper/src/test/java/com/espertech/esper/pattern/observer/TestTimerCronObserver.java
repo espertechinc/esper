@@ -11,9 +11,9 @@
 package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
-import com.espertech.esper.pattern.MatchedEventMap;
-import com.espertech.esper.pattern.MatchedEventMapImpl;
-import com.espertech.esper.pattern.MatchedEventMapMeta;
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapImpl;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.SchedulingServiceImpl;

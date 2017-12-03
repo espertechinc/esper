@@ -27,6 +27,7 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.*;
+import com.espertech.esper.filterspec.PropertyEvaluator;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.UuidGenerator;

@@ -12,12 +12,14 @@ package com.espertech.esper.supportunit.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 
 import java.util.Collection;
 import java.util.concurrent.locks.ReadWriteLock;
 
 public class SupportFilterParamIndex extends FilterParamIndexLookupableBase {
-    public SupportFilterParamIndex(FilterSpecLookupable lookupable) {
+    public SupportFilterParamIndex(ExprFilterSpecLookupable lookupable) {
         super(FilterOperator.EQUAL, lookupable);
     }
 

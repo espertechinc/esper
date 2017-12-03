@@ -12,7 +12,7 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.client.soda.ExpressionBase;
 import com.espertech.esper.client.soda.ExpressionPrecedenceEnum;
-import com.espertech.esper.core.service.EPStatementObjectModelHelper;
+import com.espertech.esper.util.StringValue;
 
 import java.io.StringWriter;
 
@@ -35,7 +35,7 @@ public abstract class SubstitutionParameterExpressionBase extends ExpressionBase
         if (!isSatisfied) {
             toPrecedenceFreeEPLUnsatisfied(writer);
         } else {
-            EPStatementObjectModelHelper.renderEPL(writer, constant);
+            StringValue.renderConstantAsEPL(writer, constant);
         }
     }
 

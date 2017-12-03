@@ -12,6 +12,7 @@ package com.espertech.esper.pattern;
 
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 /**
  * Interface for nodes in an expression evaluation state tree that are being informed by a child that the

@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
@@ -21,7 +22,7 @@ import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.event.EventTypeUtility;
-import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.*;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.ArrayList;
@@ -181,7 +182,7 @@ public class ContextControllerPartitionedUtil {
 
             FilterValueSetParam[][] existing = addendums.get(filtersSpec);
             if (existing != null) {
-                addendum = ContextControllerAddendumUtil.multiplyAddendum(existing, addendum);
+                addendum = FilterAddendumUtil.multiplyAddendum(existing, addendum);
             }
             addendums.put(filtersSpec, addendum);
         }
@@ -223,7 +224,7 @@ public class ContextControllerPartitionedUtil {
             String propertyName = foundPartition.getPropertyNames().get(0);
             EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(propertyName);
             Class resultType = foundPartition.getFilterSpecCompiled().getFilterForEventType().getPropertyType(propertyName);
-            FilterSpecLookupable lookupable = new FilterSpecLookupable(propertyName, getter, resultType, false);
+            ExprFilterSpecLookupable lookupable = new ExprFilterSpecLookupable(propertyName, getter, resultType, false);
             FilterValueSetParam filter = getFilterMayEqualOrNull(lookupable, keyValue);
             addendumFilters.add(filter);
         } else {
@@ -232,7 +233,7 @@ public class ContextControllerPartitionedUtil {
                 String partitionPropertyName = foundPartition.getPropertyNames().get(i);
                 EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(partitionPropertyName);
                 Class resultType = foundPartition.getFilterSpecCompiled().getFilterForEventType().getPropertyType(partitionPropertyName);
-                FilterSpecLookupable lookupable = new FilterSpecLookupable(partitionPropertyName, getter, resultType, false);
+                ExprFilterSpecLookupable lookupable = new ExprFilterSpecLookupable(partitionPropertyName, getter, resultType, false);
                 FilterValueSetParam filter = getFilterMayEqualOrNull(lookupable, keys[i]);
                 addendumFilters.add(filter);
             }
@@ -243,13 +244,13 @@ public class ContextControllerPartitionedUtil {
 
         FilterValueSetParam[][] partitionFilters = foundPartition.getParametersCompiled();
         if (partitionFilters != null && includePartition) {
-            addendum = ContextControllerAddendumUtil.addAddendum(partitionFilters, addendum[0]);
+            addendum = FilterAddendumUtil.addAddendum(partitionFilters, addendum[0]);
         }
 
         return addendum;
     }
 
-    private static FilterValueSetParam getFilterMayEqualOrNull(FilterSpecLookupable lookupable, Object keyValue) {
+    private static FilterValueSetParam getFilterMayEqualOrNull(ExprFilterSpecLookupable lookupable, Object keyValue) {
         return new FilterValueSetParamImpl(lookupable, FilterOperator.IS, keyValue);
     }
 

@@ -12,8 +12,8 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.IdentityHashMap;
 

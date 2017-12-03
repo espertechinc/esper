@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.client.soda;
 
-import com.espertech.esper.core.service.EPStatementObjectModelHelper;
+import com.espertech.esper.util.StringValue;
 
 import java.io.StringWriter;
 import java.util.Iterator;
@@ -98,7 +98,7 @@ public class ConstantExpression extends ExpressionBase {
             }
             writer.append("}");
         } else {
-            EPStatementObjectModelHelper.renderEPL(writer, constant);
+            StringValue.renderConstantAsEPL(writer, constant);
         }
     }
 

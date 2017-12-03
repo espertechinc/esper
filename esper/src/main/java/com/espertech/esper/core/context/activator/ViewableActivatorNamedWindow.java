@@ -18,7 +18,7 @@ import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.named.NamedWindowConsumerDesc;
 import com.espertech.esper.epl.named.NamedWindowConsumerView;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.property.PropertyEvaluator;
+import com.espertech.esper.filterspec.PropertyEvaluator;
 
 import java.util.List;
 

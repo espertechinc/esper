@@ -15,7 +15,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.vaevent.VariantEvent;
-import com.espertech.esper.filter.FilterSpecLookupable;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
@@ -87,7 +87,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         return true;
     }
 
-    public FilterSpecLookupable getFilterLookupable() {
+    public ExprFilterSpecLookupable getFilterLookupable() {
         EventPropertyGetter getter = new EventPropertyGetter() {
             public Object get(EventBean eventBean) throws PropertyAccessException {
                 return eventBean.getEventType().getName();
@@ -101,7 +101,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
                 return null;
             }
         };
-        return new FilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), getter, String.class, true);
+        return new ExprFilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), getter, String.class, true);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

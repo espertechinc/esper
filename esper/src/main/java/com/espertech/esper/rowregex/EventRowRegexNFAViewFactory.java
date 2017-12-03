@@ -285,7 +285,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
                 aggNodesForStream.add(aggregateNode);
             }
 
-            AggregationServiceMatchRecognizeFactoryDesc factoryDesc = AggregationServiceFactoryFactory.getServiceMatchRecognize(streamVariables.size(), measureExprAggNodesPerStream, typeServiceAggregateMeasure.getEventTypes(), agentInstanceContext.getStatementContext().getEngineImportService(), agentInstanceContext.getStatementName());
+            AggregationServiceMatchRecognizeFactoryDesc factoryDesc = AggregationServiceFactoryFactory.getServiceMatchRecognize(streamVariables.size(), measureExprAggNodesPerStream, typeServiceAggregateMeasure.getEventTypes(), agentInstanceContext.getEngineImportService(), agentInstanceContext.getStatementName());
             aggregationService = factoryDesc.getAggregationServiceFactory().makeService(agentInstanceContext);
             aggregationExpressions = factoryDesc.getExpressions();
         } else {
@@ -357,7 +357,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
         // compile variable definition expressions
         variableDefinitions = new HashMap<>();
         for (MatchRecognizeDefineItem defineItem : matchRecognizeSpec.getDefines()) {
-            ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(defineItem.getExpression().getForge(), agentInstanceContext.getStatementContext().getEngineImportService(), EventRowRegexNFAViewFactory.class, false, statementContext.getStatementName());
+            ExprEvaluator evaluator = ExprNodeCompiler.allocateEvaluator(defineItem.getExpression().getForge(), agentInstanceContext.getEngineImportService(), EventRowRegexNFAViewFactory.class, false, statementContext.getStatementName());
             variableDefinitions.put(defineItem.getIdentifier(), new Pair<>(defineItem.getExpression(), evaluator));
         }
 
@@ -367,7 +367,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
         int count = 0;
         for (MatchRecognizeMeasureItem measureItem : matchRecognizeSpec.getMeasures()) {
             columnNames[count] = measureItem.getName();
-            columnEvaluators[count] = ExprNodeCompiler.allocateEvaluator(measureItem.getExpr().getForge(), agentInstanceContext.getStatementContext().getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
+            columnEvaluators[count] = ExprNodeCompiler.allocateEvaluator(measureItem.getExpr().getForge(), agentInstanceContext.getEngineImportService(), this.getClass(), false, statementContext.getStatementName());
             count++;
         }
 

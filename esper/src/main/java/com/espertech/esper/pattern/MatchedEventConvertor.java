@@ -11,6 +11,8 @@
 package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 
 /**
  * Converts from a map of prior matching events to a events per stream for resultion by expressions.

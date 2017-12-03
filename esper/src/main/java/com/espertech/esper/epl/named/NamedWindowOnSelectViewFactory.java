@@ -53,7 +53,7 @@ public class NamedWindowOnSelectViewFactory extends NamedWindowOnExprBaseViewFac
     }
 
     public NamedWindowOnExprBaseView make(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance namedWindowRootViewInstance, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor) {
-        boolean audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getStatementContext().getAnnotations()) != null;
+        boolean audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getAnnotations()) != null;
         TableStateInstance tableStateInstance = null;
         if (optionalInsertIntoTableName != null) {
             tableStateInstance = agentInstanceContext.getStatementContext().getTableService().getState(optionalInsertIntoTableName, agentInstanceContext.getAgentInstanceId());

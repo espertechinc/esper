@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.join.plan;
 
-import com.espertech.esper.filter.FilterOperator;
+import com.espertech.esper.filterspec.FilterOperator;
 import com.espertech.esper.type.RelationalOpEnum;
 
 public enum QueryGraphRangeEnum {

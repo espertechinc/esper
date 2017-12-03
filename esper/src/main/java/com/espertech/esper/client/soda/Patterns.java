@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.client.soda;
 
-import com.espertech.esper.pattern.guard.GuardEnum;
-
 import java.util.ArrayList;
 import java.util.List;
 

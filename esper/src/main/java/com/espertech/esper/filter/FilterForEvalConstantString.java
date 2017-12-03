@@ -11,7 +11,8 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.FilterSpecParamFilterForEval;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 /**
  * A String-typed value as a filter parameter representing a range.

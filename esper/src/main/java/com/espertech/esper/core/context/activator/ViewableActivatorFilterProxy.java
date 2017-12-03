@@ -15,7 +15,11 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.filter.*;
+import com.espertech.esper.filter.FilterHandleCallback;
+import com.espertech.esper.filter.FilterServiceEntry;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.EventStream;
@@ -102,7 +106,7 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
         if (agentInstanceContext.getAgentInstanceFilterProxy() != null) {
             addendum = agentInstanceContext.getAgentInstanceFilterProxy().getAddendumFilters(filterSpec);
         }
-        FilterValueSet filterValueSet = filterSpec.getValueSet(null, agentInstanceContext, addendum);
+        FilterValueSet filterValueSet = filterSpec.getValueSet(null, addendum, agentInstanceContext, agentInstanceContext.getEngineImportService(), agentInstanceContext.getAnnotations());
         FilterServiceEntry filterServiceEntry = services.getFilterService().add(filterValueSet, filterHandle);
 
         ViewableActivatorFilterProxyStopCallback stopCallback = new ViewableActivatorFilterProxyStopCallback(this, filterHandle, filterServiceEntry);

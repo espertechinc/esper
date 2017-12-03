@@ -12,7 +12,7 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
 
 import java.util.List;
 

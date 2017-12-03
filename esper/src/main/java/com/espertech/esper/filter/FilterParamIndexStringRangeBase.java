@@ -11,6 +11,9 @@
 
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.StringRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +26,7 @@ public abstract class FilterParamIndexStringRangeBase extends FilterParamIndexLo
     private final IdentityHashMap<StringRange, EventEvaluator> rangesNullEndpoints;
     private final ReadWriteLock rangesRWLock;
 
-    protected FilterParamIndexStringRangeBase(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
+    protected FilterParamIndexStringRangeBase(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(filterOperator, lookupable);
 
         ranges = new TreeMap<StringRange, EventEvaluator>(new StringRangeComparator());

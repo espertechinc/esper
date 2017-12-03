@@ -25,10 +25,11 @@ import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzer;
 import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzerResult;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecLookupable;
-import com.espertech.esper.filter.FilterValueSetParam;
-import com.espertech.esper.pattern.MatchedEventMapMeta;
+import com.espertech.esper.filterspec.FilterAddendumUtil;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterValueSetParam;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 
 import java.util.*;
 
@@ -100,13 +101,13 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
 
             FilterValueSetParam[][] existing = filterAddendum.getFilterAddendum().get(filtersSpec);
             if (existing != null) {
-                addendum = ContextControllerAddendumUtil.multiplyAddendum(existing, addendum);
+                addendum = FilterAddendumUtil.multiplyAddendum(existing, addendum);
             }
             filterAddendum.getFilterAddendum().put(filtersSpec, addendum);
         }
     }
 
-    public FilterSpecLookupable getFilterLookupable(EventType eventType) {
+    public ExprFilterSpecLookupable getFilterLookupable(EventType eventType) {
         return null;
     }
 

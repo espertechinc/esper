@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.spatial.quadtree.prqdfilterindex;
 
-import com.espertech.esper.spatial.quadtree.pointregion.XYPoint;
+import com.espertech.esper.type.XYPoint;
 
 public class XYPointWValue<L> extends XYPoint {
     private L value;

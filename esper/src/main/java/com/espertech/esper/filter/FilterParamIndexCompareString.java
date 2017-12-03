@@ -11,6 +11,8 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ public final class FilterParamIndexCompareString extends FilterParamIndexLookupa
     private final TreeMap<Object, EventEvaluator> constantsMap;
     private final ReadWriteLock constantsMapRWLock;
 
-    public FilterParamIndexCompareString(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
+    public FilterParamIndexCompareString(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(filterOperator, lookupable);
 
         constantsMap = new TreeMap<Object, EventEvaluator>();

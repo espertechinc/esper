@@ -16,7 +16,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.filter.FilterHandle;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.filter.FilterServiceEntry;
-import com.espertech.esper.filter.FilterValueSet;
+import com.espertech.esper.filterspec.FilterValueSet;
 
 import java.util.Collection;
 import java.util.LinkedList;

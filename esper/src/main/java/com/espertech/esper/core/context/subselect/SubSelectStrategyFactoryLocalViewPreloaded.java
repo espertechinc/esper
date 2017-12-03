@@ -112,7 +112,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         // make aggregation service
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getEngineImportService(), true, subqueryNumber);
+            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getEngineImportService(), true, subqueryNumber);
         }
 
         // handle "prior" nodes and their strategies
@@ -226,7 +226,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             if (namedSpec.getFilterExpressions() != null && !namedSpec.getFilterExpressions().isEmpty()) {
                 StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), consumerView.getEventType().getName(), false, services.getEngineURI());
                 QueryGraph queryGraph = EPLValidationUtil.validateFilterGetQueryGraphSafe(ExprNodeUtilityRich.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions()), agentInstanceContext.getStatementContext(), types);
-                Collection<EventBean> snapshot = consumerView.snapshotNoLock(queryGraph, agentInstanceContext.getStatementContext().getAnnotations());
+                Collection<EventBean> snapshot = consumerView.snapshotNoLock(queryGraph, agentInstanceContext.getAnnotations());
                 eventsInWindow = new ArrayList<EventBean>(snapshot.size());
                 ExprNodeUtilityCore.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
             } else {

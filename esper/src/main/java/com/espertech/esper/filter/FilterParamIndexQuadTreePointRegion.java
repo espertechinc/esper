@@ -12,10 +12,12 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.spatial.quadtree.core.QuadTreeCollector;
 import com.espertech.esper.spatial.quadtree.pointregion.PointRegionQuadTree;
 import com.espertech.esper.spatial.quadtree.pointregion.PointRegionQuadTreeFactory;
-import com.espertech.esper.spatial.quadtree.pointregion.XYPoint;
+import com.espertech.esper.type.XYPoint;
 import com.espertech.esper.spatial.quadtree.prqdfilterindex.*;
 
 import java.util.Collection;
@@ -32,7 +34,7 @@ public class FilterParamIndexQuadTreePointRegion extends FilterParamIndexLookupa
         }
     };
 
-    public FilterParamIndexQuadTreePointRegion(ReadWriteLock readWriteLock, FilterSpecLookupable lookupable) {
+    public FilterParamIndexQuadTreePointRegion(ReadWriteLock readWriteLock, ExprFilterSpecLookupable lookupable) {
         super(FilterOperator.ADVANCED_INDEX, lookupable);
         this.readWriteLock = readWriteLock;
         this.advancedIndex = (FilterSpecLookupableAdvancedIndex) lookupable;

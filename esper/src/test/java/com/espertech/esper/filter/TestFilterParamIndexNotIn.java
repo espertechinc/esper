@@ -13,6 +13,8 @@ package com.espertech.esper.filter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.filter.SupportEventEvaluator;
@@ -90,7 +92,7 @@ public class TestFilterParamIndexNotIn extends TestCase {
         }
     }
 
-    private FilterSpecLookupable makeLookupable(String fieldName) {
-        return new FilterSpecLookupable(fieldName, testEventType.getGetter(fieldName), testEventType.getPropertyType(fieldName), false);
+    private ExprFilterSpecLookupable makeLookupable(String fieldName) {
+        return new ExprFilterSpecLookupable(fieldName, testEventType.getGetter(fieldName), testEventType.getPropertyType(fieldName), false);
     }
 }

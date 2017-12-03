@@ -12,6 +12,7 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.filterspec.FilterValueSet;
 
 import java.util.Collection;
 import java.util.Set;

@@ -11,7 +11,7 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 /**
  * Context condition used for Non-Overlapping contexts only, when @Now is specified.

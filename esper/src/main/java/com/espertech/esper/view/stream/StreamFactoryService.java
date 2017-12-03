@@ -15,7 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.filter.FilterService;
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
 import com.espertech.esper.view.EventStream;
 
 import java.lang.annotation.Annotation;

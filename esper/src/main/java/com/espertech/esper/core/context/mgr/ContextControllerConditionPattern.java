@@ -16,6 +16,9 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.spec.ContextDetailConditionPattern;
 import com.espertech.esper.epl.spec.PatternStreamSpecCompiled;
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapImpl;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 import com.espertech.esper.pattern.*;
 
 import java.util.Collections;

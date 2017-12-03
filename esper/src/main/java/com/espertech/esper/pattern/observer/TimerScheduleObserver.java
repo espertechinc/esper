@@ -17,7 +17,7 @@ import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddResult;
 import com.espertech.esper.epl.datetime.calop.CalendarPlusMinusForgeOp;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.schedule.SchedulingService;
 

@@ -25,7 +25,7 @@ import com.espertech.esper.epl.join.table.EventTableOrganizationType;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.spec.CreateIndexDesc;
 import com.espertech.esper.epl.spec.CreateIndexItem;
-import com.espertech.esper.filter.Range;
+import com.espertech.esper.filterspec.Range;
 import com.espertech.esper.view.ViewSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

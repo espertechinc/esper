@@ -24,8 +24,9 @@ import com.espertech.esper.event.property.IndexedProperty;
 import com.espertech.esper.event.property.NestedProperty;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
-import com.espertech.esper.spatial.quadtree.mxcif.XYWHRectangle;
-import com.espertech.esper.spatial.quadtree.pointregion.XYPoint;
+import com.espertech.esper.filterspec.*;
+import com.espertech.esper.type.XYWHRectangle;
+import com.espertech.esper.type.XYPoint;
 import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
@@ -236,7 +237,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         if (!constituent.getFilterLookupEligible()) {
             return null;
         }
-        FilterSpecLookupable lookupable = constituent.getFilterLookupable();
+        ExprFilterSpecLookupable lookupable = constituent.getFilterLookupable();
         return new FilterSpecParamConstant(lookupable, FilterOperator.EQUAL, true);
     }
 
@@ -244,7 +245,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         ExprNode left = betweenNode.getChildNodes()[0];
         if (left instanceof ExprFilterOptimizableNode) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
-            FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
+            ExprFilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
             FilterOperator op = FilterOperator.parseRangeOperator(betweenNode.isLowEndpointIncluded(), betweenNode.isHighEndpointIncluded(),
                     betweenNode.isNotBetween());
 
@@ -298,7 +299,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         }
 
         ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
-        FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
+        ExprFilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
         FilterOperator op = FilterOperator.IN_LIST_OF_VALUES;
         if (constituent.isNotIn()) {
             op = FilterOperator.NOT_IN_LIST_OF_VALUES;
@@ -440,7 +441,7 @@ public final class FilterSpecCompilerMakeParamUtil {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 ExprConstantNode constantNode = (ExprConstantNode) right;
-                FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
+                ExprFilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
                 Object constant = constantNode.getConstantValue(exprEvaluatorContext);
                 constant = handleConstantsCoercion(lookupable, constant);
                 return new FilterSpecParamConstant(lookupable, op, constant);
@@ -450,7 +451,7 @@ public final class FilterSpecCompilerMakeParamUtil {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) right;
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 ExprConstantNode constantNode = (ExprConstantNode) left;
-                FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
+                ExprFilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
                 Object constant = constantNode.getConstantValue(exprEvaluatorContext);
                 constant = handleConstantsCoercion(lookupable, constant);
                 FilterOperator opReversed = op.isComparisonOperator() ? op.reversedRelationalOp() : op;
@@ -474,7 +475,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         if ((left instanceof ExprFilterOptimizableNode) && (right instanceof ExprContextPropertyNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             ExprContextPropertyNode ctxNode = (ExprContextPropertyNode) right;
-            FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
+            ExprFilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
                 return new FilterSpecParamContextProp(lookupable, op, ctxNode.getPropertyName(), ctxNode.getGetter(), numberCoercer);
@@ -483,7 +484,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         if ((left instanceof ExprContextPropertyNode) && (right instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) right;
             ExprContextPropertyNode ctxNode = (ExprContextPropertyNode) left;
-            FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
+            ExprFilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 op = getReversedOperator(constituent, op); // reverse operators, as the expression is "stream1.prop xyz stream0.prop"
                 SimpleNumberCoercer numberCoercer = getNumberCoercer(lookupable.getReturnType(), ctxNode.getType(), lookupable.getExpression());
@@ -580,7 +581,7 @@ public final class FilterSpecCompilerMakeParamUtil {
 
     // expressions automatically coerce to the most upwards type
     // filters require the same type
-    private static Object handleConstantsCoercion(FilterSpecLookupable lookupable, Object constant)
+    private static Object handleConstantsCoercion(ExprFilterSpecLookupable lookupable, Object constant)
             throws ExprValidationException {
         Class identNodeType = lookupable.getReturnType();
         if (!JavaClassHelper.isNumeric(identNodeType)) {

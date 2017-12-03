@@ -12,6 +12,8 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ public final class FilterParamIndexNotIn extends FilterParamIndexLookupableBase 
     private final Set<EventEvaluator> evaluatorsSet;
     private final ReadWriteLock constantsMapRWLock;
 
-    public FilterParamIndexNotIn(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock) {
+    public FilterParamIndexNotIn(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock) {
         super(FilterOperator.NOT_IN_LIST_OF_VALUES, lookupable);
 
         constantsMap = new HashMap<Object, Set<EventEvaluator>>();

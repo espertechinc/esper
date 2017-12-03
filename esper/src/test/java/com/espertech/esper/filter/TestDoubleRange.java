@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.DoubleRange;
 import junit.framework.TestCase;
 
 public class TestDoubleRange extends TestCase {

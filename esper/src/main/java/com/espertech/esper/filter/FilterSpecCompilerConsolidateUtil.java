@@ -12,6 +12,8 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.*;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public final class FilterSpecCompilerConsolidateUtil {
         // i.e. we are looking for "a!=5 and a!=6"  to transform to "a not in (5,6)" which can match faster
         // considering that "a not in (5,6) and a not in (7,8)" is "a not in (5, 6, 7, 8)" therefore
         // we need to consolidate until there is no more work to do
-        Map<Pair<FilterSpecLookupable, FilterOperator>, List<FilterSpecParam>> mapOfParams = new HashMap<Pair<FilterSpecLookupable, FilterOperator>, List<FilterSpecParam>>();
+        Map<Pair<ExprFilterSpecLookupable, FilterOperator>, List<FilterSpecParam>> mapOfParams = new HashMap<Pair<ExprFilterSpecLookupable, FilterOperator>, List<FilterSpecParam>>();
 
         boolean haveConsolidated;
         do {
@@ -38,9 +40,9 @@ public final class FilterSpecCompilerConsolidateUtil {
 
             // sort into buckets of propertyName + filterOperator combination
             for (FilterSpecParam currentParam : filterParamExprMap.getFilterParams()) {
-                FilterSpecLookupable lookupable = currentParam.getLookupable();
+                ExprFilterSpecLookupable lookupable = currentParam.getLookupable();
                 FilterOperator op = currentParam.getFilterOperator();
-                Pair<FilterSpecLookupable, FilterOperator> key = new Pair<FilterSpecLookupable, FilterOperator>(lookupable, op);
+                Pair<ExprFilterSpecLookupable, FilterOperator> key = new Pair<ExprFilterSpecLookupable, FilterOperator>(lookupable, op);
 
                 List<FilterSpecParam> existingParam = mapOfParams.get(key);
                 if (existingParam == null) {

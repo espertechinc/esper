@@ -13,6 +13,7 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.ConditionPatternSubexpressionMax;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
 
 import java.util.HashMap;

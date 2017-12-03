@@ -12,7 +12,7 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.spec.FilterSpecRaw;
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

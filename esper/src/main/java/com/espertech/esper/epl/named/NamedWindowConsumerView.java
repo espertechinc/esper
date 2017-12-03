@@ -16,7 +16,7 @@ import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.property.PropertyEvaluator;
+import com.espertech.esper.filterspec.PropertyEvaluator;
 import com.espertech.esper.epl.util.FilteredEventIterator;
 import com.espertech.esper.event.FlushedEventBuffer;
 import com.espertech.esper.util.AuditPath;

@@ -15,9 +15,9 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecParam;
-import com.espertech.esper.filter.FilterSpecParamExprNode;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecParam;
+import com.espertech.esper.filterspec.FilterSpecParamExprNode;
 import com.espertech.esper.pattern.*;
 
 import java.util.ArrayList;

@@ -14,14 +14,14 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.pattern.MatchedEventConvertor;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Guard implementation that keeps a timer instance and quits when the timer expired,
  * and also keeps a count of the number of matches so far, checking both count and timer,
- * letting all {@link com.espertech.esper.pattern.MatchedEventMap} instances pass until then.
+ * letting all {@link MatchedEventMap} instances pass until then.
  */
 public class ExpressionGuard implements Guard {
     private final static Logger log = LoggerFactory.getLogger(ExpressionGuard.class);

@@ -16,6 +16,8 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapImpl;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
 

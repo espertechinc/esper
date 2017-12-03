@@ -11,6 +11,7 @@
 package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 import java.util.Set;
 

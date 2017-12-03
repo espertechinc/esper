@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.supportregression.client;
 
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.pattern.observer.EventObserver;
 import com.espertech.esper.pattern.observer.EventObserverVisitor;
 import com.espertech.esper.pattern.observer.ObserverEventEvaluator;

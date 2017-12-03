@@ -25,9 +25,10 @@ import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzer;
 import com.espertech.esper.epl.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.event.EventTypeUtility;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecLookupable;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterAddendumUtil;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -75,7 +76,7 @@ public abstract class ContextControllerCategoryFactoryBase extends ContextContro
         getAddendumFilters(filterAddendum.getFilterAddendum(), category, categorySpec, filtersSpecsNestedContexts, null);
     }
 
-    public FilterSpecLookupable getFilterLookupable(EventType eventType) {
+    public ExprFilterSpecLookupable getFilterLookupable(EventType eventType) {
         return null;
     }
 
@@ -181,11 +182,11 @@ public abstract class ContextControllerCategoryFactoryBase extends ContextContro
         FilterValueSetParam[][] categoryEventFilters = categorySpec.getFilterParamsCompiled();
         FilterValueSetParam[][] categoryItemFilters = category.getCompiledFilterParam();
 
-        FilterValueSetParam[][] addendum = ContextControllerAddendumUtil.multiplyAddendum(categoryEventFilters, categoryItemFilters);
+        FilterValueSetParam[][] addendum = FilterAddendumUtil.multiplyAddendum(categoryEventFilters, categoryItemFilters);
 
         FilterValueSetParam[][] existingFilters = addendums.get(filtersSpec);
         if (existingFilters != null) {
-            addendum = ContextControllerAddendumUtil.multiplyAddendum(existingFilters, addendum);
+            addendum = FilterAddendumUtil.multiplyAddendum(existingFilters, addendum);
         }
 
         addendums.put(filtersSpec, addendum);

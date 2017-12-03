@@ -12,17 +12,21 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.ExprEvaluatorContextWTableAccess;
-import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.variable.VariableService;
+import com.espertech.esper.filterspec.ExprNodeAdapterBase;
+import com.espertech.esper.filterspec.FilterBooleanExpressionFactory;
+import com.espertech.esper.filterspec.FilterSpecParamExprNode;
 
 import java.lang.annotation.Annotation;
 
 public class FilterBooleanExpressionFactoryImpl implements FilterBooleanExpressionFactory {
 
-    public ExprNodeAdapterBase make(FilterSpecParamExprNode node, EventBean[] events, ExprEvaluatorContext exprEvaluatorContext, StatementContext statementContext, int agentInstanceId) {
+    public ExprNodeAdapterBase make(FilterSpecParamExprNode node, EventBean[] events, ExprEvaluatorContext exprEvaluatorContext, int agentInstanceId, EngineImportService engineImportService, Annotation[] annotations) {
 
         int filterSpecId = node.getFilterSpecId();
         int filterSpecParamPathNum = node.getFilterSpecParamPathNum();
@@ -36,17 +40,19 @@ public class FilterBooleanExpressionFactoryImpl implements FilterBooleanExpressi
 
         // non-pattern case
         ExprNodeAdapterBase adapter;
+        ExprEvaluator exprEvaluator = ExprNodeCompiler.allocateEvaluator(exprNode.getForge(), engineImportService, this.getClass(), false, exprEvaluatorContext.getStatementName());
+
         if (events == null) {
 
             // if a subquery is present in a filter stream acquire the agent instance lock
             if (node.isHasFilterStreamSubquery()) {
-                adapter = getLockableSingle(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService, statementContext, agentInstanceId);
+                adapter = getLockableSingle(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableService, engineImportService, annotations, agentInstanceId);
             } else if (!node.isHasVariable()) {
                 // no-variable no-prior event evaluation
-                adapter = new ExprNodeAdapterBase(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, statementContext.getEngineImportService(), statementContext.getAnnotations());
+                adapter = new ExprNodeAdapterBase(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, engineImportService);
             } else {
                 // with-variable no-prior event evaluation
-                adapter = new ExprNodeAdapterBaseVariables(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService, statementContext.getEngineImportService(), statementContext.getAnnotations());
+                adapter = new ExprNodeAdapterBaseVariables(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableService, engineImportService, annotations);
             }
         } else {
             // pattern cases
@@ -55,16 +61,16 @@ public class FilterBooleanExpressionFactoryImpl implements FilterBooleanExpressi
                 // no-threadlocal evaluation
                 // if a subquery is present in a pattern filter acquire the agent instance lock
                 if (node.isHasFilterStreamSubquery()) {
-                    adapter = getLockableMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, statementContext.getEngineImportService(), events, statementContext.getAnnotations());
+                    adapter = getLockableMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
                 } else {
-                    adapter = new ExprNodeAdapterMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, statementContext.getEngineImportService(), events, statementContext.getAnnotations());
+                    adapter = new ExprNodeAdapterMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
                 }
             } else {
                 if (node.isHasFilterStreamSubquery()) {
-                    adapter = getLockableMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, statementContext.getEngineImportService(), events, statementContext.getAnnotations());
+                    adapter = getLockableMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
                 } else {
                     // evaluation with threadlocal cache
-                    adapter = new ExprNodeAdapterMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, statementContext.getEngineImportService(), events, statementContext.getAnnotations());
+                    adapter = new ExprNodeAdapterMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
                 }
             }
         }
@@ -74,18 +80,18 @@ public class FilterBooleanExpressionFactoryImpl implements FilterBooleanExpressi
         }
 
         // handle table
-        return new ExprNodeAdapterBaseWTableAccess(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, adapter, node.getTableService(), statementContext.getEngineImportService(), statementContext.getAnnotations());
+        return new ExprNodeAdapterBaseWTableAccess(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, adapter, node.getTableService(), engineImportService, annotations);
     }
 
-    protected ExprNodeAdapterBase getLockableSingle(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext exprEvaluatorContext, VariableService variableService, StatementContext statementContext, int agentInstanceId) {
-        return new ExprNodeAdapterBaseStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService, statementContext.getEngineImportService(), statementContext.getAnnotations());
+    protected ExprNodeAdapterBase getLockableSingle(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluator exprEvaluator, ExprEvaluatorContext exprEvaluatorContext, VariableService variableService, EngineImportService engineImportService, Annotation[] annotations, int agentInstanceId) {
+        return new ExprNodeAdapterBaseStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableService, engineImportService, annotations);
     }
 
-    protected ExprNodeAdapterBase getLockableMultiStreamNoTL(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext exprEvaluatorContext, VariableService variableServiceToUse, EngineImportService engineImportService, EventBean[] events, Annotation[] annotations) {
-        return new ExprNodeAdapterMultiStreamNoTLStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
+    protected ExprNodeAdapterBase getLockableMultiStreamNoTL(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluator exprEvaluator, ExprEvaluatorContext exprEvaluatorContext, VariableService variableServiceToUse, EngineImportService engineImportService, EventBean[] events, Annotation[] annotations) {
+        return new ExprNodeAdapterMultiStreamNoTLStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
     }
 
-    protected ExprNodeAdapterBase getLockableMultiStream(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext exprEvaluatorContext, VariableService variableServiceToUse, EngineImportService engineImportService, EventBean[] events, Annotation[] annotations) {
-        return new ExprNodeAdapterMultiStreamStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
+    protected ExprNodeAdapterBase getLockableMultiStream(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluator exprEvaluator, ExprEvaluatorContext exprEvaluatorContext, VariableService variableServiceToUse, EngineImportService engineImportService, EventBean[] events, Annotation[] annotations) {
+        return new ExprNodeAdapterMultiStreamStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, exprEvaluatorContext, variableServiceToUse, engineImportService, events, annotations);
     }
 }

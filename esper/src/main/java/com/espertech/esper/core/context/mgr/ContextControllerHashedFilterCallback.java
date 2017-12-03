@@ -17,6 +17,8 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.epl.spec.ContextDetailHashItem;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.FilterValueSet;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.Collection;
 
@@ -36,7 +38,7 @@ public class ContextControllerHashedFilterCallback implements FilterHandleCallba
         filterHandle = new EPStatementHandleCallback(agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle(), this);
 
         FilterValueSetParam[][] addendum = filterAddendum != null ? filterAddendum.getFilterAddendum(hashItem.getFilterSpecCompiled()) : null;
-        FilterValueSet filterValueSet = hashItem.getFilterSpecCompiled().getValueSet(null, null, addendum);
+        FilterValueSet filterValueSet = hashItem.getFilterSpecCompiled().getValueSet(null, addendum, null, null, null);
         filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.FilterOperator;
+
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**

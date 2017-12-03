@@ -12,7 +12,7 @@ package com.espertech.esper.supportunit.pattern;
 
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.pattern.MatchedEventMapMeta;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.schedule.SchedulingService;

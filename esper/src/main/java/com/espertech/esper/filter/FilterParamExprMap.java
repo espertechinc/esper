@@ -11,6 +11,7 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.filterspec.FilterSpecParam;
 
 import java.util.*;
 

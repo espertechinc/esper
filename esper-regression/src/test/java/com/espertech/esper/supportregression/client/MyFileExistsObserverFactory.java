@@ -13,6 +13,7 @@ package com.espertech.esper.supportregression.client;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.pattern.observer.EventObserver;
 import com.espertech.esper.pattern.observer.ObserverEventEvaluator;

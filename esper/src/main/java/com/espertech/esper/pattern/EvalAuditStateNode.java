@@ -13,6 +13,7 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.EventBeanSummarizer;
 import com.espertech.esper.util.JavaClassHelper;

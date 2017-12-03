@@ -23,8 +23,8 @@ import com.espertech.esper.epl.spec.ContextDetailCondition;
 import com.espertech.esper.epl.spec.ContextDetailConditionCrontab;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.filter.FilterFaultHandler;
-import com.espertech.esper.pattern.MatchedEventMap;
-import com.espertech.esper.pattern.MatchedEventMapImpl;
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapImpl;
 import com.espertech.esper.schedule.ScheduleComputeHelper;
 import com.espertech.esper.schedule.ScheduleSpec;
 

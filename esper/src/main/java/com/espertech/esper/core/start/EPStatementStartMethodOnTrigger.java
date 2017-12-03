@@ -44,7 +44,7 @@ import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.epl.named.NamedWindowOnExprFactory;
 import com.espertech.esper.epl.named.NamedWindowOnExprFactoryFactory;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.property.PropertyEvaluator;
+import com.espertech.esper.filterspec.PropertyEvaluator;
 import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.pattern;
 
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

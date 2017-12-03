@@ -21,9 +21,9 @@ import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.filter.FilterFaultHandler;
 import com.espertech.esper.filter.FilterHandleCallback;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.pattern.MatchedEventMap;
-import com.espertech.esper.pattern.MatchedEventMapImpl;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapImpl;
 
 import java.util.*;
 

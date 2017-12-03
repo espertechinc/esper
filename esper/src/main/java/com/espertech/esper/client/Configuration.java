@@ -11,7 +11,6 @@
 package com.espertech.esper.client;
 
 import com.espertech.esper.client.annotation.Name;
-import com.espertech.esper.dataflow.ops.BeaconSource;
 import com.espertech.esper.event.EventTypeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1155,7 +1154,7 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         imports.add("java.text.*");
         imports.add("java.util.*");
         imports.add(ANNOTATION_IMPORT);
-        imports.add(BeaconSource.class.getPackage().getName() + ".*");
+        imports.add("com.espertech.esper.dataflow.ops.*");
     }
 
     /**

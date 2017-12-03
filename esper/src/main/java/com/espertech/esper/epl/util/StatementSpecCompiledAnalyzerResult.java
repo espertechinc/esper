@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.util;
 
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
 
 import java.util.List;
 

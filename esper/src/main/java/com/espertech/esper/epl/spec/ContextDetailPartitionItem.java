@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.io.Serializable;
 import java.util.List;
@@ -48,7 +48,7 @@ public class ContextDetailPartitionItem implements Serializable {
 
     public void setFilterSpecCompiled(FilterSpecCompiled filterSpecCompiled) {
         this.filterSpecCompiled = filterSpecCompiled;
-        this.parametersCompiled = filterSpecCompiled.getValueSet(null, null, null).getParameters();
+        this.parametersCompiled = filterSpecCompiled.getValueSet(null, null, null, null, null).getParameters();
     }
 
     public EventPropertyGetter[] getGetters() {

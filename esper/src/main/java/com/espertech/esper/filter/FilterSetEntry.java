@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.FilterValueSet;
+
 import java.io.StringWriter;
 
 /**

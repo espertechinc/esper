@@ -25,9 +25,9 @@ import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.filter.FilterFaultHandler;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecLookupable;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -244,7 +244,7 @@ public class ContextManagerImpl extends ContextManagerBase implements ContextMan
         }
     }
 
-    public FilterSpecLookupable getFilterLookupable(EventType eventType) {
+    public ExprFilterSpecLookupable getFilterLookupable(EventType eventType) {
         return factory.getFilterLookupable(eventType);
     }
 

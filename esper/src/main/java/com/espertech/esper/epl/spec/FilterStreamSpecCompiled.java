@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
 
 /**
  * Specification for building an event stream out of a filter for events (supplying type and basic filter criteria)

@@ -19,6 +19,8 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.EventStream;
 import com.espertech.esper.view.ZeroDepthStreamIterable;
@@ -193,7 +195,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService {
         }
 
         // Activate filter
-        FilterValueSet filterValues = filterSpec.getValueSet(null, agentInstanceContext, null);
+        FilterValueSet filterValues = filterSpec.getValueSet(null, null, agentInstanceContext, agentInstanceContext.getEngineImportService(), agentInstanceContext.getAnnotations());
         FilterServiceEntry filterServiceEntry = filterService.add(filterValues, handle);
         entry.setFilterServiceEntry(filterServiceEntry);
 

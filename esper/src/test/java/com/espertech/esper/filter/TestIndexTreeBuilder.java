@@ -12,6 +12,9 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.filter.SupportFilterHandle;
@@ -262,7 +265,6 @@ public class TestIndexTreeBuilder extends TestCase {
 
     private FilterValueSet makeFilterValues(Object... filterSpecArgs) {
         FilterSpecCompiled spec = SupportFilterSpecBuilder.build(eventType, filterSpecArgs);
-        FilterValueSet filterValues = spec.getValueSet(null, null, null);
-        return filterValues;
+        return spec.getValueSet(null, null, null, null, null);
     }
 }

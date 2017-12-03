@@ -17,6 +17,7 @@ import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.filterspec.PropertyEvaluator;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;

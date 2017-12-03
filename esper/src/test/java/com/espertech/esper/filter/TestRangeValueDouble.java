@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.FilterSpecParamFilterForEval;
 import junit.framework.TestCase;
 
 public class TestRangeValueDouble extends TestCase {

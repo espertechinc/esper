@@ -14,6 +14,7 @@ import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.*;
 import com.espertech.esper.pattern.EvalFilterFactoryNode;
 import com.espertech.esper.pattern.EvalNodeAnalysisResult;
 import com.espertech.esper.pattern.EvalNodeUtil;

@@ -11,6 +11,7 @@
 package com.espertech.esper.pattern;
 
 import com.espertech.esper.core.service.EPStatementHandleCallback;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.pattern.guard.Guard;
 import com.espertech.esper.pattern.observer.EventObserver;
 

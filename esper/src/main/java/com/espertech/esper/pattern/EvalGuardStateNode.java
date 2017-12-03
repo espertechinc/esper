@@ -11,6 +11,7 @@
 package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.guard.Guard;
 import com.espertech.esper.pattern.guard.Quitable;

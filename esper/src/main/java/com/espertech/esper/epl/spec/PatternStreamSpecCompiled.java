@@ -13,7 +13,7 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.pattern.EvalFactoryNode;
-import com.espertech.esper.pattern.MatchedEventMapMeta;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;

@@ -12,6 +12,8 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodPointInsideRectange;
 import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodRectangeIntersectsRectangle;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 
 /**
  * Factory for {@link FilterParamIndexBase} instances based on event property name and filter operator type.
@@ -27,7 +29,7 @@ public class IndexFactory {
      * @param lookupable     the lookup item
      * @return the proper index based on the filter operator type
      */
-    public static FilterParamIndexBase createIndex(FilterSpecLookupable lookupable, FilterServiceGranularLockFactory lockFactory, FilterOperator filterOperator) {
+    public static FilterParamIndexBase createIndex(ExprFilterSpecLookupable lookupable, FilterServiceGranularLockFactory lockFactory, FilterOperator filterOperator) {
         FilterParamIndexBase index;
         Class returnValueType = lookupable.getReturnType();
 

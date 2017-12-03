@@ -18,7 +18,7 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.core.service.StatementAgentInstanceFilterVersion;
 import com.espertech.esper.epl.spec.ContextDetailConditionTimePeriod;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

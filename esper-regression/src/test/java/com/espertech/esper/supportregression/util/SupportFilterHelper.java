@@ -15,6 +15,9 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.filterspec.FilterValueSet;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.Arrays;
 import java.util.Collections;

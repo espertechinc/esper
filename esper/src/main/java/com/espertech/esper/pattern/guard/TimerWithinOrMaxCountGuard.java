@@ -13,13 +13,13 @@ package com.espertech.esper.pattern.guard;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 
 /**
  * Guard implementation that keeps a timer instance and quits when the timer expired,
  * and also keeps a count of the number of matches so far, checking both count and timer,
- * letting all {@link com.espertech.esper.pattern.MatchedEventMap} instances pass until then.
+ * letting all {@link MatchedEventMap} instances pass until then.
  */
 public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback {
     private final long deltaTime;

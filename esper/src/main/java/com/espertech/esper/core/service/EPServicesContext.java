@@ -39,7 +39,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeIdGenerator;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
-import com.espertech.esper.filter.FilterBooleanExpressionFactory;
+import com.espertech.esper.filterspec.FilterBooleanExpressionFactory;
 import com.espertech.esper.filter.FilterNonPropertyRegisteryService;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;

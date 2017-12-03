@@ -11,7 +11,7 @@
 package com.espertech.esper.spatial.quadtree.core;
 
 import com.espertech.esper.spatial.quadtree.mxcif.SupportRectangleWithId;
-import com.espertech.esper.spatial.quadtree.pointregion.XYPoint;
+import com.espertech.esper.type.XYPoint;
 
 import java.util.*;
 

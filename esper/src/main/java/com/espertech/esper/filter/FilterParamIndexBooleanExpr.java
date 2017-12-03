@@ -11,6 +11,8 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.ExprNodeAdapterBase;
+import com.espertech.esper.filterspec.FilterOperator;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Collection;

@@ -12,6 +12,8 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBeanSimple;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
@@ -44,16 +46,16 @@ public class TestFilterServiceImpl extends TestCase {
         eventTypeTwo = SupportEventTypeFactory.createBeanType(SupportBeanSimple.class);
 
         filterSpecs = new Vector<FilterValueSet>();
-        filterSpecs.add(SupportFilterSpecBuilder.build(eventTypeOne, new Object[0]).getValueSet(null, null, null));
+        filterSpecs.add(SupportFilterSpecBuilder.build(eventTypeOne, new Object[0]).getValueSet(null, null, null, null, null));
         filterSpecs.add(SupportFilterSpecBuilder.build(eventTypeOne, new Object[]{
                 "intPrimitive", FilterOperator.RANGE_CLOSED, 10, 20,
                 "theString", FilterOperator.EQUAL, "HELLO",
                 "boolPrimitive", FilterOperator.EQUAL, false,
-                "doubleBoxed", FilterOperator.GREATER, 100d}).getValueSet(null, null, null));
-        filterSpecs.add(SupportFilterSpecBuilder.build(eventTypeTwo, new Object[0]).getValueSet(null, null, null));
+                "doubleBoxed", FilterOperator.GREATER, 100d}).getValueSet(null, null, null, null, null));
+        filterSpecs.add(SupportFilterSpecBuilder.build(eventTypeTwo, new Object[0]).getValueSet(null, null, null, null, null));
         filterSpecs.add(SupportFilterSpecBuilder.build(eventTypeTwo, new Object[]{
                 "myInt", FilterOperator.RANGE_HALF_CLOSED, 1, 10,
-                "myString", FilterOperator.EQUAL, "Hello"}).getValueSet(null, null, null));
+                "myString", FilterOperator.EQUAL, "Hello"}).getValueSet(null, null, null, null, null));
 
         // Create callbacks and add
         filterCallbacks = new Vector<SupportFilterHandle>();
@@ -129,7 +131,7 @@ public class TestFilterServiceImpl extends TestCase {
      * thus needs to be removed from the tree AND the current dispatch list.
      */
     public void testActiveCallbackRemove() {
-        FilterValueSet spec = SupportFilterSpecBuilder.build(eventTypeOne, new Object[0]).getValueSet(null, null, null);
+        FilterValueSet spec = SupportFilterSpecBuilder.build(eventTypeOne, new Object[0]).getValueSet(null, null, null, null, null);
         final SupportFilterHandle callbackTwo = new SupportFilterHandle();
 
         // callback that removes another matching filter spec callback

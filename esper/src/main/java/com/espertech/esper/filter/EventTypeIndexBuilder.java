@@ -12,6 +12,7 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.*;

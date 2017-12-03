@@ -11,6 +11,7 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBeanSimple;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
@@ -40,8 +41,8 @@ public class TestEventTypeIndexBuilder extends TestCase {
         typeOne = SupportEventTypeFactory.createBeanType(SupportBean.class);
         typeTwo = SupportEventTypeFactory.createBeanType(SupportBeanSimple.class);
 
-        valueSetOne = SupportFilterSpecBuilder.build(typeOne, new Object[0]).getValueSet(null, null, null);
-        valueSetTwo = SupportFilterSpecBuilder.build(typeTwo, new Object[0]).getValueSet(null, null, null);
+        valueSetOne = SupportFilterSpecBuilder.build(typeOne, new Object[0]).getValueSet(null, null, null, null, null);
+        valueSetTwo = SupportFilterSpecBuilder.build(typeTwo, new Object[0]).getValueSet(null, null, null, null, null);
 
         callbackOne = new SupportFilterHandle();
         callbackTwo = new SupportFilterHandle();

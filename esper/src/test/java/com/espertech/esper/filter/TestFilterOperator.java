@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.FilterOperator;
 import junit.framework.TestCase;
 
 public class TestFilterOperator extends TestCase {

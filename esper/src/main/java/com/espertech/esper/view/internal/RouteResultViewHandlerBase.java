@@ -43,7 +43,7 @@ public abstract class RouteResultViewHandlerBase implements RouteResultViewHandl
         this.processors = processors;
         this.whereClauses = whereClauses;
         this.agentInstanceContext = agentInstanceContext;
-        this.audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getStatementContext().getAnnotations()) != null;
+        this.audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getAnnotations()) != null;
     }
 
     boolean checkWhereClauseCurrentEvent(int index, ExprEvaluatorContext exprEvaluatorContext) {

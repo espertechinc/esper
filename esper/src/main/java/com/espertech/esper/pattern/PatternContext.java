@@ -17,6 +17,7 @@ import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.filter.FilterService;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.TimeProvider;

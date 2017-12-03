@@ -18,7 +18,7 @@ import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValue;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueEquals;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueRange;
 import com.espertech.esper.epl.join.plan.QueryGraphRangeEnum;
-import com.espertech.esper.filter.Range;
+import com.espertech.esper.filterspec.Range;
 
 import java.util.*;
 

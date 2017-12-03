@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.core.context.mgr;
 
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 public interface AgentInstanceFilterProxy {
     public FilterValueSetParam[][] getAddendumFilters(FilterSpecCompiled filterSpec);

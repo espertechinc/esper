@@ -19,10 +19,10 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetailInitiatedTerminated;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecLookupable;
-import com.espertech.esper.filter.FilterValueSetParam;
-import com.espertech.esper.pattern.MatchedEventMapMeta;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterValueSetParam;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.TimeProvider;
 
@@ -62,7 +62,7 @@ public abstract class ContextControllerInitTermFactoryBase extends ContextContro
     public void populateFilterAddendums(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum, ContextControllerStatementDesc statement, Object key, int contextId) {
     }
 
-    public FilterSpecLookupable getFilterLookupable(EventType eventType) {
+    public ExprFilterSpecLookupable getFilterLookupable(EventType eventType) {
         return null;
     }
 

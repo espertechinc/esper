@@ -13,7 +13,7 @@ package com.espertech.esper.pattern.guard;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.pattern.EvalStateNodeNumber;
 import com.espertech.esper.pattern.MatchedEventConvertor;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.util.JavaClassHelper;
 

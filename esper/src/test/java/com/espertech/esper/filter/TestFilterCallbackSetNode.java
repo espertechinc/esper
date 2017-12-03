@@ -12,6 +12,7 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBeanSimple;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
@@ -53,7 +54,7 @@ public class TestFilterCallbackSetNode extends TestCase {
 
         // Add an indexOne
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
-        FilterSpecLookupable lookupable = new FilterSpecLookupable("intPrimitive", eventType.getGetter("intPrimitive"), eventType.getPropertyType("intPrimitive"), false);
+        ExprFilterSpecLookupable lookupable = new ExprFilterSpecLookupable("intPrimitive", eventType.getGetter("intPrimitive"), eventType.getPropertyType("intPrimitive"), false);
         FilterParamIndexBase indexOne = new SupportFilterParamIndex(lookupable);
         testNode.add(indexOne);
 
@@ -98,7 +99,7 @@ public class TestFilterCallbackSetNode extends TestCase {
         assertEquals(expr, matches.get(0));
     }
 
-    private FilterSpecLookupable makeLookupable(String fieldName, EventType eventType) {
-        return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
+    private ExprFilterSpecLookupable makeLookupable(String fieldName, EventType eventType) {
+        return new ExprFilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
     }
 }

@@ -18,9 +18,9 @@ import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.epl.spec.ContextDetailConditionFilter;
 import com.espertech.esper.filter.FilterHandleCallback;
 import com.espertech.esper.filter.FilterServiceEntry;
-import com.espertech.esper.filter.FilterValueSet;
-import com.espertech.esper.filter.FilterValueSetParam;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.FilterValueSet;
+import com.espertech.esper.filterspec.FilterValueSetParam;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +68,7 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
         }
 
         filterHandle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), filterCallback);
-        FilterValueSet filterValueSet = endpointFilterSpec.getFilterSpecCompiled().getValueSet(null, agentInstanceContext, addendum);
+        FilterValueSet filterValueSet = endpointFilterSpec.getFilterSpecCompiled().getValueSet(null, addendum, agentInstanceContext, agentInstanceContext.getEngineImportService(), agentInstanceContext.getAnnotations());
         filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);

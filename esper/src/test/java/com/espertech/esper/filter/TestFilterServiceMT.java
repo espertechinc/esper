@@ -12,6 +12,9 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.supportunit.filter.SupportFilterHandle;
@@ -32,7 +35,7 @@ public class TestFilterServiceMT extends TestCase {
     private void runAssertionAddRemoveFilter(final FilterService service) throws Exception {
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         FilterSpecCompiled spec = SupportFilterSpecBuilder.build(eventType, new Object[]{"string", FilterOperator.EQUAL, "HELLO"});
-        final FilterValueSet filterValues = spec.getValueSet(null, null, null);
+        final FilterValueSet filterValues = spec.getValueSet(null, null, null, null, null);
 
         Callable callables[] = new Callable[5];
         for (int i = 0; i < callables.length; i++) {

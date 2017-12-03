@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
@@ -23,7 +26,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * Implementations make sure that the type of the Object constant in get and put calls matches the event property type.
  */
 public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBase {
-    protected final FilterSpecLookupable lookupable;
+    protected final ExprFilterSpecLookupable lookupable;
 
     /**
      * Constructor.
@@ -31,7 +34,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * @param filterOperator is the type of comparison performed.
      * @param lookupable     is the lookupable
      */
-    public FilterParamIndexLookupableBase(FilterOperator filterOperator, FilterSpecLookupable lookupable) {
+    public FilterParamIndexLookupableBase(FilterOperator filterOperator, ExprFilterSpecLookupable lookupable) {
         super(filterOperator);
         this.lookupable = lookupable;
     }
@@ -87,7 +90,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
         return super.toString() + " lookupable=" + lookupable;
     }
 
-    public FilterSpecLookupable getLookupable() {
+    public ExprFilterSpecLookupable getLookupable() {
         return lookupable;
     }
 }

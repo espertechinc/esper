@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.DoubleRange;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +32,7 @@ public abstract class FilterParamIndexDoubleRangeBase extends FilterParamIndexLo
 
     protected double largestRangeValueDouble = Double.MIN_VALUE;
 
-    protected FilterParamIndexDoubleRangeBase(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
+    protected FilterParamIndexDoubleRangeBase(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(filterOperator, lookupable);
 
         ranges = new TreeMap<DoubleRange, EventEvaluator>(new DoubleRangeComparator());

@@ -11,9 +11,9 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecLookupable;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.io.Serializable;
 
@@ -25,7 +25,7 @@ public class ContextDetailHashItem implements Serializable {
 
     private transient FilterValueSetParam[][] parametersCompiled;
     private transient FilterSpecCompiled filterSpecCompiled;
-    private FilterSpecLookupable lookupable;
+    private ExprFilterSpecLookupable lookupable;
 
     public ContextDetailHashItem(ExprChainedSpec function, FilterSpecRaw filterSpecRaw) {
         this.function = function;
@@ -46,18 +46,18 @@ public class ContextDetailHashItem implements Serializable {
 
     public void setFilterSpecCompiled(FilterSpecCompiled filterSpecCompiled) {
         this.filterSpecCompiled = filterSpecCompiled;
-        this.parametersCompiled = filterSpecCompiled.getValueSet(null, null, null).getParameters();
+        this.parametersCompiled = filterSpecCompiled.getValueSet(null, null, null, null, null).getParameters();
     }
 
     public FilterValueSetParam[][] getParametersCompiled() {
         return parametersCompiled;
     }
 
-    public FilterSpecLookupable getLookupable() {
+    public ExprFilterSpecLookupable getLookupable() {
         return lookupable;
     }
 
-    public void setLookupable(FilterSpecLookupable lookupable) {
+    public void setLookupable(ExprFilterSpecLookupable lookupable) {
         this.lookupable = lookupable;
     }
 }

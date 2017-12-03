@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.StringRange;
+
 import java.io.Serializable;
 import java.util.Comparator;
 

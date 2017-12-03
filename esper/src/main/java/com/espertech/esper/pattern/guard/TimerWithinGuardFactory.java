@@ -13,6 +13,7 @@ package com.espertech.esper.pattern.guard;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.util.JavaClassHelper;
 

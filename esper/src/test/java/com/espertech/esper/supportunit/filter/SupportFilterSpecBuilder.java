@@ -11,7 +11,9 @@
 package com.espertech.esper.supportunit.filter;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,8 +46,8 @@ public class SupportFilterSpecBuilder {
         return filterParams;
     }
 
-    private static FilterSpecLookupable makeLookupable(EventType eventType, String fieldName) {
-        return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
+    private static ExprFilterSpecLookupable makeLookupable(EventType eventType, String fieldName) {
+        return new ExprFilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
     }
 }
 

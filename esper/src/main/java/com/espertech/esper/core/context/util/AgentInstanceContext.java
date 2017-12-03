@@ -12,6 +12,7 @@ package com.espertech.esper.core.context.util;
 
 import com.espertech.esper.core.context.mgr.AgentInstanceFilterProxy;
 import com.espertech.esper.core.service.*;
+import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
@@ -19,6 +20,7 @@ import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.util.StopCallback;
 
+import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -145,5 +147,17 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
             statementContextCPPair = new StatementContextCPPair(statementContext.getStatementId(), agentInstanceId, statementContext);
         }
         return statementContextCPPair;
+    }
+
+    public Annotation[] getAnnotations() {
+        return statementContext.getAnnotations();
+    }
+
+    public EngineImportService getEngineImportService() {
+        return statementContext.getEngineImportService();
+    }
+
+    public StatementExtensionSvcContext getStatementExtensionSvcContext() {
+        return statementContext.getStatementExtensionServicesContext();
     }
 }

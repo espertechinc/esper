@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.pattern.observer;
 
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.supportunit.pattern.SupportMatchedEventConvertor;
 import com.espertech.esper.supportunit.pattern.SupportPatternContextFactory;

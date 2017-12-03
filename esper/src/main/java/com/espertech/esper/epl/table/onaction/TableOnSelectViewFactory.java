@@ -44,7 +44,7 @@ public class TableOnSelectViewFactory implements TableOnViewFactory {
     }
 
     public TableOnViewBase make(SubordWMatchExprLookupStrategy lookupStrategy, TableStateInstance tableState, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor) {
-        boolean audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getStatementContext().getAnnotations()) != null;
+        boolean audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getAnnotations()) != null;
         return new TableOnSelectView(lookupStrategy, tableState, agentInstanceContext, tableMetadata, this, resultSetProcessor, audit, deleteAndSelect);
     }
 

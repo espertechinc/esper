@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.pattern;
 
+import com.espertech.esper.filterspec.MatchedEventMap;
+
 /**
  * Interface for a root state node accepting a callback to use to indicate pattern results.
  */

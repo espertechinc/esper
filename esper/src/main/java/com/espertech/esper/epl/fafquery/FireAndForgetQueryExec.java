@@ -34,9 +34,9 @@ import com.espertech.esper.epl.join.util.QueryPlanIndexHook;
 import com.espertech.esper.epl.join.util.QueryPlanIndexHookUtil;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.filter.DoubleRange;
-import com.espertech.esper.filter.Range;
-import com.espertech.esper.filter.StringRange;
+import com.espertech.esper.filterspec.DoubleRange;
+import com.espertech.esper.filterspec.Range;
+import com.espertech.esper.filterspec.StringRange;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.NullableObject;
@@ -330,7 +330,7 @@ public class FireAndForgetQueryExec {
     }
 
     private static void queryPlanReport(String indexNameOrNull, EventTable eventTableOrNull, Annotation[] annotations, AgentInstanceContext agentInstanceContext, boolean queryPlanLogging, Logger queryPlanLogDestination, String objectName) {
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, agentInstanceContext.getStatementContext().getEngineImportService());
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, agentInstanceContext.getEngineImportService());
         if (queryPlanLogging && (queryPlanLogDestination.isInfoEnabled() || hook != null)) {
             String prefix = "Fire-and-forget from " + objectName + " ";
             String indexText = indexNameOrNull != null ? "index " + indexNameOrNull + " " : "full table scan ";

@@ -27,6 +27,8 @@ import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -117,7 +119,7 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
             }
             FilterSpecCompiled spec = FilterSpecCompiler.makeFilterSpec(eventType, eventType.getName(), filters, null,
                     null, null, new StreamTypeServiceImpl(eventType, eventType.getName(), true, agentInstanceContext.getEngineURI()), null, agentInstanceContext.getStatementContext(), new ArrayList<Integer>());
-            valueSet = spec.getValueSet(null, agentInstanceContext, null);
+            valueSet = spec.getValueSet(null, null, agentInstanceContext, agentInstanceContext.getEngineImportService(), agentInstanceContext.getAnnotations());
         } catch (ExprValidationException ex) {
             throw new EPException("Failed to open filter: " + ex.getMessage(), ex);
         }

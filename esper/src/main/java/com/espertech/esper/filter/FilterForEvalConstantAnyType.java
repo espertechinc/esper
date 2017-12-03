@@ -11,7 +11,8 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.FilterSpecParamInValue;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 /**
  * Constant value in a list of values following an in-keyword.

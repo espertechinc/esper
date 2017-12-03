@@ -11,6 +11,7 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 
 /**
  * Service to provide engine-wide access to filter expressions that do not originate from
@@ -24,7 +25,7 @@ public interface FilterNonPropertyRegisteryService {
      * @param eventType     event type
      * @param lookupable    filter expression
      */
-    void registerNonPropertyExpression(String statementName, EventType eventType, FilterSpecLookupable lookupable);
+    void registerNonPropertyExpression(String statementName, EventType eventType, ExprFilterSpecLookupable lookupable);
 
     /**
      * Obtain expression
@@ -33,7 +34,7 @@ public interface FilterNonPropertyRegisteryService {
      * @param expression    expression text
      * @return lookupable
      */
-    FilterSpecLookupable getNonPropertyExpression(String eventTypeName, String expression);
+    ExprFilterSpecLookupable getNonPropertyExpression(String eventTypeName, String expression);
 
     /**
      * Remove references to expression

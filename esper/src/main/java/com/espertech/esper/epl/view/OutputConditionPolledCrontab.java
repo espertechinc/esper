@@ -42,7 +42,7 @@ public final class OutputConditionPolledCrontab implements OutputConditionPolled
 
         boolean output = false;
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        EngineImportService engineImportService = agentInstanceContext.getStatementContext().getEngineImportService();
+        EngineImportService engineImportService = agentInstanceContext.getEngineImportService();
         if (state.getCurrentReferencePoint() == null) {
             state.setCurrentReferencePoint(currentTime);
             state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, engineImportService.getTimeZone(), engineImportService.getTimeAbacus()));

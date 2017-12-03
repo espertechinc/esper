@@ -21,6 +21,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.filterspec.FilterBooleanExpressionFactory;
 import com.espertech.esper.schedule.TimeProvider;
 
 import java.lang.annotation.Annotation;

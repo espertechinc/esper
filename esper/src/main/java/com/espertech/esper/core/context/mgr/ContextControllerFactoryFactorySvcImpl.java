@@ -11,7 +11,7 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.epl.spec.*;
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
 
 import java.util.List;
 

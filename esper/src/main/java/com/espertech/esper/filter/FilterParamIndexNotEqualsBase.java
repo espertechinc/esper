@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -22,7 +25,7 @@ public abstract class FilterParamIndexNotEqualsBase extends FilterParamIndexLook
     protected final Map<Object, EventEvaluator> constantsMap;
     protected final ReadWriteLock constantsMapRWLock;
 
-    protected FilterParamIndexNotEqualsBase(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
+    protected FilterParamIndexNotEqualsBase(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(filterOperator, lookupable);
 
         constantsMap = new HashMap<Object, EventEvaluator>();

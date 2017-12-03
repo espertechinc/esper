@@ -13,6 +13,8 @@ package com.espertech.esper.supportunit.filter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.supportunit.util.ObjectReservationSingleton;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
@@ -56,7 +58,7 @@ public class IndexTreeBuilderRunnable implements Runnable {
         while (!ObjectReservationSingleton.getInstance().reserve(filterSpec));
 
         // Add expression
-        FilterValueSet filterValues = filterSpec.getValueSet(null, null, null);
+        FilterValueSet filterValues = filterSpec.getValueSet(null, null, null, null, null);
         FilterHandle filterCallback = new SupportFilterHandle();
         ArrayDeque<EventTypeIndexBuilderIndexLookupablePair>[] pathAddedTo = IndexTreeBuilder.add(filterValues, filterCallback, topNode, lockFactory);
 

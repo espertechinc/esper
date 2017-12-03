@@ -24,7 +24,7 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
-import com.espertech.esper.filter.FilterSpecLookupable;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -101,10 +101,10 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         return eligible;
     }
 
-    public FilterSpecLookupable getFilterLookupable() {
+    public ExprFilterSpecLookupable getFilterLookupable() {
         checkValidated(forge);
         ExprDotNodeForgeStaticMethodEval eval = (ExprDotNodeForgeStaticMethodEval) forge.getExprEvaluator();
-        return new FilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), eval, forge.getEvaluationType(), true);
+        return new ExprFilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), eval, forge.getEvaluationType(), true);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

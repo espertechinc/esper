@@ -11,14 +11,15 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 
 public class FilterNonPropertyRegisteryServiceImpl implements FilterNonPropertyRegisteryService {
 
-    public void registerNonPropertyExpression(String statementName, EventType eventType, FilterSpecLookupable lookupable) {
+    public void registerNonPropertyExpression(String statementName, EventType eventType, ExprFilterSpecLookupable lookupable) {
         // default implementation, no action required
     }
 
-    public FilterSpecLookupable getNonPropertyExpression(String eventTypeName, String expression) {
+    public ExprFilterSpecLookupable getNonPropertyExpression(String eventTypeName, String expression) {
         // default implementation, no action required
         throw new UnsupportedOperationException();
     }

@@ -12,6 +12,9 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
@@ -100,7 +103,7 @@ public class TestIndexTreeBuilderMultithreaded extends TestCase {
     public void testVerifyFilterSpecSet() {
         // Add all the above filter definitions
         for (FilterSpecCompiled filterSpec : testFilterSpecs) {
-            FilterValueSet filterValues = filterSpec.getValueSet(null, null, null);
+            FilterValueSet filterValues = filterSpec.getValueSet(null, null, null, null, null);
             FilterHandle callback = new SupportFilterHandle();
             filterCallbacks.add(callback);
             pathsAddedTo.add(IndexTreeBuilder.add(filterValues, callback, topNode, lockFactory)[0]);

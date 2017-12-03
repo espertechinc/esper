@@ -25,7 +25,6 @@ import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.property.PropertyParser;
-import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -161,8 +160,8 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
         return evaluator.getStreamNum() == 0 && !(evaluator.isContextEvaluated());
     }
 
-    public FilterSpecLookupable getFilterLookupable() {
-        return new FilterSpecLookupable(resolvedPropertyName, evaluator.getGetter(), evaluator.getEvaluationType(), false);
+    public ExprFilterSpecLookupable getFilterLookupable() {
+        return new ExprFilterSpecLookupable(resolvedPropertyName, evaluator.getGetter(), evaluator.getEvaluationType(), false);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {

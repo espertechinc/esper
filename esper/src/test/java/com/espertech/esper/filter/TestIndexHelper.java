@@ -12,6 +12,10 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterValueSetParamImpl;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
@@ -88,7 +92,7 @@ public class TestIndexHelper extends TestCase {
         assertEquals(parameterOne, IndexHelper.findParameter(parameters, indexThree));
     }
 
-    private FilterSpecLookupable makeLookupable(String fieldName) {
-        return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
+    private ExprFilterSpecLookupable makeLookupable(String fieldName) {
+        return new ExprFilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
     }
 }

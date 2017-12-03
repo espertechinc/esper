@@ -27,7 +27,7 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.spec.ExpressionDeclItem;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
-import com.espertech.esper.filter.FilterSpecLookupable;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.util.SerializableObjectCopier;
 
 import java.io.StringWriter;
@@ -229,13 +229,13 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return true;
     }
 
-    public FilterSpecLookupable getFilterLookupable() {
+    public ExprFilterSpecLookupable getFilterLookupable() {
         if (!(forge instanceof ExprDeclaredForgeBase)) {
             return null;
         }
         ExprDeclaredForgeBase declaredForge = (ExprDeclaredForgeBase) forge;
         ExprEvaluator evaluator = declaredForge.getInnerForge().getExprEvaluator();
-        return new FilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(evaluator), forge.getEvaluationType(), true);
+        return new ExprFilterSpecLookupable(ExprNodeUtilityCore.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(evaluator), forge.getEvaluationType(), true);
     }
 
     public boolean isConstantResult() {

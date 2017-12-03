@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.supportregression.util;
 
-import com.espertech.esper.filter.FilterOperator;
+import com.espertech.esper.filterspec.FilterOperator;
 import com.espertech.esper.filter.FilterSpecCompiler;
 
 public class SupportFilterItem {

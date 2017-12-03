@@ -15,7 +15,7 @@ import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.filter.FilterOperator;
+import com.espertech.esper.filterspec.FilterOperator;
 import com.espertech.esper.supportregression.bean.SupportSpatialAABB;
 import com.espertech.esper.supportregression.bean.SupportSpatialDualPoint;
 import com.espertech.esper.supportregression.bean.SupportSpatialPoint;

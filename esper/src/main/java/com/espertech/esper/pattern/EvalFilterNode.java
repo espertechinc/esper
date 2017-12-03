@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.pattern;
 
-import com.espertech.esper.core.context.mgr.ContextControllerAddendumUtil;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterAddendumUtil;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class EvalFilterNode extends EvalNodeBase {
                 if (addendum == null) {
                     addendum = contextAddendum;
                 } else {
-                    addendum = ContextControllerAddendumUtil.multiplyAddendum(addendum, contextAddendum);
+                    addendum = FilterAddendumUtil.multiplyAddendum(addendum, contextAddendum);
                 }
             }
         }

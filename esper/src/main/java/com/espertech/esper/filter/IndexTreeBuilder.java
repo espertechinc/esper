@@ -12,6 +12,8 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.filterspec.FilterValueSet;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

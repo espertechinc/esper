@@ -11,6 +11,10 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterSpecParam;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -35,7 +39,7 @@ public class IndexHelper {
      */
     public static Pair<FilterValueSetParam, FilterParamIndexBase> findIndex(ArrayDeque<FilterValueSetParam> parameters, List<FilterParamIndexBase> indizes) {
         for (FilterValueSetParam parameter : parameters) {
-            FilterSpecLookupable lookupable = parameter.getLookupable();
+            ExprFilterSpecLookupable lookupable = parameter.getLookupable();
             FilterOperator operator = parameter.getFilterOperator();
 
             for (FilterParamIndexBase index : indizes) {
@@ -71,11 +75,11 @@ public class IndexHelper {
                                                     FilterParamIndexBase index) {
         if (index instanceof FilterParamIndexLookupableBase) {
             FilterParamIndexLookupableBase propBasedIndex = (FilterParamIndexLookupableBase) index;
-            FilterSpecLookupable indexLookupable = propBasedIndex.getLookupable();
+            ExprFilterSpecLookupable indexLookupable = propBasedIndex.getLookupable();
             FilterOperator indexOperator = propBasedIndex.getFilterOperator();
 
             for (FilterValueSetParam parameter : parameters) {
-                FilterSpecLookupable lookupable = parameter.getLookupable();
+                ExprFilterSpecLookupable lookupable = parameter.getLookupable();
                 FilterOperator paramOperator = parameter.getFilterOperator();
 
                 if ((lookupable.equals(indexLookupable)) &&

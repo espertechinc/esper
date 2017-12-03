@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class ContextDetailCategory implements ContextDetail {
 
     public void setFilterSpecCompiled(FilterSpecCompiled filterSpec) {
         this.filterSpecCompiled = filterSpec;
-        this.filterParamsCompiled = filterSpecCompiled.getValueSet(null, null, null).getParameters();
+        this.filterParamsCompiled = filterSpecCompiled.getValueSet(null, null, null, null, null).getParameters();
     }
 
     public FilterSpecCompiled getFilterSpecCompiled() {

@@ -11,6 +11,8 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * The implementation is based on a regular HashMap.
  */
 public final class FilterParamIndexNotEquals extends FilterParamIndexNotEqualsBase {
-    public FilterParamIndexNotEquals(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock) {
+    public FilterParamIndexNotEquals(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock) {
         super(lookupable, readWriteLock, FilterOperator.NOT_EQUAL);
     }
 

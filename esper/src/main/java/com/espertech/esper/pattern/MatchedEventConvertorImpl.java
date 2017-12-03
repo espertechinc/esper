@@ -15,6 +15,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.map.MapEventBean;
+import com.espertech.esper.filterspec.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMapMeta;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

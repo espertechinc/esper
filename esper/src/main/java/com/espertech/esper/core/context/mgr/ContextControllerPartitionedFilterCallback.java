@@ -17,6 +17,9 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.filter.*;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterValueSet;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.util.Collection;
 
@@ -38,7 +41,7 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
         filterHandle = new EPStatementHandleCallback(agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle(), this);
 
         FilterValueSetParam[][] addendum = filterAddendum != null ? filterAddendum.getFilterAddendum(filterSpec) : null;
-        FilterValueSet filterValueSet = filterSpec.getValueSet(null, null, addendum);
+        FilterValueSet filterValueSet = filterSpec.getValueSet(null, addendum, null, null, null);
         filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);

@@ -16,7 +16,6 @@ import com.espertech.esper.collection.CombinationEnumeration;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
@@ -24,6 +23,12 @@ import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeTableAccessFinderVisitor;
+import com.espertech.esper.epl.expression.visitor.ExprNodeVariableVisitor;
+import com.espertech.esper.epl.util.ExprNodeUtilityRich;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
+import com.espertech.esper.filterspec.FilterSpecParam;
+import com.espertech.esper.filterspec.FilterSpecParamExprNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -202,8 +207,14 @@ public class FilterSpecCompilerPlanner {
     private static FilterSpecParamExprNode makeBooleanExprParam(ExprNode exprNode, FilterSpecCompilerArgs args) {
         boolean hasSubselectFilterStream = determineSubselectFilterStream(exprNode);
         boolean hasTableAccess = determineTableAccessFilterStream(exprNode);
-        FilterSpecLookupable lookupable = new FilterSpecLookupable(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION, null, exprNode.getForge().getEvaluationType(), false);
-        return new FilterSpecParamExprNode(lookupable, FilterOperator.BOOLEAN_EXPRESSION, exprNode, args.taggedEventTypes, args.arrayEventTypes, args.variableService, args.tableService, args.eventAdapterService, args.filterBooleanExpressionFactory, args.configurationInformation, hasSubselectFilterStream, hasTableAccess);
+
+        ExprNodeVariableVisitor visitor = new ExprNodeVariableVisitor(args.variableService);
+        exprNode.accept(visitor);
+        boolean hasVariable = visitor.isHasVariables();
+
+        ExprFilterSpecLookupable lookupable = new ExprFilterSpecLookupable(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION, null, exprNode.getForge().getEvaluationType(), false);
+
+        return new FilterSpecParamExprNode(lookupable, FilterOperator.BOOLEAN_EXPRESSION, exprNode, args.taggedEventTypes, args.arrayEventTypes, args.variableService, args.tableService, args.eventAdapterService, args.filterBooleanExpressionFactory, args.configurationInformation.getEngineDefaults().getExecution().getThreadingProfile(), hasSubselectFilterStream, hasTableAccess, hasVariable);
     }
 
     private static ExprAndNode makeValidateAndNode(List<ExprNode> remainingExprNodes, FilterSpecCompilerArgs args)

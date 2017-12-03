@@ -35,7 +35,7 @@ public class OutputStrategyPostProcess {
         this.parent = parent;
         this.agentInstanceContext = agentInstanceContext;
         this.tableStateInstance = tableStateInstance;
-        this.audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getStatementContext().getAnnotations()) != null;
+        this.audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getAnnotations()) != null;
     }
 
     public void output(boolean forceUpdate, UniformPair<EventBean[]> result, UpdateDispatchView finalView) {

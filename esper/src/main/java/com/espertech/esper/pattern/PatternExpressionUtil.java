@@ -18,6 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
+import com.espertech.esper.filterspec.MatchedEventMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

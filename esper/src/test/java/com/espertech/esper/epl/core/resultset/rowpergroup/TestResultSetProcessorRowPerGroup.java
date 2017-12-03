@@ -43,7 +43,7 @@ public class TestResultSetProcessorRowPerGroup extends TestCase {
 
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         SelectExprProcessorHelper selectFactory = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), SupportSelectExprFactory.makeSelectListFromIdent("theString", "s0"),
-                Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, agentInstanceContext.getStatementContext().getEngineImportService(), 1, "stmtname", null, new Configuration(), null, new TableServiceImpl(), null);
+                Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, agentInstanceContext.getEngineImportService(), 1, "stmtname", null, new Configuration(), null, new TableServiceImpl(), null);
         SelectExprProcessorForge selectForge = selectFactory.getForge();
         supportAggregationService = new SupportAggregationService();
 

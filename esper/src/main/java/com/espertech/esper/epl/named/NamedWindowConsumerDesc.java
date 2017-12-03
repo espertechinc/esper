@@ -13,7 +13,7 @@ package com.espertech.esper.epl.named;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.property.PropertyEvaluator;
+import com.espertech.esper.filterspec.PropertyEvaluator;
 
 public class NamedWindowConsumerDesc {
     private final ExprNode[] filterExpressions;

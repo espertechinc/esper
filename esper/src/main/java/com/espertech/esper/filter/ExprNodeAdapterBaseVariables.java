@@ -12,17 +12,19 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.variable.VariableService;
+import com.espertech.esper.filterspec.ExprNodeAdapterBase;
 
 import java.lang.annotation.Annotation;
 
 public class ExprNodeAdapterBaseVariables extends ExprNodeAdapterBase {
     protected final VariableService variableService;
 
-    public ExprNodeAdapterBaseVariables(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EngineImportService engineImportService, Annotation[] annotations) {
-        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, engineImportService, annotations);
+    public ExprNodeAdapterBaseVariables(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluator exprEvaluator, ExprEvaluatorContext evaluatorContext, VariableService variableService, EngineImportService engineImportService, Annotation[] annotations) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluator, evaluatorContext, engineImportService);
         this.variableService = variableService;
     }
 

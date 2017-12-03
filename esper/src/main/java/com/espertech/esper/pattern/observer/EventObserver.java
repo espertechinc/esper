@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.pattern.observer;
 
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 /**
  * Observers observe and indicate other external events such as timing events.

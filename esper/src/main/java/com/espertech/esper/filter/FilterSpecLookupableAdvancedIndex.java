@@ -12,8 +12,9 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 
-public class FilterSpecLookupableAdvancedIndex extends FilterSpecLookupable {
+public class FilterSpecLookupableAdvancedIndex extends ExprFilterSpecLookupable {
     private static final long serialVersionUID = 8315068953665699193L;
     private final AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig;
     private final EventPropertyGetter x;

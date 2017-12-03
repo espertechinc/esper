@@ -55,7 +55,7 @@ import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactoryFactory;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewProviderForAgentInstance;
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filterspec.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.EvalRootFactoryNode;

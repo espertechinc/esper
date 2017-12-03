@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.filterspec.StringRange;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -24,7 +24,7 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
-import com.espertech.esper.filter.FilterBooleanExpressionFactory;
+import com.espertech.esper.filterspec.FilterBooleanExpressionFactory;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.schedule.SchedulingService;

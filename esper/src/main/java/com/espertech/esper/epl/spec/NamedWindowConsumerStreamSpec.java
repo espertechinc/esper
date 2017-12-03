@@ -12,7 +12,7 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.property.PropertyEvaluator;
+import com.espertech.esper.filterspec.PropertyEvaluator;
 
 import java.util.List;
 

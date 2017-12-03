@@ -109,7 +109,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getEngineImportService(), true, subqueryNumber);
+            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getEngineImportService(), true, subqueryNumber);
             if (groupByKeys == null) {
                 if (filterExprEval == null) {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredUngrouped(aggregationService, filterExprEval, null);

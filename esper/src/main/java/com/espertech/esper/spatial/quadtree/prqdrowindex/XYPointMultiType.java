@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.spatial.quadtree.prqdrowindex;
 
-import com.espertech.esper.spatial.quadtree.pointregion.XYPoint;
+import com.espertech.esper.type.XYPoint;
 
 import java.util.Collection;
 import java.util.LinkedList;

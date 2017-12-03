@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.pattern.guard;
 
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 /**
  * Guard instances inspect a matched events and makes a determination on whether to let it pass or not.

@@ -17,7 +17,7 @@ import com.espertech.esper.client.context.ContextPartitionStateListener;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.filter.FilterFaultHandler;
-import com.espertech.esper.filter.FilterSpecLookupable;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public interface ContextManager extends FilterFaultHandler {
 
     public void safeDestroy();
 
-    public FilterSpecLookupable getFilterLookupable(EventType eventType);
+    public ExprFilterSpecLookupable getFilterLookupable(EventType eventType);
 
     public ContextStatePathDescriptor extractPaths(ContextPartitionSelector contextPartitionSelector);
 

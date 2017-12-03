@@ -11,6 +11,9 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filterspec.DoubleRange;
+import com.espertech.esper.filterspec.FilterOperator;
+import com.espertech.esper.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Collection;
@@ -23,7 +26,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * parameter values of type DoubleRange.
  */
 public final class FilterParamIndexDoubleRangeInverted extends FilterParamIndexDoubleRangeBase {
-    public FilterParamIndexDoubleRangeInverted(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
+    public FilterParamIndexDoubleRangeInverted(ExprFilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(lookupable, readWriteLock, filterOperator);
         if (!(filterOperator.isInvertedRangeOperator())) {
             throw new IllegalArgumentException("Invalid filter operator " + filterOperator);

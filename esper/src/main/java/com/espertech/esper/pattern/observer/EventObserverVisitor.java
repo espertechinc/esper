@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.pattern.observer;
 
-import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.filterspec.MatchedEventMap;
 
 public interface EventObserverVisitor {
     public void visitObserver(MatchedEventMap beginState, int numBytes, Object... stateFlat);
