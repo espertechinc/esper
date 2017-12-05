@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.core.context.mgr;
 
+import com.espertech.esper.core.context.util.ContextDetailUtil;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailNested;
@@ -37,7 +38,7 @@ public class ContextControllerFactoryHelper {
             CreateContextDesc contextParent = nestedSpec.getContexts().get(i);
             for (int j = i + 1; j < nestedSpec.getContexts().size(); j++) {
                 CreateContextDesc contextControlled = nestedSpec.getContexts().get(j);
-                List<FilterSpecCompiled> specs = contextControlled.getFilterSpecs();
+                List<FilterSpecCompiled> specs = ContextDetailUtil.getFilterSpecs(contextControlled.getContextDetail());
                 if (specs == null) {
                     continue;
                 }

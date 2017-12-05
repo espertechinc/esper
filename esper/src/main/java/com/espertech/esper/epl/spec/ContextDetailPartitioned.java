@@ -10,9 +10,6 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.filterspec.FilterSpecCompiled;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class ContextDetailPartitioned implements ContextDetail {
@@ -31,25 +28,6 @@ public class ContextDetailPartitioned implements ContextDetail {
 
     public List<ContextDetailPartitionItem> getItems() {
         return items;
-    }
-
-    public List<FilterSpecCompiled> getContextDetailFilterSpecs() {
-        List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>(items.size());
-        for (ContextDetailPartitionItem item : items) {
-            filters.add(item.getFilterSpecCompiled());
-        }
-        if (optionalInit != null) {
-            for (ContextDetailConditionFilter filter : optionalInit) {
-                filters.add(filter.getFilterSpecCompiled());
-            }
-        }
-        if (optionalTermination != null) {
-            List<FilterSpecCompiled> specs = optionalTermination.getFilterSpecIfAny();
-            if (specs != null) {
-                filters.addAll(specs);
-            }
-        }
-        return filters;
     }
 
     public ContextDetailCondition getOptionalTermination() {

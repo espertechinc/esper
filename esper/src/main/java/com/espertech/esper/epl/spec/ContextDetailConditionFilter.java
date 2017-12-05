@@ -12,9 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.filterspec.FilterSpecCompiled;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ContextDetailConditionFilter implements ContextDetailCondition {
 
     private static final long serialVersionUID = -8522513130123236000L;
@@ -42,11 +39,5 @@ public class ContextDetailConditionFilter implements ContextDetailCondition {
 
     public void setFilterSpecCompiled(FilterSpecCompiled filterSpecCompiled) {
         this.filterSpecCompiled = filterSpecCompiled;
-    }
-
-    public List<FilterSpecCompiled> getFilterSpecIfAny() {
-        List<FilterSpecCompiled> list = new ArrayList<FilterSpecCompiled>(1);
-        list.add(filterSpecCompiled);
-        return list;
     }
 }

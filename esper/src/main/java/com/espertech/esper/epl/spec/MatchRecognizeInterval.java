@@ -12,7 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.Serializable;
 

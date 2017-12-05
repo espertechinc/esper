@@ -11,11 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.filterspec.FilterSpecCompiled;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ContextDetailInitiatedTerminated implements ContextDetail {
 
@@ -50,22 +45,6 @@ public class ContextDetailInitiatedTerminated implements ContextDetail {
 
     public boolean isOverlapping() {
         return overlapping;
-    }
-
-    public List<FilterSpecCompiled> getContextDetailFilterSpecs() {
-        List<FilterSpecCompiled> startFS = start.getFilterSpecIfAny();
-        List<FilterSpecCompiled> endFS = end.getFilterSpecIfAny();
-        if (startFS == null && endFS == null) {
-            return Collections.emptyList();
-        }
-        List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>(2);
-        if (startFS != null) {
-            filters.addAll(startFS);
-        }
-        if (endFS != null) {
-            filters.addAll(endFS);
-        }
-        return filters;
     }
 
     public ExprNode[] getDistinctExpressions() {

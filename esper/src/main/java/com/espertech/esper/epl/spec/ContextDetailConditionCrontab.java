@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.filterspec.FilterSpecCompiled;
 import com.espertech.esper.schedule.ScheduleSpec;
 
 import java.util.List;
@@ -38,10 +37,6 @@ public class ContextDetailConditionCrontab implements ContextDetailCondition {
 
     public void setSchedule(ScheduleSpec schedule) {
         this.schedule = schedule;
-    }
-
-    public List<FilterSpecCompiled> getFilterSpecIfAny() {
-        return null;
     }
 
     public boolean isImmediate() {

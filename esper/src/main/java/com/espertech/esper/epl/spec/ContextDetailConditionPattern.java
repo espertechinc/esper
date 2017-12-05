@@ -10,14 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.filterspec.FilterSpecCompiled;
 import com.espertech.esper.pattern.EvalFactoryNode;
-import com.espertech.esper.pattern.EvalFilterFactoryNode;
-import com.espertech.esper.pattern.EvalNodeAnalysisResult;
-import com.espertech.esper.pattern.EvalNodeUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ContextDetailConditionPattern implements ContextDetailCondition {
 
@@ -52,15 +45,5 @@ public class ContextDetailConditionPattern implements ContextDetailCondition {
 
     public boolean isImmediate() {
         return immediate;
-    }
-
-    public List<FilterSpecCompiled> getFilterSpecIfAny() {
-        List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>();
-        EvalNodeAnalysisResult evalNodeAnalysisResult = EvalNodeUtil.recursiveAnalyzeChildNodes(patternCompiled.getEvalFactoryNode());
-        List<EvalFilterFactoryNode> filterNodes = evalNodeAnalysisResult.getFilterNodes();
-        for (EvalFilterFactoryNode filterNode : filterNodes) {
-            filters.add(filterNode.getFilterSpec());
-        }
-        return filters.isEmpty() ? null : filters;
     }
 }

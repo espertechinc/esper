@@ -10,11 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.filterspec.FilterSpecCompiled;
-
 import java.io.Serializable;
-import java.util.List;
 
 public interface ContextDetailCondition extends Serializable {
-    public List<FilterSpecCompiled> getFilterSpecIfAny();
 }

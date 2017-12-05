@@ -18,6 +18,7 @@ import com.espertech.esper.core.context.stmt.AIRegistryAggregationMultiPerm;
 import com.espertech.esper.core.context.stmt.AIRegistryExprMultiPerm;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistryFactory;
+import com.espertech.esper.core.context.util.ContextDetailUtil;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailConditionFilter;
@@ -46,7 +47,7 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
         super(factoryContext);
         this.segmentedSpec = segmentedSpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
-        this.filtersTerminationMayNull = segmentedSpec.getOptionalTermination() == null ? null : segmentedSpec.getOptionalTermination().getFilterSpecIfAny();
+        this.filtersTerminationMayNull = segmentedSpec.getOptionalTermination() == null ? null : ContextDetailUtil.getFilterSpecIfAny(segmentedSpec.getOptionalTermination());
     }
 
     public boolean hasFiltersSpecsNestedContexts() {

@@ -10,20 +10,11 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.filterspec.FilterSpecCompiled;
-
-import java.util.Collections;
-import java.util.List;
-
 public class ContextDetailConditionImmediate implements ContextDetailCondition {
     private static final long serialVersionUID = -2941853977692802522L;
 
     public final static ContextDetailConditionImmediate INSTANCE = new ContextDetailConditionImmediate();
 
     private ContextDetailConditionImmediate() {
-    }
-
-    public List<FilterSpecCompiled> getFilterSpecIfAny() {
-        return Collections.emptyList();
     }
 }

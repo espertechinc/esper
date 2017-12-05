@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.filterspec.FilterSpecCompiled;
-
 import java.io.Serializable;
-import java.util.List;
 
 public class CreateContextDesc implements Serializable {
 
@@ -32,9 +29,5 @@ public class CreateContextDesc implements Serializable {
 
     public ContextDetail getContextDetail() {
         return contextDetail;
-    }
-
-    public List<FilterSpecCompiled> getFilterSpecs() {
-        return contextDetail.getContextDetailFilterSpecs();
     }
 }
