@@ -18,7 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.filterspec.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;

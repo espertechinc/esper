@@ -8,10 +8,14 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.spec;
+package com.espertech.esper.core.service.speccompiled;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.spec.StreamSpecBase;
+import com.espertech.esper.epl.spec.StreamSpecCompiled;
+import com.espertech.esper.epl.spec.StreamSpecOptions;
+import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.pattern.EvalFactoryNode;
 import com.espertech.esper.filterspec.MatchedEventMapMeta;
 

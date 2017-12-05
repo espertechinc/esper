@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.core.select.SelectExprEventTypeRegistry;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorFactory;

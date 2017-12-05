@@ -32,7 +32,7 @@ import com.espertech.esper.epl.lookup.SubordinateQueryPlannerUtil;
 import com.espertech.esper.epl.lookup.SubordinateWMatchExprQueryPlanResult;
 import com.espertech.esper.epl.spec.OnTriggerType;
 import com.espertech.esper.epl.spec.OnTriggerWindowDesc;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;

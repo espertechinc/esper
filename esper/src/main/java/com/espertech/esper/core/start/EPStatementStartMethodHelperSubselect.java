@@ -22,6 +22,8 @@ import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.agg.codegen.AggregationServiceFactoryCompiler;
 import com.espertech.esper.epl.agg.service.common.*;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;

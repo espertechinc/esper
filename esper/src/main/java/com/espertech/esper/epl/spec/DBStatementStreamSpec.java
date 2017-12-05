@@ -10,11 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.core.service.StatementContext;
-
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Set;
 
 /**
  * Specification object for historical data poll via database SQL statement.
@@ -68,12 +64,4 @@ public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecR
     public String getMetadataSQL() {
         return metadataSQL;
     }
-
-    public StreamSpecCompiled compile(StatementContext statementContext,
-                                      Set<String> eventTypeReferences,
-                                      boolean isInsertInto,
-                                      Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName) {
-        return this;
-    }
-
 }

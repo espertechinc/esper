@@ -16,7 +16,7 @@ import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorForge;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
-import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 
 import java.util.List;
 

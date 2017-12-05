@@ -10,10 +10,15 @@
  */
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StreamSpecCompiler;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
-import com.espertech.esper.filter.*;
+import com.espertech.esper.filter.FilterForEvalConstantAnyType;
+import com.espertech.esper.filter.FilterForEvalConstantDouble;
+import com.espertech.esper.filter.FilterForEvalEventPropDouble;
+import com.espertech.esper.filter.FilterForEvalEventPropMayCoerce;
 import com.espertech.esper.filterspec.*;
 import com.espertech.esper.pattern.EvalFilterFactoryNode;
 import com.espertech.esper.pattern.EvalNodeAnalysisResult;
@@ -197,7 +202,7 @@ public class TestPatternStreamSpecRaw extends TestCase {
     }
 
     private PatternStreamSpecCompiled compile(PatternStreamSpecRaw raw) throws Exception {
-        return raw.compile(SupportStatementContextFactory.makeContext(), new HashSet<String>(), false, Collections.<Integer>emptyList(), false, false, false, null);
+        return StreamSpecCompiler.compile(raw, SupportStatementContextFactory.makeContext(), new HashSet<String>(), false, Collections.<Integer>emptyList(), false, false, false, null);
     }
 
     private static PatternStreamSpecRaw makeSpec(String expression) throws Exception {

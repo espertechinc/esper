@@ -24,7 +24,7 @@ import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.CreateVariableDesc;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.epl.variable.*;
 import com.espertech.esper.util.DestroyCallback;

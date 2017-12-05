@@ -91,6 +91,6 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
     }
 
     public Long getExpectedEndTime() {
-        return spec.getExpectedEndTime(agentInstanceContext);
+        return spec.getExpectedEndTime(agentInstanceContext, agentInstanceContext.getTimeProvider());
     }
 }

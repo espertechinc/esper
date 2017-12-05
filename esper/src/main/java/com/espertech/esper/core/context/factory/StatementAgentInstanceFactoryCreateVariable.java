@@ -26,7 +26,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.CreateVariableDesc;
 import com.espertech.esper.epl.spec.SelectClauseElementWildcard;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.variable.CreateVariableView;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.view.OutputProcessViewBase;

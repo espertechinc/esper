@@ -17,7 +17,7 @@ import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.EventStream;
 

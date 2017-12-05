@@ -28,7 +28,7 @@ import com.espertech.esper.epl.lookup.EventTableIndexUtil;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.CreateIndexDesc;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.util.EPLValidationUtil;

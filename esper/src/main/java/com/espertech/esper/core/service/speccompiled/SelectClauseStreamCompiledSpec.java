@@ -8,8 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.spec;
+package com.espertech.esper.core.service.speccompiled;
 
+import com.espertech.esper.epl.spec.SelectClauseElementCompiled;
+import com.espertech.esper.epl.spec.SelectClauseStreamRawSpec;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 
 /**

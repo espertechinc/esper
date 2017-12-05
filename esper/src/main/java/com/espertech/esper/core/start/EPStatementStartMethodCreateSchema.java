@@ -17,7 +17,7 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.CreateSchemaDesc;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.view.ViewProcessingException;

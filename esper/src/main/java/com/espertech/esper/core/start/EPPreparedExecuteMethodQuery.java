@@ -31,7 +31,7 @@ import com.espertech.esper.epl.join.plan.FilterExprAnalyzer;
 import com.espertech.esper.epl.join.plan.OuterJoinAnalyzer;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StreamSpecCompiled;
 import com.espertech.esper.epl.spec.TableQueryStreamSpec;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;

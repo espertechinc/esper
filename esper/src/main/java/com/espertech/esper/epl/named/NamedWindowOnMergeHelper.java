@@ -15,6 +15,7 @@ import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.core.select.*;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;

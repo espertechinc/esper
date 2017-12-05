@@ -15,7 +15,7 @@ import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryNoA
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.Viewable;
 import com.espertech.esper.view.ZeroDepthStreamNoIterate;

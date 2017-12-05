@@ -26,7 +26,7 @@ import com.espertech.esper.epl.core.select.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 
 import java.util.List;
 

@@ -14,6 +14,7 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.core.context.mgr.ContextPropertyRegistryImpl;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;

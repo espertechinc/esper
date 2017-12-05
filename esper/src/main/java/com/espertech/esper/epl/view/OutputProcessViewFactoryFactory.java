@@ -13,6 +13,7 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.core.service.StatementVariableRef;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorOutputConditionType;

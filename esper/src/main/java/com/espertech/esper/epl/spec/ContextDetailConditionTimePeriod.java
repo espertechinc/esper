@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.filterspec.FilterSpecCompiled;
+import com.espertech.esper.schedule.TimeProvider;
 
 import java.util.List;
 
@@ -51,9 +52,9 @@ public class ContextDetailConditionTimePeriod implements ContextDetailCondition 
         this.scheduleCallbackId = scheduleCallbackId;
     }
 
-    public Long getExpectedEndTime(AgentInstanceContext agentInstanceContext) {
-        long current = agentInstanceContext.getStatementContext().getTimeProvider().getTime();
-        long msec = timePeriod.nonconstEvaluator().deltaAdd(current, null, true, agentInstanceContext);
+    public Long getExpectedEndTime(ExprEvaluatorContext exprEvaluatorContext, TimeProvider timeProvider) {
+        long current = timeProvider.getTime();
+        long msec = timePeriod.nonconstEvaluator().deltaAdd(current, null, true, exprEvaluatorContext);
         return current + msec;
     }
 }

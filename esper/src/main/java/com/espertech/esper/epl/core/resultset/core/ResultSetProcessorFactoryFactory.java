@@ -19,6 +19,8 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPerLevelForge;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPlanDesc;
 import com.espertech.esper.epl.agg.rollup.GroupByRollupPlanHook;

@@ -19,7 +19,7 @@ import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StreamSpecCompiled;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.pattern.EvalFactoryNode;

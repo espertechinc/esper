@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.core.service.speccompiled.StreamSpecCompiler;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
@@ -234,7 +235,7 @@ public class TestFilterStreamSpecRaw extends TestCase {
     }
 
     private FilterSpecCompiled compile(FilterStreamSpecRaw raw) throws Exception {
-        FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) raw.compile(SupportStatementContextFactory.makeContext(), new HashSet<String>(), false, Collections.<Integer>emptyList(), false, false, false, null);
+        FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) StreamSpecCompiler.compile(raw, SupportStatementContextFactory.makeContext(), new HashSet<String>(), false, Collections.<Integer>emptyList(), false, false, false, null);
         return compiled.getFilterSpec();
     }
 

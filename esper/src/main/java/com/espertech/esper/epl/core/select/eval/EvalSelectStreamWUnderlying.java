@@ -23,7 +23,7 @@ import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprForge;
-import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataInternalEventToPublic;
 import com.espertech.esper.event.DecoratingEventBean;

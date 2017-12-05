@@ -19,7 +19,7 @@ import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.codegen.model.expression.CodegenExpressionRef;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 

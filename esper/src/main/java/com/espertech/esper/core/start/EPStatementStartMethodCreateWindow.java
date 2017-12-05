@@ -31,7 +31,7 @@ import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
 import com.espertech.esper.epl.spec.SelectClauseElementWildcard;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactoryFactory;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewFactory;

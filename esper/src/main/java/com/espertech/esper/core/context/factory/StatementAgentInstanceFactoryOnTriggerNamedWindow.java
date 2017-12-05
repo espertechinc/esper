@@ -33,7 +33,7 @@ import com.espertech.esper.epl.lookup.SubordinateWMatchExprQueryPlanResult;
 import com.espertech.esper.epl.named.*;
 import com.espertech.esper.epl.spec.OnTriggerType;
 import com.espertech.esper.epl.spec.OnTriggerWindowDesc;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;

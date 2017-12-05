@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;

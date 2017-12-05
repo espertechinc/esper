@@ -20,6 +20,10 @@ import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.NameParameterCountKey;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
+import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StreamSpecCompiler;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
@@ -1050,7 +1054,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
             int streamNum = 0;
             for (StreamSpecRaw rawSpec : spec.getStreamSpecs()) {
                 streamNum++;
-                StreamSpecCompiled compiled = rawSpec.compile(statementContext, eventTypeReferences, spec.getInsertIntoDesc() != null, Collections.singleton(streamNum), spec.getStreamSpecs().size() > 1, false, spec.getOnTriggerDesc() != null, rawSpec.getOptionalStreamName());
+                StreamSpecCompiled compiled = StreamSpecCompiler.compile(rawSpec, statementContext, eventTypeReferences, spec.getInsertIntoDesc() != null, Collections.singleton(streamNum), spec.getStreamSpecs().size() > 1, false, spec.getOnTriggerDesc() != null, rawSpec.getOptionalStreamName());
                 compiledStreams.add(compiled);
             }
         } catch (ExprValidationException ex) {

@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.core.select.eval;
 
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
-import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 
 public class SelectExprStreamDesc {
     private final SelectClauseStreamCompiledSpec streamSelected;

@@ -13,7 +13,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 
 import java.util.Map;

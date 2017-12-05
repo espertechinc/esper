@@ -28,6 +28,7 @@ import com.espertech.esper.collection.ThreadWorkQueue;
 import com.espertech.esper.core.context.mgr.ContextManager;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandleComparator;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.core.thread.*;
 import com.espertech.esper.epl.annotation.AnnotationUtil;

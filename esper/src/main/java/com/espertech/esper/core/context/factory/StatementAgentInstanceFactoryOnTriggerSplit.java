@@ -22,7 +22,7 @@ import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.spec.OnTriggerSplitStreamDesc;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;

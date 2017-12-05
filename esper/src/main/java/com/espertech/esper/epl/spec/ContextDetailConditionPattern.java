@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
 import com.espertech.esper.filterspec.FilterSpecCompiled;
 import com.espertech.esper.pattern.EvalFactoryNode;
 import com.espertech.esper.pattern.EvalFilterFactoryNode;

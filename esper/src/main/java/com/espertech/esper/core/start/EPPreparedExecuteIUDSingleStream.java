@@ -17,6 +17,7 @@ import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.core.service.EPPreparedQueryResult;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.core.start;
 
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

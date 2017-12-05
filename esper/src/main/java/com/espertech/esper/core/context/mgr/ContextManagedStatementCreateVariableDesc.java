@@ -13,7 +13,7 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactory;
 import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 
 public class ContextManagedStatementCreateVariableDesc extends ContextControllerStatementBase {
 

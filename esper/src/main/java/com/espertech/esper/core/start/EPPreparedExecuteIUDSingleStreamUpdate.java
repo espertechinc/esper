@@ -20,7 +20,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.FireAndForgetSpecUpdate;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelperFactory;

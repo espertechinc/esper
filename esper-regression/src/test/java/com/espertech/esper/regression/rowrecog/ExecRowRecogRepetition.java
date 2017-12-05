@@ -19,7 +19,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.core.service.EPStatementSPI;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.rowregex.RegexPatternExpandUtil;
 import com.espertech.esper.rowregex.RowRegexExprNode;
 import com.espertech.esper.rowregex.RowRegexExprNodePrecedenceEnum;

@@ -25,7 +25,7 @@ import com.espertech.esper.epl.agg.service.common.AggregationService;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;

@@ -17,7 +17,7 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.resultset.core.ResultSetProcessorFactoryDesc;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.variable.OnSetVariableView;
 import com.espertech.esper.epl.variable.OnSetVariableViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;

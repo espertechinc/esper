@@ -28,7 +28,7 @@ import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.named.NamedWindowTailViewInstance;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.util.StopCallback;

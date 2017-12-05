@@ -10,14 +10,10 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Specification object for historical data poll via database SQL statement.
@@ -88,15 +84,5 @@ public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, S
      */
     public List<ExprNode> getExpressions() {
         return expressions;
-    }
-
-    public StreamSpecCompiled compile(StatementContext context, Set<String> eventTypeReferences, boolean isInsertInto, Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName) throws ExprValidationException {
-        if (!ident.equals("method")) {
-            throw new ExprValidationException("Expecting keyword 'method', found '" + ident + "'");
-        }
-        if (methodName == null) {
-            throw new ExprValidationException("No method name specified for method-based join");
-        }
-        return this;
     }
 }

@@ -21,7 +21,7 @@ import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;

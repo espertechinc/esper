@@ -12,6 +12,7 @@ package com.espertech.esper.epl.property;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.select.SelectExprProcessor;
 import com.espertech.esper.epl.core.select.SelectExprProcessorCompiler;

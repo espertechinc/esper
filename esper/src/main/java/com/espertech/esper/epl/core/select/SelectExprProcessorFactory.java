@@ -16,6 +16,7 @@ import com.espertech.esper.client.soda.ForClauseKeyword;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.core.service.StatementResultService;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;

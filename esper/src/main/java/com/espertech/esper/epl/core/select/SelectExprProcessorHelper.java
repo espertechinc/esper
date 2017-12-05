@@ -35,7 +35,7 @@ import com.espertech.esper.epl.rettype.EventMultiValuedEPType;
 import com.espertech.esper.epl.spec.CreateSchemaDesc;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
-import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
+import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.util.EventRepresentationUtil;

@@ -17,6 +17,7 @@ import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
+import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.core.streamtype.StreamTypeService;

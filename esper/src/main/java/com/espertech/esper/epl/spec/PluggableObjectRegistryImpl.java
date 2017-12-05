@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.view.ViewProcessingException;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -65,7 +64,7 @@ public class PluggableObjectRegistryImpl implements PluggableObjectRegistry {
 
         if (entriesDuplicate != null) {
             entriesDuplicate.add(found.getKey());
-            throw new ViewProcessingException("Duplicate entries for view '" + name + "' found in namespaces " + Arrays.toString(entriesDuplicate.toArray()));
+            throw new IllegalStateException("Duplicate entries for '" + name + "' found in namespaces " + Arrays.toString(entriesDuplicate.toArray()));
         }
 
         return found == null ? null : found.getValue();
