@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public interface ExprTimePeriodEvalDeltaConstFactory {
-    ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext);
+    ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, ExprEvaluatorContext exprEvaluatorContext, TimeAbacus timeAbacus);
 }

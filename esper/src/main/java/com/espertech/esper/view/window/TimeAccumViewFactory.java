@@ -49,7 +49,7 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext(), agentInstanceViewFactoryContext.getTimeAbacus());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new TimeAccumViewRStream(this, agentInstanceViewFactoryContext, timeDeltaComputation);
@@ -68,7 +68,7 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
         }
 
         TimeAccumView myView = (TimeAccumView) view;
-        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext, agentInstanceContext.getTimeAbacus());
         if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }

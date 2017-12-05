@@ -61,7 +61,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, Serializab
     public long computeDelta(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (parameter instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) parameter;
-            return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
+            return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext(), context.getAgentInstanceContext().getTimeProvider());
         } else {
             Object result = parameter.getForge().getExprEvaluator().evaluate(convertor.convert(beginState), true, context.getAgentInstanceContext());
             if (result == null) {

@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.filterspec.FilterSpecCompiled;
 import com.espertech.esper.filterspec.FilterValueSetParam;
 
 import java.io.Serializable;
@@ -41,7 +39,7 @@ public class ContextDetailCategoryItem implements Serializable {
         return compiledFilterParam;
     }
 
-    public void setCompiledFilter(FilterSpecCompiled filterSpec, AgentInstanceContext agentInstanceContext) {
-        this.compiledFilterParam = filterSpec.getValueSet(null, null, agentInstanceContext, agentInstanceContext.getEngineImportService(), agentInstanceContext.getAnnotations()).getParameters();
+    public void setCompiledFilterParam(FilterValueSetParam[][] compiledFilterParam) {
+        this.compiledFilterParam = compiledFilterParam;
     }
 }

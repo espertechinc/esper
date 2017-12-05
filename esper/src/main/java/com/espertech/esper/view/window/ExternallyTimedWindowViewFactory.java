@@ -71,7 +71,7 @@ public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, 
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext(), agentInstanceViewFactoryContext.getTimeAbacus());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new ExternallyTimedWindowView(this, timestampExpression, timestampExpressionEval, timeDeltaComputation, randomAccess, agentInstanceViewFactoryContext);
     }
@@ -86,7 +86,7 @@ public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, 
         }
 
         ExternallyTimedWindowView myView = (ExternallyTimedWindowView) view;
-        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext, agentInstanceContext.getTimeAbacus());
         if ((!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
                 (!ExprNodeUtilityCore.deepEquals(myView.getTimestampExpression(), timestampExpression, false))) {
             return false;

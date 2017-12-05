@@ -23,6 +23,7 @@ import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.util.EPLScheduleExpressionUtil;
 import com.espertech.esper.epl.util.ExprNodeUtilityRich;
 import com.espertech.esper.event.EventTypeUtility;
+import com.espertech.esper.filterspec.FilterValueSetParam;
 import com.espertech.esper.pattern.EvalFactoryNode;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.util.CollectionUtil;
@@ -155,7 +156,8 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 FilterSpecRaw filterSpecRaw = new FilterSpecRaw(category.getFilterSpecRaw().getEventTypeName(), Collections.singletonList(item.getExpression()), null);
                 FilterStreamSpecRaw rawExpr = new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
                 FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
-                item.setCompiledFilter(compiled.getFilterSpec(), agentInstanceContext);
+                FilterValueSetParam[][] filters = compiled.getFilterSpec().getValueSet(null, null, agentInstanceContext, agentInstanceContext.getEngineImportService(), agentInstanceContext.getAnnotations()).getParameters();
+                item.setCompiledFilterParam(filters);
             }
         } else if (contextDetail instanceof ContextDetailHash) {
             ContextDetailHash hashed = (ContextDetailHash) contextDetail;

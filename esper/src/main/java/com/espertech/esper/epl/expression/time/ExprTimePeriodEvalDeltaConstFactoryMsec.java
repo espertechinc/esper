@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class ExprTimePeriodEvalDeltaConstFactoryMsec implements ExprTimePeriodEvalDeltaConstFactory {
     private final ExprEvaluator secondsEvaluator;
@@ -23,11 +23,11 @@ public class ExprTimePeriodEvalDeltaConstFactoryMsec implements ExprTimePeriodEv
         this.timeAbacus = timeAbacus;
     }
 
-    public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext) {
-        Number time = (Number) secondsEvaluator.evaluate(null, true, agentInstanceContext);
-        if (!ExprTimePeriodUtil.validateTime(time, agentInstanceContext.getStatementContext().getTimeAbacus())) {
+    public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, ExprEvaluatorContext exprEvaluatorContext, TimeAbacus timeAbacus) {
+        Number time = (Number) secondsEvaluator.evaluate(null, true, exprEvaluatorContext);
+        if (!ExprTimePeriodUtil.validateTime(time, timeAbacus)) {
             throw new EPException(ExprTimePeriodUtil.getTimeInvalidMsg(validateMsgName, validateMsgValue, time));
         }
-        return new ExprTimePeriodEvalDeltaConstGivenDelta(timeAbacus.deltaForSecondsNumber(time));
+        return new ExprTimePeriodEvalDeltaConstGivenDelta(this.timeAbacus.deltaForSecondsNumber(time));
     }
 }

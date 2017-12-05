@@ -16,11 +16,11 @@ import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMember;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.codegen.base.CodegenMethodNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.schedule.TimeProvider;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -50,9 +50,9 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
         return addSubtract(currentTime, -1, eventsPerStream, isNewData, context);
     }
 
-    public synchronized long deltaUseEngineTime(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext) {
-        long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        return addSubtract(currentTime, 1, eventsPerStream, true, agentInstanceContext);
+    public synchronized long deltaUseEngineTime(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, TimeProvider timeProvider) {
+        long currentTime = timeProvider.getTime();
+        return addSubtract(currentTime, 1, eventsPerStream, true, exprEvaluatorContext);
     }
 
     public synchronized ExprTimePeriodEvalDeltaResult deltaAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

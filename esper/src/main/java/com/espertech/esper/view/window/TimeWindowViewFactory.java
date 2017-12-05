@@ -46,7 +46,7 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext(), agentInstanceViewFactoryContext.getTimeAbacus());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new TimeWindowView(agentInstanceViewFactoryContext, this, timeDeltaComputation, randomAccess);
     }
@@ -61,7 +61,7 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
         }
 
         TimeWindowView myView = (TimeWindowView) view;
-        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext, agentInstanceContext.getTimeAbacus());
         if (!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }

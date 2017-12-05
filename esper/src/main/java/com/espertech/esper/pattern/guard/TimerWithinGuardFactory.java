@@ -53,7 +53,7 @@ public class TimerWithinGuardFactory implements GuardFactory, Serializable {
     public long computeTime(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (timeExpr instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) timeExpr;
-            return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
+            return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext(), context.getAgentInstanceContext().getTimeProvider());
         } else {
             Object time = PatternExpressionUtil.evaluate("Timer-within guard", beginState, timeExpr, convertor, context.getAgentInstanceContext());
             if (time == null) {

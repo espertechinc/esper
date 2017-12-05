@@ -21,6 +21,7 @@ import com.espertech.esper.core.start.EPStatementStartMethodHelperPrior;
 import com.espertech.esper.epl.core.viewres.ViewResourceDelegateVerifiedStream;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.schedule.TimeProvider;
@@ -162,5 +163,9 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
 
     public Object getStatementUserObject() {
         return agentInstanceContext.getStatementUserObject();
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return agentInstanceContext.getStatementContext().getTimeAbacus();
     }
 }

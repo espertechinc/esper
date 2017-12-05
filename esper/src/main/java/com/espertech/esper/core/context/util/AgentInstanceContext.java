@@ -14,6 +14,7 @@ import com.espertech.esper.core.context.mgr.AgentInstanceFilterProxy;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.epl.core.engineimport.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.event.MappedEventBean;
@@ -159,5 +160,9 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
 
     public StatementExtensionSvcContext getStatementExtensionSvcContext() {
         return statementContext.getStatementExtensionServicesContext();
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return statementContext.getTimeAbacus();
     }
 }

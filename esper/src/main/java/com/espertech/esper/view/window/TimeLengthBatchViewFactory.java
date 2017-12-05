@@ -57,7 +57,7 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext(), agentInstanceViewFactoryContext.getTimeAbacus());
         int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new TimeLengthBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, size, isForceUpdate, isStartEager, viewUpdatedCollection);
@@ -73,7 +73,7 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
         }
 
         TimeLengthBatchView myView = (TimeLengthBatchView) view;
-        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext, agentInstanceContext.getTimeAbacus());
         if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }

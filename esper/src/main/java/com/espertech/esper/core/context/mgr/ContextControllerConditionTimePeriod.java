@@ -79,7 +79,7 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
         EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getStatementContext().getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), agentInstanceContext.getStatementContext().getFilterFaultHandlerFactory());
         scheduleHandle = new EPStatementHandleCallback(agentHandle, scheduleCallback);
 
-        long timeDelta = spec.getTimePeriod().nonconstEvaluator().deltaUseEngineTime(null, agentInstanceContext) - timeOffset;
+        long timeDelta = spec.getTimePeriod().nonconstEvaluator().deltaUseEngineTime(null, agentInstanceContext, agentInstanceContext.getTimeProvider()) - timeOffset;
         agentInstanceContext.getStatementContext().getSchedulingService().add(timeDelta, scheduleHandle, scheduleSlot);
     }
 

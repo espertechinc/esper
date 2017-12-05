@@ -44,7 +44,7 @@ public class FirstTimeViewFactory implements AsymetricDataWindowViewFactory, Dat
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext(), agentInstanceViewFactoryContext.getTimeAbacus());
         return new FirstTimeView(this, agentInstanceViewFactoryContext, timeDeltaComputation);
     }
 
@@ -58,7 +58,7 @@ public class FirstTimeViewFactory implements AsymetricDataWindowViewFactory, Dat
         }
 
         FirstTimeView myView = (FirstTimeView) view;
-        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext, agentInstanceContext.getTimeAbacus());
         if (!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }

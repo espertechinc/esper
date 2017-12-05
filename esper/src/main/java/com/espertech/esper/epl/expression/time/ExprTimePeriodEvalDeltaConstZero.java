@@ -13,7 +13,7 @@ package com.espertech.esper.epl.expression.time;
 import com.espertech.esper.codegen.base.CodegenClassScope;
 import com.espertech.esper.codegen.base.CodegenMethodScope;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class ExprTimePeriodEvalDeltaConstZero implements ExprTimePeriodEvalDeltaConst {
     public final static ExprTimePeriodEvalDeltaConstZero INSTANCE = new ExprTimePeriodEvalDeltaConstZero();
@@ -21,7 +21,7 @@ public class ExprTimePeriodEvalDeltaConstZero implements ExprTimePeriodEvalDelta
     private ExprTimePeriodEvalDeltaConstZero() {
     }
 
-    public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext) {
+    public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, ExprEvaluatorContext exprEvaluatorContext, TimeAbacus timeAbacus) {
         return this;
     }
 
