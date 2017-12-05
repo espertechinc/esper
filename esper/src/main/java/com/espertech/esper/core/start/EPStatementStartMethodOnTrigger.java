@@ -27,7 +27,7 @@ import com.espertech.esper.core.context.util.ContextMergeViewForwarding;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
-import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
+import com.espertech.esper.epl.spec.PatternStreamSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.agg.service.common.AggregationService;

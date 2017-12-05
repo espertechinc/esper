@@ -22,20 +22,6 @@ import org.antlr.v4.runtime.tree.Tree;
  * Parses constant strings and returns the constant Object.
  */
 public class ASTConstantHelper {
-    /**
-     * Remove tick '`' character from a string start and end.
-     *
-     * @param tickedString delimited string
-     * @return delimited string with ticks removed, if starting and ending with tick
-     */
-    public static String removeTicks(String tickedString) {
-        int indexFirst = tickedString.indexOf('`');
-        int indexLast = tickedString.lastIndexOf('`');
-        if ((indexFirst != indexLast) && (indexFirst != -1) && (indexLast != -1)) {
-            return tickedString.substring(indexFirst + 1, indexLast);
-        }
-        return tickedString;
-    }
 
     /**
      * Parse the AST constant node and return Object value.

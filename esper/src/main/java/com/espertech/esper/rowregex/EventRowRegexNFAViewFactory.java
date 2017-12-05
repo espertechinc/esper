@@ -30,6 +30,7 @@ import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
+import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodePreviousVisitorWParent;
 import com.espertech.esper.epl.expression.visitor.ExprNodeStreamRequiredVisitor;
@@ -351,7 +352,8 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
         // validate interval if present
         if (matchRecognizeSpec.getInterval() != null) {
             ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-            matchRecognizeSpec.getInterval().validate(validationContext);
+            ExprTimePeriod validated = (ExprTimePeriod) ExprNodeUtilityRich.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGINTERVAL, matchRecognizeSpec.getInterval().getTimePeriodExpr(), validationContext);
+            matchRecognizeSpec.getInterval().setTimePeriodExpr(validated);
         }
 
         // compile variable definition expressions

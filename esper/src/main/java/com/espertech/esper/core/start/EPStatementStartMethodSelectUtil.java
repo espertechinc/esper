@@ -24,7 +24,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.*;
-import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
+import com.espertech.esper.epl.spec.PatternStreamSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.core.engineimport.EngineImportUtil;

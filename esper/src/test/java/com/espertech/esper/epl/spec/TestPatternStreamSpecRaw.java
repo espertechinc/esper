@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.StreamSpecCompiler;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;

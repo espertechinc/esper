@@ -41,6 +41,7 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.util.LazyAllocatedMap;
+import com.espertech.esper.util.StringValue;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.Tree;
 
@@ -60,7 +61,7 @@ public class ASTLibFunctionHelper {
     }
 
     public static ExprChainedSpec getLibFunctionChainSpec(EsperEPL2GrammarParser.LibFunctionNoClassContext ctx, Map<Tree, ExprNode> astExprNodeMap) {
-        String methodName = ASTConstantHelper.removeTicks(ctx.funcIdentChained().getText());
+        String methodName = StringValue.removeTicks(ctx.funcIdentChained().getText());
 
         List<ExprNode> parameters = getExprNodesLibFunc(ctx.libFunctionArgs(), astExprNodeMap);
         boolean property = ctx.l == null;
@@ -293,7 +294,7 @@ public class ASTLibFunctionHelper {
     }
 
     private static ExprChainedSpec getLibFunctionChainSpec(ASTLibModelChainElement element, Map<Tree, ExprNode> astExprNodeMap) {
-        String methodName = ASTConstantHelper.removeTicks(element.getFuncName());
+        String methodName = StringValue.removeTicks(element.getFuncName());
         List<ExprNode> parameters = ASTLibFunctionHelper.getExprNodesLibFunc(element.getArgs(), astExprNodeMap);
         return new ExprChainedSpec(methodName, parameters, !element.isHasLeftParen());
     }

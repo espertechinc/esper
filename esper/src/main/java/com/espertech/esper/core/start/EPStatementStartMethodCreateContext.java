@@ -17,7 +17,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
+import com.espertech.esper.epl.spec.PatternStreamSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.StreamSpecCompiler;
 import com.espertech.esper.epl.core.streamtype.StreamTypeServiceImpl;

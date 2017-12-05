@@ -20,7 +20,7 @@ import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.NameParameterCountKey;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
-import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
+import com.espertech.esper.epl.spec.PatternStreamSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.StreamSpecCompiler;

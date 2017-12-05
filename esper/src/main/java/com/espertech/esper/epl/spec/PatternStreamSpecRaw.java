@@ -11,8 +11,6 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.pattern.EvalFactoryNode;
-import com.espertech.esper.pattern.EvalFilterFactoryNode;
-import com.espertech.esper.pattern.EvalNodeUtilFactoryFilter;
 
 /**
  * Pattern specification in unvalidated, unoptimized form.
@@ -46,13 +44,5 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
 
     public boolean isDiscardPartialsOnMatch() {
         return discardPartialsOnMatch;
-    }
-
-    public static class FilterForFilterFactoryNodes implements EvalNodeUtilFactoryFilter {
-        public final static FilterForFilterFactoryNodes INSTANCE = new FilterForFilterFactoryNodes();
-
-        public boolean consider(EvalFactoryNode node) {
-            return node instanceof EvalFilterFactoryNode;
-        }
     }
 }

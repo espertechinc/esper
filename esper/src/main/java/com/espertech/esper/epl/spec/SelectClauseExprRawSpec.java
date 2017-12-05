@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.parse.ASTConstantHelper;
+import com.espertech.esper.util.StringValue;
 
 /**
  * Represents a single item in a SELECT-clause, potentially unnamed
@@ -34,7 +34,7 @@ public class SelectClauseExprRawSpec implements SelectClauseElementRaw {
      */
     public SelectClauseExprRawSpec(ExprNode selectExpression, String optionalAsName, boolean isEvents) {
         this.selectExpression = selectExpression;
-        this.optionalAsName = optionalAsName == null ? null : ASTConstantHelper.removeTicks(optionalAsName);
+        this.optionalAsName = optionalAsName == null ? null : StringValue.removeTicks(optionalAsName);
         this.isEvents = isEvents;
     }
 

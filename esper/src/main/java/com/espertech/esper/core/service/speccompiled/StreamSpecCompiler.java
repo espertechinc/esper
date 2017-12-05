@@ -265,7 +265,7 @@ public class StreamSpecCompiler {
         Stack<EvalFactoryNode> nodeStack = new Stack<EvalFactoryNode>();
 
         // detemine ordered tags
-        Set<EvalFactoryNode> filterFactoryNodes = EvalNodeUtil.recursiveGetChildNodes(streamSpecRaw.getEvalFactoryNode(), PatternStreamSpecRaw.FilterForFilterFactoryNodes.INSTANCE);
+        Set<EvalFactoryNode> filterFactoryNodes = EvalNodeUtil.recursiveGetChildNodes(streamSpecRaw.getEvalFactoryNode(), FilterForFilterFactoryNodes.INSTANCE);
         LinkedHashSet<String> allTagNamesOrdered = new LinkedHashSet<String>();
         if (priorAllTags != null) {
             allTagNamesOrdered.addAll(priorAllTags);
@@ -747,5 +747,13 @@ public class StreamSpecCompiler {
             throw new ExprValidationException("No method name specified for method-based join");
         }
         return methodStreamSpec;
+    }
+
+    public static class FilterForFilterFactoryNodes implements EvalNodeUtilFactoryFilter {
+        public final static FilterForFilterFactoryNodes INSTANCE = new FilterForFilterFactoryNodes();
+
+        public boolean consider(EvalFactoryNode node) {
+            return node instanceof EvalFilterFactoryNode;
+        }
     }
 }

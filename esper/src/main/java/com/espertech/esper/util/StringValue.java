@@ -188,6 +188,21 @@ public final class StringValue {
         }
     }
 
+    /**
+     * Remove tick '`' character from a string start and end.
+     *
+     * @param tickedString delimited string
+     * @return delimited string with ticks removed, if starting and ending with tick
+     */
+    public static String removeTicks(String tickedString) {
+        int indexFirst = tickedString.indexOf('`');
+        int indexLast = tickedString.lastIndexOf('`');
+        if ((indexFirst != indexLast) && (indexFirst != -1) && (indexLast != -1)) {
+            return tickedString.substring(indexFirst + 1, indexLast);
+        }
+        return tickedString;
+    }
+
     private static String unescape(String s) {
         int i = 0, len = s.length();
         char c;

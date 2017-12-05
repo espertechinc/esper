@@ -15,7 +15,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.core.service.EPStatementSPI;
-import com.espertech.esper.core.service.speccompiled.PatternStreamSpecCompiled;
+import com.espertech.esper.epl.spec.PatternStreamSpecCompiled;
 import com.espertech.esper.core.service.speccompiled.StatementSpecCompiled;
 import com.espertech.esper.pattern.PatternExpressionPrecedenceEnum;
 import com.espertech.esper.supportregression.bean.*;

@@ -15,9 +15,12 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprNodeUtilityCore;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
+import com.espertech.esper.epl.spec.MatchRecognizeInterval;
 import com.espertech.esper.epl.spec.MatchRecognizeSkipEnum;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
@@ -272,7 +275,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     long matchBeginTime = endState.getMatchBeginEventTime();
                     long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
                     long deltaFromStart = current - matchBeginTime;
-                    long deltaUntil = factory.matchRecognizeSpec.getInterval().getScheduleForwardDelta(current, agentInstanceContext) - deltaFromStart;
+                    long deltaUntil = computeScheduleForwardDelta(current, deltaFromStart);
 
                     if (regexPartitionStateRepo.getScheduleState().containsKey(matchBeginTime)) {
                         scheduleCallback(deltaUntil, endState);
@@ -390,6 +393,22 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 InstrumentationHelper.get().aRegOut();
             }
         }
+    }
+
+    private long computeScheduleForwardDelta(long current, long deltaFromStart) {
+        MatchRecognizeInterval interval = factory.matchRecognizeSpec.getInterval();
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qRegIntervalValue(interval.getTimePeriodExpr());
+        }
+        if (interval.getTimeDeltaComputation() == null) {
+            ExprTimePeriodEvalDeltaConst timeDeltaComputation = interval.getTimePeriodExpr().constEvaluator(new ExprEvaluatorContextStatement(agentInstanceContext.getStatementContext(), false));
+            interval.setTimeDeltaComputation(timeDeltaComputation);
+        }
+        long result = interval.getTimeDeltaComputation().deltaAdd(current);
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aRegIntervalValue(result);
+        }
+        return result - deltaFromStart;
     }
 
     private RegexNFAStateEntry rankEndStates(List<RegexNFAStateEntry> endStates) {
@@ -983,7 +1002,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
     public void triggered() {
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        long intervalMSec = this.factory.matchRecognizeSpec.getInterval().getScheduleBackwardDelta(currentTime, agentInstanceContext);
+        long intervalMSec = computeScheduleBackwardDelta(currentTime);
         if (regexPartitionStateRepo.getScheduleState().isEmpty()) {
             return;
         }
@@ -1033,6 +1052,22 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aRegOut();
         }
+    }
+
+    private long computeScheduleBackwardDelta(long currentTime) {
+        MatchRecognizeInterval interval = factory.matchRecognizeSpec.getInterval();
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qRegIntervalValue(interval.getTimePeriodExpr());
+        }
+        if (interval.getTimeDeltaComputation() == null) {
+            ExprTimePeriodEvalDeltaConst timeDeltaComputation = interval.getTimePeriodExpr().constEvaluator(new ExprEvaluatorContextStatement(agentInstanceContext.getStatementContext(), false));
+            interval.setTimeDeltaComputation(timeDeltaComputation);
+        }
+        long result = interval.getTimeDeltaComputation().deltaSubtract(currentTime);
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aRegIntervalValue(result);
+        }
+        return result;
     }
 
     public RegexExprPreviousEvalStrategy getPreviousEvaluationStrategy() {
