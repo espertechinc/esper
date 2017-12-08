@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.espertech</groupId>
         <artifactId>esper-examples-terminalsvc-parent</artifactId>
-        <version>7.0.0</version>
+        <version>7.1.0</version>
     </parent>
     <properties>
         <rootPath>${project.parent.parent.parent.basedir}</rootPath>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>example-terminalsvc-common</artifactId>
-            <version>7.0.0</version>
+            <version>7.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
