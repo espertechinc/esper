@@ -84,6 +84,29 @@ public class ExecVariables implements RegressionExecution {
         runAssertionCoercion(epService);
         runAssertionInvalidSet(epService);
         runAssertionInvalidInitialization(epService);
+        runAssertionExceptionSetFromScript(epService);
+    }
+
+    private void runAssertionExceptionSetFromScript(EPServiceProvider epService) {
+        epService.getEPAdministrator().createEPL("create variable Object hosts");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("expression java.util.Collection js:addHosts(somevar) [\n" +
+                "var CollectionsClass = Java.type('java.util.Collections');\n" +
+                "var c = new CollectionsClass;" +
+                "c.add('x');" +
+                "c; ]\n" +
+                "on SupportBean as e set hosts = addHosts('x')");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        try {
+            epService.getEPRuntime().sendEvent(new SupportBean());
+            fail();
+        }
+        catch (EPException ex) {
+            // expected
+        }
+
+        stmt.destroy();
     }
 
     private void runAssertionDotVariableSeparateThread(EPServiceProvider epService) throws Exception {

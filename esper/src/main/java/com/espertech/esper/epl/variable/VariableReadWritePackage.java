@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.epl.variable;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.VariableValueException;
+import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.expression.codegen.ExprNodeCompiler;
@@ -252,8 +249,8 @@ public class VariableReadWritePackage {
 
             variableService.commit();
         } catch (RuntimeException ex) {
-            log.error("Error evaluating on-set variable expressions: " + ex.getMessage(), ex);
             variableService.rollback();
+            throw new EPException("Failed variable write: " + ex.getMessage(), ex);
         } finally {
             variableService.getReadWriteLock().writeLock().unlock();
         }
