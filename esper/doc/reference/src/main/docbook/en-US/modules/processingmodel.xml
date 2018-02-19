@@ -1250,4 +1250,35 @@ group by account]]></programlisting>
 			</para>
 		</sect2>		
 	</sect1>
+
+    <sect1 xml:id="processingmodel_3valuedlogic" revision="1">
+        <title>Basic Null</title>
+        
+        <para>
+			EPL and SQL use a three-valued logic: besides <literal>true</literal> and <literal>false</literal>, the result of expressions can also be unknown. Three-valued logic is a consequence of supporting <literal>null</literal> to mark absent data. 
+			If a <literal>null</literal> value affects the result of a logical expression, the result is neither <literal>true</literal> nor <literal>false</literal> but unknown.
+        </para>
+        
+        <para>
+			A <literal>null</literal> value basically means “could be anything”. It is therefore impossible to tell whether a comparison to <literal>null</literal> is <literal>true</literal> or <literal>false</literal>. 
+			That’s where the third logical value, unknown, comes in. Unknown means “true or false, depending on the null values”.
+        </para>
+
+		<para>
+			The result of each of the following comparisons is therefore <literal>null</literal> (unknown):
+		</para>
+		<programlisting>null = 1</programlisting>
+		<programlisting>null &lt;&gt; 1</programlisting>
+		<programlisting>null &gt; 1</programlisting>
+		<programlisting>null = null</programlisting>
+
+		<para>
+			Nothing <emphasis>equals</emphasis> null. Not even <literal>null</literal> equals <literal>null</literal> because each <literal>null</literal> could be different. 
+			That’s why EPL has the <literal>is null</literal> predicate to test whether a value is null or not.
+		</para>
+		<para>
+			Credit: Above is an excerpt from an online text that can be found at <link xlink:href="http://modern-sql.com/concept/three-valued-logic">http://modern-sql.com/concept/three-valued-logic</link>.
+		</para>
+	</sect1>
+		
 </chapter>
