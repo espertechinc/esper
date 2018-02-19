@@ -50,7 +50,7 @@ public class ExprIStreamNode extends ExprNodeBase implements ExprForge, ExprEval
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length != 0) {
-            throw new ExprValidationException("current_timestamp function node must have exactly 1 child node");
+            throw new ExprValidationException("istream function node must have exactly 1 child node");
         }
         return null;
     }
