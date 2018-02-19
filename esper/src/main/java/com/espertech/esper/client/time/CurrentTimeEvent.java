@@ -25,7 +25,7 @@ public final class CurrentTimeEvent extends TimerEvent {
     /**
      * Constructor.
      *
-     * @param time is the time in milliseconds
+     * @param time is the time in milliseconds (or microseconds if so configured)
      */
     public CurrentTimeEvent(final long time) {
         this.time = time;
@@ -36,16 +36,16 @@ public final class CurrentTimeEvent extends TimerEvent {
     }
 
     /**
-     * Returns the time in milliseconds.
+     * Returns the time in milliseconds (or microseconds if so configured).
      *
-     * @return time in milliseconds
+     * @return time
      */
     public long getTime() {
         return time;
     }
 
     /**
-     * Sets the time in milliseconds.
+     * Sets the time in milliseconds (or microseconds if so configured).
      *
      * @param time to set
      */
