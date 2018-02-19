@@ -21,9 +21,9 @@ public abstract class NamedWindowConsumerLatch {
 
     public abstract void await();
 
-    public abstract Thread getCurrentThread();
-
     public abstract void done();
+
+    public abstract NamedWindowConsumerLatch getEarlier();
 
     public NamedWindowConsumerLatch(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo) {
         this.deltaData = deltaData;

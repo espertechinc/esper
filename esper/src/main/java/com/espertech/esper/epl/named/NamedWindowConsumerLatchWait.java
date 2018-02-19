@@ -31,7 +31,6 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch {
     // The later latch is the latch generated after this latch
     private NamedWindowConsumerLatchWait later;
     private volatile boolean isCompleted;
-    private Thread currentThread;
 
     public NamedWindowConsumerLatchWait(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchWait earlier) {
         super(deltaData, dispatchTo);
@@ -44,6 +43,10 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch {
         this.factory = factory;
         isCompleted = true;
         earlier = null;
+    }
+
+    public NamedWindowConsumerLatchWait getEarlier() {
+        return earlier;
     }
 
     /**
@@ -69,37 +72,23 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch {
      */
     public void await() {
 
-        Thread thread = Thread.currentThread();
+        if (earlier.isCompleted) {
+            return;
+        }
 
-        try {
-            if (earlier.isCompleted) {
-                return;
-            }
-
-            if (earlier.getCurrentThread() == thread) {
-                return;
-            }
-
-            synchronized (this) {
-                if (!earlier.isCompleted) {
-                    try {
-                        this.wait(factory.getMsecWait());
-                    } catch (InterruptedException e) {
-                        log.error("Interrupted: " + e.getMessage(), e);
-                    }
+        synchronized (this) {
+            if (!earlier.isCompleted) {
+                try {
+                    this.wait(factory.getMsecWait());
+                } catch (InterruptedException e) {
+                    log.error("Interrupted: " + e.getMessage(), e);
                 }
             }
-
-            if (!earlier.isCompleted) {
-                log.info("Wait timeout exceeded for named window '" + "' consumer dispatch with notify");
-            }
-        } finally {
-            currentThread = thread;
         }
-    }
 
-    public Thread getCurrentThread() {
-        return currentThread;
+        if (!earlier.isCompleted) {
+            log.info("Wait timeout exceeded for named window '" + "' consumer dispatch with notify");
+        }
     }
 
     /**

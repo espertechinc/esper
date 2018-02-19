@@ -33,4 +33,8 @@ public class NamedWindowConsumerLatchNone extends NamedWindowConsumerLatch {
 
     public void done() {
     }
+
+    public NamedWindowConsumerLatch getEarlier() {
+        return null;
+    }
 }

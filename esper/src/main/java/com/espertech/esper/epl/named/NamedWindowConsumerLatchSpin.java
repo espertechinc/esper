@@ -27,7 +27,6 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch {
     // The earlier latch is the latch generated before this latch
     private NamedWindowConsumerLatchFactory factory;
     private NamedWindowConsumerLatchSpin earlier;
-    private Thread currentThread;
 
     private volatile boolean isCompleted;
 
@@ -44,6 +43,10 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch {
         earlier = null;
     }
 
+    public NamedWindowConsumerLatchSpin getEarlier() {
+        return earlier;
+    }
+
     /**
      * Returns true if the dispatch completed for this future.
      *
@@ -57,33 +60,19 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch {
      * Blocking call that returns only when the earlier latch completed.
      */
     public void await() {
-        Thread thread = Thread.currentThread();
-
-        try {
-            if (earlier.isCompleted) {
-                return;
-            }
-
-            if (earlier.getCurrentThread() == thread) {
-                return;
-            }
-
-            long spinStartTime = factory.getTimeSourceService().getTimeMillis();
-            while (!earlier.isCompleted) {
-                Thread.yield();
-                long spinDelta = factory.getTimeSourceService().getTimeMillis() - spinStartTime;
-                if (spinDelta > factory.getMsecWait()) {
-                    log.info("Spin wait timeout exceeded in named window '" + factory.getName() + "' consumer dispatch at " + factory.getMsecWait() + "ms for " + factory.getName() + ", consider disabling named window consumer dispatch latching for better performance");
-                    break;
-                }
-            }
-        } finally {
-            this.currentThread = thread;
+        if (earlier.isCompleted) {
+            return;
         }
-    }
 
-    public Thread getCurrentThread() {
-        return currentThread;
+        long spinStartTime = factory.getTimeSourceService().getTimeMillis();
+        while (!earlier.isCompleted) {
+            Thread.yield();
+            long spinDelta = factory.getTimeSourceService().getTimeMillis() - spinStartTime;
+            if (spinDelta > factory.getMsecWait()) {
+                log.info("Spin wait timeout exceeded in named window '" + factory.getName() + "' consumer dispatch at " + factory.getMsecWait() + "ms for " + factory.getName() + ", consider disabling named window consumer dispatch latching for better performance");
+                break;
+            }
+        }
     }
 
     /**

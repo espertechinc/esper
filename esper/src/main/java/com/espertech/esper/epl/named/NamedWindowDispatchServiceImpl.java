@@ -45,15 +45,9 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
     private final ManagedReadWriteLock eventProcessingRWLock;
     private final MetricReportingService metricReportingService;
 
-    private ThreadLocal<List<NamedWindowConsumerLatch>> threadLocal = new ThreadLocal<List<NamedWindowConsumerLatch>>() {
-        protected synchronized List<NamedWindowConsumerLatch> initialValue() {
-            return new ArrayList<NamedWindowConsumerLatch>();
-        }
-    };
-
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> dispatchesPerStmtTL = new ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>>() {
-        protected synchronized Map<EPStatementAgentInstanceHandle, Object> initialValue() {
-            return new HashMap<EPStatementAgentInstanceHandle, Object>();
+    private ThreadLocal<DispatchesTL> threadLocal = new ThreadLocal<DispatchesTL>() {
+        protected synchronized DispatchesTL initialValue() {
+            return new DispatchesTL();
         }
     };
 
@@ -83,21 +77,20 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
 
     public void destroy() {
         threadLocal.remove();
-        dispatchesPerStmtTL.remove();
     }
 
     public void addDispatch(NamedWindowConsumerLatchFactory latchFactory, NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers) {
         NamedWindowConsumerLatch latch = latchFactory.newLatch(delta, consumers);
-        threadLocal.get().add(latch);
+        threadLocal.get().getDispatches().add(latch);
     }
 
     public boolean dispatch() {
-        List<NamedWindowConsumerLatch> dispatches = threadLocal.get();
-        if (dispatches.isEmpty()) {
+        DispatchesTL dispatchesTL = threadLocal.get();
+        if (dispatchesTL.getDispatches().isEmpty()) {
             return false;
         }
 
-        while (!dispatches.isEmpty()) {
+        while (!dispatchesTL.getDispatches().isEmpty()) {
 
             // Acquire main processing lock which locks out statement management
             if (InstrumentationHelper.ENABLED) {
@@ -105,12 +98,14 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             }
             eventProcessingRWLock.acquireReadLock();
             try {
-                NamedWindowConsumerLatch[] units = dispatches.toArray(new NamedWindowConsumerLatch[dispatches.size()]);
-                dispatches.clear();
-                processDispatches(units);
+                // since dispatches can cause dispatches, copy the contents
+                dispatchesTL.getCurrent().addAll(dispatchesTL.getDispatches());
+                dispatchesTL.getDispatches().clear();
+                processDispatches(dispatchesTL.getCurrent(), dispatchesTL.getWork(), dispatchesTL.getDispatchesPerStmt());
             } catch (RuntimeException ex) {
                 throw new EPException(ex);
             } finally {
+                dispatchesTL.getCurrent().clear();
                 eventProcessingRWLock.releaseReadLock();
                 if (InstrumentationHelper.ENABLED) {
                     InstrumentationHelper.get().aNamedWindowDispatch();
@@ -121,10 +116,10 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         return true;
     }
 
-    private void processDispatches(NamedWindowConsumerLatch[] dispatches) {
+    private void processDispatches(ArrayDeque<NamedWindowConsumerLatch> dispatches, ArrayDeque<NamedWindowConsumerLatch> work, Map<EPStatementAgentInstanceHandle, Object> dispatchesPerStmt) {
 
-        if (dispatches.length == 1) {
-            NamedWindowConsumerLatch latch = dispatches[0];
+        if (dispatches.size() == 1) {
+            NamedWindowConsumerLatch latch = dispatches.getFirst();
             try {
                 latch.await();
                 EventBean[] newData = latch.getDeltaData().getNewData();
@@ -173,32 +168,56 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         // a) an event comes in, triggers two insert-into statements inserting into the same named window and the window produces 2 results
         // b) a time batch is grouped in the named window, and a timer fires for both groups at the same time producing more then one result
         // c) two on-merge/update/delete statements fire for the same arriving event each updating the named window
-
         // Most likely all dispatches go to different statements since most statements are not joins of
         // named windows that produce results at the same time. Therefore sort by statement handle.
-        Map<EPStatementAgentInstanceHandle, Object> dispatchesPerStmt = dispatchesPerStmtTL.get();
-        for (NamedWindowConsumerLatch latch : dispatches) {
-            latch.await();
-            for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : latch.getDispatchTo().entrySet()) {
-                EPStatementAgentInstanceHandle handle = entry.getKey();
-                Object perStmtObj = dispatchesPerStmt.get(handle);
-                if (perStmtObj == null) {
-                    dispatchesPerStmt.put(handle, latch);
-                } else if (perStmtObj instanceof List) {
-                    List<NamedWindowConsumerLatch> list = (List<NamedWindowConsumerLatch>) perStmtObj;
-                    list.add(latch);
+        // We need to process in N-element chains to preserve dispatches that are next to each other for the same thread.
+        while (!dispatches.isEmpty()) {
+
+            // the first latch always gets awaited
+            NamedWindowConsumerLatch first = dispatches.removeFirst();
+            first.await();
+            work.add(first);
+
+            // determine which further latches are in this chain and add these, skipping await for any latches in the chain
+            Iterator<NamedWindowConsumerLatch> it = dispatches.iterator();
+            while (it.hasNext()) {
+                NamedWindowConsumerLatch next = it.next();
+                NamedWindowConsumerLatch earlier = next.getEarlier();
+                if (earlier == null || work.contains(earlier)) {
+                    work.add(next);
+                    it.remove();
                 } else {
-                    // convert from object to list
-                    NamedWindowConsumerLatch unitObj = (NamedWindowConsumerLatch) perStmtObj;
-                    List<NamedWindowConsumerLatch> list = new ArrayList<NamedWindowConsumerLatch>();
-                    list.add(unitObj);
-                    list.add(latch);
-                    dispatchesPerStmt.put(handle, list);
+                    break;
                 }
             }
+
+            processDispatches(work, dispatchesPerStmt);
         }
+    }
+
+    private void processDispatches(ArrayDeque<NamedWindowConsumerLatch> dispatches, Map<EPStatementAgentInstanceHandle, Object> dispatchesPerStmt) {
 
         try {
+            for (NamedWindowConsumerLatch latch : dispatches) {
+                for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : latch.getDispatchTo().entrySet()) {
+                    EPStatementAgentInstanceHandle handle = entry.getKey();
+                    Object perStmtObj = dispatchesPerStmt.get(handle);
+                    if (perStmtObj == null) {
+                        dispatchesPerStmt.put(handle, latch);
+                    } else if (perStmtObj instanceof List) {
+                        List<NamedWindowConsumerLatch> list = (List<NamedWindowConsumerLatch>) perStmtObj;
+                        list.add(latch);
+                    } else {
+                        // convert from object to list
+                        NamedWindowConsumerLatch unitObj = (NamedWindowConsumerLatch) perStmtObj;
+                        List<NamedWindowConsumerLatch> list = new ArrayList<NamedWindowConsumerLatch>();
+                        list.add(unitObj);
+                        list.add(latch);
+                        dispatchesPerStmt.put(handle, list);
+                    }
+                }
+            }
+
             // Dispatch - with or without metrics reporting
             if (MetricReportingPath.isMetricsEnabled) {
                 for (Map.Entry<EPStatementAgentInstanceHandle, Object> entry : dispatchesPerStmt.entrySet()) {
@@ -292,9 +311,9 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             for (NamedWindowConsumerLatch latch : dispatches) {
                 latch.done();
             }
+            dispatchesPerStmt.clear();
+            dispatches.clear();
         }
-
-        dispatchesPerStmt.clear();
     }
 
     private void processHandleMultiple(EPStatementAgentInstanceHandle handle, Map<NamedWindowConsumerView, NamedWindowDeltaData> deltaPerConsumer) {
@@ -373,5 +392,28 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             }
         }
         return deltaPerConsumer;
+    }
+
+    private static class DispatchesTL {
+        private final ArrayDeque<NamedWindowConsumerLatch> dispatches = new ArrayDeque<>();
+        private final ArrayDeque<NamedWindowConsumerLatch> current = new ArrayDeque<>();
+        private final ArrayDeque<NamedWindowConsumerLatch> work = new ArrayDeque<>();
+        private final Map<EPStatementAgentInstanceHandle, Object> dispatchesPerStmt = new HashMap<>();
+
+        public ArrayDeque<NamedWindowConsumerLatch> getDispatches() {
+            return dispatches;
+        }
+
+        public ArrayDeque<NamedWindowConsumerLatch> getCurrent() {
+            return current;
+        }
+
+        public ArrayDeque<NamedWindowConsumerLatch> getWork() {
+            return work;
+        }
+
+        public Map<EPStatementAgentInstanceHandle, Object> getDispatchesPerStmt() {
+            return dispatchesPerStmt;
+        }
     }
 }
