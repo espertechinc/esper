@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.client.soda;
 
+import com.espertech.esper.type.OuterJoinType;
+
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -199,8 +201,14 @@ public class FromClause implements Serializable {
                 if (i < streams.size() - 1) {
                     OuterJoinQualifier qualType = outerJoinQualifiers.get(i);
                     writer.write(" ");
-                    writer.write(qualType.getType().getText());
-                    writer.write(" outer join");
+                    if (qualType.getType() != OuterJoinType.INNER) {
+                        writer.write(qualType.getType().getText());
+                        writer.write(" outer");
+                    }
+                    else {
+                        writer.write(qualType.getType().getText());
+                    }
+                    writer.write(" join");
                 }
             }
         }

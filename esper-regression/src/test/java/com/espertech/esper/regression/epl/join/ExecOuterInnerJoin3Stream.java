@@ -18,6 +18,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.bean.SupportBean_S2;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 
 import static org.junit.Assert.assertFalse;
 
@@ -39,7 +40,7 @@ public class ExecOuterInnerJoin3Stream implements RegressionExecution {
         String joinStatement = "select * from " +
                 EVENT_S1 + "#keepall as s1 inner join " +
                 EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 " +
-                " full outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10";
+                "full outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10";
 
         tryAssertionFull(epService, joinStatement);
     }
@@ -47,7 +48,7 @@ public class ExecOuterInnerJoin3Stream implements RegressionExecution {
     private void runAssertionFullJoinVariantTwo(EPServiceProvider epService) {
         String joinStatement = "select * from " +
                 EVENT_S2 + "#length(1000) as s2 " +
-                " inner join " + EVENT_S1 + "#keepall s1 on s1.p10 = s2.p20" +
+                "inner join " + EVENT_S1 + "#keepall as s1 on s1.p10 = s2.p20" +
                 " full outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10";
 
         tryAssertionFull(epService, joinStatement);
@@ -56,7 +57,7 @@ public class ExecOuterInnerJoin3Stream implements RegressionExecution {
     private void runAssertionFullJoinVariantOne(EPServiceProvider epService) {
         String joinStatement = "select * from " +
                 EVENT_S0 + "#length(1000) as s0 " +
-                " full outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10" +
+                "full outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10" +
                 " inner join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20";
 
         tryAssertionFull(epService, joinStatement);
@@ -74,7 +75,7 @@ public class ExecOuterInnerJoin3Stream implements RegressionExecution {
     private void runAssertionLeftJoinVariantTwo(EPServiceProvider epService) {
         String joinStatement = "select * from " +
                 EVENT_S2 + "#length(1000) as s2 " +
-                " inner join " + EVENT_S1 + "#keepall s1 on s1.p10 = s2.p20" +
+                "inner join " + EVENT_S1 + "#keepall as s1 on s1.p10 = s2.p20" +
                 " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10";
 
         tryAssertionFull(epService, joinStatement);
@@ -83,7 +84,7 @@ public class ExecOuterInnerJoin3Stream implements RegressionExecution {
     private void runAssertionRightJoinVariantOne(EPServiceProvider epService) {
         String joinStatement = "select * from " +
                 EVENT_S0 + "#length(1000) as s0 " +
-                " right outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10" +
+                "right outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10" +
                 " inner join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20";
 
         tryAssertionFull(epService, joinStatement);
@@ -92,7 +93,7 @@ public class ExecOuterInnerJoin3Stream implements RegressionExecution {
     private void tryAssertionFull(EPServiceProvider epService, String expression) {
         String[] fields = "s0.id, s0.p00, s1.id, s1.p10, s2.id, s2.p20".split(",");
 
-        EPStatement joinView = epService.getEPAdministrator().createEPL(expression);
+        EPStatement joinView = SupportModelHelper.compileCreate(epService, expression);
         SupportUpdateListener listener = new SupportUpdateListener();
         joinView.addListener(listener);
 
