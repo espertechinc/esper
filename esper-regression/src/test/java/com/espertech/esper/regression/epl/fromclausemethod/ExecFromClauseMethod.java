@@ -53,7 +53,8 @@ public class ExecFromClauseMethod implements RegressionExecution {
         runAssertionInvocationTargetEx(epService);
         runAssertionStreamNameWContext(epService);
         runAssertionWithMethodResultParam(epService);
-        runAssertionInvalid(epService);    }
+        runAssertionInvalid(epService);
+    }
 
     private void runAssertionWithMethodResultParam(EPServiceProvider epService) {
         String epl = "@name('stmt0') select * from SupportBean as e,\n" +
@@ -82,7 +83,7 @@ public class ExecFromClauseMethod implements RegressionExecution {
         stmt.destroy();
     }
 
-    private void runAssertionUDFAndScriptReturningEvents(EPServiceProvider epService) {
+    private void runAssertionUDFAndScriptReturningEvents(EPServiceProvider epService) throws Exception {
         epService.getEPAdministrator().createEPL("create schema ItemEvent(id string)");
 
         ConfigurationPlugInSingleRowFunction entry = new ConfigurationPlugInSingleRowFunction();
@@ -101,7 +102,7 @@ public class ExecFromClauseMethod implements RegressionExecution {
                 "  events[1] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id3\"), \"ItemEvent\");\n" +
                 "  return events;\n" +
                 "}]";
-        epService.getEPAdministrator().createEPL(script);
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(script);
 
         tryAssertionUDFAndScriptReturningEvents(epService, "myItemProducerUDF");
         tryAssertionUDFAndScriptReturningEvents(epService, "myItemProducerScript");

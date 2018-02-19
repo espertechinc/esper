@@ -389,13 +389,18 @@ public class EPLModuleUtil {
             return;
         }
 
-        int current = indexFirstSquare;
-        while (current < indexCloseSquare) {
-            Token t = tokens.get(current);
-            if (t.getType() == EsperEPL2GrammarParser.SEMI) {
-                result.add(current);
+        if (indexFirstSquare == indexCloseSquare-1) {
+            getSkippedSemicolonsBetweenSquareBrackets(indexCloseSquare, tokens, result);
+        }
+        else {
+            int current = indexFirstSquare;
+            while (current < indexCloseSquare) {
+                Token t = tokens.get(current);
+                if (t.getType() == EsperEPL2GrammarParser.SEMI) {
+                    result.add(current);
+                }
+                current++;
             }
-            current++;
         }
     }
 
