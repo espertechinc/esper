@@ -40,7 +40,7 @@ public class FilterBooleanExpressionFactoryImpl implements FilterBooleanExpressi
 
         // non-pattern case
         ExprNodeAdapterBase adapter;
-        ExprEvaluator exprEvaluator = ExprNodeCompiler.allocateEvaluator(exprNode.getForge(), engineImportService, this.getClass(), false, exprEvaluatorContext.getStatementName());
+        ExprEvaluator exprEvaluator = exprNode.getForge().getExprEvaluator();
 
         if (events == null) {
 
