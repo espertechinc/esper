@@ -13,6 +13,7 @@ package com.espertech.esper.regression.expr.expr;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.supportregression.bean.SupportBean;
@@ -28,6 +29,8 @@ import static junit.framework.TestCase.assertEquals;
 
 public class ExecExprCaseExpr implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+
         runAssertionCaseSyntax1Sum(epService);
         runAssertionCaseSyntax1Sum_OM(epService);
         runAssertionCaseSyntax1Sum_Compile(epService);
@@ -49,6 +52,19 @@ public class ExecExprCaseExpr implements RegressionExecution {
         runAssertionCaseSyntax2EnumChecks(epService);
         runAssertionCaseSyntax2EnumResult(epService);
         runAssertionCaseSyntax2NoAsName(epService);
+        runAssertionCaseWithArrayResult(epService);
+    }
+
+    private void runAssertionCaseWithArrayResult(EPServiceProvider epService) {
+        String epl = "select case when intPrimitive = 1 then { 1, 2 } else { 1, 2 } end as c1 from SupportBean";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        EPAssertionUtil.assertEqualsExactOrder((Integer[]) listener.assertOneGetNewAndReset().get("c1"), new Integer[] {1,2});
+
+        stmt.destroy();
     }
 
     private void runAssertionCaseSyntax1Sum(EPServiceProvider epService) {

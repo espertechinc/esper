@@ -675,6 +675,12 @@ public class TestJavaClassHelper extends TestCase {
         assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[]{SupportBean.class, null, SupportBean.class, SupportBean.class}));
         assertEquals(Object.class, JavaClassHelper.getCommonCoercionType(new Class[]{SupportBean.class, SupportBean_A.class, null, SupportBean.class, SupportBean.class}));
 
+        assertEquals(int[].class, JavaClassHelper.getCommonCoercionType(new Class[]{int[].class, int[].class}));
+        assertEquals(long[].class, JavaClassHelper.getCommonCoercionType(new Class[]{long[].class, long[].class}));
+        assertEquals(String[].class, JavaClassHelper.getCommonCoercionType(new Class[]{String[].class, String[].class}));
+        assertEquals(Object[].class, JavaClassHelper.getCommonCoercionType(new Class[]{String[].class, Integer[].class}));
+        assertEquals(Object[].class, JavaClassHelper.getCommonCoercionType(new Class[]{Object[].class, Integer[].class}));
+
         assertEquals("Cannot coerce to String type java.lang.Boolean", tryInvalidGetCommonCoercionType(new Class[]{String.class, Boolean.class}));
         tryInvalidGetCommonCoercionType(new Class[]{String.class, String.class, Boolean.class});
         tryInvalidGetCommonCoercionType(new Class[]{Boolean.class, String.class, Boolean.class});
@@ -689,6 +695,8 @@ public class TestJavaClassHelper extends TestCase {
         tryInvalidGetCommonCoercionType(new Class[]{SupportBean.class, Boolean.class});
         tryInvalidGetCommonCoercionType(new Class[]{String.class, SupportBean.class});
         tryInvalidGetCommonCoercionType(new Class[]{SupportBean.class, String.class, SupportBean.class});
+        tryInvalidGetCommonCoercionType(new Class[]{int[].class, Integer[].class});
+        tryInvalidGetCommonCoercionType(new Class[]{Object[].class, boolean[].class, Integer[].class});
 
         try {
             JavaClassHelper.getCommonCoercionType(new Class[0]);

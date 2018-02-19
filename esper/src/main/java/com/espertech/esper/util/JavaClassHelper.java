@@ -729,9 +729,30 @@ public class JavaClassHelper {
             return Character.class;
         }
 
+        // handle arrays
+        if (types[0].isArray()) {
+            Class componentType =  types[0].getComponentType();
+            boolean sameComponentType = true;
+            for (int i = 1; i < types.length; i++) {
+                if (!types[i].isArray()) {
+                    throw getCoercionException(types[0], types[i]);
+                }
+                Class otherComponentType = types[i].getComponentType();
+                if (componentType != otherComponentType) {
+                    if (componentType.isPrimitive() || otherComponentType.isPrimitive()) {
+                        throw getCoercionException(types[0], types[i]);
+                    }
+                    sameComponentType = false;
+                }
+            }
+            if (sameComponentType) {
+                return types[0];
+            }
+            return Object[].class;
+        }
+
         // Check if all the same non-Java builtin type, i.e. Java beans etc.
         boolean isAllBuiltinTypes = true;
-        boolean isAllNumeric = true;
         for (Class type : types) {
             if (!isNumeric(type) && (!isJavaBuiltinDataType(type))) {
                 isAllBuiltinTypes = false;
@@ -745,18 +766,13 @@ public class JavaClassHelper {
                     continue;
                 }
                 if (isJavaBuiltinDataType(type)) {
-                    throw new CoercionException("Cannot coerce to " + types[0].getName() + " type " + type.getName());
+                    throw getCoercionException(types[0], type);
                 }
                 if (type != types[0]) {
                     return Object.class;
                 }
             }
             return types[0];
-        }
-
-        // test for numeric
-        if (!isAllNumeric) {
-            throw new CoercionException("Cannot coerce to numeric type " + types[0].getName());
         }
 
         // Use arithmatic coercion type as the final authority, considering all types
@@ -1642,5 +1658,9 @@ public class JavaClassHelper {
         Type[] shrunk = new Type[numToTake];
         System.arraycopy(types, 0, shrunk, 0, shrunk.length);
         return shrunk;
+    }
+
+    private static CoercionException getCoercionException(Class type, Class other) {
+        throw new CoercionException("Cannot coerce to " + getClassNameFullyQualPretty(type) + " type " + getClassNameFullyQualPretty(other));
     }
 }
