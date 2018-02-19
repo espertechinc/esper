@@ -38,7 +38,9 @@ public class ContextDetailUtil {
             }
             return filters;
         } else if (detail instanceof ContextDetailCategory) {
-            return Collections.singletonList(((ContextDetailCategory) detail).getFilterSpecCompiled());
+            List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>(1);
+            filters.add(((ContextDetailCategory) detail).getFilterSpecCompiled());
+            return filters;
         } else if (detail instanceof ContextDetailHash) {
             ContextDetailHash hash = (ContextDetailHash) detail;
             List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>(hash.getItems().size());
