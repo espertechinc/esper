@@ -6714,11 +6714,11 @@ where productId = bookId]]></programlisting>
 			   The example EPL shown next invokes a JavaScript function which returns some events of type <literal>WordEvent</literal>:
 			</para>
 			<programlisting><![CDATA[expression Collection js:splitSentenceJS(sentence) [
-importPackage(java.util);
-var words = new ArrayList();
-words.add(Collections.singletonMap('word', 'wordOne'));
-words.add(Collections.singletonMap('word', 'wordTwo'));
-words;
+  var CollectionsClazz = Java.type('java.util.Collections');
+  var words = new java.util.ArrayList();
+  words.add(CollectionsClazz.singletonMap('word', 'wordOne'));
+  words.add(CollectionsClazz.singletonMap('word', 'wordTwo'));
+  words;
 ]
 select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]]]></programlisting>
 
