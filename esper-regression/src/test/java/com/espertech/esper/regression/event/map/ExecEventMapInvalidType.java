@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 public class ExecEventMapInvalidType implements RegressionExecution {
     public void run(EPServiceProvider epService) throws Exception {
         Map<String, Object> invalid = ExecEventMap.makeMap(new Object[][]{{new SupportBean(), null}});
-        tryInvalid(epService, invalid, SupportBean.class.getName() + " cannot be cast to java.lang.String");
+        tryInvalid(epService, invalid, SupportBean.class.getName() + " cannot be cast to");
 
         invalid = ExecEventMap.makeMap(new Object[][]{{"abc", new SupportBean()}});
         tryInvalid(epService, invalid, "Nestable type configuration encountered an unexpected property type of 'SupportBean' for property 'abc', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
