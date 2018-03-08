@@ -1,6 +1,18 @@
 Esper Changelog
 ===================
 
+Changes in version 7.1.0
+------------------------
+  - Bug fix release with no significant new functionality
+  - Fixed issue SNU-737-77471 Byte code generation for filter boolean expressions can take place at runtime and degrade performance
+  - Fixed issue VYZ-3431-6686 JMSOutputAdapter ClassCastException when HA enabled
+  - Fixed issue CPY-657-70575 FromClause-model produces an extra 'outer'ù in "toEPL" for joins
+  - Fixed issue KEC-614-81453 An exception thrown when evaluating rhs for variable-set does not invoke exception handler
+  - Fixed issue #99 Returning a list from an expression declaration using Case Control Flow with multiple conditions
+  - Fixed issue ZTB-991-52280 Deployment API fails compile for script expression returning array
+  - Fixed issue AYG-126-66992 Improve named window dispatches to reduce contention
+  - Many other improvements across the code and documentation that are not explicitly listed above   
+
 Changes in version 7.0.0
 ------------------------
   - Janino is now a compile-time dependency. At runtime Janino is required by default; Janino is not required when byte code generation is disabled in the configuration.
