@@ -204,8 +204,7 @@ public class FromClause implements Serializable {
                     if (qualType.getType() != OuterJoinType.INNER) {
                         writer.write(qualType.getType().getText());
                         writer.write(" outer");
-                    }
-                    else {
+                    } else {
                         writer.write(qualType.getType().getText());
                     }
                     writer.write(" join");

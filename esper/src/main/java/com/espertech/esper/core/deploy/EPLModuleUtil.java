@@ -389,10 +389,9 @@ public class EPLModuleUtil {
             return;
         }
 
-        if (indexFirstSquare == indexCloseSquare-1) {
+        if (indexFirstSquare == indexCloseSquare - 1) {
             getSkippedSemicolonsBetweenSquareBrackets(indexCloseSquare, tokens, result);
-        }
-        else {
+        } else {
             int current = indexFirstSquare;
             while (current < indexCloseSquare) {
                 Token t = tokens.get(current);
