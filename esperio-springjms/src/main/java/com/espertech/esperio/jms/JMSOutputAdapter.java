@@ -11,9 +11,7 @@
 package com.espertech.esperio.jms;
 
 import com.espertech.esper.adapter.*;
-import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.*;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
@@ -132,7 +130,32 @@ public abstract class JMSOutputAdapter implements OutputAdapter, AdapterSPI {
         stateManager.start();
         Iterator<Map.Entry<String, Subscription>> it = subscriptionMap.entrySet().iterator();
         while (it.hasNext()) {
-            it.next().getValue().registerAdapter(this);
+            Map.Entry<String, Subscription> sub = it.next();
+            JMSSubscription destination = (JMSSubscription) sub.getValue();
+            destination.setJMSOutputAdapter(this);
+
+            String statementName = this.getClass().getSimpleName() + "-" + sub.getKey() + "-" + sub.getValue().getEventTypeName();
+
+            EPStatement statement = spi.getEPAdministrator().getStatement(statementName);
+            if (statement == null) {
+                try {
+                    statement = spi.getEPAdministrator().createEPL("select * from " + sub.getValue().getEventTypeName(), statementName);
+                } catch (Throwable t) {
+                    String message = "Exception starting adapter: " + t.getMessage();
+                    log.error(message, t);
+                    throw new RuntimeException(message, t);
+                }
+            }
+            statement.addListener(new UpdateListener() {
+                public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+                    if (newEvents == null) {
+                        return;
+                    }
+                    for (EventBean event : newEvents) {
+                        destination.matchFound(event, null);
+                    }
+                }
+            });
         }
     }
 

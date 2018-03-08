@@ -52,10 +52,12 @@
           <key><idref local="subscriptionOne"/></key>
           <ref bean="subscriptionOne"/>
         </entry>
+        <!-- Example with a custom marshaller 
         <entry>
           <key><idref local="subscriptionTwo"/></key>
           <ref bean="subscriptionTwo"/>
         </entry>
+        -->
       </map>
     </property>
     <property name="jmsMessageMarshaller">
@@ -67,12 +69,14 @@
     <property name="eventTypeName" value="MyOutputStream"/>
   </bean>
 
+  <!-- Example with a custom marshaller 
   <bean id="subscriptionTwo" class="com.espertech.esperio.jms.JMSSubscription">
     <property name="eventTypeName" value="MyMapEventTwo"/>
     <property name="jmsMessageMarshaller">
       <ref bean="myCustomMarshaller"/>
     </property>
   </bean>
+  -->
 
 </beans>
 

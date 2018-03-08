@@ -46,6 +46,10 @@ public class JMSSubscription extends BaseSubscription {
         this.jmsMessageMarshaller = jmsMessageMarshaller;
     }
 
+    public void setJMSOutputAdapter(JMSOutputAdapter adapter) {
+        this.adapter = adapter;
+    }
+
     public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
 
         if (!(adapter instanceof JMSOutputAdapter)) {
