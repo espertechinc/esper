@@ -28,7 +28,7 @@
 		</para>
 		
 		<para>
-			Please see <xref linkend="processingmodel_aggregation_output"/> for information on the types of queries discussed below.
+			Please see <xref linkend="processingmodel_aggregation"/> for information on the types of queries discussed below.
 		</para>
 
 		<sect1 xml:id="epl-output-unaggandungrouped">

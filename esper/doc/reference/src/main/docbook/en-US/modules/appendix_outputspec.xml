@@ -20,7 +20,7 @@
 
 	<para>
 		The chapters are organized by the type of query: The presence or absence of aggregation functions, as well as the presence or absence of a <literal>group by</literal> clause change statement output as 
-		described in <xref linkend="processingmodel_aggregation_output"/>.
+		described in <xref linkend="processingmodel_aggregation"/>.
 	</para>       
 
 	<para>

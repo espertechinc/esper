@@ -2000,7 +2000,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 			</para>
 			<para>
 				Place expressions that remove unwanted events into parenthesis right after the event type, like <literal>... from OrderEvent(fraud.severity = 5 and amount > 500) ...</literal>. 
-				There is related information at <xref linkend="processingmodel_filter"/> and <xref linkend="perf-tips-5"/>.
+				There is related information at <xref linkend="processingmodel_indexes_filterindexes"/> and <xref linkend="perf-tips-5"/>.
 			</para>
 		</tip>
 
@@ -2539,7 +2539,7 @@ c
   
 			<para>
 				The presence of <literal>group_by</literal> aggregation function parameters, the grouping expressions as well as the <literal>group-by</literal> clause 
-				determine the number of output rows for queries as further described in <xref linkend="processingmodel_aggregation_output"/>.
+				determine the number of output rows for queries as further described in <xref linkend="processingmodel_aggregation"/>.
 			</para>
 			 
 			<para>
@@ -3149,7 +3149,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 				<itemizedlist spacing="compact">
 					<listitem>
 						<para>
-							When no keyword is specified, the engine produces an output row for each row in the batch or when using group-by then an output per group only for those groups present in the batch, following <xref linkend="processingmodel_aggregation_output"/>.
+							When no keyword is specified, the engine produces an output row for each row in the batch or when using group-by then an output per group only for those groups present in the batch, following <xref linkend="processingmodel_aggregation"/>.
 						</para>
 					</listitem>
 					<listitem>

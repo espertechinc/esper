@@ -2254,7 +2254,7 @@ having leaving()</programlisting>
 									recent values in data windows with a large number of events without incurring excessive overhead.
 								</para>
 								<para>
-									As compared to the <literal>prev</literal> row function, this aggregation function works within the current <literal>group by</literal> group, see <xref linkend="processingmodel_aggregation_output"/>.
+									As compared to the <literal>prev</literal> row function, this aggregation function works within the current <literal>group by</literal> group, see <xref linkend="processingmodel_aggregation"/>.
 								</para>
 								<para>
 									This statement outputs every 2 seconds the groups that have new data and their last price and the previous-to-last price:
