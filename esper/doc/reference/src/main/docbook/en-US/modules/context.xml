@@ -201,66 +201,181 @@
 			<title>Keyed Segmented Context</title>
 			
 			<para>
-				  This context assigns events to context partitions based on the values of one or more event properties, using the value of these property(s) as a key that picks a unique context partition directly. Each event thus belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one set of key values.
+				  This context assigns events to context partitions based on the values of one or more event properties, using the value of these property(s) as a key that picks a unique context partition directly. Each event thus belongs to exactly one context partition or zero context partitions (zero context partitions only if the event does not match the optional filter predicate expression(s)). Each context partition handles one key value (a key value can be a composite key).
 			</para>
 
 			<para>
-				The syntax for creating a keyed segmented context is as follows: 
+				The syntax for creating a keyed segmented context is:
 			</para>
-			<synopsis>create context <emphasis>context_name</emphasis> partition [by]
-  <emphasis>event_property</emphasis> [and <emphasis>event_property</emphasis> [and ...]] from <emphasis>stream_def</emphasis>
-  [, <emphasis>event_property</emphasis> [...] from <emphasis>stream_def</emphasis>]
-  [, ...]</synopsis>
+			<synopsis>create context <emphasis>context_name</emphasis> partition [by] <emphasis>partition_def</emphasis>
+  [initiated [by] <emphasis>initiated_def</emphasis>] 
+  [terminated [by] <emphasis>terminating_condition</emphasis>]</synopsis>
 						
 			<para>
 				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
 			</para>
 				
 			<para>
-				Following the context name is one or more lists of event properties and a stream definition for each entry, separated by comma (<literal>,</literal>).
+				Following the context name is the <literal>partition</literal> keyword and a <emphasis>partition_def</emphasis> partition definition that list event properties and event types providing the partition key value (or values for composite keys).				
 			</para>
 
 			<para>
-				The <emphasis>event_property</emphasis> is the name(s) of the event properties that provide the value(s) to pick a unique partition. Multiple event property names are separated by the <literal>and</literal> keyword.
+				You may optionally declare initiating events using the <literal>initiated</literal> keyword and you may provide a termination condition for terminating partitions.
 			</para>
+			
+			<sect3 xml:id="context_def_keyed_partition" revision="1">
+				<title>Partition-By</title>
+
+				<para>
+					After <literal>partitioned by</literal> you can list the event properties that provide the key values that identify a unique partition. The synopsis is:
+				</para>
+			<synopsis>create context <emphasis>context_name</emphasis> partition [by]
+  <emphasis>event_property</emphasis> [and <emphasis>event_property</emphasis> [and ...]] from <emphasis>stream_def</emphasis> [ [as] <emphasis>stream_name</emphasis>]
+  [, <emphasis>event_property</emphasis> [...] from <emphasis>stream_def</emphasis>]   [, ...]</synopsis>
+						
+				<para>
+					The <emphasis>event_property</emphasis> is the name(s) of the event properties that provide the value(s) to pick a unique partition. Multiple event property names are separated by the <literal>and</literal> keyword or by comma.
+				</para>
+					
+				<para>
+					The <emphasis>stream_def</emphasis> is a stream definition which consists of an event type name optionally followed by parenthesis that contains filter expressions. If providing filter expressions, only events matching the provided filter expressions for that event type are considered by context partitions. The name of a named window or table is not allowed.
+				</para>
+	
+				<para>				
+					You may list multiple event properties for each stream definition. You may list multiple stream definitions. Please refer to usage guidelines below when specifying multiple event properties and/or multiple stream definitions.
+				</para>
+	
+				<para>
+					You may specify the optional <literal>as</literal>-keyword and a stream name. This instructs the engine to make the first event of a partition available in context built-in properties and for matching in <literal>terminated by</literal>.
+					You may specify stream names either in <literal>partition by</literal> or in <literal>initiated by</literal> but not both.
+				</para>
+			
+				<para>
+					The next statement creates a context <literal>SegmentedByCustomer</literal> that considers the value of the <literal>custId</literal> property of the <literal>BankTxn</literal> event type to pick the context partition to assign events to:
+				</para>
+				<programlisting><![CDATA[create context SegmentedByCustomer partition by custId from BankTxn]]></programlisting>
 				
-			<para>
-				The <emphasis>stream_def</emphasis> is a stream definition which consists of an event type name optionally followed by parenthesis that contains filter expressions. If providing filter expressions, only events matching the provided filter expressions for that event type are considered by context partitions. The name of a named window or table is not allowed.
-			</para>
-
-			<para>				
-				You may list multiple event properties for each stream definition. You may list multiple stream definitions. Please refer to usage guidelines below when specifying multiple event properties and/or multiple stream definitions.
-			</para>
-			
-			<para>
-				The next statement creates a context <literal>SegmentedByCustomer</literal> that considers the value of the <literal>custId</literal> property of the <literal>BankTxn</literal> event type to pick the context partition to assign events to:
-			</para>
-			<programlisting><![CDATA[create context SegmentedByCustomer partition by custId from BankTxn]]></programlisting>
-			
-			<para>
-			    The following statement refers to the context created as above to compute a total withdrawal amount per account for each customer:
-			</para>
-			<programlisting><![CDATA[context SegmentedByCustomer
+				<para>
+					The following statement refers to the context created as above to compute a total withdrawal amount per account for each customer:
+				</para>
+				<programlisting><![CDATA[context SegmentedByCustomer
 select custId, account, sum(amount) from BankTxn group by account]]></programlisting>
 			
-			<para>
-			    The following statement refers to the context created as above and detects a withdrawal of more than 400 followed by a second withdrawal of more then 400 that occur within 10 minutes of the first withdrawal, all for the same customer:
-			</para>
-			<programlisting><![CDATA[context SegmentedByCustomer
+				<para>
+					The following statement refers to the context created as above and detects a withdrawal of more than 400 followed by a second withdrawal of more than 400 that occur within 10 minutes of the first withdrawal, all for the same customer:
+				</para>
+				<programlisting><![CDATA[context SegmentedByCustomer
 select * from pattern [
-  every a=BankTxn(amount > 400) -> b=BankTxn(amount > 400) where timer:within(10 minutes)
+  every a=BankTxn(amount>400) -> b=BankTxn(amount>400) where timer:within(10 minutes)
 ]]]></programlisting>
 
-			<para>
-				The EPL statement that refers to a keyed segmented context must have at least one filter expression, at any place within the EPL statement that looks for events of any of the event types listed in the context declaration.
-			</para>
-
-			<para>
-			    For example, the following is not valid:
-			</para>
-			<programlisting><![CDATA[// Neither LoginEvent nor LogoutEvent are listed in the context declaration
+				<para>
+					The EPL statement that refers to a keyed segmented context must have at least one filter expression, at any place within the EPL statement that looks for events of any of the event types listed in the context declaration.
+				</para>
+	
+				<para>
+					For example, the following is not valid:
+				</para>
+				<programlisting><![CDATA[// Neither LoginEvent nor LogoutEvent are listed in the context declaration
 context SegmentedByCustomer
 select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10 minutes)]]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="context_def_keyed_initiated" revision="1">
+				<title>Initiated-By</title>
+
+				<para>
+					When provided, <literal>initiated by</literal> lists the event type and filter criteria of events that can initiate new partitions. The synopsis is:
+				</para>
+				<synopsis>initiated by <emphasis>stream_def</emphasis> [ [as] <emphasis>stream_name</emphasis>]
+  [, <emphasis>stream_def</emphasis> [ [as] <emphasis>stream_name</emphasis>]]   [, ...]</synopsis>
+
+				<para>
+					When <literal>initiated by</literal> is not provided, the <literal>partitioned by</literal> provides the event type and filter criteria for events that can initiate new partitions.
+				</para>
+
+				<para>
+					The <emphasis>stream_def</emphasis> is the stream definition which consists of an event type name optionally followed by parenthesis that contains filter expressions.
+				</para>
+				
+				<para>
+					If providing filter expressions, only events matching the provided filter expressions for that event type initiate a new context partition. The name of a named window or table is not allowed.
+				</para>
+				
+				<para>
+					You may use the <literal>as</literal>-keyword and a stream name to name the initiating event. That event becomes available in context built-in properties and for matching in <literal>terminated by</literal>.
+					You may specify stream names either in <literal>partition by</literal> or in <literal>initiated by</literal> but not both.
+				</para>
+
+				<para>
+					This is a sample context and query:
+				</para>
+				<programlisting><![CDATA[create context PerCustId_TriggeredByLargeAmount
+  partition by custId from BankTxn 
+  initiated by BankTxn(amount>100) as largeTxn]]></programlisting>
+				<programlisting><![CDATA[context PerCustId_TriggeredByLargeAmount select context.largeTxn, custId, sum(amount) from BankTxn]]></programlisting>
+  
+				 <para>
+				  When a <literal>BankTxn</literal> event arrives with an <literal>amount</literal> value of greater than 100, the system starts the analysis (allocates a partition) for the specific <literal>custId</literal> value of the <literal>BankTxn</literal> event.
+				  The query totals up the <literal>amount</literal> value of all <literal>BankTxn</literal> events for that same <literal>custId</literal> value (regardless of their amount).
+				  The sample assigns the name <literal>largeTxn</literal> to the initiating event and selects the event with <literal>context.largeTxn</literal>.
+				 </para>
+			</sect3>
+
+			<sect3 xml:id="context_def_keyed_terminated" revision="1">
+				<title>Terminated-By</title>
+
+				<para>
+					When provided, <literal>terminated by</literal> provides the condition that terminates partitions. The synopsis is:
+				</para>
+				<synopsis>terminated [by] <emphasis>terminating_condition</emphasis></synopsis>
+
+				<para>
+					A list of possible conditions is provided in <xref linkend="context_def_condition"/>. An event that causes termination does not also allocate a new partition.
+				</para>
+
+				<para>
+					Any event types that are listed in both the termination condition and <literal>partition by</literal> are implicitly correlated by key.
+				</para>
+				
+				<note>
+					<para>
+						In the case that the terminating condition and the queries that are associated to the context look for the same events, you may use @Priority to assign whether the context or the query are processed first.
+					</para>
+				</note>
+
+				<para>
+					Consider the following context and query:
+				</para>
+				<programlisting><![CDATA[create context PerCustId_UntilExpired
+  partition by custId from BankTxn 
+  terminated by BankTxn(expired=true)]]></programlisting>
+				<programlisting><![CDATA[context PerCustId_UntilExpired select custId, sum(amount) from BankTxn output last when terminated]]></programlisting>
+  
+				 <para>
+				  When a <literal>BankTxn</literal> event arrives, the system starts the analysis (allocates a partition) for the specific <literal>custId</literal> value of the <literal>BankTxn</literal> event only.
+				  The system stops the analysis (discards the partition) when a <literal>BankTxn</literal> event arrives, for that same <literal>custId</literal> value, that has an <literal>expired</literal> value of <literal>true</literal>.
+				  The output occurs when the analysis stops as the query specifies <literal>output last when terminated</literal>.
+				 </para>
+
+				<para>
+					The termination condition can be correlated to the initiating event provided that <literal>initiated by</literal> provides a stream name.
+				</para>
+
+				<para>
+					A context that correlates the terminating event to the initiating event is:
+				</para>
+				<programlisting><![CDATA[create context PerCustId_TriggeredByLargeAmount_UntilExpired
+  partition by custId from BankTxn 
+  initiated by BankTxn(amount>100) as txn
+  terminated by BankTxn(expired=true and user=txn.user)]]></programlisting>
+
+				<para>
+					This example defines a context wherein the system starts the analysis when a <literal>BankTxn</literal> event arrives that has an <literal>amount</literal> value of greater than 100 (the initiating event).
+					The analysis for the specific <literal>custId</literal> value only. It stops the analysis when a <literal>BankTxn</literal> event arrives that has an <literal>expired</literal> value of <literal>true</literal>
+					and that the same <literal>custId</literal> value and that has a <literal>user</literal> value that matches the initiating event's <literal>user</literal> value.
+				</para>				
+			</sect3>
 			
 			<sect3 xml:id="context_def_keyed_multitype" revision="1">
 				<title>Multiple Stream Definitions</title>
@@ -295,20 +410,32 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 				</para>
 			</sect3>
 				
-			<sect3 xml:id="context_def_keyed_filter" revision="1">
-				<title>Filters</title>
+			<sect3 xml:id="context_def_keyed_comparefilters" revision="1">
+				<title>Comparing the Use of Filter Criteria</title>
 				
 				<para>
-				  You may add a filter expression to each of the event types listed. The engine applies the filter expression to the EPL statement that refers to the context and to the same event type.
+				  You may add a filter expression to each of the event types. 
+				  Filter criteria in <literal>partition by</literal> apply to all statements that refer to the context and to the same event type.
+				  Filter criteria in <literal>initiated by</literal> apply to initiating events only.
 				</para>
 				
 				<para>
-					The next statement creates a context <literal>SegmentedByCustomer</literal> that does not consider login events that indicate that the login failed.
+					The below context and query total up the <literal>amount</literal> of all <literal>BankTxn</literal> events per <literal>custId</literal> for only those <literal>BankTxn</literal> events that have an <literal>amount</literal> greater 100.
 				</para>
-				<programlisting><![CDATA[create context SegmentedByCustomer partition by 
-  custId from BankTxn, loginId from LoginEvent(failed=false)]]></programlisting>
-			</sect3>
-			
+				<programlisting><![CDATA[create context PerCust_AmountGreater100
+  partition by custId from BankTxn(amount>100)
+  initiated by BankTxn]]></programlisting>
+				<programlisting><![CDATA[context PerCust_AmountGreater100 select custId, sum(amount) from BankTxn]]></programlisting>
+				
+				<para>
+					The below context and query total up the <literal>amount</literal> of all <literal>BankTxn</literal> events per <literal>custId</literal>, but only when a first <literal>BankTxn</literal> event comes in that has an <literal>amount</literal> greater 100.
+				</para>
+				<programlisting><![CDATA[create context PerCust_TriggeredByLargeTxn
+  partition by custId from BankTxn
+  initiated by BankTxn(amount>100)]]></programlisting>
+				<programlisting><![CDATA[context PerCust_TriggeredByLargeTxn select custId, sum(amount) from BankTxn]]></programlisting>  
+  			</sect3>
+  			
 			<sect3 xml:id="context_def_keyed_multiprop" revision="1">
 				<title>Multiple Properties per Event Type</title>
 
@@ -366,6 +493,10 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 								<entry><literal>key</literal><emphasis>N</emphasis></entry>
 								<entry>The event property value for the Nth key.</entry>
 							</row>
+							<row>
+								<entry><emphasis>stream name</emphasis> from <literal>partitioned by</literal> or <literal>initiated by</literal></entry>
+								<entry>The event initiating the partition.</entry>
+							</row>
 						</tbody>
 					</tgroup>
 				</table>
@@ -422,7 +553,7 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 			<title>Hash Segmented Context</title>
 			
 			<para>
-				  This context assigns events to context partitions based on the result of a hash function and modulo operation. Each event belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one result of hash value modulo granularity. 
+				  This context assigns events to context partitions based on the result of a hash function and modulo operation. Each event belongs to exactly one context partition or zero context partitions (zero context partitions only if the event does not match the optional filter predicate expression(s)). Each context partition handles exactly one result of hash value modulo granularity. 
 			</para>
 			
 			<para>
@@ -1220,7 +1351,7 @@ select custId, account, sum(amount) from BankTxn group by account]]></programlis
 		</para>
 
 		<para>
-		    When combining segmented contexts, the set of context partitions for the nested context effectively is the Cartesian product of the partition sets of the nested segmented contexts (sample: <literal>create context MyCartSegmented context SegmentedByAccount partition by acctId from BankTxn context SegmentedByCustomer partition by custId from BankTxn</literal>).
+		    When combining segmented contexts, the set of context partitions for the nested context effectively is the Cartesian product of the partition sets of the nested segmented contexts.
 		</para>
 
 		<para>
