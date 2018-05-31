@@ -411,7 +411,7 @@ select .... from Withdrawal where amount > 200]]></programlisting>
 		<para>
 			The next query selects the count and total amount of <literal>Withdrawal</literal> events considering the last four seconds of events.
 		</para>
-		<programlisting><![CDATA[select count(*), total(amount) from Withdrawal#time(4)]]></programlisting>
+		<programlisting><![CDATA[select count(*), sum(amount) as total from Withdrawal#time(4)]]></programlisting>
 		
 		<para>
 			The diagram starts at a given time <literal>t</literal> and displays the contents of the time window at <literal>t + 4</literal> and <literal>t + 5 seconds</literal> and so on.
