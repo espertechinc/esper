@@ -81,7 +81,7 @@ testing on small configuration.</programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-3-a">
-			<title>Theading</title>
+			<title>Threading</title>
 
 			<para>
 				We recommend using multiple threads to send events into Esper. There is a test class below. 
