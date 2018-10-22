@@ -1,0 +1,91 @@
+/*
+ ***************************************************************************************
+ *  Copyright (C) 2006 EsperTech, Inc. All rights reserved.                            *
+ *  http://www.espertech.com/esper                                                     *
+ *  http://www.espertech.com                                                           *
+ *  ---------------------------------------------------------------------------------- *
+ *  The software in this package is published under the terms of the GPL license       *
+ *  a copy of which has been included with this distribution in the license.txt file.  *
+ ***************************************************************************************
+ */
+package com.espertech.esper.common.internal.epl.expression.time.node;
+
+import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
+
+import java.io.StringWriter;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethodChain;
+
+/**
+ * Represents the CURRENT_TIMESTAMP() function or reserved keyword in an expression tree.
+ */
+public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator, ExprForgeInstrumentable {
+    public ExprTimestampNode() {
+    }
+
+    public ExprEvaluator getExprEvaluator() {
+        return this;
+    }
+
+    public Class getEvaluationType() {
+        return Long.class;
+    }
+
+    public ExprForge getForge() {
+        return this;
+    }
+
+    public ExprNode getForgeRenderable() {
+        return this;
+    }
+
+    public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        return new InstrumentationBuilderExpr(this.getClass(), this, "ExprTimestamp", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).build();
+    }
+
+    public CodegenExpression evaluateCodegenUninstrumented(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
+        CodegenExpressionRef refExprEvalCtx = exprSymbol.getAddExprEvalCtx(codegenMethodScope);
+        return exprDotMethodChain(refExprEvalCtx).add("getTimeProvider").add("getTime");
+    }
+
+    public ExprForgeConstantType getForgeConstantType() {
+        return ExprForgeConstantType.NONCONST;
+    }
+
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 0) {
+            throw new ExprValidationException("current_timestamp function node cannot have a child node");
+        }
+        return null;
+    }
+
+    public boolean isConstantResult() {
+        return false;
+    }
+
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
+    }
+
+    public void toPrecedenceFreeEPL(StringWriter writer) {
+        writer.append("current_timestamp()");
+    }
+
+    public ExprPrecedenceEnum getPrecedence() {
+        return ExprPrecedenceEnum.UNARY;
+    }
+
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
+        if (!(node instanceof ExprTimestampNode)) {
+            return false;
+        }
+        return true;
+    }
+}

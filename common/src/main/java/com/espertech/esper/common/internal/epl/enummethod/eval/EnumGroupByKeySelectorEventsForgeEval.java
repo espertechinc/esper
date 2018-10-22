@@ -1,0 +1,83 @@
+/*
+ ***************************************************************************************
+ *  Copyright (C) 2006 EsperTech, Inc. All rights reserved.                            *
+ *  http://www.espertech.com/esper                                                     *
+ *  http://www.espertech.com                                                           *
+ *  ---------------------------------------------------------------------------------- *
+ *  The software in this package is published under the terms of the GPL license       *
+ *  a copy of which has been included with this distribution in the license.txt file.  *
+ ***************************************************************************************
+ */
+package com.espertech.esper.common.internal.epl.enummethod.eval;
+
+import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenNames;
+import com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenParams;
+import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+
+import java.util.*;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+
+public class EnumGroupByKeySelectorEventsForgeEval implements EnumEval {
+
+    private final EnumGroupByKeySelectorEventsForge forge;
+    private final ExprEvaluator innerExpression;
+
+    public EnumGroupByKeySelectorEventsForgeEval(EnumGroupByKeySelectorEventsForge forge, ExprEvaluator innerExpression) {
+        this.forge = forge;
+        this.innerExpression = innerExpression;
+    }
+
+    public Object evaluateEnumMethod(EventBean[] eventsLambda, Collection enumcoll, boolean isNewData, ExprEvaluatorContext context) {
+        if (enumcoll.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<Object, Collection> result = new LinkedHashMap<Object, Collection>();
+
+        Collection<EventBean> beans = (Collection<EventBean>) enumcoll;
+        for (EventBean next : beans) {
+            eventsLambda[forge.streamNumLambda] = next;
+
+            Object key = innerExpression.evaluate(eventsLambda, isNewData, context);
+
+            Collection value = result.get(key);
+            if (value == null) {
+                value = new ArrayList();
+                result.put(key, value);
+            }
+            value.add(next.getUnderlying());
+        }
+
+        return result;
+    }
+
+    public static CodegenExpression codegen(EnumGroupByKeySelectorEventsForge forge, EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Map.class, EnumGroupByKeySelectorEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+
+        CodegenBlock block = methodNode.getBlock()
+                .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))
+                .blockReturn(staticMethod(Collections.class, "emptyMap"))
+                .declareVar(Map.class, "result", newInstance(LinkedHashMap.class));
+        CodegenBlock forEach = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
+                .declareVar(Object.class, "key", forge.innerExpression.evaluateCodegen(Object.class, methodNode, scope, codegenClassScope))
+                .declareVar(Collection.class, "value", cast(Collection.class, exprDotMethod(ref("result"), "get", ref("key"))))
+                .ifRefNull("value")
+                .assignRef("value", newInstance(ArrayList.class))
+                .expression(exprDotMethod(ref("result"), "put", ref("key"), ref("value")))
+                .blockEnd()
+                .expression(exprDotMethod(ref("value"), "add", exprDotUnderlying(ref("next"))));
+        block.methodReturn(ref("result"));
+        return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
+    }
+}

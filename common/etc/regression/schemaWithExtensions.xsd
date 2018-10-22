@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Pablo Polvorin (ACHA) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ss="samples:schemas:simpleSchema" targetNamespace="samples:schemas:simpleSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="complexEvent">
+	  <xs:annotation>
+	    <xs:documentation>
+	      Comment describing your root element
+	    </xs:documentation>
+	  </xs:annotation>
+	  <xs:complexType>
+	    <xs:all>
+	      <xs:element name="mainElement" type="ss:type1"></xs:element>
+	    </xs:all>
+	  </xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="Base">
+	  <xs:complexContent>
+	    <xs:extension base="ss:BaseBase"></xs:extension>
+	  </xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="type1">
+	  <xs:complexContent>
+	    <xs:extension base="ss:Base">
+	      <xs:sequence>
+	        <xs:element name="aType2" type="ss:type2"></xs:element>
+	        <xs:element name="aType3" type="ss:type3"></xs:element>
+	        <xs:element name="aType4" type="ss:type4"></xs:element>
+	      </xs:sequence>
+	    </xs:extension>
+	  </xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="type2">
+	  <xs:complexContent>
+	    <xs:extension base="ss:Base">
+	      <xs:sequence>
+	        <xs:element name="aString1" type="xs:string"></xs:element>
+	        <xs:element name="aString2" type="xs:string"></xs:element>
+	      </xs:sequence>
+	    </xs:extension>
+	  </xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="type3">
+	  <xs:complexContent>
+	    <xs:extension base="ss:Base">
+	      <xs:sequence>
+	        <xs:element name="aType2" type="ss:type2"></xs:element>
+	        <xs:element name="aString3" type="xs:string"></xs:element>
+	      </xs:sequence>
+	    </xs:extension>
+	  </xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="BaseBase">
+	  <xs:sequence>
+	    <xs:element name="baseType4" type="ss:type4"></xs:element>
+	  </xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="type4">
+	  <xs:complexContent>
+	    <xs:extension base="ss:Base"></xs:extension>
+	  </xs:complexContent>
+	</xs:complexType>
+</xs:schema>

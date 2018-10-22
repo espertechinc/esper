@@ -1,0 +1,23 @@
+/*
+ ***************************************************************************************
+ *  Copyright (C) 2006 EsperTech, Inc. All rights reserved.                            *
+ *  http://www.espertech.com/esper                                                     *
+ *  http://www.espertech.com                                                           *
+ *  ---------------------------------------------------------------------------------- *
+ *  The software in this package is published under the terms of the GPL license       *
+ *  a copy of which has been included with this distribution in the license.txt file.  *
+ ***************************************************************************************
+ */
+package com.espertech.esper.common.internal.metrics.audit;
+
+import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.schedule.ScheduleHandle;
+import com.espertech.esper.common.internal.schedule.ScheduleObjectType;
+
+public interface AuditProviderSchedule {
+    void scheduleAdd(long nextScheduledTime, AgentInstanceContext agentInstanceContext, ScheduleHandle scheduleHandle, ScheduleObjectType objectType, String name);
+
+    void scheduleRemove(AgentInstanceContext agentInstanceContext, ScheduleHandle scheduleHandle, ScheduleObjectType objectType, String name);
+
+    void scheduleFire(AgentInstanceContext agentInstanceContext, ScheduleObjectType objectType, String name);
+}
