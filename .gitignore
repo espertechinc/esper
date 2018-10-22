@@ -33,3 +33,5 @@
 /copy.cmd
 /esperio-springjms/lib/*.jar
 /esper/lib/*.jar
+/common-avro/lib/*.jar
+/common/lib/*.jar
