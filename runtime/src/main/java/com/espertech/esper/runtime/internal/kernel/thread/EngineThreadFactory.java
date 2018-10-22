@@ -1,0 +1,58 @@
+/*
+ ***************************************************************************************
+ *  Copyright (C) 2006 EsperTech, Inc. All rights reserved.                            *
+ *  http://www.espertech.com/esper                                                     *
+ *  http://www.espertech.com                                                           *
+ *  ---------------------------------------------------------------------------------- *
+ *  The software in this package is published under the terms of the GPL license       *
+ *  a copy of which has been included with this distribution in the license.txt file.  *
+ ***************************************************************************************
+ */
+package com.espertech.esper.runtime.internal.kernel.thread;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Thread factory for threading options.
+ */
+public class EngineThreadFactory implements java.util.concurrent.ThreadFactory {
+    private static final Logger log = LoggerFactory.getLogger(EngineThreadFactory.class);
+    private final String runtimeURI;
+    private final String prefix;
+    private final ThreadGroup threadGroup;
+    private final int threadPriority;
+    private int currThreadCount;
+
+    /**
+     * Ctor.
+     *
+     * @param runtimeURI  runtime URI
+     * @param prefix      prefix for thread names
+     * @param threadGroup thread group
+     * @param threadPrio  priority to use
+     */
+    public EngineThreadFactory(String runtimeURI, String prefix, ThreadGroup threadGroup, int threadPrio) {
+        if (runtimeURI == null) {
+            this.runtimeURI = "default";
+        } else {
+            this.runtimeURI = runtimeURI;
+        }
+        this.prefix = prefix;
+        this.threadGroup = threadGroup;
+        this.threadPriority = threadPrio;
+    }
+
+    public Thread newThread(Runnable runnable) {
+        String name = "com.espertech.esper." + prefix + "-" + runtimeURI + "-" + currThreadCount;
+        currThreadCount++;
+        Thread t = new Thread(threadGroup, runnable, name);
+        t.setDaemon(true);
+        t.setPriority(threadPriority);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Creating thread '" + name + "' : " + t + " priority " + threadPriority);
+        }
+        return t;
+    }
+}
