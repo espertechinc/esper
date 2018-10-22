@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.espertech.com/schema/esperio-http" elementFormDefault="qualified" xmlns:esperio="http://www.espertech.com/schema/esperio-http" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="esperio-http-configuration">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded" minOccurs="0">
+				<xs:choice>
+					<xs:element ref="esperio:service" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esperio:get" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esperio:request" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="service">
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="port" type="xs:int" use="required"/>
+			<xs:attribute name="nio" type="xs:boolean" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="get">
+		<xs:complexType>
+			<xs:attribute name="service" type="xs:string" use="required"/>
+			<xs:attribute name="pattern" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="request">
+		<xs:complexType>
+			<xs:attribute name="stream" type="xs:string" use="required"/>
+			<xs:attribute name="uri" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

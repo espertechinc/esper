@@ -1,0 +1,14 @@
+8, 8.0, c, 'c', string, "string"
+, "string",, "string",,,
+   "leading spaces", "trailing spaces"   ,
+unquoted value 1,    unquoted value 2  , 
+"value with embedded """" quotes" 
+"value
+with newline"   
+  
+
+"value after empty lines"
+#commented out value
+
+#another comment
+"value after comments"  

@@ -1,0 +1,7 @@
+call %KAFKA_HOME%\bin\windows\kafka-topics -zookeeper localhost:2181 kafka-topics.cmd -create -topic esperio_regression_input_t1 -partitions 1 -replication-factor 1 --config cleanup.policy=delete
+
+call %KAFKA_HOME%\bin\windows\kafka-topics -zookeeper localhost:2181 kafka-topics.cmd -create -topic esperio_regression_input_t2 -partitions 1 -replication-factor 1 --config cleanup.policy=delete
+
+call %KAFKA_HOME%\bin\windows\kafka-topics -zookeeper localhost:2181 kafka-topics.cmd -create -topic esperio_regression_input_t3 -partitions 1 -replication-factor 1 --config cleanup.policy=delete
+
+call %KAFKA_HOME%\bin\windows\kafka-topics -zookeeper localhost:2181 kafka-topics.cmd -create -topic esperio_regression_output_t1 -partitions 1 -replication-factor 1 --config cleanup.policy=delete

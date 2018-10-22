@@ -1,0 +1,40 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+  "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!-- Application Context -->
+<beans default-destroy-method="destroy">
+
+
+  <!-- ####################################### -->
+  <!--          JMS Spring Beans               -->
+  <!-- ####################################### -->
+
+  <!-- JMS ActiveMQ Connection Factory -->
+  <bean id="jmsActiveMQFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <property name="connectionFactory">
+      <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+        <!-- <property name="brokerURL" value="tcp://localhost:61616"/> -->
+        <property name="brokerURL" value="vm://localhost?broker.persistent=false"/>          
+      </bean>
+    </property>
+  </bean>
+
+  <!--  ActiveMQ destination to use by default -->
+  <bean id="defaultDestination" class="org.apache.activemq.command.ActiveMQQueue">
+    <constructor-arg value="ESPER.QUEUE"/>
+  </bean>
+
+  <!--  Spring JMS Template for ActiveMQ -->
+  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory">
+      <ref bean="jmsActiveMQFactory"/>
+    </property>
+    <property name="defaultDestination">
+      <ref bean="defaultDestination"/>
+    </property>
+    <property name="receiveTimeout">
+	  <value>1000</value>
+    </property>
+  </bean>
+
+</beans>
+

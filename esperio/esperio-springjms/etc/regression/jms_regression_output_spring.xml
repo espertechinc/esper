@@ -1,0 +1,82 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+  "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!-- Application Context -->
+<beans default-destroy-method="destroy">
+
+
+  <!-- ####################################### -->
+  <!--          JMS Spring Beans               -->
+  <!-- ####################################### -->
+
+  <!-- JMS ActiveMQ Connection Factory -->
+  <bean id="jmsActiveMQFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <property name="connectionFactory">
+      <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+        <!-- <property name="brokerURL" value="tcp://localhost:61616"/> -->
+        <property name="brokerURL" value="vm://localhost?broker.persistent=false"/>
+      </bean>
+    </property>
+  </bean>
+
+  <!--  ActiveMQ destination to use  by default -->
+  <bean id="defaultDestination"
+        class="org.apache.activemq.command.ActiveMQQueue">
+    <constructor-arg value="ESPER.QUEUE"/>
+  </bean>
+
+  <!--  Spring JMS Template for ActiveMQ -->
+  <bean id="jmsActiveMQTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory">
+      <ref bean="jmsActiveMQFactory"/>
+    </property>
+    <property name="defaultDestination">
+      <ref bean="defaultDestination"/>
+    </property>
+    <property name="receiveTimeout">
+      <value>30000</value>
+    </property>
+  </bean>
+
+  <!--  Marshaller marshalls events into map messages -->
+  <bean id="jmsMessageMarshaller" class="com.espertech.esperio.jms.JMSDefaultMapMessageMarshaller"/>
+  <bean id="myCustomMarshaller" class="com.espertech.esperio.jms.JMSDefaultMapMessageMarshaller"/>
+
+  <!--  Output adapter puts it all together -->
+  <bean id="jmsOutputAdapter" class="com.espertech.esperio.jms.SpringJMSTemplateOutputAdapter">
+    <property name="jmsTemplate">
+      <ref bean="jmsActiveMQTemplate"/>
+    </property>
+    <property name="subscriptionMap">
+      <map>
+        <entry>
+          <key><idref local="subscriptionOne"/></key>
+          <ref bean="subscriptionOne"/>
+        </entry>
+        <!-- Example with a custom marshaller 
+        <entry>
+          <key><idref local="subscriptionTwo"/></key>
+          <ref bean="subscriptionTwo"/>
+        </entry>
+        -->
+      </map>
+    </property>
+    <property name="jmsMessageMarshaller">
+      <ref bean="jmsMessageMarshaller"/>
+    </property>
+  </bean>
+
+  <bean id="subscriptionOne" class="com.espertech.esperio.jms.JMSSubscription">
+    <property name="eventTypeName" value="MyOutputStream"/>
+  </bean>
+
+  <!-- Example with a custom marshaller 
+  <bean id="subscriptionTwo" class="com.espertech.esperio.jms.JMSSubscription">
+    <property name="eventTypeName" value="MyMapEventTwo"/>
+    <property name="jmsMessageMarshaller">
+      <ref bean="myCustomMarshaller"/>
+    </property>
+  </bean>
+  -->
+
+</beans>
+

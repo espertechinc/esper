@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.espertech.com/schema/esperio-socket" elementFormDefault="qualified" xmlns:esperio="http://www.espertech.com/schema/esperio-socket" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="esperio-socket-configuration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="esperio:socket" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="socket">
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="port" type="xs:int" use="required"/>
+			<xs:attribute name="data" type="esperio:data" use="required"/>
+			<xs:attribute name="hostname" type="xs:string" use="optional"/>
+			<xs:attribute name="backlog" type="xs:int" use="optional"/>
+			<xs:attribute name="stream" type="xs:string" use="optional"/>
+			<xs:attribute name="propertyOrder" type="xs:string" use="optional"/>
+			<xs:attribute name="unescape" type="xs:boolean" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="data">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="object"/>
+			<xs:enumeration value="csv"/>
+			<xs:enumeration value="property_ordered_csv"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

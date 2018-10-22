@@ -1,0 +1,4 @@
+myString, myInt, timestamp, myDouble
+"one", 1, 100, 1.1
+"three", 3, 300, 3.3
+"five", 5, 500, 5.5

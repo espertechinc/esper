@@ -1,0 +1,4 @@
+someString, myInt, someInt, myDouble, myString
+"someStringOne", 1, 111, 1.1, "moreProperties.one"
+"someStringTwo", 2, 222, 2.2, "moreProperties.two"
+"someStringThree", 3, 333,  3.3, "moreProperties.three"
