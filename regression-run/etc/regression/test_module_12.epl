@@ -1,0 +1,4 @@
+module regression.test;
+
+create schema MyType(col1 integer);
+select * from MyType;

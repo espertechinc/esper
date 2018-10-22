@@ -1,0 +1,4 @@
+module ajajaja.ccc1;
+module ajajaja.ccc2;
+
+select * from A;

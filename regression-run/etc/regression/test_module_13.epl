@@ -1,0 +1,10 @@
+module regression.test;
+
+@Name('sts3')
+expression boolean js:abc(x, y, vertices) [
+	pointInPolygon(x, y, vertices);
+	function pointInPolygon(x, y, vertices) {
+	}
+]
+insert into LocatedMeasure
+select * from SupportBean;

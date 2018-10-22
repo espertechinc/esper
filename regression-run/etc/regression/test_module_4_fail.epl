@@ -1,0 +1,3 @@
+uses select e;
+
+select * from A;

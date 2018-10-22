@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="mediaorder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="orderId" type="xs:string"/>
+        <xs:element ref="items" maxOccurs="1" />
+        <xs:element ref="books" maxOccurs="1" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="items">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="item" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="books">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="book" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="item">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="itemId" type="xs:string"/>
+        <xs:element name="productId" type="xs:string"/>
+        <xs:element name="amount" type="xs:int"/>
+        <xs:element name="price" type="xs:double"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="book">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="bookId" type="xs:string"/>
+        <xs:element name="author" type="xs:string"/>
+        <xs:element ref="review" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="review">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="reviewId" type="xs:string"/>
+        <xs:element name="comment" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

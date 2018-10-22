@@ -1,0 +1,8 @@
+uses abd;
+
+select * from ABC
+
+
+
+;
+/* Final comment */

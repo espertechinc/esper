@@ -1,0 +1,9 @@
+module abd.def;
+
+uses one.use;
+import com.mycompany.pck1;
+uses two.use;
+import com.mycompany.*;
+
+select * from A;
+

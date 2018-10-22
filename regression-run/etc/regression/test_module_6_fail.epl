@@ -1,0 +1,5 @@
+import abc;
+uses def;
+module ajajaja.ccc;
+
+select * from A;

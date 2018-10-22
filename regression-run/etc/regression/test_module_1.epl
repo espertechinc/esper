@@ -1,0 +1,16 @@
+module abc;
+
+uses def;
+uses jlk;
+
+select * from A;
+
+select * from B
+where C=d
+;
+
+/* Test ; Comment */
+update ';' where B=C
+;
+
+update D

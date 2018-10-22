@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<onens:namespaceEvent xmlns="samples:schemas:simpleSchema" 
+  xmlns:onens="samples:schemas:testNSOne" 
+  xmlns:twons="samples:schemas:testNSTwo" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="samples:schemas:testNSOne namespaceTestSchemaOne.xsd">
+  <onens:myname onens:val="1"/>
+  <twons:myname twons:val="2"/>
+</onens:namespaceEvent>

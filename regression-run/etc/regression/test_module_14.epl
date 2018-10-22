@@ -1,0 +1,47 @@
+@Name('win')
+create window MyWindow#length(2)
+(
+    time java.util.Date
+);
+
+@Name('some expression')
+create expression wasPreviousInsideFence(){
+    case
+        when LocatedMeasure.countof() = 2
+        then LocatedMeasure.firstOf().inside_fence
+        else null
+    end
+};
+
+@Name('some mix')
+expression boolean js:callIt(a, b) [
+	callme(a, b);
+	function callme(a, b) {
+	    var odd = false;
+	    var even = false;
+	    return true;
+	}
+	function isOnRight(a, b, x){
+	   return a <= x || b <= x;
+	}
+]
+expression getFence() {
+    param => getList(findit("somevalue"), "vertices")
+}
+expression boolean js:callIt2() [
+	function callme(a, b) {
+	    var even = false;
+	    return true;
+	}
+]
+expression isInsideFence(created) {
+    a => abc()
+}
+insert into SomeStream
+select * from SomeOtherStream;
+
+@Name('finally')
+expression abc(def) {
+    locatedMeasure => 1
+}
+select "text" as text from Stream;
