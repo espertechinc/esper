@@ -9,6 +9,32 @@
     <suppress files="EsperEPL2GrammarLexer.java" checks="[a-zA-Z0-9]*"/>
     <suppress files="EsperEPL2GrammarBaseListener.java" checks="[a-zA-Z0-9]*"/>
     <suppress files="EsperEPL2GrammarListener.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="AbstractReferenceMap.java" checks="[a-zA-Z0-9]*"/>
     <suppress files="statements.properties" checks="[a-zA-Z0-9]*"/>
     <suppress files="servershell_config.properties" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_A.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_B.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_C.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_D.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_E.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_F.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_G.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_N.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_S0.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_S1.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="SupportBean_S2.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_S3.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_S4.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_S5.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_S6.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_Container.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportHierarchyEvent.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBeanDupProperty.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_ST0.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_ST1.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_ST2.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_ST0_Container.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_IntAlphabetic.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="SupportBean_StringAlphabetic.java" checks="[a-zA-Z0-9]*"/>  
+    <suppress files="EventInfraSuperType.java" checks="[a-zA-Z0-9]*"/>  
 </suppressions>

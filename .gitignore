@@ -1,13 +1,6 @@
 /target
-/esper/doc/reference/target
-/esper/doc/esper-jdocbook-style/target
-/esper/doc/esper-jdocbook-xslt/target
-/esper/doc/javadoc/api
 /esper/target
 /esper/copy.cmd
-/esper-avro/lib
-/esper-avro/target
-/esper-regression/target
 /esperio-amqp/target
 /esperio-csv/target
 /esperio-socket/target
@@ -16,15 +9,11 @@
 /esperio-http/target
 /esperio-stax/target
 /esperio-kafka/target
-/esperio/doc/reference/target
-/esperio/doc/javadoc/api
 /esper-avro/doc/javadoc/api
 /examples/target
 /examples/cycledetect/lib
 /examples/**/target
 /intellij
-/esper-java7/src/main/java
-/esper-java7/target
 
 /esperio-kafka/lib/*.jar
 /install.cmd
@@ -36,3 +25,13 @@
 /common-avro/lib/*.jar
 /common/lib/*.jar
 /compiler/lib/*.jar
+/esperio/esperio-amqp/lib/*.jar
+/esperio/esperio-http/lib/*.jar
+/esperio/esperio-kafka/lib/*.jar
+/esperio/esperio-springjms/lib/*.jar
+/common-avro/target
+/common/target
+/compiler/target
+/regression-lib/target
+/regression-run/target
+/runtime/target

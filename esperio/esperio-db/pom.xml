@@ -6,7 +6,7 @@
 		<version>8.0.0-beta1</version>
 	</parent>
 	<properties>
-		<rootPath>${project.parent.basedir}</rootPath>
+		<rootPath>${project.parent.parent.basedir}</rootPath>
 	</properties>
 	<name>EsperIO-DB</name>
 	<groupId>com.espertech</groupId>

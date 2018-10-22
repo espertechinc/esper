@@ -1,6 +1,13 @@
 Esper Changelog
 ===================
 
+Changes in version 8.0.0
+------------------------
+Version 8 is a significant update to the Esper ecosystem. Starting from version 8 Esper is a compiler and a runtime. 
+The Esper compiler produces 100% JVM byte code and the runtime loads and executes the byte code, similar to other programming languages such as Scala.
+For most applications using Esper public APS version 8 is not a drop-in replacement of earlier versions.
+Information on the changes between version 8 and earlier versions can be found online...
+
 Changes in version 7.1.0
 ------------------------
   - Bug fix release with no significant new functionality
