@@ -35,3 +35,11 @@
 /regression-lib/target
 /regression-run/target
 /runtime/target
+/esperio/esperio-amqp/target
+/esperio/esperio-csv/target
+/esperio/esperio-db/target
+/esperio/esperio-http/target
+/esperio/target
+/esperio/esperio-kafka/target
+/esperio/esperio-socket/target
+/esperio/esperio-springjms/target

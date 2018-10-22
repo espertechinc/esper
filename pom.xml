@@ -14,6 +14,7 @@
 		<module>runtime</module>
 		<module>regression-lib</module>
 		<module>regression-run</module>
+		<module>esperio</module>
 		<module>examples</module>
 	</modules>
 	<properties>
