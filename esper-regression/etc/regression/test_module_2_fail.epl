@@ -1,3 +1,0 @@
-uses ;
-
-select * from A;

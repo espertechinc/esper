@@ -1,2 +1,0 @@
-commons-io-1.2.jar
-rabbitmq-client.jar

@@ -1,3 +1,0 @@
-module ;
-
-select * from A;

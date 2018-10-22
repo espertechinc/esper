@@ -1,3 +1,0 @@
-// invalid
-expression boolean js:callIt(a, b) [
-select "text" as text from Stream;
