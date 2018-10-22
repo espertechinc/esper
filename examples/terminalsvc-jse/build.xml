@@ -1,0 +1,50 @@
+<project name="esper-terminalsvc-jse" default="run" basedir=".">
+
+    <property name="lib.dir" value="lib"/>
+    <property name="src.dir" value="src/main/java"/>
+    <property name="build.dir" value="bin"/>
+
+    <path id="lib.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${build.dir}"/>
+    </path>
+
+    <!-- used when compiling against local esper build -->
+    <path id="lib.build.classpath">
+        <fileset dir="../../esper/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="../../esper/target/classes"/>
+    </path>
+
+    <target name="build">
+        <mkdir dir="${build.dir}"/>
+        <javac destdir="${build.dir}">
+            <classpath refid="lib.build.classpath"/>
+            <classpath refid="lib.classpath"/>
+            <src path="${src.dir}"/>
+        </javac>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete file="esper-example-terminalsvc-jse.zip"/>
+    </target>
+
+    <target name="run" depends="build">
+        <java classname="com.espertech.esper.example.terminal.jse.simulate.TerminalEventSimulator" fork="true">
+            <!-- for log4j.xml discovery -->
+            <classpath location="etc"/>
+            <classpath refid="lib.build.classpath"/>
+            <classpath refid="lib.classpath"/>
+        </java>
+    </target>
+
+    <!-- use this target to zip the example code for distribution -->
+    <target name="release" depends="clean">
+        <zip basedir="." destfile="esper-example-terminalsvc-jse.zip" includes="**/*"/>
+    </target>
+
+</project>

@@ -1,0 +1,60 @@
+<project name="esper-benchmark" default="run" basedir=".">
+
+    <property name="lib.dir" value="lib"/>
+    <property name="src.dir" value="src/main/java"/>
+    <property name="build.dir" value="bin"/>
+
+    <path id="lib.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${build.dir}"/>
+        <pathelement location="../../esper/target/classes"/><!-- if no Esper is in lib we use local build -->
+        <fileset dir="../../esper/lib"><!-- local dependencies -->
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="build">
+        <mkdir dir="${build.dir}"/>
+        <javac classpathref="lib.classpath" destdir="${build.dir}">
+            <src path="${src.dir}"/>
+        </javac>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete file="esper-benchmark.zip"/>
+    </target>
+
+    <target name="run" depends="build">
+        <echo message="***"/>
+        <echo message="* Warning: running in simulation mode with no remote process to send messages"/>
+        <echo message="* This is not the recommanded mode to perform real benchmarks"/>
+        <echo message="***"/>
+        <java classpathref="lib.classpath" classname="com.espertech.esper.example.benchmark.server.Server" fork="true">
+            <arg line="-rate 4x10000 -mode STP"/>
+            <classpath location="etc"/><!-- for etc/log4j.xml and statement discovery -->
+        </java>
+    </target>
+
+    <target name="runServer" depends="build">
+        <java classpathref="lib.classpath" classname="com.espertech.esper.example.benchmark.server.Server" fork="true">
+            <arg line="-mode STP"/>
+            <classpath location="etc"/><!-- for etc/log4j.xml and statement discovery -->
+        </java>
+    </target>
+
+    <target name="runClient" depends="build">
+        <java classpathref="lib.classpath" classname="com.espertech.esper.example.benchmark.client.Client" fork="true">
+            <arg line="-rate 5000"/>
+        </java>
+    </target>
+
+    <!-- use this target to zip the example code for distribution -->
+    <target name="release" depends="clean, build">
+        <zip basedir="." destfile="esper-benchmark.zip"
+             includes="build/**,etc/**,build.xml,run*.cmd,run*.sh,readme.txt,lib/readme.txt"/>
+    </target>
+
+</project>

@@ -1,0 +1,22 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.espertech</groupId>
+        <artifactId>esper-examples-parent</artifactId>
+        <version>8.0.0-beta1</version>
+    </parent>
+    <properties>
+        <rootPath>${project.parent.parent.basedir}</rootPath>
+    </properties>
+    <name>Esper Examples - TerminalSvc</name>
+    <groupId>com.espertech</groupId>
+    <artifactId>esper-examples-terminalsvc-parent</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>terminalsvc-common</module>
+        <module>terminalsvc-receiver</module>
+        <module>terminalsvc-sender</module>
+        <module>terminalsvc-mdb</module>
+        <module>terminalsvc-ear</module>
+    </modules>
+</project>

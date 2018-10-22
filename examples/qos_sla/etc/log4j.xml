@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+
+    <appender name="terminal" class="org.apache.log4j.ConsoleAppender">
+        <param name="Threshold" value="DEBUG"/>
+        <param name="Target" value="System.out"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+        </layout>
+    </appender>
+
+    <!--
+            Modify to DEBUG for more output, or INFO for less output
+        -->
+    <logger name="com.espertech.esper.example">
+        <level value="DEBUG"/>
+    </logger>
+
+    <!--
+            Disable output for specific listeners via this statement
+    <logger name="com.espertech.esper.example.transaction.RealtimeSummaryGroupListener">
+       <level value="INFO"/>
+    </logger>
+        -->
+
+    <logger name="com.espertech.esper">
+        <level value="WARN"/>
+    </logger>
+
+    <root>
+        <level value="WARN"/>
+        <appender-ref ref="terminal"/>
+    </root>
+
+</log4j:configuration>

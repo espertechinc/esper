@@ -35,3 +35,4 @@
 /esper/lib/*.jar
 /common-avro/lib/*.jar
 /common/lib/*.jar
+/compiler/lib/*.jar

@@ -1,0 +1,165 @@
+/**
+* Input Events
+*/
+create schema TriviaQuestion (questionId string, question string, questionTime long, answer string);
+create schema PlayerAnswer (playerId string, questionId string, answer string, clientAnswerTime long);
+create schema PlayerFARequest (playerId string, questionId string);
+create schema PlayerAnnulment (playerId string, questionId string, annulTime long);
+create schema UpdateScore (questionId string);
+create schema ChangeRule(ruleId string, points int);
+
+/**
+* Outgoing events.
+*/
+create schema PlayerFAResponse (playerId string, questionId string, answerFA string);
+@Name('Outgoing-PlayerFAResponse') select * from PlayerFAResponse;
+
+/**
+* Scoring variables to handle rule changes.
+*/
+create variable int NUM_PTS_FIRST_WHO_ANSWERED = 100;
+
+/**
+* Handle rule change
+*/ 
+on ChangeRule(ruleId = "1") set NUM_PTS_FIRST_WHO_ANSWERED = points;
+
+/**
+*  Named windows to retain information on questions, players and answers.
+*/
+@Name('Score window')
+create window PlayerScoreWindow#unique(playerId) as (playerId string, score int);
+
+@Name('Player-answer window')
+create window PlayerAnswerWindow#time(5 minutes) as (playerId string, questionId string, questionTime long, answer string, clientAnswerTime long, hasReceivedFA boolean);
+
+@Name('Question-fastest-correct-answer window')
+create window PlayerFastestAnswerWindow#unique(questionId) as (questionId string, playerId string);
+
+@Name('Question window')
+create window QuestionWindow#time(1 hour) as TriviaQuestion;
+
+@Name('Player answer history window')
+create window PlayerAnswerHistoryWindow#keepall() as (playerId string, questionId string, correct boolean, bonusEligible boolean, questionTime long);
+
+/**
+* Reacting to Question.
+*/
+@Name('Save New Question')
+on TriviaQuestion tq merge QuestionWindow qt
+where tq.questionId = qt.questionId
+when not matched then insert select *;
+
+/**
+* Reacting to Answer.
+*/
+@Name('Keep the answer')
+on PlayerAnswer pa merge PlayerAnswerWindow paw
+where pa.playerId = paw.playerId and pa.questionId = paw.questionId
+when not matched then insert select questionId, (select questionTime from QuestionWindow where questionId = pa.questionId) as questionTime, playerId, answer, clientAnswerTime, false as hasReceivedFA
+when matched and paw.answer is null then update set paw.answer = pa.answer, paw.clientAnswerTime = pa.clientAnswerTime;
+
+/**
+* Reacting to Request-FA.
+*/
+@Name('Keep the fact that a user requested frequent-answers (FA)')
+on PlayerFARequest prfa merge PlayerAnswerWindow paw
+where prfa.playerId = paw.playerId and prfa.questionId = paw.questionId
+when not matched then insert select questionId, (select questionTime from QuestionWindow where questionId = prfa.questionId) as questionTime, playerId, null as answer, 0L as clientAnswerTime, true as hasReceivedFA
+when matched then update set hasReceivedFA = true;
+
+@Name('Return most frequent answer to player')
+on PlayerFARequest prfa insert into PlayerFAResponse select playerId, questionId, PlayerAnswerWindow(questionId = prfa.questionId).mostFrequent(a=>answer) as answerFA;
+
+/**
+* Reacting to Annulment.
+*/
+@Name('Annul a players answer')
+on PlayerAnnulment pa update PlayerAnswerWindow paw set answer = null, clientAnswerTime = null
+where pa.playerId = paw.playerId and pa.questionId = paw.questionId and annulTime <= (QuestionWindow(questionId = pa.questionId).firstof().questionTime + 30000);
+
+/**
+* Score computation based on time passing.
+*/
+@Name('Score computation time-based trigger')
+insert into TriggerScore
+select q.questionId as questionId, q.answer as correctAnswer, q.questionTime as questionTime
+from pattern [every q=TriviaQuestion->UpdateScore(questionId = q.questionId)];
+
+@Name('Compute player that responsed first')
+@Priority(1)
+insert into PlayerFastestAnswerWindow
+select questionId, PlayerAnswerWindow(questionId = ts.questionId).where(x => answer = correctAnswer).minBy(x => clientAnswerTime).playerId as playerId
+from TriggerScore ts;
+
+@Name('Score computation trigger for each player that submitted an answer')
+insert into TriggerPlayerScore
+select paw.*, correctAnswer
+from TriggerScore ts unidirectional, PlayerAnswerWindow paw
+where ts.questionId = paw.questionId and paw.answer is not null;
+
+@Name('Insert into player history')
+@Priority(1)
+on TriggerPlayerScore as tps
+merge PlayerAnswerHistoryWindow pahw where tps.playerId = pahw.playerId and tps.questionId = pahw.questionId
+when not matched then insert select playerId, questionId, (correctAnswer = answer) as correct, true as bonusEligible, questionTime;
+
+// The scoring system creates score event with points for player according to the following scoring table:
+// Correct answer 	5
+// Correct answer after asking for the most frequent answer 	1
+// First who answered 	100
+// Incorrect answer 	-1
+// Three answers incorrect without a correct answer in the middle 	-50
+// Correct answers to 10 consecutive questions* 	500
+// Correct answers to 10 questions within 30 minutes* during late night hours (1:00 – 5:00) 	500
+// TODO Best daily score (may apply to multiple players)** 	1000
+// TODO Most appearances in the daily top five within a month (may apply to multiple players)** 	1000
+// TODO Best weekly score, given every Sunday midnight (may apply to multiple players)** 	1000
+// *: each correct answer is counted towards a single bonus of the same type and cannot be counted twice.
+// **: If there are several players that are tied in one of the "best" categories, each of them receives the bonus of 1000 points.
+ 
+@Name('Compute score for a player')
+@Priority(0)
+expression last9EligibleAnswers {
+  p => PlayerAnswerHistoryWindow(PlayerAnswerHistoryWindow.playerId = p.playerId).takeLast(9).where(pah => correct and bonusEligible)
+}
+expression last9QuestionIds {
+  p => QuestionWindow(QuestionWindow.questionTime < p.questionTime).takeLast(9).selectFrom(q => q.questionId)
+}
+expression nowAt1AM {
+  current_timestamp.withTime(1, 0, 0, 0)
+}
+expression nowAt5AM {
+  current_timestamp.withTime(5, 0, 0, 0)
+}
+expression computeScore {
+  tps => case
+  when answer = correctAnswer and hasReceivedFA
+    then new { points = 1, removeEligible = false }
+  when answer = correctAnswer and last9EligibleAnswers(tps).countof() = 9 and last9EligibleAnswers(tps).selectFrom(a => a.questionId).sequenceEqual(last9QuestionIds(tps))
+    then new { points = 500, removeEligible = true }
+  when answer = correctAnswer and last9EligibleAnswers(tps).countof() = 9
+        and last9EligibleAnswers(tps).allOf(a => a.questionTime between nowAt1AM() and nowAt5AM())
+        and tps.questionTime.minus(30 min) >= last9EligibleAnswers(tps).min(a => a.questionTime)
+    then new { points = 500, removeEligible = true }
+  when answer = correctAnswer and exists(select * from PlayerFastestAnswerWindow as pfaw where pfaw.playerId = tps.playerId and pfaw.questionId = tps.questionId)
+    then new { points = 5 + NUM_PTS_FIRST_WHO_ANSWERED, removeEligible = false }
+  when answer = correctAnswer
+    then new { points = 5, removeEligible = false }
+  when answer != correctAnswer and PlayerAnswerHistoryWindow(PlayerAnswerHistoryWindow.playerId = tps.playerId).takeLast(2).where(x => x.correct = false).countof() = 2
+    then new { points = -51, removeEligible = false }
+  when answer != correctAnswer
+    then new { points = -1, removeEligible = false }
+  else new { points = 0, removeEligible = false }
+  end
+}
+insert into PlayerScoreUpdate select playerId, questionId, computeScore(tps) as scoredPoints from TriggerPlayerScore tps;
+
+@Name('Merge score to total player score')
+on PlayerScoreUpdate as psu
+merge PlayerScoreWindow as psw where psu.playerId = psw.playerId
+when not matched then insert select playerId, scoredPoints.points as score
+when matched then update set psw.score = psw.score + scoredPoints.points;
+
+@Name('Mark players question answer as ineligible for a bonus')
+on PlayerScoreUpdate(scoredPoints.removeEligible) psu update PlayerAnswerHistoryWindow pahw set bonusEligible = false where pahw.playerId = psu.playerId and pahw.questionId = psu.questionId;
