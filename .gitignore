@@ -43,3 +43,5 @@
 /esperio/esperio-kafka/target
 /esperio/esperio-socket/target
 /esperio/esperio-springjms/target
+/doc/javadoc
+/esperio/doc/javadoc
