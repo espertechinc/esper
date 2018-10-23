@@ -3,7 +3,7 @@
 # Script to run terminal server event sender demonstrating use with J2EE/JBoss
 #
 
-. setenv.sh
+. ./setenv.sh
 
 MEMORY_OPTIONS="-Xms16m -Xmx16m"
 

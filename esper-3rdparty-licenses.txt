@@ -1,0 +1,37 @@
+Esper-Compiler required libraries
+==========================
+
+antlr-runtime-4.7.1.jar - ANTLR 4 License
+- runtime for ANTLR parser generator
+- required for compiler (not required for runtime)
+- see ANTRL 4 license in file dependencies/compiler/esper_3rdparties_compiler.license
+
+janino-3.0.10.jar and commons-compiler-3.0.10.jar - Janino License 
+- required for compiler (not required for runtime)
+- see Janino license in file dependencies/compiler/esper_3rdparties_compiler.license
+
+slf4j-api-1.7.25.jar - Apache v2 License
+- Simple Logging Facade for Java (SLF4J), for logging
+- required for compiler and runtime 
+- see Apache v2 license in file dependencies/compiler/esper_3rdparties_compiler.license
+
+
+Esper-Runtime required libraries
+==========================
+
+slf4j-api-1.7.25.jar - Apache v2 License
+- Simple Logging Facade for Java (SLF4J), for logging
+- required for compiler and runtime 
+- see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license
+
+
+Optional libraries shipped with the distribution
+==========================
+
+slf4j-log4j12-1.7.25.jar - Apache v2 License
+- For use with Log4j
+- see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license
+
+log4j-1.2.17.jar - Apache v2 License
+- For use with Log4j
+- see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license

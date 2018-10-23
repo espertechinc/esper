@@ -3,7 +3,7 @@
 # Script to run terminal server receiver example demonstrating use with J2EE/JBoss use
 #
 
-. setenv.sh
+. ./setenv.sh
 
 MEMORY_OPTIONS="-Xms16m -Xmx16m"
 

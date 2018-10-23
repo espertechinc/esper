@@ -68,13 +68,13 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>3.0.0</version>
 				<dependencies>
-				    <dependency>
-				      <groupId>com.puppycrawl.tools</groupId>
-				      <artifactId>checkstyle</artifactId>
-				      <version>8.13</version>
-				    </dependency>
-				  </dependencies>
-				  <executions>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>8.13</version>
+					</dependency>
+				</dependencies>
+				<executions>
 					<execution>
 						<id>validate</id>
 						<phase>validate</phase>

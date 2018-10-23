@@ -50,7 +50,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>For a more complete example, see LogTail in the <code>test/src/com/rabbitmq/examples</code>
  * directory of the source distribution.</p>
- * <p/>
  * <b>deprecated</b> <i><code>QueueingConsumer</code> was introduced to allow
  * applications to overcome a limitation in the way <code>Connection</code>
  * managed threads and consumer dispatching. When <code>QueueingConsumer</code>
@@ -60,18 +59,15 @@ import java.util.concurrent.TimeUnit;
  * <code>Channels</code> on the <code>Connection</code>. Secondly, if a
  * <code>Consumer</code> made a recursive synchronous call into its
  * <code>Channel</code> the client would deadlock.
- * <p/>
  * <code>QueueingConsumer</code> provided client code with an easy way to
  * obviate this problem by queueing incoming messages and processing them on
  * a separate, application-managed thread.
- * <p/>
  * The threading behaviour of <code>Connection</code> and <code>Channel</code>
  * has been changed so that each <code>Channel</code> uses a distinct thread
  * for dispatching to <code>Consumers</code>. This prevents
  * <code>Consumers</code> on one <code>Channel</code> holding up
  * <code>Consumers</code> on another and it also prevents recursive calls from
  * deadlocking the client.
- * <p/>
  * As such, it is now safe to implement <code>Consumer</code> directly or
  * to extend <code>DefaultConsumer</code>.</i>
  */

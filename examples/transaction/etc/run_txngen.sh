@@ -7,7 +7,7 @@
 # A note to cygwin users: please replace "-cp ${CLASSPATH}" with "-cp `cygpath -wp $CLASSPATH`"
 #
 
-. setenv.sh
+. ./setenv.sh
 
 MEMORY_OPTIONS="-Xms256m"
 

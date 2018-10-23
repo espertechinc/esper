@@ -30,6 +30,8 @@ public class TriviaExample {
         Configuration config = new Configuration();
         config.getRuntime().getExecution().setPrioritized(true);
         config.getRuntime().getThreading().setInternalTimerEnabled(false);
+        config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS);
+        config.getCompiler().getByteCode().setAccessModifiersPublic();
 
         EPRuntime runtime = EPRuntimeProvider.getDefaultRuntime(config);
         runtime.initialize();
@@ -49,7 +51,6 @@ public class TriviaExample {
             Module module = compiler.readModule(inputFile, "trivia.epl");
 
             CompilerArguments args = new CompilerArguments(config);
-            args.getConfiguration().getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS);
             EPCompiled compiled = compiler.compile(module, args);
 
             // set deployment id to 'trivia'

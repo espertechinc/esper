@@ -3,7 +3,7 @@
 # Script to run JMS server shell client
 #
 
-. setenv.sh
+. ./setenv.sh
 
 MEMORY_OPTIONS="-Xms256m"
 

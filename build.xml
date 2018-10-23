@@ -1,127 +1,88 @@
 <project name="esper" default="info" basedir=".">
 
 	<!-- Name of project and version, used to create filenames -->
-	<property name="Name" value="Esper"/>
+	<property environment="env"/>
+	<property name="documentation.home" value="${env.ESPER_DOCHOME}"/>
+	
 	<property name="name" value="esper"/>
-	<property name="nameio" value="esperio"/>
-	<property name="version" value="7.1.0"/>
+	<property name="version" value="8.0.0-beta1"/>
 	<property name="patchlevel" value=""/>
+	<property name="dist.dir" value=".."/>
 	<property name="fullversion" value="${version}${patchlevel}"/>
 	<property name="fullname" value="${name}-${fullversion}"/>
-	<property name="fullnameio" value="${nameio}-${fullversion}"/>
-	<property name="fullnameavro" value="${name}-avro-${fullversion}"/>
-
-	<property name="dist.dir" value=".."/>
-	<property name="lib.dir" value="lib"/>
-	<property name="src.dir" value="src/main/java"/>
-	<property name="generated.src" value="target/generated-sources/antlr"/>
-	<property name="doc.dir" value="doc"/>
-	<property name="doc.api.dir" value="${doc.dir}/api"/>
-	<property name="dist.api.dir" value="doc/javadoc/api"/>
-
-	<property name="dist_includes" value="
-	    esper-license.txt, esperio-license.txt, esper-avro-license.txt, changelog.txt, index.html,
-	    esper-${version}.jar, esperio-${version}.jar,
-	    esper/doc/site/**,
-	    esper/lib/**, esper/etc/*.*, esper/doc/grammar/**,
-	    esperio/lib/**, esperio/etc/*.*,
-	    examples/**"/>
-	<property name="dist_includes_exceptions" value="examples/**/target/*.jar,examples/**/target/*.war,examples/**/target/*.ear"/>
-    <!-- examples has specific excludes -->
-    <!-- doc is handled separately for folder remapping (remove of build/en) -->
-    <property name="dist_excludes" value="
-        **/target/**, **/intellij/**, **/_classes/**,
-        examples/benchmark/lib/*.jar,
-        examples/terminalsvc-jse/lib/*.jar,
-        examples/cycledetect/lib/*.jar,
-        **/antlr-4.7-complete.jar,
-        **/junit-*.jar, **/junit.license,
-        **/mysql-connector-java-*.jar,**/OTFeed*.jar"/>
-
-	<target name="zipjar">
-		<zip zipfile="esper_jars.zip">
-			<zipfileset dir="." includes="**/*.jar" excludes="**/esper-*.jar"/>
-		</zip>
-	</target>
-
-	<target name="info" description="The master build is done my Maven">
-		<echo message="Please use Maven 2 to build Esper and related components. Maven build instructions are available on the website." />
-	</target>
-
-	<target name="touch_all" description="Update timestamp all artifacts">
-		<touch>
-			<fileset dir=".">
-				<include name="**/*.java"/>
-			</fileset>
-		</touch>
-	</target>
-
-	<target name="source_zip" description="Zip up source distribution">
-		<echo message="Building a zip for distribution" />
-		<property name="zip-file" value=""/>
-		<zip zipfile="${dist.dir}/${fullname}-src.zip">
-            		<zipfileset prefix="src" dir="esper/src/main/java" includes="**"/>
-            		<zipfileset prefix="test" dir="esper/src/test/java" includes="**"/>
-            		<zipfileset prefix="grammar" dir="esper/grammar" includes="**"/>
-            		<zipfileset prefix="pom" dir="esper" includes="pom.xml"/>
-            		<zipfileset prefix="regression-test" dir="esper-regression/src/test/java" includes="**"/>
-        	</zip>
-		<zip zipfile="${dist.dir}/${fullnameavro}-src.zip">
-            		<zipfileset prefix="src" dir="esper-avro/src/main/java" includes="**"/>
-            		<zipfileset prefix="test" dir="esper-avro/src/test/java" includes="**"/>
-        	</zip>
-		<zip zipfile="${dist.dir}/${fullnameio}-src.zip">
-            		<zipfileset prefix="amqp" dir="esperio-amqp/src/main/java" includes="**"/>
-            		<zipfileset prefix="csv" dir="esperio-csv/src/main/java" includes="**"/>
-            		<zipfileset prefix="http" dir="esperio-http/src/main/java" includes="**"/>
-            		<zipfileset prefix="db" dir="esperio-db/src/main/java" includes="**"/>
-            		<zipfileset prefix="tcp" dir="esperio-socket/src/main/java" includes="**"/>
-            		<zipfileset prefix="jms" dir="esperio-springjms/src/main/java" includes="**"/>
-            		<zipfileset prefix="stax" dir="esperio-stax/src/main/java" includes="**"/>
-            		<zipfileset prefix="kafka" dir="esperio-kafka/src/main/java" includes="**"/>
-        	</zip>
-        </target>
-
-	<target name="backup_zip" description="Zip up dev artifacts">
-		<echo message="Building a zip of the development artifacts" />
-		<zip zipfile="${dist.dir}/${fullname}-dev-artifacts.zip" basedir="." excludes="**/target/**, **/lib/**, **/doc/javadoc/**, **/doc/build/**, **/doc/reference/support/**,**/doc/reference/build/**, **/*.jar, **/*.ear, **/*.war" />
-	</target>
 	
-	<target name="dist_zip" description="Zip up distribution" depends="touch_all">
-		<echo message="Building a zip for distribution" />
+	<property name="root.common" value="common"/>
+	<property name="root.common.avro" value="common-avro"/>
+	<property name="root.compiler" value="compiler"/>
+	<property name="root.runtime" value="runtime"/>
+	<property name="root.examples" value="examples"/>
+
+    	<property name="dist_excludes" value="
+		**/target/**, 
+		**/intellij/**, 
+		**/_classes/**,
+		**/benchmark/lib/*.jar,
+		**/terminalsvc-jse/lib/*.jar,
+		**/cycledetect/lib/*.jar,
+		**/antlr-4.7.1-complete.jar,
+		**/junit-*.jar, 
+		**/junit.license,
+		**/hamcrest-*.jar,
+		**/mysql-connector-java-*.jar"/>
+
+	<target name="dist_zip" description="Zip up distribution">
+		<echo message="Building a zip for distribution ${documentation.home}" />
 		<property name="zip-file" value="${dist.dir}/${fullname}.zip"/>
 		<zip zipfile="${zip-file}">
-			<zipfileset prefix="${name}-${version}" dir="." includes="${dist_includes}" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}" dir="." includes="${dist_includes_exceptions}"/>
-			<zipfileset prefix="${name}-${version}/esper/doc/reference" dir="esper/doc/reference/target/docbook/publish/en-US" includes="**"/>
-			<zipfileset prefix="${name}-${version}/esper/doc/api" dir="esper/doc/javadoc/api" includes="**"/>
-			<zipfileset prefix="${name}-${version}/esperio/doc/reference" dir="esperio/doc/reference/target/docbook/publish/en-US" includes="**"/>
-			<zipfileset prefix="${name}-${version}/esperio/doc/api" dir="esperio/doc/javadoc/api" includes="**"/>
-		    	<zipfileset prefix="${name}-${version}/esper-avro/doc/api" dir="esper-avro/doc/javadoc/api" includes="**"/>            
-			<zipfileset prefix="${name}-${version}" dir="esper/target" includes="esper-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esper-avro/target" includes="esper-avro-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-amqp/target" includes="esperio-amqp*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-csv/target" includes="esperio-csv*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-http/target" includes="esperio-http*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-db/target" includes="esperio-db*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-socket/target" includes="esperio-socket*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-springjms/target" includes="esperio-springjms*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-stax/target" includes="esperio-stax*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}" dir="esperio-kafka/target" includes="esperio-kafka*-${version}.jar"/>
-			<zipfileset prefix="${name}-${version}/esperio-amqp" dir="esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}/esperio-csv" dir="esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}/esperio-http" dir="esperio-http" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}/esperio-db" dir="esperio-db" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}/esperio-socket" dir="esperio-socket" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}/esperio-springjms" dir="esperio-springjms" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}/esperio-stax" dir="esperio-stax" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<zipfileset prefix="${name}-${version}/esperio-kafka" dir="esperio-kafka" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<!-- Home Files -->
+			<zipfileset prefix="${name}-${version}" dir="." includes="esper-license.txt, changelog.txt, index.html, esper-3rdparty-licenses.txt"/>
+			<!-- Jar -->
+			<zipfileset prefix="${name}-${version}" dir="${root.common}/target" includes="esper-common-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="${root.compiler}/target" includes="esper-compiler-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="${root.runtime}/target" includes="esper-runtime-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="${root.common.avro}/target" includes="esper-common-avro-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-amqp/target" includes="esperio-amqp-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-csv/target" includes="esperio-csv-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-db/target" includes="esperio-db-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-http/target" includes="esperio-http-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-kafka/target" includes="esperio-kafka-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-socket/target" includes="esperio-socket-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-springjms/target" includes="esperio-springjms-${version}.jar"/>
+			<!-- Esper Etc -->
+			<zipfileset prefix="${name}-${version}/etc" dir="${root.common}/etc" includes="*.xsd,*.xml"/>
+			<!-- Esper Dependencies -->
+			<zipfileset prefix="${name}-${version}/dependencies/compiler" dir="${root.common}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/compiler" dir="${root.compiler}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.common}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.runtime}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<!-- EsperIO Dependencies -->
+			<zipfileset prefix="${name}-${version}/dependencies/esperio-amqp" dir="esperio/esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/esperio-csv" dir="esperio/esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/esperio-http" dir="esperio/esperio-http" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/esperio-db" dir="esperio/esperio-db" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/esperio-socket" dir="esperio/esperio-socket" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/esperio-springjms" dir="esperio/esperio-springjms" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/dependencies/esperio-kafka" dir="esperio/esperio-kafka" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<!-- User Docs -->
+			<zipfileset prefix="${name}-${version}/doc/reference-esper" dir="${documentation.home}/esper-reference/target/docbook/publish/en-US" includes="**"/>
+			<zipfileset prefix="${name}-${version}/doc/reference-esperio" dir="${documentation.home}/esperio-reference/target/docbook/publish/en-US" includes="**"/>
+			<!-- Java Docs -->
+			<zipfileset prefix="${name}-${version}/doc/javadoc-esper" dir="doc/javadoc" includes="**"/>
+			<zipfileset prefix="${name}-${version}/doc/javadoc-common" dir="${root.common}/target/site/apidocs" includes="**"/>
+			<zipfileset prefix="${name}-${version}/doc/javadoc-compiler" dir="${root.compiler}/target/site/apidocs" includes="**"/>
+			<zipfileset prefix="${name}-${version}/doc/javadoc-runtime" dir="${root.runtime}/target/site/apidocs" includes="**"/>
+			<zipfileset prefix="${name}-${version}/doc/javadoc-esperio" dir="esperio/doc/javadoc" includes="**"/>
+			<!-- Site Docs -->
+			<zipfileset prefix="${name}-${version}/doc/site" dir="doc/site" includes="**"/>
+			<!-- Examples -->
+			<zipfileset prefix="${name}-${version}/examples" dir="${root.examples}" includes="**" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/examples" dir="${root.examples}" includes="**/target/*.jar,**/target/*.war,**/target/*.ear"/>
 		</zip>
 		<checksum file="${zip-file}" algorithm="MD5" fileext=".md5"/>
 		<checksum file="${zip-file}" algorithm="SHA" fileext=".asc"/>		
 	</target>
 
-	<target name="dist_tar" description="Tar up distribution" depends="touch_all">
+	<target name="dist_tar" description="Tar up distribution">
 		<property name="tar-file" value="${dist.dir}/${fullname}.tar"/>
 		<echo message="Building a tar for distribution" />
 		<fixcrlf srcdir="examples"
@@ -129,58 +90,61 @@
 		       eof="remove"
 		       includes="**/*.sh"/>
 		<tar longfile="gnu" tarfile="${tar-file}">
-			<tarfileset prefix="${name}-${version}" dir="." includes="${dist_includes}" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}" dir="." includes="${dist_includes_exceptions}"/>
-			<tarfileset prefix="${name}-${version}" dir="." mode="555" includes="examples/**/*.sh" excludes="examples/**/target/**/*.sh"/>
-			<tarfileset prefix="${name}-${version}/esper/doc/reference" dir="esper/doc/reference/target/docbook/publish/en-US" includes="**"/>
-		    	<tarfileset prefix="${name}-${version}/esper/doc/api" dir="esper/doc/javadoc/api" includes="**"/>
-		    	<tarfileset prefix="${name}-${version}/esperio/doc/reference" dir="esperio/doc/reference/target/docbook/publish/en-US" includes="**"/>
-		    	<tarfileset prefix="${name}-${version}/esperio/doc/api" dir="esperio/doc/javadoc/api" includes="**"/>            
-		    	<tarfileset prefix="${name}-${version}/esper-avro/doc/api" dir="esper-avro/doc/javadoc/api" includes="**"/>            
-			<tarfileset prefix="${name}-${version}" dir="esper/target" includes="esper-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esper-avro/target" includes="esper-avro-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-amqp/target" includes="esperio-amqp*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-csv/target" includes="esperio-csv*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-http/target" includes="esperio-http*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-db/target" includes="esperio-db*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-socket/target" includes="esperio-socket*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-springjms/target" includes="esperio-springjms*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-stax/target" includes="esperio-stax*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}" dir="esperio-kafka/target" includes="esperio-kafka*-${version}.jar"/>
-			<tarfileset prefix="${name}-${version}/esperio-amqp" dir="esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}/esperio-csv" dir="esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}/esperio-http" dir="esperio-http" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}/esperio-db" dir="esperio-db" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}/esperio-socket" dir="esperio-socket" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}/esperio-springjms" dir="esperio-springjms" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}/esperio-stax" dir="esperio-stax" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
-			<tarfileset prefix="${name}-${version}/esperio-kafka" dir="esperio-kafka" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<!-- Home Files -->
+			<tarfileset prefix="${name}-${version}" dir="." includes="esper-license.txt, changelog.txt, index.html, esper-3rdparty-licenses.txt"/>
+			<!-- Jar -->
+			<tarfileset prefix="${name}-${version}" dir="${root.common}/target" includes="esper-common-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="${root.compiler}/target" includes="esper-compiler-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="${root.runtime}/target" includes="esper-runtime-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="${root.common.avro}/target" includes="esper-common-avro-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-amqp/target" includes="esperio-amqp-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-csv/target" includes="esperio-csv-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-db/target" includes="esperio-db-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-http/target" includes="esperio-http-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-kafka/target" includes="esperio-kafka-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-socket/target" includes="esperio-socket-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-springjms/target" includes="esperio-springjms-${version}.jar"/>
+			<!-- Esper Etc -->
+			<tarfileset prefix="${name}-${version}/etc" dir="${root.common}/etc" includes="*.xsd,*.xml"/>
+			<!-- Esper Dependencies -->
+			<tarfileset prefix="${name}-${version}/dependencies/compiler" dir="${root.common}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/compiler" dir="${root.compiler}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.common}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.runtime}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<!-- EsperIO Dependencies -->
+			<tarfileset prefix="${name}-${version}/dependencies/esperio-amqp" dir="esperio/esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/esperio-csv" dir="esperio/esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/esperio-http" dir="esperio/esperio-http" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/esperio-db" dir="esperio/esperio-db" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/esperio-socket" dir="esperio/esperio-socket" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/esperio-springjms" dir="esperio/esperio-springjms" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/dependencies/esperio-kafka" dir="esperio/esperio-kafka" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<!-- User Docs -->
+			<tarfileset prefix="${name}-${version}/doc/reference-esper" dir="${documentation.home}/esper-reference/target/docbook/publish/en-US" includes="**"/>
+			<tarfileset prefix="${name}-${version}/doc/reference-esperio" dir="${documentation.home}/esperio-reference/target/docbook/publish/en-US" includes="**"/>
+			<!-- Java Docs -->
+			<tarfileset prefix="${name}-${version}/doc/javadoc-esper" dir="doc/javadoc" includes="**"/>
+			<tarfileset prefix="${name}-${version}/doc/javadoc-common" dir="${root.common}/target/site/apidocs" includes="**"/>
+			<tarfileset prefix="${name}-${version}/doc/javadoc-compiler" dir="${root.compiler}/target/site/apidocs" includes="**"/>
+			<tarfileset prefix="${name}-${version}/doc/javadoc-runtime" dir="${root.runtime}/target/site/apidocs" includes="**"/>
+			<tarfileset prefix="${name}-${version}/doc/javadoc-esperio" dir="esperio/doc/javadoc" includes="**"/>
+			<!-- Site Docs -->
+			<tarfileset prefix="${name}-${version}/doc/site" dir="doc/site" includes="**"/>
+			<!-- Examples -->
+			<tarfileset prefix="${name}-${version}/examples" dir="${root.examples}" includes="**" excludes="${dist_excludes},**/*.sh"/>
+			<tarfileset prefix="${name}-${version}/examples" dir="${root.examples}" includes="**/target/*.jar,**/target/*.war,**/target/*.ear"/>
+			<tarfileset prefix="${name}-${version}/examples" dir="${root.examples}" mode="555" includes="**/*.sh" excludes="**/target/**/*.sh"/>
 		</tar>
 		<gzip zipfile="${tar-file}.gz" src="${tar-file}" />
 		<checksum file="${tar-file}.gz" algorithm="MD5" fileext=".md5"/>
 		<checksum file="${tar-file}.gz" algorithm="SHA" fileext=".asc"/>		
 		<delete file="${tar-file}"/>
 	</target>
-	
-	<target name="dist_maven" description="Maven distribution artifacts" >
-		<echo message="Building Maven distribution files" />
-		<checksum file="esper/maven-metadata.xml" algorithm="MD5" fileext=".md5"/>
-		<checksum file="esper/maven-metadata.xml" algorithm="SHA" fileext=".sha1"/>		
-		<checksum file="esper/maven-metadata.xml" algorithm="SHA1" fileext=".asc"/>		
-		<checksum file="esperio/maven-metadata.xml" algorithm="MD5" fileext=".md5"/>
-		<checksum file="esperio/maven-metadata.xml" algorithm="SHA1" fileext=".sha1"/>		
-		<checksum file="esperio/maven-metadata.xml" algorithm="SHA" fileext=".asc"/>		
-		<copy file="esper/pom.xml" tofile="${dist.dir}/esper-${version}.pom"/>		
-		<checksum file="${dist.dir}/esper-${version}.pom" algorithm="MD5" fileext=".md5"/>
-		<checksum file="${dist.dir}/esper-${version}.pom" algorithm="SHA" fileext=".sha1"/>		
-		<copy file="esperio/pom.xml" tofile="${dist.dir}/esperio-${version}.pom"/>		
-		<checksum file="${dist.dir}/esperio-${version}.pom" algorithm="MD5" fileext=".md5"/>
-		<checksum file="${dist.dir}/esperio-${version}.pom" algorithm="SHA" fileext=".sha1"/>		
-		<copy file="esper-${version}.jar" tofile="${dist.dir}/esper-${version}.jar"/>		
-		<checksum file="${dist.dir}/esper-${version}.jar" algorithm="MD5" fileext=".md5"/>
-		<checksum file="${dist.dir}/esper-${version}.jar" algorithm="SHA" fileext=".sha1"/>		
-		<copy file="esperio-${version}.jar" tofile="${dist.dir}/esperio-${version}.jar"/>		
-		<checksum file="${dist.dir}/esperio-${version}.jar" algorithm="MD5" fileext=".md5"/>
-		<checksum file="${dist.dir}/esperio-${version}.jar" algorithm="SHA" fileext=".sha1"/>		
+
+	<target name="zipjar">
+		<zip zipfile="esper_jars.zip">
+			<zipfileset dir="." includes="**/*.jar" excludes="**/esper*.jar"/>
+		</zip>
 	</target>
+
 </project>

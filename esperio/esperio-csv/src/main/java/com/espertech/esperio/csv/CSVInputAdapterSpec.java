@@ -175,8 +175,8 @@ public class CSVInputAdapterSpec {
     }
 
     /**
-     * Returns the indicator whether {@link com.espertech.esper.client.time.CurrentTimeEvent} (false, the default)
-     * or {@link com.espertech.esper.client.time.CurrentTimeSpanEvent} (true) are used for time advancing.
+     * Returns the indicator whether {@link com.espertech.esper.runtime.client.EPEventService#advanceTime(long)} (false, the default)
+     * or {@link com.espertech.esper.runtime.client.EPEventService#advanceTimeSpan(long)} (true) are used for time advancing.
      *
      * @return indicator
      */
@@ -185,10 +185,10 @@ public class CSVInputAdapterSpec {
     }
 
     /**
-     * Sets the indicator whether {@link com.espertech.esper.client.time.CurrentTimeEvent} (false, the default)
-     * or {@link com.espertech.esper.client.time.CurrentTimeSpanEvent} (true) are used for time advancing.
+     * Sets the indicator whether {@link com.espertech.esper.runtime.client.EPEventService#advanceTime(long)} (false, the default)
+     * or {@link com.espertech.esper.runtime.client.EPEventService#advanceTimeSpan(long)} (true) are used for time advancing.
      *
-     * @param usingTimeSpanEvents new value
+     * @param usingTimeSpanEvents indicator
      */
     public void setUsingTimeSpanEvents(boolean usingTimeSpanEvents) {
         this.usingTimeSpanEvents = usingTimeSpanEvents;

@@ -202,7 +202,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.0.1</version>
 				<configuration>
-					<quiet>true</quiet>
+					<quiet>false</quiet>
 					<additionalparam>--allow-script-in-comments</additionalparam>
 					<windowtitle>Esper Common-Avro API Documentation</windowtitle>
 					<footer><![CDATA[
@@ -212,7 +212,7 @@
 					<groups>
 						<group>
 							<title>Esper Common-Avro Internal Packages</title>
-							<packages>com.espertech.esper.common.internal*</packages>
+							<packages>com.espertech.esper.*</packages>
 						</group>
 					</groups>
 				</configuration>

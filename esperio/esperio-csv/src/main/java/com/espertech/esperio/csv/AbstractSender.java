@@ -38,6 +38,7 @@ public abstract class AbstractSender {
      *
      * @param theEvent   wrapper
      * @param beanToSend event object
+     * @param eventTypeName event type name
      */
     public abstract void sendEvent(AbstractSendableEvent theEvent, Object beanToSend, String eventTypeName);
 
