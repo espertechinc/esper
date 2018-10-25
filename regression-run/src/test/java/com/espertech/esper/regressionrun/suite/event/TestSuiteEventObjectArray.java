@@ -12,6 +12,7 @@ package com.espertech.esper.regressionrun.suite.event;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.event.objectarray.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
@@ -57,6 +58,7 @@ public class TestSuiteEventObjectArray extends TestCase {
     }
 
     private static void configure(Configuration configuration) {
+
         for (Class clazz : new Class[]{SupportBean.class}) {
             configuration.getCommon().addEventType(clazz);
         }

@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;

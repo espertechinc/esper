@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 

@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.PermutationEnumeration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 import static org.junit.Assert.assertFalse;
 

@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.expr.enummethod;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;

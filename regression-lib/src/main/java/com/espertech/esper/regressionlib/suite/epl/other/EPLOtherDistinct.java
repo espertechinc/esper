@@ -20,7 +20,7 @@ import com.espertech.esper.common.client.soda.SelectClause;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_N;
 import com.espertech.esper.runtime.client.EPStatement;

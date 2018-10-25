@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.context;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.context.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDW;

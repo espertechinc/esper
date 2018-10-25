@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanWithEnum;
-import com.espertech.esper.regressionlib.support.bean.SupportEnum;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;

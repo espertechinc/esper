@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import com.espertech.esper.common.internal.support.SupportEnum;
+
 import java.io.Serializable;
 
 // For testing variant streams to act as a variant of SupportBean

@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import org.w3c.dom.Document;
 
 import static com.espertech.esper.regressionlib.support.util.SupportXML.getDocument;

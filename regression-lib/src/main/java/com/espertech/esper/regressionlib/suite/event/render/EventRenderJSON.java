@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.event.render;
 
 import com.espertech.esper.common.client.render.JSONEventRenderer;
 import com.espertech.esper.common.internal.event.render.OutputValueRendererJSONString;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
-import com.espertech.esper.regressionlib.support.bean.SupportEnum;
 
 import java.util.*;
 

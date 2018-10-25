@@ -16,7 +16,7 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.regressionlib.suite.event.objectarray.EventObjectArrayConfiguredStatic;
 import com.espertech.esper.regressionlib.suite.event.objectarray.EventObjectArrayInheritanceConfigRuntime;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import com.espertech.esper.regressionrun.runner.SupportConfigFactory;

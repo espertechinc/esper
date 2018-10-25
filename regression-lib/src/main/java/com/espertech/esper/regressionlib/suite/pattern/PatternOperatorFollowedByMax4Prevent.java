@@ -16,7 +16,7 @@ import com.espertech.esper.common.client.hook.condition.ConditionPatternRuntimeS
 import com.espertech.esper.common.client.hook.condition.ConditionPatternSubexpressionMax;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
 import com.espertech.esper.runtime.client.EPStatement;

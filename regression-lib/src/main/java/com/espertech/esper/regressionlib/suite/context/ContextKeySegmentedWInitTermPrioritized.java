@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.context.ContextPartitionIdentifierParti
 import com.espertech.esper.common.client.context.ContextPartitionSelectorAll;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;

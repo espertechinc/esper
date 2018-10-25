@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.support.multithread;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.EPRuntime;

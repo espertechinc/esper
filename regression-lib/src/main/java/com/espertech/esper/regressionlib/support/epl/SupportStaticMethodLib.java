@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.support.epl;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.*;
 import org.apache.avro.generic.GenericData;
 

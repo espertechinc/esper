@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.util.SupportListenerTimerHRes;
 import com.espertech.esper.runtime.client.DeploymentOptions;

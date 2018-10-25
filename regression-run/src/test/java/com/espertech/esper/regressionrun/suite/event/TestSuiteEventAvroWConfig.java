@@ -12,7 +12,7 @@ package com.espertech.esper.regressionrun.suite.event;
 
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeAvro;
 import com.espertech.esper.regressionlib.suite.event.avro.EventAvroHook;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithLocalDateTime;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithZonedDateTime;

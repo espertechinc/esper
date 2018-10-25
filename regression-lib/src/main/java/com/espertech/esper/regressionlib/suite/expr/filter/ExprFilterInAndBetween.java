@@ -11,12 +11,12 @@
 package com.espertech.esper.regressionlib.suite.expr.filter;
 
 import com.espertech.esper.common.client.EPCompiled;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
-import com.espertech.esper.regressionlib.support.bean.SupportEnum;
 import com.espertech.esper.regressionlib.support.multistmtassert.EPLWithInvokedFlags;
 import com.espertech.esper.regressionlib.support.multistmtassert.MultiStmtAssertUtil;
 import com.espertech.esper.runtime.client.DeploymentOptions;

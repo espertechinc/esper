@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.support.util;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowConversion;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowTypeContext;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowValueContext;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.List;

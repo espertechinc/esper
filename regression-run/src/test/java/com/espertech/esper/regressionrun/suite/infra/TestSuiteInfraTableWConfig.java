@@ -11,7 +11,7 @@
 package com.espertech.esper.regressionrun.suite.infra;
 
 import com.espertech.esper.regressionlib.suite.infra.tbl.InfraTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportTopGroupSubGroupEvent;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;

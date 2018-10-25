@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionrun.suite.event;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.event.map.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;

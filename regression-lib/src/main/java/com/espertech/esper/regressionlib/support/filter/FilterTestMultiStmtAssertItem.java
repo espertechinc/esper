@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.regressionlib.support.filter;
 
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 public class FilterTestMultiStmtAssertItem {
     private final SupportBean bean;

@@ -13,6 +13,8 @@ package com.espertech.esper.regressionrun.suite.client;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeAvro;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.suite.client.runtime.*;
 import com.espertech.esper.regressionlib.suite.event.infra.EventInfraPropertyUnderlyingSimple;
 import com.espertech.esper.regressionlib.support.bean.*;

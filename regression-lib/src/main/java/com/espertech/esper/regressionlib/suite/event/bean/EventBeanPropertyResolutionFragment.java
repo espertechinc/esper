@@ -16,7 +16,7 @@ import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanCombinedProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 

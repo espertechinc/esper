@@ -22,6 +22,7 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;

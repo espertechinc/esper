@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.regressionlib.support.subscriber;
 
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 public class SupportSubscriberMultirowUnderlyingNStmt extends SupportSubscriberMultirowUnderlyingBase {
     public SupportSubscriberMultirowUnderlyingNStmt() {

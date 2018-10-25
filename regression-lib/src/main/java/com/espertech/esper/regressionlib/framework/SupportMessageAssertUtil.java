@@ -18,7 +18,7 @@ import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
 import org.junit.Assert;

@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.internal.util.FileUtil;
 import com.espertech.esper.regressionlib.suite.event.xml.*;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.util.SupportXPathFunctionResolver;
 import com.espertech.esper.regressionlib.support.util.SupportXPathVariableResolver;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;

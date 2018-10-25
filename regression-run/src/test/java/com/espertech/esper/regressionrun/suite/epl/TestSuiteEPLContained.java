@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.internal.avro.support.SupportAvroArrayEvent;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.epl.contained.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bookexample.BookDesc;

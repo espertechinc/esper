@@ -11,7 +11,7 @@
 package com.espertech.esper.regressionlib.suite.client.runtime;
 
 import com.espertech.esper.common.client.configuration.Configuration;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
 

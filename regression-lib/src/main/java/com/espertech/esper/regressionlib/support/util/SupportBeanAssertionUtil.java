@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.regressionlib.support.util;
 
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

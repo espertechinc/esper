@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeAvro;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.internal.avro.core.AvroConstant;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.epl.join.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;

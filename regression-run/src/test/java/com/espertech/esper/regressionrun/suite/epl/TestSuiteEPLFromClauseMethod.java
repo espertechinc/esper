@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.epl;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethod;
 import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodNStream;
 import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodOuterNStream;

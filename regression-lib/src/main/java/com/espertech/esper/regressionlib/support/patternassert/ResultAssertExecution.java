@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;

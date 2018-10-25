@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.metric.RuntimeMetric;
 import com.espertech.esper.common.client.metric.StatementMetric;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.EPStatement;
 
 import static org.junit.Assert.assertFalse;

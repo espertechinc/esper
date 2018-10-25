@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_G;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplA;
 import com.espertech.esper.regressionlib.support.util.SupportXML;

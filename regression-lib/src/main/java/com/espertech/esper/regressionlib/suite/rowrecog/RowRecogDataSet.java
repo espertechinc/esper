@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 import org.junit.Assert;
 import org.slf4j.Logger;

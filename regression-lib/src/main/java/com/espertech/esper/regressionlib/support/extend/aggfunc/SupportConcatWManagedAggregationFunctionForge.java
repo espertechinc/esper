@@ -16,7 +16,7 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionModeMan
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidationContext;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 public class SupportConcatWManagedAggregationFunctionForge implements AggregationFunctionForge {
     public void setFunctionName(String functionName) {

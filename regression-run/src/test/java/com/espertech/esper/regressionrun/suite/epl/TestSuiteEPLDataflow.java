@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphEventUtil;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourceOp;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.epl.dataflow.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.dataflow.MyLineFeedSource;

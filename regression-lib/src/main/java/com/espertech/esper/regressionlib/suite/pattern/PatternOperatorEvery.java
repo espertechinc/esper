@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;

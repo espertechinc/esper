@@ -12,6 +12,7 @@ package com.espertech.esper.regressionrun.suite.expr;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompiler;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.expr.enummethod.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bookexample.BookDesc;

@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.hook.aggmultifunc.*;
 import com.espertech.esper.common.client.hook.forgeinject.InjectionStrategyClassNewInstance;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 public class SupportAggMFEventsAsListHandler implements AggregationMultiFunctionHandler {
     private final static AggregationMultiFunctionStateKey AGGREGATION_STATE_KEY = new AggregationMultiFunctionStateKey() {

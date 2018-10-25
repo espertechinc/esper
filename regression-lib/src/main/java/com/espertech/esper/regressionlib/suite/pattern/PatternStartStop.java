@@ -17,7 +17,7 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;

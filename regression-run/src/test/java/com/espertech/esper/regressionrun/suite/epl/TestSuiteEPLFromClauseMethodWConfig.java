@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.epl;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonMethodRef;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodCacheExpiry;
 import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodCacheLRU;
 import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodJoinPerformance;

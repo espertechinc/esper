@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import com.espertech.esper.common.internal.support.SupportEnum;
+
 import java.io.Serializable;
 
 public class SupportBeanTwo implements Serializable {

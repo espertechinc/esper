@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.expr.filter;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;

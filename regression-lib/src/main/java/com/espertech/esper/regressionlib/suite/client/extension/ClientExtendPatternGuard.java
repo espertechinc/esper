@@ -14,7 +14,7 @@ import com.espertech.esper.common.internal.epl.pattern.guard.GuardForge;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertFalse;

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.support.bean.SupportBean.makeBean;
+import static com.espertech.esper.common.internal.support.SupportBean.makeBean;
 import static com.espertech.esper.regressionlib.support.filter.FilterTestMultiStmtAssertItem.makeItem;
 import static com.espertech.esper.regressionlib.support.filter.FilterTestMultiStmtPermutable.addCase;
 

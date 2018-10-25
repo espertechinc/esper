@@ -14,11 +14,11 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.render.XMLRenderingOptions;
 import com.espertech.esper.common.internal.event.render.OutputValueRendererXMLString;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
-import com.espertech.esper.regressionlib.support.bean.SupportEnum;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

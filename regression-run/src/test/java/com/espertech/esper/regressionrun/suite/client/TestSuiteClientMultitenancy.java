@@ -13,7 +13,7 @@ package com.espertech.esper.regressionrun.suite.client;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.suite.client.multitenancy.ClientMultitenancyInsertInto;
 import com.espertech.esper.regressionlib.suite.client.multitenancy.ClientMultitenancyProtected;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;

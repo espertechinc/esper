@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.soda.StreamSelector;
 import com.espertech.esper.regressionlib.suite.epl.other.EPLOtherIStreamRStreamConfigSelectorIRStream;
 import com.espertech.esper.regressionlib.suite.epl.other.EPLOtherIStreamRStreamConfigSelectorRStream;
 import com.espertech.esper.regressionlib.suite.epl.other.EPLOtherStaticFunctionsNoUDFCache;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportTemperatureBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;

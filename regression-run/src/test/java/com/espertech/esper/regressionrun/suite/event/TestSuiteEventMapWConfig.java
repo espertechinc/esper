@@ -17,7 +17,7 @@ import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.suite.event.map.EventMapCore;
 import com.espertech.esper.regressionlib.suite.event.map.EventMapInheritanceRuntime;
 import com.espertech.esper.regressionlib.suite.event.map.EventMapNestedConfigRuntime;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import com.espertech.esper.regressionrun.runner.SupportConfigFactory;

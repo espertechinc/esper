@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.support.extend.aggmultifunc;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionState;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

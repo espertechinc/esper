@@ -53,6 +53,18 @@ public class SupportCompileDeployUtil {
         }
     }
 
+    public static EPDeployment compileDeploy(EPRuntime runtime, String epl) {
+        try {
+            Configuration configuration = runtime.getConfigurationDeepCopy();
+            CompilerArguments args = new CompilerArguments(configuration);
+            args.getPath().add(runtime.getRuntimePath());
+            EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
+            return runtime.getDeploymentService().deploy(compiled);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public static EPDeployment compileDeploy(String epl, EPRuntime runtime, Configuration configuration) {
         EPCompiled compiled = compile(epl, configuration, new RegressionPath());
         try {

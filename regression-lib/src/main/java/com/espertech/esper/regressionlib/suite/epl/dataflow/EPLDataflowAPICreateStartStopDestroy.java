@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 

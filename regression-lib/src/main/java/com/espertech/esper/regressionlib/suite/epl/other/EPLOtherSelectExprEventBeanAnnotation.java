@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;

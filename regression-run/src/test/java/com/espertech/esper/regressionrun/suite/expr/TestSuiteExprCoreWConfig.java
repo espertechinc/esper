@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.suite.expr.exprcore.ExprCoreBigNumberSupportMathContext;
 import com.espertech.esper.regressionlib.suite.expr.exprcore.ExprCoreDotExpressionDuckTyping;
 import com.espertech.esper.regressionlib.suite.expr.exprcore.ExprCoreMathDivisionRules;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDuckType;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDuckTypeOne;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDuckTypeTwo;

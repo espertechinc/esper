@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.regressionlib.support.client;
 
-import com.espertech.esper.regressionlib.support.bean.SupportEnum;
+import com.espertech.esper.common.internal.support.SupportEnum;
 
 public @interface MyAnnotationValueEnumerated {
     SupportEnum value();

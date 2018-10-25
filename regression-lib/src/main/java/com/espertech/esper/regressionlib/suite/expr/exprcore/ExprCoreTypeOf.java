@@ -19,7 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.ISupportABCImpl;
 import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;

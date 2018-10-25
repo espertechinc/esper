@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;

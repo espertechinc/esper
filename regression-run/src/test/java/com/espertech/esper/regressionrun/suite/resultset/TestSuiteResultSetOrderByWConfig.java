@@ -11,7 +11,7 @@
 package com.espertech.esper.regressionrun.suite.resultset;
 
 import com.espertech.esper.regressionlib.suite.resultset.orderby.ResultSetOrderBySimpleSortCollator;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;

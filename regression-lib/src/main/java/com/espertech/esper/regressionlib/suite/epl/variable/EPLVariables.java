@@ -17,6 +17,8 @@ import com.espertech.esper.common.client.variable.VariableConstantValueException
 import com.espertech.esper.common.client.variable.VariableNotFoundException;
 import com.espertech.esper.common.client.variable.VariableValueException;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;

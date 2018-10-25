@@ -23,7 +23,7 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportCollectionEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportObjectArrayEvent;
 import org.apache.avro.Schema;

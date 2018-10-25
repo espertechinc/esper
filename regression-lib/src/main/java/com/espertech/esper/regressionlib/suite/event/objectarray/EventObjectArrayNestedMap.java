@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.event.objectarray;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.HashMap;
 import java.util.Map;

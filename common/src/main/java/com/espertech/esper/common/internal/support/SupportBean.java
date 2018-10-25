@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.support;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.*;
 
 public class SupportBean implements Serializable {
     private String theString;
@@ -34,6 +37,7 @@ public class SupportBean implements Serializable {
     private Float floatBoxed;
     private Double doubleBoxed;
     private BigDecimal bigDecimal;
+    private BigInteger bigInteger;
 
     private SupportEnum enumValue;
 
@@ -205,6 +209,14 @@ public class SupportBean implements Serializable {
         this.bigDecimal = bigDecimal;
     }
 
+    public BigInteger getBigInteger() {
+        return bigInteger;
+    }
+
+    public void setBigInteger(BigInteger bigInteger) {
+        this.bigInteger = bigInteger;
+    }
+
     public static SupportBean[] getBeansPerIndex(SupportBean[] beans, int[] indexes) {
         if (indexes == null) {
             return null;
@@ -230,5 +242,172 @@ public class SupportBean implements Serializable {
             values[i] = new Object[]{arr[i].getTheString(), arr[i].getIntPrimitive()};
         }
         return values;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SupportBean that = (SupportBean) o;
+
+        if (boolPrimitive != that.boolPrimitive) return false;
+        if (intPrimitive != that.intPrimitive) return false;
+        if (longPrimitive != that.longPrimitive) return false;
+        if (charPrimitive != that.charPrimitive) return false;
+        if (shortPrimitive != that.shortPrimitive) return false;
+        if (bytePrimitive != that.bytePrimitive) return false;
+        if (Float.compare(that.floatPrimitive, floatPrimitive) != 0) return false;
+        if (Double.compare(that.doublePrimitive, doublePrimitive) != 0) return false;
+        if (theString != null ? !theString.equals(that.theString) : that.theString != null) return false;
+        if (boolBoxed != null ? !boolBoxed.equals(that.boolBoxed) : that.boolBoxed != null) return false;
+        if (intBoxed != null ? !intBoxed.equals(that.intBoxed) : that.intBoxed != null) return false;
+        if (longBoxed != null ? !longBoxed.equals(that.longBoxed) : that.longBoxed != null) return false;
+        if (charBoxed != null ? !charBoxed.equals(that.charBoxed) : that.charBoxed != null) return false;
+        if (shortBoxed != null ? !shortBoxed.equals(that.shortBoxed) : that.shortBoxed != null) return false;
+        if (byteBoxed != null ? !byteBoxed.equals(that.byteBoxed) : that.byteBoxed != null) return false;
+        if (floatBoxed != null ? !floatBoxed.equals(that.floatBoxed) : that.floatBoxed != null) return false;
+        if (doubleBoxed != null ? !doubleBoxed.equals(that.doubleBoxed) : that.doubleBoxed != null) return false;
+        if (bigDecimal != null ? !bigDecimal.equals(that.bigDecimal) : that.bigDecimal != null) return false;
+        if (bigInteger != null ? !bigInteger.equals(that.bigInteger) : that.bigInteger != null) return false;
+        return enumValue == that.enumValue;
+    }
+
+    public int hashCode() {
+        int result;
+        long temp;
+        result = theString != null ? theString.hashCode() : 0;
+        result = 31 * result + (boolPrimitive ? 1 : 0);
+        result = 31 * result + intPrimitive;
+        result = 31 * result + (int) (longPrimitive ^ (longPrimitive >>> 32));
+        result = 31 * result + (int) charPrimitive;
+        result = 31 * result + (int) shortPrimitive;
+        result = 31 * result + (int) bytePrimitive;
+        result = 31 * result + (floatPrimitive != +0.0f ? Float.floatToIntBits(floatPrimitive) : 0);
+        temp = Double.doubleToLongBits(doublePrimitive);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (boolBoxed != null ? boolBoxed.hashCode() : 0);
+        result = 31 * result + (intBoxed != null ? intBoxed.hashCode() : 0);
+        result = 31 * result + (longBoxed != null ? longBoxed.hashCode() : 0);
+        result = 31 * result + (charBoxed != null ? charBoxed.hashCode() : 0);
+        result = 31 * result + (shortBoxed != null ? shortBoxed.hashCode() : 0);
+        result = 31 * result + (byteBoxed != null ? byteBoxed.hashCode() : 0);
+        result = 31 * result + (floatBoxed != null ? floatBoxed.hashCode() : 0);
+        result = 31 * result + (doubleBoxed != null ? doubleBoxed.hashCode() : 0);
+        result = 31 * result + (bigDecimal != null ? bigDecimal.hashCode() : 0);
+        result = 31 * result + (bigInteger != null ? bigInteger.hashCode() : 0);
+        result = 31 * result + (enumValue != null ? enumValue.hashCode() : 0);
+        return result;
+    }
+
+    public static SupportBean makeBean(String string, int intPrimitive, long longPrimitive) {
+        return makeBean(string, intPrimitive, longPrimitive, 0);
+    }
+
+    public static SupportBean makeBean(String string, int intPrimitive, long longPrimitive, double doublePrimitive) {
+        return makeBean(string, intPrimitive, longPrimitive, doublePrimitive, false);
+    }
+
+    public static SupportBean makeBean(String string, int intPrimitive, long longPrimitive, double doublePrimitive, boolean boolPrimitive) {
+        SupportBean event = new SupportBean(string, intPrimitive);
+        event.setLongPrimitive(longPrimitive);
+        event.setDoublePrimitive(doublePrimitive);
+        event.setBoolPrimitive(boolPrimitive);
+        return event;
+    }
+
+    public static SupportBean makeBean(String string) {
+        return new SupportBean(string, -1);
+    }
+
+    public static SupportBean makeBean(String string, int intPrimitive) {
+        return new SupportBean(string, intPrimitive);
+    }
+
+    public static SupportBean makeBeanWBoxed(String string, int intPrimitive, Double doubleBoxed, Long longBoxed) {
+        SupportBean bean = new SupportBean(string, intPrimitive);
+        bean.setDoubleBoxed(doubleBoxed);
+        bean.setLongBoxed(longBoxed);
+        return bean;
+    }
+
+    public static void compare(Object[] others, String[] split, Object[][] objects) {
+        assertEquals(others.length, objects.length);
+        for (int i = 0; i < others.length; i++) {
+            compare((SupportBean) others[i], split, objects[i]);
+        }
+    }
+
+    public static void compare(Object other, String theString, int intPrimitive) {
+        SupportBean that = (SupportBean) other;
+        assertEquals(that.getTheString(), theString);
+        assertEquals(that.getIntPrimitive(), intPrimitive);
+    }
+
+    public static void compare(SupportBean received, String[] split, Object[] objects) {
+        assertEquals(split.length, objects.length);
+        for (int i = 0; i < split.length; i++) {
+            compare(received, split[i], objects[i]);
+        }
+    }
+
+    public static void compare(SupportBean received, String property, Object expected) {
+        switch (property) {
+            case "intPrimitive":
+                assertEquals(expected, received.getIntPrimitive());
+                break;
+            case "intBoxed":
+                assertEquals(expected, received.getIntBoxed());
+                break;
+            case "boolPrimitive":
+                assertEquals(expected, received.isBoolPrimitive());
+                break;
+            case "boolBoxed":
+                assertEquals(expected, received.getBoolBoxed());
+                break;
+            case "shortPrimitive":
+                assertEquals(expected, received.getShortPrimitive());
+                break;
+            case "shortBoxed":
+                assertEquals(expected, received.getShortBoxed());
+                break;
+            case "longPrimitive":
+                assertEquals(expected, received.getLongPrimitive());
+                break;
+            case "longBoxed":
+                assertEquals(expected, received.getLongBoxed());
+                break;
+            case "charPrimitive":
+                assertEquals(expected, received.getCharPrimitive());
+                break;
+            case "charBoxed":
+                assertEquals(expected, received.getCharBoxed());
+                break;
+            case "bytePrimitive":
+                assertEquals(expected, received.getBytePrimitive());
+                break;
+            case "byteBoxed":
+                assertEquals(expected, received.getByteBoxed());
+                break;
+            case "floatPrimitive":
+                assertEquals(expected, received.getFloatPrimitive());
+                break;
+            case "floatBoxed":
+                assertEquals(expected, received.getFloatBoxed());
+                break;
+            case "doublePrimitive":
+                assertEquals(expected, received.getDoublePrimitive());
+                break;
+            case "doubleBoxed":
+                assertEquals(expected, received.getDoubleBoxed());
+                break;
+            case "enumValue":
+                assertEquals(expected, received.getEnumValue());
+                break;
+            case "theString":
+                assertEquals(expected, received.getTheString());
+                break;
+            default:
+                fail("Assertion not found for '" + property + "'");
+        }
     }
 }

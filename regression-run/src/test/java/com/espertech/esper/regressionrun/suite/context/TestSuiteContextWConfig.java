@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionrun.suite.context;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.context.ContextInitTermPrioritized;
 import com.espertech.esper.regressionlib.suite.context.ContextKeySegmentedPrioritized;
 import com.espertech.esper.regressionlib.suite.context.ContextKeySegmentedWInitTermPrioritized;

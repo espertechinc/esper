@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
-import com.espertech.esper.regressionlib.support.bean.SupportEnum;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
 import org.junit.Assert;
 

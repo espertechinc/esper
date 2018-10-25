@@ -20,7 +20,7 @@ import com.espertech.esper.compiler.client.option.StatementUserObjectContext;
 import com.espertech.esper.compiler.client.option.StatementUserObjectOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.client.SupportSingleRowFunction;
 import com.espertech.esper.regressionlib.support.client.SupportSingleRowFunctionTwo;
 import org.junit.Assert;

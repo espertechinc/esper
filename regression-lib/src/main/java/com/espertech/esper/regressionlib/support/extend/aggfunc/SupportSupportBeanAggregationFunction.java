@@ -11,7 +11,7 @@
 package com.espertech.esper.regressionlib.support.extend.aggfunc;
 
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunction;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 
 public class SupportSupportBeanAggregationFunction implements AggregationFunction {
     private int count;

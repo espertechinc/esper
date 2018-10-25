@@ -12,7 +12,7 @@ package com.espertech.esper.regressionrun.suite.client;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.suite.client.compile.*;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S1;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;

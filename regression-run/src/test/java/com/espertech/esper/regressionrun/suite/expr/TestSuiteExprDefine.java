@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionrun.suite.expr;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.expr.define.ExprDefineAliasFor;
 import com.espertech.esper.regressionlib.suite.expr.define.ExprDefineBasic;
 import com.espertech.esper.regressionlib.suite.expr.define.ExprDefineLambdaLocReport;

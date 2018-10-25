@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import com.espertech.esper.common.internal.support.SupportBean;
+
 import java.util.List;
 
 public class SupportBean_Container {

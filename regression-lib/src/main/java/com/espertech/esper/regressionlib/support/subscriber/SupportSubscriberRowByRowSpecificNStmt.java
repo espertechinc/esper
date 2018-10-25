@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.regressionlib.support.subscriber;
 
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
-import com.espertech.esper.regressionlib.support.bean.SupportEnum;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 public class SupportSubscriberRowByRowSpecificNStmt extends SupportSubscriberRowByRowSpecificBase {

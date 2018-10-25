@@ -16,7 +16,7 @@ import com.espertech.esper.regressionlib.suite.view.ViewGroup;
 import com.espertech.esper.regressionlib.suite.view.ViewTimeBatchWSystemTime;
 import com.espertech.esper.regressionlib.suite.view.ViewTimeWin;
 import com.espertech.esper.regressionlib.suite.view.ViewTimeWinWSystemTime;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;

@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeBean;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeObjectArray;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.expr.datetime.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.schedule.SupportDateTimeFieldType;

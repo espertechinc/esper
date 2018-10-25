@@ -13,7 +13,7 @@ package com.espertech.esper.regressionrun.suite.client;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimeMetricsReporting;
 import com.espertech.esper.regressionlib.suite.client.instrument.*;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST1;
 import com.espertech.esper.regressionlib.support.client.MyMetricFunctions;

@@ -12,6 +12,7 @@ package com.espertech.esper.regressionrun.suite.resultset;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.resultset.outputlimit.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.extend.aggfunc.SupportInvocationCountForge;

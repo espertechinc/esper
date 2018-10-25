@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.PropertyResolutionStyle;
 import com.espertech.esper.regressionlib.suite.event.bean.*;
-import com.espertech.esper.regressionlib.support.bean.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDupProperty;
 import com.espertech.esper.regressionlib.support.bean.SupportLegacyBean;
