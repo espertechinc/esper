@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import com.espertech.esper.common.internal.support.SupportBean_S2;
+
 import java.io.Serializable;
 
 public final class SupportCtorSB2WithObjectArray implements Serializable {

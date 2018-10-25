@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.support.patternassert;
 
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.*;
 
 import java.util.LinkedHashMap;

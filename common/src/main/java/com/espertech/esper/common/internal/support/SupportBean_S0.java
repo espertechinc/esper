@@ -102,12 +102,12 @@ public class SupportBean_S0 implements Serializable {
 
     public String toString() {
         return "SupportBean_S0{" +
-                "id=" + id +
-                ", p00='" + p00 + '\'' +
-                ", p01='" + p01 + '\'' +
-                ", p02='" + p02 + '\'' +
-                ", p03='" + p03 + '\'' +
-                '}';
+            "id=" + id +
+            ", p00='" + p00 + '\'' +
+            ", p01='" + p01 + '\'' +
+            ", p02='" + p02 + '\'' +
+            ", p03='" + p03 + '\'' +
+            '}';
     }
 
     public boolean equals(Object o) {

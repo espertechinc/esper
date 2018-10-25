@@ -101,4 +101,26 @@ public class SupportBean_S1 implements Serializable {
     public void setP13(String p13) {
         this.p13 = p13;
     }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SupportBean_S1 that = (SupportBean_S1) o;
+
+        if (id != that.id) return false;
+        if (p10 != null ? !p10.equals(that.p10) : that.p10 != null) return false;
+        if (p11 != null ? !p11.equals(that.p11) : that.p11 != null) return false;
+        if (p12 != null ? !p12.equals(that.p12) : that.p12 != null) return false;
+        return p13 != null ? p13.equals(that.p13) : that.p13 == null;
+    }
+
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (p10 != null ? p10.hashCode() : 0);
+        result = 31 * result + (p11 != null ? p11.hashCode() : 0);
+        result = 31 * result + (p12 != null ? p12.hashCode() : 0);
+        result = 31 * result + (p13 != null ? p13.hashCode() : 0);
+        return result;
+    }
 }

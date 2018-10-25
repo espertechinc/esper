@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.suite.epl.database.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.util.SupportDataSourceFactory;

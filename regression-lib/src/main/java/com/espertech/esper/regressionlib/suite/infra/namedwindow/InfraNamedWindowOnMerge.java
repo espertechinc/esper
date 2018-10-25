@@ -20,7 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import org.apache.avro.generic.GenericData;
 
 import java.util.*;

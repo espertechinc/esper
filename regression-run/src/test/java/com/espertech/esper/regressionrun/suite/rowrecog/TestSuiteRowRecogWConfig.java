@@ -16,8 +16,8 @@ import com.espertech.esper.regressionlib.suite.rowrecog.RowRecogMaxStatesEngineW
 import com.espertech.esper.regressionlib.suite.rowrecog.RowRecogMaxStatesEngineWide4Instance;
 import com.espertech.esper.regressionlib.suite.rowrecog.RowRecogMaxStatesEngineWideNoPreventStart;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S1;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;

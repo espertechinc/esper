@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.FilterServiceProfile;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.*;

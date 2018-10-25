@@ -12,6 +12,9 @@ package com.espertech.esper.regressionrun.suite.epl;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.suite.epl.subselect.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;

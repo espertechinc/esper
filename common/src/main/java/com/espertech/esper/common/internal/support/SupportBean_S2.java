@@ -85,4 +85,26 @@ public class SupportBean_S2 implements Serializable {
     public void setP23(String p23) {
         this.p23 = p23;
     }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SupportBean_S2 that = (SupportBean_S2) o;
+
+        if (id != that.id) return false;
+        if (p20 != null ? !p20.equals(that.p20) : that.p20 != null) return false;
+        if (p21 != null ? !p21.equals(that.p21) : that.p21 != null) return false;
+        if (p22 != null ? !p22.equals(that.p22) : that.p22 != null) return false;
+        return p23 != null ? p23.equals(that.p23) : that.p23 == null;
+    }
+
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (p20 != null ? p20.hashCode() : 0);
+        result = 31 * result + (p21 != null ? p21.hashCode() : 0);
+        result = 31 * result + (p22 != null ? p22.hashCode() : 0);
+        result = 31 * result + (p23 != null ? p23.hashCode() : 0);
+        return result;
+    }
 }

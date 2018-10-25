@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.type.OuterJoinType;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;

@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.support.bean;
 
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 
 import java.io.Serializable;
 

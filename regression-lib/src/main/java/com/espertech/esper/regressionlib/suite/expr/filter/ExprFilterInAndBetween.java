@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.multistmtassert.EPLWithInvokedFlags;
 import com.espertech.esper.regressionlib.support.multistmtassert.MultiStmtAssertUtil;
 import com.espertech.esper.runtime.client.DeploymentOptions;

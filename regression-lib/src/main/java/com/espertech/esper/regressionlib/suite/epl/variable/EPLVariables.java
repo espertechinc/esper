@@ -17,15 +17,13 @@ import com.espertech.esper.common.client.variable.VariableConstantValueException
 import com.espertech.esper.common.client.variable.VariableNotFoundException;
 import com.espertech.esper.common.client.variable.VariableValueException;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportEnum;
-import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;

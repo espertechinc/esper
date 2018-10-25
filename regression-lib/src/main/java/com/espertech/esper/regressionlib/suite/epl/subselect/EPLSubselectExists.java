@@ -14,9 +14,9 @@ import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S1;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S2;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.common.internal.support.SupportBean_S2;
 import org.junit.Assert;
 
 import java.util.ArrayList;

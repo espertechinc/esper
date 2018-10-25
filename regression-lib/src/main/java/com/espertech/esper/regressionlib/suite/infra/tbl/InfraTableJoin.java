@@ -25,7 +25,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanSimple;
-import com.espertech.esper.regressionlib.support.bean.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.util.IndexAssertion;
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;

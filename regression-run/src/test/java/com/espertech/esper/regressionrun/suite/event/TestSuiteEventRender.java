@@ -12,6 +12,7 @@ package com.espertech.esper.regressionrun.suite.event;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.suite.event.render.EventRender;
 import com.espertech.esper.regressionlib.suite.event.render.EventRenderJSON;
 import com.espertech.esper.regressionlib.suite.event.render.EventRenderXML;
