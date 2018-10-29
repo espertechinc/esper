@@ -19,7 +19,7 @@
       </layout>
    </appender>
 
-   <logger name="com.espertech.esper">
+   <logger name="com.espertech">
       <level value="INFO"/>
    </logger>
 

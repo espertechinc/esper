@@ -154,18 +154,8 @@ public class Undeployer {
             indexMetadata.removeIndexReference(index.getIndexName(), deploymentId);
         }
 
-        for (Map.Entry<Long, EventType> entry : deploymentTypes.entrySet()) {
-            if (entry.getValue().getMetadata().getBusModifier() == EventTypeBusModifier.BUS) {
-                services.getEventTypeRepositoryBus().removeType(entry.getValue());
-            }
-        }
-        services.getEventTypePathRegistry().deleteDeployment(deploymentId);
-        services.getNamedWindowPathRegistry().deleteDeployment(deploymentId);
-        services.getTablePathRegistry().deleteDeployment(deploymentId);
-        services.getContextPathRegistry().deleteDeployment(deploymentId);
-        services.getVariablePathRegistry().deleteDeployment(deploymentId);
-        services.getExprDeclaredPathRegistry().deleteDeployment(deploymentId);
-        services.getScriptPathRegistry().deleteDeployment(deploymentId);
+        deleteFromEventTypeBus(services, deploymentTypes);
+        deleteFromPathRegistries(services, deploymentId);
 
         if (InstrumentationHelper.ENABLED) {
             Instrumentation instrumentation = InstrumentationHelper.get();
@@ -174,6 +164,24 @@ public class Undeployer {
                         (String) ctx.getStatementInformationals().getProperties().get(StatementProperty.EPL), services.getSchedulingService().getTime());
             }
         }
+    }
+
+    static void deleteFromEventTypeBus(EPServicesContext services, Map<Long, EventType> eventTypes) {
+        for (Map.Entry<Long, EventType> entry : eventTypes.entrySet()) {
+            if (entry.getValue().getMetadata().getBusModifier() == EventTypeBusModifier.BUS) {
+                services.getEventTypeRepositoryBus().removeType(entry.getValue());
+            }
+        }
+    }
+
+    static void deleteFromPathRegistries(EPServicesContext services, String deploymentId) {
+        services.getEventTypePathRegistry().deleteDeployment(deploymentId);
+        services.getNamedWindowPathRegistry().deleteDeployment(deploymentId);
+        services.getTablePathRegistry().deleteDeployment(deploymentId);
+        services.getContextPathRegistry().deleteDeployment(deploymentId);
+        services.getVariablePathRegistry().deleteDeployment(deploymentId);
+        services.getExprDeclaredPathRegistry().deleteDeployment(deploymentId);
+        services.getScriptPathRegistry().deleteDeployment(deploymentId);
     }
 
     private static <K, E> void checkDependency(PathRegistry<K, E> registry, K entityKey, String moduleName) throws EPUndeployPreconditionException {

@@ -214,115 +214,124 @@ public class Deployer {
         List<String> pathVariables = new ArrayList<>(2);
         List<String> pathExprDecl = new ArrayList<>(2);
         List<NameAndParamNum> pathScripts = new ArrayList<>(2);
-        for (Map.Entry<String, NamedWindowMetaData> entry : moduleNamedWindows.entrySet()) {
-            if (entry.getValue().getEventType().getMetadata().getAccessModifier().isNonPrivateNonTransient()) {
-                try {
-                    services.getNamedWindowPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
-                } catch (PathExceptionAlreadyRegistered ex) {
-                    throw new EPDeployPreconditionException(ex.getMessage(), ex);
+
+        try {
+            for (Map.Entry<String, NamedWindowMetaData> entry : moduleNamedWindows.entrySet()) {
+                if (entry.getValue().getEventType().getMetadata().getAccessModifier().isNonPrivateNonTransient()) {
+                    try {
+                        services.getNamedWindowPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                    }
+                    pathNamedWindows.add(entry.getKey());
                 }
-                pathNamedWindows.add(entry.getKey());
             }
-        }
-        for (Map.Entry<String, TableMetaData> entry : moduleTables.entrySet()) {
-            if (entry.getValue().getTableVisibility().isNonPrivateNonTransient()) {
-                try {
-                    services.getTablePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
-                } catch (PathExceptionAlreadyRegistered ex) {
-                    throw new EPDeployPreconditionException(ex.getMessage(), ex);
+            for (Map.Entry<String, TableMetaData> entry : moduleTables.entrySet()) {
+                if (entry.getValue().getTableVisibility().isNonPrivateNonTransient()) {
+                    try {
+                        services.getTablePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                    }
+                    pathTables.add(entry.getKey());
                 }
-                pathTables.add(entry.getKey());
             }
-        }
-        for (Map.Entry<String, EventType> entry : moduleEventTypes.entrySet()) {
-            EventTypeSPI eventTypeSPI = (EventTypeSPI) entry.getValue();
-            long nameTypeId = CRC32Util.computeCRC32(eventTypeSPI.getName());
-            EventTypeMetadata eventTypeMetadata = entry.getValue().getMetadata();
-            if (eventTypeMetadata.getAccessModifier() == NameAccessModifier.PRECONFIGURED) {
-                // For XML all fragment event types are public
-                if (eventTypeMetadata.getApplicationType() != EventTypeApplicationType.XML) {
-                    throw new IllegalStateException("Unrecognized public visibility type in deployment");
-                }
-            } else if (eventTypeMetadata.getAccessModifier().isNonPrivateNonTransient()) {
-                if (eventTypeMetadata.getBusModifier() == EventTypeBusModifier.BUS) {
-                    eventTypeSPI.setMetadataId(nameTypeId, -1);
-                    services.getEventTypeRepositoryBus().addType(eventTypeSPI);
+            for (Map.Entry<String, EventType> entry : moduleEventTypes.entrySet()) {
+                EventTypeSPI eventTypeSPI = (EventTypeSPI) entry.getValue();
+                long nameTypeId = CRC32Util.computeCRC32(eventTypeSPI.getName());
+                EventTypeMetadata eventTypeMetadata = entry.getValue().getMetadata();
+                if (eventTypeMetadata.getAccessModifier() == NameAccessModifier.PRECONFIGURED) {
+                    // For XML all fragment event types are public
+                    if (eventTypeMetadata.getApplicationType() != EventTypeApplicationType.XML) {
+                        throw new IllegalStateException("Unrecognized public visibility type in deployment");
+                    }
+                } else if (eventTypeMetadata.getAccessModifier().isNonPrivateNonTransient()) {
+                    if (eventTypeMetadata.getBusModifier() == EventTypeBusModifier.BUS) {
+                        eventTypeSPI.setMetadataId(nameTypeId, -1);
+                        services.getEventTypeRepositoryBus().addType(eventTypeSPI);
+                    } else {
+                        eventTypeSPI.setMetadataId(deploymentIdCrc32, nameTypeId);
+                    }
+                    try {
+                        services.getEventTypePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                    }
                 } else {
                     eventTypeSPI.setMetadataId(deploymentIdCrc32, nameTypeId);
                 }
-                try {
-                    services.getEventTypePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
-                } catch (PathExceptionAlreadyRegistered ex) {
-                    throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                if (eventTypeMetadata.getAccessModifier().isNonPrivateNonTransient()) {
+                    pathEventTypes.add(entry.getKey());
                 }
-            } else {
-                eventTypeSPI.setMetadataId(deploymentIdCrc32, nameTypeId);
-            }
-            if (eventTypeMetadata.getAccessModifier().isNonPrivateNonTransient()) {
-                pathEventTypes.add(entry.getKey());
-            }
 
-            // we retain all types to enable variant-streams
-            if (deploymentTypes.isEmpty()) {
-                deploymentTypes = new HashMap<>(4);
-            }
-            deploymentTypes.put(nameTypeId, eventTypeSPI);
-        }
-        for (Map.Entry<String, ContextMetaData> entry : moduleContexts.entrySet()) {
-            if (entry.getValue().getContextVisibility().isNonPrivateNonTransient()) {
-                try {
-                    services.getContextPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
-                } catch (PathExceptionAlreadyRegistered ex) {
-                    throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                // we retain all types to enable variant-streams
+                if (deploymentTypes.isEmpty()) {
+                    deploymentTypes = new HashMap<>(4);
                 }
-                pathContexts.add(entry.getKey());
+                deploymentTypes.put(nameTypeId, eventTypeSPI);
             }
-        }
-        for (Map.Entry<String, VariableMetaData> entry : moduleVariables.entrySet()) {
-            if (entry.getValue().getVariableVisibility().isNonPrivateNonTransient()) {
-                try {
-                    services.getVariablePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
-                } catch (PathExceptionAlreadyRegistered ex) {
-                    throw new EPDeployPreconditionException(ex.getMessage(), ex);
+            for (Map.Entry<String, ContextMetaData> entry : moduleContexts.entrySet()) {
+                if (entry.getValue().getContextVisibility().isNonPrivateNonTransient()) {
+                    try {
+                        services.getContextPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                    }
+                    pathContexts.add(entry.getKey());
                 }
-                pathVariables.add(entry.getKey());
             }
-        }
-        for (Map.Entry<String, ExpressionDeclItem> entry : moduleExpressions.entrySet()) {
-            if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
-                try {
-                    services.getExprDeclaredPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
-                } catch (PathExceptionAlreadyRegistered ex) {
-                    throw new EPDeployPreconditionException(ex.getMessage(), ex);
+            for (Map.Entry<String, VariableMetaData> entry : moduleVariables.entrySet()) {
+                if (entry.getValue().getVariableVisibility().isNonPrivateNonTransient()) {
+                    try {
+                        services.getVariablePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                    }
+                    pathVariables.add(entry.getKey());
                 }
-                pathExprDecl.add(entry.getKey());
             }
-        }
-        for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> entry : moduleScripts.entrySet()) {
-            if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
-                try {
-                    services.getScriptPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
-                } catch (PathExceptionAlreadyRegistered ex) {
-                    throw new EPDeployPreconditionException(ex.getMessage(), ex);
+            for (Map.Entry<String, ExpressionDeclItem> entry : moduleExpressions.entrySet()) {
+                if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
+                    try {
+                        services.getExprDeclaredPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                    }
+                    pathExprDecl.add(entry.getKey());
                 }
-                pathScripts.add(entry.getKey());
             }
-        }
-        for (ModuleIndexMeta index : moduleIndexes) {
-            if (index.isNamedWindow()) {
-                NamedWindowMetaData namedWindow = services.getNamedWindowPathRegistry().getWithModule(index.getInfraName(), index.getInfraModuleName());
-                if (namedWindow == null) {
-                    throw new IllegalStateException("Failed to find named window '" + index.getInfraName() + "'");
+            for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> entry : moduleScripts.entrySet()) {
+                if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
+                    try {
+                        services.getScriptPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), deploymentId);
+                    } catch (PathExceptionAlreadyRegistered ex) {
+                        throw new EPDeployPreconditionException(ex.getMessage(), ex);
+                    }
+                    pathScripts.add(entry.getKey());
                 }
-                validateIndexPrecondition(namedWindow.getIndexMetadata(), index);
-            } else {
-                TableMetaData table = services.getTablePathRegistry().getWithModule(index.getInfraName(), index.getInfraModuleName());
-                if (table == null) {
-                    throw new IllegalStateException("Failed to find table '" + index.getInfraName() + "'");
-                }
-                validateIndexPrecondition(table.getIndexMetadata(), index);
             }
+            for (ModuleIndexMeta index : moduleIndexes) {
+                if (index.isNamedWindow()) {
+                    NamedWindowMetaData namedWindow = services.getNamedWindowPathRegistry().getWithModule(index.getInfraName(), index.getInfraModuleName());
+                    if (namedWindow == null) {
+                        throw new IllegalStateException("Failed to find named window '" + index.getInfraName() + "'");
+                    }
+                    validateIndexPrecondition(namedWindow.getIndexMetadata(), index);
+                } else {
+                    TableMetaData table = services.getTablePathRegistry().getWithModule(index.getInfraName(), index.getInfraModuleName());
+                    if (table == null) {
+                        throw new IllegalStateException("Failed to find table '" + index.getInfraName() + "'");
+                    }
+                    validateIndexPrecondition(table.getIndexMetadata(), index);
+                }
+            }
+        } catch (Throwable t) {
+            Undeployer.deleteFromEventTypeBus(services, deploymentTypes);
+            Undeployer.deleteFromPathRegistries(services, deploymentId);
+            throw t;
         }
+
+        // done validated block
         ModuleIncidentals moduleIncidentals = new ModuleIncidentals(moduleNamedWindows, moduleContexts, moduleVariables, moduleExpressions, moduleTables);
 
         // get module statements
@@ -368,7 +377,7 @@ public class Deployer {
 
             if (InstrumentationHelper.ENABLED) {
                 InstrumentationHelper.get().qaEngineManagementStmtStarted(epRuntime.getURI(), deploymentId, lightweight.getStatementContext().getStatementId(), stmt.getName(),
-                        (String) stmt.getProperty(StatementProperty.EPL), epRuntime.getEventService().getCurrentTime());
+                    (String) stmt.getProperty(StatementProperty.EPL), epRuntime.getEventService().getCurrentTime());
             }
         }
 
@@ -378,10 +387,10 @@ public class Deployer {
         // keep statement and deployment
         String[] deploymentIdDependenciesArray = deploymentIdDependencies.toArray(new String[deploymentIdDependencies.size()]);
         DeploymentInternal deployed = new DeploymentInternal(deploymentId, statements, deploymentIdDependenciesArray,
-                CollectionUtil.toArray(pathNamedWindows), CollectionUtil.toArray(pathTables), CollectionUtil.toArray(pathVariables),
-                CollectionUtil.toArray(pathContexts), CollectionUtil.toArray(pathEventTypes), CollectionUtil.toArray(pathExprDecl),
-                NameAndParamNum.toArray(pathScripts), ModuleIndexMeta.toArray(moduleIndexes), provider.getModuleProvider(),
-                provider.getModuleProvider().getModuleProperties(), deploymentTypes, System.currentTimeMillis());
+            CollectionUtil.toArray(pathNamedWindows), CollectionUtil.toArray(pathTables), CollectionUtil.toArray(pathVariables),
+            CollectionUtil.toArray(pathContexts), CollectionUtil.toArray(pathEventTypes), CollectionUtil.toArray(pathExprDecl),
+            NameAndParamNum.toArray(pathScripts), ModuleIndexMeta.toArray(moduleIndexes), provider.getModuleProvider(),
+            provider.getModuleProvider().getModuleProperties(), deploymentTypes, System.currentTimeMillis());
         services.getDeploymentLifecycleService().addDeployment(deploymentId, deployed);
 
         // register for recovery
@@ -642,8 +651,8 @@ public class Deployer {
         StatementResourceService statementResourceService = new StatementResourceService(contextPartitioned);
 
         EPStatementInitServicesImpl epInitServices = new EPStatementInitServicesImpl(informationals.getAnnotations(), deploymentId,
-                eventTypeResolver, filterSpecActivatableRegistry, filterSharedBoolExprRegistery, filterSharedLookupableRegistery, moduleIncidentals,
-                recovery, statementResourceService, statementResultService, services);
+            eventTypeResolver, filterSpecActivatableRegistry, filterSharedBoolExprRegistery, filterSharedLookupableRegistery, moduleIncidentals,
+            recovery, statementResourceService, statementResultService, services);
 
         statementProvider.initialize(epInitServices);
 
@@ -730,22 +739,22 @@ public class Deployer {
         }
 
         StatementContext statementContext = new StatementContext(contextRuntimeDescriptor, deploymentId,
-                statementId,
-                statementName,
-                moduleName,
-                informationals,
-                userObjectRuntime,
-                services.getStatementContextRuntimeServices(),
-                statementHandle,
-                filterSpecActivatables,
-                patternSubexpressionPoolStmtSvc,
-                rowRecogStatePoolStmtSvc,
-                new ScheduleBucket(statementId),
-                statementAgentInstanceRegistry,
-                statementCPCacheService,
-                statementProvider.getStatementAIFactoryProvider(),
-                statementResultService,
-                dispatchChildView
+            statementId,
+            statementName,
+            moduleName,
+            informationals,
+            userObjectRuntime,
+            services.getStatementContextRuntimeServices(),
+            statementHandle,
+            filterSpecActivatables,
+            patternSubexpressionPoolStmtSvc,
+            rowRecogStatePoolStmtSvc,
+            new ScheduleBucket(statementId),
+            statementAgentInstanceRegistry,
+            statementCPCacheService,
+            statementProvider.getStatementAIFactoryProvider(),
+            statementResultService,
+            dispatchChildView
         );
 
         for (StatementReadyCallback readyCallback : epInitServices.getReadyCallbacks()) {
