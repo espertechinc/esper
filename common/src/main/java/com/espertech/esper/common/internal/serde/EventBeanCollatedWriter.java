@@ -27,7 +27,7 @@ public interface EventBeanCollatedWriter {
      * @param pageFullKey page key
      * @throws IOException for io exceptions
      */
-    void writeEventCollated(EventBean event, DataOutput dataOutput, byte[] pageFullKey) throws IOException;
+    void writeCollatedEvent(EventBean event, DataOutput dataOutput, byte[] pageFullKey) throws IOException;
 
     /**
      * Write event id collated.
@@ -37,5 +37,5 @@ public interface EventBeanCollatedWriter {
      * @param pageFullKey page key
      * @throws IOException for io exceptions
      */
-    void writeEventCollated(long id, DataOutput output, byte[] pageFullKey) throws IOException;
+    void writeCollatedOID(long id, DataOutput output, byte[] pageFullKey) throws IOException;
 }
