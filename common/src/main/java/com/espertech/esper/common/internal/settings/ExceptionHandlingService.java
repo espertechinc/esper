@@ -39,18 +39,22 @@ public class ExceptionHandlingService {
     }
 
     public void handleCondition(BaseCondition condition, StatementContext statement) {
+        String optionalEPL = (String) statement.getStatementInformationals().getProperties().get(StatementProperty.EPL);
+        handleCondition(condition, statement.getDeploymentId(), statement.getStatementName(), optionalEPL);
+    }
+
+    public void handleCondition(BaseCondition condition, String deplomentId, String statementName, String optionalEPL) {
         if (conditionHandlers.isEmpty()) {
-            String message = "Condition encountered processing deployment id '" + statement.getDeploymentId() + "' statement '" + statement.getStatementName() + "'";
-            String epl = (String) statement.getStatementInformationals().getProperties().get(StatementProperty.EPL);
-            if (epl != null) {
-                message += " statement text '" + epl + "'";
+            String message = "Condition encountered processing deployment id '" + deplomentId + "' statement '" + statementName + "'";
+            if (optionalEPL != null) {
+                message += " statement text '" + optionalEPL + "'";
             }
             message += " :" + condition.toString();
             log.info(message);
             return;
         }
 
-        ConditionHandlerContext context = new ConditionHandlerContext(runtimeURI, statement.getStatementName(), statement.getDeploymentId(), condition);
+        ConditionHandlerContext context = new ConditionHandlerContext(runtimeURI, statementName, deplomentId, condition);
         for (ConditionHandler handler : conditionHandlers) {
             handler.handle(context);
         }

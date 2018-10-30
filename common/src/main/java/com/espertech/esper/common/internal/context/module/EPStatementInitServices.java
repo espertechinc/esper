@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
@@ -49,6 +50,7 @@ import com.espertech.esper.common.internal.statement.resource.StatementResourceS
 import com.espertech.esper.common.internal.view.core.ViewFactoryService;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
@@ -79,6 +81,10 @@ public interface EPStatementInitServices {
     String getDeploymentId();
 
     String getRuntimeURI();
+
+    String getStatementName();
+
+    Map<StatementProperty, Object> getStatementProperties();
 
     AggregationServiceFactoryService getAggregationServiceFactoryService();
 

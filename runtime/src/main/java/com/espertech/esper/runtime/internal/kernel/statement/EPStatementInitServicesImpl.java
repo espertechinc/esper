@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.runtime.internal.kernel.statement;
 
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFactory;
@@ -57,11 +58,13 @@ import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.espertech.esper.common.internal.context.util.StatementCPCacheService.DEFAULT_AGENT_INSTANCE_ID;
 
 public class EPStatementInitServicesImpl implements EPStatementInitServices {
-    private final EPServicesContext servicesContext;
+    private final String statementName;
+    private final Map<StatementProperty, Object> statementProperties;
     private final Annotation[] annotations;
     private final String deploymentId;
     private final EventTypeResolver eventTypeResolver;
@@ -72,10 +75,12 @@ public class EPStatementInitServicesImpl implements EPStatementInitServices {
     private final boolean recovery;
     private final StatementResourceService statementResourceService;
     private final StatementResultService statementResultService;
+    private final EPServicesContext servicesContext;
     private final List<StatementReadyCallback> readyCallbacks = new ArrayList<>();
 
-    public EPStatementInitServicesImpl(Annotation[] annotations, String deploymentId, EventTypeResolver eventTypeResolver, FilterSpecActivatableRegistry filterSpecActivatableRegistry, FilterSharedBoolExprRegistery filterSharedBoolExprRegistery, FilterSharedLookupableRegistery filterSharedLookupableRegistery, ModuleIncidentals moduleIncidentals, boolean recovery, StatementResourceService statementResourceService, StatementResultService statementResultService, EPServicesContext servicesContext) {
-        this.servicesContext = servicesContext;
+    public EPStatementInitServicesImpl(String statementName, Map<StatementProperty, Object> statementProperties, Annotation[] annotations, String deploymentId, EventTypeResolver eventTypeResolver, FilterSpecActivatableRegistry filterSpecActivatableRegistry, FilterSharedBoolExprRegistery filterSharedBoolExprRegistery, FilterSharedLookupableRegistery filterSharedLookupableRegistery, ModuleIncidentals moduleIncidentals, boolean recovery, StatementResourceService statementResourceService, StatementResultService statementResultService, EPServicesContext servicesContext) {
+        this.statementName = statementName;
+        this.statementProperties = statementProperties;
         this.annotations = annotations;
         this.deploymentId = deploymentId;
         this.eventTypeResolver = eventTypeResolver;
@@ -86,6 +91,7 @@ public class EPStatementInitServicesImpl implements EPStatementInitServices {
         this.recovery = recovery;
         this.statementResourceService = statementResourceService;
         this.statementResultService = statementResultService;
+        this.servicesContext = servicesContext;
     }
 
     public AggregationServiceFactoryService getAggregationServiceFactoryService() {
@@ -309,5 +315,13 @@ public class EPStatementInitServicesImpl implements EPStatementInitServices {
     }
 
     public void activateExpression(String name) {
+    }
+
+    public String getStatementName() {
+        return statementName;
+    }
+
+    public Map<StatementProperty, Object> getStatementProperties() {
+        return statementProperties;
     }
 }

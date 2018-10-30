@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
 import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementInitServicesImpl;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +54,7 @@ public class EPRuntimeHelperFAF {
         fafProvider.initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
 
         // initialize query
-        fafProvider.initializeQuery(new EPStatementInitServicesImpl(null, null, eventTypeResolver, null, null, null, null, false, null, null, services));
+        fafProvider.initializeQuery(new EPStatementInitServicesImpl("faf-query", Collections.emptyMap(), null, null, eventTypeResolver, null, null, null, null, false, null, null, services));
         return fafProvider;
     }
 

@@ -650,12 +650,7 @@ public class Deployer {
         boolean contextPartitioned = informationals.getOptionalContextName() != null;
         StatementResourceService statementResourceService = new StatementResourceService(contextPartitioned);
 
-        EPStatementInitServicesImpl epInitServices = new EPStatementInitServicesImpl(informationals.getAnnotations(), deploymentId,
-            eventTypeResolver, filterSpecActivatableRegistry, filterSharedBoolExprRegistery, filterSharedLookupableRegistery, moduleIncidentals,
-            recovery, statementResourceService, statementResultService, services);
-
-        statementProvider.initialize(epInitServices);
-
+        // determine statement name
         String statementName = informationals.getStatementNameCompileTime();
         if (statementNameResolverRuntime != null) {
             String statementNameAssigned = statementNameResolverRuntime.getStatementName(new StatementNameRuntimeContext(deploymentId, statementName, statementId, (String) informationals.getProperties().get(StatementProperty.EPL), informationals.getAnnotations()));
@@ -664,6 +659,12 @@ public class Deployer {
             }
         }
         statementName = statementName.trim();
+
+        EPStatementInitServicesImpl epInitServices = new EPStatementInitServicesImpl(statementName, informationals.getProperties(), informationals.getAnnotations(), deploymentId,
+            eventTypeResolver, filterSpecActivatableRegistry, filterSharedBoolExprRegistery, filterSharedLookupableRegistery, moduleIncidentals,
+            recovery, statementResourceService, statementResultService, services);
+
+        statementProvider.initialize(epInitServices);
 
         MultiMatchHandler multiMatchHandler = services.getMultiMatchHandlerFactory().make(informationals.isHasSubquery(), informationals.isNeedDedup());
 
