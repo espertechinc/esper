@@ -27,7 +27,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.serde.EventBeanCollatedWriter;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
@@ -207,7 +207,7 @@ public class AggregationServiceFactoryCompiler {
         CodegenStackGenerator.recursiveBuildStack(writeMethod, "write", methods);
         CodegenStackGenerator.recursiveBuildStack(readMethod, "read", methods);
 
-        CodegenInnerClass innerClass = new CodegenInnerClass(classNameSerde, DataInputOutputSerdeWCollation.class, ctor, Collections.emptyList(), methods);
+        CodegenInnerClass innerClass = new CodegenInnerClass(classNameSerde, DataInputOutputSerde.class, ctor, Collections.emptyList(), methods);
         innerClass.setInterfaceGenericClass(classNameRow);
         innerClasses.add(innerClass);
     }

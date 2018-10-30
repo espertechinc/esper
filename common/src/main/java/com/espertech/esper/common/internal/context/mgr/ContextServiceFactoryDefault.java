@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.context.controller.keyed.ContextContr
 import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdService;
 import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdServiceImpl;
 import com.espertech.esper.common.internal.context.util.StatementContext;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 public class ContextServiceFactoryDefault implements ContextServiceFactory {
     public final static ContextServiceFactoryDefault INSTANCE = new ContextServiceFactoryDefault();
@@ -42,11 +42,11 @@ public class ContextServiceFactoryDefault implements ContextServiceFactory {
         return new ContextControllerInitTermFactory();
     }
 
-    public DataInputOutputSerdeWCollation[] getContextPartitionKeyBindings(ContextDefinition contextDefinition) {
+    public DataInputOutputSerde[] getContextPartitionKeyBindings(ContextDefinition contextDefinition) {
         return null;
     }
 
-    public ContextPartitionIdService getContextPartitionIdService(StatementContext statementContextCreateContext, DataInputOutputSerdeWCollation[] bindings) {
+    public ContextPartitionIdService getContextPartitionIdService(StatementContext statementContextCreateContext, DataInputOutputSerde[] bindings) {
         return new ContextPartitionIdServiceImpl();
     }
 

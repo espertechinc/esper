@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirem
 import com.espertech.esper.common.internal.context.airegistry.StatementAIResourceRegistry;
 import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -46,7 +46,7 @@ public interface ContextManager extends FilterFaultHandler {
 
     StatementAIResourceRegistry allocateAgentInstanceResourceRegistry(AIRegistryRequirements registryRequirements);
 
-    DataInputOutputSerdeWCollation[] getContextPartitionKeySerdes();
+    DataInputOutputSerde[] getContextPartitionKeySerdes();
 
     ContextManagerRealization allocateNewRealization(AgentInstanceContext agentInstanceContext);
 

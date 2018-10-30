@@ -29,7 +29,7 @@ public class CodegenSharableSerdeClassArrayTyped implements CodegenFieldSharable
     }
 
     public Class type() {
-        return DataInputOutputSerdeWCollation.class;
+        return DataInputOutputSerde.class;
     }
 
     public CodegenExpression initCtorScoped() {

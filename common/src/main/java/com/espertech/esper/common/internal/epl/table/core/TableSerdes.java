@@ -10,22 +10,22 @@
  */
 package com.espertech.esper.common.internal.epl.table.core;
 
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 public class TableSerdes {
-    private final DataInputOutputSerdeWCollation[] column;
-    private final DataInputOutputSerdeWCollation aggregations;
+    private final DataInputOutputSerde[] column;
+    private final DataInputOutputSerde aggregations;
 
-    public TableSerdes(DataInputOutputSerdeWCollation[] column, DataInputOutputSerdeWCollation aggregations) {
+    public TableSerdes(DataInputOutputSerde[] column, DataInputOutputSerde aggregations) {
         this.column = column;
         this.aggregations = aggregations;
     }
 
-    public DataInputOutputSerdeWCollation[] getColumnStartingZero() {
+    public DataInputOutputSerde[] getColumnStartingZero() {
         return column;
     }
 
-    public DataInputOutputSerdeWCollation getAggregations() {
+    public DataInputOutputSerde getAggregations() {
         return aggregations;
     }
 }

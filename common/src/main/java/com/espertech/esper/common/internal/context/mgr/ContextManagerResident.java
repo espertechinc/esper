@@ -24,7 +24,7 @@ import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
 
 import java.util.*;
@@ -39,7 +39,7 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
     protected CopyOnWriteArrayList<ContextPartitionStateListener> listenersLazy;
 
     private StatementContext statementContextCreate;
-    private DataInputOutputSerdeWCollation[] contextPartitionKeySerdes;
+    private DataInputOutputSerde[] contextPartitionKeySerdes;
     private ContextPartitionIdService contextPartitionIdService;
 
     public ContextManagerResident(String deploymentId, ContextDefinition contextDefinition) {
@@ -264,7 +264,7 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
         return contextPartitionIdService;
     }
 
-    public DataInputOutputSerdeWCollation[] getContextPartitionKeySerdes() {
+    public DataInputOutputSerde[] getContextPartitionKeySerdes() {
         return contextPartitionKeySerdes;
     }
 
@@ -272,8 +272,8 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
         return contextDefinition.getControllerFactories().length;
     }
 
-    public DataInputOutputSerdeWCollation[] getContextPartitionKeySerdeSubset(int nestingLevel) {
-        DataInputOutputSerdeWCollation[] serdes = new DataInputOutputSerdeWCollation[nestingLevel - 1];
+    public DataInputOutputSerde[] getContextPartitionKeySerdeSubset(int nestingLevel) {
+        DataInputOutputSerde[] serdes = new DataInputOutputSerde[nestingLevel - 1];
         for (int i = 0; i < nestingLevel - 1; i++) {
             serdes[i] = contextPartitionKeySerdes[i];
         }

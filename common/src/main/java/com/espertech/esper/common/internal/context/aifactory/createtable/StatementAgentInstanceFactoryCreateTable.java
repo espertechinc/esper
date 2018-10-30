@@ -23,7 +23,7 @@ import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.epl.table.core.TableInstanceViewable;
 import com.espertech.esper.common.internal.epl.table.core.TableMetadataInternalEventToPublic;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
     private String tableName;
     private TableMetadataInternalEventToPublic eventToPublic;
     private AggregationRowFactory aggregationRowFactory;
-    private DataInputOutputSerdeWCollation aggregationSerde;
+    private DataInputOutputSerde aggregationSerde;
     private EventPropertyValueGetter primaryKeyGetter;
 
     private Table table;
@@ -55,7 +55,7 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         this.aggregationRowFactory = aggregationRowFactory;
     }
 
-    public void setAggregationSerde(DataInputOutputSerdeWCollation aggregationSerde) {
+    public void setAggregationSerde(DataInputOutputSerde aggregationSerde) {
         this.aggregationSerde = aggregationSerde;
     }
 

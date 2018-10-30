@@ -14,7 +14,7 @@ import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimA
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 public class AggregationServiceFactoryServiceImpl implements AggregationServiceFactoryService {
 
@@ -23,15 +23,15 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
     private AggregationServiceFactoryServiceImpl() {
     }
 
-    public AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerdeWCollation<AggregationRow> serde) {
+    public AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde) {
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerdeWCollation<AggregationRow> serde, Class[] groupByTypes, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus) {
+    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, Class[] groupByTypes, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus) {
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory, AggregationGroupByRollupDesc groupByRollupDesc, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerdeWCollation<AggregationRow> serde, Class[] groupByTypes) {
+    public AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory, AggregationGroupByRollupDesc groupByRollupDesc, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, Class[] groupByTypes) {
         return nonHAFactory;
     }
 

@@ -14,11 +14,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class DataInputOutputSerdeWCollationEmpty implements DataInputOutputSerdeWCollation<Object> {
+public class DataInputOutputSerdeEmpty implements DataInputOutputSerde<Object> {
 
-    public final static DataInputOutputSerdeWCollationEmpty INSTANCE = new DataInputOutputSerdeWCollationEmpty();
+    public final static DataInputOutputSerdeEmpty INSTANCE = new DataInputOutputSerdeEmpty();
 
-    private DataInputOutputSerdeWCollationEmpty() {
+    private DataInputOutputSerdeEmpty() {
     }
 
     public void write(java.lang.Object object, DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer) throws IOException {

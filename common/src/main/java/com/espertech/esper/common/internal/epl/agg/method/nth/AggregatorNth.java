@@ -23,7 +23,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.serde.EventBeanCollatedWriter;
 
 import java.io.DataInput;
@@ -103,7 +103,7 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
      * @return state
      * @throws IOException ioerror
      */
-    public static AggregationNthState read(DataInput input, byte[] unitKey, DataInputOutputSerdeWCollation serdeNullable, int sizeBuf) throws IOException {
+    public static AggregationNthState read(DataInput input, byte[] unitKey, DataInputOutputSerde serdeNullable, int sizeBuf) throws IOException {
         boolean filled = input.readBoolean();
         AggregationNthState state = new AggregationNthState();
         if (!filled) {
@@ -132,7 +132,7 @@ public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
      * @param sizeBuf                     size
      * @throws IOException io error
      */
-    public static void write(DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer, DataInputOutputSerdeWCollation serdeNullable, Object[] circularBuffer, long numDataPoints, int currentBufferElementPointer, int sizeBuf) throws IOException {
+    public static void write(DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer, DataInputOutputSerde serdeNullable, Object[] circularBuffer, long numDataPoints, int currentBufferElementPointer, int sizeBuf) throws IOException {
         output.writeBoolean(circularBuffer != null);
         if (circularBuffer != null) {
             output.writeLong(numDataPoints);

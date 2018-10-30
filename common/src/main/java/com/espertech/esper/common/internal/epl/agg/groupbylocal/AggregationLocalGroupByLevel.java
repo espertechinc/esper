@@ -12,17 +12,17 @@ package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 public class AggregationLocalGroupByLevel {
 
     private final AggregationRowFactory rowFactory;
-    private final DataInputOutputSerdeWCollation rowSerde;
+    private final DataInputOutputSerde rowSerde;
     private final Class[] groupKeyTypes;
     private final ExprEvaluator groupKeyEval;
     private final boolean isDefaultLevel;
 
-    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerdeWCollation rowSerde, Class[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel) {
+    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerde rowSerde, Class[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel) {
         this.rowFactory = rowFactory;
         this.rowSerde = rowSerde;
         this.groupKeyTypes = groupKeyTypes;
@@ -34,7 +34,7 @@ public class AggregationLocalGroupByLevel {
         return rowFactory;
     }
 
-    public DataInputOutputSerdeWCollation getRowSerde() {
+    public DataInputOutputSerde getRowSerde() {
         return rowSerde;
     }
 

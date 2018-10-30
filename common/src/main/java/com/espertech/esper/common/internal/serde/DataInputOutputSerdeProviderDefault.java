@@ -18,35 +18,35 @@ public class DataInputOutputSerdeProviderDefault implements DataInputOutputSerde
     private DataInputOutputSerdeProviderDefault() {
     }
 
-    public DataInputOutputSerdeWCollation valueNullable(Class type) {
+    public DataInputOutputSerde valueNullable(Class type) {
         return null;
     }
 
-    public DataInputOutputSerdeWCollation refCountedSet(Class type) {
+    public DataInputOutputSerde refCountedSet(Class type) {
         return null;
     }
 
-    public DataInputOutputSerdeWCollation sortedRefCountedSet(Class type) {
+    public DataInputOutputSerde sortedRefCountedSet(Class type) {
         return null;
     }
 
-    public DataInputOutputSerdeWCollation listValues(Class type) {
+    public DataInputOutputSerde listValues(Class type) {
         return null;
     }
 
-    public DataInputOutputSerdeWCollation listEvents(EventType eventType) {
+    public DataInputOutputSerde listEvents(EventType eventType) {
         return null;
     }
 
-    public DataInputOutputSerdeWCollation linkedHashMapEventsAndInt(EventType eventType) {
+    public DataInputOutputSerde linkedHashMapEventsAndInt(EventType eventType) {
         return null;
     }
 
-    public DataInputOutputSerdeWCollation eventNullable(EventType eventType) {
+    public DataInputOutputSerde eventNullable(EventType eventType) {
         return null;
     }
 
-    public DataInputOutputSerdeWCollation objectArrayMayNullNull(Class[] types) {
+    public DataInputOutputSerde objectArrayMayNullNull(Class[] types) {
         return null;
     }
 
@@ -54,7 +54,7 @@ public class DataInputOutputSerdeProviderDefault implements DataInputOutputSerde
         return null;
     }
 
-    public DataInputOutputSerdeWCollation refCountedSetAtomicInteger(EventType eventType) {
+    public DataInputOutputSerde refCountedSetAtomicInteger(EventType eventType) {
         return null;
     }
 }

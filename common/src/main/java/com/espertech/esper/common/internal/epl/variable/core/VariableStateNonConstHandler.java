@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.util.NullableObject;
 
 import java.util.Set;
@@ -20,9 +20,9 @@ import java.util.Set;
  * Interface for a plug-in to {@link VariableManagementService} to handle variable persistent state.
  */
 public interface VariableStateNonConstHandler {
-    DataInputOutputSerdeWCollation getVariableSerde(String deploymentId, VariableMetaData metaData);
+    DataInputOutputSerde getVariableSerde(String deploymentId, VariableMetaData metaData);
 
-    void addVariable(String deploymentId, String variableName, Variable variable, DataInputOutputSerdeWCollation serde);
+    void addVariable(String deploymentId, String variableName, Variable variable, DataInputOutputSerde serde);
 
     /**
      * Returns the current variable state plus Boolean.TRUE if there is a current state since the variable

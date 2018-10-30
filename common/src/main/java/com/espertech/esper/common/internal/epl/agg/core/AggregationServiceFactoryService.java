@@ -14,18 +14,18 @@ import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimA
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 public interface AggregationServiceFactoryService {
     AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory,
                                        AggregationRowFactory rowFactory,
                                        AggregationUseFlags useFlags,
-                                       DataInputOutputSerdeWCollation<AggregationRow> serde);
+                                       DataInputOutputSerde<AggregationRow> serde);
 
     AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory,
                                       AggregationRowFactory rowFactory,
                                       AggregationUseFlags useFlags,
-                                      DataInputOutputSerdeWCollation<AggregationRow> serde,
+                                      DataInputOutputSerde<AggregationRow> serde,
                                       Class[] groupByTypes,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq,
@@ -35,7 +35,7 @@ public interface AggregationServiceFactoryService {
                                             AggregationGroupByRollupDesc groupByRollupDesc,
                                             AggregationRowFactory rowFactory,
                                             AggregationUseFlags useFlags,
-                                            DataInputOutputSerdeWCollation<AggregationRow> serde,
+                                            DataInputOutputSerde<AggregationRow> serde,
                                             Class[] groupByTypes);
 
     AggregationServiceFactory groupLocalGroupBy(AggregationServiceFactory nonHAFactory,

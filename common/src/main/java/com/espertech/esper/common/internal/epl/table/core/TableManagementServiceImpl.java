@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.table.core;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 public class TableManagementServiceImpl extends TableManagementServiceBase {
 
@@ -25,7 +25,7 @@ public class TableManagementServiceImpl extends TableManagementServiceBase {
         return new TableImpl(metadata);
     }
 
-    public TableSerdes getTableSerdes(Table table, DataInputOutputSerdeWCollation aggregationSerde, StatementContext statementContext) {
+    public TableSerdes getTableSerdes(Table table, DataInputOutputSerde aggregationSerde, StatementContext statementContext) {
         return null;    // this implementation does not require serdes
     }
 

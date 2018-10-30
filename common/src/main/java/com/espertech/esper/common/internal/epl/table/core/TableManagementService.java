@@ -14,7 +14,7 @@ import com.espertech.esper.common.internal.context.module.EPStatementInitService
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 
 /**
  * Service to manage named windows on an runtime level.
@@ -30,7 +30,7 @@ public interface TableManagementService {
 
     Table allocateTable(TableMetaData metadata);
 
-    TableSerdes getTableSerdes(Table table, DataInputOutputSerdeWCollation aggregationSerde, StatementContext statementContext);
+    TableSerdes getTableSerdes(Table table, DataInputOutputSerde aggregationSerde, StatementContext statementContext);
 
     TableInstance allocateTableInstance(Table table, AgentInstanceContext agentInstanceContext);
 

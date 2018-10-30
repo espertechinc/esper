@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * Implementations read and write objects from/to the stream.
  */
-public interface DataInputOutputSerdeWCollation<E> {
+public interface DataInputOutputSerde<E> {
 
     /**
      * Write an object to the stream.

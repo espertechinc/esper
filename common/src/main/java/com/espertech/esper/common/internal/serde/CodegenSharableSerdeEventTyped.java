@@ -31,7 +31,7 @@ public class CodegenSharableSerdeEventTyped implements CodegenFieldSharable {
     }
 
     public Class type() {
-        return DataInputOutputSerdeWCollation.class;
+        return DataInputOutputSerde.class;
     }
 
     public CodegenExpression initCtorScoped() {

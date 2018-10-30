@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.context.module.EPStatementInitService
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAState;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateBase;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateEndEval;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeWCollation;
+import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.common.internal.view.core.View;
 import com.espertech.esper.common.internal.view.core.ViewFactory;
@@ -33,7 +33,7 @@ public class RowRecogNFAViewFactory implements ViewFactory {
     private boolean trackMaxStates;
     private RowRecogNFAState[] startStates;
     private RowRecogNFAState[] allStates;
-    protected DataInputOutputSerdeWCollation<Object> partitionKeySerde;
+    protected DataInputOutputSerde<Object> partitionKeySerde;
     protected int scheduleCallbackId;
 
     public void setDesc(RowRecogDesc desc) {
@@ -115,7 +115,7 @@ public class RowRecogNFAViewFactory implements ViewFactory {
         return allStates;
     }
 
-    public DataInputOutputSerdeWCollation<Object> getPartitionKeySerde() {
+    public DataInputOutputSerde<Object> getPartitionKeySerde() {
         return partitionKeySerde;
     }
 
