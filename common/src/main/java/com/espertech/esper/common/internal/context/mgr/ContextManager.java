@@ -70,4 +70,5 @@ public interface ContextManager extends FilterFaultHandler {
 
     void destroyContext();
 
+    void clearCaches();
 }

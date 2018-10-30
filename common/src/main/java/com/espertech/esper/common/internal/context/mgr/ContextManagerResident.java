@@ -316,6 +316,12 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
         return getRealization().handleFilterFault(theEvent, version);
     }
 
+    public void clearCaches() {
+        if (contextPartitionIdService != null) {
+            contextPartitionIdService.clearCaches();
+        }
+    }
+
     private AgentInstance[] getAgentInstancesForStmt(int statementId, ContextPartitionSelector selector) {
         Collection<Integer> agentInstanceIds = getAgentInstanceIds(selector);
         if (agentInstanceIds == null || agentInstanceIds.isEmpty()) {

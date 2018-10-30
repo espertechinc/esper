@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.context.ContextStateListener;
 import com.espertech.esper.common.internal.context.controller.core.ContextDefinition;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface ContextManagementService {
@@ -30,4 +31,6 @@ public interface ContextManagementService {
     void destroyedContext(String runtimeURI, String deploymentId, String contextName);
 
     CopyOnWriteArrayList<ContextStateListener> getListeners();
+
+    Map<String, ContextDeployment> getDeployments();
 }

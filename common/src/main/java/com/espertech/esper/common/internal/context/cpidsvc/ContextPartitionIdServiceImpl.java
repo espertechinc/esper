@@ -54,4 +54,8 @@ public class ContextPartitionIdServiceImpl implements ContextPartitionIdService 
     public void destroy() {
         // no action, service discarded and GC'd
     }
+
+    public void clearCaches() {
+        // not memory-managed
+    }
 }

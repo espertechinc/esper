@@ -24,4 +24,6 @@ public interface ContextPartitionIdService {
     void destroy();
 
     void clear();
+
+    void clearCaches();
 }

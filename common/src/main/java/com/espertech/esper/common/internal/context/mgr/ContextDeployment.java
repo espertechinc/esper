@@ -52,4 +52,8 @@ public class ContextDeployment {
         entry.destroyContext();
         contexts.remove(contextName);
     }
+
+    public Map<String, ContextManager> getContexts() {
+        return contexts;
+    }
 }

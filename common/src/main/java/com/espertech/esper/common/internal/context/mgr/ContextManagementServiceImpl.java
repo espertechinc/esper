@@ -79,6 +79,10 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         return listeners;
     }
 
+    public Map<String, ContextDeployment> getDeployments() {
+        return deployments;
+    }
+
     private ContextManager getAssertContextManager(String deploymentIdCreateContext, String contextName) {
         ContextManager contextManager = getContextManager(deploymentIdCreateContext, contextName);
         if (contextManager == null) {
