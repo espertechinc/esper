@@ -66,10 +66,6 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
         return outputCondition;
     }
 
-    public OutputProcessViewConditionDeltaSet getOptionalDeltaSet() {
-        return null;
-    }
-
     public OutputProcessViewAfterState getOptionalAfterConditionState() {
         return null;
     }

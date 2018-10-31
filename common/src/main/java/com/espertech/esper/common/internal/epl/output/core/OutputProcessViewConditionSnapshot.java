@@ -20,7 +20,6 @@ import com.espertech.esper.common.internal.epl.output.condition.OutputCallback;
 import com.espertech.esper.common.internal.epl.output.condition.OutputCondition;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewAfterState;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewBaseWAfter;
-import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewConditionDeltaSet;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewConditionFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
@@ -61,10 +60,6 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
 
     public OutputCondition getOptionalOutputCondition() {
         return outputCondition;
-    }
-
-    public OutputProcessViewConditionDeltaSet getOptionalDeltaSet() {
-        return null;
     }
 
     public OutputProcessViewAfterState getOptionalAfterConditionState() {

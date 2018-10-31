@@ -53,10 +53,6 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         return outputCondition;
     }
 
-    public OutputProcessViewConditionDeltaSet getOptionalDeltaSet() {
-        return null;
-    }
-
     public OutputProcessViewAfterState getOptionalAfterConditionState() {
         return null;
     }

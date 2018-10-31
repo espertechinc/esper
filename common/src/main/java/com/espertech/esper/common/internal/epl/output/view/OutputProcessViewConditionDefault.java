@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.context.util.StatementResultService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.output.condition.OutputCallback;
 import com.espertech.esper.common.internal.epl.output.condition.OutputCondition;
+import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewWithDeltaSet;
 import com.espertech.esper.common.internal.epl.output.core.OutputStrategyUtil;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
@@ -36,7 +37,7 @@ import java.util.Set;
  * <p>
  * Handles output rate limiting or stabilizing.
  */
-public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAfter {
+public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAfter implements OutputProcessViewWithDeltaSet {
     private final OutputProcessViewConditionFactory parent;
     private final OutputCondition outputCondition;
     private final OutputProcessViewConditionDeltaSet deltaSet;
