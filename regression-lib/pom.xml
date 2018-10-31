@@ -116,7 +116,7 @@
 					<systemProperties>
 						<property>
 							<name>log4j.configuration</name>
-							<value>infoonly_log4j.xml</value>
+							<value>log4j.xml</value>
 						</property>
 					</systemProperties>
 					<additionalClasspathElements>

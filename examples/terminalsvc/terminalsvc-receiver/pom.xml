@@ -54,11 +54,11 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
-                    <argLine>-Dlog4j.configuration=../etc/infoonly_log4j.xml</argLine>
+                    <argLine>-Dlog4j.configuration=../etc/log4j.xml</argLine>
                     <systemProperties>
                         <property>
                             <name>log4j.configuration</name>
-                            <value>../etc/infoonly_log4j.xml</value>
+                            <value>../etc/log4j.xml</value>
                         </property>
                     </systemProperties>
                 </configuration>
