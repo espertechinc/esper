@@ -6,7 +6,20 @@ Changes in version 8.0.0
 Version 8 is a significant update to the Esper ecosystem. Starting from version 8 Esper is a compiler and a runtime. 
 The Esper compiler produces 100% JVM byte code and the runtime loads and executes the byte code, similar to other programming languages such as Scala.
 For most applications using Esper public APS version 8 is not a drop-in replacement of earlier versions.
-Information on the changes between version 8 and earlier versions can be found online...
+Information on the changes between version 8 and earlier versions can be found online at http://www.espertech.com/esper/esper-information-about-esper-version-8/
+Other changes are:
+  - Support for Java 9 and Java 11
+  - Support arrays in the cast function (#107)
+  - Compiler now depends on 
+     - ANTLR runtime library version is now 4.7.1 (antlr4-runtime-4.7.1.jar, previously antlr-runtime-4.7.jar)  
+     - Janino runtime library version is now 3.0.10
+  - Fixed issue #108 Determination of overloaded method applicability with varargs
+  - Fixed issue #109 Allow interface to be treated as object type
+  - Fixed issue #110 Variable with unary minus result in incorrect result
+  - Fixed issue #121 Filter expression with constant variable does not trigger
+  - Fixed issue RLQ-681-13506 contained-event-property with on-merge incorrect results
+  - Fixed issue GUV-728-49821 Zero keys for in-clause causes array exception
+  - Many other improvements across the code and documentation that are not listed above   
 
 Changes in version 7.1.0
 ------------------------
