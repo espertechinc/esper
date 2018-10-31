@@ -149,6 +149,54 @@ public class StatementContextRuntimeServices {
         this.viewServicePreviousFactory = viewServicePreviousFactory;
     }
 
+    public StatementContextRuntimeServices() {
+        this.contextManagementService = null;
+        this.contextServiceFactory = null;
+        this.databaseConfigService = null;
+        this.dataFlowFilterServiceAdapter = null;
+        this.dataflowService = null;
+        this.runtimeURI = null;
+        this.runtimeEnvContext = null;
+        this.classpathImportServiceRuntime = null;
+        this.runtimeSettingsService = null;
+        this.runtimeExtensionServices = null;
+        this.epRuntime = null;
+        this.epRuntimeRenderEvent = null;
+        this.eventServiceSendEventInternal = null;
+        this.epRuntimeEventProcessWrapped = null;
+        this.eventBeanService = null;
+        this.eventBeanTypedEventFactory = null;
+        this.eventTableIndexService = null;
+        this.eventTypeAvroHandler = null;
+        this.eventTypePathRegistry = null;
+        this.eventTypeRepositoryPreconfigured = null;
+        this.eventTypeResolvingBeanFactory = null;
+        this.exceptionHandlingService = null;
+        this.expressionResultCacheService = null;
+        this.filterService = null;
+        this.filterBooleanExpressionFactory = null;
+        this.filterSharedBoolExprRepository = null;
+        this.filterSharedLookupableRepository = null;
+        this.historicalDataCacheFactory = null;
+        this.internalEventRouter = null;
+        this.internalEventRouteDest = null;
+        this.metricReportingService = null;
+        this.namedWindowConsumerManagementService = null;
+        this.namedWindowManagementService = null;
+        this.pathContextRegistry = null;
+        this.pathNamedWindowRegistry = null;
+        this.rowRecogStateRepoFactory = null;
+        this.resultSetProcessorHelperFactory = null;
+        this.schedulingService = null;
+        this.statementAgentInstanceLockFactory = null;
+        this.statementResourceHolderBuilder = null;
+        this.tableExprEvaluatorContext = null;
+        this.tableManagementService = null;
+        this.variableManagementService = null;
+        this.viewFactoryService = null;
+        this.viewServicePreviousFactory = null;
+    }
+
     public ContextManagementService getContextManagementService() {
         return contextManagementService;
     }
