@@ -18,11 +18,12 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessView;
+import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewWithAfter;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 
 import java.util.Set;
 
-public abstract class OutputProcessViewBaseWAfter extends OutputProcessView {
+public abstract class OutputProcessViewBaseWAfter extends OutputProcessView implements OutputProcessViewWithAfter {
     private final OutputProcessViewAfterState afterConditionState;
     protected final AgentInstanceContext agentInstanceContext;
     protected final ResultSetProcessor resultSetProcessor;
