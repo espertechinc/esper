@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.table.core.TableColumnMethodPairEval;
 import com.espertech.esper.common.internal.epl.table.core.TableEvalLockUtil;
+import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.epl.table.core.TableInstanceGrouped;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
@@ -25,7 +26,7 @@ import java.util.Collection;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public abstract class AggSvcGroupByWTableBase implements AggregationService {
+public abstract class AggSvcGroupByWTableBase implements AggregationService, AggregationServiceTable {
     protected final TableInstanceGrouped tableInstance;
     protected final TableColumnMethodPairEval[] methodPairs;
     private final AggregationMultiFunctionAgent[] accessAgents;
@@ -168,5 +169,9 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService {
 
     public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
         return this;
+    }
+
+    public TableInstance getTableInstance() {
+        return tableInstance;
     }
 }
