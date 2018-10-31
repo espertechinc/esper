@@ -50,4 +50,6 @@ public interface HistoricalEventViewable extends Viewable, AgentInstanceStopCall
     public boolean hasRequiredStreams();
 
     public ThreadLocal<HistoricalDataCache> getDataCacheThreadLocal();
+
+    public HistoricalDataCache getOptionalDataCache();
 }

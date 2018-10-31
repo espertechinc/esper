@@ -166,4 +166,8 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
     public boolean hasRequiredStreams() {
         return factory.isHasRequiredStreams();
     }
+
+    public HistoricalDataCache getOptionalDataCache() {
+        return dataCache;
+    }
 }
