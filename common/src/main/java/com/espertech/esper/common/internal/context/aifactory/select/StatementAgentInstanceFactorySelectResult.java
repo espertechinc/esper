@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.prior.PriorEvalStrategy;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposer;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalRootState;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPreviousStrategy;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryResult;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategy;
@@ -35,6 +36,7 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
     private final Viewable[] topViews;
     private final Viewable[] eventStreamViewables;
     private final ViewableActivationResult[] viewableActivationResults;
+    private final ResultSetProcessor resultSetProcessor;
 
     public StatementAgentInstanceFactorySelectResult(Viewable finalView,
                                                      AgentInstanceStopCallback stopCallback,
@@ -50,13 +52,15 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
                                                      JoinSetComposer joinSetComposer,
                                                      Viewable[] topViews,
                                                      Viewable[] eventStreamViewables,
-                                                     ViewableActivationResult[] viewableActivationResults) {
+                                                     ViewableActivationResult[] viewableActivationResults,
+                                                     ResultSetProcessor resultSetProcessor) {
         super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorStrategies, previousGetterStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList);
         this.topViews = topViews;
         this.patternRoots = patternRoots;
         this.joinSetComposer = joinSetComposer;
         this.eventStreamViewables = eventStreamViewables;
         this.viewableActivationResults = viewableActivationResults;
+        this.resultSetProcessor = resultSetProcessor;
     }
 
     public Viewable[] getTopViews() {
@@ -77,5 +81,9 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
 
     public JoinSetComposer getJoinSetComposer() {
         return joinSetComposer;
+    }
+
+    public ResultSetProcessor getResultSetProcessor() {
+        return resultSetProcessor;
     }
 }

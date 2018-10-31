@@ -228,7 +228,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
 
         return new StatementAgentInstanceFactorySelectResult(outputProcessView, stopCallback, agentInstanceContext, processorPair.getSecond(),
                 subselectActivations, priorEvalStrategies, previousGetterStrategies, rowRecogPreviousStrategy, tableAccessEvals, preloadList, null,
-                joinSetComposer, topViews, null, activationResults);
+                joinSetComposer, topViews, null, activationResults, processorPair.getFirst());
     }
 
     public EventType getStatementEventType() {
