@@ -7,7 +7,7 @@
 	<property name="name" value="esper"/>
 	<property name="version" value="8.0.0-beta1"/>
 	<property name="patchlevel" value=""/>
-	<property name="dist.dir" value=".."/>
+	<property name="dist.dir" value="target"/>
 	<property name="fullversion" value="${version}${patchlevel}"/>
 	<property name="fullname" value="${name}-${fullversion}"/>
 	
@@ -24,7 +24,7 @@
 		**/benchmark/lib/*.jar,
 		**/terminalsvc-jse/lib/*.jar,
 		**/cycledetect/lib/*.jar,
-		**/antlr-4.7.1-complete.jar,
+		**/antlr-*-complete.jar,
 		**/junit-*.jar, 
 		**/junit.license,
 		**/hamcrest-*.jar,
