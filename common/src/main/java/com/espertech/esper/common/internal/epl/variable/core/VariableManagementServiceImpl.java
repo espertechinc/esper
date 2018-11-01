@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.NullableObject;

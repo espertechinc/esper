@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.serde;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public interface DataInputOutputSerdeProvider {
     DataInputOutputSerde valueNullable(Class type);

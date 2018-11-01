@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.context.controller.initterm.ContextCo
 import com.espertech.esper.common.internal.context.controller.keyed.ContextControllerKeyedFactory;
 import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdService;
 import com.espertech.esper.common.internal.context.util.StatementContext;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public interface ContextServiceFactory {
     ContextControllerKeyedFactory keyedFactory();

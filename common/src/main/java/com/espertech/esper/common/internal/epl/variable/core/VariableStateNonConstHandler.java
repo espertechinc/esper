@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.util.NullableObject;
 
 import java.util.Set;

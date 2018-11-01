@@ -24,7 +24,7 @@ import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
 
 import java.util.*;

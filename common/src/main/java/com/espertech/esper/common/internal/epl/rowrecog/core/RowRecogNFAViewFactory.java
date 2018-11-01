@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.context.module.EPStatementInitService
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAState;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateBase;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateEndEval;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.common.internal.view.core.View;
 import com.espertech.esper.common.internal.view.core.ViewFactory;

@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.context.controller.keyed.ContextContr
 import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdService;
 import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdServiceImpl;
 import com.espertech.esper.common.internal.context.util.StatementContext;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public class ContextServiceFactoryDefault implements ContextServiceFactory {
     public final static ContextServiceFactoryDefault INSTANCE = new ContextServiceFactoryDefault();

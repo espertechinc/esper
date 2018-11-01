@@ -14,7 +14,7 @@ import com.espertech.esper.common.internal.context.module.EPStatementInitService
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 /**
  * Service to manage named windows on an runtime level.

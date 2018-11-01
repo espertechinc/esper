@@ -14,7 +14,7 @@ import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimA
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public interface AggregationServiceFactoryService {
     AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory,

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.table.core;
 
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public class TableSerdes {
     private final DataInputOutputSerde[] column;

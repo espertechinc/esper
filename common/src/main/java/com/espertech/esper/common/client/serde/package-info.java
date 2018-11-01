@@ -8,23 +8,10 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.serde;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-public class DataInputOutputSerdeEmpty implements DataInputOutputSerde<Object> {
-
-    public final static DataInputOutputSerdeEmpty INSTANCE = new DataInputOutputSerdeEmpty();
-
-    private DataInputOutputSerdeEmpty() {
-    }
-
-    public void write(java.lang.Object object, DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer) throws IOException {
-    }
-
-    public Object read(DataInput input, byte[] unitKey) throws IOException {
-        return null;
-    }
-}
+/**
+ * <p>
+ * Serdes are for serializing and de-serializing.
+ * </p>
+ */
+package com.espertech.esper.common.client.serde;

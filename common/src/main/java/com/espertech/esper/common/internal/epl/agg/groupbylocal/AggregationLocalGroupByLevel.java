@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public class AggregationLocalGroupByLevel {
 

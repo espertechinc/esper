@@ -23,7 +23,7 @@ import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.epl.table.core.TableInstanceViewable;
 import com.espertech.esper.common.internal.epl.table.core.TableMetadataInternalEventToPublic;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
