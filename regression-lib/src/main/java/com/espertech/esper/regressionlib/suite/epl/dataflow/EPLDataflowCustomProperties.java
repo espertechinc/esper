@@ -113,7 +113,6 @@ public class EPLDataflowCustomProperties {
             assertEquals(1f, instanceOne.getTheFloatOne());
             assertEquals(2f, instanceOne.getTheFloatTwo());
             assertEquals(">b<", instanceOne.getTheStringWithSetter());
-            assertNotNull(instanceOne.getTheSystemProperty());
 
             // test array etc. properties
             MyOperatorTwoForge.getOperators().clear();
