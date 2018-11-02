@@ -51,6 +51,11 @@ public class EPContextPartitionServiceImpl implements EPContextPartitionService 
         return contextManager.getContextPartitionIds(selector);
     }
 
+    public long getContextPartitionCount(String deploymentId, String contextName) {
+        ContextManager contextManager = checkedGetContextManager(deploymentId, contextName);
+        return contextManager.getContextPartitionCount();
+    }
+
     public ContextPartitionIdentifier getIdentifier(String deploymentId, String contextName, int agentInstanceId) {
         ContextManager contextManager = checkedGetContextManager(deploymentId, contextName);
         return contextManager.getContextIdentifier(agentInstanceId);

@@ -58,4 +58,8 @@ public class ContextPartitionIdServiceImpl implements ContextPartitionIdService 
     public void clearCaches() {
         // not memory-managed
     }
+
+    public long getCount() {
+        return cpids.size();
+    }
 }

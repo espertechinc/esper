@@ -60,6 +60,8 @@ public interface ContextManager extends FilterFaultHandler {
 
     Set<Integer> getContextPartitionIds(ContextPartitionSelector selector);
 
+    long getContextPartitionCount();
+
     void addListener(ContextPartitionStateListener listener);
 
     void removeListener(ContextPartitionStateListener listener);

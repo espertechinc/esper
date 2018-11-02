@@ -66,6 +66,16 @@ public interface EPContextPartitionService {
     Set<Integer> getContextPartitionIds(String deploymentId, String contextName, ContextPartitionSelector selector);
 
     /**
+     * Returns the current count of context partition.
+     *
+     * @param deploymentId deployment id of context (deployment id of create-context statement)
+     * @param contextName  context name
+     * @return context partition count
+     * @throws IllegalArgumentException        if a context by that name was not declared
+     */
+    long getContextPartitionCount(String deploymentId, String contextName);
+
+    /**
      * Returning the descriptor of a given context partition.
      *
      * @param deploymentId    deployment id of context (deployment id of create-context statement)

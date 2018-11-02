@@ -244,6 +244,10 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
         return new LinkedHashSet<>(contextPartitionIdService.getIds());
     }
 
+    public long getContextPartitionCount() {
+        return contextPartitionIdService.getCount();
+    }
+
     public ContextPartitionIdentifier getContextIdentifier(int agentInstanceId) {
         Object[] partitionKeys = contextPartitionIdService.getPartitionKeys(agentInstanceId);
         return partitionKeys == null ? null : getContextPartitionIdentifier(partitionKeys);

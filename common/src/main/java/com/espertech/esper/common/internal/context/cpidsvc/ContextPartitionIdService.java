@@ -26,4 +26,6 @@ public interface ContextPartitionIdService {
     void clear();
 
     void clearCaches();
+
+    long getCount();
 }

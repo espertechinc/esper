@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.context;
 
 import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.context.*;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterHelper;
 import junit.framework.TestCase;
@@ -60,6 +60,7 @@ public class ContextCategory {
             EPAssertionUtil.assertEqualsExactOrder(statementNames, "s0".split(","));
             assertEquals(1, env.runtime().getContextPartitionService().getContextNestingLevel(deploymentIdContext, "CategoryContext"));
             Set<Integer> ids = env.runtime().getContextPartitionService().getContextPartitionIds(deploymentIdContext, "CategoryContext", new ContextPartitionSelectorAll());
+            assertEquals(2, env.runtime().getContextPartitionService().getContextPartitionCount(deploymentIdContext, "CategoryContext"));
             EPAssertionUtil.assertEqualsExactOrder(new Integer[]{0, 1}, ids.toArray());
 
             sendAssert(env, "A", 1, "cat1", 1L);
