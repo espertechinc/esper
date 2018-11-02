@@ -11,5 +11,5 @@
 package com.espertech.esper.common.internal.util;
 
 public class Version {
-    public static final String VERSION = "8.0.0-beta2";
+    public static final String VERSION = "8.0.0-beta3";
 }

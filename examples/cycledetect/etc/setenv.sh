@@ -21,9 +21,9 @@ LIB_COMPILER=../../../dependencies/compiler
 
 CLASSPATH=.
 CLASSPATH=$CLASSPATH:../target/classes
-CLASSPATH=$CLASSPATH:../../../esper-common-8.0.0-beta2.jar
-CLASSPATH=$CLASSPATH:../../../esper-compiler-8.0.0-beta2.jar
-CLASSPATH=$CLASSPATH:../../../esper-runtime-8.0.0-beta2.jar
+CLASSPATH=$CLASSPATH:../../../esper-common-8.0.0-beta3.jar
+CLASSPATH=$CLASSPATH:../../../esper-compiler-8.0.0-beta3.jar
+CLASSPATH=$CLASSPATH:../../../esper-runtime-8.0.0-beta3.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/slf4j-api-1.7.25.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/slf4j-log4j12-1.7.25.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/log4j-1.2.17.jar
