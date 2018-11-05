@@ -39,4 +39,8 @@ public class NamedWindowDeployment {
     public boolean isEmpty() {
         return namedWindows.isEmpty();
     }
+
+    public Map<String, NamedWindow> getNamedWindows() {
+        return namedWindows;
+    }
 }

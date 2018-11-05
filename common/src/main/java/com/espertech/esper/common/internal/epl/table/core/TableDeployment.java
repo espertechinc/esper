@@ -39,4 +39,8 @@ public class TableDeployment {
     public boolean isEmpty() {
         return tables.isEmpty();
     }
+
+    public Map<String, Table> getTables() {
+        return tables;
+    }
 }

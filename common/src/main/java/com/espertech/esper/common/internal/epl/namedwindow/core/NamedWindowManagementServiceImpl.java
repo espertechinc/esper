@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaD
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class NamedWindowManagementServiceImpl implements NamedWindowManagementService {
     private final Map<String, NamedWindowDeployment> deployments = new HashMap<>();
@@ -45,6 +46,14 @@ public class NamedWindowManagementServiceImpl implements NamedWindowManagementSe
         deployment.remove(namedWindowName);
         if (deployment.isEmpty()) {
             deployments.remove(deploymentId);
+        }
+    }
+
+    public void traverseNamedWindows(BiConsumer<String, NamedWindow> consumer) {
+        for (Map.Entry<String, NamedWindowDeployment> entry : deployments.entrySet()) {
+            for (Map.Entry<String, NamedWindow> nw : entry.getValue().getNamedWindows().entrySet()) {
+                consumer.accept(entry.getKey(), nw.getValue());
+            }
         }
     }
 }

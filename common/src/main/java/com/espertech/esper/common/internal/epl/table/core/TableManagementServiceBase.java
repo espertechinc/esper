@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public abstract class TableManagementServiceBase implements TableManagementService {
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
@@ -55,5 +56,13 @@ public abstract class TableManagementServiceBase implements TableManagementServi
 
     public int getDeploymentCount() {
         return deployments.size();
+    }
+
+    public void traverseTables(BiConsumer<String, Table> consumer) {
+        for (Map.Entry<String, TableDeployment> entry : deployments.entrySet()) {
+            for (Map.Entry<String, Table> table : entry.getValue().getTables().entrySet()) {
+                consumer.accept(entry.getKey(), table.getValue());
+            }
+        }
     }
 }
