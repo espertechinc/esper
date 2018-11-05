@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassL
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
+import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementInitServicesImpl;
 
@@ -29,6 +30,14 @@ import java.util.Map;
 public class EPRuntimeHelperFAF {
     public static FAFProvider queryMethod(EPCompiled compiled, EPServicesContext services) {
         ByteArrayProvidingClassLoader classLoader = new ByteArrayProvidingClassLoader(compiled.getClasses(), services.getClasspathImportServiceRuntime().getClassLoader());
+
+        if (compiled.getManifest().getQueryProviderClassName() == null) {
+            if (compiled.getManifest().getModuleProviderClassName() != null) {
+                throw new EPException("Cannot execute a fire-and-forget query that was compiled as module EPL, make sure to use the 'compileQuery' method of the compiler");
+            }
+            throw new EPException("Failed to find query provider class name in manifest (is this a compiled fire-and-forget query?)");
+        }
+
         String className = compiled.getManifest().getQueryProviderClassName();
 
         // load module resource class

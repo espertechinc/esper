@@ -48,6 +48,13 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
             throw new EPRuntimeDestroyedException(runtime.getURI());
         }
 
+        if (compiled.getManifest().getModuleProviderClassName() == null) {
+            if (compiled.getManifest().getQueryProviderClassName() != null) {
+                throw new EPDeployException("Cannot deploy EPL that was compiled as a fire-and-forget query, make sure to use the 'compile' method of the compiler");
+            }
+            throw new EPDeployException("Failed to find module provider class name in manifest (is this a compiled module?)");
+        }
+
         try {
             options.getDeploymentLockStrategy().acquire(services.getEventProcessingRWLock());
         } catch (Exception e) {

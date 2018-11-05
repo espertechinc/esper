@@ -10,18 +10,28 @@
  */
 package com.espertech.esper.regressionlib.suite.client.runtime;
 
+import com.espertech.esper.common.client.EPCompiled;
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
+import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeCompileReflective;
+import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ClientRuntimeItself {
     public final static String TEST_SERVICE_NAME = "TEST_SERVICE_NAME";
@@ -30,7 +40,58 @@ public class ClientRuntimeItself {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ClientRuntimeItselfTransientConfiguration());
+        execs.add(new ClientRuntimeSPICompileReflective());
+        execs.add(new ClientRuntimeWrongCompileMethod());
         return execs;
+    }
+
+    private static class ClientRuntimeWrongCompileMethod implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("create window SomeWindow#keepall as SupportBean", path);
+
+            EPCompiled compiledFAF = env.compileFAF("select * from SomeWindow", path);
+            EPCompiled compiledModule = env.compile("select * from SomeWindow", path);
+
+            try {
+                env.runtime().getDeploymentService().deploy(compiledFAF);
+                fail();
+            }
+            catch (EPDeployException ex) {
+                assertEquals("Cannot deploy EPL that was compiled as a fire-and-forget query, make sure to use the 'compile' method of the compiler", ex.getMessage());
+            }
+
+            try {
+                env.runtime().getFireAndForgetService().executeQuery(compiledModule);
+                fail();
+            }
+            catch (EPException ex) {
+                assertEquals("Cannot execute a fire-and-forget query that was compiled as module EPL, make sure to use the 'compileQuery' method of the compiler", ex.getMessage());
+            }
+        }
+    }
+
+    private static class ClientRuntimeSPICompileReflective implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.compileDeploy(
+                    "@public create window MyWindow#keepall as SupportBean;\n" +
+                    "insert into MyWindow select * from SupportBean;\n");
+            env.sendEventBean(new SupportBean("E1", 10));
+
+            EPRuntimeSPI spi = (EPRuntimeSPI) env.runtime();
+            EPRuntimeCompileReflective svc = spi.getReflectiveCompileSvc();
+            assertTrue(svc.isCompilerAvailable());
+
+            EPCompiled compiledFAF = svc.compileFireAndForget("select * from MyWindow");
+            EPFireAndForgetQueryResult result = env.runtime().getFireAndForgetService().executeQuery(compiledFAF);
+            EPAssertionUtil.assertPropsPerRow(result.iterator(), new String[]{"theString"}, new Object[][]{{"E1"}});
+
+            EPCompiled compiled = svc.compile("@name('s0') select * from MyWindow");
+            env.deploy(compiled);
+            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"theString"}, new Object[][]{{"E1"}});
+
+            env.undeployAll();
+        }
     }
 
     private static class ClientRuntimeItselfTransientConfiguration implements RegressionExecution {

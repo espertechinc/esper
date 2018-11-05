@@ -58,6 +58,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -72,6 +73,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
     private Set<EPRuntimeStateListener> serviceListeners;
     private Map<String, EPRuntimeSPI> runtimes;
     private AtomicBoolean serviceStatusProvider;
+    private EPRuntimeCompileReflective compileReflective;
 
     /**
      * Constructor - initializes services.
@@ -682,5 +684,24 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
                 services.getScriptPathRegistry(),
                 eventTypes,
                 variables);
+    }
+
+    public void traverseStatements(Consumer<EPStatement> consumer) {
+        for (String deploymentId : getDeploymentService().getDeployments()) {
+            EPDeployment deployment = getDeploymentService().getDeployment(deploymentId);
+            if (deployment == null) {
+                continue;
+            }
+            for (EPStatement stmt : deployment.getStatements()) {
+                consumer.accept(stmt);
+            }
+        }
+    }
+
+    public EPRuntimeCompileReflective getReflectiveCompileSvc() {
+        if (compileReflective == null) {
+            compileReflective = new EPRuntimeCompileReflective(this);
+        }
+        return compileReflective;
     }
 }
