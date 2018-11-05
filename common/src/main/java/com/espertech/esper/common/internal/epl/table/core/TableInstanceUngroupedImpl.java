@@ -41,6 +41,10 @@ public class TableInstanceUngroupedImpl extends TableInstanceUngroupedBase {
         return Collections.singletonList(event);
     }
 
+    public long size() {
+        return eventReference.get() == null ? 0 : 1;
+    }
+
     public void addEvent(EventBean event) {
         if (event.getEventType() != table.getMetaData().getInternalEventType()) {
             throw new IllegalStateException("Unexpected event type for add: " + event.getEventType().getName());

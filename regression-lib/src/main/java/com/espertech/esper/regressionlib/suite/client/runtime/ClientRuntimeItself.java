@@ -29,9 +29,7 @@ import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ClientRuntimeItself {
     public final static String TEST_SERVICE_NAME = "TEST_SERVICE_NAME";
@@ -56,25 +54,25 @@ public class ClientRuntimeItself {
             try {
                 env.runtime().getDeploymentService().deploy(compiledFAF);
                 fail();
-            }
-            catch (EPDeployException ex) {
+            } catch (EPDeployException ex) {
                 assertEquals("Cannot deploy EPL that was compiled as a fire-and-forget query, make sure to use the 'compile' method of the compiler", ex.getMessage());
             }
 
             try {
                 env.runtime().getFireAndForgetService().executeQuery(compiledModule);
                 fail();
-            }
-            catch (EPException ex) {
+            } catch (EPException ex) {
                 assertEquals("Cannot execute a fire-and-forget query that was compiled as module EPL, make sure to use the 'compileQuery' method of the compiler", ex.getMessage());
             }
+
+            env.undeployAll();
         }
     }
 
     private static class ClientRuntimeSPICompileReflective implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy(
-                    "@public create window MyWindow#keepall as SupportBean;\n" +
+                "@public create window MyWindow#keepall as SupportBean;\n" +
                     "insert into MyWindow select * from SupportBean;\n");
             env.sendEventBean(new SupportBean("E1", 10));
 

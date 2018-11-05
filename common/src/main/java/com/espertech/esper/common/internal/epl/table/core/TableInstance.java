@@ -24,6 +24,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 public interface TableInstance {
     Collection<EventBean> getEventCollection();
 
+    long size();
+
     void addEventUnadorned(EventBean event);
 
     void addEvent(EventBean event);

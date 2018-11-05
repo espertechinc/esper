@@ -98,8 +98,7 @@ public class EPRuntimeCompileReflective {
         try {
             if (fireAndForget) {
                 compiled = (EPCompiled) compileFireAndForget.invoke(compiler, epl, compilerArguments);
-            }
-            else {
+            } else {
                 compiled = (EPCompiled) compileModule.invoke(compiler, epl, compilerArguments);
             }
         } catch (InvocationTargetException ex) {

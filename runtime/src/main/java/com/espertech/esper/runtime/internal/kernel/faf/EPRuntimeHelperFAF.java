@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassL
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
-import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementInitServicesImpl;
 

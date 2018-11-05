@@ -37,6 +37,10 @@ public class TableInstanceGroupedImpl extends TableInstanceGroupedBase implement
         indexRepository.addIndex(table.getMetaData().getKeyIndexMultiKey(), new EventTableIndexRepositoryEntry(table.getMetaData().getTableName(), table.getMetaData().getTableModuleName(), eventTable));
     }
 
+    public long size() {
+        return rows.size();
+    }
+
     public ObjectArrayBackedEventBean getRowForGroupKey(Object groupKey) {
         return rows.get(groupKey);
     }
