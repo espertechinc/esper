@@ -54,7 +54,7 @@ public class EventTypeRepositoryOATypeUtil {
             throw new EventAdapterException(ConfigurationCommonEventTypeObjectArray.SINGLE_SUPERTYPE_MSG);
         }
         LinkedHashMap<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayHavePrimitive);
-        EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, null, EventTypeTypeClass.APPLICATION, EventTypeApplicationType.OBJECTARR, NameAccessModifier.PRECONFIGURED, EventTypeBusModifier.NONBUS, false, new EventTypeIdPair(CRC32Util.computeCRC32(eventTypeName), -1));
+        EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, null, EventTypeTypeClass.APPLICATION, EventTypeApplicationType.OBJECTARR, NameAccessModifier.PRECONFIGURED, EventTypeBusModifier.BUS, false, new EventTypeIdPair(CRC32Util.computeCRC32(eventTypeName), -1));
         String[] superTypes = null;
         if (optionalConfig != null && optionalConfig.getSuperTypes() != null && !optionalConfig.getSuperTypes().isEmpty()) {
             superTypes = optionalConfig.getSuperTypes().toArray(new String[optionalConfig.getSuperTypes().size()]);

@@ -73,7 +73,7 @@ public class EventTypeRepositoryMapTypeUtil {
                                            EventTypeRepositoryImpl repo,
                                            BeanEventTypeFactory beanEventTypeFactory,
                                            EventTypeNameResolver eventTypeNameResolver) throws EventAdapterException {
-        EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, null, EventTypeTypeClass.APPLICATION, EventTypeApplicationType.MAP, NameAccessModifier.PRECONFIGURED, EventTypeBusModifier.NONBUS, false, new EventTypeIdPair(CRC32Util.computeCRC32(eventTypeName), -1));
+        EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, null, EventTypeTypeClass.APPLICATION, EventTypeApplicationType.MAP, NameAccessModifier.PRECONFIGURED, EventTypeBusModifier.BUS, false, new EventTypeIdPair(CRC32Util.computeCRC32(eventTypeName), -1));
 
         LinkedHashMap<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(propertyTypesMayHavePrimitive);
         String[] superTypes = null;

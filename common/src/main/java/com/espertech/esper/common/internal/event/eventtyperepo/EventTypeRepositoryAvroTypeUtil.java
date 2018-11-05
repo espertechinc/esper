@@ -37,7 +37,7 @@ public class EventTypeRepositoryAvroTypeUtil {
     }
 
     private static void buildAvroType(EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, String eventTypeName, ConfigurationCommonEventTypeAvro config, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
-        EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, null, EventTypeTypeClass.APPLICATION, EventTypeApplicationType.AVRO, NameAccessModifier.PRECONFIGURED, EventTypeBusModifier.NONBUS, false, new EventTypeIdPair(CRC32Util.computeCRC32(eventTypeName), -1));
+        EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, null, EventTypeTypeClass.APPLICATION, EventTypeApplicationType.AVRO, NameAccessModifier.PRECONFIGURED, EventTypeBusModifier.BUS, false, new EventTypeIdPair(CRC32Util.computeCRC32(eventTypeName), -1));
         Pair<EventType[], Set<EventType>> avroSuperTypes = EventTypeUtility.getSuperTypesDepthFirst(config.getSuperTypes(), EventUnderlyingType.AVRO, eventTypeRepositoryPreconfigured);
         AvroSchemaEventType newEventType = eventTypeAvroHandler.newEventTypeFromSchema(metadata, eventBeanTypedEventFactory, config, avroSuperTypes.getFirst(), avroSuperTypes.getSecond());
         eventTypeRepositoryPreconfigured.addType(newEventType);
