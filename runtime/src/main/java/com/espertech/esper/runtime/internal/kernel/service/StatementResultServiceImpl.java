@@ -64,8 +64,6 @@ public class StatementResultServiceImpl implements StatementResultService {
     private boolean isMakeSynthetic;
     private ResultDeliveryStrategy statementResultNaturalStrategy;
 
-    private Set<Object> statementOutputHooks;
-
     /**
      * Buffer for holding dispatchable events.
      */
@@ -235,6 +233,10 @@ public class StatementResultServiceImpl implements StatementResultService {
         for (Map.Entry<Object, UniformPair<EventBean[]>> group : groups.entrySet()) {
             dispatchInternal(group.getValue());
         }
+    }
+
+    public EPServicesContext getEpServicesContext() {
+        return epServicesContext;
     }
 
     private Map<Object, UniformPair<EventBean[]>> getGroupedResults(UniformPair<EventBean[]> events) {

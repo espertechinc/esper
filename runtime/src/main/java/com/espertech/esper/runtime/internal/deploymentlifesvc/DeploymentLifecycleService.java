@@ -33,4 +33,8 @@ public interface DeploymentLifecycleService {
     Map<String, DeploymentInternal> getDeploymentMap();
 
     CopyOnWriteArrayList<DeploymentStateListener> getListeners();
+
+    void addStatementLifecycleListener(StatementListenerEventObserver observer);
+    void removeStatementLifecycleListener(StatementListenerEventObserver observer);
+    void dispatchStatementListenerEvent(StatementListenerEvent event);
 }

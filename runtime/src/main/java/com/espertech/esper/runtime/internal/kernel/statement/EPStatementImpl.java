@@ -18,13 +18,13 @@ import com.espertech.esper.common.client.util.SafeIterator;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.context.util.StatementContext;
-import com.espertech.esper.common.internal.context.util.StatementDestroyCallback;
 import com.espertech.esper.common.internal.statement.dispatch.UpdateDispatchView;
 import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
 import com.espertech.esper.common.internal.view.core.Viewable;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPSubscriberException;
 import com.espertech.esper.runtime.client.UpdateListener;
+import com.espertech.esper.runtime.internal.deploymentlifesvc.StatementListenerEvent;
 import com.espertech.esper.runtime.internal.kernel.service.StatementResultServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,6 @@ public class EPStatementImpl implements EPStatementSPI {
     protected final StatementContext statementContext;
     protected final UpdateDispatchView dispatchChildView;
     protected final StatementResultServiceImpl statementResultService;
-    protected StatementDestroyCallback stopCallback;
     protected Viewable parentView;
     protected boolean destroyed;
 
@@ -59,14 +58,8 @@ public class EPStatementImpl implements EPStatementSPI {
         checkDestroyed();
         statementListenerSet.addListener(listener);
         statementResultService.setUpdateListeners(statementListenerSet, false);
-    }
-
-    public void setDestroyCallback(StatementDestroyCallback statementDestroyCallback) {
-        this.stopCallback = statementDestroyCallback;
-    }
-
-    public StatementDestroyCallback getDestroyCallback() {
-        return stopCallback;
+        statementResultService.getEpServicesContext().getDeploymentLifecycleService().dispatchStatementListenerEvent(
+            new StatementListenerEvent(this, StatementListenerEvent.ListenerEventType.LISTENER_ADD, listener));
     }
 
     public int getStatementId() {
@@ -158,11 +151,15 @@ public class EPStatementImpl implements EPStatementSPI {
 
         statementListenerSet.removeListener(listener);
         statementResultService.setUpdateListeners(statementListenerSet, true);
+        statementResultService.getEpServicesContext().getDeploymentLifecycleService().dispatchStatementListenerEvent(
+            new StatementListenerEvent(this, StatementListenerEvent.ListenerEventType.LISTENER_REMOVE, listener));
     }
 
     public void removeAllListeners() {
         statementListenerSet.removeAllListeners();
         statementResultService.setUpdateListeners(statementListenerSet, true);
+        statementResultService.getEpServicesContext().getDeploymentLifecycleService().dispatchStatementListenerEvent(
+            new StatementListenerEvent(this, StatementListenerEvent.ListenerEventType.LISTENER_REMOVE_ALL));
     }
 
     public Iterator<UpdateListener> getUpdateListeners() {
