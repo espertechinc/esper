@@ -25,4 +25,8 @@ public interface EPEventServiceSPI extends EPEventService, EPRuntimeEventProcess
     void clearCaches();
 
     void destroy();
+
+    long getRoutedInternal();
+
+    long getRoutedExternal();
 }

@@ -22,6 +22,7 @@ import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
@@ -94,6 +95,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
+        informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createDataFlowDesc.getGraphName());
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 

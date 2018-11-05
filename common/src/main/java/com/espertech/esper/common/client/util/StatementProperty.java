@@ -22,5 +22,14 @@ public enum StatementProperty {
     /**
      * The statement type
      */
-    STATEMENTTYPE
+    STATEMENTTYPE,
+
+    /**
+     * The name of the EPL-object created by the statement, or null if not applicable, i.e. the name of the
+     * name window, table, variable, expression, index, schema or expression created by the statement.
+     * <p>
+     *     Use together with the statement type to determine the type of object.
+     * </p>
+     */
+    CREATEOBJECTNAME
 }

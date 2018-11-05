@@ -524,6 +524,7 @@ public class EPLScriptExpression {
             "}]";
         env.compileDeploy(soda, script, path);
         assertEquals(StatementType.CREATE_EXPRESSION, env.statement("script").getProperty(StatementProperty.STATEMENTTYPE));
+        assertEquals("myScriptReturnsEvents", env.statement("script").getProperty(StatementProperty.CREATEOBJECTNAME));
 
         env.compileDeploy("@name('s0') select myScriptReturnsEvents().where(v => v.id in ('id1', 'id3')) as c0 from SupportBean", path);
         env.addListener("s0");

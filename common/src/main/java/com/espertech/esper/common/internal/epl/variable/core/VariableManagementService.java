@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.util.NullableObject;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.function.BiConsumer;
 
 /**
  * Variables service for reading and writing variables, and for setting a version number for the current thread to
@@ -127,4 +128,6 @@ public interface VariableManagementService {
     VariableStateNonConstHandler getOptionalStateHandler();
 
     Map<String, VariableDeployment> getDeploymentsWithVariables();
+
+    void traverseVariables(BiConsumer<String, Variable> consumer);
 }

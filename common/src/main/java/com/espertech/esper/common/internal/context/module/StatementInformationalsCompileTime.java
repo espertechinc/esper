@@ -162,6 +162,10 @@ public class StatementInformationalsCompileTime {
         return localMethod(method);
     }
 
+    public Map<StatementProperty, Object> getProperties() {
+        return properties;
+    }
+
     private CodegenExpression makeSubstitutionParamTypes() {
         List<CodegenSubstitutionParamEntry> numbered = packageScope.getSubstitutionParamsByNumber();
         LinkedHashMap<String, CodegenSubstitutionParamEntry> named = packageScope.getSubstitutionParamsByName();
@@ -354,12 +358,14 @@ public class StatementInformationalsCompileTime {
             Map.Entry<StatementProperty, Object> first = properties.entrySet().iterator().next();
             return staticMethod(Collections.class, "singletonMap", field.apply(first.getKey()), value.apply(first.getValue()));
         }
+
         CodegenMethod method = parent.makeChild(Map.class, StatementInformationalsCompileTime.class, classScope);
         method.getBlock()
                 .declareVar(Map.class, "properties", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(properties.size()))));
         for (Map.Entry<StatementProperty, Object> entry : properties.entrySet()) {
             method.getBlock().exprDotMethod(ref("properties"), "put", field.apply(entry.getKey()), value.apply(entry.getValue()));
         }
+        method.getBlock().methodReturn(ref("properties"));
         return localMethod(method);
     }
 }

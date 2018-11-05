@@ -1586,6 +1586,7 @@ public class ContextInitTerm {
         env.addListener("s0");
         String[] fields = "id,sbint,starttime,endtime".split(",");
         assertEquals(StatementType.CREATE_CONTEXT, env.statement("ctx").getProperty(StatementProperty.STATEMENTTYPE));
+        assertEquals("SupportBeanInstanceCtx", env.statement("ctx").getProperty(StatementProperty.CREATEOBJECTNAME));
 
         env.milestoneInc(milestone);
 

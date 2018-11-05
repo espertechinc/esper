@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.createindex;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateIndexDesc;
@@ -105,6 +106,7 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
+        informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, spec.getIndexName());
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 

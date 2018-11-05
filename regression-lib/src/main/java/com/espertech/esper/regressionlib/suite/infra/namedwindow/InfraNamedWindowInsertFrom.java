@@ -100,6 +100,7 @@ public class InfraNamedWindowInsertFrom {
             assertFalse(env.listener("windowTwo").isInvoked());
             assertEquals(5, getCount(env, path, "windowTwo", "MyWindowTwo"));
             assertEquals(StatementType.CREATE_WINDOW, env.statement("windowTwo").getProperty(StatementProperty.STATEMENTTYPE));
+            assertEquals("MyWindowTwo", env.statement("windowTwo").getProperty(StatementProperty.CREATEOBJECTNAME));
 
             // create window with keep-all and filter
             String stmtTextCreateThree = "@name('windowThree') create window MyWindowThree#keepall as MyWindowIWT insert where theString like 'A%'";

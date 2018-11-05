@@ -29,6 +29,7 @@ public class InfraNamedWindowIndex implements RegressionExecution {
             "@name('idx') create unique index I1 on MyWindowOne(theString);\n";
         env.compileDeploy(epl);
         assertEquals(StatementType.CREATE_INDEX, env.statement("idx").getProperty(StatementProperty.STATEMENTTYPE));
+        assertEquals("I1", env.statement("idx").getProperty(StatementProperty.CREATEOBJECTNAME));
 
         env.sendEventBean(new SupportBean("E0", 1));
         env.sendEventBean(new SupportBean("E2", 2));

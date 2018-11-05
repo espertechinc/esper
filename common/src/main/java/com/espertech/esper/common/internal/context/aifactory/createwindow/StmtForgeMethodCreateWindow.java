@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.createwindow;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HintEnum;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateWindowDesc;
@@ -145,6 +146,8 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
 
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
+        informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createWindowDesc.getWindowName());
+
         forgables.add(new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 1));
 

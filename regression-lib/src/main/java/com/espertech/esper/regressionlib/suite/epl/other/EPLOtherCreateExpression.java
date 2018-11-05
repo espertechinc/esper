@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.StatementProperty;
+import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -45,13 +47,18 @@ public class EPLOtherCreateExpression {
     private static class EPLOtherInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression E1 {''}", path);
+            env.compileDeploy("@name('s0') create expression E1 {''}", path);
+            assertEquals(StatementType.CREATE_EXPRESSION, env.statement("s0").getProperty(StatementProperty.STATEMENTTYPE));
+            assertEquals("E1", env.statement("s0").getProperty(StatementProperty.CREATEOBJECTNAME));
+
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create expression E1 {''}",
                 "Expression 'E1' has already been declared [create expression E1 {''}]");
 
             env.compileDeploy("create expression int js:abc(p1, p2) [p1*p2]", path);
             SupportMessageAssertUtil.tryInvalidCompile(env, path, "create expression int js:abc(a, a) [p1*p2]",
                 "Script 'abc' that takes the same number of parameters has already been declared [create expression int js:abc(a, a) [p1*p2]]");
+
+            env.undeployAll();
         }
     }
 

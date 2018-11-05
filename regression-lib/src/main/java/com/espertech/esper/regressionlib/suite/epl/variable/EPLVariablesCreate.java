@@ -160,6 +160,7 @@ public class EPLVariablesCreate {
             String stmtCreateTextOne = "@name('create-one') create variable long var1SAI = null";
             env.compileDeploy(stmtCreateTextOne, path);
             assertEquals(StatementType.CREATE_VARIABLE, env.statement("create-one").getProperty(StatementProperty.STATEMENTTYPE));
+            assertEquals("var1SAI", env.statement("create-one").getProperty(StatementProperty.CREATEOBJECTNAME));
             env.addListener("create-one");
 
             String[] fieldsVar1 = new String[]{"var1SAI"};

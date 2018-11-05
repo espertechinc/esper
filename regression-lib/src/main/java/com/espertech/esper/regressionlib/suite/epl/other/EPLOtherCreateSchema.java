@@ -93,6 +93,7 @@ public class EPLOtherCreateSchema {
                 "insert into SimpleSchema select theString as p0, intPrimitive as p1 from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
             assertEquals(StatementType.CREATE_SCHEMA, env.statement("schema").getProperty(StatementProperty.STATEMENTTYPE));
+            assertEquals("SimpleSchema", env.statement("schema").getProperty(StatementProperty.CREATEOBJECTNAME));
 
             env.sendEventBean(new SupportBean("a", 20));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"a", 20});

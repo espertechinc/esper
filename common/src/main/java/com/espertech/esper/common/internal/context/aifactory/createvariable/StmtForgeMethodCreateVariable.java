@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateVariableDesc;
@@ -128,6 +129,7 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         StmtClassForgableAIFactoryProviderCreateVariable aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateVariable(aiFactoryProviderClassName, packageScope, forge, createDesc.getVariableName());
 
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), true, resultSetProcessor.getSelectSubscriberDescriptor(), packageScope, services);
+        informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createDesc.getVariableName());
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 

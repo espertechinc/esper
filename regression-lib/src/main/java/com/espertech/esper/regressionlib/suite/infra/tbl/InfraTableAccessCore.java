@@ -79,6 +79,7 @@ public class InfraTableAccessCore {
             String eplDeclare = "@name('infra') create table varaggIIP (key int primary key, myevents window(*) @type('SupportBean'))";
             env.compileDeploy(soda, eplDeclare, path);
             assertEquals(StatementType.CREATE_TABLE, env.statement("infra").getProperty(StatementProperty.STATEMENTTYPE));
+            assertEquals("varaggIIP", env.statement("infra").getProperty(StatementProperty.CREATEOBJECTNAME));
 
             String eplInto = "into table varaggIIP select window(*) as myevents from SupportBean#length(3) group by intPrimitive";
             env.compileDeploy(soda, eplInto, path);

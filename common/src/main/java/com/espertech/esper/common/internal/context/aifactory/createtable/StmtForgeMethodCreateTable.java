@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.AnnotationDesc;
@@ -120,6 +121,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
+        informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createDesc.getTableName());
         forgables.add(new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 1));
 

@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstanceOperatorStat;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.util.StatementProperty;
+import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourceOp;
@@ -32,6 +34,8 @@ public class EPLDataflowAPIStatistics implements RegressionExecution {
         env.compileDeploy("@name('flow') create dataflow MyGraph " +
             "DefaultSupportSourceOp -> outstream<SupportBean> {} " +
             "DefaultSupportCaptureOp(outstream) {}");
+        assertEquals(StatementType.CREATE_DATAFLOW, env.statement("flow").getProperty(StatementProperty.STATEMENTTYPE));
+        assertEquals("MyGraph", env.statement("flow").getProperty(StatementProperty.CREATEOBJECTNAME));
 
         DefaultSupportSourceOp source = new DefaultSupportSourceOp(new Object[]{new SupportBean("E1", 1), new SupportBean("E2", 2)});
         DefaultSupportCaptureOp capture = new DefaultSupportCaptureOp();

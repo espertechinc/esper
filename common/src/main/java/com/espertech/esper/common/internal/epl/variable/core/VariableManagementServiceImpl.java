@@ -12,12 +12,12 @@ package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.variable.VariableValueException;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.NullableObject;
@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiConsumer;
 
 import static com.espertech.esper.common.internal.context.util.StatementCPCacheService.DEFAULT_AGENT_INSTANCE_ID;
 
@@ -565,5 +566,13 @@ public class VariableManagementServiceImpl implements VariableManagementService 
 
     public Map<String, VariableDeployment> getDeploymentsWithVariables() {
         return deploymentsWithVariables;
+    }
+
+    public void traverseVariables(BiConsumer<String, Variable> consumer) {
+        for (Map.Entry<String, VariableDeployment> entry : deploymentsWithVariables.entrySet()) {
+            for (Map.Entry<String, Variable> variable : entry.getValue().getVariables().entrySet()) {
+                consumer.accept(entry.getKey(), variable.getValue());
+            }
+        }
     }
 }
