@@ -29,15 +29,10 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.util.CRC32Util;
-import com.espertech.esper.common.internal.util.GraphCircularDependencyException;
-import com.espertech.esper.common.internal.util.GraphUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Array;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 public class EventTypeRepositoryMapTypeUtil {
     public static void buildMapTypes(EventTypeRepositoryImpl repo,
@@ -46,17 +41,8 @@ public class EventTypeRepositoryMapTypeUtil {
                                      Map<String, Map<String, Object>> nestableMapEvents,
                                      BeanEventTypeFactory beanEventTypeFactory,
                                      ClasspathImportService classpathImportService) {
-        Set<String> dependentMapOrder;
-        try {
-            Map<String, Set<String>> typesReferences = toTypesReferences(mapTypeConfigurations);
-            dependentMapOrder = GraphUtil.getTopDownOrder(typesReferences);
-        } catch (GraphCircularDependencyException e) {
-            throw new ConfigurationException("Error configuring event types, dependency graph between map type names is circular: " + e.getMessage(), e);
-        }
-
-        dependentMapOrder.addAll(mapTypes.keySet());
-        dependentMapOrder.addAll(nestableMapEvents.keySet());
-        for (String mapName : dependentMapOrder) {
+        List<String> creationOrder = EventTypeRepositoryUtil.getCreationOrder(mapTypes.keySet(), nestableMapEvents.keySet(), mapTypeConfigurations);
+        for (String mapName : creationOrder) {
             ConfigurationCommonEventTypeMap mapConfig = mapTypeConfigurations.get(mapName);
             Properties propertiesUnnested = mapTypes.get(mapName);
             if (propertiesUnnested != null) {
@@ -95,10 +81,10 @@ public class EventTypeRepositoryMapTypeUtil {
             superTypes = optionalConfig.getSuperTypes().toArray(new String[optionalConfig.getSuperTypes().size()]);
         }
         MapEventType newEventType = beanEventTypeFactory.getEventTypeFactory().createMap(metadata, propertyTypes,
-                superTypes,
-                optionalConfig != null ? optionalConfig.getStartTimestampPropertyName() : null,
-                optionalConfig != null ? optionalConfig.getEndTimestampPropertyName() : null,
-                beanEventTypeFactory, eventTypeNameResolver);
+            superTypes,
+            optionalConfig != null ? optionalConfig.getStartTimestampPropertyName() : null,
+            optionalConfig != null ? optionalConfig.getEndTimestampPropertyName() : null,
+            beanEventTypeFactory, eventTypeNameResolver);
 
         EventType existingType = repo.getTypeByName(eventTypeName);
         if (existingType != null) {
@@ -106,7 +92,7 @@ public class EventTypeRepositoryMapTypeUtil {
             if (newEventType.equalsCompareType(existingType) != null) {
                 ExprValidationException message = newEventType.compareEquals(existingType);
                 throw new EPException("Event type named '" + eventTypeName +
-                        "' has already been declared with differing column name or type information: " + message.getMessage(), message);
+                    "' has already been declared with differing column name or type information: " + message.getMessage(), message);
             }
             return;
         }

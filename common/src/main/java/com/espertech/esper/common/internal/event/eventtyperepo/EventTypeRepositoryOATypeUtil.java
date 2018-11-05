@@ -27,30 +27,19 @@ import com.espertech.esper.common.internal.event.core.EventAdapterException;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.util.CRC32Util;
-import com.espertech.esper.common.internal.util.GraphCircularDependencyException;
-import com.espertech.esper.common.internal.util.GraphUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import static com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryMapTypeUtil.toTypesReferences;
 
 public class EventTypeRepositoryOATypeUtil {
     public static void buildOATypes(EventTypeRepositoryImpl repo, Map<String, ConfigurationCommonEventTypeObjectArray> objectArrayTypeConfigurations, Map<String, Map<String, Object>> nestableObjectArrayNames, BeanEventTypeFactory beanEventTypeFactory, ClasspathImportService classpathImportService) {
-        // Add object-array in dependency order such that supertypes are added before subtypes
-        Set<String> dependentObjectArrayOrder;
-        try {
-            Map<String, Set<String>> typesReferences = toTypesReferences(objectArrayTypeConfigurations);
-            dependentObjectArrayOrder = GraphUtil.getTopDownOrder(typesReferences);
-        } catch (GraphCircularDependencyException e) {
-            throw new ConfigurationException("Error configuring event types, dependency graph between object array type names is circular: " + e.getMessage(), e);
-        }
-        dependentObjectArrayOrder.addAll(nestableObjectArrayNames.keySet());
+        List<String> creationOrder = EventTypeRepositoryUtil.getCreationOrder(Collections.emptySet(), nestableObjectArrayNames.keySet(), objectArrayTypeConfigurations);
 
-        for (String objectArrayName : dependentObjectArrayOrder) {
+        for (String objectArrayName : creationOrder) {
             ConfigurationCommonEventTypeObjectArray objectArrayConfig = objectArrayTypeConfigurations.get(objectArrayName);
             Map<String, Object> propertyTypes = nestableObjectArrayNames.get(objectArrayName);
             propertyTypes = resolveClassesForStringPropertyTypes(propertyTypes, classpathImportService);
@@ -71,9 +60,9 @@ public class EventTypeRepositoryOATypeUtil {
             superTypes = optionalConfig.getSuperTypes().toArray(new String[optionalConfig.getSuperTypes().size()]);
         }
         ObjectArrayEventType newEventType = beanEventTypeFactory.getEventTypeFactory().createObjectArray(metadata, propertyTypes, superTypes,
-                optionalConfig != null ? optionalConfig.getStartTimestampPropertyName() : null,
-                optionalConfig != null ? optionalConfig.getEndTimestampPropertyName() : null,
-                beanEventTypeFactory, repo);
+            optionalConfig != null ? optionalConfig.getStartTimestampPropertyName() : null,
+            optionalConfig != null ? optionalConfig.getEndTimestampPropertyName() : null,
+            beanEventTypeFactory, repo);
 
         EventType existingType = repo.getTypeByName(eventTypeName);
         if (existingType != null) {
@@ -81,7 +70,7 @@ public class EventTypeRepositoryOATypeUtil {
             if (newEventType.equalsCompareType(existingType) != null) {
                 ExprValidationException message = newEventType.compareEquals(existingType);
                 throw new EPException("Event type named '" + eventTypeName +
-                        "' has already been declared with differing column name or type information: " + message.getMessage(), message);
+                    "' has already been declared with differing column name or type information: " + message.getMessage(), message);
             }
 
             // Since it's the same, return the existing type
