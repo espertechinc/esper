@@ -20,15 +20,13 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.runtime.client.EPDeployException;
-import com.espertech.esper.runtime.client.EPRuntime;
-import com.espertech.esper.runtime.client.EPStatement;
-import com.espertech.esper.runtime.client.UpdateListener;
+import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeCompileReflective;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import static org.junit.Assert.*;
 
@@ -40,8 +38,27 @@ public class ClientRuntimeItself {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ClientRuntimeItselfTransientConfiguration());
         execs.add(new ClientRuntimeSPICompileReflective());
+        execs.add(new ClientRuntimeSPITraverseWFilter());
         execs.add(new ClientRuntimeWrongCompileMethod());
         return execs;
+    }
+
+    private static class ClientRuntimeSPITraverseWFilter implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.compileDeploy(
+                "@name('a') select * from SupportBean;\n" +
+                    "@name('b') select * from SupportBean;\n");
+            EPRuntimeSPI spi = (EPRuntimeSPI) env.runtime();
+
+            MyStatementTraverse myTraverse = new MyStatementTraverse();
+            spi.traverseStatements(myTraverse);
+            myTraverse.assertAndReset(env.statement("a"), env.statement("b"));
+
+            spi.traverseStatements(myTraverse, "name='b'");
+            myTraverse.assertAndReset(env.statement("b"));
+
+            env.undeployAll();
+        }
     }
 
     private static class ClientRuntimeWrongCompileMethod implements RegressionExecution {
@@ -131,6 +148,23 @@ public class ClientRuntimeItself {
 
         int getSecretValue() {
             return secretValue;
+        }
+    }
+
+    private static class MyStatementTraverse implements BiConsumer<EPDeployment, EPStatement> {
+        List<EPStatement> statements = new ArrayList<>();
+
+        public void accept(EPDeployment epDeployment, EPStatement epStatement) {
+            statements.add(epStatement);
+        }
+
+        public List<EPStatement> getStatements() {
+            return statements;
+        }
+
+        public void assertAndReset(EPStatement... expected) {
+            EPAssertionUtil.assertEqualsExactOrder(statements.toArray(), expected);
+            statements.clear();
         }
     }
 }

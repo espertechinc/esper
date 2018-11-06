@@ -11,12 +11,13 @@
 package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.internal.kernel.thread.ThreadingService;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public interface EPRuntimeSPI extends EPRuntime {
 
@@ -34,7 +35,9 @@ public interface EPRuntimeSPI extends EPRuntime {
 
     ThreadingService getThreadingService();
 
-    void traverseStatements(Consumer<EPStatement> consumer);
+    void traverseStatements(BiConsumer<EPDeployment, EPStatement> consumer);
+
+    void traverseStatements(BiConsumer<EPDeployment, EPStatement> consumer, String filterExpression);
 
     EPRuntimeCompileReflective getReflectiveCompileSvc();
 }

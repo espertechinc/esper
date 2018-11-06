@@ -58,7 +58,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -74,6 +74,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
     private Map<String, EPRuntimeSPI> runtimes;
     private AtomicBoolean serviceStatusProvider;
     private EPRuntimeCompileReflective compileReflective;
+    private EPRuntimeStatementTraverse statementTraverse;
 
     /**
      * Constructor - initializes services.
@@ -377,8 +378,8 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
             }
             for (EventType eventType : deployerResult.getDeploymentTypes().values()) {
                 if (eventType.getMetadata().getBusModifier() == EventTypeBusModifier.BUS ||
-                        eventType.getMetadata().getTypeClass() == EventTypeTypeClass.NAMED_WINDOW ||
-                        eventType.getMetadata().getTypeClass() == EventTypeTypeClass.STREAM) {
+                    eventType.getMetadata().getTypeClass() == EventTypeTypeClass.NAMED_WINDOW ||
+                    eventType.getMetadata().getTypeClass() == EventTypeTypeClass.STREAM) {
                     protectedVisibleTypes.add(eventType);
                 }
             }
@@ -676,27 +677,38 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         }
 
         return new EPCompilerPathableImpl(
-                services.getVariablePathRegistry(),
-                services.getEventTypePathRegistry(),
-                services.getExprDeclaredPathRegistry(),
-                services.getNamedWindowPathRegistry(),
-                services.getTablePathRegistry(),
-                services.getContextPathRegistry(),
-                services.getScriptPathRegistry(),
-                eventTypes,
-                variables);
+            services.getVariablePathRegistry(),
+            services.getEventTypePathRegistry(),
+            services.getExprDeclaredPathRegistry(),
+            services.getNamedWindowPathRegistry(),
+            services.getTablePathRegistry(),
+            services.getContextPathRegistry(),
+            services.getScriptPathRegistry(),
+            eventTypes,
+            variables);
     }
 
-    public void traverseStatements(Consumer<EPStatement> consumer) {
+    public void traverseStatements(BiConsumer<EPDeployment, EPStatement> consumer) {
         for (String deploymentId : getDeploymentService().getDeployments()) {
             EPDeployment deployment = getDeploymentService().getDeployment(deploymentId);
             if (deployment == null) {
                 continue;
             }
             for (EPStatement stmt : deployment.getStatements()) {
-                consumer.accept(stmt);
+                consumer.accept(deployment, stmt);
             }
         }
+    }
+
+    public void traverseStatements(BiConsumer<EPDeployment, EPStatement> consumer, String filterExpression) {
+        if (filterExpression == null || filterExpression.trim().isEmpty()) {
+            traverseStatements(consumer);
+            return;
+        }
+        if (statementTraverse == null) {
+            statementTraverse = new EPRuntimeStatementTraverse();
+        }
+        statementTraverse.traverseStatements(this, consumer, filterExpression);
     }
 
     public EPRuntimeCompileReflective getReflectiveCompileSvc() {

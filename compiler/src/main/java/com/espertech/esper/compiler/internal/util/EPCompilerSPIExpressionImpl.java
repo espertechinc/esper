@@ -50,8 +50,7 @@ public class EPCompilerSPIExpressionImpl implements EPCompilerSPIExpression {
             StreamTypeService streamTypeService;
             if (eventTypes == null || eventTypes.length == 0) {
                 streamTypeService = new StreamTypeServiceImpl(true);
-            }
-            else {
+            } else {
                 boolean[] istreamOnly = new boolean[eventTypes.length];
                 Arrays.fill(istreamOnly, true);
                 streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNnames, istreamOnly, true, false);
