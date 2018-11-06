@@ -85,6 +85,7 @@ public class ClientCompileModule {
             moduleTwo.setArchiveName("archive2");
             moduleTwo.setModuleUserObjectCompileTime("obj2");
             moduleTwo.setUses(new HashSet<>(Arrays.asList("a", "b")));
+            moduleTwo.setImports(new HashSet<>(Arrays.asList("c", "d")));
             EPCompiled compiledTwo = env.compile(moduleTwo);
             env.deploy(compiledTwo);
 
@@ -116,6 +117,7 @@ public class ClientCompileModule {
             assertNotNull(infoOne.getModuleProperties().get(ModuleProperty.MODULETEXT));
             assertNotNull(infoTwo.getLastUpdateDate());
             EPAssertionUtil.assertEqualsExactOrder("a,b".split(","), (String[]) infoTwo.getModuleProperties().get(ModuleProperty.USES));
+            EPAssertionUtil.assertEqualsExactOrder("c,d".split(","), (String[]) infoTwo.getModuleProperties().get(ModuleProperty.IMPORTS));
 
             env.undeployAll();
         }

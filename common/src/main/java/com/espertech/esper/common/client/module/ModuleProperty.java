@@ -37,5 +37,10 @@ public enum ModuleProperty {
     /**
      * The module uses
      */
-    USES
+    USES,
+
+    /**
+     * The module imports
+     */
+    IMPORTS
 }
