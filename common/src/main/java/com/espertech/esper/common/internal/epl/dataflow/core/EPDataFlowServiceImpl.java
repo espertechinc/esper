@@ -30,7 +30,7 @@ public class EPDataFlowServiceImpl implements EPDataFlowService {
 
     public synchronized EPDataFlowDescriptor getDataFlow(String deploymentId, String dataflowName) {
         DataflowDesc entry = getEntryMayNull(deploymentId, dataflowName);
-        return entry == null ? null : new EPDataFlowDescriptor(entry.getDataflowName(), entry.getStatementContext().getStatementName());
+        return entry == null ? null : new EPDataFlowDescriptor(deploymentId, entry.getDataflowName(), entry.getStatementContext().getStatementName());
     }
 
     public synchronized DeploymentIdNamePair[] getDataFlows() {

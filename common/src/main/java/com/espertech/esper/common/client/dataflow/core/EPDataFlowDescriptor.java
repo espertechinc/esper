@@ -14,16 +14,19 @@ package com.espertech.esper.common.client.dataflow.core;
  * Data flow descriptor.
  */
 public class EPDataFlowDescriptor {
+    private final String deploymentId;
     private final String dataFlowName;
     private final String statementName;
 
     /**
      * Ctor.
      *
+     * @param deploymentId deployment id
      * @param dataFlowName  data flow name
      * @param statementName statement name
      */
-    public EPDataFlowDescriptor(String dataFlowName, String statementName) {
+    public EPDataFlowDescriptor(String deploymentId, String dataFlowName, String statementName) {
+        this.deploymentId = deploymentId;
         this.dataFlowName = dataFlowName;
         this.statementName = statementName;
     }
@@ -44,5 +47,13 @@ public class EPDataFlowDescriptor {
      */
     public String getStatementName() {
         return statementName;
+    }
+
+    /**
+     * Returns the deployment id
+     * @return deployment id
+     */
+    public String getDeploymentId() {
+        return deploymentId;
     }
 }

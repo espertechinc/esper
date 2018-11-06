@@ -534,7 +534,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
                 configuration.getCommon().getEventTypesAvro().clear();
             }
 
-            // Transient configuration may not be copy-able
+            // Transient configuration may not be copyEPDataFlowDescriptor-able
             Map<String, Object> transients = null;
             Map<String, Object> transientsProvidedByConfig = configuration.getCommon().getTransientConfiguration();
             if (transientsProvidedByConfig != null && !transientsProvidedByConfig.isEmpty()) {
