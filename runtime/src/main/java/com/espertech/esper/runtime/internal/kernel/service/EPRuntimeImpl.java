@@ -536,8 +536,9 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
             // Transient configuration may not be copy-able
             Map<String, Object> transients = null;
-            if (!configuration.getCommon().getTransientConfiguration().isEmpty()) {
-                transients = new HashMap<>(configuration.getCommon().getTransientConfiguration());
+            Map<String, Object> transientsProvidedByConfig = configuration.getCommon().getTransientConfiguration();
+            if (transientsProvidedByConfig != null && !transientsProvidedByConfig.isEmpty()) {
+                transients = new HashMap<>(transientsProvidedByConfig);
                 // no need to clear, it is marked as transient
             }
 
