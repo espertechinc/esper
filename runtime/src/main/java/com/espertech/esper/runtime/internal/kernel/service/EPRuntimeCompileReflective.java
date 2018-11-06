@@ -13,7 +13,9 @@ package com.espertech.esper.runtime.internal.kernel.service;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPCompilerPathable;
 import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.runtime.client.EPRuntime;
 
@@ -25,7 +27,8 @@ public class EPRuntimeCompileReflective {
     private final static String CLASSNAME_COMPILER_ARGUMENTS = "com.espertech.esper.compiler.client.CompilerArguments";
     private final static String CLASSNAME_COMPILER_PATH = "com.espertech.esper.compiler.client.CompilerPath";
     private final static String CLASSNAME_COMPILER_PROVIDER = "com.espertech.esper.compiler.client.EPCompilerProvider";
-    private final static String CLASSNAME_COMPILER = "com.espertech.esper.compiler.client.EPCompiler";
+    private final static String CLASSNAME_COMPILER = "com.espertech.esper.compiler.internal.util.EPCompilerSPI";
+    private final static String CLASSNAME_COMPILER_EXPRESSIONS = "com.espertech.esper.compiler.internal.util.EPCompilerSPIExpression";
 
     public final EPRuntime runtime;
     private Boolean available;
@@ -36,6 +39,8 @@ public class EPRuntimeCompileReflective {
     private Method compilerProviderGetCompiler;
     private Method compileFireAndForget;
     private Method compileModule;
+    private Method expressionCompiler;
+    private Method compileValidate;
 
     EPRuntimeCompileReflective(EPRuntime runtime) {
         this.runtime = runtime;
@@ -52,6 +57,38 @@ public class EPRuntimeCompileReflective {
 
     public EPCompiled compileFireAndForget(String epl) throws EPException {
         return compileInternal(epl, true);
+    }
+
+    public ExprNode compileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException {
+        if (!available) {
+            throw new EPException(message);
+        }
+
+        // Obtain a copy of the engine configuration
+        Configuration configuration = runtime.getConfigurationDeepCopy();
+
+        // Same as: EPCompiler compiler = EPCompilerProvider.getCompiler()
+        Object compiler;
+        try {
+            compiler = compilerProviderGetCompiler.invoke(null);
+        } catch (Throwable t) {
+            throw new EPException("Failed to invoke getCompiler-method of compiler provider: " + t.getMessage(), t);
+        }
+
+        // Same as: EPCompilerSPIExpression exprCompiler = compiler.expressionCompiler(configuration);
+        Object exprCompiler;
+        try {
+            exprCompiler = expressionCompiler.invoke(compiler, configuration);
+        } catch (Throwable t) {
+            throw new EPException("Failed to invoke expression-compiler-method of compiler path: " + t.getMessage(), t);
+        }
+
+        // Same as: exprCompiler.compileValidate(epl, eventTypes, streamNames)
+        try {
+            return (ExprNode) compileValidate.invoke(exprCompiler, epl, eventTypes, streamNames);
+        } catch (Throwable t) {
+            throw new EPException(t.getMessage(), t);
+        }
     }
 
     private EPCompiled compileInternal(String epl, boolean fireAndForget) throws EPException {
@@ -131,6 +168,11 @@ public class EPRuntimeCompileReflective {
             return false;
         }
 
+        Class compilerExpressions = findClassByName(CLASSNAME_COMPILER_EXPRESSIONS);
+        if (compilerExpressions == null) {
+            return false;
+        }
+
         compilerArgsCtor = findConstructor(compilerArgsClass, Configuration.class);
         if (compilerArgsCtor == null) {
             return false;
@@ -153,6 +195,16 @@ public class EPRuntimeCompileReflective {
 
         compileModule = findMethod(compiler, "compile", String.class, compilerArgsClass);
         if (compileModule == null) {
+            return false;
+        }
+
+        expressionCompiler = findMethod(compiler, "expressionCompiler", Configuration.class);
+        if (expressionCompiler == null) {
+            return false;
+        }
+
+        compileValidate = findMethod(compilerExpressions, "compileValidate", String.class, EventType[].class, String[].class);
+        if (compileValidate == null) {
             return false;
         }
 

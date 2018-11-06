@@ -10,9 +10,11 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.compiler.client.EPCompileException;
 
 public interface EPCompilerSPIExpression {
     ExprNode compileValidate(String expression) throws EPCompileException;
+    ExprNode compileValidate(String expression, EventType[] eventTypes, String[] streamNnames) throws EPCompileException;
 }

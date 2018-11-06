@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
@@ -19,6 +20,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.compiler.client.EPCompileException;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 public class EPCompilerSPIExpressionImpl implements EPCompilerSPIExpression {
@@ -29,6 +31,10 @@ public class EPCompilerSPIExpressionImpl implements EPCompilerSPIExpression {
     }
 
     public ExprNode compileValidate(String expression) throws EPCompileException {
+        return compileValidate(expression, null, null);
+    }
+
+    public ExprNode compileValidate(String expression, EventType[] eventTypes, String[] streamNnames) throws EPCompileException {
         StatementCompileTimeServices services = new StatementCompileTimeServices(0, moduleServices);
 
         ExprNode node;
@@ -41,7 +47,16 @@ public class EPCompilerSPIExpressionImpl implements EPCompilerSPIExpression {
         try {
             ExprNodeUtilityValidate.validatePlainExpression(ExprNodeOrigin.API, node);
 
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(true);
+            StreamTypeService streamTypeService;
+            if (eventTypes == null || eventTypes.length == 0) {
+                streamTypeService = new StreamTypeServiceImpl(true);
+            }
+            else {
+                boolean[] istreamOnly = new boolean[eventTypes.length];
+                Arrays.fill(istreamOnly, true);
+                streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNnames, istreamOnly, true, false);
+            }
+
             StatementRawInfo statementRawInfo = new StatementRawInfo(0, "API-provided", null, StatementType.INTERNAL_USE_API_COMPILE_EXPR, null, null, new CompilableEPL(expression), "API-provided");
             ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, statementRawInfo, services).build();
             node = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.API, node, validationContext);

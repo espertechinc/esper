@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -87,6 +88,9 @@ public class ClientRuntimeItself {
             EPCompiled compiled = svc.compile("@name('s0') select * from MyWindow");
             env.deploy(compiled);
             EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"theString"}, new Object[][]{{"E1"}});
+
+            ExprNode node = svc.compileExpression("1*1", null, null);
+            assertEquals(1, node.getForge().getExprEvaluator().evaluate(null, true, null));
 
             env.undeployAll();
         }
