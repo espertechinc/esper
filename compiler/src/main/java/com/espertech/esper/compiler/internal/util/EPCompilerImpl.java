@@ -162,7 +162,8 @@ public class EPCompilerImpl implements EPCompilerSPI {
             addModuleProperty(moduleProperties, ModuleProperty.MODULETEXT, module.getModuleText());
         }
         addModuleProperty(moduleProperties, ModuleProperty.USEROBJECT, module.getModuleUserObjectCompileTime());
-        addModuleProperty(moduleProperties, ModuleProperty.USES, module.getUses() == null || module.getUses().isEmpty() ? null : module.getUses().toArray(new String[module.getUses().size()]));
+        addModuleProperty(moduleProperties, ModuleProperty.USES, toNullOrArray(module.getUses()));
+        addModuleProperty(moduleProperties, ModuleProperty.IMPORTS, toNullOrArray(module.getImports()));
 
         // compile
         return CompilerHelperModuleProvider.compile(compilables, moduleName, moduleProperties, compileTimeServices, arguments.getOptions());
@@ -262,5 +263,9 @@ public class EPCompilerImpl implements EPCompilerSPI {
 
     private Set<String> determineModuleUses(String moduleName, CompilerOptions options, Module module) {
         return options.getModuleUses() != null ? options.getModuleUses().getValue(new ModuleUsesContext(moduleName, module.getUses())) : module.getUses();
+    }
+
+    private Object toNullOrArray(Set<String> values) {
+        return values == null || values.isEmpty() ? null : values.toArray(new String[0]);
     }
 }

@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
+import com.espertech.esper.common.client.module.Module;
+import com.espertech.esper.common.client.module.ModuleItem;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -102,9 +104,15 @@ public class ClientRuntimeItself {
             EPFireAndForgetQueryResult result = env.runtime().getFireAndForgetService().executeQuery(compiledFAF);
             EPAssertionUtil.assertPropsPerRow(result.iterator(), new String[]{"theString"}, new Object[][]{{"E1"}});
 
-            EPCompiled compiled = svc.compile("@name('s0') select * from MyWindow");
-            env.deploy(compiled);
+            EPCompiled compiledFromEPL = svc.compile("@name('s0') select * from MyWindow");
+            env.deploy(compiledFromEPL);
             EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"theString"}, new Object[][]{{"E1"}});
+
+            Module module = new Module();
+            module.getItems().add(new ModuleItem("@name('s1') select * from MyWindow"));
+            EPCompiled compiledFromModule = svc.compile(module);
+            env.deploy(compiledFromModule);
+            EPAssertionUtil.assertPropsPerRow(env.iterator("s1"), new String[]{"theString"}, new Object[][]{{"E1"}});
 
             ExprNode node = svc.compileExpression("1*1", null, null);
             assertEquals(1, node.getForge().getExprEvaluator().evaluate(null, true, null));

@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EPCompilerPathable;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.runtime.client.EPRuntime;
@@ -38,7 +39,8 @@ public class EPRuntimeCompileReflective {
     private Method compilerPathAdd;
     private Method compilerProviderGetCompiler;
     private Method compileFireAndForget;
-    private Method compileModule;
+    private Method compileModuleString;
+    private Method compileModuleObject;
     private Method expressionCompiler;
     private Method compileValidate;
 
@@ -52,11 +54,18 @@ public class EPRuntimeCompileReflective {
     }
 
     public EPCompiled compile(String epl) {
-        return compileInternal(epl, false);
+        CompileMethod method = (compiler, args) -> compileModuleString.invoke(compiler, epl, args);
+        return compileInternal(method, false);
+    }
+
+    public EPCompiled compile(Module module) {
+        CompileMethod method = (compiler, args) -> compileModuleObject.invoke(compiler, module, args);
+        return compileInternal(method, false);
     }
 
     public EPCompiled compileFireAndForget(String epl) throws EPException {
-        return compileInternal(epl, true);
+        CompileMethod method = (compiler, args) -> compileFireAndForget.invoke(compiler, epl, args);
+        return compileInternal(method, true);
     }
 
     public ExprNode compileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException {
@@ -91,7 +100,7 @@ public class EPRuntimeCompileReflective {
         }
     }
 
-    private EPCompiled compileInternal(String epl, boolean fireAndForget) throws EPException {
+    private EPCompiled compileInternal(CompileMethod compileMethod, boolean fireAndForget) throws EPException {
         if (!available) {
             throw new EPException(message);
         }
@@ -130,21 +139,13 @@ public class EPRuntimeCompileReflective {
             throw new EPException("Failed to invoke getCompiler-method of compiler provider: " + t.getMessage(), t);
         }
 
-        // Same as: compiler.compileQuery(epl, args)
-        EPCompiled compiled;
         try {
-            if (fireAndForget) {
-                compiled = (EPCompiled) compileFireAndForget.invoke(compiler, epl, compilerArguments);
-            } else {
-                compiled = (EPCompiled) compileModule.invoke(compiler, epl, compilerArguments);
-            }
+            return (EPCompiled) compileMethod.compileMethod(compiler, compilerArguments);
         } catch (InvocationTargetException ex) {
             throw new EPException("Failed to compile: " + ex.getTargetException().getMessage(), ex.getTargetException());
         } catch (Throwable t) {
-            throw new EPException("Failed to invoke compileQuery-method of compiler: " + t.getMessage(), t);
+            throw new EPException("Failed to invoke compile method of compiler: " + t.getMessage(), t);
         }
-
-        return compiled;
     }
 
     private boolean init() {
@@ -193,8 +194,13 @@ public class EPRuntimeCompileReflective {
             return false;
         }
 
-        compileModule = findMethod(compiler, "compile", String.class, compilerArgsClass);
-        if (compileModule == null) {
+        compileModuleString = findMethod(compiler, "compile", String.class, compilerArgsClass);
+        if (compileModuleString == null) {
+            return false;
+        }
+
+        compileModuleObject = findMethod(compiler, "compile", Module.class, compilerArgsClass);
+        if (compileModuleObject == null) {
             return false;
         }
 
@@ -237,5 +243,9 @@ public class EPRuntimeCompileReflective {
             message = "Failed to find method '" + name + "' of class " + clazz.getName() + " taking parameters " + JavaClassHelper.getParameterAsString(args) + ": " + ex.getMessage();
         }
         return null;
+    }
+
+    private interface CompileMethod {
+        Object compileMethod(Object compiler, Object compilerArguments) throws InvocationTargetException, IllegalAccessException;
     }
 }
