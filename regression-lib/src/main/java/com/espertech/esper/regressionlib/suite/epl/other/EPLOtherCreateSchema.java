@@ -71,7 +71,18 @@ public class EPLOtherCreateSchema {
         execs.add(new EPLOtherCreateSchemaWithEventType());
         execs.add(new EPLOtherCreateSchemaVariantType());
         execs.add(new EPLOtherCreateSchemaSameCRC());
+        execs.add(new EPLOtherCreateSchemaBeanImport());
         return execs;
+    }
+
+    private static class EPLOtherCreateSchemaBeanImport implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.compileDeploy("create schema MyEvent as Rectangle");
+
+            tryInvalidCompile(env, "create schema MyEvent as XXUnknown", "Could not load class by name 'XXUnknown', please check imports");
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherCreateSchemaSameCRC implements RegressionExecution {

@@ -22,6 +22,7 @@ import com.espertech.esper.regressionlib.suite.epl.other.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.regressionlib.support.lrreport.Rectangle;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
@@ -248,6 +249,7 @@ public class TestSuiteEPLOther extends TestCase {
         configuration.getCommon().addImport(SupportChainTop.class);
         configuration.getCommon().addImport(EPLOtherStaticFunctions.NullPrimitive.class);
         configuration.getCommon().addImport(EPLOtherStaticFunctions.PrimitiveConversionLib.class);
+        configuration.getCommon().addImport(Rectangle.class.getPackage().getName() + ".*");
 
         configuration.getCompiler().getByteCode().setAllowSubscriber(true);
         configuration.getCompiler().addPlugInSingleRowFunction("sleepme", SupportStaticMethodLib.class.getName(), "sleep", ConfigurationCompilerPlugInSingleRowFunction.ValueCache.ENABLED);

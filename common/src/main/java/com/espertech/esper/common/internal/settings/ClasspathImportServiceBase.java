@@ -177,10 +177,11 @@ public abstract class ClasspathImportServiceBase implements ClasspathImportServi
                 }
             }
 
-            if (clazz == null) {
-                throw makeClassNotFoundEx(fullyQualClassName, ex);
+            if (clazz != null) {
+                return clazz;
             }
-            return clazz;
+
+            return resolveClass(fullyQualClassName, false);
         }
     }
 
