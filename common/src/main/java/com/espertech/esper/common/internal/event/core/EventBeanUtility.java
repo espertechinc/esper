@@ -659,7 +659,6 @@ public class EventBeanUtility {
         return second != null && first.equals(second);
     }
 
-
     public static void safeArrayCopy(EventBean[] eventsPerStream, EventBean[] eventsLambda) {
         if (eventsPerStream.length <= eventsLambda.length) {
             System.arraycopy(eventsPerStream, 0, eventsLambda, 0, eventsPerStream.length);

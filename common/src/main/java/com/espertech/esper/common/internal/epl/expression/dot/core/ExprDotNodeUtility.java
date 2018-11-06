@@ -336,6 +336,32 @@ public class ExprDotNodeUtility {
         return null;
     }
 
+    public static Object evaluateChainWithWrap(ExprDotStaticMethodWrap resultWrapLambda,
+                                               Object result,
+                                               EventType optionalResultSingleEventType,
+                                               Class resultType,
+                                               ExprDotEval[] chainEval,
+                                               ExprDotForge[] chainForges,
+                                               EventBean[] eventsPerStream,
+                                               boolean newData,
+                                               ExprEvaluatorContext exprEvaluatorContext) {
+        if (result == null) {
+            return null;
+        }
+
+        if (resultWrapLambda != null) {
+            result = resultWrapLambda.convertNonNull(result);
+        }
+
+        for (ExprDotEval aChainEval : chainEval) {
+            result = aChainEval.evaluate(result, eventsPerStream, newData, exprEvaluatorContext);
+            if (result == null) {
+                return result;
+            }
+        }
+        return result;
+    }
+
     public static CodegenExpression evaluateChainCodegen(CodegenMethod parent, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope, CodegenExpression inner, Class innerType, ExprDotForge[] forges, ExprDotStaticMethodWrap optionalResultWrapLambda) {
         if (forges.length == 0) {
             return inner;

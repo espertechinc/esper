@@ -12,6 +12,10 @@ package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
+import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
+import com.espertech.esper.common.internal.event.map.MapEventBean;
+import com.espertech.esper.common.internal.event.xml.XMLEventBean;
 import org.w3c.dom.Node;
 
 import java.util.Map;
@@ -23,27 +27,27 @@ public class EventBeanTypedEventFactoryCompileTime implements EventBeanTypedEven
     }
 
     public MappedEventBean adapterForTypedMap(Map<String, Object> value, EventType eventType) {
-        throw getUnsupported();
+        return new MapEventBean(value, eventType);
     }
 
     public ObjectArrayBackedEventBean adapterForTypedObjectArray(Object[] value, EventType eventType) {
-        throw getUnsupported();
+        return new ObjectArrayEventBean(value, eventType);
     }
 
     public EventBean adapterForTypedBean(Object value, EventType eventType) {
-        throw getUnsupported();
+        return new BeanEventBean(value, eventType);
     }
 
     public EventBean adapterForTypedDOM(Node value, EventType eventType) {
-        throw getUnsupported();
+        return new XMLEventBean(value, eventType);
     }
 
-    public EventBean adapterForTypedAvro(Object value, EventType eventType) {
+    public EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType) {
         throw getUnsupported();
     }
 
     public EventBean adapterForTypedWrapper(EventBean decoratedUnderlying, Map<String, Object> map, EventType wrapperEventType) {
-        throw getUnsupported();
+        return new WrapperEventBean(decoratedUnderlying, map, wrapperEventType);
     }
 
     private IllegalStateException getUnsupported() {

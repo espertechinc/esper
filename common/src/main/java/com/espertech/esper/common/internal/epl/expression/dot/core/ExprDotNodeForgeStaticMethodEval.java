@@ -24,7 +24,6 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.codegen.StaticMethodCodegenArgDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode;
 import com.espertech.esper.common.internal.rettype.ClassEPType;
 import com.espertech.esper.common.internal.rettype.EPType;
@@ -46,9 +45,6 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
     private final ExprEvaluator[] childEvals;
     private final ExprDotEval[] chainEval;
 
-    private boolean isCachedResult;
-    private Object cachedResult;
-
     public ExprDotNodeForgeStaticMethodEval(ExprDotNodeForgeStaticMethod forge, ExprEvaluator[] childEvals, ExprDotEval[] chainEval) {
         this.forge = forge;
         this.childEvals = childEvals;
@@ -56,7 +52,23 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
+        Object[] args = new Object[childEvals.length];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = childEvals[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        }
+
+        // The method is static so the object it is invoked on
+        // can be null
+        try {
+            Object result = forge.getStaticMethod().invoke(forge.getTargetObject(), args);
+
+            result = ExprDotNodeUtility.evaluateChainWithWrap(forge.getResultWrapLambda(), result, null, forge.getStaticMethod().getReturnType(), chainEval, forge.getChainForges(), eventsPerStream, isNewData, exprEvaluatorContext);
+
+            return result;
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            staticMethodEvalHandleInvocationException(null, forge.getStaticMethod().getName(), forge.getStaticMethod().getParameterTypes(), forge.getClassOrPropertyName(), args, e, forge.isRethrowExceptions());
+        }
+        return null;
     }
 
     public static CodegenExpression codegenExprEval(ExprDotNodeForgeStaticMethod forge, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
@@ -110,7 +122,7 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
                     tryBlock.assignRef(isCachedMember, constantTrue());
                 }
                 tryBlock.apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
-                        .blockReturn(ref("result"));
+                    .blockReturn(ref("result"));
             } else {
                 EPType typeInfo;
                 if (forge.getResultWrapLambda() != null) {
@@ -125,13 +137,13 @@ public class ExprDotNodeForgeStaticMethodEval implements ExprEvaluator, EventPro
                 }
 
                 tryBlock.apply(InstrumentationCode.instblock(codegenClassScope, "qExprDotChain", typeInformation, ref("result"), constant(forge.getChainForges().length)))
-                        .declareVar(forge.getEvaluationType(), "chain", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("result"), returnType, forge.getChainForges(), forge.getResultWrapLambda()));
+                    .declareVar(forge.getEvaluationType(), "chain", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("result"), returnType, forge.getChainForges(), forge.getResultWrapLambda()));
                 if (forge.isConstantParameters()) {
                     tryBlock.assignRef(cachedResultMember, ref("chain"));
                     tryBlock.assignRef(isCachedMember, constantTrue());
                 }
                 tryBlock.apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
-                        .blockReturn(ref("chain"));
+                    .blockReturn(ref("chain"));
             }
         }
 

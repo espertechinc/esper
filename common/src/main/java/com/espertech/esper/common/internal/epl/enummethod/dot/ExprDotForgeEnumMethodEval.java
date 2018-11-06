@@ -58,7 +58,7 @@ public class ExprDotForgeEnumMethodEval implements ExprDotEval {
         if (coll == null) {
             return null;
         }
-        EventBean[] eventsLambda = allocateCopyEventLambda(eventsPerStream, enumEvalNumRequiredEvents);
+        EventBean[] eventsLambda = eventsPerStream == null ? new EventBean[0] : allocateCopyEventLambda(eventsPerStream, enumEvalNumRequiredEvents);
         return enumEval.evaluateEnumMethod(eventsLambda, coll, isNewData, exprEvaluatorContext);
     }
 

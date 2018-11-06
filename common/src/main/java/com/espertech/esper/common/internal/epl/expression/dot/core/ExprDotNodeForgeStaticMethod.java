@@ -15,10 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
+import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
@@ -59,7 +56,8 @@ public class ExprDotNodeForgeStaticMethod extends ExprDotNodeForge {
     }
 
     public ExprEvaluator getExprEvaluator() {
-        throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
+        ExprEvaluator[] childEvals = ExprNodeUtilityQuery.getEvaluatorsNoCompile(childForges);
+        return new ExprDotNodeForgeStaticMethodEval(this, childEvals, ExprDotNodeUtility.getEvaluators(chainForges));
     }
 
     public Class getEvaluationType() {
