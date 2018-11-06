@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.module;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
+import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
@@ -54,6 +55,7 @@ public class StatementInformationalsRuntime {
     private Map<String, Integer> substitutionParamNames;
     private String insertIntoLatchName;
     private boolean allowSubscriber;
+    private ExpressionScriptProvided[] onScripts;
 
     public String getStatementNameCompileTime() {
         return statementNameCompileTime;
@@ -317,5 +319,13 @@ public class StatementInformationalsRuntime {
 
     public void setAllowSubscriber(boolean allowSubscriber) {
         this.allowSubscriber = allowSubscriber;
+    }
+
+    public ExpressionScriptProvided[] getOnScripts() {
+        return onScripts;
+    }
+
+    public void setOnScripts(ExpressionScriptProvided[] onScripts) {
+        this.onScripts = onScripts;
     }
 }

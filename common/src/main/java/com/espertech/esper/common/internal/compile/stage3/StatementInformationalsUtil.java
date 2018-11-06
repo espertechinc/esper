@@ -31,11 +31,17 @@ import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerExpr;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class StatementInformationalsUtil {
+
+    public final static String EPL_ONSTART_SCRIPT_NAME = "on_statement_start";
+    public final static String EPL_ONSTOP_SCRIPT_NAME = "on_statement_stop";
+    public final static String EPL_ONLISTENERUPDATE_SCRIPT_NAME = "on_statement_listener_update";
+
     public static StatementInformationalsCompileTime getInformationals(StatementBaseInfo base,
                                                                        List<FilterSpecCompiled> filterSpecCompileds,
                                                                        List<ScheduleHandleCallbackProvider> schedules,
@@ -47,7 +53,7 @@ public class StatementInformationalsUtil {
         StatementSpecCompiled specCompiled = base.getStatementSpec();
 
         boolean alwaysSynthesizeOutputEvents = specCompiled.getRaw().getInsertIntoDesc() != null | specCompiled.getRaw().getForClauseSpec() != null || specCompiled.getSelectClauseCompiled().isDistinct()
-                || specCompiled.getRaw().getCreateDataFlowDesc() != null;
+            || specCompiled.getRaw().getCreateDataFlowDesc() != null;
         boolean needDedup = isNeedDedup(filterSpecCompileds);
         boolean hasSubquery = !base.getStatementSpec().getSubselectNodes().isEmpty();
         boolean canSelfJoin = StatementSpecWalkUtil.isPotentialSelfJoin(specCompiled) || needDedup;
@@ -98,15 +104,25 @@ public class StatementInformationalsUtil {
 
         boolean allowSubscriber = services.getConfiguration().getCompiler().getByteCode().isAllowSubscriber();
 
+        List<ExpressionScriptProvided> statementScripts = base.getStatementSpec().getRaw().getScriptExpressions();
+        List<ExpressionScriptProvided> onScripts = new ArrayList<>(2);
+        for (ExpressionScriptProvided script : statementScripts) {
+            if (script.getName().equals(EPL_ONLISTENERUPDATE_SCRIPT_NAME) ||
+                script.getName().equals(EPL_ONSTART_SCRIPT_NAME) ||
+                script.getName().equals(EPL_ONSTOP_SCRIPT_NAME)) {
+                onScripts.add(script);
+            }
+        }
+
         return new StatementInformationalsCompileTime(base.getStatementName(), alwaysSynthesizeOutputEvents,
-                contextName, contextModuleName, contextVisibility, canSelfJoin, hasSubquery,
-                needDedup, specCompiled.getAnnotations(), stateless, base.getUserObjectCompileTime(),
-                filterSpecCompileds.size(), schedules.size(), namedWindowConsumers.size(), base.getStatementRawInfo().getStatementType(),
-                annotationData.getPriority(), annotationData.isPremptive(), hasVariables, writesToTables, hasTableAccess,
-                selectSubscriberDescriptor.getSelectClauseTypes(), selectSubscriberDescriptor.getSelectClauseColumnNames(),
-                selectSubscriberDescriptor.isForClauseDelivery(), selectSubscriberDescriptor.getGroupDelivery(), properties,
-                base.getStatementSpec().getRaw().getMatchRecognizeSpec() != null, services.isInstrumented(),
-                packageScope, insertIntoLatchName, allowSubscriber);
+            contextName, contextModuleName, contextVisibility, canSelfJoin, hasSubquery,
+            needDedup, specCompiled.getAnnotations(), stateless, base.getUserObjectCompileTime(),
+            filterSpecCompileds.size(), schedules.size(), namedWindowConsumers.size(), base.getStatementRawInfo().getStatementType(),
+            annotationData.getPriority(), annotationData.isPremptive(), hasVariables, writesToTables, hasTableAccess,
+            selectSubscriberDescriptor.getSelectClauseTypes(), selectSubscriberDescriptor.getSelectClauseColumnNames(),
+            selectSubscriberDescriptor.isForClauseDelivery(), selectSubscriberDescriptor.getGroupDelivery(), properties,
+            base.getStatementSpec().getRaw().getMatchRecognizeSpec() != null, services.isInstrumented(),
+            packageScope, insertIntoLatchName, allowSubscriber, onScripts.toArray(new ExpressionScriptProvided[0]));
     }
 
     private static boolean isNeedDedup(List<FilterSpecCompiled> filterSpecCompileds) {

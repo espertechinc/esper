@@ -15,7 +15,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.context.aifactory.core.ModuleScriptInitializeSymbol;
 import com.espertech.esper.common.internal.epl.script.core.ExpressionScriptCompiled;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -50,7 +49,7 @@ public class ExpressionScriptProvided {
         }
     }
 
-    public CodegenExpression make(CodegenMethodScope parent, ModuleScriptInitializeSymbol symbols, CodegenClassScope classScope) {
+    public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(ExpressionScriptProvided.class, this.getClass(), classScope);
         method.getBlock()
                 .declareVar(ExpressionScriptProvided.class, "sp", newInstance(ExpressionScriptProvided.class))

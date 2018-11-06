@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -86,8 +87,9 @@ public class StatementInformationalsCompileTime {
     private final CodegenPackageScope packageScope;
     private final String insertIntoLatchName;
     private final boolean allowSubscriber;
+    private final ExpressionScriptProvided[] onScripts;
 
-    public StatementInformationalsCompileTime(String statementNameCompileTime, boolean alwaysSynthesizeOutputEvents, String optionalContextName, String optionalContextModuleName, NameAccessModifier optionalContextVisibility, boolean canSelfJoin, boolean hasSubquery, boolean needDedup, Annotation[] annotations, boolean stateless, Serializable userObjectCompileTime, int numFilterCallbacks, int numScheduleCallbacks, int numNamedWindowCallbacks, StatementType statementType, int priority, boolean preemptive, boolean hasVariables, boolean writesToTables, boolean hasTableAccess, Class[] selectClauseTypes, String[] selectClauseColumnNames, boolean forClauseDelivery, ExprNode[] groupDelivery, Map<StatementProperty, Object> properties, boolean hasMatchRecognize, boolean instrumented, CodegenPackageScope packageScope, String insertIntoLatchName, boolean allowSubscriber) {
+    public StatementInformationalsCompileTime(String statementNameCompileTime, boolean alwaysSynthesizeOutputEvents, String optionalContextName, String optionalContextModuleName, NameAccessModifier optionalContextVisibility, boolean canSelfJoin, boolean hasSubquery, boolean needDedup, Annotation[] annotations, boolean stateless, Serializable userObjectCompileTime, int numFilterCallbacks, int numScheduleCallbacks, int numNamedWindowCallbacks, StatementType statementType, int priority, boolean preemptive, boolean hasVariables, boolean writesToTables, boolean hasTableAccess, Class[] selectClauseTypes, String[] selectClauseColumnNames, boolean forClauseDelivery, ExprNode[] groupDelivery, Map<StatementProperty, Object> properties, boolean hasMatchRecognize, boolean instrumented, CodegenPackageScope packageScope, String insertIntoLatchName, boolean allowSubscriber, ExpressionScriptProvided[] onScripts) {
         this.statementNameCompileTime = statementNameCompileTime;
         this.alwaysSynthesizeOutputEvents = alwaysSynthesizeOutputEvents;
         this.optionalContextName = optionalContextName;
@@ -118,6 +120,7 @@ public class StatementInformationalsCompileTime {
         this.packageScope = packageScope;
         this.insertIntoLatchName = insertIntoLatchName;
         this.allowSubscriber = allowSubscriber;
+        this.onScripts = onScripts;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
@@ -158,6 +161,7 @@ public class StatementInformationalsCompileTime {
                 .exprDotMethod(info, "setSubstitutionParamNames", makeSubstitutionParamNames(method, classScope))
                 .exprDotMethod(info, "setInsertIntoLatchName", constant(insertIntoLatchName))
                 .exprDotMethod(info, "setAllowSubscriber", constant(allowSubscriber))
+                .exprDotMethod(info, "setOnScripts", makeOnScripts(onScripts, method, classScope))
                 .methodReturn(info);
         return localMethod(method);
     }
@@ -367,5 +371,16 @@ public class StatementInformationalsCompileTime {
         }
         method.getBlock().methodReturn(ref("properties"));
         return localMethod(method);
+    }
+
+    private CodegenExpression makeOnScripts(ExpressionScriptProvided[] onScripts, CodegenMethodScope parent, CodegenClassScope classScope) {
+        if (onScripts == null || onScripts.length == 0) {
+            return constantNull();
+        }
+        CodegenExpression[] init = new CodegenExpression[onScripts.length];
+        for (int i = 0; i < onScripts.length; i++) {
+            init[i] = onScripts[i].make(parent, classScope);
+        }
+        return newArrayWithInit(ExpressionScriptProvided.class, init);
     }
 }

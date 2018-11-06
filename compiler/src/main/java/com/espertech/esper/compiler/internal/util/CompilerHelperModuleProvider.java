@@ -252,7 +252,7 @@ public class CompilerHelperModuleProvider {
         CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
         method.getBlock()
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleScriptInitServices.GETSCRIPTCOLLECTOR)
-                        .add("registerScript", constant(script.getKey().getName()), constant(script.getKey().getParamNum()), script.getValue().make(method, symbols, classScope)));
+                        .add("registerScript", constant(script.getKey().getName()), constant(script.getKey().getParamNum()), script.getValue().make(method, classScope)));
         return method;
     }
 
