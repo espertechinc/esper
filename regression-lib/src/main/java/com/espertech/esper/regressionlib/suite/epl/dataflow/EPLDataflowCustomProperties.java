@@ -19,15 +19,13 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpForgeInitializeContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpForgeInitializeResult;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperatorForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
@@ -41,6 +39,7 @@ public class EPLDataflowCustomProperties {
         execs.add(new EPLDataflowInvalid());
         execs.add(new EPLDataflowCustomProps());
         execs.add(new EPLDataflowNestedProps());
+        execs.add(new EPLDataflowCatchAllProps());
         return execs;
     }
 
@@ -53,6 +52,20 @@ public class EPLDataflowCustomProperties {
 
             epl = "create dataflow MyGraph ABC { field: { a:1x b:2 }}";
             tryInvalidCompile(env, epl, "Incorrect syntax near 'x' at line 1 column 42 [");
+        }
+    }
+
+    private static class EPLDataflowCatchAllProps implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            MyOperatorFourForge.getOperators().clear();
+            env.compile("@name('flow') create dataflow MyGraph MyOperatorFourForge {" +
+                "    myTestParameter: 'abc' \n" +
+                "}");
+            assertEquals(1, MyOperatorFourForge.getOperators().size());
+            MyOperatorFourForge instance = MyOperatorFourForge.getOperators().get(0);
+
+            ExprNode node = instance.getAllProperties().get("myTestParameter");
+            assertEquals("abc", node.getForge().getExprEvaluator().evaluate(null, true, null));
         }
     }
 
@@ -372,6 +385,37 @@ public class EPLDataflowCustomProperties {
         private ExprNode parameterOne;
 
         public MyOperatorThreeSettingsABC() {
+        }
+    }
+
+    public static class MyOperatorFourForge implements DataFlowOperatorForge {
+        private Map<String, ExprNode> allProperties = new LinkedHashMap<>();
+
+        @DataFlowOpParameter(all=true)
+        public void setProperty(String name, ExprNode value) {
+            allProperties.put(name, value);
+        }
+
+        public Map<String, ExprNode> getAllProperties() {
+            return allProperties;
+        }
+
+        private static List<MyOperatorFourForge> operators = new ArrayList<>();
+
+        public static List<MyOperatorFourForge> getOperators() {
+            return operators;
+        }
+
+        public MyOperatorFourForge() {
+            operators.add(this);
+        }
+
+        public DataFlowOpForgeInitializeResult initializeForge(DataFlowOpForgeInitializeContext context) throws ExprValidationException {
+            return null;
+        }
+
+        public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+            return constantNull();
         }
     }
 }

@@ -117,21 +117,28 @@ public class SAIFFInitializeBuilder {
         if (map.isEmpty()) {
             return staticMethod(Collections.class, "emptyMap");
         }
+        CodegenMethod child = method.makeChild(Map.class, originator, classScope);
         if (map.size() == 1) {
             Map.Entry<String, ?> single = map.entrySet().iterator().next();
-            return staticMethod(Collections.class, "singletonMap", CodegenExpressionBuilder.constant(single.getKey()), buildMapValue(single.getValue()));
-        }
-        CodegenMethod child = method.makeChild(Map.class, originator, classScope);
-        child.getBlock().declareVar(Map.class, "map", newInstance(LinkedHashMap.class, CodegenExpressionBuilder.constant(CollectionUtil.capacityHashMap(map.size()))));
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            child.getBlock().exprDotMethod(ref("map"), "put", CodegenExpressionBuilder.constant(entry.getKey()), buildMapValue(entry.getValue()));
+            CodegenExpression value = buildMapValue(single.getValue(), child, classScope);
+            child.getBlock().methodReturn(staticMethod(Collections.class, "singletonMap", CodegenExpressionBuilder.constant(single.getKey()), value));
+        } else {
+            child.getBlock().declareVar(Map.class, "map", newInstance(LinkedHashMap.class, CodegenExpressionBuilder.constant(CollectionUtil.capacityHashMap(map.size()))));
+            for (Map.Entry<String, ?> entry : map.entrySet()) {
+                CodegenExpression value = buildMapValue(entry.getValue(), child, classScope);
+                child.getBlock().exprDotMethod(ref("map"), "put", CodegenExpressionBuilder.constant(entry.getKey()), value);
+            }
+            child.getBlock().methodReturn(ref("map"));
         }
         return localMethod(child);
     }
 
-    private CodegenExpression buildMapValue(Object value) {
+    private CodegenExpression buildMapValue(Object value, CodegenMethod method, CodegenClassScope classScope) {
         if (value instanceof Map) {
             return buildMap((Map) value);
+        }
+        if (value instanceof ExprNode) {
+            return ExprNodeUtilityCodegen.codegenEvaluator(((ExprNode) value).getForge(), method, this.getClass(), classScope);
         }
         return CodegenExpressionBuilder.constant(value);
     }

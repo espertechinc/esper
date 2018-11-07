@@ -228,7 +228,7 @@ public class PopulateUtil {
                         catchAllMethods.add(method);
                         continue;
                     }
-                    throw new ExprValidationException("Invalid annotation for catch-call");
+                    throw new ExprValidationException("Invalid annotation for catch-call method '" + method.getName() + "', method must take (String, ExprNode) as parameters");
                 }
             }
         }
