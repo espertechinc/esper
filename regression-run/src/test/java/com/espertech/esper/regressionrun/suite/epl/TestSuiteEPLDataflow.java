@@ -154,6 +154,7 @@ public class TestSuiteEPLDataflow extends TestCase {
         configuration.getCommon().addImport(DefaultSupportCaptureOp.class.getPackage().getName() + ".*");
         configuration.getCommon().addImport(EPLDataflowCustomProperties.MyOperatorOneForge.class);
         configuration.getCommon().addImport(EPLDataflowCustomProperties.MyOperatorTwoForge.class);
+        configuration.getCommon().addImport(EPLDataflowCustomProperties.MyOperatorThreeForge.class);
         configuration.getCommon().addImport(EPLDataflowAPIOpLifecycle.SupportGraphSourceForge.class);
         configuration.getCommon().addImport(EPLDataflowAPIOpLifecycle.SupportOperatorForge.class);
         configuration.getCommon().addImport(EPLDataflowAPIExceptions.MyExceptionOpForge.class);

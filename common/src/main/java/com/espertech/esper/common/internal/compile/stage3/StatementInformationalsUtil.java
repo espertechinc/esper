@@ -106,11 +106,13 @@ public class StatementInformationalsUtil {
 
         List<ExpressionScriptProvided> statementScripts = base.getStatementSpec().getRaw().getScriptExpressions();
         List<ExpressionScriptProvided> onScripts = new ArrayList<>(2);
-        for (ExpressionScriptProvided script : statementScripts) {
-            if (script.getName().equals(EPL_ONLISTENERUPDATE_SCRIPT_NAME) ||
-                script.getName().equals(EPL_ONSTART_SCRIPT_NAME) ||
-                script.getName().equals(EPL_ONSTOP_SCRIPT_NAME)) {
-                onScripts.add(script);
+        if (statementScripts != null) {
+            for (ExpressionScriptProvided script : statementScripts) {
+                if (script.getName().equals(EPL_ONLISTENERUPDATE_SCRIPT_NAME) ||
+                    script.getName().equals(EPL_ONSTART_SCRIPT_NAME) ||
+                    script.getName().equals(EPL_ONSTOP_SCRIPT_NAME)) {
+                    onScripts.add(script);
+                }
             }
         }
 

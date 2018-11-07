@@ -36,7 +36,7 @@ public class PopulateUtil {
     private final static Logger log = LoggerFactory.getLogger(PopulateUtil.class);
 
     public static void populateSpecCheckParameters(PopulateFieldWValueDescriptor[] descriptors, Map<String, Object> jsonRaw, Object spec, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // lowercase keys
         Map<String, Object> lowerCaseJsonRaw = new LinkedHashMap<String, Object>();
         for (Map.Entry<String, Object> entry : jsonRaw.entrySet()) {
@@ -87,7 +87,35 @@ public class PopulateUtil {
                 if (!exprNode.getForge().getForgeConstantType().isCompileTimeConstant()) {
                     throw new ExprValidationException("Failed to determine parameter for property '" + propertyName + "' as the parameter is not a compile-time constant expression");
                 }
-                value = exprNode.getForge().getExprEvaluator().evaluate(null, true, null);
+
+                // handle inner-objects which have a "class" property name
+                boolean innerObject = false;
+                if (exprNode instanceof ExprConstantNode) {
+                    ExprConstantNode constantNode = (ExprConstantNode) exprNode;
+                    if (constantNode.getConstantValue() instanceof Map) {
+                        Map<String, Object> constants = (Map<String, Object>) constantNode.getConstantValue();
+                        if (constants.containsKey(CLASS_PROPERTY_NAME)) {
+                            innerObject = true;
+                            Set<String> names = constants.keySet();
+                            Map<String, Object> values = new LinkedHashMap<>();
+                            int count = 0;
+                            for (String key : names) {
+                                if (key.equals(CLASS_PROPERTY_NAME)) {
+                                    // class property becomes string
+                                    values.put(key, constants.get(CLASS_PROPERTY_NAME));
+                                } else {
+                                    // non-class properties become expressions
+                                    values.put(key, constantNode.getChildNodes()[count]);
+                                }
+                                count++;
+                            }
+                            value = values;
+                        }
+                    }
+                }
+                if (!innerObject) {
+                    value = exprNode.getForge().getExprEvaluator().evaluate(null, true, null);
+                }
             }
         }
 
@@ -184,7 +212,7 @@ public class PopulateUtil {
     }
 
     public static void populateObject(String operatorName, int operatorNum, String dataFlowName, Map<String, Object> objectProperties, Object top, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext, EPDataFlowOperatorParameterProvider optionalParameterProvider, Map<String, Object> optionalParameterURIs)
-            throws ExprValidationException {
+        throws ExprValidationException {
         Class applicableClass = top.getClass();
         Set<WriteablePropertyDescriptor> writables = PropertyHelper.getWritableProperties(applicableClass);
         Set<Field> annotatedFields = JavaClassHelper.findAnnotatedFields(top.getClass(), DataFlowOpParameter.class);
@@ -295,7 +323,7 @@ public class PopulateUtil {
                             String[] elements = URIUtil.parsePathElements(URI.create(entry.getKey()));
                             if (elements.length < 2) {
                                 throw new ExprValidationException("Failed to parse URI '" + entry.getKey() + "', expected " +
-                                        "'operator_name/property_name' format");
+                                    "'operator_name/property_name' format");
                             }
                             if (elements[0].equals(operatorName)) {
                                 try {
@@ -314,7 +342,7 @@ public class PopulateUtil {
     }
 
     public static void populateObject(Map<String, Object> objectProperties, Object top, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         Class applicableClass = top.getClass();
         Set<WriteablePropertyDescriptor> writables = PropertyHelper.getWritableProperties(applicableClass);
         Set<Field> annotatedFields = JavaClassHelper.findAnnotatedFields(top.getClass(), DataFlowOpParameter.class);
@@ -407,7 +435,7 @@ public class PopulateUtil {
     }
 
     private static WriteablePropertyDescriptor findDescriptor(Class clazz, String propertyName, Set<WriteablePropertyDescriptor> writables)
-            throws ExprValidationException {
+        throws ExprValidationException {
         for (WriteablePropertyDescriptor desc : writables) {
             if (desc.getPropertyName().toLowerCase(Locale.ENGLISH).equals(propertyName.toLowerCase(Locale.ENGLISH))) {
                 return desc;

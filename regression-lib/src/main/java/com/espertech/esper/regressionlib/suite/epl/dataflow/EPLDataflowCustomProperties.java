@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpForgeInitializeContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpForgeInitializeResult;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperatorForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -39,34 +40,10 @@ public class EPLDataflowCustomProperties {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new EPLDataflowInvalid());
         execs.add(new EPLDataflowCustomProps());
+        execs.add(new EPLDataflowNestedProps());
         return execs;
     }
 
-    /**
-     * - GraphSource always has output ports:
-     * (A) Either as declared through @OutputTypes annotation
-     * (B) Or as assigned via stream (GraphSource -> OutStream&lt;Type&gt;)
-     * <p>
-     * - Operator properties are explicit:
-     * (A) There is a public setter method
-     * (B) Or the @GraphOpProperty annotation is declared on a field or setter method (optionally can provide a name)
-     * (C) Or the @GraphOpProperty annotation is declared on a catch-all method
-     * <p>
-     * - Graph op property types
-     * (A) Scalar type
-     * (B) or ExprNode
-     * (C) or Json for nested objects and array
-     * (D) or EPL select
-     * <p>
-     * - Graph op communicate the underlying events
-     * - should EventBean be need for event evaluation, the EventBean instance is pooled/shared locally by the op
-     * - if the event bus should evaluate the event, a new anonymous event gets created with the desired type attached dynamically
-     * <p>
-     * - Exception handlings
-     * - Validation of syntax is performed during "createEPL"
-     * - Resolution of operators and types is performed during "instantiate"
-     * - Runtime exception handling depends on how the data flow gets started and always uses an exception handler (another subject therefore)
-     */
     private static class EPLDataflowInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl;
@@ -76,6 +53,24 @@ public class EPLDataflowCustomProperties {
 
             epl = "create dataflow MyGraph ABC { field: { a:1x b:2 }}";
             tryInvalidCompile(env, epl, "Incorrect syntax near 'x' at line 1 column 42 [");
+        }
+    }
+
+    private static class EPLDataflowNestedProps implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+
+            MyOperatorThreeForge.getOperators().clear();
+            env.compile("@name('flow') create dataflow MyGraph MyOperatorThree {" +
+                "    settings: {\n" +
+                "      class: 'EPLDataflowCustomProperties$MyOperatorThreeSettingsABC',\n" +
+                "      parameterOne : 'ValueOne'" +
+                "    }\n" +
+                "}");
+            assertEquals(1, MyOperatorThreeForge.getOperators().size());
+            MyOperatorThreeForge instance = MyOperatorThreeForge.getOperators().get(0);
+
+            MyOperatorThreeSettingsABC abc = (MyOperatorThreeSettingsABC) instance.getSettings();
+            assertEquals("ValueOne", abc.parameterOne.getForge().getExprEvaluator().evaluate(null, true, null));
         }
     }
 
@@ -339,5 +334,44 @@ public class EPLDataflowCustomProperties {
     }
 
     public static class MyOperatorTwoInterfaceImplTwo implements MyOperatorTwoInterface {
+    }
+
+    public static class MyOperatorThreeForge implements DataFlowOperatorForge {
+
+        @DataFlowOpParameter
+        private MyOperatorThreeSettings settings;
+
+        private static List<MyOperatorThreeForge> operators = new ArrayList<>();
+
+        public static List<MyOperatorThreeForge> getOperators() {
+            return operators;
+        }
+
+        public MyOperatorThreeForge() {
+            operators.add(this);
+        }
+
+        public DataFlowOpForgeInitializeResult initializeForge(DataFlowOpForgeInitializeContext context) throws ExprValidationException {
+            return null;
+        }
+
+        public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+            return constantNull();
+        }
+
+        public MyOperatorThreeSettings getSettings() {
+            return settings;
+        }
+    }
+
+    public interface MyOperatorThreeSettings {
+    }
+
+    public static class MyOperatorThreeSettingsABC implements MyOperatorThreeSettings {
+        @DataFlowOpParameter
+        private ExprNode parameterOne;
+
+        public MyOperatorThreeSettingsABC() {
+        }
     }
 }
