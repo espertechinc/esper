@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpForgeInitializeContext;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOpForgeInitializeResult;
 import com.espertech.esper.common.internal.epl.dataflow.interfaces.DataFlowOperatorForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -29,7 +28,8 @@ import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 // Further relevant tests in JSONUtil/PopulateUtil
 public class EPLDataflowCustomProperties {
@@ -391,7 +391,7 @@ public class EPLDataflowCustomProperties {
     public static class MyOperatorFourForge implements DataFlowOperatorForge {
         private Map<String, ExprNode> allProperties = new LinkedHashMap<>();
 
-        @DataFlowOpParameter(all=true)
+        @DataFlowOpParameter(all = true)
         public void setProperty(String name, ExprNode value) {
             allProperties.put(name, value);
         }
