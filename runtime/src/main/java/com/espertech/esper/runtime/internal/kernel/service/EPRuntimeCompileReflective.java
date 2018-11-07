@@ -53,22 +53,22 @@ public class EPRuntimeCompileReflective {
         return available;
     }
 
-    public EPCompiled compile(String epl) {
+    public EPCompiled reflectiveCompile(String epl) {
         CompileMethod method = (compiler, args) -> compileModuleString.invoke(compiler, epl, args);
         return compileInternal(method, false);
     }
 
-    public EPCompiled compile(Module module) {
+    public EPCompiled reflectiveCompile(Module module) {
         CompileMethod method = (compiler, args) -> compileModuleObject.invoke(compiler, module, args);
         return compileInternal(method, false);
     }
 
-    public EPCompiled compileFireAndForget(String epl) throws EPException {
+    public EPCompiled reflectiveCompileFireAndForget(String epl) throws EPException {
         CompileMethod method = (compiler, args) -> compileFireAndForget.invoke(compiler, epl, args);
         return compileInternal(method, true);
     }
 
-    public ExprNode compileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException {
+    public ExprNode reflectiveCompileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException {
         if (!available) {
             throw new EPException(message);
         }

@@ -74,7 +74,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
     private Map<String, EPRuntimeSPI> runtimes;
     private AtomicBoolean serviceStatusProvider;
     private EPRuntimeCompileReflective compileReflective;
-    private EPRuntimeStatementTraverse statementTraverse;
+    private EPRuntimeStatementSelection statementSelection;
 
     /**
      * Constructor - initializes services.
@@ -700,15 +700,11 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         }
     }
 
-    public void traverseStatements(BiConsumer<EPDeployment, EPStatement> consumer, String filterExpression) {
-        if (filterExpression == null || filterExpression.trim().isEmpty()) {
-            traverseStatements(consumer);
-            return;
+    public EPRuntimeStatementSelection getStatementSelectionSvc() {
+        if (statementSelection == null) {
+            statementSelection = new EPRuntimeStatementSelection(this);
         }
-        if (statementTraverse == null) {
-            statementTraverse = new EPRuntimeStatementTraverse();
-        }
-        statementTraverse.traverseStatements(this, consumer, filterExpression);
+        return statementSelection;
     }
 
     public EPRuntimeCompileReflective getReflectiveCompileSvc() {

@@ -37,7 +37,7 @@ public interface EPRuntimeSPI extends EPRuntime {
 
     void traverseStatements(BiConsumer<EPDeployment, EPStatement> consumer);
 
-    void traverseStatements(BiConsumer<EPDeployment, EPStatement> consumer, String filterExpression);
+    EPRuntimeStatementSelection getStatementSelectionSvc();
 
     EPRuntimeCompileReflective getReflectiveCompileSvc();
 }

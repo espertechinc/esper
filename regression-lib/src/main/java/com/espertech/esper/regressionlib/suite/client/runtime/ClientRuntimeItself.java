@@ -40,23 +40,27 @@ public class ClientRuntimeItself {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ClientRuntimeItselfTransientConfiguration());
         execs.add(new ClientRuntimeSPICompileReflective());
-        execs.add(new ClientRuntimeSPITraverseWFilter());
+        execs.add(new ClientRuntimeSPIStatementSelection());
         execs.add(new ClientRuntimeWrongCompileMethod());
         return execs;
     }
 
-    private static class ClientRuntimeSPITraverseWFilter implements RegressionExecution {
+    private static class ClientRuntimeSPIStatementSelection implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy(
                 "@name('a') select * from SupportBean;\n" +
-                    "@name('b') select * from SupportBean;\n");
+                    "@name('b') select * from SupportBean(theString='xxx');\n");
             EPRuntimeSPI spi = (EPRuntimeSPI) env.runtime();
 
             MyStatementTraverse myTraverse = new MyStatementTraverse();
             spi.traverseStatements(myTraverse);
             myTraverse.assertAndReset(env.statement("a"), env.statement("b"));
 
-            spi.traverseStatements(myTraverse, "name='b'");
+            ExprNode filter = spi.getStatementSelectionSvc().compileFilterExpression("name='b'");
+            spi.getStatementSelectionSvc().traverseStatementsFilterExpr(myTraverse, filter);
+            myTraverse.assertAndReset(env.statement("b"));
+
+            spi.getStatementSelectionSvc().traverseStatementsContains(myTraverse, "xxx");
             myTraverse.assertAndReset(env.statement("b"));
 
             env.undeployAll();
@@ -100,21 +104,21 @@ public class ClientRuntimeItself {
             EPRuntimeCompileReflective svc = spi.getReflectiveCompileSvc();
             assertTrue(svc.isCompilerAvailable());
 
-            EPCompiled compiledFAF = svc.compileFireAndForget("select * from MyWindow");
+            EPCompiled compiledFAF = svc.reflectiveCompileFireAndForget("select * from MyWindow");
             EPFireAndForgetQueryResult result = env.runtime().getFireAndForgetService().executeQuery(compiledFAF);
             EPAssertionUtil.assertPropsPerRow(result.iterator(), new String[]{"theString"}, new Object[][]{{"E1"}});
 
-            EPCompiled compiledFromEPL = svc.compile("@name('s0') select * from MyWindow");
+            EPCompiled compiledFromEPL = svc.reflectiveCompile("@name('s0') select * from MyWindow");
             env.deploy(compiledFromEPL);
             EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"theString"}, new Object[][]{{"E1"}});
 
             Module module = new Module();
             module.getItems().add(new ModuleItem("@name('s1') select * from MyWindow"));
-            EPCompiled compiledFromModule = svc.compile(module);
+            EPCompiled compiledFromModule = svc.reflectiveCompile(module);
             env.deploy(compiledFromModule);
             EPAssertionUtil.assertPropsPerRow(env.iterator("s1"), new String[]{"theString"}, new Object[][]{{"E1"}});
 
-            ExprNode node = svc.compileExpression("1*1", null, null);
+            ExprNode node = svc.reflectiveCompileExpression("1*1", null, null);
             assertEquals(1, node.getForge().getExprEvaluator().evaluate(null, true, null));
 
             env.undeployAll();

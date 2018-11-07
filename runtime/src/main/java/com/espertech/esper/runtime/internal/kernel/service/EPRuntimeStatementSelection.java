@@ -38,11 +38,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class EPRuntimeStatementTraverse {
-    private static final Logger log = LoggerFactory.getLogger(EPRuntimeStatementTraverse.class);
+public class EPRuntimeStatementSelection {
+    private static final Logger log = LoggerFactory.getLogger(EPRuntimeStatementSelection.class);
 
     // Predefined properties available:
     // - name (string)
@@ -52,35 +53,52 @@ public class EPRuntimeStatementTraverse {
     // - priority
     // - drop (boolean)
     // - hint (string)
+    private final EPRuntimeSPI runtimeSPI;
     private final BeanEventType statementRowType;
 
-    public EPRuntimeStatementTraverse() {
+    public EPRuntimeStatementSelection(EPRuntimeSPI runtimeSPI) {
+        this.runtimeSPI = runtimeSPI;
+
         BeanEventTypeStemService stemSvc = new BeanEventTypeStemService(Collections.emptyMap(), null, PropertyResolutionStyle.CASE_SENSITIVE, AccessorStyle.JAVABEAN);
         BeanEventTypeFactoryPrivate factoryPrivate = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(null), EventTypeFactoryImpl.INSTANCE, stemSvc);
         EventTypeMetadata metadata = new EventTypeMetadata(UuidGenerator.generate(), null, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         statementRowType = new BeanEventType(stemSvc.getCreateStem(StatementRow.class, null), metadata, factoryPrivate, null, null, null, null);
     }
 
-    public void traverseStatements(EPRuntimeImpl runtime, BiConsumer<EPDeployment, EPStatement> consumer, String filterExpression) throws EPException {
-        ExprNode filterExpr;
+    public ExprNode compileFilterExpression(String filterExpression) {
         try {
-            filterExpr = runtime.getReflectiveCompileSvc().compileExpression(filterExpression, new EventType[]{statementRowType}, new String[]{statementRowType.getName()});
+            return runtimeSPI.getReflectiveCompileSvc().reflectiveCompileExpression(filterExpression, new EventType[]{statementRowType}, new String[]{statementRowType.getName()});
         } catch (Throwable t) {
             throw new EPException("Failed to compiler filter: " + t.getMessage(), t);
         }
+    }
 
-        for (String deploymentId : runtime.getDeploymentService().getDeployments()) {
-            EPDeployment deployment = runtime.getDeploymentService().getDeployment(deploymentId);
-            if (deployment == null) {
-                continue;
+    public void traverseStatementsContains(BiConsumer<EPDeployment, EPStatement> consumer, String containsIgnoreCase) {
+        runtimeSPI.traverseStatements((deployment, stmt) -> {
+            boolean match = false;
+            String searchString = containsIgnoreCase.toLowerCase(Locale.ENGLISH);
+            if (stmt.getName().toLowerCase(Locale.ENGLISH).contains(searchString)) {
+                match = true;
             }
-            for (EPStatement stmt : deployment.getStatements()) {
-                if (!evaluateStatement(filterExpr, stmt)) {
-                    continue;
+            if (!match) {
+                String epl = (String) stmt.getProperty(StatementProperty.EPL);
+                if ((epl != null) && (epl.toLowerCase(Locale.ENGLISH).contains(searchString))) {
+                    match = true;
                 }
+            }
+            if (!match) {
+                return;
+            }
+            consumer.accept(deployment, stmt);
+        });
+    }
+
+    public void traverseStatementsFilterExpr(BiConsumer<EPDeployment, EPStatement> consumer, ExprNode filterExpr) throws EPException {
+        runtimeSPI.traverseStatements((deployment, stmt) -> {
+            if (evaluateStatement(filterExpr, stmt)) {
                 consumer.accept(deployment, stmt);
             }
-        }
+        });
     }
 
     private static StatementRow getRow(EPStatement statement) {
@@ -131,7 +149,7 @@ public class EPRuntimeStatementTraverse {
         );
     }
 
-    private boolean evaluateStatement(ExprNode expression, EPStatement stmt) {
+    public boolean evaluateStatement(ExprNode expression, EPStatement stmt) {
         if (expression == null) {
             return true;
         }
@@ -245,6 +263,14 @@ public class EPRuntimeStatementTraverse {
 
         public void setTag(Map<String, String> tag) {
             this.tag = tag;
+        }
+
+        public Object getUserObjectRuntimeTime() {
+            return userObjectRuntimeTime;
+        }
+
+        public void setUserObjectRuntimeTime(Object userObjectRuntimeTime) {
+            this.userObjectRuntimeTime = userObjectRuntimeTime;
         }
     }
 }
