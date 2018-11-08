@@ -50,7 +50,7 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
     private final Map<DeploymentIdNamePair, StatementMetricHandle> statementMetricHandles;
     private final MetricsExecutor metricsExecutor;
 
-    private CopyOnWriteArraySet<MetricsStatementResultListener> statementOutputHooks;
+    private final CopyOnWriteArraySet<MetricsStatementResultListener> statementOutputHooks = new CopyOnWriteArraySet<>();
 
     /**
      * Ctor.
@@ -77,7 +77,6 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         stmtMetricRepository = new StatementMetricRepository(runtimeURI, specification);
         statementGroupExecutions = new LinkedHashMap<>();
         statementMetricHandles = new HashMap<>();
-        statementOutputHooks = new CopyOnWriteArraySet<>();
 
         if (specification.isThreading()) {
             metricsExecutor = new MetricsExecutorThreaded(runtimeURI);
