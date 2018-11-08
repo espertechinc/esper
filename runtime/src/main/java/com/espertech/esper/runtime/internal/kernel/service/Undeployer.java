@@ -160,7 +160,7 @@ public class Undeployer {
         if (InstrumentationHelper.ENABLED) {
             Instrumentation instrumentation = InstrumentationHelper.get();
             for (StatementContext ctx : reverted) {
-                instrumentation.qaEngineManagementStmtStop(services.getRuntimeURI(), deploymentId, ctx.getStatementId(), ctx.getStatementName(),
+                instrumentation.qaRuntimeManagementStmtStop(services.getRuntimeURI(), deploymentId, ctx.getStatementId(), ctx.getStatementName(),
                         (String) ctx.getStatementInformationals().getProperties().get(StatementProperty.EPL), services.getSchedulingService().getTime());
             }
         }

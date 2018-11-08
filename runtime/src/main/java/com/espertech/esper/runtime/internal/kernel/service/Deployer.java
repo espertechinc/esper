@@ -376,7 +376,7 @@ public class Deployer {
             statements[count++] = stmt;
 
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qaEngineManagementStmtStarted(epRuntime.getURI(), deploymentId, lightweight.getStatementContext().getStatementId(), stmt.getName(),
+                InstrumentationHelper.get().qaRuntimeManagementStmtStarted(epRuntime.getURI(), deploymentId, lightweight.getStatementContext().getStatementId(), stmt.getName(),
                     (String) stmt.getProperty(StatementProperty.EPL), epRuntime.getEventService().getCurrentTime());
             }
         }

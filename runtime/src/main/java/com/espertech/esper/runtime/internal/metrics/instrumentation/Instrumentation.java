@@ -338,9 +338,9 @@ public interface Instrumentation extends InstrumentationCommon {
 
     void aExprTableTop(Object result);
 
-    void qaEngineManagementStmtStarted(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime);
+    void qaRuntimeManagementStmtStarted(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime);
 
-    void qaEngineManagementStmtStop(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime);
+    void qaRuntimeManagementStmtStop(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime);
 
     void qExprStreamUnd(String text);
 

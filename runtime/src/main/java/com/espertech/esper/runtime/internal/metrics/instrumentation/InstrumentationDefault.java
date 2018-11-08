@@ -707,11 +707,11 @@ public class InstrumentationDefault extends InstrumentationCommonDefault impleme
 
     }
 
-    public void qaEngineManagementStmtStarted(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime) {
+    public void qaRuntimeManagementStmtStarted(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime) {
 
     }
 
-    public void qaEngineManagementStmtStop(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime) {
+    public void qaRuntimeManagementStmtStop(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime) {
 
     }
 
