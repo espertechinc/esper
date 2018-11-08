@@ -8,14 +8,12 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.compiler.internal.util;
+package com.espertech.esper.common.internal.compile.util;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.compile.util.CompileExpressionSPI;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.compiler.client.EPCompileException;
 
-public interface EPCompilerSPIExpression extends CompileExpressionSPI {
-    ExprNode compileValidate(String expression) throws EPCompileException;
-    ExprNode compileValidate(String expression, EventType[] eventTypes, String[] streamNnames) throws EPCompileException;
+public interface CompileExpressionSPI {
+    public ExprNode compileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException;
 }

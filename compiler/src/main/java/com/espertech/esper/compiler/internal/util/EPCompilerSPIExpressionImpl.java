@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
@@ -28,6 +29,14 @@ public class EPCompilerSPIExpressionImpl implements EPCompilerSPIExpression {
 
     public EPCompilerSPIExpressionImpl(ModuleCompileTimeServices moduleServices) {
         this.moduleServices = moduleServices;
+    }
+
+    public ExprNode compileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException {
+        try {
+            return compileValidate(epl, eventTypes, streamNames);
+        } catch (Throwable t) {
+            throw new EPException(t.getMessage(), t);
+        }
     }
 
     public ExprNode compileValidate(String expression) throws EPCompileException {
