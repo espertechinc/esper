@@ -14,36 +14,26 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.*;
-import com.espertech.esper.common.client.meta.EventTypeApplicationType;
-import com.espertech.esper.common.client.meta.EventTypeIdPair;
-import com.espertech.esper.common.client.meta.EventTypeMetadata;
-import com.espertech.esper.common.client.meta.EventTypeTypeClass;
-import com.espertech.esper.common.client.util.*;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventBean;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
-import com.espertech.esper.common.internal.event.bean.core.BeanEventTypeStemService;
-import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
-import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryRuntime;
-import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.util.UuidGenerator;
 import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class EPRuntimeStatementSelection {
-    private static final Logger log = LoggerFactory.getLogger(EPRuntimeStatementSelection.class);
+public class EPRuntimeStatementSelectionSPI {
+    private static final Logger log = LoggerFactory.getLogger(EPRuntimeStatementSelectionSPI.class);
 
     // Predefined properties available:
     // - name (string)
@@ -56,13 +46,9 @@ public class EPRuntimeStatementSelection {
     private final EPRuntimeSPI runtimeSPI;
     private final BeanEventType statementRowType;
 
-    public EPRuntimeStatementSelection(EPRuntimeSPI runtimeSPI) {
+    public EPRuntimeStatementSelectionSPI(EPRuntimeSPI runtimeSPI) {
         this.runtimeSPI = runtimeSPI;
-
-        BeanEventTypeStemService stemSvc = new BeanEventTypeStemService(Collections.emptyMap(), null, PropertyResolutionStyle.CASE_SENSITIVE, AccessorStyle.JAVABEAN);
-        BeanEventTypeFactoryPrivate factoryPrivate = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(null), EventTypeFactoryImpl.INSTANCE, stemSvc);
-        EventTypeMetadata metadata = new EventTypeMetadata(UuidGenerator.generate(), null, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
-        statementRowType = new BeanEventType(stemSvc.getCreateStem(StatementRow.class, null), metadata, factoryPrivate, null, null, null, null);
+        statementRowType = new EPRuntimeBeanAnonymousTypeService().makeBeanEventTypeAnonymous(StatementRow.class);
     }
 
     public ExprNode compileFilterExpression(String filterExpression) {

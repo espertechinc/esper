@@ -18,20 +18,18 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.runtime.client.EPRuntime;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class EPRuntimeCompileReflective {
+public class EPRuntimeCompileReflectiveService {
     private final static String CLASSNAME_COMPILER_ARGUMENTS = "com.espertech.esper.compiler.client.CompilerArguments";
     private final static String CLASSNAME_COMPILER_PATH = "com.espertech.esper.compiler.client.CompilerPath";
     private final static String CLASSNAME_COMPILER_PROVIDER = "com.espertech.esper.compiler.client.EPCompilerProvider";
     private final static String CLASSNAME_COMPILER = "com.espertech.esper.compiler.internal.util.EPCompilerSPI";
     private final static String CLASSNAME_COMPILER_EXPRESSIONS = "com.espertech.esper.compiler.internal.util.EPCompilerSPIExpression";
 
-    public final EPRuntime runtime;
     private Boolean available;
     private String message;
     private Constructor compilerArgsCtor;
@@ -44,8 +42,7 @@ public class EPRuntimeCompileReflective {
     private Method expressionCompiler;
     private Method compileValidate;
 
-    EPRuntimeCompileReflective(EPRuntime runtime) {
-        this.runtime = runtime;
+    public EPRuntimeCompileReflectiveService() {
         this.available = init();
     }
 
@@ -53,28 +50,25 @@ public class EPRuntimeCompileReflective {
         return available;
     }
 
-    public EPCompiled reflectiveCompile(String epl) {
+    public EPCompiled reflectiveCompile(String epl, Configuration configuration, EPCompilerPathable optionalPathable) {
         CompileMethod method = (compiler, args) -> compileModuleString.invoke(compiler, epl, args);
-        return compileInternal(method, false);
+        return compileInternal(method, configuration, optionalPathable);
     }
 
-    public EPCompiled reflectiveCompile(Module module) {
+    public EPCompiled reflectiveCompile(Module module, Configuration configuration, EPCompilerPathable optionalPathable) {
         CompileMethod method = (compiler, args) -> compileModuleObject.invoke(compiler, module, args);
-        return compileInternal(method, false);
+        return compileInternal(method, configuration, optionalPathable);
     }
 
-    public EPCompiled reflectiveCompileFireAndForget(String epl) throws EPException {
+    public EPCompiled reflectiveCompileFireAndForget(String epl, Configuration configuration, EPCompilerPathable optionalPathable) throws EPException {
         CompileMethod method = (compiler, args) -> compileFireAndForget.invoke(compiler, epl, args);
-        return compileInternal(method, true);
+        return compileInternal(method, configuration, optionalPathable);
     }
 
-    public ExprNode reflectiveCompileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException {
+    public ExprNode reflectiveCompileExpression(String epl, EventType[] eventTypes, String[] streamNames, Configuration configuration) throws EPException {
         if (!available) {
             throw new EPException(message);
         }
-
-        // Obtain a copy of the engine configuration
-        Configuration configuration = runtime.getConfigurationDeepCopy();
 
         // Same as: EPCompiler compiler = EPCompilerProvider.getCompiler()
         Object compiler;
@@ -100,13 +94,10 @@ public class EPRuntimeCompileReflective {
         }
     }
 
-    private EPCompiled compileInternal(CompileMethod compileMethod, boolean fireAndForget) throws EPException {
+    private EPCompiled compileInternal(CompileMethod compileMethod, Configuration configuration, EPCompilerPathable optionalPathable) throws EPException {
         if (!available) {
             throw new EPException(message);
         }
-
-        // Obtain a copy of the engine configuration
-        Configuration configuration = runtime.getConfigurationDeepCopy();
 
         // Same as: CompilerArguments args = new CompilerArguments(configuration);
         Object compilerArguments;
@@ -125,10 +116,12 @@ public class EPRuntimeCompileReflective {
         }
 
         // Same as: path.add(runtime.getRuntimePath());
-        try {
-            compilerPathAdd.invoke(path, runtime.getRuntimePath());
-        } catch (Throwable t) {
-            throw new EPException("Failed to invoke add-method of compiler path: " + t.getMessage(), t);
+        if (optionalPathable != null) {
+            try {
+                compilerPathAdd.invoke(path, optionalPathable);
+            } catch (Throwable t) {
+                throw new EPException("Failed to invoke add-method of compiler path: " + t.getMessage(), t);
+            }
         }
 
         // Same as: EPCompiler compiler = EPCompilerProvider.getCompiler()

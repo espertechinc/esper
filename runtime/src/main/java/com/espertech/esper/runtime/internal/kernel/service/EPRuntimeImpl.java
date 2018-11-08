@@ -20,21 +20,33 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimePluginLoader;
 import com.espertech.esper.common.client.context.EPContextPartitionService;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowService;
+import com.espertech.esper.common.client.meta.EventTypeApplicationType;
+import com.espertech.esper.common.client.meta.EventTypeIdPair;
+import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.metric.EPMetricsService;
 import com.espertech.esper.common.client.render.EPRenderEventService;
+import com.espertech.esper.common.client.util.AccessorStyle;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.PropertyResolutionStyle;
 import com.espertech.esper.common.client.variable.EPVariableService;
 import com.espertech.esper.common.internal.epl.util.EPCompilerPathableImpl;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableDeployment;
 import com.espertech.esper.common.internal.epl.variable.core.VariableRepositoryPreconfigured;
+import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
+import com.espertech.esper.common.internal.event.bean.core.BeanEventTypeStemService;
+import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
+import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
+import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryRuntime;
+import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.common.internal.util.TransientConfigurationResolver;
+import com.espertech.esper.common.internal.util.UuidGenerator;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.option.*;
 import com.espertech.esper.runtime.client.plugin.PluginLoader;
@@ -73,8 +85,8 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
     private Set<EPRuntimeStateListener> serviceListeners;
     private Map<String, EPRuntimeSPI> runtimes;
     private AtomicBoolean serviceStatusProvider;
-    private EPRuntimeCompileReflective compileReflective;
-    private EPRuntimeStatementSelection statementSelection;
+    private EPRuntimeCompileReflectiveSPI compileReflective;
+    private EPRuntimeStatementSelectionSPI statementSelection;
 
     /**
      * Constructor - initializes services.
@@ -700,17 +712,25 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         }
     }
 
-    public EPRuntimeStatementSelection getStatementSelectionSvc() {
+    public EPRuntimeStatementSelectionSPI getStatementSelectionSvc() {
         if (statementSelection == null) {
-            statementSelection = new EPRuntimeStatementSelection(this);
+            statementSelection = new EPRuntimeStatementSelectionSPI(this);
         }
         return statementSelection;
     }
 
-    public EPRuntimeCompileReflective getReflectiveCompileSvc() {
+    public EPRuntimeCompileReflectiveSPI getReflectiveCompileSvc() {
         if (compileReflective == null) {
-            compileReflective = new EPRuntimeCompileReflective(this);
+            compileReflective = new EPRuntimeCompileReflectiveSPI(new EPRuntimeCompileReflectiveService(), this);
         }
         return compileReflective;
+    }
+
+    public BeanEventType makeBeanAnonymousType(Class clazz) {
+        BeanEventTypeStemService stemSvc = new BeanEventTypeStemService(Collections.emptyMap(), null, PropertyResolutionStyle.CASE_SENSITIVE, AccessorStyle.JAVABEAN);
+        BeanEventTypeFactoryPrivate factoryPrivate = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(null), EventTypeFactoryImpl.INSTANCE, stemSvc);
+        EventTypeMetadata metadata = new EventTypeMetadata(UuidGenerator.generate(), null, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
+        BeanEventTypeStem stem = stemSvc.getCreateStem(clazz, null);
+        return new BeanEventType(stem, metadata, factoryPrivate, null, null, null, null);
     }
 }

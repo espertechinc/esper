@@ -18,12 +18,14 @@ import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.module.ModuleItem;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.*;
-import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeCompileReflective;
+import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeBeanAnonymousTypeService;
+import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeCompileReflectiveSPI;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
 import java.util.ArrayList;
@@ -41,8 +43,16 @@ public class ClientRuntimeItself {
         execs.add(new ClientRuntimeItselfTransientConfiguration());
         execs.add(new ClientRuntimeSPICompileReflective());
         execs.add(new ClientRuntimeSPIStatementSelection());
+        execs.add(new ClientRuntimeSPIBeanAnonymousType());
         execs.add(new ClientRuntimeWrongCompileMethod());
         return execs;
+    }
+
+    private static class ClientRuntimeSPIBeanAnonymousType implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            BeanEventType beanEventType = new EPRuntimeBeanAnonymousTypeService().makeBeanEventTypeAnonymous(MyBeanAnonymousType.class);
+            assertEquals(int.class, beanEventType.getPropertyType("prop"));
+        }
     }
 
     private static class ClientRuntimeSPIStatementSelection implements RegressionExecution {
@@ -101,7 +111,7 @@ public class ClientRuntimeItself {
             env.sendEventBean(new SupportBean("E1", 10));
 
             EPRuntimeSPI spi = (EPRuntimeSPI) env.runtime();
-            EPRuntimeCompileReflective svc = spi.getReflectiveCompileSvc();
+            EPRuntimeCompileReflectiveSPI svc = spi.getReflectiveCompileSvc();
             assertTrue(svc.isCompilerAvailable());
 
             EPCompiled compiledFAF = svc.reflectiveCompileFireAndForget("select * from MyWindow");
@@ -177,6 +187,14 @@ public class ClientRuntimeItself {
         public void assertAndReset(EPStatement... expected) {
             EPAssertionUtil.assertEqualsExactOrder(statements.toArray(), expected);
             statements.clear();
+        }
+    }
+
+    public static class MyBeanAnonymousType {
+        private int prop;
+
+        public int getProp() {
+            return prop;
         }
     }
 }
