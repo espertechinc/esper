@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class ContextInitTermWithNow {
@@ -29,7 +30,36 @@ public class ContextInitTermWithNow {
         execs.add(new ContextStartStopWNow());
         execs.add(new ContextInitTermWithPattern());
         execs.add(new ContextInitTermWNowInvalid());
+        execs.add(new ContextInitTermWNowNoEnd());
         return execs;
+    }
+
+    private static class ContextInitTermWNowNoEnd implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context StartNowAndNeverEnd start @now;\n" +
+                "@name('s0') context StartNowAndNeverEnd select count(*) as c0 from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.milestone(0);
+
+            assertSendCount(env, 1);
+            assertSendCount(env, 2);
+
+            env.milestone(1);
+
+            assertSendCount(env, 3);
+
+            env.milestone(2);
+
+            assertSendCount(env, 4);
+
+            env.undeployAll();
+        }
+
+        private void assertSendCount(RegressionEnvironment env, long expected) {
+            env.sendEventBean(new SupportBean());
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        }
     }
 
     private static class ContextStartStopWNow implements RegressionExecution {
