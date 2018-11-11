@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.module.Module;
+import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -41,6 +42,8 @@ public class EPRuntimeCompileReflectiveService {
     private Method compileModuleObject;
     private Method expressionCompiler;
     private Method compileValidate;
+    private Method eplToModel;
+    private Method parseModule;
 
     public EPRuntimeCompileReflectiveService() {
         this.available = init();
@@ -65,18 +68,30 @@ public class EPRuntimeCompileReflectiveService {
         return compileInternal(method, configuration, optionalPathable);
     }
 
-    public ExprNode reflectiveCompileExpression(String epl, EventType[] eventTypes, String[] streamNames, Configuration configuration) throws EPException {
-        if (!available) {
-            throw new EPException(message);
-        }
+    public EPStatementObjectModel reflectiveEPLToModel(String epl, Configuration configuration) throws EPException {
+        Object compiler = getCompiler();
 
-        // Same as: EPCompiler compiler = EPCompilerProvider.getCompiler()
-        Object compiler;
+        // Same as: compiler.eplToModel(epl, Configuration configuration) throws EPCompileException;
         try {
-            compiler = compilerProviderGetCompiler.invoke(null);
+            return (EPStatementObjectModel) eplToModel.invoke(compiler, epl, configuration);
         } catch (Throwable t) {
-            throw new EPException("Failed to invoke getCompiler-method of compiler provider: " + t.getMessage(), t);
+            throw new EPException("Failed to invoke epl-to-model: " + t.getMessage(), t);
         }
+    }
+
+    public Module reflectiveParseModule(String epl) {
+        Object compiler = getCompiler();
+
+        // Same as: compiler.parseModule(epl);
+        try {
+            return (Module) parseModule.invoke(compiler, epl);
+        } catch (Throwable t) {
+            throw new EPException("Failed to invoke parse-module: " + t.getMessage(), t);
+        }
+    }
+
+    public ExprNode reflectiveCompileExpression(String epl, EventType[] eventTypes, String[] streamNames, Configuration configuration) throws EPException {
+        Object compiler = getCompiler();
 
         // Same as: EPCompilerSPIExpression exprCompiler = compiler.expressionCompiler(configuration);
         Object exprCompiler;
@@ -95,9 +110,7 @@ public class EPRuntimeCompileReflectiveService {
     }
 
     private EPCompiled compileInternal(CompileMethod compileMethod, Configuration configuration, EPCompilerPathable optionalPathable) throws EPException {
-        if (!available) {
-            throw new EPException(message);
-        }
+        Object compiler = getCompiler();
 
         // Same as: CompilerArguments args = new CompilerArguments(configuration);
         Object compilerArguments;
@@ -122,14 +135,6 @@ public class EPRuntimeCompileReflectiveService {
             } catch (Throwable t) {
                 throw new EPException("Failed to invoke add-method of compiler path: " + t.getMessage(), t);
             }
-        }
-
-        // Same as: EPCompiler compiler = EPCompilerProvider.getCompiler()
-        Object compiler;
-        try {
-            compiler = compilerProviderGetCompiler.invoke(null);
-        } catch (Throwable t) {
-            throw new EPException("Failed to invoke getCompiler-method of compiler provider: " + t.getMessage(), t);
         }
 
         try {
@@ -207,6 +212,16 @@ public class EPRuntimeCompileReflectiveService {
             return false;
         }
 
+        eplToModel = findMethod(compiler, "eplToModel", String.class, Configuration.class);
+        if (eplToModel == null) {
+            return false;
+        }
+
+        parseModule = findMethod(compiler, "parseModule", String.class);
+        if (parseModule == null) {
+            return false;
+        }
+
         compileFireAndForget = findMethod(compiler, "compileQuery", String.class, compilerArgsClass);
         return compileFireAndForget != null;
     }
@@ -240,5 +255,18 @@ public class EPRuntimeCompileReflectiveService {
 
     private interface CompileMethod {
         Object compileMethod(Object compiler, Object compilerArguments) throws InvocationTargetException, IllegalAccessException;
+    }
+
+    private Object getCompiler() throws EPException {
+        if (!available) {
+            throw new EPException(message);
+        }
+
+        // Same as: EPCompiler compiler = EPCompilerProvider.getCompiler()
+        try {
+            return compilerProviderGetCompiler.invoke(null);
+        } catch (Throwable t) {
+            throw new EPException("Failed to invoke getCompiler-method of compiler provider: " + t.getMessage(), t);
+        }
     }
 }

@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.module.Module;
+import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.compile.util.CompileExpressionSPI;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.runtime.client.EPRuntime;
@@ -47,7 +48,15 @@ public class EPRuntimeCompileReflectiveSPI implements CompileExpressionSPI {
         return provider.reflectiveCompileExpression(epl, eventTypes, streamNames, runtime.getConfigurationDeepCopy());
     }
 
+    public EPStatementObjectModel reflectiveEPLToModel(String epl) {
+        return provider.reflectiveEPLToModel(epl, runtime.getConfigurationDeepCopy());
+    }
+
     public ExprNode compileExpression(String epl, EventType[] eventTypes, String[] streamNames) throws EPException {
         return reflectiveCompileExpression(epl, eventTypes, streamNames);
+    }
+
+    public Module reflectiveParseModule(String epl) {
+        return provider.reflectiveParseModule(epl);
     }
 }

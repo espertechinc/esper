@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResul
 import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.module.ModuleItem;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -130,6 +131,13 @@ public class ClientRuntimeItself {
 
             ExprNode node = svc.reflectiveCompileExpression("1*1", null, null);
             assertEquals(1, node.getForge().getExprEvaluator().evaluate(null, true, null));
+
+            EPStatementObjectModel model = spi.getReflectiveCompileSvc().reflectiveEPLToModel("select * from MyWindow");
+            assertNotNull(model);
+
+            Module moduleParsed = spi.getReflectiveCompileSvc().reflectiveParseModule("select * from MyWindow");
+            assertEquals(1, moduleParsed.getItems().size());
+            assertEquals("select * from MyWindow", moduleParsed.getItems().get(0).getExpression());
 
             env.undeployAll();
         }
