@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.compiler.client;
 
+import com.espertech.esper.common.client.util.ExceptionWithLineItems;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +21,7 @@ import java.util.List;
  * May carry information on individual items.
  * </p>
  */
-public class EPCompileException extends Exception {
+public class EPCompileException extends Exception implements ExceptionWithLineItems {
 
     private final List<EPCompileExceptionItem> items;
 
@@ -61,6 +63,7 @@ public class EPCompileException extends Exception {
      *
      * @return items
      */
+
     public List<EPCompileExceptionItem> getItems() {
         return items;
     }

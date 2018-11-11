@@ -10,58 +10,18 @@
  */
 package com.espertech.esper.compiler.client;
 
-import com.espertech.esper.common.client.EPException;
+import com.espertech.esper.common.client.util.ExceptionLineItem;
 
 /**
  * Exception information.
  */
-public class EPCompileExceptionItem extends EPException {
-    private final String expression;
-    private final int lineNumber;
-
-    /**
-     * Ctor.
-     *
-     * @param message    - error message
-     * @param expression - expression text
-     * @param lineNumber - line number
-     */
-    public EPCompileExceptionItem(final String message, String expression, int lineNumber) {
-        super(message);
-        this.expression = expression;
-        this.lineNumber = lineNumber;
+public class EPCompileExceptionItem extends ExceptionLineItem {
+    public EPCompileExceptionItem(String message, String expression, int lineNumber) {
+        super(message, expression, lineNumber);
     }
 
-    /**
-     * Ctor.
-     *
-     * @param message    error message
-     * @param cause      inner exception
-     * @param expression expression text
-     * @param lineNumber - line number
-     */
     public EPCompileExceptionItem(String message, Throwable cause, String expression, int lineNumber) {
-        super(message, cause);
-        this.expression = expression;
-        this.lineNumber = lineNumber;
-    }
-
-    /**
-     * Returns expression text for statement.
-     *
-     * @return expression text
-     */
-    public String getExpression() {
-        return expression;
-    }
-
-    /**
-     * Returns the line number.
-     *
-     * @return line number
-     */
-    public int getLineNumber() {
-        return lineNumber;
+        super(message, cause, expression, lineNumber);
     }
 
     public String getMessage() {

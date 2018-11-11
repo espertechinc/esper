@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
-import com.espertech.esper.compiler.client.EPCompileExceptionItem;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -197,7 +196,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
 
                 try {
                     env.compileDeploy("@name('s0')" + epl, path).addListener("s0");
-                } catch (EPCompileExceptionItem ex) {
+                } catch (Throwable ex) {
                     if (assertion.getEventSendAssertion() == null) {
                         // no assertion, expected
                         assertTrue(ex.getMessage().contains("index hint busted"));

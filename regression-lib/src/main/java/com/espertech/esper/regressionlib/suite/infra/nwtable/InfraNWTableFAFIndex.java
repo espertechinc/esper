@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.compiler.client.EPCompileExceptionItem;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -141,7 +140,7 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
                 EPFireAndForgetQueryResult result = null;
                 try {
                     result = env.compileExecuteFAF(epl, path);
-                } catch (EPCompileExceptionItem ex) {
+                } catch (Throwable ex) {
                     log.error("Failed to process:" + ex.getMessage(), ex);
                     if (assertion.getEventSendAssertion() == null) {
                         // no assertion, expected
