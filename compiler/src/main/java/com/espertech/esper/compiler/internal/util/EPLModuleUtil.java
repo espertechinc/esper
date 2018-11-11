@@ -230,7 +230,6 @@ public class EPLModuleUtil {
                 message += ": " + ex.getMessage();
             }
             message += " [" + module + "]";
-            log.error(message, ex);
             throw new ParseException(message);
         }
 
