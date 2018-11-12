@@ -20,4 +20,8 @@ public interface RegressionExecution {
     }
 
     void run(RegressionEnvironment env);
+
+    default boolean excludeWhenInstrumented() {
+        return false;
+    }
 }

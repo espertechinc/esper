@@ -15,6 +15,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfig
 import com.espertech.esper.regressionlib.framework.RegressionFilter;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
+import com.espertech.esper.runtime.internal.metrics.instrumentation.InstrumentationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,15 @@ public class RegressionRunner {
             session.setRuntime(runtime);
         }
 
+        if (InstrumentationHelper.ENABLED && !execution.excludeWhenInstrumented()) {
+            InstrumentationHelper.startTest(session.getRuntime(), execution.getClass(), execution.getClass().getName());
+        }
+
         log.info("Running test " + execution.name());
         execution.run(new RegressionEnvironmentEsper(session.getConfiguration(), session.getRuntime()));
+
+        if (InstrumentationHelper.ENABLED && !execution.excludeWhenInstrumented()) {
+            InstrumentationHelper.endTest();
+        }
     }
 }
