@@ -48,8 +48,13 @@ public class EventTypeRepositoryUtil {
                 continue;
             }
             if (indexSuper > indexSub) {
-                creationOrder.remove(indexSuper);
-                creationOrder.add(indexSub, dependents[i - 1]);
+                creationOrder.remove(indexSub);
+                if (indexSuper == creationOrder.size()) {
+                    creationOrder.add(dependents[i]);
+                }
+                else {
+                    creationOrder.add(indexSuper + 1, dependents[i]);
+                }
             }
         }
 
