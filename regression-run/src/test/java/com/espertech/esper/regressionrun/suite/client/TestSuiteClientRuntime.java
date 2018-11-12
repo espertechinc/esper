@@ -57,7 +57,7 @@ public class TestSuiteClientRuntime extends TestCase {
     }
 
     public void testClientRuntimeSubscriber() {
-        RegressionRunner.run(session, new ClientRuntimeSubscriber());
+        RegressionRunner.run(session, ClientRuntimeSubscriber.executions());
     }
 
     public void testClientRuntimeItself() {
