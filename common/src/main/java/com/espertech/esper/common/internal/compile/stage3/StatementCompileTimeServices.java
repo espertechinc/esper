@@ -179,4 +179,8 @@ public class StatementCompileTimeServices {
     public boolean isInstrumented() {
         return services.isInstrumented();
     }
+
+    public ModuleCompileTimeServices getServices() {
+        return services;
+    }
 }

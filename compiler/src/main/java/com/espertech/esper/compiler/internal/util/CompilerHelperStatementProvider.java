@@ -250,7 +250,7 @@ public class CompilerHelperStatementProvider {
             // Stage 5 - compile "fields" class first and all the rest later
             List<CodegenClass> sorted = sortClasses(classes);
             for (CodegenClass clazz : sorted) {
-                JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode());
+                JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices.getServices());
             }
 
             return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, StatementProvider.class, classPostfix);

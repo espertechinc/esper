@@ -11,6 +11,7 @@
 package com.espertech.esper.compiler.internal.util;
 
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
+import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 import org.codehaus.commons.compiler.ICookable;
 import org.codehaus.janino.ClassLoaderIClassLoader;
@@ -29,7 +30,13 @@ import static com.espertech.esper.compiler.internal.util.CodeGenerationUtil.code
 public class JaninoCompiler {
     private final static Logger log = LoggerFactory.getLogger(JaninoCompiler.class);
 
-    protected static void compile(CodegenClass clazz, Map<String, byte[]> classes, boolean withCodeLogging) {
+    protected static void compile(CodegenClass clazz, Map<String, byte[]> classes, ModuleCompileTimeServices compileTimeServices) {
+        boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
+        ClassLoader classLoader = compileTimeServices.getClasspathImportServiceCompileTime().getClassLoader();
+        compile(clazz, classes, withCodeLogging, classLoader);
+    }
+
+    private static void compile(CodegenClass clazz, Map<String, byte[]> classes, boolean withCodeLogging, ClassLoader classLoader) {
         String code = CodegenClassGenerator.compile(clazz);
 
         try {
@@ -69,7 +76,7 @@ public class JaninoCompiler {
             org.codehaus.janino.Scanner scanner = new Scanner(optionalFileName, new ByteArrayInputStream(
                     code.getBytes("UTF-8")), "UTF-8");
 
-            ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(classes);
+            ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(classes, classLoader);
             UnitCompiler unitCompiler = new UnitCompiler(
                     new Parser(scanner).parseCompilationUnit(),
                     new ClassLoaderIClassLoader(cl));

@@ -218,7 +218,7 @@ public class CompilerHelperModuleProvider {
         CodegenStackGenerator.recursiveBuildStack(statementsMethod, "statements", methods);
 
         CodegenClass clazz = new CodegenClass(ModuleProvider.class, packageName, moduleClassName, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
-        JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode());
+        JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, ModuleProvider.class, moduleIdentPostfix);
     }

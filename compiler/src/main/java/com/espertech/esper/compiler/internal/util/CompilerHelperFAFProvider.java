@@ -172,7 +172,7 @@ public class CompilerHelperFAFProvider {
         members.add(new CodegenTypedParam(FAFQueryMethodProvider.class, MEMBERNAME_QUERY_METHOD_PROVIDER).setFinal(false));
 
         CodegenClass clazz = new CodegenClass(FAFProvider.class, packageName, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
-        JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode());
+        JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, FAFProvider.class, classPostfix);
     }

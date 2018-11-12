@@ -15,10 +15,6 @@ import java.util.Map;
 public class ByteArrayProvidingClassLoader extends ClassLoader {
     private final Map<String, byte[]> classes;
 
-    public ByteArrayProvidingClassLoader(Map<String, byte[]> classes) {
-        this.classes = classes;
-    }
-
     public ByteArrayProvidingClassLoader(Map<String, byte[]> classes, ClassLoader parent) {
         super(parent);
         this.classes = classes;
@@ -27,7 +23,7 @@ public class ByteArrayProvidingClassLoader extends ClassLoader {
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         assert name != null;
 
-        byte[] data = (byte[]) ((byte[]) this.classes.get(name));
+        byte[] data = this.classes.get(name);
         if (data == null) {
             throw new ClassNotFoundException(name);
         } else {

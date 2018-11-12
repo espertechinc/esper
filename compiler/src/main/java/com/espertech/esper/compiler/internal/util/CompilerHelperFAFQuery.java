@@ -51,8 +51,9 @@ public class CompilerHelperFAFQuery {
                 return o1.getInterfaceImplemented() == StatementFields.class ? -1 : 0;
             }
         });
+
         for (CodegenClass clazz : classes) {
-            JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode());
+            JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
         }
 
         return queryMethodProviderClassName;
