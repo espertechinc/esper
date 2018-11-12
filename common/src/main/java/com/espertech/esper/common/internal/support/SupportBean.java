@@ -193,10 +193,6 @@ public class SupportBean implements Serializable {
         this.enumValue = enumValue;
     }
 
-    public SupportBean getThis() {
-        return this;
-    }
-
     public String toString() {
         return this.getClass().getSimpleName() + "(" + theString + ", " + intPrimitive + ")";
     }
