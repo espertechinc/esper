@@ -51,8 +51,7 @@ public class EventTypeRepositoryUtil {
                 creationOrder.remove(indexSub);
                 if (indexSuper == creationOrder.size()) {
                     creationOrder.add(dependents[i]);
-                }
-                else {
+                } else {
                     creationOrder.add(indexSuper + 1, dependents[i]);
                 }
             }
