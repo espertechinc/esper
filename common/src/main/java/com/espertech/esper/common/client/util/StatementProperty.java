@@ -15,21 +15,31 @@ package com.espertech.esper.common.client.util;
  */
 public enum StatementProperty {
     /**
-     * The statement EPL text.
+     * The statement EPL text, of type {@link String}
      */
     EPL,
 
     /**
-     * The statement type
+     * The statement type, of type {@link StatementType}
      */
     STATEMENTTYPE,
 
     /**
-     * The name of the EPL-object created by the statement, or null if not applicable, i.e. the name of the
+     * The name of the EPL-object created by the statement, of type {@link String}, or null if not applicable, i.e. the name of the
      * name window, table, variable, expression, index, schema or expression created by the statement.
      * <p>
      *     Use together with the statement type to determine the type of object.
      * </p>
      */
-    CREATEOBJECTNAME
+    CREATEOBJECTNAME,
+
+    /**
+     * The context name, of type {@link String}, or null if the statement is not associated to a context.
+     */
+    CONTEXTNAME,
+
+    /**
+     * The context deployment id, of type {@link String}, or null if the statement is not associated to a context.
+     */
+    CONTEXTDEPLOYMENTID
 }
