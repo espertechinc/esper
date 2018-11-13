@@ -29,6 +29,10 @@ public class EvalNotFactoryNode extends EvalFactoryNodeBase {
         return new EvalNotNode(agentInstanceContext, this, child);
     }
 
+    public EvalFactoryNode getChildNode() {
+        return childNode;
+    }
+
     public boolean isFilterChildNonQuitting() {
         return false;
     }

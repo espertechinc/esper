@@ -27,4 +27,6 @@ public interface EvalRootState extends StopCallback, EvalRootMatchRemover {
     // public void accept(EvalStateNodeVisitor visitor);
 
     public void startRecoverable(boolean startRecoverable, MatchedEventMap beginState);
+
+    public void accept(EvalStateNodeVisitor visitor);
 }
