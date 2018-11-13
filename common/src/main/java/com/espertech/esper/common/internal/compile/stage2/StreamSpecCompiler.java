@@ -185,7 +185,7 @@ public class StreamSpecCompiler {
 
         // construct root : assigns factory node ids
         EvalForgeNode top = streamSpecRaw.getEvalForgeNode();
-        EvalRootForgeNode root = new EvalRootForgeNode(top, statementRawInfo.getAnnotations());
+        EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo.getAnnotations());
         recursiveCompile(top, eventTypeReferences, isInsertInto, tags, nodeStack, allTagNamesOrdered, streamNum, statementRawInfo, services);
 
         PatternCompileHook hook = (PatternCompileHook) ClasspathImportUtil.getAnnotationHook(statementRawInfo.getAnnotations(), HookType.INTERNAL_PATTERNCOMPILE, PatternCompileHook.class, services.getClasspathImportServiceCompileTime());

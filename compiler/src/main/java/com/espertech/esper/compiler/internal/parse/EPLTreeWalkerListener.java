@@ -377,7 +377,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         List<ExprNode> obsParameters = ASTExprHelper.exprCollectSubNodes(ctx, 2, astExprNodeMap);
 
         PatternObserverSpec observerSpec = new PatternObserverSpec(objectNamespace, objectName, obsParameters);
-        EvalForgeNode observerNode = new EvalObserverForgeNode(observerSpec);
+        EvalForgeNode observerNode = new EvalObserverForgeNode(mapEnv.isAttachPatternText(), observerSpec);
         ASTExprHelper.patternCollectAddSubnodesAddParentNode(observerNode, ctx, astPatternNodeMap);
     }
 
@@ -1022,7 +1022,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
         FilterSpecRaw rawFilterSpec = new FilterSpecRaw(eventName, exprNodes, propertyEvalSpec);
         propertyEvalSpec = null;
-        EvalFilterForgeNode filterNode = new EvalFilterForgeNode(rawFilterSpec, optionalPatternTagName, consumption);
+        EvalFilterForgeNode filterNode = new EvalFilterForgeNode(mapEnv.isAttachPatternText(), rawFilterSpec, optionalPatternTagName, consumption);
         ASTExprHelper.patternCollectAddSubnodesAddParentNode(filterNode, ctx, astPatternNodeMap);
     }
 
@@ -1557,7 +1557,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (ctx.getChildCount() < 2) {
             return;
         }
-        EvalForgeNode andNode = new EvalAndForgeNode();
+        EvalForgeNode andNode = new EvalAndForgeNode(mapEnv.isAttachPatternText());
         ASTExprHelper.patternCollectAddSubnodesAddParentNode(andNode, ctx, astPatternNodeMap);
     }
 
@@ -1579,7 +1579,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             expressions = Arrays.asList(maxExpressions); // can contain null elements as max/no-max can be mixed
         }
 
-        EvalForgeNode fbNode = new EvalFollowedByForgeNode(expressions);
+        EvalForgeNode fbNode = new EvalFollowedByForgeNode(mapEnv.isAttachPatternText(), expressions);
         ASTExprHelper.patternCollectAddSubnodesAddParentNode(fbNode, ctx, astPatternNodeMap);
     }
 
@@ -1587,7 +1587,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (ctx.getChildCount() < 2) {
             return;
         }
-        EvalForgeNode orNode = new EvalOrForgeNode();
+        EvalForgeNode orNode = new EvalOrForgeNode(mapEnv.isAttachPatternText());
         ASTExprHelper.patternCollectAddSubnodesAddParentNode(orNode, ctx, astPatternNodeMap);
     }
 
@@ -1602,12 +1602,12 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
         EvalForgeNode theNode;
         if (ctx.e != null) {
-            theNode = new EvalEveryForgeNode();
+            theNode = new EvalEveryForgeNode(mapEnv.isAttachPatternText());
         } else if (ctx.n != null) {
-            theNode = new EvalNotForgeNode();
+            theNode = new EvalNotForgeNode(mapEnv.isAttachPatternText());
         } else if (ctx.d != null) {
             List<ExprNode> exprNodes = ASTExprHelper.exprCollectSubNodes(ctx.distinctExpressionList(), 0, astExprNodeMap);
-            theNode = new EvalEveryDistinctForgeNode(exprNodes);
+            theNode = new EvalEveryDistinctForgeNode(mapEnv.isAttachPatternText(), exprNodes);
         } else {
             throw ASTWalkException.from("Failed to recognize node");
         }
@@ -1622,7 +1622,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (ctx.matchUntilRange() != null) {
             node = makeMatchUntil(ctx.matchUntilRange(), ctx.until != null);
         } else {
-            node = new EvalMatchUntilForgeNode(null, null, null);
+            node = new EvalMatchUntilForgeNode(mapEnv.isAttachPatternText(), null, null, null);
         }
         ASTExprHelper.patternCollectAddSubnodesAddParentNode(node, ctx, astPatternNodeMap);
     }
@@ -1643,7 +1643,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             low = ASTExprHelper.exprCollectSubNodes(range.low, 0, astExprNodeMap).get(0);
             high = ASTExprHelper.exprCollectSubNodes(range.high, 0, astExprNodeMap).get(0);
         }
-        return new EvalMatchUntilForgeNode(low, high, single);
+        return new EvalMatchUntilForgeNode(mapEnv.isAttachPatternText(), low, high, single);
     }
 
     public void exitGuardPostFix(EsperEPL2GrammarParser.GuardPostFixContext ctx) {
@@ -1667,7 +1667,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         }
 
         PatternGuardSpec guardSpec = new PatternGuardSpec(objectNamespace, objectName, obsParameters);
-        EvalForgeNode guardNode = new EvalGuardForgeNode(guardSpec);
+        EvalForgeNode guardNode = new EvalGuardForgeNode(mapEnv.isAttachPatternText(), guardSpec);
         ASTExprHelper.patternCollectAddSubnodesAddParentNode(guardNode, ctx, astPatternNodeMap);
     }
 

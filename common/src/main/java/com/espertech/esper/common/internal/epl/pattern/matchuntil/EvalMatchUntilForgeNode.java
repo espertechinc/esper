@@ -42,7 +42,8 @@ public class EvalMatchUntilForgeNode extends EvalForgeNodeBase {
     private MatchedEventConvertorForge convertor;
     private int[] tagsArrayed;
 
-    public EvalMatchUntilForgeNode(ExprNode lowerBounds, ExprNode upperBounds, ExprNode singleBound) {
+    public EvalMatchUntilForgeNode(boolean attachPatternText, ExprNode lowerBounds, ExprNode upperBounds, ExprNode singleBound) {
+        super(attachPatternText);
         if (singleBound != null && (lowerBounds != null || upperBounds != null)) {
             throw new IllegalArgumentException("Invalid bounds, specify either single bound or range bounds");
         }

@@ -2578,41 +2578,42 @@ public class StatementSpecMapper {
         if (eval == null) {
             throw new IllegalArgumentException("Null expression parameter");
         }
+        boolean attachPatternText = mapContext.isAttachPatternText();
         if (eval instanceof PatternAndExpr) {
-            return new EvalAndForgeNode();
+            return new EvalAndForgeNode(attachPatternText);
         } else if (eval instanceof PatternFilterExpr) {
             PatternFilterExpr filterExpr = (PatternFilterExpr) eval;
             FilterSpecRaw filterSpec = mapFilter(filterExpr.getFilter(), mapContext);
-            return new EvalFilterForgeNode(filterSpec, filterExpr.getTagName(), filterExpr.getOptionalConsumptionLevel());
+            return new EvalFilterForgeNode(attachPatternText, filterSpec, filterExpr.getTagName(), filterExpr.getOptionalConsumptionLevel());
         } else if (eval instanceof PatternEveryExpr) {
-            return new EvalEveryForgeNode();
+            return new EvalEveryForgeNode(attachPatternText);
         } else if (eval instanceof PatternOrExpr) {
-            return new EvalOrForgeNode();
+            return new EvalOrForgeNode(attachPatternText);
         } else if (eval instanceof PatternNotExpr) {
-            return new EvalNotForgeNode();
+            return new EvalNotForgeNode(attachPatternText);
         } else if (eval instanceof PatternFollowedByExpr) {
             PatternFollowedByExpr fb = (PatternFollowedByExpr) eval;
             List<ExprNode> maxExpr = mapExpressionDeep(fb.getOptionalMaxPerSubexpression(), mapContext);
-            return new EvalFollowedByForgeNode(maxExpr);
+            return new EvalFollowedByForgeNode(attachPatternText, maxExpr);
         }
         if (eval instanceof PatternObserverExpr) {
             PatternObserverExpr observer = (PatternObserverExpr) eval;
             List<ExprNode> expressions = mapExpressionDeep(observer.getParameters(), mapContext);
-            return new EvalObserverForgeNode(new PatternObserverSpec(observer.getNamespace(), observer.getName(), expressions));
+            return new EvalObserverForgeNode(attachPatternText, new PatternObserverSpec(observer.getNamespace(), observer.getName(), expressions));
         } else if (eval instanceof PatternGuardExpr) {
             PatternGuardExpr guard = (PatternGuardExpr) eval;
             List<ExprNode> expressions = mapExpressionDeep(guard.getParameters(), mapContext);
-            return new EvalGuardForgeNode(new PatternGuardSpec(guard.getNamespace(), guard.getName(), expressions));
+            return new EvalGuardForgeNode(attachPatternText, new PatternGuardSpec(guard.getNamespace(), guard.getName(), expressions));
         } else if (eval instanceof PatternMatchUntilExpr) {
             PatternMatchUntilExpr until = (PatternMatchUntilExpr) eval;
             ExprNode low = until.getLow() != null ? mapExpressionDeep(until.getLow(), mapContext) : null;
             ExprNode high = until.getHigh() != null ? mapExpressionDeep(until.getHigh(), mapContext) : null;
             ExprNode single = until.getSingle() != null ? mapExpressionDeep(until.getSingle(), mapContext) : null;
-            return new EvalMatchUntilForgeNode(low, high, single);
+            return new EvalMatchUntilForgeNode(attachPatternText, low, high, single);
         } else if (eval instanceof PatternEveryDistinctExpr) {
             PatternEveryDistinctExpr everyDist = (PatternEveryDistinctExpr) eval;
             List<ExprNode> expressions = mapExpressionDeep(everyDist.getExpressions(), mapContext);
-            return new EvalEveryDistinctForgeNode(expressions);
+            return new EvalEveryDistinctForgeNode(attachPatternText, expressions);
         }
         throw new IllegalArgumentException("Could not map pattern expression node of type " + eval.getClass().getSimpleName());
     }

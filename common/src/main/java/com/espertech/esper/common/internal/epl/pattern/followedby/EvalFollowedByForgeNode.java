@@ -35,7 +35,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class EvalFollowedByForgeNode extends EvalForgeNodeBase {
     private List<ExprNode> optionalMaxExpressions;
 
-    public EvalFollowedByForgeNode(List<ExprNode> optionalMaxExpressions) {
+    public EvalFollowedByForgeNode(boolean attachPatternText, List<ExprNode> optionalMaxExpressions) {
+        super(attachPatternText);
         this.optionalMaxExpressions = optionalMaxExpressions;
     }
 

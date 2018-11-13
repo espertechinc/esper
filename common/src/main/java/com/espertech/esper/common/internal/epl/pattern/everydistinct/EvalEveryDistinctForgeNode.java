@@ -44,7 +44,8 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
      *
      * @param expressions distinct-value expressions
      */
-    public EvalEveryDistinctForgeNode(List<ExprNode> expressions) {
+    public EvalEveryDistinctForgeNode(boolean attachPatternText, List<ExprNode> expressions) {
+        super(attachPatternText);
         this.expressions = expressions;
     }
 

@@ -183,4 +183,8 @@ public class StatementCompileTimeServices {
     public ModuleCompileTimeServices getServices() {
         return services;
     }
+
+    public boolean isAttachPatternText() {
+        return services.getConfiguration().getCompiler().getByteCode().isAttachPatternEPL();
+    }
 }

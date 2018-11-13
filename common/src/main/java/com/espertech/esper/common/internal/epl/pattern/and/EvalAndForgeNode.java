@@ -32,7 +32,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class EvalAndForgeNode extends EvalForgeNodeBase {
 
-    public EvalAndForgeNode() {
+    public EvalAndForgeNode(boolean attachPatternText) {
+        super(attachPatternText);
     }
 
     public final String toString() {

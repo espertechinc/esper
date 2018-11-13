@@ -30,7 +30,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class EvalRootForgeNode extends EvalForgeNodeBase {
 
-    public EvalRootForgeNode(EvalForgeNode childNode, Annotation[] annotations) {
+    public EvalRootForgeNode(boolean attachPatternText, EvalForgeNode childNode, Annotation[] annotations) {
+        super(attachPatternText);
         addChildNode(childNode);
         boolean audit = AuditEnum.PATTERN.getAudit(annotations) != null || AuditEnum.PATTERNINSTANCES.getAudit(annotations) != null;
         assignFactoryNodeIds(audit);
