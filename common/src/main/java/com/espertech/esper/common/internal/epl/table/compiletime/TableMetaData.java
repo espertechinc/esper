@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
@@ -25,12 +26,13 @@ import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadata;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.Copyable;
 
 import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class TableMetaData {
+public class TableMetaData implements Copyable<TableMetaData> {
     private String tableName;
     private String tableModuleName;
     private NameAccessModifier tableVisibility;
@@ -65,6 +67,29 @@ public class TableMetaData {
         this.keyColNums = keyColNums;
         this.numMethodAggs = numMethodAggs;
         init();
+    }
+
+    private TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, Class[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs, IndexMultiKey keyIndexMultiKey, EventTableIndexMetadata indexMetadata) {
+        this.tableName = tableName;
+        this.tableModuleName = tableModuleName;
+        this.tableVisibility = tableVisibility;
+        this.optionalContextName = optionalContextName;
+        this.optionalContextVisibility = optionalContextVisibility;
+        this.optionalContextModule = optionalContextModule;
+        this.internalEventType = internalEventType;
+        this.publicEventType = publicEventType;
+        this.keyColumns = keyColumns;
+        this.keyTypes = keyTypes;
+        this.keyColNums = keyColNums;
+        this.columns = columns;
+        this.numMethodAggs = numMethodAggs;
+        this.keyIndexMultiKey = keyIndexMultiKey;
+        this.indexMetadata = indexMetadata;
+    }
+
+    public TableMetaData copy() {
+        return new TableMetaData(tableName, tableModuleName, tableVisibility, optionalContextName, optionalContextVisibility, optionalContextModule,
+            internalEventType, publicEventType, keyColumns, keyTypes, keyColNums, columns, numMethodAggs, keyIndexMultiKey, indexMetadata.copy());
     }
 
     public void init() {

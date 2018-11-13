@@ -13,11 +13,13 @@ package com.espertech.esper.common.internal.epl.namedwindow.path;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadata;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.util.Copyable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +28,7 @@ import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class NamedWindowMetaData {
+public class NamedWindowMetaData implements Copyable<NamedWindowMetaData>  {
     private final EventType eventType;
     private final String namedWindowModuleName;
     private final String contextName;
@@ -59,6 +61,10 @@ public class NamedWindowMetaData {
         this.optionalEventTypeAs = optionalEventTypeAs;
         this.virtualDataWindow = virtualDataWindow;
         this.indexMetadata = indexMetadata;
+    }
+
+    public NamedWindowMetaData copy() {
+        return new NamedWindowMetaData(eventType, namedWindowModuleName, contextName, uniqueness, isChildBatching, isEnableIndexShare, optionalEventTypeAs, virtualDataWindow, indexMetadata.copy());
     }
 
     public EventType getEventType() {

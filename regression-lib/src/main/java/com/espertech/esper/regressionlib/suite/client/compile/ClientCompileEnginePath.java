@@ -20,6 +20,8 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.runtime.client.EPDeployment;
+import com.espertech.esper.runtime.client.EPRuntime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,20 @@ public class ClientCompileEnginePath {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ClientCompileEnginePathObjectTypes());
+        execs.add(new ClientCompileEnginePathInfraWithIndex());
         return execs;
+    }
+
+    public static class ClientCompileEnginePathInfraWithIndex implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            createStmt(env.runtime(), "@Name('Create') @public create table MyTable(id String primary key, theGroup int primary key)");
+            createStmt(env.runtime(), "@Name('Index') create unique index I1 on MyTable(id)");
+
+            createStmt(env.runtime(), "@Name('Create') @public create window MyWindow#keepall as SupportBean");
+            createStmt(env.runtime(), "@Name('Index') create unique index I1 on MyWindow(theString)");
+
+            env.undeployAll();
+        }
     }
 
     public static class ClientCompileEnginePathObjectTypes implements RegressionExecution {
@@ -73,5 +88,18 @@ public class ClientCompileEnginePath {
         CompilerArguments args = new CompilerArguments(new Configuration());
         args.getPath().add(env.runtime().getRuntimePath());
         return EPCompilerProvider.getCompiler().compile(epl, args);
+    }
+
+    private static EPDeployment createStmt(EPRuntime runtime, String epl) {
+        try {
+            Configuration configuration = runtime.getConfigurationDeepCopy();
+            CompilerArguments args = new CompilerArguments(configuration);
+            args.getPath().add(runtime.getRuntimePath());
+            EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
+            return runtime.getDeploymentService().deploy(compiled);
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.internal.util.Copyable;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,4 +54,14 @@ public class PathDeploymentEntry<E> {
         }
     }
 
+    public PathDeploymentEntry<E> copy() {
+        E reference;
+        if (entity instanceof Copyable) {
+            reference = (E) ((Copyable) entity).copy();
+        }
+        else {
+            reference = entity;
+        }
+        return new PathDeploymentEntry<>(deploymentId, reference);
+    }
 }

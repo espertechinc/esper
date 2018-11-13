@@ -10,13 +10,24 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.internal.util.CollectionUtil;
+import com.espertech.esper.common.internal.util.Copyable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
 public class PathModuleEntry<E> {
-    private final Map<String, PathDeploymentEntry<E>> modules = new HashMap<>(4);
+    private final Map<String, PathDeploymentEntry<E>> modules;
+
+    PathModuleEntry() {
+        modules = new HashMap<>(CollectionUtil.capacityHashMap(1));
+    }
+
+    private PathModuleEntry(Map<String, PathDeploymentEntry<E>> modules) {
+        this.modules = modules;
+    }
 
     public void add(String moduleName, E entity, String deploymentId) {
         modules.put(moduleName, new PathDeploymentEntry<>(deploymentId, entity));
@@ -101,5 +112,14 @@ public class PathModuleEntry<E> {
         for (Map.Entry<String, PathDeploymentEntry<E>> entry : modules.entrySet()) {
             consumer.accept(entry.getValue().getEntity());
         }
+    }
+
+    public PathModuleEntry<E> copy() {
+        Map<String, PathDeploymentEntry<E>> copy = new HashMap<>(4);
+        for (Map.Entry<String, PathDeploymentEntry<E>> entry : modules.entrySet()) {
+            PathDeploymentEntry<E> copyEntry = entry.getValue().copy();
+            copy.put(entry.getKey(), copyEntry);
+        }
+        return new PathModuleEntry<>(copy);
     }
 }

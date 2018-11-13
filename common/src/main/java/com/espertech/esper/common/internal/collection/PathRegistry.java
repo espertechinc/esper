@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.internal.collection;
 
+import com.espertech.esper.common.internal.util.CollectionUtil;
+import com.espertech.esper.common.internal.util.Copyable;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,10 +21,16 @@ import java.util.function.Consumer;
 
 public class PathRegistry<K, E> {
     private final PathRegistryObjectType objectType;
-    private final Map<K, PathModuleEntry<E>> entities = new HashMap<>();
+    private final Map<K, PathModuleEntry<E>> entities;
 
     public PathRegistry(PathRegistryObjectType objectType) {
         this.objectType = objectType;
+        this.entities = new HashMap<>();
+    }
+
+    private PathRegistry(PathRegistryObjectType objectType, Map<K, PathModuleEntry<E>> entities) {
+        this.objectType = objectType;
+        this.entities = entities;
     }
 
     public PathRegistryObjectType getObjectType() {
@@ -125,5 +134,14 @@ public class PathRegistry<K, E> {
             }
             entities.put(entry.getKey(), entry.getValue());
         }
+    }
+
+    public PathRegistry<K, E> copy() {
+        Map<K, PathModuleEntry<E>> copy = new HashMap<>(CollectionUtil.capacityHashMap(entities.size()));
+        for (Map.Entry<K, PathModuleEntry<E>> entry : entities.entrySet()) {
+            PathModuleEntry<E> entryCopy = entry.getValue().copy();
+            copy.put(entry.getKey(), entryCopy);
+        }
+        return new PathRegistry<>(objectType, copy);
     }
 }

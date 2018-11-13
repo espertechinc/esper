@@ -689,13 +689,13 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
         }
 
         return new EPCompilerPathableImpl(
-            services.getVariablePathRegistry(),
-            services.getEventTypePathRegistry(),
-            services.getExprDeclaredPathRegistry(),
-            services.getNamedWindowPathRegistry(),
-            services.getTablePathRegistry(),
-            services.getContextPathRegistry(),
-            services.getScriptPathRegistry(),
+            services.getVariablePathRegistry().copy(),
+            services.getEventTypePathRegistry().copy(),
+            services.getExprDeclaredPathRegistry().copy(),
+            services.getNamedWindowPathRegistry().copy(),
+            services.getTablePathRegistry().copy(),
+            services.getContextPathRegistry().copy(),
+            services.getScriptPathRegistry().copy(),
             eventTypes,
             variables);
     }

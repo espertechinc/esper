@@ -17,12 +17,13 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleExpressionDeclaredInitializeSymbol;
+import com.espertech.esper.common.internal.util.Copyable;
 
 import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExpressionDeclItem {
+public class ExpressionDeclItem implements Copyable<ExpressionDeclItem> {
     private final String name;
     private final String[] parametersNames;
     private final boolean alias;
@@ -35,6 +36,20 @@ public class ExpressionDeclItem {
         this.name = name;
         this.parametersNames = parametersNames;
         this.alias = alias;
+    }
+
+    public ExpressionDeclItem(String name, String[] parametersNames, boolean alias, Expression optionalSoda, Supplier<byte[]> optionalSodaBytes, String moduleName, NameAccessModifier visibility) {
+        this.name = name;
+        this.parametersNames = parametersNames;
+        this.alias = alias;
+        this.optionalSoda = optionalSoda;
+        this.optionalSodaBytes = optionalSodaBytes;
+        this.moduleName = moduleName;
+        this.visibility = visibility;
+    }
+
+    public ExpressionDeclItem copy() {
+        return new ExpressionDeclItem(name, parametersNames, alias, optionalSoda, optionalSodaBytes, moduleName, visibility);
     }
 
     public String getName() {

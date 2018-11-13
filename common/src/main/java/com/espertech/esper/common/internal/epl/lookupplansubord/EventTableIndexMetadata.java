@@ -17,9 +17,14 @@ import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem
 import java.util.*;
 
 public class EventTableIndexMetadata {
-    private final Map<IndexMultiKey, EventTableIndexMetadataEntry> indexes = new HashMap<IndexMultiKey, EventTableIndexMetadataEntry>();
+    private final Map<IndexMultiKey, EventTableIndexMetadataEntry> indexes;
 
     public EventTableIndexMetadata() {
+        indexes = new HashMap<IndexMultiKey, EventTableIndexMetadataEntry>();
+    }
+
+    private EventTableIndexMetadata(Map<IndexMultiKey, EventTableIndexMetadataEntry> indexes) {
+        this.indexes = indexes;
     }
 
     public void addIndexExplicit(boolean isPrimary, IndexMultiKey indexMultiKey, String explicitIndexName, String explicitIndexModuleName, QueryPlanIndexItem explicitIndexDesc, String deploymentId)
@@ -147,5 +152,9 @@ public class EventTableIndexMetadata {
             }
         }
         return uniques.toArray(new String[uniques.size()][]);
+    }
+
+    public EventTableIndexMetadata copy() {
+        return new EventTableIndexMetadata(new HashMap<>(indexes));
     }
 }
