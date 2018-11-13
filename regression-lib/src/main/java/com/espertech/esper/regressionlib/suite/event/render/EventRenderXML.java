@@ -64,25 +64,12 @@ public class EventRenderXML {
                 "  <longPrimitive>0</longPrimitive>\n" +
                 "  <shortPrimitive>0</shortPrimitive>\n" +
                 "  <theString>a\\u000ac</theString>\n" +
-                "  <this>\n" +
-                "    <boolPrimitive>false</boolPrimitive>\n" +
-                "    <bytePrimitive>0</bytePrimitive>\n" +
-                "    <charPrimitive>x</charPrimitive>\n" +
-                "    <doublePrimitive>0.0</doublePrimitive>\n" +
-                "    <enumValue>ENUM_VALUE_2</enumValue>\n" +
-                "    <floatPrimitive>0.0</floatPrimitive>\n" +
-                "    <intBoxed>992</intBoxed>\n" +
-                "    <intPrimitive>1</intPrimitive>\n" +
-                "    <longPrimitive>0</longPrimitive>\n" +
-                "    <shortPrimitive>0</shortPrimitive>\n" +
-                "    <theString>a\\u000ac</theString>\n" +
-                "  </this>\n" +
                 "</supportBean>";
             assertEquals(removeNewline(expected), removeNewline(result));
 
             result = env.runtime().getRenderEventService().renderXML("supportBean", env.iterator("s0").next(), new XMLRenderingOptions().setDefaultAsAttribute(true));
             // System.out.println(result);
-            expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <supportBean boolPrimitive=\"false\" bytePrimitive=\"0\" charPrimitive=\"x\" doublePrimitive=\"0.0\" enumValue=\"ENUM_VALUE_2\" floatPrimitive=\"0.0\" intBoxed=\"992\" intPrimitive=\"1\" longPrimitive=\"0\" shortPrimitive=\"0\" theString=\"a\\u000ac\"> <this boolPrimitive=\"false\" bytePrimitive=\"0\" charPrimitive=\"x\" doublePrimitive=\"0.0\" enumValue=\"ENUM_VALUE_2\" floatPrimitive=\"0.0\" intBoxed=\"992\" intPrimitive=\"1\" longPrimitive=\"0\" shortPrimitive=\"0\" theString=\"a\\u000ac\"/> </supportBean>";
+            expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <supportBean boolPrimitive=\"false\" bytePrimitive=\"0\" charPrimitive=\"x\" doublePrimitive=\"0.0\" enumValue=\"ENUM_VALUE_2\" floatPrimitive=\"0.0\" intBoxed=\"992\" intPrimitive=\"1\" longPrimitive=\"0\" shortPrimitive=\"0\" theString=\"a\\u000ac\"/>";
             assertEquals(removeNewline(expected), removeNewline(result));
 
             env.undeployAll();

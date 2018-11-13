@@ -29,6 +29,11 @@ import static org.junit.Assert.assertNull;
 public class InfraTableMTUngroupedAccessReadMergeWrite implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTUngroupedAccessReadMergeWrite.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * For a given number of seconds:
      * Multiple writer threads each update their thread-id into a shared ungrouped row with plain props,

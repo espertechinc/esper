@@ -350,6 +350,11 @@ public class EPLInsertInto {
     }
 
     private static class EPLInsertIntoMultiBeanToMulti implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') insert into SupportObjectArrayOneDim select window(*) @eventbean as arr from SupportBean#keepall").addListener("s0");
             assertStatelessStmt(env, "s0", false);

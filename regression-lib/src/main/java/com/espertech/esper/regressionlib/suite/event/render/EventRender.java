@@ -88,6 +88,11 @@ public class EventRender {
     }
 
     private static class EventRenderPOJOMap implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             SupportBeanRendererOne beanOne = new SupportBeanRendererOne();

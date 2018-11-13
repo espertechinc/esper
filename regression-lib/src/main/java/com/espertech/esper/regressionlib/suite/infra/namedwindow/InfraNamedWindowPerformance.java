@@ -43,6 +43,12 @@ public class InfraNamedWindowPerformance {
     }
 
     private static class InfraOnSelectInKeywordPerformance implements RegressionExecution {
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('create') create window MyWindow#keepall as SupportBean_S0;\n" +
@@ -64,6 +70,11 @@ public class InfraNamedWindowPerformance {
     }
 
     private static class InfraOnSelectEqualsAndRangePerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('create') create window MyWindow#keepall as SupportBean;\n" +
@@ -103,6 +114,11 @@ public class InfraNamedWindowPerformance {
     }
 
     private static class InfraDeletePerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             String epl = "@name('create') create window MyWindow#keepall as select theString as a, intPrimitive as b from SupportBean;\n" +
@@ -134,6 +150,11 @@ public class InfraNamedWindowPerformance {
     }
 
     private static class InfraDeletePerformanceCoercion implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('create') create window MyWindow#keepall as select theString as a, longPrimitive as b from SupportBean;\n" +
                 "on SupportMarketDataBean delete from MyWindow where b = price;\n" +
@@ -164,6 +185,11 @@ public class InfraNamedWindowPerformance {
     }
 
     private static class InfraDeletePerformanceTwoDeleters implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('create') create window MyWindow#keepall as select theString as a, longPrimitive as b from SupportBean;\n" +
                 "on SupportMarketDataBean delete from MyWindow where b = price;\n" +
@@ -196,6 +222,11 @@ public class InfraNamedWindowPerformance {
     }
 
     private static class InfraDeletePerformanceIndexReuse implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 

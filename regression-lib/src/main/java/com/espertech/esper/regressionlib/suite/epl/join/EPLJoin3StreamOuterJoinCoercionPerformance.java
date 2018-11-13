@@ -38,6 +38,11 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     }
 
     private static class EPLJoinPerfCoercion3waySceneOne implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select s1.intBoxed as v1, s2.longBoxed as v2, s3.doubleBoxed as v3 from " +
                 "SupportBean(theString='A')#length(1000000) s1 " +
@@ -71,6 +76,11 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     }
 
     private static class EPLJoinPerfCoercion3waySceneTwo implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select s1.intBoxed as v1, s2.longBoxed as v2, s3.doubleBoxed as v3 from " +
                 "SupportBean(theString='A')#length(1000000) s1 " +
@@ -105,6 +115,11 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     }
 
     private static class EPLJoinPerfCoercion3waySceneThree implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select s1.intBoxed as v1, s2.longBoxed as v2, s3.doubleBoxed as v3 from " +
                 "SupportBean(theString='A')#length(1000000) s1 " +
@@ -139,6 +154,11 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     }
 
     private static class EPLJoinPerfCoercion3wayRange implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             String stmtText = "@name('s0') select * from " +

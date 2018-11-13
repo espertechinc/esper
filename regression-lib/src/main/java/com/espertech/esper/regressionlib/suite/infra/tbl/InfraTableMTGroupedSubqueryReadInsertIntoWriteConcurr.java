@@ -28,6 +28,11 @@ import static org.junit.Assert.assertTrue;
 public class InfraTableMTGroupedSubqueryReadInsertIntoWriteConcurr implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTGroupedSubqueryReadInsertIntoWriteConcurr.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Primary key is single: {id}
      * For a given number of seconds:

@@ -183,6 +183,11 @@ public class ExprCoreInBetweenLike {
     }
 
     private static class ExprCoreInCollectionMaps implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select 1 in (longMap, intMap) as resOne, 1 not in (longMap, intMap) as resTwo from SupportBeanArrayCollMap";
             env.compileDeploy(epl).addListener("s0");

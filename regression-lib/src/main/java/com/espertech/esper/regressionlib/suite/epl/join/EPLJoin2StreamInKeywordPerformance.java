@@ -33,6 +33,11 @@ public class EPLJoin2StreamInKeywordPerformance {
     }
 
     private static class EPLJoinInKeywordSingleIndexLookup implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select intPrimitive as val from SupportBean#keepall sb, SupportBean_S0 s0 unidirectional " +
                 "where sb.theString in (s0.p00, s0.p01)";
@@ -57,6 +62,11 @@ public class EPLJoin2StreamInKeywordPerformance {
     }
 
     private static class EPLJoinInKeywordMultiIndexLookup implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select id as val from SupportBean_S0#keepall s0, SupportBean sb unidirectional " +
                 "where sb.theString in (s0.p00, s0.p01)";

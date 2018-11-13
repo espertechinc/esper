@@ -54,6 +54,11 @@ public class EPLSubselectNamedWindowPerformance {
         private final boolean indexShare;
         private final boolean buildIndex;
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public EPLSubselectConstantValue(boolean indexShare, boolean buildIndex) {
             this.indexShare = indexShare;
             this.buildIndex = buildIndex;
@@ -144,6 +149,11 @@ public class EPLSubselectNamedWindowPerformance {
         private final boolean indexShare;
         private final boolean buildIndex;
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public EPLSubselectKeyAndRange(boolean indexShare, boolean buildIndex) {
             this.indexShare = indexShare;
             this.buildIndex = buildIndex;
@@ -189,6 +199,11 @@ public class EPLSubselectNamedWindowPerformance {
         private final boolean indexShare;
         private final boolean buildIndex;
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public EPLSubselectRange(boolean indexShare, boolean buildIndex) {
             this.indexShare = indexShare;
             this.buildIndex = buildIndex;
@@ -229,6 +244,11 @@ public class EPLSubselectNamedWindowPerformance {
     }
 
     private static class EPLSubselectKeyedRange implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String createEpl = "create window MyWindow#keepall as select * from SupportBean";
@@ -262,24 +282,44 @@ public class EPLSubselectNamedWindowPerformance {
     }
 
     private static class EPLSubselectNoShare implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             tryAssertion(env, false, false, false);
         }
     }
 
     private static class EPLSubselectShareCreate implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             tryAssertion(env, true, false, true);
         }
     }
 
     private static class EPLSubselectDisableShare implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             tryAssertion(env, true, true, false);
         }
     }
 
     private static class EPLSubselectDisableShareCreate implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             tryAssertion(env, true, true, true);
         }

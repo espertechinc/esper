@@ -26,6 +26,11 @@ import static org.junit.Assert.assertNull;
 
 public class ExprEnumToMap implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         // - duplicate value allowed, latest value wins
         // - null key & value allowed

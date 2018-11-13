@@ -23,6 +23,11 @@ import static org.junit.Assert.assertTrue;
 
 public class EPLJoin3StreamInKeywordPerformance implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         String epl = "@name('s0') select s0.id as val from " +

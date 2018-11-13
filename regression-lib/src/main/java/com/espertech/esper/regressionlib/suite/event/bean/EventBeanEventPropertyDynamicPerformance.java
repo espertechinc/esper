@@ -20,6 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class EventBeanEventPropertyDynamicPerformance implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         String stmtText = "@name('s0') select simpleProperty?, " +

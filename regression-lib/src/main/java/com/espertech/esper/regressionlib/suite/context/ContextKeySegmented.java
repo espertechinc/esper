@@ -303,6 +303,11 @@ public class ContextKeySegmented {
     }
 
     private static class ContextKeySegmentedLargeNumberPartitions implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@Name('context') create context SegmentedByAString  partition by theString from SupportBean", path);

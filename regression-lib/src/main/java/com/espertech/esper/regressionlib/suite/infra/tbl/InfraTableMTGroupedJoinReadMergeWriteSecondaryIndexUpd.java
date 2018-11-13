@@ -32,6 +32,11 @@ public class InfraTableMTGroupedJoinReadMergeWriteSecondaryIndexUpd implements R
     private static final int NUM_KEYS = 10;
     private static final int OFFSET_ADDED = 100000000;
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Tests concurrent updates on a secondary index also read by a join:
      * create table MyTable (key string primary key, value int)

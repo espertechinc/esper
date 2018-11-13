@@ -19,6 +19,11 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertTrue;
 
 public class EventInfraPropertyAccessPerformance implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String methodName = ".testPerfPropertyAccess";
 

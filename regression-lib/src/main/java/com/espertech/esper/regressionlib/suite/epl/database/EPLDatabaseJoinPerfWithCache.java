@@ -46,6 +46,12 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabaseConstants implements RegressionExecution {
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl;
 
@@ -64,6 +70,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabaseRangeIndex implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select * from SupportBeanRange sbr, " +
                 " sql:MyDBWithLRU100000 ['select mycol1, mycol3 from mytesttable_large'] as s1 where mycol3 between rangeStart and rangeEnd";
@@ -93,6 +104,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabaseKeyAndRangeIndex implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select * from SupportBeanRange sbr, " +
                 " sql:MyDBWithLRU100000 ['select mycol1, mycol3 from mytesttable_large'] as s1 where mycol1 = key and mycol3 between rangeStart and rangeEnd";
@@ -126,6 +142,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
      * Verifies performance of indexes cached for resolving join criteria fast.
      */
     private static class EPLDatabaseSelectLargeResultSet implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select id, mycol3, mycol2 from " +
                 "SupportBean_S0#keepall as s0," +
@@ -152,6 +173,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabaseSelectLargeResultSetCoercion implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select theString, mycol3, mycol4 from " +
                 " sql:MyDBWithLRU100000 ['select mycol3, mycol4 from mytesttable_large'] as s0, " +
@@ -178,6 +204,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabase2StreamOuterJoin implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select theString, mycol3, mycol1 from " +
                 " sql:MyDBWithLRU100000 ['select mycol1, mycol3 from mytesttable_large'] as s1 right outer join " +
@@ -208,6 +239,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabaseOuterJoinPlusWhere implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select theString, mycol3, mycol1 from " +
                 " sql:MyDBWithLRU100000 ['select mycol1, mycol3 from mytesttable_large'] as s1 right outer join " +
@@ -244,6 +280,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabaseInKeywordSingleIndex implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "select * from SupportBean_S0 s0, " +
                 " sql:MyDBWithLRU100000 ['select mycol1, mycol3 from mytesttable_large'] as s1 " +
@@ -269,6 +310,11 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     }
 
     private static class EPLDatabaseInKeywordMultiIndex implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "select * from SupportBean_S0 s0, " +
                 " sql:MyDBWithLRU100000 ['select mycol1, mycol2, mycol3 from mytesttable_large'] as s1 " +

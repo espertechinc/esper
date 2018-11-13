@@ -28,6 +28,11 @@ import static org.junit.Assert.assertTrue;
 public class InfraTableMTUngroupedJoinColumnConsistency implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTUngroupedJoinColumnConsistency.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Tests column-consistency for joins:
      * create table MyTable(p0 string, p1 string, ..., p4 string)   (5 props)

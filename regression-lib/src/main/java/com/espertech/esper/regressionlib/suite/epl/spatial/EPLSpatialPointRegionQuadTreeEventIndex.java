@@ -83,6 +83,11 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     }
 
     private static class EPLSpatialPREventIndexNWFireAndForgetPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window MyPointWindow#keepall as (id string, px double, py double);\n" +
@@ -167,6 +172,11 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     }
 
     private static class EPLSpatialPREventIndexPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "create window MyPointWindow#keepall as (id string, px double, py double);\n" +
                 "insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
@@ -519,6 +529,11 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
     public static class EPLSpatialPREventIndexEdgeSubdivide implements RegressionExecution {
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
@@ -647,6 +662,11 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         private final static int NUM_QUERIES_AFTER_EACH_REMOVE = 5;
         private final static int[] CHECKPOINT_REMAINING = new int[]{100, 300, 700}; // must be sorted
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
@@ -712,6 +732,11 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
     public static class EPLSpatialPREventIndexRandomIntPointsInSquareUnique implements RegressionExecution {
         private final static int SIZE = 1000;
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
@@ -793,6 +818,11 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         private final static int WIDTH = 100;
         private final static int HEIGHT = 100;
         private final static int[] CHECKPOINT_AT = new int[]{500, 3000, 4000};
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();

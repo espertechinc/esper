@@ -488,6 +488,11 @@ public class ExprCorePrior {
     }
 
     private static class ExprCorePriorLongRunningSingle implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select symbol as currSymbol, " +
                 " prior(3, symbol) as prior0Symbol " +
@@ -513,6 +518,11 @@ public class ExprCorePrior {
     }
 
     private static class ExprCorePriorLongRunningUnbound implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select symbol as currSymbol, " +
                 " prior(3, symbol) as prior0Symbol " +
@@ -539,6 +549,11 @@ public class ExprCorePrior {
     }
 
     private static class ExprCorePriorLongRunningMultiple implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             String epl = "@name('s0') select symbol as currSymbol, " +

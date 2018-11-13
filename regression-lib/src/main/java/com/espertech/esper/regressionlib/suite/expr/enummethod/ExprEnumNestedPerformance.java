@@ -24,6 +24,11 @@ import static org.junit.Assert.assertTrue;
 
 public class ExprEnumNestedPerformance implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         List<SupportBean_ST0> list = new ArrayList<SupportBean_ST0>();

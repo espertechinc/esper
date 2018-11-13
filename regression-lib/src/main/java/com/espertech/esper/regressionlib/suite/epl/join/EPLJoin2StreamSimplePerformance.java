@@ -34,6 +34,11 @@ public class EPLJoin2StreamSimplePerformance {
     }
 
     private static class EPLJoinPerformanceJoinNoResults implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             setupStatement(env);
             String methodName = ".testPerformanceJoinNoResults";
@@ -57,6 +62,11 @@ public class EPLJoin2StreamSimplePerformance {
     }
 
     private static class EPLJoinJoinPerformanceStreamA implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             setupStatement(env);
             String methodName = ".testJoinPerformanceStreamA";
@@ -81,6 +91,11 @@ public class EPLJoin2StreamSimplePerformance {
     }
 
     private static class EPLJoinJoinPerformanceStreamB implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String methodName = ".testJoinPerformanceStreamB";
             setupStatement(env);

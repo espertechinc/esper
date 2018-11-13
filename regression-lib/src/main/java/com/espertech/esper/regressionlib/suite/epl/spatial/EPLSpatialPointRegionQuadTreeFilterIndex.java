@@ -78,6 +78,11 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
     }
 
     private static class EPLSpatialPRFilterIndexPerfStatement implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             EPCompiled compiled = env.compile("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialAABB(point(?::int, ?::int, filterindex:myindex).inside(rectangle(x, y, width, height)))");
@@ -105,6 +110,11 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
     }
 
     private static class EPLSpatialPRFilterIndexPerfPattern implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from pattern [every p=SupportSpatialPoint -> SupportSpatialAABB(point(p.px, p.py, filterindex:myindex).inside(rectangle(x, y, width, height)))]");
@@ -118,6 +128,11 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
     }
 
     private static class EPLSpatialPRFilterIndexPerfContextPartition implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
@@ -174,6 +189,11 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
         private final static int NUM_POINTS = 100;
         private final static int NUM_QUERIES = 100;
         private final static int NUM_ITERATIONS = 3;
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
 
         public void run(RegressionEnvironment env) {
 

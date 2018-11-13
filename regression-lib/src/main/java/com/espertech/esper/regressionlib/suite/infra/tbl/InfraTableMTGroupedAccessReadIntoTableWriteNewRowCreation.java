@@ -29,6 +29,11 @@ import static org.junit.Assert.assertNull;
 public class InfraTableMTGroupedAccessReadIntoTableWriteNewRowCreation implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTGroupedAccessReadIntoTableWriteNewRowCreation.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Table:
      * create table varTotal (key string primary key, total sum(int));

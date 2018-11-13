@@ -72,6 +72,11 @@ public class ExprCoreTypeOf {
     }
 
     private static class ExprCoreTypeOfVariantStream implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
                 tryAssertionVariantStream(env, rep);

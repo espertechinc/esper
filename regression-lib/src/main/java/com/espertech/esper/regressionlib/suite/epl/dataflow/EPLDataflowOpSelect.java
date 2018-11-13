@@ -364,6 +364,11 @@ public class EPLDataflowOpSelect {
     }
 
     private static class EPLDataflowSelectPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             if (env.isHA()) {
                 return;

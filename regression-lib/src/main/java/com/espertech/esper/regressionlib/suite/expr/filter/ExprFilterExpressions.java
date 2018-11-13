@@ -459,6 +459,11 @@ public class ExprFilterExpressions {
     }
 
     private static class ExprFilterShortCircuitEvalAndOverspecified implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from SupportRuntimeExBean(SupportRuntimeExBean.property2 = '4' and SupportRuntimeExBean.property1 = '1')";
             env.compileDeployAddListenerMileZero(epl, "s0");

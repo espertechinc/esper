@@ -104,6 +104,11 @@ public class ExprFilterOptimizable {
     }
 
     private static class ExprFilterOptimizablePerf implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
@@ -273,6 +278,11 @@ public class ExprFilterOptimizable {
     }
 
     private static class ExprFilterOrPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             SupportUpdateListener listener = new SupportUpdateListener();
             for (int i = 0; i < 100; i++) {

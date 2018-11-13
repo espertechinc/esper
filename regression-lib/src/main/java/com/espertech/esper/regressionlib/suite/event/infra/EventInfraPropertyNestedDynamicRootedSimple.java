@@ -42,6 +42,11 @@ public class EventInfraPropertyNestedDynamicRootedSimple implements RegressionEx
     private final static Class BEAN_TYPE = SupportMarkerInterface.class;
     private final static ValueWithExistsFlag[] NOT_EXISTS = multipleNotExists(3);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         // Bean
         Pair[] beanTests = new Pair[]{

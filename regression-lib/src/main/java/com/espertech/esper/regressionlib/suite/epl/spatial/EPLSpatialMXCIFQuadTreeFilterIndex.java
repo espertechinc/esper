@@ -100,6 +100,11 @@ public class EPLSpatialMXCIFQuadTreeFilterIndex {
     }
 
     private static class EPLSpatialMXCIFFilterIndexPerfPattern implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') expression myindex {mxcifquadtree(0, 0, 100, 100)}" +
                 "select * from pattern [every p=SupportSpatialEventRectangle -> SupportSpatialAABB(rectangle(p.x, p.y, p.width, p.height, filterindex:myindex).intersects(rectangle(x, y, width, height)))]");
@@ -118,6 +123,11 @@ public class EPLSpatialMXCIFQuadTreeFilterIndex {
         private final static int NUM_POINTS = 100;
         private final static int NUM_QUERIES = 100;
         private final static int NUM_ITERATIONS = 3;
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
 
         public void run(RegressionEnvironment env) {
 

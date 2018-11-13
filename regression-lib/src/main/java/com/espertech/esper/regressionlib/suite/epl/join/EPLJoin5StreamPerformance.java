@@ -24,6 +24,11 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.*;
 
 public class EPLJoin5StreamPerformance implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String statement = "@name('s0') select * from " +
             "SupportBean_S0#length(100000) as s0," +

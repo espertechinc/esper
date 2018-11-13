@@ -40,6 +40,11 @@ public class EPLJoin3StreamRangePerformance {
      * This join algorithm profits from merge join cartesian indicated via @hint.
      */
     private static class EPLJoinPerf3StreamKeyAndRange implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window ST0#keepall as SupportBean_ST0;\n" +
@@ -76,6 +81,11 @@ public class EPLJoin3StreamRangePerformance {
      * This join algorithm uses merge join cartesian (not nested iteration).
      */
     private static class EPLJoinPerf3StreamRangeOnly implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window ST0#keepall as SupportBean_ST0;\n" +
@@ -116,6 +126,11 @@ public class EPLJoin3StreamRangePerformance {
      * This join algorithm profits from nested iteration execution.
      */
     private static class EPLJoinPerf3StreamUnidirectionalKeyAndRange implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window SBR#keepall as SupportBeanRange;\n" +

@@ -34,6 +34,11 @@ import static org.junit.Assert.assertNull;
 public class InfraTableMTGroupedFAFReadFAFWriteChain implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTGroupedFAFReadFAFWriteChain.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Tests fire-and-forget lock cleanup:
      * create table MyTable(key int primary key, p0 int)   (5 props)

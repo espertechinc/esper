@@ -52,6 +52,11 @@ public class EventInfraPropertyNestedDynamicDeep implements RegressionExecution 
         env.sendEventAvro(datum, typename);
     };
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         final ValueWithExistsFlag[] notExists = multipleNotExists(6);

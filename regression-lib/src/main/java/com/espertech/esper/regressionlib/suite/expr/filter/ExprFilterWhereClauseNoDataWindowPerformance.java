@@ -21,6 +21,11 @@ import static org.junit.Assert.assertTrue;
 
 public class ExprFilterWhereClauseNoDataWindowPerformance implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     // Compares the performance of
     //     select * from SupportBean(theString = 'xyz')
     //  against

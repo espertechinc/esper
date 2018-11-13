@@ -21,6 +21,11 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import static org.junit.Assert.assertTrue;
 
 public class EPLVariablesPerf implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create window MyWindow#keepall as SupportBean", path);

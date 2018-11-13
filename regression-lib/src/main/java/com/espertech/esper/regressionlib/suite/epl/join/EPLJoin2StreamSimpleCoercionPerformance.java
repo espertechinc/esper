@@ -29,6 +29,11 @@ public class EPLJoin2StreamSimpleCoercionPerformance {
     }
 
     private static class EPLJoinPerformanceCoercionForward implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmt = "@name('s0') select A.longBoxed as value from " +
                 "SupportBean(theString='A')#length(1000000) as A," +
@@ -56,6 +61,11 @@ public class EPLJoin2StreamSimpleCoercionPerformance {
     }
 
     private static class EPLJoinPerformanceCoercionBack implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmt = "@name('s0') select A.intPrimitive as value from " +
                 "SupportBean(theString='A')#length(1000000) as A," +

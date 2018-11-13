@@ -40,6 +40,11 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
     public final static String OA_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicNonSimple.class.getSimpleName() + "Avro";
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         final ValueWithExistsFlag[] notExists = multipleNotExists(4);

@@ -27,6 +27,11 @@ import static org.junit.Assert.assertTrue;
 public class InfraTableMTUngroupedSubqueryReadMergeWriteColumnUpd implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTUngroupedSubqueryReadMergeWriteColumnUpd.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Tests column-consistency for subquery:
      * create table MyTable(p0 string, p1 string, ..., p4 string)   (5 props)

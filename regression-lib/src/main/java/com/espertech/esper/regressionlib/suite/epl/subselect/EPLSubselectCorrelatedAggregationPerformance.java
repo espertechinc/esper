@@ -21,6 +21,10 @@ import java.util.Random;
 import static org.junit.Assert.assertTrue;
 
 public class EPLSubselectCorrelatedAggregationPerformance implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
 
     public void run(RegressionEnvironment env) {
         String stmtText = "@name('s0') select p00, " +

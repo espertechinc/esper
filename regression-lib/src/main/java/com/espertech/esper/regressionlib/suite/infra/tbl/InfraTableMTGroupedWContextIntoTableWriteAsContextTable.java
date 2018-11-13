@@ -18,6 +18,11 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
  */
 public class InfraTableMTGroupedWContextIntoTableWriteAsContextTable implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Multiple writers share a key space that they aggregate into.
      * Writer utilize a hash partition context.

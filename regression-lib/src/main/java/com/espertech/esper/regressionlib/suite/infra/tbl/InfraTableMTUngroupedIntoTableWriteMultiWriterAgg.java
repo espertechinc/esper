@@ -28,6 +28,11 @@ import static org.junit.Assert.assertNull;
 public class InfraTableMTUngroupedIntoTableWriteMultiWriterAgg implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTUngroupedIntoTableWriteMultiWriterAgg.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * For a given number of seconds:
      * Configurable number of into-writers update a shared aggregation.

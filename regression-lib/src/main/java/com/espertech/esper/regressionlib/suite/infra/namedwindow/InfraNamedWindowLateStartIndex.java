@@ -23,6 +23,11 @@ import static org.junit.Assert.assertTrue;
  * NOTE: More namedwindow-related tests in "nwtable"
  */
 public class InfraNamedWindowLateStartIndex implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         // prepare
         RegressionPath path = preloadData(env, false);

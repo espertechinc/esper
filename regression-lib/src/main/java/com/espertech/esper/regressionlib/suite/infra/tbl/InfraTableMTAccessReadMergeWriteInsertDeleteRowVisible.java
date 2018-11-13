@@ -30,6 +30,11 @@ import static org.junit.Assert.assertTrue;
 public class InfraTableMTAccessReadMergeWriteInsertDeleteRowVisible implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTAccessReadMergeWriteInsertDeleteRowVisible.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Table:
      * create table MyTable(key string primary key, p0 int, p1 int, p2, int, p3 int, p4 int)

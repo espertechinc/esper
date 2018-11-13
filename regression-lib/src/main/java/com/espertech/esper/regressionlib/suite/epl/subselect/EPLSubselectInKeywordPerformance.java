@@ -34,6 +34,11 @@ public class EPLSubselectInKeywordPerformance {
     }
 
     private static class EPLSubselectPerformanceInKeywordAsPartOfSubquery implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             AtomicInteger milestone = new AtomicInteger();
             String eplSingleIndex = "@name('s0') select (select p00 from SupportBean_S0#keepall as s0 where s0.p01 in (s1.p10, s1.p11)) as c0 from SupportBean_S1 as s1";
@@ -52,6 +57,11 @@ public class EPLSubselectInKeywordPerformance {
     }
 
     private static class EPLSubselectPerformanceWhereClauseCoercion implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select intPrimitive from SupportBean(theString='A') as s0 where intPrimitive in (" +
                 "select longBoxed from SupportBean(theString='B')#length(10000) where s0.intPrimitive = longBoxed)";
@@ -84,6 +94,11 @@ public class EPLSubselectInKeywordPerformance {
     }
 
     private static class EPLSubselectPerformanceWhereClause implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select id from SupportBean_S0 as s0 where p00 in (" +
                 "select p10 from SupportBean_S1#length(10000) where s0.p00 = p10)";

@@ -84,6 +84,11 @@ public class InfraNamedWindowConsumer {
     }
 
     public static class InfraNamedWindowConsumerWBatch implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "create schema IncomingEvent(id int);\n" +
                 "create schema RetainedEvent(id int);\n" +

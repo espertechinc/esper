@@ -28,6 +28,11 @@ import static org.junit.Assert.assertNull;
 public class InfraTableMTGroupedWContextIntoTableWriteAsSharedTable implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTGroupedWContextIntoTableWriteAsSharedTable.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Multiple writers share a key space that they aggregate into.
      * Writer utilize a hash partition context.

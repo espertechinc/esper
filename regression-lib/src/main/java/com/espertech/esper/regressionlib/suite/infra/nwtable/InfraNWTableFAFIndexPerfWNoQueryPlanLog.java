@@ -45,6 +45,11 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     }
 
     private static class InfraFAFKeyBTreePerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         private final boolean namedWindow;
 
         public InfraFAFKeyBTreePerformance(boolean namedWindow) {
@@ -94,6 +99,11 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     }
 
     private static class InfraFAFKeyAndRangePerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         private final boolean namedWindow;
 
         public InfraFAFKeyAndRangePerformance(boolean namedWindow) {
@@ -144,6 +154,11 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     }
 
     private static class InfraFAFRangePerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         private final boolean namedWindow;
 
         public InfraFAFRangePerformance(boolean namedWindow) {
@@ -193,6 +208,11 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     }
 
     private static class InfraFAFKeyPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         private final boolean namedWindow;
 
         public InfraFAFKeyPerformance(boolean namedWindow) {

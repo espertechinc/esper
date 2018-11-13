@@ -25,6 +25,11 @@ import static org.junit.Assert.assertEquals;
  * NOTE: More namedwindow-related tests in "nwtable"
  */
 public class InfraNamedWindowOnUpdateWMultiDispatch implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String[] fields = "company,value,total".split(",");
 

@@ -34,6 +34,11 @@ import static org.junit.Assert.*;
 public class InfraTableMTGroupedAccessReadIntoTableWriteAggColConsistency implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTGroupedAccessReadIntoTableWriteAggColConsistency.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Table:
      * create table vartotal (key string primary key, tc0 sum(int), tc1 sum(int) ... tc9 sum(int))

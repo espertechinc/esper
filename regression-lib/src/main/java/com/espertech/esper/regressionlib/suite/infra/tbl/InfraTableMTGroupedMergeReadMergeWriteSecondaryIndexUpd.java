@@ -29,6 +29,11 @@ import static org.junit.Assert.assertTrue;
 public class InfraTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Primary key is composite: {topgroup, subgroup}. Secondary index on {topgroup}.
      * For a given number of seconds:

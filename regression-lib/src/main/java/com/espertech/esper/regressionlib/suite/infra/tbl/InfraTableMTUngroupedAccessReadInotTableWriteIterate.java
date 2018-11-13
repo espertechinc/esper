@@ -29,6 +29,11 @@ import static org.junit.Assert.*;
 public class InfraTableMTUngroupedAccessReadInotTableWriteIterate implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTUngroupedAccessReadInotTableWriteIterate.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * Proof that multiple threads iterating the same statement
      * can safely access a row that is currently changing.

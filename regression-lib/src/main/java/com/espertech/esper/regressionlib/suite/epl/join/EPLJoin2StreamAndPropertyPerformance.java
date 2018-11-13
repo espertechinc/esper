@@ -35,6 +35,11 @@ public class EPLJoin2StreamAndPropertyPerformance {
     }
 
     private static class EPLJoin2StreamAndPropertyPerfRemoveStream implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             MyStaticEval.setCountCalled(0);
@@ -62,6 +67,11 @@ public class EPLJoin2StreamAndPropertyPerformance {
     }
 
     private static class EPLJoin2StreamAndPropertyPerf2Properties implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String methodName = ".testPerformanceJoinNoResults";
 
@@ -90,6 +100,11 @@ public class EPLJoin2StreamAndPropertyPerformance {
     }
 
     private static class EPLJoin2StreamAndPropertyPerf3Properties implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String methodName = ".testPerformanceJoinNoResults";
 

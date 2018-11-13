@@ -43,6 +43,11 @@ public class InfraNamedWindowProcessingOrder {
     private static class InfraDispatchBackQueue implements RegressionExecution {
         private final EventRepresentationChoice eventRepresentationEnum;
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public InfraDispatchBackQueue(EventRepresentationChoice eventRepresentationEnum) {
             this.eventRepresentationEnum = eventRepresentationEnum;
         }

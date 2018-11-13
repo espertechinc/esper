@@ -25,6 +25,11 @@ import static org.junit.Assert.assertTrue;
 
 public class EPLJoin2StreamExprPerformance implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String epl;
         AtomicInteger milestone = new AtomicInteger();

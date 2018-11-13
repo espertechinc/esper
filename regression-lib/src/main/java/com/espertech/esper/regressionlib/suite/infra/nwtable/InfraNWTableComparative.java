@@ -44,6 +44,11 @@ public class InfraNWTableComparative {
         private final String epl;
         private final int numSets;
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public InfraNWTableComparativeGroupByTopLevelSingleAgg(String caseName, int numEvents, String epl, int numSets) {
             this.caseName = caseName;
             this.numEvents = numEvents;

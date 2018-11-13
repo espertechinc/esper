@@ -27,6 +27,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class InfraNamedWIndowFAFQueryJoinPerformance implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create window W1#unique(s1) as SupportSimpleBeanOne", path);

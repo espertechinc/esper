@@ -41,6 +41,11 @@ public class EventInfraPropertyNestedDynamicRootedNonSimple implements Regressio
     public final static String AVRO_TYPENAME = EventInfraPropertyNestedDynamicRootedNonSimple.class.getSimpleName() + "Avro";
     private final static Class BEAN_TYPE = SupportBeanDynRoot.class;
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         final ValueWithExistsFlag[] notExists = ValueWithExistsFlag.multipleNotExists(6);
 

@@ -19,6 +19,10 @@ import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import static org.junit.Assert.assertTrue;
 
 public class ResultSetQueryTypeRowPerEventPerformance implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
 
     public void run(RegressionEnvironment env) {
         EPStatement[] statements = new EPStatement[100];

@@ -28,6 +28,11 @@ import static org.junit.Assert.assertTrue;
 public class InfraTableMTUngroupedAccessReadIntoTableWriteFilterUse implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTUngroupedAccessReadIntoTableWriteFilterUse.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * For a given number of seconds:
      * Single writer updates a total sum, continuously adding 1 and subtracting 1.

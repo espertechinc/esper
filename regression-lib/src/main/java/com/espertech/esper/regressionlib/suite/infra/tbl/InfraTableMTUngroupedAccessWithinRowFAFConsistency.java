@@ -28,6 +28,11 @@ import static org.junit.Assert.*;
 public class InfraTableMTUngroupedAccessWithinRowFAFConsistency implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTUngroupedAccessWithinRowFAFConsistency.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     /**
      * For a given number of seconds:
      * Single writer updates the group (round-robin) count, sum and avg.

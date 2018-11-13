@@ -22,6 +22,11 @@ import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assert
 import static org.junit.Assert.assertFalse;
 
 public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         runAssertion100EventsRetained(env, "MyDBWithRetain");
         runAssertion100EventsPooled(env, "MyDBPooled");

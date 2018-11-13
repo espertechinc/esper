@@ -33,6 +33,11 @@ public class EPLJoin3StreamAndPropertyPerformance {
     }
 
     private static class EPLJoinPerfAllProps implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             // Statement where all streams are reachable from each other via properties
             String stmt = "@name('s0') select * from " +
@@ -45,6 +50,11 @@ public class EPLJoin3StreamAndPropertyPerformance {
     }
 
     private static class EPLJoinPerfPartialProps implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             // Statement where the s1 stream is not reachable by joining s2 to s3 and s3 to s1
             String stmt = "@name('s0') select * from " +
@@ -57,6 +67,11 @@ public class EPLJoin3StreamAndPropertyPerformance {
     }
 
     private static class EPLJoinPerfPartialStreams implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String methodName = ".testPerfPartialStreams";
 

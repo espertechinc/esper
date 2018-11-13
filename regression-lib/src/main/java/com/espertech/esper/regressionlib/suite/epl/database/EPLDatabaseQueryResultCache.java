@@ -23,6 +23,7 @@ import java.util.Random;
 import static org.junit.Assert.assertTrue;
 
 public class EPLDatabaseQueryResultCache implements RegressionExecution {
+
     private final boolean lru;
     private final Integer lruSize;
     private final Double expiryMaxAgeSeconds;
@@ -30,6 +31,11 @@ public class EPLDatabaseQueryResultCache implements RegressionExecution {
     private final long assertMaximumTime;
     private final int numEvents;
     private final boolean useRandomKeyLookup;
+
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
 
     public EPLDatabaseQueryResultCache(boolean lru, Integer lruSize, Double expiryMaxAgeSeconds, Double expiryPurgeIntervalSeconds, long assertMaximumTime, int numEvents, boolean useRandomKeyLookup) {
         this.lru = lru;

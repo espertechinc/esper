@@ -24,6 +24,11 @@ import static org.junit.Assert.assertTrue;
 
 public class ExprEnumNamedWindowPerformance implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();

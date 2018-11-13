@@ -41,15 +41,15 @@ public class SupportSpatialEventRectangle implements Serializable {
         return x;
     }
 
-    public double getY() {
+    public Double getY() {
         return y;
     }
 
-    public double getWidth() {
+    public Double getWidth() {
         return width;
     }
 
-    public double getHeight() {
+    public Double getHeight() {
         return height;
     }
 

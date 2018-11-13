@@ -40,6 +40,11 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
     public final static String OA_TYPENAME = EventInfraPropertyDynamicSimple.class.getSimpleName() + "OA";
     public final static String AVRO_TYPENAME = EventInfraPropertyDynamicSimple.class.getSimpleName() + "Avro";
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         // Bean
         Pair[] beanTests = new Pair[]{

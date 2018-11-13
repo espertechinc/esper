@@ -33,6 +33,11 @@ public class EPLFromClauseMethodJoinPerformance {
     }
 
     private static class EPLFromClauseMethod1Stream2HistInnerJoinPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String expression = "@name('s0') select s0.id as id, h0.val as valh0, h1.val as valh1 " +
                 "from SupportBeanInt#lastevent as s0, " +
@@ -60,6 +65,11 @@ public class EPLFromClauseMethodJoinPerformance {
     }
 
     private static class EPLFromClauseMethod1Stream2HistOuterJoinPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String expression = "@name('s0') select s0.id as id, h0.val as valh0, h1.val as valh1 " +
                 "from SupportBeanInt#lastevent as s0 " +
@@ -90,6 +100,11 @@ public class EPLFromClauseMethodJoinPerformance {
     }
 
     private static class EPLFromClauseMethod2Stream1HistTwoSidedEntryIdenticalIndex implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String expression = "@name('s0') select s0.id as s0id, s1.id as s1id, h0.val as valh0 " +
                 "from SupportBeanInt(id like 'E%')#lastevent as s0, " +
@@ -123,6 +138,11 @@ public class EPLFromClauseMethodJoinPerformance {
     }
 
     private static class EPLFromClauseMethod2Stream1HistTwoSidedEntryMixedIndex implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String expression = "@name('s0') select s0.id as s0id, s1.id as s1id, h0.val as valh0, h0.index as indexh0 from " +
                 "method:SupportJoinMethods.fetchVal('H0', 100) as h0, " +

@@ -36,6 +36,11 @@ public class InfraNWTableOnMergePerf {
     }
 
     private static class InfraPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         private final boolean namedWindow;
         private final EventRepresentationChoice outputType;
 

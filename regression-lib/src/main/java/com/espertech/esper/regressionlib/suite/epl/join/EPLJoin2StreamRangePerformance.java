@@ -38,6 +38,11 @@ public class EPLJoin2StreamRangePerformance {
     }
 
     private static class EPLJoinPerfKeyAndRangeOuterJoin implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window SBR#keepall as SupportBeanRange;\n" +
@@ -83,6 +88,11 @@ public class EPLJoin2StreamRangePerformance {
     }
 
     private static class EPLJoinPerfRelationalOp implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window SBR#keepall as SupportBeanRange;\n" +
@@ -123,6 +133,11 @@ public class EPLJoin2StreamRangePerformance {
     }
 
     private static class EPLJoinPerfKeyAndRange implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window SBR#keepall as SupportBeanRange;\n" +
@@ -176,6 +191,11 @@ public class EPLJoin2StreamRangePerformance {
     }
 
     private static class EPLJoinPerfKeyAndRangeInverted implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "create window SB#keepall as SupportBean;\n" +
@@ -210,6 +230,11 @@ public class EPLJoin2StreamRangePerformance {
     }
 
     private static class EPLJoinPerfUnidirectionalRelOp implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();

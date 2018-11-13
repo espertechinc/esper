@@ -150,6 +150,11 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
     }
 
     private static class EPLSpatialMXCIFEventIndexPerformance implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String epl = "create window MyRectangleWindow#keepall as (id string, rx double, ry double, rw double, rh double);\n" +
                 "insert into MyRectangleWindow select id, x as rx, y as ry, width as rw, height as rh from SupportSpatialEventRectangle;\n" +
@@ -386,6 +391,11 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
     public static class EPLSpatialMXCIFEventIndexEdgeSubdivide implements RegressionExecution {
         private final boolean straddle;
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public EPLSpatialMXCIFEventIndexEdgeSubdivide(boolean straddle) {
             this.straddle = straddle;
         }
@@ -520,6 +530,11 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         private final static int NUM_QUERIES_AFTER_EACH_REMOVE = 5;
         private final static int[] CHECKPOINT_REMAINING = new int[]{100, 300, 700}; // must be sorted
 
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
@@ -590,6 +605,11 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         private final static int WIDTH = 100;
         private final static int HEIGHT = 100;
         private final static int[] CHECKPOINT_AT = new int[]{500, 3000, 4000};
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
@@ -680,6 +700,11 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
     public static class EPLSpatialMXCIFEventIndexRandomIntPointsInSquareUnique implements RegressionExecution {
         private final static int SIZE = 1000;
+
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
 
         public void run(RegressionEnvironment env) {
 
