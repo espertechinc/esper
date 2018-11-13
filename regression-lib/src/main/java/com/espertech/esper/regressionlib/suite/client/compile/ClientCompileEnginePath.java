@@ -32,7 +32,17 @@ public class ClientCompileEnginePath {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ClientCompileEnginePathObjectTypes());
         execs.add(new ClientCompileEnginePathInfraWithIndex());
+        execs.add(new ClientCompileEnginePathPreconfiguredEventTypeFromPath());
         return execs;
+    }
+
+    public static class ClientCompileEnginePathPreconfiguredEventTypeFromPath implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            createStmt(env.runtime(), "@Name('A') @public create table MyTableAggs(theString String primary key, thecnt count(*), thewin window(*) @type(SupportBean))");
+            createStmt(env.runtime(), "@Name('B') into table MyTableAggs select count(*) as thecnt, window(*) as thewin from SupportBean#keepall() group by theString");
+
+            env.undeployAll();
+        }
     }
 
     public static class ClientCompileEnginePathInfraWithIndex implements RegressionExecution {

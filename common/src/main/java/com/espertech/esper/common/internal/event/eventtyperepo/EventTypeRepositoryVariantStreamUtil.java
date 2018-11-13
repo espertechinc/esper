@@ -31,6 +31,10 @@ import java.util.Set;
 public class EventTypeRepositoryVariantStreamUtil {
     public static void buildVariantStreams(EventTypeRepositoryImpl repo, Map<String, ConfigurationCommonVariantStream> variantStreams, EventTypeFactory eventTypeFactory) {
         for (Map.Entry<String, ConfigurationCommonVariantStream> entry : variantStreams.entrySet()) {
+            if (repo.getTypeByName(entry.getKey()) != null) {
+                continue;
+            }
+
             addVariantStream(entry.getKey(), entry.getValue(), repo, eventTypeFactory);
         }
     }

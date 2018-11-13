@@ -30,9 +30,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class EventTypeRepositoryAvroTypeUtil {
-    public static void buildAvroTypes(EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, Map<String, ConfigurationCommonEventTypeAvro> eventTypesAvro, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+    public static void buildAvroTypes(EventTypeRepositoryImpl repo, Map<String, ConfigurationCommonEventTypeAvro> eventTypesAvro, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
         for (Map.Entry<String, ConfigurationCommonEventTypeAvro> entry : eventTypesAvro.entrySet()) {
-            buildAvroType(eventTypeRepositoryPreconfigured, entry.getKey(), entry.getValue(), eventTypeAvroHandler, eventBeanTypedEventFactory);
+            if (repo.getTypeByName(entry.getKey()) != null) {
+                continue;
+            }
+
+            buildAvroType(repo, entry.getKey(), entry.getValue(), eventTypeAvroHandler, eventBeanTypedEventFactory);
         }
     }
 

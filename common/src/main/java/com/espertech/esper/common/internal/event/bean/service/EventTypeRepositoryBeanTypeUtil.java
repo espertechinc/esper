@@ -44,6 +44,9 @@ public class EventTypeRepositoryBeanTypeUtil {
         addPredefinedBeanEventTypes(beanTypes);
 
         for (Map.Entry<String, Class> beanType : beanTypes.entrySet()) {
+            if (repo.getTypeByName(beanType.getKey()) != null) {
+                continue;
+            }
             buildPublicBeanType(beanEventTypeStemService, repo, beanType.getKey(), beanType.getValue(), privateFactory, configs);
         }
     }

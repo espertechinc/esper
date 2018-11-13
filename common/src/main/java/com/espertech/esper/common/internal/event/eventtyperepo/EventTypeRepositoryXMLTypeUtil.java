@@ -31,9 +31,13 @@ import com.espertech.esper.common.internal.util.CRC32Util;
 import java.util.Map;
 
 public class EventTypeRepositoryXMLTypeUtil {
-    public static void buildXMLTypes(EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, Map<String, ConfigurationCommonEventTypeXMLDOM> eventTypesXMLDOM, BeanEventTypeFactory beanEventTypeFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, ClasspathImportService classpathImportService) {
+    public static void buildXMLTypes(EventTypeRepositoryImpl repo, Map<String, ConfigurationCommonEventTypeXMLDOM> eventTypesXMLDOM, BeanEventTypeFactory beanEventTypeFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, ClasspathImportService classpathImportService) {
         // Add from the configuration the XML DOM names and type def
         for (Map.Entry<String, ConfigurationCommonEventTypeXMLDOM> entry : eventTypesXMLDOM.entrySet()) {
+            if (repo.getTypeByName(entry.getKey()) != null) {
+                continue;
+            }
+
             SchemaModel schemaModel = null;
             if ((entry.getValue().getSchemaResource() != null) || (entry.getValue().getSchemaText() != null)) {
                 try {
@@ -44,7 +48,7 @@ public class EventTypeRepositoryXMLTypeUtil {
             }
 
             try {
-                addXMLDOMType(eventTypeRepositoryPreconfigured, entry.getKey(), entry.getValue(), schemaModel, beanEventTypeFactory, xmlFragmentEventTypeFactory);
+                addXMLDOMType(repo, entry.getKey(), entry.getValue(), schemaModel, beanEventTypeFactory, xmlFragmentEventTypeFactory);
             } catch (Throwable ex) {
                 throw new ConfigurationException(ex.getMessage(), ex);
             }
