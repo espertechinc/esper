@@ -134,7 +134,7 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer {
         throw new UnsupportedOperationException("Iteration over a unidirectional join is not supported");
     }
 
-    public void visitIndexes(EventTableVisitor visitor) {
+    public void accept(EventTableVisitor visitor) {
         visitor.visit(repositories);
     }
 }

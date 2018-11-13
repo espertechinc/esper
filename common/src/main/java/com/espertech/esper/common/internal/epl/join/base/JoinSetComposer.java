@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.internal.epl.join.base;
 
-
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.collection.MultiKey;
 import com.espertech.esper.common.internal.collection.UniformPair;
@@ -61,5 +60,5 @@ public interface JoinSetComposer {
      */
     void destroy();
 
-    void visitIndexes(EventTableVisitor visitor);
+    void accept(EventTableVisitor visitor);
 }
