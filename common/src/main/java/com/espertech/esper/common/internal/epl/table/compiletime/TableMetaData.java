@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
@@ -112,30 +111,30 @@ public class TableMetaData implements Copyable<TableMetaData> {
     public CodegenExpression make(CodegenMethodScope parent, ModuleTableInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(TableMetaData.class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(TableMetaData.class, "meta", newInstance(TableMetaData.class))
-                .exprDotMethod(ref("meta"), "setTableName", constant(tableName))
-                .exprDotMethod(ref("meta"), "setTableModuleName", constant(tableModuleName))
-                .exprDotMethod(ref("meta"), "setTableVisibility", constant(tableVisibility))
-                .exprDotMethod(ref("meta"), "setOptionalContextName", constant(optionalContextName))
-                .exprDotMethod(ref("meta"), "setOptionalContextVisibility", constant(optionalContextVisibility))
-                .exprDotMethod(ref("meta"), "setOptionalContextModule", constant(optionalContextModule))
-                .exprDotMethod(ref("meta"), "setInternalEventType", EventTypeUtility.resolveTypeCodegen(internalEventType, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("meta"), "setPublicEventType", EventTypeUtility.resolveTypeCodegen(publicEventType, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("meta"), "setKeyColumns", constant(keyColumns))
-                .exprDotMethod(ref("meta"), "setKeyTypes", constant(keyTypes))
-                .exprDotMethod(ref("meta"), "setKeyColNums", constant(keyColNums))
-                .exprDotMethod(ref("meta"), "setColumns", TableMetadataColumn.makeColumns(columns, method, symbols, classScope))
-                .exprDotMethod(ref("meta"), "setNumMethodAggs", constant(numMethodAggs))
-                .exprDotMethod(ref("meta"), "init")
-                .methodReturn(ref("meta"));
+            .declareVar(TableMetaData.class, "meta", newInstance(TableMetaData.class))
+            .exprDotMethod(ref("meta"), "setTableName", constant(tableName))
+            .exprDotMethod(ref("meta"), "setTableModuleName", constant(tableModuleName))
+            .exprDotMethod(ref("meta"), "setTableVisibility", constant(tableVisibility))
+            .exprDotMethod(ref("meta"), "setOptionalContextName", constant(optionalContextName))
+            .exprDotMethod(ref("meta"), "setOptionalContextVisibility", constant(optionalContextVisibility))
+            .exprDotMethod(ref("meta"), "setOptionalContextModule", constant(optionalContextModule))
+            .exprDotMethod(ref("meta"), "setInternalEventType", EventTypeUtility.resolveTypeCodegen(internalEventType, symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("meta"), "setPublicEventType", EventTypeUtility.resolveTypeCodegen(publicEventType, symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("meta"), "setKeyColumns", constant(keyColumns))
+            .exprDotMethod(ref("meta"), "setKeyTypes", constant(keyTypes))
+            .exprDotMethod(ref("meta"), "setKeyColNums", constant(keyColNums))
+            .exprDotMethod(ref("meta"), "setColumns", TableMetadataColumn.makeColumns(columns, method, symbols, classScope))
+            .exprDotMethod(ref("meta"), "setNumMethodAggs", constant(numMethodAggs))
+            .exprDotMethod(ref("meta"), "init")
+            .methodReturn(ref("meta"));
         return localMethod(method);
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
         return newInstance(TableMetaData.class, constant(tableName),
-                constant(optionalContextName), constant(optionalContextVisibility), constant(optionalContextModule),
-                EventTypeUtility.resolveTypeCodegen(internalEventType, addInitSvc),
-                EventTypeUtility.resolveTypeCodegen(publicEventType, addInitSvc));
+            constant(optionalContextName), constant(optionalContextVisibility), constant(optionalContextModule),
+            EventTypeUtility.resolveTypeCodegen(internalEventType, addInitSvc),
+            EventTypeUtility.resolveTypeCodegen(publicEventType, addInitSvc));
     }
 
     public EventType getInternalEventType() {

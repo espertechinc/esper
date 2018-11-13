@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.namedwindow.path;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
@@ -28,7 +27,7 @@ import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class NamedWindowMetaData implements Copyable<NamedWindowMetaData>  {
+public class NamedWindowMetaData implements Copyable<NamedWindowMetaData> {
     private final EventType eventType;
     private final String namedWindowModuleName;
     private final String contextName;
@@ -81,9 +80,9 @@ public class NamedWindowMetaData implements Copyable<NamedWindowMetaData>  {
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
         return newInstance(NamedWindowMetaData.class, EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc), constant(namedWindowModuleName), constant(contextName), constant(uniqueness),
-                constant(isChildBatching), constant(isEnableIndexShare),
-                optionalEventTypeAs == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(optionalEventTypeAs, addInitSvc),
-                constant(virtualDataWindow));
+            constant(isChildBatching), constant(isEnableIndexShare),
+            optionalEventTypeAs == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(optionalEventTypeAs, addInitSvc),
+            constant(virtualDataWindow));
     }
 
     public Set<String> getUniquenessAsSet() {

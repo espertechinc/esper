@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.internal.util.CollectionUtil;
-import com.espertech.esper.common.internal.util.Copyable;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +37,7 @@ public class PathRegistry<K, E> {
     }
 
     public void add(K entityKey, String moduleName, E entity, String deploymentId)
-            throws PathException {
+        throws PathException {
         checkModuleNameParameter(moduleName);
         PathModuleEntry<E> existing = entities.get(entityKey);
         if (existing == null) {

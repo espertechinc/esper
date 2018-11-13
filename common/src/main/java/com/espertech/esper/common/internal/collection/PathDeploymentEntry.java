@@ -58,8 +58,7 @@ public class PathDeploymentEntry<E> {
         E reference;
         if (entity instanceof Copyable) {
             reference = (E) ((Copyable) entity).copy();
-        }
-        else {
+        } else {
             reference = entity;
         }
         return new PathDeploymentEntry<>(deploymentId, reference);

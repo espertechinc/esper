@@ -13,13 +13,13 @@ package com.espertech.esper.regressionlib.suite.client.compile;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPRuntime;
 
@@ -97,8 +97,7 @@ public class ClientCompileEnginePath {
             args.getPath().add(runtime.getRuntimePath());
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
             return runtime.getDeploymentService().deploy(compiled);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }

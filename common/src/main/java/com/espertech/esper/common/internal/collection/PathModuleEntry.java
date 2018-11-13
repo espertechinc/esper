@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.internal.util.CollectionUtil;
-import com.espertech.esper.common.internal.util.Copyable;
 
 import java.util.HashMap;
 import java.util.Map;
