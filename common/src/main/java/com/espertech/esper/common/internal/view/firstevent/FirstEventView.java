@@ -89,7 +89,7 @@ public class FirstEventView extends ViewSupport implements DataWindowView {
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {
-        viewDataVisitor.visitPrimary(firstEvent, FirstEventViewFactory.NAME);
+        viewDataVisitor.visitPrimary(firstEvent, viewFactory.getViewName());
     }
 
     public ViewFactory getViewFactory() {

@@ -30,8 +30,6 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
  * Factory for {@link UniqueByPropertyView} instances.
  */
 public class UniqueByPropertyViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, DataWindowViewForgeUniqueCandidate {
-    public final static String NAME = "Unique-By";
-
     protected List<ExprNode> viewParameters;
     protected ExprNode[] criteriaExpressions;
 
@@ -69,7 +67,7 @@ public class UniqueByPropertyViewForge extends ViewFactoryForgeBase implements D
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.UNIQUE_BY_PROPERTY.getName();
     }
 
     public ExprNode[] getCriteriaExpressions() {

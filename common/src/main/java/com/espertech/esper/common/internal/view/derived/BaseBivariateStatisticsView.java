@@ -27,8 +27,6 @@ import java.util.Iterator;
  * Subclasses compute correlation or regression values, for instance.
  */
 public abstract class BaseBivariateStatisticsView extends ViewSupport implements DerivedValueView {
-    private final static String NAME = "Statistics";
-
     protected final ViewFactory viewFactory;
     /**
      * This bean can be overridden by subclasses providing extra values such as correlation, regression.

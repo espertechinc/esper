@@ -22,8 +22,6 @@ import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
 import java.util.List;
 
 public class FirstEventViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, AsymetricDataWindowViewForge {
-    public final static String NAME = "First-Event";
-
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         ViewForgeSupport.validateNoParameters(getViewName(), parameters);
     }
@@ -44,6 +42,6 @@ public class FirstEventViewForge extends ViewFactoryForgeBase implements DataWin
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.FIRST_EVENT.getName();
     }
 }

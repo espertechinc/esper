@@ -188,7 +188,7 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
     }
 
     public static void visitViewContained(ViewDataVisitorContained viewDataVisitor, ViewFactory viewFactory, View[] views) {
-        viewDataVisitor.visitPrimary(viewFactory.getClass().getSimpleName(), views.length);
+        viewDataVisitor.visitPrimary(viewFactory.getViewName(), views.length);
         for (int i = 0; i < views.length; i++) {
             viewDataVisitor.visitContained(i, views[i]);
         }

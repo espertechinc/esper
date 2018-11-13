@@ -30,8 +30,6 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
  * Factory for {@link FirstUniqueByPropertyView} instances.
  */
 public class FirstUniqueByPropertyViewForge extends ViewFactoryForgeBase implements AsymetricDataWindowViewForge, DataWindowViewForgeUniqueCandidate {
-    public static final String NAME = "First-Unique-By";
-
     protected List<ExprNode> viewParameters;
     protected ExprNode[] criteriaExpressions;
 
@@ -69,6 +67,6 @@ public class FirstUniqueByPropertyViewForge extends ViewFactoryForgeBase impleme
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.UNIQUE_FIRST_BY_PROPERTY.getName();
     }
 }

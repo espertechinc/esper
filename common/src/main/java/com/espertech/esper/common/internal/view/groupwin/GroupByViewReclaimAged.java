@@ -165,7 +165,7 @@ public class GroupByViewReclaimAged extends ViewSupport implements GroupByView, 
     }
 
     public void visitViewContainer(ViewDataVisitorContained viewDataVisitor) {
-        viewDataVisitor.visitPrimary(GroupByViewImpl.VIEWNAME, subViewPerKey.size());
+        viewDataVisitor.visitPrimary(groupByViewFactory.getViewName(), subViewPerKey.size());
         for (Map.Entry<Object, GroupByViewAgedEntry> entry : subViewPerKey.entrySet()) {
             GroupByViewImpl.visitView(viewDataVisitor, entry.getKey(), entry.getValue().getSubview());
         }

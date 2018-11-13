@@ -15,8 +15,6 @@ import com.espertech.esper.common.internal.context.module.EPStatementInitService
 import com.espertech.esper.common.internal.view.core.*;
 
 public class FirstEventViewFactory implements DataWindowViewFactory {
-    public final static String NAME = "First-Event";
-
     protected EventType eventType;
 
     public void setEventType(EventType eventType) {

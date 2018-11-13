@@ -14,8 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
-import com.espertech.esper.common.internal.view.core.ViewSupport;
+import com.espertech.esper.common.internal.view.core.*;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -23,7 +22,7 @@ import java.util.Iterator;
 /**
  * This view is a moving window extending the specified number of elements into the past.
  */
-public class LengthWindowView extends ViewSupport {
+public class LengthWindowView extends ViewSupport implements DataWindowView {
     protected final AgentInstanceContext agentInstanceContext;
     private final LengthWindowViewFactory viewFactory;
     private final int size;
@@ -126,7 +125,6 @@ public class LengthWindowView extends ViewSupport {
         return this.getClass().getName() + " size=" + size;
     }
 
-    /*
     public void visitView(ViewDataVisitor viewDataVisitor) {
         viewDataVisitor.visitPrimary(events, true, viewFactory.getViewName(), null);
     }
@@ -134,5 +132,4 @@ public class LengthWindowView extends ViewSupport {
     public ViewFactory getViewFactory() {
         return viewFactory;
     }
-    */
 }
