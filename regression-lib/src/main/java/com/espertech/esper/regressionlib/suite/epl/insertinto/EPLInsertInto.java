@@ -225,14 +225,14 @@ public class EPLInsertInto {
             assertEquals(1, env.listener("stmt1").getLastNewData().length);
             assertEquals(10, env.listener("stmt1").getLastNewData()[0].get("intPrimitive"));
             assertEquals(11, env.listener("stmt1").getLastNewData()[0].get("intBoxed"));
-            assertEquals(21, env.listener("stmt1").getLastNewData()[0].getEventType().getPropertyNames().length);
+            assertEquals(20, env.listener("stmt1").getLastNewData()[0].getEventType().getPropertyNames().length);
             assertSame(theEvent, env.listener("stmt1").getLastNewData()[0].getUnderlying());
 
             assertTrue(env.listener("stmt2").getAndClearIsInvoked());
             assertEquals(1, env.listener("stmt2").getLastNewData().length);
             assertEquals(10, env.listener("stmt2").getLastNewData()[0].get("intPrimitive"));
             assertEquals(11, env.listener("stmt2").getLastNewData()[0].get("intBoxed"));
-            assertEquals(21, env.listener("stmt2").getLastNewData()[0].getEventType().getPropertyNames().length);
+            assertEquals(20, env.listener("stmt2").getLastNewData()[0].getEventType().getPropertyNames().length);
             assertSame(theEvent, env.listener("stmt2").getLastNewData()[0].getUnderlying());
 
             env.undeployAll();

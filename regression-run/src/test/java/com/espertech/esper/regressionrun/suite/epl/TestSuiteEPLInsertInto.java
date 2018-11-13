@@ -106,7 +106,7 @@ public class TestSuiteEPLInsertInto extends TestCase {
             SupportBeanCtorOne.class, SupportBeanCtorTwo.class, SupportBean_ST0.class, SupportBean_ST1.class,
             SupportEventWithCtorSameType.class, SupportBeanCtorThree.class, SupportBeanCtorOne.class,
             SupportBean_ST0.class, SupportBean_ST1.class, SupportEventWithMapFieldSetter.class,
-            SupportBeanNumeric.class, SupportBeanArrayEvent.class,
+            SupportBeanNumeric.class, SupportBeanArrayEvent.class, SupportBeanWithThis.class,
             SupportBean_A.class, SupportBean_B.class, SupportEventContainsSupportBean.class
         }) {
             configuration.getCommon().addEventType(clazz);

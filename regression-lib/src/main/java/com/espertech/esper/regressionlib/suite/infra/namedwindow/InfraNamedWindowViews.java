@@ -22,7 +22,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.bean.SupportOverrideOneA;
@@ -251,13 +250,7 @@ public class InfraNamedWindowViews {
             tryAssertionBeanBacked(env, EventRepresentationChoice.ARRAY);
             tryAssertionBeanBacked(env, EventRepresentationChoice.MAP);
             tryAssertionBeanBacked(env, EventRepresentationChoice.DEFAULT);
-
-            try {
-                tryAssertionBeanBacked(env, EventRepresentationChoice.AVRO);
-                fail();
-            } catch (Throwable ex) {
-                SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Avro event type does not allow contained beans");
-            }
+            tryAssertionBeanBacked(env, EventRepresentationChoice.AVRO);
         }
     }
 

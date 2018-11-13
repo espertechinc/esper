@@ -16,6 +16,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanWithThis;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 
@@ -38,23 +39,23 @@ public class EPLInsertIntoTransposePattern {
     private static class EPLInsertIntoThisAsColumn implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('window') create window OneWindow#time(1 day) as select theString as alertId, this from SupportBean", path);
+            env.compileDeploy("@name('window') create window OneWindow#time(1 day) as select theString as alertId, this from SupportBeanWithThis", path);
             env.compileDeploy("insert into OneWindow select '1' as alertId, stream0.quote.this as this " +
-                " from pattern [every quote=SupportBean(theString='A')] as stream0", path);
+                " from pattern [every quote=SupportBeanWithThis(theString='A')] as stream0", path);
             env.compileDeploy("insert into OneWindow select '2' as alertId, stream0.quote as this " +
-                " from pattern [every quote=SupportBean(theString='B')] as stream0", path);
+                " from pattern [every quote=SupportBeanWithThis(theString='B')] as stream0", path);
 
-            env.sendEventBean(new SupportBean("A", 10));
+            env.sendEventBean(new SupportBeanWithThis("A", 10));
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window"), new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}});
 
-            env.sendEventBean(new SupportBean("B", 20));
+            env.sendEventBean(new SupportBeanWithThis("B", 20));
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window"), new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}, {"2", 20}});
 
-            env.compileDeploy("@Name('window-2') create window TwoWindow#time(1 day) as select theString as alertId, * from SupportBean", path);
+            env.compileDeploy("@Name('window-2') create window TwoWindow#time(1 day) as select theString as alertId, * from SupportBeanWithThis", path);
             env.compileDeploy("insert into TwoWindow select '3' as alertId, quote.* " +
-                " from pattern [every quote=SupportBean(theString='C')] as stream0", path);
+                " from pattern [every quote=SupportBeanWithThis(theString='C')] as stream0", path);
 
-            env.sendEventBean(new SupportBean("C", 30));
+            env.sendEventBean(new SupportBeanWithThis("C", 30));
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window-2"), new String[]{"alertId", "intPrimitive"}, new Object[][]{{"3", 30}});
 
             env.undeployAll();

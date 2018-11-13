@@ -286,7 +286,7 @@ public class EPLOtherSelectExprStreamSelector {
             env.compileDeploy(epl).addListener("s0");
 
             EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(23, type.getPropertyNames().length);
+            Assert.assertEquals(22, type.getPropertyNames().length);
             Assert.assertEquals(Pair.class, type.getUnderlyingType());
             Assert.assertEquals(Integer.class, type.getPropertyType("a"));
             Assert.assertEquals(Integer.class, type.getPropertyType("b"));
