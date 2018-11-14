@@ -280,8 +280,8 @@ public class RowRecogNFAViewPlanUtil {
         RowRecogNFAStateForge[] startStates = strand.getStartStates().toArray(new RowRecogNFAStateForge[strand.getStartStates().size()]);
         RowRecogNFAStateForge[] allStates = strand.getAllStates().toArray(new RowRecogNFAStateForge[strand.getAllStates().size()]);
 
-        if (log.isInfoEnabled()) {
-            log.info("NFA tree:\n" + RowRecogNFAViewUtil.print(startStates));
+        if (log.isDebugEnabled()) {
+            log.debug("NFA tree:\n" + RowRecogNFAViewUtil.print(startStates));
         }
 
         // determine names of multimatching variables
