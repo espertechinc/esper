@@ -65,7 +65,10 @@ public class RowLimitProcessor {
     }
 
     public EventBean[] applyLimit(EventBean[] outgoingEvents) {
-
+        if (outgoingEvents == null) {
+            return null;
+        }
+        
         // no offset
         if (currentOffset == 0) {
             if (outgoingEvents.length <= currentRowLimit) {
