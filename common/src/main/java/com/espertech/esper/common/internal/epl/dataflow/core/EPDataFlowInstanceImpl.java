@@ -66,6 +66,10 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance {
         return dataflowDesc.getDataflowName();
     }
 
+    public String getDataFlowDeploymentId() {
+        return dataflowDesc.getStatementContext().getDeploymentId();
+    }
+
     public EPDataFlowState getState() {
         return state;
     }
