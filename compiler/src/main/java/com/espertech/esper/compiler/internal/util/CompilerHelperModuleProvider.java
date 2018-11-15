@@ -106,7 +106,7 @@ public class CompilerHelperModuleProvider {
                 exceptions.add(exception);
             }
 
-            if (exception != null) {
+            if (exception == null) {
                 statementClassNames.add(className);
             }
             statementNumber++;
