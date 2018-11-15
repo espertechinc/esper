@@ -152,4 +152,8 @@ public class StatementSpecMapContext {
     public List<ExprSubstitutionNode> getSubstitutionNodes() {
         return substitutionNodes;
     }
+
+    public boolean isAttachPatternText() {
+        return mapEnv.getConfiguration().getCompiler().getByteCode().isAttachPatternEPL();
+    }
 }

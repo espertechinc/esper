@@ -82,6 +82,10 @@ public class TestSuiteClientCompile extends TestCase {
         RegressionRunner.run(session, ClientCompileEventTypeAutoName.executions());
     }
 
+    public void testClientCompileExceptionItems() {
+        RegressionRunner.run(session, ClientCompileExceptionItems.executions());
+    }
+
     private static void configure(Configuration configuration) {
 
         for (Class clazz : new Class[]{SupportBean.class, SupportMarketDataBean.class, SupportBean_S0.class, SupportBean_S1.class}) {

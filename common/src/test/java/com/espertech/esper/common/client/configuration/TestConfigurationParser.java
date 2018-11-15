@@ -67,6 +67,7 @@ public class TestConfigurationParser extends TestCase {
         assertFalse(byteCode.isIncludeDebugSymbols());
         assertTrue(byteCode.isAttachEPL());
         assertFalse(byteCode.isAttachModuleEPL());
+        assertFalse(byteCode.isAttachPatternEPL());
         assertFalse(byteCode.isInstrumented());
         assertFalse(byteCode.isAllowSubscriber());
         assertEquals(NameAccessModifier.PRIVATE, byteCode.getAccessModifierContext());
@@ -461,6 +462,7 @@ public class TestConfigurationParser extends TestCase {
         assertTrue(byteCode.isIncludeDebugSymbols());
         assertFalse(byteCode.isAttachEPL());
         assertTrue(byteCode.isAttachModuleEPL());
+        assertTrue(byteCode.isAttachPatternEPL());
         assertTrue(byteCode.isInstrumented());
         assertTrue(byteCode.isAllowSubscriber());
         assertEquals(NameAccessModifier.PROTECTED, byteCode.getAccessModifierContext());

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.view.core.ViewEnum;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
@@ -27,8 +28,6 @@ import java.util.List;
  * Factory for {@link SizeView} instances.
  */
 public class SizeViewForge extends ViewFactoryForgeBase {
-    protected final static String NAME = "Size";
-
     private List<ExprNode> viewParameters;
     protected StatViewAdditionalPropsForge additionalProps;
 
@@ -57,6 +56,6 @@ public class SizeViewForge extends ViewFactoryForgeBase {
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.SIZE.getName();
     }
 }

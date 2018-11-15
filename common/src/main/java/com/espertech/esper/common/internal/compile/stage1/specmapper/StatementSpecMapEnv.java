@@ -71,4 +71,8 @@ public class StatementSpecMapEnv {
     public CompilerServices getCompilerServices() {
         return compilerServices;
     }
+
+    public boolean isAttachPatternText() {
+        return configuration.getCompiler().getByteCode().isAttachPatternEPL();
+    }
 }

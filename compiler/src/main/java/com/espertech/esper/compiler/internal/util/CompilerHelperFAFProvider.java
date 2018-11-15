@@ -131,9 +131,9 @@ public class CompilerHelperFAFProvider {
         } catch (StatementSpecCompileException ex) {
             EPCompileExceptionItem first;
             if (ex instanceof StatementSpecCompileSyntaxException) {
-                first = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex.getExpression(), -1);
+                first = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex, ex.getExpression(), -1);
             } else {
-                first = new EPCompileExceptionItem(ex.getMessage(), ex.getExpression(), -1);
+                first = new EPCompileExceptionItem(ex.getMessage(), ex, ex.getExpression(), -1);
             }
             List<EPCompileExceptionItem> items = Collections.singletonList(first);
             throw new EPCompileException(ex.getMessage() + " [" + ex.getExpression() + "]", ex, items);

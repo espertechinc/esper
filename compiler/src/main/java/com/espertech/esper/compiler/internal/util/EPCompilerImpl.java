@@ -54,11 +54,11 @@ public class EPCompilerImpl implements EPCompilerSPI {
     private final static Logger log = LoggerFactory.getLogger(EPCompilerImpl.class);
 
     public EPCompiled compileQuery(String fireAndForgetEPLQuery, CompilerArguments arguments) throws EPCompileException {
-        return compileQueryInternal(new CompilableEPL(fireAndForgetEPLQuery), arguments);
+        return compileQueryInternal(new CompilableEPL(fireAndForgetEPLQuery, 1), arguments);
     }
 
     public EPCompiled compileQuery(EPStatementObjectModel fireAndForgetEPLQueryModel, CompilerArguments arguments) throws EPCompileException {
-        return compileQueryInternal(new CompilableSODA(fireAndForgetEPLQueryModel), arguments);
+        return compileQueryInternal(new CompilableSODA(fireAndForgetEPLQueryModel, 1), arguments);
     }
 
     public EPCompiled compile(String epl, CompilerArguments arguments) throws EPCompileException {
@@ -71,7 +71,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
             List<Compilable> compilables = new ArrayList<>();
             for (ModuleItem item : module.getItems()) {
                 String stmtEpl = item.getExpression();
-                compilables.add(new CompilableEPL(stmtEpl));
+                compilables.add(new CompilableEPL(stmtEpl, item.getLineNumber()));
             }
 
             // determine module name
@@ -147,9 +147,9 @@ public class EPCompilerImpl implements EPCompilerSPI {
                 throw new EPCompileException("Module item has both an EPL expression and a statement object model");
             }
             if (item.getExpression() != null) {
-                compilables.add(new CompilableEPL(item.getExpression()));
+                compilables.add(new CompilableEPL(item.getExpression(), item.getLineNumber()));
             } else if (item.getModel() != null) {
-                compilables.add(new CompilableSODA(item.getModel()));
+                compilables.add(new CompilableSODA(item.getModel(), item.getLineNumber()));
             } else {
                 throw new EPCompileException("Module item has neither an EPL expression nor a statement object model");
             }
@@ -219,9 +219,9 @@ public class EPCompilerImpl implements EPCompilerSPI {
                     throw new EPCompileException("Module item has both an EPL expression and a statement object model");
                 }
                 if (item.getExpression() != null) {
-                    parseWalk(new CompilableEPL(item.getExpression()), services);
+                    parseWalk(new CompilableEPL(item.getExpression(), item.getLineNumber()), services);
                 } else if (item.getModel() != null) {
-                    parseWalk(new CompilableSODA(item.getModel()), services);
+                    parseWalk(new CompilableSODA(item.getModel(), item.getLineNumber()), services);
                     item.getModel().toEPL();
                 } else {
                     throw new EPCompileException("Module item has neither an EPL expression nor a statement object model");

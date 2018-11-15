@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.context;
 
 import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class ContextCategory {
@@ -62,6 +64,11 @@ public class ContextCategory {
             Set<Integer> ids = env.runtime().getContextPartitionService().getContextPartitionIds(deploymentIdContext, "CategoryContext", new ContextPartitionSelectorAll());
             assertEquals(2, env.runtime().getContextPartitionService().getContextPartitionCount(deploymentIdContext, "CategoryContext"));
             EPAssertionUtil.assertEqualsExactOrder(new Integer[]{0, 1}, ids.toArray());
+
+            assertNull(env.statement("context").getProperty(StatementProperty.CONTEXTNAME));
+            assertNull(env.statement("context").getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
+            assertEquals("CategoryContext", env.statement("s0").getProperty(StatementProperty.CONTEXTNAME));
+            assertEquals(env.deploymentId("s0"), env.statement("s0").getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
 
             sendAssert(env, "A", 1, "cat1", 1L);
             sendAssert(env, "C", 2, null, null);
@@ -154,6 +161,9 @@ public class ContextCategory {
             env.compileDeploy(eplCtx, path);
             String eplSum = "@name('s0') context Ctx600a select context.label as c0, count(*) as c1 from SupportBean";
             env.compileDeploy(eplSum, path).addListener("s0");
+
+            assertEquals("Ctx600a", env.statement("s0").getProperty(StatementProperty.CONTEXTNAME));
+            assertEquals(env.deploymentId("ctx"), env.statement("s0").getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
 
             sendAssertBooleanExprFilter(env, "B1", "bgroup", 1);
 

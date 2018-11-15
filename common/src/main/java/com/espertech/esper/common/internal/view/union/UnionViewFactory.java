@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.view.union;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.view.core.*;
+import com.espertech.esper.common.internal.view.intersect.IntersectViewFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,6 @@ public class UnionViewFactory implements ViewFactory, DataWindowViewFactory {
     }
 
     public String getViewName() {
-        return "union";
+        return IntersectViewFactory.getViewNameUnionIntersect(false, unioned);
     }
 }

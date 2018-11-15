@@ -118,10 +118,38 @@ public class CompilerHelperServices {
         Map<String, Class> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configuration.getCommon().getEventTypeNames(), classpathImportServiceCompileTime);
         BeanEventTypeStemService beanEventTypeStemService = BeanEventTypeRepoUtil.makeBeanEventTypeStemService(configuration, resolvedBeanEventTypes, EventBeanTypedEventFactoryCompileTime.INSTANCE);
 
-        // build preconfigured type system
+        // allocate repositories
         EventTypeRepositoryImpl eventTypeRepositoryPreconfigured = new EventTypeRepositoryImpl(true);
         EventTypeCompileTimeRegistry eventTypeCompileRegistry = new EventTypeCompileTimeRegistry(eventTypeRepositoryPreconfigured);
         BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate = new BeanEventTypeFactoryPrivate(EventBeanTypedEventFactoryCompileTime.INSTANCE, EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService);
+        VariableRepositoryPreconfigured variableRepositoryPreconfigured = new VariableRepositoryPreconfigured();
+
+        // allocate path registries
+        PathRegistry<String, EventType> pathEventTypes = new PathRegistry<>(PathRegistryObjectType.EVENTTYPE);
+        PathRegistry<String, NamedWindowMetaData> pathNamedWindows = new PathRegistry<>(PathRegistryObjectType.NAMEDWINDOW);
+        PathRegistry<String, TableMetaData> pathTables = new PathRegistry<>(PathRegistryObjectType.TABLE);
+        PathRegistry<String, ContextMetaData> pathContexts = new PathRegistry<>(PathRegistryObjectType.CONTEXT);
+        PathRegistry<String, VariableMetaData> pathVariables = new PathRegistry<>(PathRegistryObjectType.VARIABLE);
+        PathRegistry<String, ExpressionDeclItem> pathExprDeclared = new PathRegistry<>(PathRegistryObjectType.EXPRDECL);
+        PathRegistry<NameAndParamNum, ExpressionScriptProvided> pathScript = new PathRegistry<>(PathRegistryObjectType.SCRIPT);
+
+        // add runtime-path which is the information an existing runtime may have
+        if (path.getCompilerPathables() != null) {
+            for (EPCompilerPathable pathable : path.getCompilerPathables()) {
+                EPCompilerPathableImpl impl = (EPCompilerPathableImpl) pathable;
+                pathVariables.mergeFrom(impl.getVariablePathRegistry());
+                pathEventTypes.mergeFrom(impl.getEventTypePathRegistry());
+                pathExprDeclared.mergeFrom(impl.getExprDeclaredPathRegistry());
+                pathNamedWindows.mergeFrom(impl.getNamedWindowPathRegistry());
+                pathTables.mergeFrom(impl.getTablePathRegistry());
+                pathContexts.mergeFrom(impl.getContextPathRegistry());
+                pathScript.mergeFrom(impl.getScriptPathRegistry());
+                eventTypeRepositoryPreconfigured.mergeFrom(impl.getEventTypePreconfigured());
+                variableRepositoryPreconfigured.mergeFrom(impl.getVariablePreconfigured());
+            }
+        }
+
+        // build preconfigured type system
         EventTypeRepositoryBeanTypeUtil.buildBeanTypes(beanEventTypeStemService, eventTypeRepositoryPreconfigured, resolvedBeanEventTypes, beanEventTypeFactoryPrivate, configuration.getCommon().getEventTypesBean());
         EventTypeRepositoryMapTypeUtil.buildMapTypes(eventTypeRepositoryPreconfigured, configuration.getCommon().getMapTypeConfigurations(), configuration.getCommon().getEventTypesMapEvents(), configuration.getCommon().getEventTypesNestableMapEvents(), beanEventTypeFactoryPrivate, classpathImportServiceCompileTime);
         EventTypeRepositoryOATypeUtil.buildOATypes(eventTypeRepositoryPreconfigured, configuration.getCommon().getObjectArrayTypeConfigurations(), configuration.getCommon().getEventTypesNestableObjectArrayEvents(), beanEventTypeFactoryPrivate, classpathImportServiceCompileTime);
@@ -132,17 +160,7 @@ public class CompilerHelperServices {
         EventTypeRepositoryVariantStreamUtil.buildVariantStreams(eventTypeRepositoryPreconfigured, configuration.getCommon().getVariantStreams(), EventTypeFactoryImpl.INSTANCE);
 
         // build preconfigured variables
-        VariableRepositoryPreconfigured variableRepositoryPreconfigured = new VariableRepositoryPreconfigured();
         VariableUtil.configureVariables(variableRepositoryPreconfigured, configuration.getCommon().getVariables(), classpathImportServiceCompileTime, EventBeanTypedEventFactoryCompileTime.INSTANCE, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate);
-
-        // determine all event types that are in path
-        PathRegistry<String, EventType> pathEventTypes = new PathRegistry<>(PathRegistryObjectType.EVENTTYPE);
-        PathRegistry<String, NamedWindowMetaData> pathNamedWindows = new PathRegistry<>(PathRegistryObjectType.NAMEDWINDOW);
-        PathRegistry<String, TableMetaData> pathTables = new PathRegistry<>(PathRegistryObjectType.TABLE);
-        PathRegistry<String, ContextMetaData> pathContexts = new PathRegistry<>(PathRegistryObjectType.CONTEXT);
-        PathRegistry<String, VariableMetaData> pathVariables = new PathRegistry<>(PathRegistryObjectType.VARIABLE);
-        PathRegistry<String, ExpressionDeclItem> pathExprDeclared = new PathRegistry<>(PathRegistryObjectType.EXPRDECL);
-        PathRegistry<NameAndParamNum, ExpressionScriptProvided> pathScript = new PathRegistry<>(PathRegistryObjectType.SCRIPT);
 
         int deploymentNumber = -1;
 
@@ -263,22 +281,6 @@ public class CompilerHelperServices {
                 }
             } catch (PathException ex) {
                 throw new EPCompileException("Invalid path: " + ex.getMessage(), ex, Collections.emptyList());
-            }
-        }
-
-        // add runtime-path which is the information an existing runtime may have
-        if (path.getCompilerPathables() != null) {
-            for (EPCompilerPathable pathable : path.getCompilerPathables()) {
-                EPCompilerPathableImpl impl = (EPCompilerPathableImpl) pathable;
-                pathVariables.mergeFrom(impl.getVariablePathRegistry());
-                pathEventTypes.mergeFrom(impl.getEventTypePathRegistry());
-                pathExprDeclared.mergeFrom(impl.getExprDeclaredPathRegistry());
-                pathNamedWindows.mergeFrom(impl.getNamedWindowPathRegistry());
-                pathTables.mergeFrom(impl.getTablePathRegistry());
-                pathContexts.mergeFrom(impl.getContextPathRegistry());
-                pathScript.mergeFrom(impl.getScriptPathRegistry());
-                eventTypeRepositoryPreconfigured.mergeFrom(impl.getEventTypePreconfigured());
-                variableRepositoryPreconfigured.mergeFrom(impl.getVariablePreconfigured());
             }
         }
 

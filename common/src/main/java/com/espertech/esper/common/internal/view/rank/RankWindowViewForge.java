@@ -29,8 +29,6 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
  * Factory for rank window views.
  */
 public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, DataWindowViewForgeWithPrevious {
-    private final static String NAME = "Rank";
-
     private List<ExprNode> viewParameters;
 
     /**
@@ -62,13 +60,13 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
 
     public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         eventType = parentEventType;
-        String message = NAME + " view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys";
+        String message = getViewName() + " view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys";
         if (viewParameters.size() < 3) {
             throw new ViewParameterException(message);
         }
 
         // validate
-        ExprNode[] validated = ViewForgeSupport.validate(NAME, parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
 
         // find size-parameter index
         int indexNumericSize = -1;
@@ -90,10 +88,10 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
 
         // validate non-constant for unique-keys and sort-keys
         for (int i = 0; i < indexNumericSize; i++) {
-            ViewForgeSupport.assertReturnsNonConstant(NAME, validated[i], i);
+            ViewForgeSupport.assertReturnsNonConstant(getViewName(), validated[i], i);
         }
         for (int i = indexNumericSize + 1; i < validated.length; i++) {
-            ViewForgeSupport.assertReturnsNonConstant(NAME, validated[i], i);
+            ViewForgeSupport.assertReturnsNonConstant(getViewName(), validated[i], i);
         }
 
         // get sort size
@@ -140,6 +138,6 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.RANK_WINDOW.getName();
     }
 }

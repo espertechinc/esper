@@ -19,8 +19,6 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link UnivariateStatisticsView} instances.
  */
 public class UnivariateStatisticsViewFactory implements ViewFactory {
-    protected final static String NAME = "Univariate statistics";
-
     protected ExprEvaluator fieldEval;
     protected StatViewAdditionalPropsEval additionalProps;
     protected EventType eventType;

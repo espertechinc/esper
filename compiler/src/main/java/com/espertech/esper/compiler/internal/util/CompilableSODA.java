@@ -19,13 +19,19 @@ public class CompilableSODA implements Compilable {
     private static final Logger log = LoggerFactory.getLogger(CompilableSODA.class);
 
     private final EPStatementObjectModel soda;
+    private final int lineNumber;
 
-    public CompilableSODA(EPStatementObjectModel soda) {
+    public CompilableSODA(EPStatementObjectModel soda, int lineNumber) {
         this.soda = soda;
+        this.lineNumber = lineNumber;
     }
 
     public EPStatementObjectModel getSoda() {
         return soda;
+    }
+
+    public int lineNumber() {
+        return lineNumber;
     }
 
     public String toEPL() {

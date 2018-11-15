@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.view.core.ViewEnum;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
@@ -30,8 +31,6 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
  * Factory for {@link WeightedAverageView} instances.
  */
 public class WeightedAverageViewForge extends ViewFactoryForgeBase {
-    protected final static String NAME = "Weighted-average";
-
     private List<ExprNode> viewParameters;
 
     protected ExprNode fieldNameX;
@@ -76,7 +75,7 @@ public class WeightedAverageViewForge extends ViewFactoryForgeBase {
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.WEIGHTED_AVERAGE.getName();
     }
 
     private String getViewParamMessage() {

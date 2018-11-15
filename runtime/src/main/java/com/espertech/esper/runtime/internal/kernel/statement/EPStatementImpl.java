@@ -246,6 +246,12 @@ public class EPStatementImpl implements EPStatementSPI {
         if (field == StatementProperty.STATEMENTTYPE) {
             return statementContext.getStatementType();
         }
+        if (field == StatementProperty.CONTEXTNAME) {
+            return statementContext.getContextRuntimeDescriptor() == null ? null : statementContext.getContextRuntimeDescriptor().getContextName();
+        }
+        if (field == StatementProperty.CONTEXTDEPLOYMENTID) {
+            return statementContext.getContextRuntimeDescriptor() == null ? null : statementContext.getContextRuntimeDescriptor().getContextDeploymentId();
+        }
         return statementContext.getStatementInformationals().getProperties().get(field);
     }
 

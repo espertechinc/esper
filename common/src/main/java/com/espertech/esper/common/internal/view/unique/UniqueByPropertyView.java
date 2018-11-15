@@ -164,7 +164,7 @@ public class UniqueByPropertyView extends ViewSupport implements DataWindowView 
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {
-        viewDataVisitor.visitPrimary(mostRecentEvents, true, UniqueByPropertyViewFactory.NAME, mostRecentEvents.size(), mostRecentEvents.size());
+        viewDataVisitor.visitPrimary(mostRecentEvents, true, viewFactory.getViewName(), mostRecentEvents.size(), mostRecentEvents.size());
     }
 
     public ViewFactory getViewFactory() {

@@ -17,6 +17,13 @@ import java.util.Map;
  */
 public interface EPDataFlowInstance {
     /**
+     * Returns the data flow deployment id.
+     *
+     * @return deployment id
+     */
+    public String getDataFlowDeploymentId();
+
+    /**
      * Returns the data flow name.
      *
      * @return name

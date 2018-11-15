@@ -43,6 +43,10 @@ public class EventTypeRepositoryMapTypeUtil {
                                      ClasspathImportService classpathImportService) {
         List<String> creationOrder = EventTypeRepositoryUtil.getCreationOrder(mapTypes.keySet(), nestableMapEvents.keySet(), mapTypeConfigurations);
         for (String mapName : creationOrder) {
+            if (repo.getTypeByName(mapName) != null) {
+                continue;
+            }
+
             ConfigurationCommonEventTypeMap mapConfig = mapTypeConfigurations.get(mapName);
             Properties propertiesUnnested = mapTypes.get(mapName);
             if (propertiesUnnested != null) {

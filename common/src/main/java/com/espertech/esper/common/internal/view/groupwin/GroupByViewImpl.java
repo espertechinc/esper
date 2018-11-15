@@ -44,7 +44,7 @@ import java.util.*;
  * using the group-by field name.
  */
 public class GroupByViewImpl extends ViewSupport implements GroupByView, AgentInstanceStopCallback {
-    public final static String VIEWNAME = "Group-By";
+    private final static String VIEWNAME = "groupwin";
 
     private final GroupByViewFactory groupByViewFactory;
     private final MergeView mergeView;

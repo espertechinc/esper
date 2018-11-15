@@ -192,7 +192,7 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer {
         return result;
     }
 
-    public void visitIndexes(EventTableVisitor visitor) {
+    public void accept(EventTableVisitor visitor) {
         visitor.visit(repositories);
     }
 

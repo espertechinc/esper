@@ -41,7 +41,8 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
      *
      * @param patternGuardSpec - factory for guard construction
      */
-    public EvalGuardForgeNode(PatternGuardSpec patternGuardSpec) {
+    public EvalGuardForgeNode(boolean attachPatternText, PatternGuardSpec patternGuardSpec) {
+        super(attachPatternText);
         this.patternGuardSpec = patternGuardSpec;
     }
 

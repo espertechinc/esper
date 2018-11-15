@@ -108,9 +108,8 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
         }
 
         AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
-        StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = new StatementAgentInstanceFactoryOnTriggerResult(view, stopCallback, agentInstanceContext, aggregationService,
-                subselectActivations, null, null, null, tableAccessEvals, null, null, activationResult);
-        return onTriggerResult;
+        return new StatementAgentInstanceFactoryOnTriggerResult(view, stopCallback, agentInstanceContext, aggregationService,
+                subselectActivations, null, null, null, tableAccessEvals, null, optPatternRoot, activationResult);
     }
 
     public AIRegistryRequirements getRegistryRequirements() {

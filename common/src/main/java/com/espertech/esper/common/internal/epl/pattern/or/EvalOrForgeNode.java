@@ -30,6 +30,10 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class EvalOrForgeNode extends EvalForgeNodeBase {
 
+    public EvalOrForgeNode(boolean attachPatternText) {
+        super(attachPatternText);
+    }
+
     public final String toString() {
         return "EvalOrNode children=" + this.getChildNodes().size();
     }

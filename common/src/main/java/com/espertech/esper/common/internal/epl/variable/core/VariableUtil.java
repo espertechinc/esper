@@ -42,19 +42,20 @@ public class VariableUtil {
 
     public static void configureVariables(VariableRepositoryPreconfigured repo, Map<String, ConfigurationCommonVariable> variables, ClasspathImportService classpathImportService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, BeanEventTypeFactory beanEventTypeFactory) throws ConfigurationException {
         for (Map.Entry<String, ConfigurationCommonVariable> entry : variables.entrySet()) {
-            if (repo.getMetadata(entry.getKey().trim()) != null) {
-                throw new ConfigurationException("Variable by name '" + entry.getKey() + "' has already been configured");
+            String variableName = entry.getKey().trim();
+            if (repo.getMetadata(variableName) != null) {
+                continue;
             }
 
             VariableMetaData meta;
             try {
                 ClassIdentifierWArray variableType = ClassIdentifierWArray.parseSODA(entry.getValue().getType());
-                meta = getTypeInfo(entry.getKey(), null, NameAccessModifier.PRECONFIGURED, null, null, null, variableType, true, entry.getValue().isConstant(), entry.getValue().isConstant(), entry.getValue().getInitializationValue(), classpathImportService, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
+                meta = getTypeInfo(variableName, null, NameAccessModifier.PRECONFIGURED, null, null, null, variableType, true, entry.getValue().isConstant(), entry.getValue().isConstant(), entry.getValue().getInitializationValue(), classpathImportService, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
             } catch (Throwable t) {
-                throw new ConfigurationException("Error configuring variable '" + entry.getKey() + "': " + t.getMessage(), t);
+                throw new ConfigurationException("Error configuring variable '" + variableName + "': " + t.getMessage(), t);
             }
 
-            repo.addVariable(entry.getKey(), meta);
+            repo.addVariable(variableName, meta);
         }
     }
 

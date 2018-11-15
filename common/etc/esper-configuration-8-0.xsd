@@ -446,6 +446,7 @@
 			<xs:attribute name="include-debugsymbols" type="xs:boolean" use="optional"/>
 			<xs:attribute name="attach-epl" type="xs:boolean" use="optional"/>
 			<xs:attribute name="attach-module-epl" type="xs:boolean" use="optional"/>
+			<xs:attribute name="attach-pattern-epl" type="xs:boolean" use="optional"/>
 			<xs:attribute name="allow-subscriber" type="xs:boolean" use="optional"/>
 			<xs:attribute name="instrumented" type="xs:boolean" use="optional"/>
 			<xs:attribute name="bus-modifier-event-type" type="esper:busModifierEnum" use="optional"/>

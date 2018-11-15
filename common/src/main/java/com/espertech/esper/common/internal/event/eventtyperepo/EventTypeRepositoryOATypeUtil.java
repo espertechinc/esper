@@ -40,6 +40,10 @@ public class EventTypeRepositoryOATypeUtil {
         List<String> creationOrder = EventTypeRepositoryUtil.getCreationOrder(Collections.emptySet(), nestableObjectArrayNames.keySet(), objectArrayTypeConfigurations);
 
         for (String objectArrayName : creationOrder) {
+            if (repo.getTypeByName(objectArrayName) != null) {
+                continue;
+            }
+
             ConfigurationCommonEventTypeObjectArray objectArrayConfig = objectArrayTypeConfigurations.get(objectArrayName);
             Map<String, Object> propertyTypes = nestableObjectArrayNames.get(objectArrayName);
             propertyTypes = resolveClassesForStringPropertyTypes(propertyTypes, classpathImportService);

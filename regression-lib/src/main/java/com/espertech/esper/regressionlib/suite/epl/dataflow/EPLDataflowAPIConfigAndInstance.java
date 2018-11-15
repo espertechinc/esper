@@ -82,6 +82,7 @@ public class EPLDataflowAPIConfigAndInstance implements RegressionExecution {
         dataFlowRuntime.saveInstance("F1", instance);
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"F1"}, dataFlowRuntime.getSavedInstances());
         EPDataFlowInstance instanceFromSvc = dataFlowRuntime.getSavedInstance("F1");
+        assertEquals(deploymentId, instanceFromSvc.getDataFlowDeploymentId());
         assertEquals("MyDataflow", instanceFromSvc.getDataFlowName());
         try {
             dataFlowRuntime.saveInstance("F1", instance);

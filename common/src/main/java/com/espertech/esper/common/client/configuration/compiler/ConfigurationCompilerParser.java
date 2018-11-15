@@ -187,6 +187,7 @@ public class ConfigurationCompilerParser {
         parseOptionalBoolean(element, "include-comments", codegen::setIncludeComments);
         parseOptionalBoolean(element, "attach-epl", codegen::setAttachEPL);
         parseOptionalBoolean(element, "attach-module-epl", codegen::setAttachModuleEPL);
+        parseOptionalBoolean(element, "attach-pattern-epl", codegen::setAttachPatternEPL);
         parseOptionalBoolean(element, "instrumented", codegen::setInstrumented);
         parseOptionalBoolean(element, "allow-subscriber", codegen::setAllowSubscriber);
 

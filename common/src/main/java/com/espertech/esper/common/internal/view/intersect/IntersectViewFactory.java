@@ -115,6 +115,24 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory 
     }
 
     public String getViewName() {
-        return "intersect";
+        return getViewNameUnionIntersect(true, intersecteds);
+    }
+
+    public static String getViewNameUnionIntersect(boolean intersect, ViewFactory[] factories) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(intersect ? "Intersection" : "Union");
+
+        if (factories == null) {
+            return buf.toString();
+        }
+        buf.append(" of ");
+        String delimiter = "";
+        for (ViewFactory factory : factories) {
+            buf.append(delimiter);
+            buf.append(factory.getViewName());
+            delimiter = ",";
+        }
+
+        return buf.toString();
     }
 }

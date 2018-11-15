@@ -20,11 +20,12 @@ public class EPCompileExceptionSyntaxItem extends EPCompileExceptionItem {
      * Ctor.
      *
      * @param message    - error message
+     * @param cause - cause
      * @param expression - expression text
      * @param lineNumber - line number
      */
-    public EPCompileExceptionSyntaxItem(String message, String expression, int lineNumber) {
-        super(message, expression, lineNumber);
+    public EPCompileExceptionSyntaxItem(String message, Throwable cause, String expression, int lineNumber) {
+        super(message, cause, expression, lineNumber);
     }
 }
 

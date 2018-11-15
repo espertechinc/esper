@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.prior.PriorEvalStrategy;
+import com.espertech.esper.common.internal.epl.join.base.JoinSetComposer;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowInstance;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalRootState;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPreviousStrategy;
@@ -45,6 +46,7 @@ public class StatementResourceHolder {
     private TableInstance tableInstance;
     private StatementResourceExtension statementResourceExtension;
     private ContextManagerRealization contextManagerRealization;
+    private JoinSetComposer joinSetComposer;
 
     public StatementResourceHolder(AgentInstanceContext agentInstanceContext, AgentInstanceStopCallback agentInstanceStopCallback, Viewable finalView, AggregationService aggregationService, PriorEvalStrategy[] priorEvalStrategies, PreviousGetterStrategy[] previousGetterStrategies, RowRecogPreviousStrategy rowRecogPreviousStrategy) {
         this.agentInstanceContext = agentInstanceContext;
@@ -158,5 +160,13 @@ public class StatementResourceHolder {
 
     public EvalRootState[] getPatternRoots() {
         return patternRoots;
+    }
+
+    public JoinSetComposer getJoinSetComposer() {
+        return joinSetComposer;
+    }
+
+    public void setJoinSetComposer(JoinSetComposer joinSetComposer) {
+        this.joinSetComposer = joinSetComposer;
     }
 }

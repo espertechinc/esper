@@ -46,9 +46,11 @@ public class EvalFilterForgeNode extends EvalForgeNodeBase {
      *                            table used when indicating truth value of true.
      * @param consumptionLevel    when using @consume
      */
-    public EvalFilterForgeNode(FilterSpecRaw filterSpecification,
+    public EvalFilterForgeNode(boolean attachPatternText,
+                               FilterSpecRaw filterSpecification,
                                String eventAsName,
                                Integer consumptionLevel) {
+        super(attachPatternText);
         this.rawFilterSpec = filterSpecification;
         this.eventAsName = eventAsName;
         this.consumptionLevel = consumptionLevel;

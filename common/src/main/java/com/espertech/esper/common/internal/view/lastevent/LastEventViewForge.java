@@ -25,8 +25,6 @@ import java.util.List;
  * Factory for {@link LastEventView} instances.
  */
 public class LastEventViewForge extends ViewFactoryForgeBase implements DataWindowViewForge {
-    public final static String NAME = "Last-Event";
-
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         ViewForgeSupport.validateNoParameters(getViewName(), parameters);
     }
@@ -47,6 +45,6 @@ public class LastEventViewForge extends ViewFactoryForgeBase implements DataWind
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.LAST_EVENT.getName();
     }
 }

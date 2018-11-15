@@ -27,6 +27,7 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
     private final List<EvalForgeNode> childNodes;
     protected short factoryNodeId;
     protected boolean audit;
+    private boolean attachPatternText;
 
     protected abstract Class typeOfFactory();
 
@@ -39,8 +40,9 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
     /**
      * Constructor creates a list of child nodes.
      */
-    public EvalForgeNodeBase() {
-        childNodes = new ArrayList<EvalForgeNode>();
+    public EvalForgeNodeBase(boolean attachPatternText) {
+        childNodes = new ArrayList<>();
+        this.attachPatternText = attachPatternText;
     }
 
     /**
@@ -96,7 +98,7 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
         method.getBlock()
                 .declareVar(typeOfFactory(), "node", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add(nameOfFactory()))
                 .exprDotMethod(ref("node"), "setFactoryNodeId", constant(factoryNodeId));
-        if (audit || classScope.isInstrumented()) {
+        if (audit || classScope.isInstrumented() || attachPatternText) {
             StringWriter writer = new StringWriter();
             toEPL(writer, PatternExpressionPrecedenceEnum.MINIMUM);
             String expressionText = writer.toString();

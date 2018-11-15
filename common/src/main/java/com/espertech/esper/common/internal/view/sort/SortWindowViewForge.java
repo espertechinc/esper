@@ -32,8 +32,6 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
  * Factory for sort window views.
  */
 public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, DataWindowViewForgeWithPrevious {
-    private final static String NAME = "Sort";
-
     private List<ExprNode> viewParameters;
     private ExprForge sizeForge;
     protected ExprNode[] sortCriteriaExpressions;
@@ -47,14 +45,14 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
 
     public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         eventType = parentEventType;
-        String message = NAME + " window requires a numeric size parameter and a list of expressions providing sort keys";
+        String message = getViewName() + " window requires a numeric size parameter and a list of expressions providing sort keys";
         if (viewParameters.size() < 2) {
             throw new ViewParameterException(message);
         }
 
-        ExprNode[] validated = ViewForgeSupport.validate(NAME + " window", parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName() + " window", parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
         for (int i = 1; i < validated.length; i++) {
-            ViewForgeSupport.assertReturnsNonConstant(NAME + " window", validated[i], i);
+            ViewForgeSupport.assertReturnsNonConstant(getViewName() + " window", validated[i], i);
         }
 
         ViewForgeSupport.validateNoProperties(getViewName(), validated[0], 0);
@@ -91,6 +89,6 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
     }
 
     public String getViewName() {
-        return NAME;
+        return ViewEnum.SORT_WINDOW.getName();
     }
 }

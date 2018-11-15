@@ -14,8 +14,10 @@ import com.espertech.esper.common.internal.context.aifactory.core.StatementAgent
 import com.espertech.esper.common.internal.context.aifactory.createcontext.StatementAgentInstanceFactoryCreateContextResult;
 import com.espertech.esper.common.internal.context.aifactory.createtable.StatementAgentInstanceFactoryCreateTableResult;
 import com.espertech.esper.common.internal.context.aifactory.createwindow.StatementAgentInstanceFactoryCreateNWResult;
+import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StatementAgentInstanceFactoryOnTriggerResult;
 import com.espertech.esper.common.internal.context.aifactory.select.StatementAgentInstanceFactorySelectResult;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.pattern.core.EvalRootState;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 public class StatementResourceHolderUtil {
@@ -30,6 +32,7 @@ public class StatementResourceHolderUtil {
             holder.setEventStreamViewables(selectResult.getEventStreamViewables());
             holder.setPatternRoots(selectResult.getPatternRoots());
             holder.setAggregationService(selectResult.getOptionalAggegationService());
+            holder.setJoinSetComposer(selectResult.getJoinSetComposer());
         } else if (startResult instanceof StatementAgentInstanceFactoryCreateContextResult) {
             StatementAgentInstanceFactoryCreateContextResult createResult = (StatementAgentInstanceFactoryCreateContextResult) startResult;
             holder.setContextManagerRealization(createResult.getContextManagerRealization());
@@ -41,6 +44,11 @@ public class StatementResourceHolderUtil {
             StatementAgentInstanceFactoryCreateTableResult createResult = (StatementAgentInstanceFactoryCreateTableResult) startResult;
             holder.setTopViewables(new Viewable[]{createResult.getFinalView()});
             holder.setTableInstance(createResult.getTableInstance());
+        } else if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
+            StatementAgentInstanceFactoryOnTriggerResult onResult = (StatementAgentInstanceFactoryOnTriggerResult) startResult;
+            if (onResult.getOptPatternRoot() != null) {
+                holder.setPatternRoots(new EvalRootState[] {onResult.getOptPatternRoot()});
+            }
         }
         return holder;
     }

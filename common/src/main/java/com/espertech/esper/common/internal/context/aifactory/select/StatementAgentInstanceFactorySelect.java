@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.epl.namedwindow.consume.NamedWindowCo
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessView;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryProvider;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalRootMatchRemover;
+import com.espertech.esper.common.internal.epl.pattern.core.EvalRootState;
 import com.espertech.esper.common.internal.epl.prior.PriorHelper;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
@@ -141,6 +142,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         // root activations
         ViewableActivationResult[] activationResults = new ViewableActivationResult[numStreams];
         Viewable[] eventStreamParentViewable = new Viewable[numStreams];
+        EvalRootState[] patternRoots = new EvalRootState[numStreams];
         EvalRootMatchRemover evalRootMatchRemover = null;
         boolean suppressSameEventMatches = false;
         boolean discardPartialsOnMatch = false;
@@ -150,6 +152,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
             stopCallbacks.add(activationResult.getStopCallback());
             activationResults[stream] = activationResult;
             eventStreamParentViewable[stream] = activationResult.getViewable();
+            patternRoots[stream] = activationResult.getOptionalPatternRoot();
             suppressSameEventMatches = activationResult.isSuppressSameEventMatches();
             discardPartialsOnMatch = activationResult.isDiscardPartialsOnMatch();
 
@@ -227,8 +230,8 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         AgentInstanceStopCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
 
         return new StatementAgentInstanceFactorySelectResult(outputProcessView, stopCallback, agentInstanceContext, processorPair.getSecond(),
-                subselectActivations, priorEvalStrategies, previousGetterStrategies, rowRecogPreviousStrategy, tableAccessEvals, preloadList, null,
-                joinSetComposer, topViews, null, activationResults, processorPair.getFirst());
+                subselectActivations, priorEvalStrategies, previousGetterStrategies, rowRecogPreviousStrategy, tableAccessEvals, preloadList, patternRoots,
+                joinSetComposer, topViews, eventStreamParentViewable, activationResults, processorPair.getFirst());
     }
 
     public EventType getStatementEventType() {

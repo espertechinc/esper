@@ -24,6 +24,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
     private boolean includeComments = false;
     private boolean attachEPL = true;
     private boolean attachModuleEPL = false;
+    private boolean attachPatternEPL = false;
     private boolean allowSubscriber = false;
     private boolean instrumented;
     private NameAccessModifier accessModifierEventType = NameAccessModifier.PRIVATE;
@@ -316,6 +317,30 @@ public class ConfigurationCompilerByteCode implements Serializable {
      */
     public void setBusModifierEventType(EventTypeBusModifier busModifierEventType) {
         this.busModifierEventType = busModifierEventType;
+    }
+
+    /**
+     * Returns the indicator whether, for tools with access to pattern factories, the pattern subexpression text
+     * will be available for the pattern.
+     * The default is false and the compiler does not produce text for patterns for tooling.
+     * When set to true the compiler does generate pattern subexpression text for pattern for use by tools.
+     *
+     * @return indicator
+     */
+    public boolean isAttachPatternEPL() {
+        return attachPatternEPL;
+    }
+
+    /**
+     * Sets the indicator whether, for tools with access to pattern factories, the pattern subexpression text
+     * will be available for the pattern.
+     * The default is false and the compiler does not produce text for patterns for tooling.
+     * When set to true the compiler does generate pattern subexpression text for pattern for use by tools.
+     *
+     * @param attachPatternEPL flag
+     */
+    public void setAttachPatternEPL(boolean attachPatternEPL) {
+        this.attachPatternEPL = attachPatternEPL;
     }
 
     private void checkModifier(NameAccessModifier modifier) {

@@ -14,15 +14,9 @@ public class ExceptionLineItem extends Exception {
     protected final String expression;
     protected final int lineNumber;
 
-    public ExceptionLineItem(String message, String expression, int lineNumber) {
-        super(message);
-        this.expression = expression;
-        this.lineNumber = lineNumber;
-    }
-
     public ExceptionLineItem(String message, Throwable cause, String expression, int lineNumber) {
         super(message, cause);
-        this.expression = expression;
+        this.expression = replaceNewline(expression);
         this.lineNumber = lineNumber;
     }
 
@@ -32,5 +26,12 @@ public class ExceptionLineItem extends Exception {
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    private String replaceNewline(String text) {
+        text = text.replaceAll("\\n", " ");
+        text = text.replaceAll("\\t", " ");
+        text = text.replaceAll("\\r", " ");
+        return text;
     }
 }

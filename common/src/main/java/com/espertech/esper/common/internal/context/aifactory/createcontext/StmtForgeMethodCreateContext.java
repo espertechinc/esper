@@ -408,7 +408,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             }
 
             // compile as pattern if there are prior matches to consider, since this is a type of followed-by relationship
-            EvalForgeNode forgeNode = new EvalFilterForgeNode(filter.getFilterSpecRaw(), filter.getOptionalFilterAsName(), 0);
+            EvalForgeNode forgeNode = new EvalFilterForgeNode(validationEnv.getServices().isAttachPatternText(), filter.getFilterSpecRaw(), filter.getOptionalFilterAsName(), 0);
             ContextSpecConditionPattern pattern = new ContextSpecConditionPattern(forgeNode, true, false);
             Pair<MatchEventSpec, Set<String>> matches = validatePatternContextConditionPattern(isStartCondition, nestingLevel, pattern, eventTypesReferenced, priorMatches, priorAllTags, validationEnv);
             return new ContextDetailMatchPair(pattern, matches.getFirst(), matches.getSecond());

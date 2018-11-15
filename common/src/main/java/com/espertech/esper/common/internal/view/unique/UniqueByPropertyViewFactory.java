@@ -19,8 +19,6 @@ import com.espertech.esper.common.internal.view.core.*;
  * Factory for {@link UniqueByPropertyView} instances.
  */
 public class UniqueByPropertyViewFactory implements DataWindowViewFactory {
-    public final static String NAME = "Unique-By";
-
     protected ExprEvaluator[] criteriaEvals;
     protected Class[] criteriaTypes;
     protected EventType eventType;

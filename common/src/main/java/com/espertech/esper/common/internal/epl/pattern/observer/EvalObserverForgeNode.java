@@ -41,7 +41,8 @@ public class EvalObserverForgeNode extends EvalForgeNodeBase {
      *
      * @param patternObserverSpec is the factory to use to get an observer instance
      */
-    public EvalObserverForgeNode(PatternObserverSpec patternObserverSpec) {
+    public EvalObserverForgeNode(boolean attachPatternText, PatternObserverSpec patternObserverSpec) {
+        super(attachPatternText);
         this.patternObserverSpec = patternObserverSpec;
     }
 

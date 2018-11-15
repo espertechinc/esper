@@ -74,7 +74,10 @@ public class PatternStartStop {
             String epl = "@name('s0') @IterableUnbound select * from pattern[every tag=SupportBean]";
             EPCompiled compiled = env.compile(epl);
             env.deploy(compiled).addListener("s0");
-            assertEquals(StatementType.SELECT, env.statement("s0").getProperty(StatementProperty.STATEMENTTYPE));
+            EPStatement stmt = env.statement("s0");
+            assertEquals(StatementType.SELECT, stmt.getProperty(StatementProperty.STATEMENTTYPE));
+            assertNull(stmt.getProperty(StatementProperty.CONTEXTNAME));
+            assertNull(stmt.getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
 
             // Pattern started when created
             TestCase.assertFalse(env.statement("s0").iterator().hasNext());
@@ -104,7 +107,7 @@ public class PatternStartStop {
             // Stop pattern
             listener = env.listener("s0");
             listener.reset();
-            EPStatement stmt = env.statement("s0");
+            stmt = env.statement("s0");
             env.undeployModuleContaining("s0");
             sendEvent(env);
             try {
