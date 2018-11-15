@@ -12,4 +12,5 @@ package com.espertech.esper.common.internal.compile.stage1;
 
 public interface Compilable {
     String toEPL();
+    int lineNumber();
 }

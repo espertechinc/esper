@@ -16,26 +16,7 @@ import com.espertech.esper.common.client.util.ExceptionLineItem;
  * Exception information.
  */
 public class EPCompileExceptionItem extends ExceptionLineItem {
-    public EPCompileExceptionItem(String message, String expression, int lineNumber) {
-        super(message, expression, lineNumber);
-    }
-
     public EPCompileExceptionItem(String message, Throwable cause, String expression, int lineNumber) {
         super(message, cause, expression, lineNumber);
-    }
-
-    public String getMessage() {
-        StringBuilder msg;
-        if (super.getMessage() != null) {
-            msg = new StringBuilder(super.getMessage());
-        } else {
-            msg = new StringBuilder("Unexpected exception");
-        }
-        if (expression != null) {
-            msg.append(" [");
-            msg.append(expression);
-            msg.append(']');
-        }
-        return msg.toString();
     }
 }

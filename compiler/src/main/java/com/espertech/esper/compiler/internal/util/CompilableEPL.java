@@ -14,9 +14,11 @@ import com.espertech.esper.common.internal.compile.stage1.Compilable;
 
 public class CompilableEPL implements Compilable {
     private final String epl;
+    private final int lineNumber;
 
-    public CompilableEPL(String epl) {
+    public CompilableEPL(String epl, int lineNumber) {
         this.epl = epl;
+        this.lineNumber = lineNumber;
     }
 
     public String getEpl() {
@@ -25,6 +27,10 @@ public class CompilableEPL implements Compilable {
 
     public String toEPL() {
         return epl;
+    }
+
+    public int lineNumber() {
+        return lineNumber;
     }
 
     public String toString() {

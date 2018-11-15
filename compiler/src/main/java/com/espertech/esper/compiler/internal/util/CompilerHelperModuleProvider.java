@@ -89,25 +89,32 @@ public class CompilerHelperModuleProvider {
         List<String> statementClassNames = new ArrayList<>();
 
         Set<String> statementNames = new HashSet<>();
+        List<EPCompileExceptionItem> exceptions = new ArrayList<>();
         for (Compilable compilable : compilables) {
-            String className;
+            String className = null;
+            EPCompileExceptionItem exception = null;
 
             try {
                 StatementCompileTimeServices statementCompileTimeServices = new StatementCompileTimeServices(statementNumber, compileTimeServices);
                 className = compileItem(compilable, optionalModuleName, moduleIdentPostfix, moduleBytes, statementNumber, packageName, statementNames, statementCompileTimeServices, compilerOptions);
             } catch (StatementSpecCompileException ex) {
-                EPCompileExceptionItem first;
                 if (ex instanceof StatementSpecCompileSyntaxException) {
-                    first = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex.getExpression(), -1);
+                    exception = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
                 } else {
-                    first = new EPCompileExceptionItem(ex.getMessage(), ex.getExpression(), -1);
+                    exception = new EPCompileExceptionItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
                 }
-                List<EPCompileExceptionItem> items = Collections.singletonList(first);
-                throw new EPCompileException(ex.getMessage() + " [" + ex.getExpression() + "]", ex, items);
+                exceptions.add(exception);
             }
 
-            statementClassNames.add(className);
+            if (exception != null) {
+                statementClassNames.add(className);
+            }
             statementNumber++;
+        }
+
+        if (!exceptions.isEmpty()) {
+            EPCompileExceptionItem ex = exceptions.get(0);
+            throw new EPCompileException(ex.getMessage() + " [" + ex.getExpression() + "]", ex, exceptions);
         }
 
         // compile module resource
@@ -251,8 +258,8 @@ public class CompilerHelperModuleProvider {
     private static CodegenMethod registerScriptCodegen(Map.Entry<NameAndParamNum, ExpressionScriptProvided> script, CodegenMethodScope parent, CodegenClassScope classScope, ModuleScriptInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
         method.getBlock()
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleScriptInitServices.GETSCRIPTCOLLECTOR)
-                        .add("registerScript", constant(script.getKey().getName()), constant(script.getKey().getParamNum()), script.getValue().make(method, classScope)));
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleScriptInitServices.GETSCRIPTCOLLECTOR)
+                .add("registerScript", constant(script.getKey().getName()), constant(script.getKey().getParamNum()), script.getValue().make(method, classScope)));
         return method;
     }
 
@@ -264,9 +271,9 @@ public class CompilerHelperModuleProvider {
         item.setOptionalSodaBytes(() -> bytes);
 
         method.getBlock()
-                .declareVar(ExpressionDeclItem.class, "detail", expression.getValue().make(method, symbols, classScope))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleExprDeclaredInitServices.GETEXPRDECLAREDCOLLECTOR)
-                        .add("registerExprDeclared", constant(expression.getKey()), ref("detail")));
+            .declareVar(ExpressionDeclItem.class, "detail", expression.getValue().make(method, symbols, classScope))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleExprDeclaredInitServices.GETEXPRDECLAREDCOLLECTOR)
+                .add("registerExprDeclared", constant(expression.getKey()), ref("detail")));
         return method;
     }
 
@@ -283,46 +290,46 @@ public class CompilerHelperModuleProvider {
     private static CodegenMethod registerNamedWindowCodegen(Map.Entry<String, NamedWindowMetaData> namedWindow, CodegenMethodScope parent, CodegenClassScope classScope, ModuleNamedWindowInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
         method.getBlock()
-                .declareVar(NamedWindowMetaData.class, "detail", namedWindow.getValue().make(symbols.getAddInitSvc(method)))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleNamedWindowInitServices.GETNAMEDWINDOWCOLLECTOR).add("registerNamedWindow",
-                        constant(namedWindow.getKey()), ref("detail")));
+            .declareVar(NamedWindowMetaData.class, "detail", namedWindow.getValue().make(symbols.getAddInitSvc(method)))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleNamedWindowInitServices.GETNAMEDWINDOWCOLLECTOR).add("registerNamedWindow",
+                constant(namedWindow.getKey()), ref("detail")));
         return method;
     }
 
     private static CodegenMethod registerTableCodegen(Map.Entry<String, TableMetaData> table, CodegenMethodScope parent, CodegenClassScope classScope, ModuleTableInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
         method.getBlock()
-                .declareVar(TableMetaData.class, "detail", table.getValue().make(parent, symbols, classScope))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleTableInitServices.GETTABLECOLLECTOR).add("registerTable",
-                        constant(table.getKey()), ref("detail")));
+            .declareVar(TableMetaData.class, "detail", table.getValue().make(parent, symbols, classScope))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleTableInitServices.GETTABLECOLLECTOR).add("registerTable",
+                constant(table.getKey()), ref("detail")));
         return method;
     }
 
     private static CodegenMethod registerIndexCodegen(Map.Entry<IndexCompileTimeKey, IndexDetailForge> index, CodegenMethodScope parent, CodegenClassScope classScope, ModuleIndexesInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
         method.getBlock()
-                .declareVar(IndexCompileTimeKey.class, "key", index.getKey().make(symbols.getAddInitSvc(method)))
-                .declareVar(IndexDetail.class, "detail", index.getValue().make(method, symbols, classScope))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleIndexInitServices.GETINDEXCOLLECTOR)
-                        .add("registerIndex", ref("key"), ref("detail")));
+            .declareVar(IndexCompileTimeKey.class, "key", index.getKey().make(symbols.getAddInitSvc(method)))
+            .declareVar(IndexDetail.class, "detail", index.getValue().make(method, symbols, classScope))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleIndexInitServices.GETINDEXCOLLECTOR)
+                .add("registerIndex", ref("key"), ref("detail")));
         return method;
     }
 
     private static CodegenMethod registerContextCodegen(Map.Entry<String, ContextMetaData> context, CodegenMethod parent, CodegenClassScope classScope, ModuleContextInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
         method.getBlock()
-                .declareVar(ContextMetaData.class, "detail", context.getValue().make(symbols.getAddInitSvc(method)))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleContextInitServices.GETCONTEXTCOLLECTOR)
-                        .add("registerContext", constant(context.getKey()), ref("detail")));
+            .declareVar(ContextMetaData.class, "detail", context.getValue().make(symbols.getAddInitSvc(method)))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleContextInitServices.GETCONTEXTCOLLECTOR)
+                .add("registerContext", constant(context.getKey()), ref("detail")));
         return method;
     }
 
     private static CodegenMethod registerVariableCodegen(Map.Entry<String, VariableMetaData> variable, CodegenMethodScope parent, CodegenClassScope classScope, ModuleVariableInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
         method.getBlock()
-                .declareVar(VariableMetaData.class, "detail", variable.getValue().make(symbols.getAddInitSvc(method)))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleVariableInitServices.GETVARIABLECOLLECTOR)
-                        .add("registerVariable", constant(variable.getKey()), ref("detail")));
+            .declareVar(VariableMetaData.class, "detail", variable.getValue().make(symbols.getAddInitSvc(method)))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleVariableInitServices.GETVARIABLECOLLECTOR)
+                .add("registerVariable", constant(variable.getKey()), ref("detail")));
         return method;
     }
 
@@ -344,7 +351,7 @@ public class CompilerHelperModuleProvider {
                 }
             }
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add(registerMethodName, ref("metadata"), ref("props"),
-                    constant(superTypeNames), constant(baseNestable.getStartTimestampPropertyName()), constant(baseNestable.getEndTimestampPropertyName())));
+                constant(superTypeNames), constant(baseNestable.getStartTimestampPropertyName()), constant(baseNestable.getEndTimestampPropertyName())));
         } else if (eventType instanceof WrapperEventType) {
             WrapperEventType wrapper = (WrapperEventType) eventType;
             method.getBlock().declareVar(EventType.class, "inner", EventTypeUtility.resolveTypeCodegen(((WrapperEventType) eventType).getUnderlyingEventType(), symbols.getAddInitSvc(method)));
@@ -355,21 +362,21 @@ public class CompilerHelperModuleProvider {
             CodegenExpression superTypes = makeSupertypes(beanType.getSuperTypes(), symbols.getAddInitSvc(method));
             CodegenExpression deepSuperTypes = makeDeepSupertypes(beanType.getDeepSuperTypesAsSet(), method, symbols, classScope);
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerBean", ref("metadata"),
-                    constant(beanType.getUnderlyingType()),
-                    constant(beanType.getStartTimestampPropertyName()), constant(beanType.getEndTimestampPropertyName()),
-                    superTypes, deepSuperTypes));
+                constant(beanType.getUnderlyingType()),
+                constant(beanType.getStartTimestampPropertyName()), constant(beanType.getEndTimestampPropertyName()),
+                superTypes, deepSuperTypes));
         } else if (eventType instanceof SchemaXMLEventType) {
             SchemaXMLEventType xmlType = (SchemaXMLEventType) eventType;
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerXML", ref("metadata"),
-                    constant(xmlType.getRepresentsFragmentOfProperty()), constant(xmlType.getRepresentsOriginalTypeName())));
+                constant(xmlType.getRepresentsFragmentOfProperty()), constant(xmlType.getRepresentsOriginalTypeName())));
         } else if (eventType instanceof AvroSchemaEventType) {
             AvroSchemaEventType avroType = (AvroSchemaEventType) eventType;
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerAvro", ref("metadata"),
-                    constant(avroType.getSchema().toString())));
+                constant(avroType.getSchema().toString())));
         } else if (eventType instanceof VariantEventType) {
             VariantEventType variantEventType = (VariantEventType) eventType;
             method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerVariant", ref("metadata"),
-                    EventTypeUtility.resolveTypeArrayCodegen(variantEventType.getVariants(), symbols.getAddInitSvc(method)), constant(variantEventType.isVariantAny())));
+                EventTypeUtility.resolveTypeArrayCodegen(variantEventType.getVariants(), symbols.getAddInitSvc(method)), constant(variantEventType.isVariantAny())));
         } else {
             throw new IllegalStateException("Event type '" + eventType + "' cannot be registered");
         }

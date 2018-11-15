@@ -65,7 +65,7 @@ public class EPCompilerSPIExpressionImpl implements EPCompilerSPIExpression {
                 streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNnames, istreamOnly, true, false);
             }
 
-            StatementRawInfo statementRawInfo = new StatementRawInfo(0, "API-provided", null, StatementType.INTERNAL_USE_API_COMPILE_EXPR, null, null, new CompilableEPL(expression), "API-provided");
+            StatementRawInfo statementRawInfo = new StatementRawInfo(0, "API-provided", null, StatementType.INTERNAL_USE_API_COMPILE_EXPR, null, null, new CompilableEPL(expression, 1), "API-provided");
             ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, statementRawInfo, services).build();
             node = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.API, node, validationContext);
         } catch (ExprValidationException e) {
