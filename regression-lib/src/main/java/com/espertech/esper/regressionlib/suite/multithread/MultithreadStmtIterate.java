@@ -23,6 +23,11 @@ import java.util.concurrent.*;
  * Test for multithread-safety (or lack thereof) for iterators: iterators fail with concurrent mods as expected behavior
  */
 public class MultithreadStmtIterate implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         runAssertionIteratorSingleStmt(env);
         runAssertionIteratorMultiStmtNoViewShare(env);

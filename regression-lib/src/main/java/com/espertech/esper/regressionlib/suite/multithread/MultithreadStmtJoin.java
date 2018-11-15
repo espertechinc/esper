@@ -24,6 +24,11 @@ import java.util.concurrent.*;
  */
 public class MultithreadStmtJoin implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         env.compileDeploy("@name('s0') select istream * \n" +
             "  from SupportBean(theString='s0')#length(1000000) as s0,\n" +

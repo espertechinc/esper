@@ -31,6 +31,11 @@ import static org.junit.Assert.assertEquals;
  * Test for multithread-safety of a time window -based statement.
  */
 public class MultithreadStmtTimeWindow implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         trySend(env, 10, 5000);
         trySend(env, 6, 2000);

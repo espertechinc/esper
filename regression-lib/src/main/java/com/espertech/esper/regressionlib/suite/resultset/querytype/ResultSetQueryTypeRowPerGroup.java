@@ -343,6 +343,11 @@ public class ResultSetQueryTypeRowPerGroup {
     }
 
     private static class ResultSetQueryTypeUnboundStreamUnlimitedKey implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             // ESPER-396 Unbound stream and aggregating/grouping by unlimited key (i.e. timestamp) configurable state drop
             sendTimer(env, 0);

@@ -35,6 +35,11 @@ import static org.junit.Assert.assertEquals;
  * Test for multithread-safety of insert-into and aggregation per group.
  */
 public class MultithreadStmtNamedWindowConsume implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("@name('window') create window MyWindow#keepall as select theString, longPrimitive from SupportBean", path);

@@ -26,6 +26,11 @@ import static org.junit.Assert.assertNull;
 
 public class MultithreadStmtNamedWindowJoinUniqueView implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String epl = "create window A#unique(key) as MyEventA;\n" +
             "create window B#unique(key) as MyEventB;\n" +

@@ -40,6 +40,11 @@ import static org.junit.Assert.assertEquals;
 public class MultithreadDeterminismInsertInto implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(MultithreadDeterminismInsertInto.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         tryChainedCountSum(env, 3, 100);
         tryMultiInsertGroup(env, 3, 10, 100);

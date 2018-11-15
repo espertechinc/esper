@@ -29,6 +29,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class MultithreadStmtSubquery implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         trySend(env, 4, 10000);
         trySend(env, 3, 10000);

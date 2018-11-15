@@ -25,6 +25,11 @@ import static org.junit.Assert.assertEquals;
 
 public class MultithreadContextPartitionedWTerm implements RegressionExecutionWithConfigure {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void configure(Configuration configuration) {
         configuration.getCommon().addEventType("SupportBean", SupportBean.class);
         configuration.getRuntime().getExecution().setPrioritized(true);

@@ -25,6 +25,11 @@ import java.util.concurrent.*;
  * Test for multithread-safety for adding and removing listener.
  */
 public class MultithreadStmtListenerAddRemove implements RegressionExecutionWithConfigure {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void configure(Configuration configuration) {
         configuration.getRuntime().getThreading().setListenerDispatchTimeout(Long.MAX_VALUE);
         configuration.getCommon().addEventType(SupportMarketDataBean.class);

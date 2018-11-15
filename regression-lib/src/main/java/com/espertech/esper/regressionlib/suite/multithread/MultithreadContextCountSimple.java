@@ -37,6 +37,11 @@ public class MultithreadContextCountSimple implements RegressionExecution {
 
     private static final Logger log = LoggerFactory.getLogger(MultithreadContextCountSimple.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("@name('ctx') create context HashByUserCtx as coalesce by consistent_hash_crc32(p00) from SupportBean_S0 granularity 10000000", path);

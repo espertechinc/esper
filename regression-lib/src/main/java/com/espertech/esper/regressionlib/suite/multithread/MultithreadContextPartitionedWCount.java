@@ -29,6 +29,11 @@ import static org.junit.Assert.assertNull;
 public class MultithreadContextPartitionedWCount implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(MultithreadContextPartitionedWCount.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String[] choices = "A,B,C,D".split(",");
         trySend(env, 4, 1000, choices);

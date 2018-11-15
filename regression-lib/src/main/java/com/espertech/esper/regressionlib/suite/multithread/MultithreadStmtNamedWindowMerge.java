@@ -31,6 +31,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class MultithreadStmtNamedWindowMerge implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         trySend(env, 3, 100);
         trySend(env, 2, 1000);

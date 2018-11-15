@@ -42,6 +42,11 @@ public class MultithreadStmtMgmt implements RegressionExecution {
         "select a.* from pattern[every a=" + EVENT_NAME + "(feed='RT', price < 1000)]",
         "select a.* from pattern[every a=" + EVENT_NAME + "(symbol='IBM', feed='RT')]"};
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         StmtMgmtCallablePair[] eplAndStmt = new StmtMgmtCallablePair[EPL.length];
         for (int i = 0; i < EPL.length; i++) {

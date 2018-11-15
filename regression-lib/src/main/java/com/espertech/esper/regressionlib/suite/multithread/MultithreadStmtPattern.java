@@ -42,6 +42,11 @@ public class MultithreadStmtPattern implements RegressionExecutionWithConfigure 
         return true;
     }
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         String pattern = "a=SupportBean";

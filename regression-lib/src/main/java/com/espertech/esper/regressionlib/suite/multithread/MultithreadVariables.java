@@ -40,6 +40,11 @@ import static org.junit.Assert.assertTrue;
  * Each thread sends for each loop one A, B and C event, and returns the result for all "var3" values for checking when done.
  */
 public class MultithreadVariables implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         SupportMTUpdateListener listenerSetOne = new SupportMTUpdateListener();

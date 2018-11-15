@@ -42,6 +42,11 @@ public class MultithreadStmtTwoPatterns implements RegressionExecutionWithConfig
         return true;
     }
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String statementTwo = "select * from pattern[( every event1=SupportTradeEvent(userId in ('100','101')) ->\n" +
             "         (SupportTradeEvent(userId in ('100','101'), direction = event1.direction ) ->\n" +

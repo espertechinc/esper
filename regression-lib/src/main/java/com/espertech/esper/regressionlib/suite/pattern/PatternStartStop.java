@@ -41,6 +41,11 @@ public class PatternStartStop {
     }
 
     private static class PatternStartStopTwo implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select * from pattern [every(a=SupportBean or b=SupportBeanComplexProps)]";
             EPCompiled compiled = env.compile(stmtText);

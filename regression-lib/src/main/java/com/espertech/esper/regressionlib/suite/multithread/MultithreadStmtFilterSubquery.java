@@ -27,6 +27,11 @@ import static com.espertech.esper.regressionlib.support.client.SupportCompileDep
 public class MultithreadStmtFilterSubquery implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(MultithreadStmtFilterSubquery.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         tryNamedWindowFilterSubquery(env);
         tryStreamFilterSubquery(env);

@@ -36,6 +36,11 @@ import static org.junit.Assert.assertNull;
  */
 public class MultithreadContextUnique implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String epl = "create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
             "\n" +

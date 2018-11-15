@@ -23,6 +23,11 @@ import java.util.concurrent.*;
  * Test for update listeners that create and stop statements.
  */
 public class MultithreadStmtListenerCreateStmt implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         env.compileDeploy("@name('s0') select * from SupportBean");
         tryListener(env, 2, 100, env.statement("s0"));

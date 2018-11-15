@@ -28,6 +28,11 @@ public class MultithreadStmtStateless implements RegressionExecution {
         trySend(env, 4, 1000);
     }
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     private static void trySend(RegressionEnvironment env, int numThreads, int numRepeats) {
         env.compileDeploy("@name('s0') select * from SentenceEvent[words]");
         assertStatelessStmt(env, "s0", true);

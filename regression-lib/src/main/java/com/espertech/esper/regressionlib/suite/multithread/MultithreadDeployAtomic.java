@@ -32,6 +32,11 @@ import static org.junit.Assert.*;
 public class MultithreadDeployAtomic implements RegressionExecution {
     private final static int NUM_STMTS = 100;
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         MySendRunnable runnable = new MySendRunnable(env.runtime());
         Thread thread = new Thread(runnable, MultithreadDeployAtomic.class.getSimpleName());

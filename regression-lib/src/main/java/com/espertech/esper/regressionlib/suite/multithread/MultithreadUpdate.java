@@ -32,6 +32,11 @@ import static org.junit.Assert.assertTrue;
  * Test for multithread-safety (or lack thereof) for iterators: iterators fail with concurrent mods as expected behavior
  */
 public class MultithreadUpdate implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         env.compileDeploy("@name('s0') select theString from SupportBean");
 

@@ -213,6 +213,11 @@ public class ViewGroup {
     }
 
     private static class ViewGroupReclaimAgedHint implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             String epl = "@name('s0') @Hint('reclaim_group_aged=5,reclaim_group_freq=1') " +
@@ -435,6 +440,11 @@ public class ViewGroup {
     }
 
     public static class ViewGroupLengthWinWeightAvg implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             boolean useGroup = true;
             if (useGroup) {

@@ -30,6 +30,11 @@ import static org.junit.Assert.assertEquals;
 public class MultithreadViewTimeWindow implements RegressionExecution {
     private final static Logger log = LoggerFactory.getLogger(MultithreadViewTimeWindow.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         int numThreads = 2;
         int numEvents = 10000;

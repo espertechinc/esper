@@ -32,6 +32,11 @@ import java.util.concurrent.TimeUnit;
  * Test for multithread-safety for a simple aggregation case using count(*).
  */
 public class MultithreadStmtStatelessEnummethod implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         GeneratorIteratorCallback enumCallback = new GeneratorIteratorCallback() {
             private final Collection<String> vals = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");

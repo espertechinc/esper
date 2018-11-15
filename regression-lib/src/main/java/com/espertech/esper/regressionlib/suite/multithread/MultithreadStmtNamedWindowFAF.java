@@ -23,6 +23,11 @@ import java.util.concurrent.*;
  * Test for multithread-safety of named windows and fire-and-forget queries.
  */
 public class MultithreadStmtNamedWindowFAF implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create window MyWindow#keepall as select theString, longPrimitive from SupportBean", path);

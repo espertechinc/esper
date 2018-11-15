@@ -24,6 +24,11 @@ import static org.junit.Assert.assertEquals;
 
 public class MultithreadContextInitiatedTerminatedWithNowParallel implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         env.advanceTime(0);
         RegressionPath path = new RegressionPath();

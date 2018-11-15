@@ -35,6 +35,11 @@ import static org.junit.Assert.assertEquals;
  * Test for multithread-safety for a simple aggregation case using count(*).
  */
 public class MultithreadStmtFilter implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String plainFilter = "@name('s0') select count(*) as mycount from SupportBean";
         tryCount(env, 2, 1000, plainFilter, GeneratorIterator.DEFAULT_SUPPORTEBEAN_CB);

@@ -26,6 +26,11 @@ import static org.junit.Assert.assertNull;
 public class MultithreadContextTemporalStartStop implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(MultithreadContextTemporalStartStop.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create context EverySecond as start (*, *, *, *, *, *) end (*, *, *, *, *, *)", path);

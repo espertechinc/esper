@@ -41,6 +41,11 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
         trySend(env, 5, 10000);
     }
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     private static void trySend(RegressionEnvironment env, int numThreads, int numEventsPerThread) {
 
         // setup statements

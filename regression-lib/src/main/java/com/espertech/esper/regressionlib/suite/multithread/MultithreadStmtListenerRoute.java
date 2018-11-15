@@ -30,6 +30,11 @@ import static org.junit.Assert.assertTrue;
  * Test for update listeners that route events.
  */
 public class MultithreadStmtListenerRoute implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         tryListener(env, 4, 500);
     }

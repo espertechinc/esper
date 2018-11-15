@@ -115,6 +115,11 @@ public class ResultSetAggregateMinMax {
     }
 
     private static class ResultSetAggregateMemoryMinHaving implements RegressionExecution {
+        @Override
+        public boolean excludeWhenInstrumented() {
+            return true;
+        }
+
         public void run(RegressionEnvironment env) {
             String statementText = "@name('s0') select price, min(price) as minPrice " +
                 "from SupportMarketDataBean#time(30)" +

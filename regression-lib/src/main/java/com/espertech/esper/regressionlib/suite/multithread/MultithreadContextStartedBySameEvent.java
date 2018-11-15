@@ -25,6 +25,11 @@ import static org.junit.Assert.assertNull;
 
 public class MultithreadContextStartedBySameEvent implements RegressionExecutionWithConfigure {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void configure(Configuration configuration) {
         configuration.getRuntime().getThreading().setInternalTimerEnabled(true);
         configuration.getCommon().addEventType(PayloadEvent.class);

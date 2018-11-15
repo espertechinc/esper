@@ -51,6 +51,11 @@ public class MultithreadContextDBAccess implements RegressionExecutionWithConfig
         return true;
     }
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create context CtxEachString partition by theString from SupportBean", path);

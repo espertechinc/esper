@@ -26,6 +26,11 @@ import static com.espertech.esper.regressionlib.support.client.SupportCompileDep
 import static org.junit.Assert.assertNull;
 
 public class MultithreadContextTerminated implements RegressionExecutionWithConfigure {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void configure(Configuration configuration) {
         configuration.getRuntime().getThreading().setInternalTimerEnabled(true);
         configuration.getCommon().addEventType(StartContextEvent.class);

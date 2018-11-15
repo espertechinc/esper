@@ -44,6 +44,11 @@ public class MultithreadViewTimeWindowSceneTwo implements RegressionExecution {
     private Thread[] threads;
     private ResultUpdateListener[] listeners;
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         int numSymbols = 1;
         int numThreads = 4;

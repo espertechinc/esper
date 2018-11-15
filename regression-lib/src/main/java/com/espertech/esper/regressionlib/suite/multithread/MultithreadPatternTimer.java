@@ -32,6 +32,11 @@ import static org.junit.Assert.fail;
 public class MultithreadPatternTimer implements RegressionExecutionWithConfigure {
     private final static Logger log = LoggerFactory.getLogger(MultithreadPatternTimer.class);
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void configure(Configuration configuration) {
         configuration.getCommon().addEventType(SupportByteArrEventLongId.class);
         configuration.getRuntime().getThreading().setInternalTimerEnabled(true);

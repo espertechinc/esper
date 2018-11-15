@@ -25,6 +25,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class MultithreadStmtNamedWindowMultiple implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         tryCount(env, 10, 500, 3);
     }

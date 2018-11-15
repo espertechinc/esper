@@ -27,6 +27,11 @@ import static org.junit.Assert.assertEquals;
 
 public class MultithreadNamedWindowDelete implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("@name('create') create window MyWindow#keepall() as select theString, longPrimitive from SupportBean", path);

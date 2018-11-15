@@ -19,6 +19,11 @@ import static org.junit.Assert.assertTrue;
 
 public class RowRecogPerf implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         String text = "@name('s0') select * from SupportRecogBean " +

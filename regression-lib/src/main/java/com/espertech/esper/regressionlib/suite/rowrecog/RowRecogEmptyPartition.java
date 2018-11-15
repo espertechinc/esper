@@ -17,6 +17,11 @@ import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 
 public class RowRecogEmptyPartition implements RegressionExecution {
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         String[] fields = "value".split(",");
         String text = "@name('s0') select * from SupportRecogBean#length(10) " +

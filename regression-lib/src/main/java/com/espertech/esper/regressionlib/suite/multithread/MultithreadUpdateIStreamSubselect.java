@@ -24,6 +24,11 @@ import java.util.List;
 import static com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil.threadJoin;
 
 public class MultithreadUpdateIStreamSubselect implements RegressionExecution {
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
         env.compileDeploy("@name('s0') update istream SupportBean as sb set longPrimitive = (select count(*) from SupportBean_S0#keepall as s0 where s0.p00 = sb.theString)");
         SupportUpdateListener listener = new SupportUpdateListener();

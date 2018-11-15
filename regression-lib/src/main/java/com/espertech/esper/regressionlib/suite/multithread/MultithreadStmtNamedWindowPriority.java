@@ -38,6 +38,11 @@ public class MultithreadStmtNamedWindowPriority implements RegressionExecutionWi
         configuration.getRuntime().getThreading().setInsertIntoDispatchPreserveOrder(false);
     }
 
+    @Override
+    public boolean excludeWhenInstrumented() {
+        return true;
+    }
+
     public void run(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
