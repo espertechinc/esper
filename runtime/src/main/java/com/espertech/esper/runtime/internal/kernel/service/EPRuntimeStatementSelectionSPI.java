@@ -119,12 +119,10 @@ public class EPRuntimeStatementSelectionSPI {
             }
         }
 
-        String name = statement.getName();
-        String text = (String) statement.getProperty(StatementProperty.EPL);
-
         return new StatementRow(
-            name,
-            text,
+            statement.getDeploymentId(),
+            statement.getName(),
+            (String) statement.getProperty(StatementProperty.EPL),
             statement.getUserObjectCompileTime(),
             statement.getUserObjectRuntime(),
             description,
@@ -161,6 +159,7 @@ public class EPRuntimeStatementSelectionSPI {
     }
 
     public static class StatementRow {
+        private String deploymentId;
         private String name;
         private String epl;
         private Object userObjectCompileTime;
@@ -171,7 +170,8 @@ public class EPRuntimeStatementSelectionSPI {
         private Boolean drop;
         private Map<String, String> tag;
 
-        public StatementRow(String name, String epl, Object userObjectCompileTime, Object userObjectRuntimeTime, String description, String hint, int priority, Boolean drop, Map<String, String> tag) {
+        public StatementRow(String deploymentId, String name, String epl, Object userObjectCompileTime, Object userObjectRuntimeTime, String description, String hint, int priority, Boolean drop, Map<String, String> tag) {
+            this.deploymentId = deploymentId;
             this.name = name;
             this.epl = epl;
             this.userObjectCompileTime = userObjectCompileTime;
@@ -181,6 +181,10 @@ public class EPRuntimeStatementSelectionSPI {
             this.priority = priority;
             this.drop = drop;
             this.tag = tag;
+        }
+
+        public String getDeploymentId() {
+            return deploymentId;
         }
 
         public String getName() {
@@ -257,6 +261,10 @@ public class EPRuntimeStatementSelectionSPI {
 
         public void setUserObjectRuntimeTime(Object userObjectRuntimeTime) {
             this.userObjectRuntimeTime = userObjectRuntimeTime;
+        }
+
+        public void setDeploymentId(String deploymentId) {
+            this.deploymentId = deploymentId;
         }
     }
 }

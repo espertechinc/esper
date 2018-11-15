@@ -70,6 +70,7 @@ public class ClientRuntimeItself {
             ExprNode filter = spi.getStatementSelectionSvc().compileFilterExpression("name='b'");
             spi.getStatementSelectionSvc().traverseStatementsFilterExpr(myTraverse, filter);
             myTraverse.assertAndReset(env.statement("b"));
+            spi.getStatementSelectionSvc().compileFilterExpression("deploymentId like 'x'");
 
             spi.getStatementSelectionSvc().traverseStatementsContains(myTraverse, "xxx");
             myTraverse.assertAndReset(env.statement("b"));
