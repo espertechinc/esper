@@ -380,7 +380,7 @@ public class ViewRank {
     private static class ViewRankInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean#rank(1, intPrimitive desc)",
-                "Failed to validate data window declaration: Rank view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys [select * from SupportBean#rank(1, intPrimitive desc)]");
+                "Failed to validate data window declaration: rank view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys [select * from SupportBean#rank(1, intPrimitive desc)]");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean#rank(1, intPrimitive, theString desc)",
                 "Failed to validate data window declaration: Failed to find unique value expressions that are expected to occur before the numeric size parameter [select * from SupportBean#rank(1, intPrimitive, theString desc)]");
@@ -392,10 +392,10 @@ public class ViewRank {
                 "Failed to validate data window declaration: Failed to find constant value for the numeric size parameter [select * from SupportBean#rank(theString, intPrimitive, theString desc)]");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean#rank(theString, 1, 1, intPrimitive, theString desc)",
-                "Failed to validate data window declaration: Invalid view parameter expression 2 for Rank view, the expression returns a constant result value, are you sure? [select * from SupportBean#rank(theString, 1, 1, intPrimitive, theString desc)]");
+                "Failed to validate data window declaration: Invalid view parameter expression 2 for rank view, the expression returns a constant result value, are you sure? [select * from SupportBean#rank(theString, 1, 1, intPrimitive, theString desc)]");
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean#rank(theString, intPrimitive, 1, intPrimitive, 1, theString desc)",
-                "Failed to validate data window declaration: Invalid view parameter expression 4 for Rank view, the expression returns a constant result value, are you sure? [select * from SupportBean#rank(theString, intPrimitive, 1, intPrimitive, 1, theString desc)]");
+                "Failed to validate data window declaration: Invalid view parameter expression 4 for rank view, the expression returns a constant result value, are you sure? [select * from SupportBean#rank(theString, intPrimitive, 1, intPrimitive, 1, theString desc)]");
         }
     }
 
