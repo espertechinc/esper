@@ -107,11 +107,11 @@ public class OHLCMain {
         }
     }
 
-    private EPStatement compileDeploy(String expression, Configuration config, EPRuntime epService) {
+    private EPStatement compileDeploy(String expression, Configuration config, EPRuntime runtime) {
         try {
             CompilerArguments args = new CompilerArguments(config);
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(expression, args);
-            EPDeployment deployment = epService.getDeploymentService().deploy(compiled);
+            EPDeployment deployment = runtime.getDeploymentService().deploy(compiled);
 
             // EPL modules can have multiple statements
             // We return the first statement here.
@@ -121,8 +121,8 @@ public class OHLCMain {
         }
     }
 
-    private static void sendTimer(EPRuntime epService, long timestamp) {
-        epService.getEventService().advanceTime(timestamp);
+    private static void sendTimer(EPRuntime runtime, long timestamp) {
+        runtime.getEventService().advanceTime(timestamp);
     }
 
     private static long toTime(String time) {

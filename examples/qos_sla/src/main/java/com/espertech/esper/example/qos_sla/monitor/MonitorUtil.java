@@ -20,13 +20,13 @@ import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 
 public class MonitorUtil {
-    protected static EPStatement compileDeploy(String epl, EPRuntime epService) {
+    protected static EPStatement compileDeploy(String epl, EPRuntime runtime) {
         try {
             CompilerArguments args = new CompilerArguments();
-            args.getPath().add(epService.getRuntimePath());
+            args.getPath().add(runtime.getRuntimePath());
 
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            return epService.getDeploymentService().deploy(compiled).getStatements()[0];
+            return runtime.getDeploymentService().deploy(compiled).getStatements()[0];
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -176,18 +176,18 @@ public class SupportFilterHelper {
         return spi.getFilterCountApprox();
     }
 
-    public static String getFilterAll(EPRuntime epService) {
-        String[] deployments = epService.getDeploymentService().getDeployments();
+    public static String getFilterAll(EPRuntime runtime) {
+        String[] deployments = runtime.getDeploymentService().getDeployments();
         Set<Integer> statements = new HashSet<>();
         for (String deployment : deployments) {
-            EPDeployment info = epService.getDeploymentService().getDeployment(deployment);
+            EPDeployment info = runtime.getDeploymentService().getDeployment(deployment);
             for (EPStatement statement : info.getStatements()) {
                 EPStatementSPI spi = (EPStatementSPI) statement;
                 statements.add(spi.getStatementId());
             }
         }
 
-        FilterServiceSPI filterService = ((EPRuntimeSPI) epService).getServicesContext().getFilterService();
+        FilterServiceSPI filterService = ((EPRuntimeSPI) runtime).getServicesContext().getFilterService();
         Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> pairs = filterService.get(statements);
         return pairs.toString();
     }

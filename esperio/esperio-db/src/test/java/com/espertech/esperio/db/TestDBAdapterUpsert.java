@@ -28,7 +28,7 @@ import java.util.Map;
 import static com.espertech.esperio.db.SupportCompileUtil.compileDeploy;
 
 public class TestDBAdapterUpsert extends TestCase {
-    private final static String ENGINE_URI = "TESTDBURI";
+    private final static String RUNTIME_URI = "TESTDBURI";
 
     private final static String TABLE_NAME = "mytestupsert";
 
@@ -55,13 +55,13 @@ public class TestDBAdapterUpsert extends TestCase {
 
         adapterConfig.getExecutors().put("queue1", new Executor(2));
 
-        EsperIODBAdapter dbAdapter = new EsperIODBAdapter(adapterConfig, ENGINE_URI);
+        EsperIODBAdapter dbAdapter = new EsperIODBAdapter(adapterConfig, RUNTIME_URI);
 
         Configuration config = new Configuration();
         config.getCommon().addDatabaseReference("testdb", SupportDatabaseService.makeDBConfig());
         config.getCommon().addEventType("SupportDBBean", SupportDBBean.class);
         config.getCommon().addEventType("UpsertDBOutputStream", getUpsertType());
-        EPRuntime runtime = EPRuntimeProvider.getRuntime(ENGINE_URI, config);
+        EPRuntime runtime = EPRuntimeProvider.getRuntime(RUNTIME_URI, config);
 
         dbAdapter.start();
 

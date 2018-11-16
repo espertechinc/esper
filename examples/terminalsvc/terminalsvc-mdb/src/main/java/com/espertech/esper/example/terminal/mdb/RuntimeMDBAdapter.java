@@ -20,10 +20,10 @@ import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
 import com.espertech.esper.runtime.client.EPStatement;
 
-public class EPServiceMDBAdapter {
+public class RuntimeMDBAdapter {
     private final EPRuntime runtime;
 
-    public EPServiceMDBAdapter(OutboundSender outboundSender) {
+    public RuntimeMDBAdapter(OutboundSender outboundSender) {
         Configuration config = new Configuration();
         config.getCommon().addEventType("Checkin", Checkin.class);
         config.getCommon().addEventType("Cancelled", Cancelled.class);

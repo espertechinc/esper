@@ -37,7 +37,7 @@ public class AdapterCoordinatorImpl extends AbstractCoordinatedAdapter implement
     /**
      * Ctor.
      *
-     * @param runtime           - the EPServiceProvider for the runtimeservices and runtime
+     * @param runtime           - the runtime for the runtimeservices and runtime
      * @param usingEngineThread - true if the coordinator should set time by the scheduling service in the runtime,
      *                          false if it should set time externally through the calling thread
      */
@@ -48,7 +48,7 @@ public class AdapterCoordinatorImpl extends AbstractCoordinatedAdapter implement
     /**
      * Ctor.
      *
-     * @param runtime             - the EPServiceProvider for the runtimeservices and runtime
+     * @param runtime             - the runtime for the runtimeservices and runtime
      * @param usingEngineThread   - true if the coordinator should set time by the scheduling service in the runtime,
      *                            false if it should set time externally through the calling thread
      * @param usingExternalTimer  - true to use esper's external timer mechanism instead of internal timing
@@ -60,7 +60,7 @@ public class AdapterCoordinatorImpl extends AbstractCoordinatedAdapter implement
             throw new NullPointerException("runtime cannot be null");
         }
         if (!(runtime instanceof EPRuntimeSPI)) {
-            throw new IllegalArgumentException("Illegal type of EPServiceProvider");
+            throw new IllegalArgumentException("Illegal type of runtime");
         }
         this.runtime = runtime;
         this.scheduleBucket = new ScheduleBucket(-1);
@@ -115,8 +115,8 @@ public class AdapterCoordinatorImpl extends AbstractCoordinatedAdapter implement
             return;
         }
         adapter.disallowStateTransitions();
-        adapter.setEPService(runtime);
-        adapter.setUsingEngineThread(usingEngineThread);
+        adapter.setRuntime(runtime);
+        adapter.setUsingRuntimeThread(usingEngineThread);
         adapter.setUsingExternalTimer(usingExternalTimer);
         adapter.setScheduleSlot(scheduleBucket.allocateSlot());
         addNewEvent(adapter);

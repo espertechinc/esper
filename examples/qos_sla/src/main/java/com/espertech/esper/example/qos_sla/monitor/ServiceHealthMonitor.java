@@ -18,12 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ServiceHealthMonitor {
-    public ServiceHealthMonitor(EPRuntime epService) {
+    public ServiceHealthMonitor(EPRuntime runtime) {
         String epl = "select * from OperationMeasurement(success=false)\n" +
             "  match_recognize (\n" +
             "    measures a as a_events" +
             "    pattern (a a a))";
-        EPStatement statement = MonitorUtil.compileDeploy(epl, epService);
+        EPStatement statement = MonitorUtil.compileDeploy(epl, runtime);
         statement.addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPRuntime runtime) {
                 log.debug(".update Alert, detected 3 errors in a row");

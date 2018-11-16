@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import static com.espertech.esperio.http.SupportCompileUtil.compileDeploy;
 
 public class TestHTTPAdapterOutput extends TestCase {
-    private final static String ENGINE_URI = "TestHTTPAdapterOutput";
+    private final static String RUNTIME_URI = "TestHTTPAdapterOutput";
 
     private SupportUpdateListener listener;
 
@@ -43,12 +43,12 @@ public class TestHTTPAdapterOutput extends TestCase {
         requestTwo.setUri("http://localhost:8077/root/${stream}/${stringProp}/${intProp}");
         adapterConfig.getRequests().add(requestTwo);
 
-        EsperIOHTTPAdapter adapter = new EsperIOHTTPAdapter(adapterConfig, ENGINE_URI);
+        EsperIOHTTPAdapter adapter = new EsperIOHTTPAdapter(adapterConfig, RUNTIME_URI);
 
         Configuration configuration = new Configuration();
         configuration.getCommon().addEventType("SupportBean", SupportBean.class);
         configuration.getCommon().addEventType("SupportBeanTwo", SupportBeanTwo.class);
-        EPRuntime runtime = EPRuntimeProvider.getRuntime(ENGINE_URI, configuration);
+        EPRuntime runtime = EPRuntimeProvider.getRuntime(RUNTIME_URI, configuration);
 
         adapter.start();
 

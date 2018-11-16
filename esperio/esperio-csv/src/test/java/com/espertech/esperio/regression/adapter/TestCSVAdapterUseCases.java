@@ -115,7 +115,7 @@ public class TestCSVAdapterUseCases extends TestCase {
 
         CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(CSV_FILENAME_ONELINE_TRADE), "TypeA");
         spec.setEventsPerSec(1000);
-        spec.setUsingEngineThread(true);
+        spec.setUsingRuntimeThread(true);
 
         InputAdapter inputAdapter = new CSVInputAdapter(runtime, spec);
         inputAdapter.start();
@@ -137,7 +137,7 @@ public class TestCSVAdapterUseCases extends TestCase {
 
         CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(CSV_FILENAME_ONELINE_TRADE_MULTIPLE), "TypeA");
         spec.setEventsPerSec(1);
-        spec.setUsingEngineThread(true);
+        spec.setUsingRuntimeThread(true);
 
         InputAdapter inputAdapter = new CSVInputAdapter(runtime, spec);
         inputAdapter.start();

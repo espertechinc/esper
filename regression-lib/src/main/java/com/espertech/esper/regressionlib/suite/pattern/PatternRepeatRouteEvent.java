@@ -108,16 +108,16 @@ public class PatternRepeatRouteEvent {
         }
     }
 
-    private static void sendEvent(EPRuntime epService, int intValue) {
+    private static void sendEvent(EPRuntime runtime, int intValue) {
         SupportBean theEvent = new SupportBean();
         theEvent.setIntPrimitive(intValue);
-        epService.getEventService().sendEventBean(theEvent, theEvent.getClass().getSimpleName());
+        runtime.getEventService().sendEventBean(theEvent, theEvent.getClass().getSimpleName());
     }
 
-    private static void routeEvent(EPRuntime epService, int intValue) {
+    private static void routeEvent(EPRuntime runtime, int intValue) {
         SupportBean theEvent = new SupportBean();
         theEvent.setIntPrimitive(intValue);
-        epService.getEventService().routeEventBean(theEvent, theEvent.getClass().getSimpleName());
+        runtime.getEventService().routeEventBean(theEvent, theEvent.getClass().getSimpleName());
     }
 
     private static class SingleRouteUpdateListener implements UpdateListener {

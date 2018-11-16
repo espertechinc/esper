@@ -22,21 +22,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class CompileUtil {
-    public static EPDeployment compileDeploy(EPRuntime epService, String epl) {
+    public static EPDeployment compileDeploy(EPRuntime runtime, String epl) {
         try {
-            CompilerArguments args = new CompilerArguments(epService.getConfigurationDeepCopy());
-            args.getPath().add(epService.getRuntimePath());
+            CompilerArguments args = new CompilerArguments(runtime.getConfigurationDeepCopy());
+            args.getPath().add(runtime.getRuntimePath());
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            return epService.getDeploymentService().deploy(compiled);
+            return runtime.getDeploymentService().deploy(compiled);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    public static void tryInvalidCompileGraph(EPRuntime epService, String graph, String expected) {
+    public static void tryInvalidCompileGraph(EPRuntime runtime, String graph, String expected) {
         try {
-            CompilerArguments args = new CompilerArguments(epService.getConfigurationDeepCopy());
-            args.getPath().add(epService.getRuntimePath());
+            CompilerArguments args = new CompilerArguments(runtime.getConfigurationDeepCopy());
+            args.getPath().add(runtime.getRuntimePath());
             EPCompilerProvider.getCompiler().compile(graph, args);
             fail();
         } catch (EPCompileException ex) {
@@ -46,9 +46,9 @@ public class CompileUtil {
         }
     }
 
-    public static void undeployAll(EPRuntime epService) {
+    public static void undeployAll(EPRuntime runtime) {
         try {
-            epService.getDeploymentService().undeployAll();
+            runtime.getDeploymentService().undeployAll();
         } catch (EPUndeployException e) {
             throw new RuntimeException(e);
         }

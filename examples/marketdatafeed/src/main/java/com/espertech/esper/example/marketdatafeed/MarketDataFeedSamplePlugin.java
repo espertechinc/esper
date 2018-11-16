@@ -23,15 +23,15 @@ import org.slf4j.LoggerFactory;
 public class MarketDataFeedSamplePlugin implements PluginLoader {
     private static final Logger log = LoggerFactory.getLogger(MarketDataFeedSamplePlugin.class);
 
-    private static final String ENGINE_URI = "runtimeURI";
+    private static final String RUNTIME_URI = "runtimeURI";
 
     private String runtimeURI;
     private FeedSimMain feedSimMain;
     private Thread simulationThread;
 
     public void init(PluginLoaderInitContext context) {
-        if (context.getProperties().getProperty(ENGINE_URI) != null) {
-            runtimeURI = context.getProperties().getProperty(ENGINE_URI);
+        if (context.getProperties().getProperty(RUNTIME_URI) != null) {
+            runtimeURI = context.getProperties().getProperty(RUNTIME_URI);
         } else {
             runtimeURI = context.getRuntime().getURI();
         }

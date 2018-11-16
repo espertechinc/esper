@@ -78,52 +78,52 @@ public class SampleVirtualDataWindowMain {
         runtime.destroy();
     }
 
-    private void runSubquerySample(EPRuntime epService) {
+    private void runSubquerySample(EPRuntime runtime) {
 
         String epl = "select (select key2 from MySampleWindow where key1 = ste.triggerKey) as key2 from SampleTriggerEvent ste";
-        EPStatement stmt = compileDeploy(epl, epService);
+        EPStatement stmt = compileDeploy(epl, runtime);
         SampleUpdateListener sampleListener = new SampleUpdateListener();
         stmt.addListener(sampleListener);
 
-        epService.getEventService().sendEventBean(new SampleTriggerEvent("sample1"), "SampleTriggerEvent");
+        runtime.getEventService().sendEventBean(new SampleTriggerEvent("sample1"), "SampleTriggerEvent");
         log.info("Subquery returned: " + sampleListener.getLastEvent().get("key2"));
         // For assertions against expected results please see the regression test suite
     }
 
-    private void runJoinSample(EPRuntime epService) {
+    private void runJoinSample(EPRuntime runtime) {
         String epl = "select sw.* " +
             "from SampleJoinEvent#lastevent sje, MySampleWindow sw " +
             "where sw.key1 = sje.propOne and sw.key2 = sje.propTwo";
-        EPStatement stmt = compileDeploy(epl, epService);
+        EPStatement stmt = compileDeploy(epl, runtime);
         SampleUpdateListener sampleListener = new SampleUpdateListener();
         stmt.addListener(sampleListener);
 
-        epService.getEventService().sendEventBean(new SampleJoinEvent("sample1", "sample2"), "SampleJoinEvent"); // see values in SampleVirtualDataWindowIndex
+        runtime.getEventService().sendEventBean(new SampleJoinEvent("sample1", "sample2"), "SampleJoinEvent"); // see values in SampleVirtualDataWindowIndex
         log.info("Join query returned: " + sampleListener.getLastEvent().get("key1") + " and " + sampleListener.getLastEvent().get("key2"));
 
         // For assertions against expected results please see the regression test suite
     }
 
-    private void runSampleFireAndForgetQuery(EPRuntime epService) {
+    private void runSampleFireAndForgetQuery(EPRuntime runtime) {
         String fireAndForget = "select * from MySampleWindow where key1 = 'sample1' and key2 = 'sample2'"; // see values in SampleVirtualDataWindowIndex
 
         EPCompiled compiled;
         try {
             CompilerArguments args = new CompilerArguments();
-            args.getPath().add(epService.getRuntimePath());
+            args.getPath().add(runtime.getRuntimePath());
             compiled = EPCompilerProvider.getCompiler().compileQuery(fireAndForget, args);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
 
-        EPFireAndForgetQueryResult result = epService.getFireAndForgetService().executeQuery(compiled);
+        EPFireAndForgetQueryResult result = runtime.getFireAndForgetService().executeQuery(compiled);
 
         log.info("Fire-and-forget query returned: " + result.getArray()[0].get("key1") + " and " + result.getArray()[0].get("key2"));
 
         // For assertions against expected results please see the regression test suite
     }
 
-    private void runSampleOnMerge(EPRuntime epService) {
+    private void runSampleOnMerge(EPRuntime runtime) {
 
         String onDelete =
             "on SampleMergeEvent " +
@@ -131,32 +131,32 @@ public class SampleVirtualDataWindowMain {
                 "where key1 = propOne " +
                 "when not matched then insert select propOne as key1, propTwo as key2, 0 as value1, 0d as value2 " +
                 "when matched then update set key2 = propTwo";
-        EPStatement stmt = compileDeploy(onDelete, epService);
+        EPStatement stmt = compileDeploy(onDelete, runtime);
         SampleUpdateListener sampleListener = new SampleUpdateListener();
         stmt.addListener(sampleListener);
 
         // not-matching case
-        epService.getEventService().sendEventBean(new SampleMergeEvent("mykey-sample", "hello"), "SampleMergeEvent");
+        runtime.getEventService().sendEventBean(new SampleMergeEvent("mykey-sample", "hello"), "SampleMergeEvent");
         log.info("Received inserted key: " + sampleListener.getLastEvent().get("key1") + " and " + sampleListener.getLastEvent().get("key2"));
 
         // matching case
-        epService.getEventService().sendEventBean(new SampleMergeEvent("sample1", "newvalue"), "SampleMergeEvent");  // see values in SampleVirtualDataWindowIndex
+        runtime.getEventService().sendEventBean(new SampleMergeEvent("sample1", "newvalue"), "SampleMergeEvent");  // see values in SampleVirtualDataWindowIndex
         log.info("Received updated key: " + sampleListener.getLastEvent().get("key1") + " and " + sampleListener.getLastEvent().get("key2"));
 
         // For assertions against expected results please see the regression test suite
     }
 
-    private EPStatement compileDeploy(String epl, EPRuntime epService) {
+    private EPStatement compileDeploy(String epl, EPRuntime runtime) {
         try {
             CompilerArguments args = new CompilerArguments();
-            args.getPath().add(epService.getRuntimePath());
+            args.getPath().add(runtime.getRuntimePath());
             args.getOptions().setAccessModifierEventType(env -> NameAccessModifier.PUBLIC);
             args.getOptions().setAccessModifierNamedWindow(env -> NameAccessModifier.PUBLIC);
             args.getOptions().setBusModifierEventType(env -> EventTypeBusModifier.BUS);
-            args.setConfiguration(epService.getConfigurationDeepCopy());
+            args.setConfiguration(runtime.getConfigurationDeepCopy());
 
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            EPDeployment deployment = epService.getDeploymentService().deploy(compiled);
+            EPDeployment deployment = runtime.getDeploymentService().deploy(compiled);
             return deployment.getStatements()[0];
         } catch (Exception ex) {
             throw new RuntimeException(ex);

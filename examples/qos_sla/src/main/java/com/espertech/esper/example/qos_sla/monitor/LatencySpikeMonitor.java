@@ -14,9 +14,9 @@ import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 
 public class LatencySpikeMonitor {
-    public LatencySpikeMonitor(EPRuntime epService) {
+    public LatencySpikeMonitor(EPRuntime runtime) {
         String epl = "select * from OperationMeasurement(latency > 20000)";
-        EPStatement latencyAlert = MonitorUtil.compileDeploy(epl, epService);
+        EPStatement latencyAlert = MonitorUtil.compileDeploy(epl, runtime);
         latencyAlert.addListener(new LatencySpikeListener());
     }
 }

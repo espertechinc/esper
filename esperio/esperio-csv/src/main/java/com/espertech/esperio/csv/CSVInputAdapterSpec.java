@@ -16,7 +16,7 @@ import java.util.Map;
  * A spec for CSVAdapters.
  */
 public class CSVInputAdapterSpec {
-    private boolean usingEngineThread, usingExternalTimer, usingTimeSpanEvents;
+    private boolean usingRuntimeThread, usingExternalTimer, usingTimeSpanEvents;
     private String timestampColumn;
     private String eventTypeName;
     private AdapterInputSource adapterInputSource;
@@ -71,19 +71,19 @@ public class CSVInputAdapterSpec {
     }
 
     /**
-     * Set to true to use the runtimetimer thread for the work, or false to use the current thread.
+     * Set to true to use the runtime timer thread for the work, or false to use the current thread.
      *
-     * @param usingEngineThread true for timer thread
+     * @param usingRuntimeThread true for timer thread
      */
-    public void setUsingEngineThread(boolean usingEngineThread) {
-        this.usingEngineThread = usingEngineThread;
+    public void setUsingRuntimeThread(boolean usingRuntimeThread) {
+        this.usingRuntimeThread = usingRuntimeThread;
     }
 
     /**
-     * @return the usingEngineThread
+     * @return the usingRuntimeThread
      */
-    public boolean isUsingEngineThread() {
-        return usingEngineThread;
+    public boolean isUsingRuntimeThread() {
+        return usingRuntimeThread;
     }
 
     /**

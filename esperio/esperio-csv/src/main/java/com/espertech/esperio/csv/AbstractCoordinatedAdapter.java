@@ -56,7 +56,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter {
     private EPRuntime runtime;
     private EPEventService processEvent;
     private SchedulingService schedulingService;
-    private boolean usingEngineThread, usingExternalTimer, usingTimeSpanEvents;
+    private boolean usingRuntimeThread, usingExternalTimer, usingTimeSpanEvents;
     private long currentTime = 0;
     private long lastEventTime = 0;
     private long startTime;
@@ -65,14 +65,14 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter {
     /**
      * Ctor.
      *
-     * @param runtime             - the EPServiceProvider for the runtimeprocessEvent and services
-     * @param usingEngineThread   - true if the Adapter should set time by the scheduling service in the runtime,
+     * @param runtime             - the runtime for the runtimeprocessEvent and services
+     * @param usingRuntimeThread   - true if the Adapter should set time by the scheduling service in the runtime,
      *                            false if it should set time externally through the calling thread
      * @param usingExternalTimer  - true to use esper's external timer mechanism instead of internal timing
      * @param usingTimeSpanEvents - true for time span events
      */
-    public AbstractCoordinatedAdapter(EPRuntime runtime, boolean usingEngineThread, boolean usingExternalTimer, boolean usingTimeSpanEvents) {
-        this.usingEngineThread = usingEngineThread;
+    public AbstractCoordinatedAdapter(EPRuntime runtime, boolean usingRuntimeThread, boolean usingExternalTimer, boolean usingTimeSpanEvents) {
+        this.usingRuntimeThread = usingRuntimeThread;
         this.usingExternalTimer = usingExternalTimer;
         this.usingTimeSpanEvents = usingTimeSpanEvents;
 
@@ -143,10 +143,10 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter {
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.ReadableAdapter#setUsingEngineThread(boolean)
+     * @see com.espertech.esperio.ReadableAdapter#setUsingRuntimeThread(boolean)
      */
-    public void setUsingEngineThread(boolean usingEngineThread) {
-        this.usingEngineThread = usingEngineThread;
+    public void setUsingRuntimeThread(boolean usingRuntimeThread) {
+        this.usingRuntimeThread = usingRuntimeThread;
     }
 
     /**
@@ -166,14 +166,14 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter {
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.csv.CoordinatedAdapter#setEPService(com.espertech.esper.client.EPServiceProvider)
+     * @see com.espertech.esperio.csv.CoordinatedAdapter#setRuntime
      */
-    public void setEPService(EPRuntime runtime) {
+    public void setRuntime(EPRuntime runtime) {
         if (runtime == null) {
             throw new NullPointerException("runtime cannot be null");
         }
         if (!(runtime instanceof EPRuntimeSPI)) {
-            throw new IllegalArgumentException("Invalid type of EPServiceProvider");
+            throw new IllegalArgumentException("Invalid type of runtime");
         }
         EPRuntimeSPI spi = (EPRuntimeSPI) runtime;
         processEvent = spi.getEventService();
@@ -215,7 +215,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter {
     private boolean waitToSendEvents() {
         if (usingExternalTimer) {
             return false;
-        } else if (usingEngineThread) {
+        } else if (usingRuntimeThread) {
             scheduleNextCallback();
             return false;
         } else {
@@ -236,7 +236,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter {
     }
 
     private long getCurrentTime() {
-        return usingEngineThread ? schedulingService.getTime() : System.currentTimeMillis();
+        return usingRuntimeThread ? schedulingService.getTime() : System.currentTimeMillis();
     }
 
     private void fillEventsToSend() {

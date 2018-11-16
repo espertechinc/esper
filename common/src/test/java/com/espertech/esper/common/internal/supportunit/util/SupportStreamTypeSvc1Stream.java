@@ -64,10 +64,6 @@ public class SupportStreamTypeSvc1Stream implements StreamTypeService {
         return impl.isOnDemandStreams();
     }
 
-    public String getEngineURIQualifier() {
-        return null;
-    }
-
     public boolean hasPropertyAgnosticType() {
         return false;
     }

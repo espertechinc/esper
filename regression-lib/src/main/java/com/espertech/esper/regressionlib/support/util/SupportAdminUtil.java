@@ -31,8 +31,8 @@ public class SupportAdminUtil {
         assertEquals(flag, stmt.getStatementContext().isStatelessSelect());
     }
 
-    public static SupportListener getRequireStatementListener(String statementName, EPRuntime epService) {
-        EPStatement statement = getRequireStatement(statementName, epService);
+    public static SupportListener getRequireStatementListener(String statementName, EPRuntime runtime) {
+        EPStatement statement = getRequireStatement(statementName, runtime);
         if (statement == null) {
             fail("Statement by name '" + statementName + "' not found");
         }
@@ -50,16 +50,16 @@ public class SupportAdminUtil {
         return (SupportListener) first;
     }
 
-    public static EPStatement getRequireStatement(String statementName, EPRuntime epService) {
-        EPStatement found = getStatement(statementName, epService);
+    public static EPStatement getRequireStatement(String statementName, EPRuntime runtime) {
+        EPStatement found = getStatement(statementName, runtime);
         if (found == null) {
             throw new IllegalArgumentException("Failed to find statements '" + statementName + "'");
         }
         return found;
     }
 
-    public static EPStatement getStatement(String statementName, EPRuntime epService) {
-        EPDeploymentServiceSPI spi = (EPDeploymentServiceSPI) epService.getDeploymentService();
+    public static EPStatement getStatement(String statementName, EPRuntime runtime) {
+        EPDeploymentServiceSPI spi = (EPDeploymentServiceSPI) runtime.getDeploymentService();
         EPStatement found = null;
         for (Map.Entry<String, DeploymentInternal> entry : spi.getDeploymentMap().entrySet()) {
             EPStatement[] statements = entry.getValue().getStatements();

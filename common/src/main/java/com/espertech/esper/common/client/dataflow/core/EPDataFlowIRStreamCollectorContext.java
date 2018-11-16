@@ -83,7 +83,7 @@ public class EPDataFlowIRStreamCollectorContext {
     }
 
     /**
-     * Returns the runtime instance and can safely be cast to EPServiceProvider when needed(typed object to not require a dependency on runtime)
+     * Returns the runtime instance and can safely be cast to runtime when needed(typed object to not require a dependency on runtime)
      *
      * @return runtime instance
      */

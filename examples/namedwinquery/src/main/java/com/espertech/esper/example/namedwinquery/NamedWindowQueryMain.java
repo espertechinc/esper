@@ -104,7 +104,7 @@ public class NamedWindowQueryMain {
         }
         log.info("Completed sending sensor events");
 
-        // prepare on-demand query
+        // prepare fire-and-forget query
         //
         double sampleTemperature = (Double) events.get(0).get("temperature");
         epl = "select * from SensorWindow where temperature = " + sampleTemperature;
@@ -165,15 +165,15 @@ public class NamedWindowQueryMain {
         runtime.destroy();
     }
 
-    private EPStatement compileDeploy(String epl, EPRuntime epService) {
+    private EPStatement compileDeploy(String epl, EPRuntime runtime) {
         try {
             CompilerArguments args = new CompilerArguments();
-            args.getPath().add(epService.getRuntimePath());
+            args.getPath().add(runtime.getRuntimePath());
             args.getOptions().setAccessModifierNamedWindow(env -> NameAccessModifier.PUBLIC); // All named windows are visibile
             args.getConfiguration().getCompiler().getByteCode().setAllowSubscriber(true); // allow subscribers
 
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            EPDeployment deployment = epService.getDeploymentService().deploy(compiled);
+            EPDeployment deployment = runtime.getDeploymentService().deploy(compiled);
             return deployment.getStatements()[0];
         } catch (Exception ex) {
             throw new RuntimeException(ex);

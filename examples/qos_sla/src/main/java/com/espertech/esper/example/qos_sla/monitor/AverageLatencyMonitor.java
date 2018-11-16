@@ -14,8 +14,8 @@ import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 
 public class AverageLatencyMonitor {
-    public AverageLatencyMonitor(EPRuntime epService) {
-        EPStatement statement = MonitorUtil.compileDeploy("select * from OperationMeasurement#groupwin(customerId, operationName)#length(100)#uni(latency)", epService);
+    public AverageLatencyMonitor(EPRuntime runtime) {
+        EPStatement statement = MonitorUtil.compileDeploy("select * from OperationMeasurement#groupwin(customerId, operationName)#length(100)#uni(latency)", runtime);
         statement.addListener(new AverageLatencyListener(10000));
     }
 }

@@ -70,14 +70,14 @@ public class TestCSVAdapter extends TestCase {
         propertyOrderTimestamps = new String[]{"timestamp", "myInt", "myDouble", "myString"};
     }
 
-    public void testNullEPService() {
+    public void testNullRuntime() {
         CSVInputAdapter adapter = new CSVInputAdapter(null, new AdapterInputSource("regression/titleRow.csv"), eventTypeName);
-        runNullEPService(adapter);
+        runNullRuntime(adapter);
 
         listener.reset();
 
         adapter = new CSVInputAdapter(new AdapterInputSource("regression/titleRow.csv"), eventTypeName);
-        runNullEPService(adapter);
+        runNullRuntime(adapter);
     }
 
     public void testInputStream() {
@@ -115,7 +115,7 @@ public class TestCSVAdapter extends TestCase {
         CSVInputAdapterSpec adapterSpec = new CSVInputAdapterSpec(new AdapterInputSource("regression/intsTitleRow.csv"), "intsTitleRowEvent");
         adapterSpec.setEventsPerSec(10);
         adapterSpec.setPropertyOrder(new String[]{"intTwo", "intOne"});
-        adapterSpec.setUsingEngineThread(true);
+        adapterSpec.setUsingRuntimeThread(true);
         adapter = new CSVInputAdapter(runtime, adapterSpec);
 
         String statementText = "select * from intsTitleRowEvent#length(5)";
@@ -163,7 +163,7 @@ public class TestCSVAdapter extends TestCase {
         CSVInputAdapterSpec adapterSpec = new CSVInputAdapterSpec(new AdapterInputSource("regression/noTimestampOne.csv"), "allStringEvent");
         adapterSpec.setEventsPerSec(10);
         adapterSpec.setPropertyOrder(new String[]{"myInt", "myDouble", "myString"});
-        adapterSpec.setUsingEngineThread(true);
+        adapterSpec.setUsingRuntimeThread(true);
         adapter = new CSVInputAdapter(runtime, adapterSpec);
 
         String statementText = "select * from allStringEvent#length(5)";
@@ -188,7 +188,7 @@ public class TestCSVAdapter extends TestCase {
         adapterSpec.setEventsPerSec(10);
         adapterSpec.setPropertyOrder(new String[]{"myInt", "myDouble", "myString"});
         adapterSpec.setPropertyTypes(propertyTypes);
-        adapterSpec.setUsingEngineThread(true);
+        adapterSpec.setUsingRuntimeThread(true);
         adapter = new CSVInputAdapter(runtime, adapterSpec);
 
         String statementText = "select * from propertyTypeEvent#length(5)";
@@ -334,7 +334,7 @@ public class TestCSVAdapter extends TestCase {
         adapterSpec.setTimestampColumn("timestamp");
         adapterSpec.setPropertyOrder(propertyOrderTimestamps);
         adapterSpec.setUsingExternalTimer(true);
-        adapterSpec.setUsingEngineThread(true);
+        adapterSpec.setUsingRuntimeThread(true);
         adapter = new CSVInputAdapter(runtime, adapterSpec);
         adapter.start();
 
@@ -546,7 +546,7 @@ public class TestCSVAdapter extends TestCase {
         assertEvent(2, 3, 3.3, "noTimestampOne.three");
     }
 
-    private void runNullEPService(CSVInputAdapter adapter) {
+    private void runNullRuntime(CSVInputAdapter adapter) {
         try {
             adapter.start();
             fail();
@@ -555,13 +555,13 @@ public class TestCSVAdapter extends TestCase {
         }
 
         try {
-            adapter.setEPService(null);
+            adapter.setRuntime(null);
             fail();
         } catch (NullPointerException ex) {
             // Expected
         }
 
-        adapter.setEPService(runtime);
+        adapter.setRuntime(runtime);
         adapter.start();
         assertEquals(3, listener.getNewDataList().size());
     }
@@ -663,7 +663,7 @@ public class TestCSVAdapter extends TestCase {
         }
         adapterSpec.setLooping(isLooping);
         adapterSpec.setPropertyOrder(propertyOrder);
-        adapterSpec.setUsingEngineThread(usingEngineThread);
+        adapterSpec.setUsingRuntimeThread(usingEngineThread);
         adapterSpec.setTimestampColumn(timestampColumn);
 
         adapter = new CSVInputAdapter(runtime, adapterSpec);

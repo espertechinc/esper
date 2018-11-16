@@ -141,9 +141,9 @@ public class StockTickerEPLUtil {
         return true;
     }
 
-    public static void deploy(EPRuntime epService, EPCompiled compiled) {
+    public static void deploy(EPRuntime runtime, EPCompiled compiled) {
         try {
-            epService.getDeploymentService().deploy(compiled, new DeploymentOptions().setDeploymentId("stockticker"));
+            runtime.getDeploymentService().deploy(compiled, new DeploymentOptions().setDeploymentId("stockticker"));
         } catch (EPDeployException ex) {
             throw new RuntimeException(ex);
         }

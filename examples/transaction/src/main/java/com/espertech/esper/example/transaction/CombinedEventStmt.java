@@ -22,7 +22,7 @@ import com.espertech.esper.runtime.client.UpdateListener;
 public class CombinedEventStmt {
     private EPStatement statement;
 
-    public CombinedEventStmt(EPRuntime epService) {
+    public CombinedEventStmt(EPRuntime runtime) {
         // We need to take in events A, B and C and produce a single, combined event
         String stmt = "insert into CombinedEvent(transactionId, customerId, supplierId, latencyAC, latencyBC, latencyAB)" +
             "select C.transactionId," +
@@ -35,21 +35,21 @@ public class CombinedEventStmt {
             "TxnEventB#time(30 min) B," +
             "TxnEventC#time(30 min) C " +
             "where A.transactionId = B.transactionId and B.transactionId = C.transactionId";
-        statement = compileDeploy(stmt, epService);
+        statement = compileDeploy(stmt, runtime);
     }
 
     public void addListener(UpdateListener listener) {
         statement.addListener(listener);
     }
 
-    protected static EPStatement compileDeploy(String epl, EPRuntime epService) {
+    protected static EPStatement compileDeploy(String epl, EPRuntime runtime) {
         try {
             CompilerArguments args = new CompilerArguments();
-            args.getPath().add(epService.getRuntimePath());
+            args.getPath().add(runtime.getRuntimePath());
             args.getOptions().setAccessModifierEventType(env -> NameAccessModifier.PUBLIC);
 
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            EPDeployment deployment = epService.getDeploymentService().deploy(compiled);
+            EPDeployment deployment = runtime.getDeploymentService().deploy(compiled);
             return deployment.getStatements()[0];
         } catch (Exception ex) {
             throw new RuntimeException(ex);

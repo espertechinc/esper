@@ -25,7 +25,7 @@ import javax.jms.ObjectMessage;
     @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge")})
 public class TerminalMDB implements MessageListener {
     private static OutboundQueueSender outboundQueueSender;
-    private static EPServiceMDBAdapter mdbAdapter;
+    private static RuntimeMDBAdapter mdbAdapter;
     private static Boolean isInitialized = new Boolean(false);
 
     public void setMessageDrivenContext(MessageDrivenContext messageDrivenContext) throws EJBException {
@@ -43,7 +43,7 @@ public class TerminalMDB implements MessageListener {
                 outboundQueueSender = new OutboundQueueSender();
 
                 // Get runtime instance - same runtime instance for all MDB instances
-                mdbAdapter = new EPServiceMDBAdapter(outboundQueueSender);
+                mdbAdapter = new RuntimeMDBAdapter(outboundQueueSender);
 
                 isInitialized = true;
             }

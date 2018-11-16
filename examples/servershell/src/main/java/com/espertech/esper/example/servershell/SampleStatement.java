@@ -23,14 +23,14 @@ import org.slf4j.LoggerFactory;
 public class SampleStatement {
     private final static Logger log = LoggerFactory.getLogger(SampleStatement.class);
 
-    public static void createStatement(EPRuntime epService) {
+    public static void createStatement(EPRuntime runtime) {
 
         String epl = "select istream ipAddress, avg(duration) from SampleEvent#time(10 sec) group by ipAddress output snapshot every 2 seconds order by ipAddress asc";
         EPStatement statement;
         try {
-            CompilerArguments args = new CompilerArguments(epService.getRuntimePath());
+            CompilerArguments args = new CompilerArguments(runtime.getRuntimePath());
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            statement = epService.getDeploymentService().deploy(compiled).getStatements()[0];
+            statement = runtime.getDeploymentService().deploy(compiled).getStatements()[0];
         } catch (Exception ex) {
             throw new RuntimeException("Failed to compile and deploy: " + ex.getMessage(), ex);
         }

@@ -33,7 +33,7 @@ public class DynaLatencySpikeMonitor {
         });
     }
 
-    private void createLatencyCheck(LatencyLimit limit, EPRuntime epService) {
+    private void createLatencyCheck(LatencyLimit limit, EPRuntime runtime) {
         log.debug("New limit, for operation '" + limit.getOperationName() +
             "' and customer '" + limit.getCustomerId() + "'" +
             " setting threshold " + limit.getLatencyThreshold());
@@ -43,16 +43,16 @@ public class DynaLatencySpikeMonitor {
 
         // Alert specific to operation and customer
         String eplMonitor = "select * from OperationMeasurement(" + filter + ", latency > " + limit.getLatencyThreshold() + ")";
-        EPStatement spikeLatencyAlert = MonitorUtil.compileDeploy(eplMonitor, epService);
+        EPStatement spikeLatencyAlert = MonitorUtil.compileDeploy(eplMonitor, runtime);
         spikeLatencyAlert.addListener(new LatencySpikeListener());
 
         // Stop pattern when the threshold changes
         String eplStop = "select * from LatencyLimit(" + filter + ")";
-        EPStatement stopPattern = MonitorUtil.compileDeploy(eplStop, epService);
+        EPStatement stopPattern = MonitorUtil.compileDeploy(eplStop, runtime);
         stopPattern.addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPRuntime runtime) {
                 try {
-                    epService.getDeploymentService().undeploy(spikeLatencyAlert.getDeploymentId());
+                    runtime.getDeploymentService().undeploy(spikeLatencyAlert.getDeploymentId());
                 } catch (EPUndeployException e) {
                     log.warn("Failed to undeploy: " + e.getMessage(), e);
                 }

@@ -14,10 +14,10 @@ import com.espertech.esper.example.terminal.common.LowPaper;
 import com.espertech.esper.example.terminal.common.TerminalInfo;
 import junit.framework.TestCase;
 
-public class TestEPServiceMDBAdapter extends TestCase {
+public class TestRuntimeMDBAdapter extends TestCase {
     public void testAdapter() throws Exception {
         SupportOutboundSender sender = new SupportOutboundSender();
-        EPServiceMDBAdapter adapter = new EPServiceMDBAdapter(sender);
+        RuntimeMDBAdapter adapter = new RuntimeMDBAdapter(sender);
 
         adapter.sendEvent(new LowPaper(new TerminalInfo("t1")));
     }

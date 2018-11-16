@@ -59,7 +59,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
      * @param spec    - the parameters for this adapter
      */
     public CSVInputAdapter(EPRuntime runtime, CSVInputAdapterSpec spec) {
-        super(runtime, spec.isUsingEngineThread(), spec.isUsingExternalTimer(), spec.isUsingTimeSpanEvents());
+        super(runtime, spec.isUsingRuntimeThread(), spec.isUsingExternalTimer(), spec.isUsingTimeSpanEvents());
 
         adapterSpec = spec;
         eventTypeName = adapterSpec.getEventTypeName();
@@ -137,11 +137,11 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.csv.AbstractCoordinatedAdapter#setEPService(com.espertech.esper.client.EPServiceProvider)
+     * @see com.espertech.esperio.csv.AbstractCoordinatedAdapter#setRuntime
      */
     @Override
-    public void setEPService(EPRuntime runtime) {
-        super.setEPService(runtime);
+    public void setRuntime(EPRuntime runtime) {
+        super.setRuntime(runtime);
         finishInitialization(runtime, adapterSpec);
     }
 
@@ -186,10 +186,10 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         }
     }
 
-    private void finishInitialization(EPRuntime epService, CSVInputAdapterSpec spec) {
-        assertValidParameters(epService, spec);
+    private void finishInitialization(EPRuntime runtime, CSVInputAdapterSpec spec) {
+        assertValidParameters(runtime, spec);
 
-        EPRuntimeSPI spi = (EPRuntimeSPI) epService;
+        EPRuntimeSPI spi = (EPRuntimeSPI) runtime;
 
         scheduleSlot = new ScheduleBucket(-1).allocateSlot();
 
@@ -434,7 +434,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 
     private void assertValidParameters(EPRuntime runtime, CSVInputAdapterSpec adapterSpec) {
         if (!(runtime instanceof EPRuntimeSPI)) {
-            throw new IllegalArgumentException("Invalid type of EPServiceProvider");
+            throw new IllegalArgumentException("Invalid type of runtime");
         }
 
         if (adapterSpec.getEventTypeName() == null) {

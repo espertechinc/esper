@@ -21,7 +21,7 @@ public class RealtimeSummaryStmt {
     private EPStatement byCustomerStatement;
     private EPStatement bySupplierStatement;
 
-    public RealtimeSummaryStmt(EPRuntime epService) {
+    public RealtimeSummaryStmt(EPRuntime runtime) {
         //
         // Min,Max,Average total latency from the events (difference in time between A and C) over the past 30 minutes.
         // Min,Max,Average latency between events A/B (time stamp of B minus A) and B/C (time stamp of C minus B).
@@ -37,7 +37,7 @@ public class RealtimeSummaryStmt {
             "avg(latencyBC) as avgLatencyBC " +
             "from CombinedEvent#time(30 min)";
 
-        totalsStatement = compileDeploy(stmtTotal, epService);
+        totalsStatement = compileDeploy(stmtTotal, runtime);
 
         //
         // Min,Max,Average latency grouped by (a) customer ID and (b) supplier ID.
@@ -50,7 +50,7 @@ public class RealtimeSummaryStmt {
             "from CombinedEvent#time(30 min) " +
             "group by customerId";
 
-        byCustomerStatement = compileDeploy(stmtCustomer, epService);
+        byCustomerStatement = compileDeploy(stmtCustomer, runtime);
 
         String stmtSupplier = "select supplierId," +
             "min(latencyAC) as minLatency," +
@@ -59,7 +59,7 @@ public class RealtimeSummaryStmt {
             "from CombinedEvent#time(30 min) " +
             "group by supplierId";
 
-        bySupplierStatement = compileDeploy(stmtSupplier, epService);
+        bySupplierStatement = compileDeploy(stmtSupplier, runtime);
     }
 
     public void addTotalsListener(UpdateListener listener) {

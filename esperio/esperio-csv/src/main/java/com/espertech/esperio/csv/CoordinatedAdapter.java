@@ -27,11 +27,11 @@ public interface CoordinatedAdapter extends InputAdapter {
     public SendableEvent read() throws EPException;
 
     /**
-     * Set the usingEngineThread value
+     * Set the usingRuntimeThread value
      *
-     * @param usingEngineThread - the value to set
+     * @param usingRuntimeThread - the value to set
      */
-    public void setUsingEngineThread(boolean usingEngineThread);
+    public void setUsingRuntimeThread(boolean usingRuntimeThread);
 
     /**
      * Set the usingExternalTimer value
@@ -54,9 +54,9 @@ public interface CoordinatedAdapter extends InputAdapter {
     public void setScheduleSlot(long scheduleSlot);
 
     /**
-     * Set the epService
+     * Set the runtime
      *
      * @param runtime - the value to set
      */
-    public void setEPService(EPRuntime runtime);
+    public void setRuntime(EPRuntime runtime);
 }

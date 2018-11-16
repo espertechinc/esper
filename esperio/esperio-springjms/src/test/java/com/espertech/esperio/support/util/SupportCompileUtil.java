@@ -18,13 +18,13 @@ import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPRuntime;
 
 public class SupportCompileUtil {
-    public static EPDeployment compileDeploy(EPRuntime epService, String epl) {
+    public static EPDeployment compileDeploy(EPRuntime runtime, String epl) {
         try {
-            Configuration configuration = epService.getConfigurationDeepCopy();
+            Configuration configuration = runtime.getConfigurationDeepCopy();
             CompilerArguments args = new CompilerArguments(configuration);
-            args.getPath().add(epService.getRuntimePath());
+            args.getPath().add(runtime.getRuntimePath());
             EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, args);
-            return epService.getDeploymentService().deploy(compiled);
+            return runtime.getDeploymentService().deploy(compiled);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -17,7 +17,7 @@ import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPRuntime;
 
 public class MatchMakerEPL {
-    public static void setup(EPRuntime epService, MatchAlertListener listener) {
+    public static void setup(EPRuntime runtime, MatchAlertListener listener) {
 
         // Allocate a partition (session) that lasts for a mobile user until they sent a new event with new location
         String eplContext = "create context PerUser " +
@@ -38,12 +38,12 @@ public class MatchMakerEPL {
             ") as mub;\n";
 
         try {
-            EPCompiled compiled = EPCompilerProvider.getCompiler().compile(eplContext + eplMatch, new CompilerArguments(epService.getRuntimePath()));
-            epService.getDeploymentService().deploy(compiled, new DeploymentOptions().setDeploymentId("matchmaker-deployment"));
+            EPCompiled compiled = EPCompilerProvider.getCompiler().compile(eplContext + eplMatch, new CompilerArguments(runtime.getRuntimePath()));
+            runtime.getDeploymentService().deploy(compiled, new DeploymentOptions().setDeploymentId("matchmaker-deployment"));
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
 
-        epService.getDeploymentService().getStatement("matchmaker-deployment", "alert").addListener(listener);
+        runtime.getDeploymentService().getStatement("matchmaker-deployment", "alert").addListener(listener);
     }
 }

@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class TestDBAdapterDML extends TestCase {
-    private final static String ENGINE_URI = "TestDBAdapterDML";
+    private final static String RUNTIME_URI = "TestDBAdapterDML";
 
     private final static String TABLE_NAME = "mytestupsert";
 
@@ -55,7 +55,7 @@ public class TestDBAdapterDML extends TestCase {
         config.getCommon().addEventType("SupportDBBean", SupportDBBean.class);
         config.getCommon().addEventType("SupportBean", SupportBean.class);
 
-        EPRuntime runtime = EPRuntimeProvider.getRuntime(ENGINE_URI, config);
+        EPRuntime runtime = EPRuntimeProvider.getRuntime(RUNTIME_URI, config);
 
         SupportCompileUtil.compileDeploy(runtime, "insert into SupportDBBean select 'A' as key1, intProp as key2, stringProp as value1, intProp as value2 from SupportBean");
         runtime.getEventService().sendEventBean(new SupportBean("a", 10), "SupportBean");

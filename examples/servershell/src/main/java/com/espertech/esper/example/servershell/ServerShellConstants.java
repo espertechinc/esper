@@ -25,5 +25,5 @@ public class ServerShellConstants {
 
     public static final String MGMT_RMI_PORT = "rmi-port";
     public static final String MGMT_SERVICE_URL = "jmx-service-url";
-    public static final String MGMT_MBEAN_NAME = "com.espertech.esper.mbean:type=EPServiceProviderJMXMBean";
+    public static final String MGMT_MBEAN_NAME = "com.espertech.esper.mbean:type=EPRuntimeProviderMXMBean";
 }

@@ -28,7 +28,7 @@ public class FindMissingEventStmt {
     // The lack of events A or B could indicate a failure in the event transport and should be ignored.
     // Although the lack of an event C could also be a transport failure, it merits looking into.
     //
-    public FindMissingEventStmt(EPRuntime epService) {
+    public FindMissingEventStmt(EPRuntime runtime) {
         // The inner table to both A and B is C.
         //
         // The listener will consider old events generated when either A or B leave the window, with
@@ -44,7 +44,7 @@ public class FindMissingEventStmt {
             "TxnEventB#time(30 min) B on B.transactionId = C.transactionId " +
             "where C.transactionId is null";
 
-        statement = compileDeploy(stmt, epService);
+        statement = compileDeploy(stmt, runtime);
     }
 
     public void addListener(UpdateListener listener) {

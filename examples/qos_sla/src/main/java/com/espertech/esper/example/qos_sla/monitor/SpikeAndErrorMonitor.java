@@ -19,9 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SpikeAndErrorMonitor {
-    public SpikeAndErrorMonitor(EPRuntime epService) {
+    public SpikeAndErrorMonitor(EPRuntime runtime) {
         String epl = "select * from pattern[every spike=OperationMeasurement(latency>20000) or every error=OperationMeasurement(success=false)]";
-        EPStatement statement = MonitorUtil.compileDeploy(epl, epService);
+        EPStatement statement = MonitorUtil.compileDeploy(epl, runtime);
         statement.addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPRuntime runtime) {
                 OperationMeasurement spike = (OperationMeasurement) newEvents[0].get("spike");

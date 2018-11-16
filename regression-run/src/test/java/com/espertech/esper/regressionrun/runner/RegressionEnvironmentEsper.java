@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RegressionEnvironmentEsper extends RegressionEnvironmentBase {
 
-    public RegressionEnvironmentEsper(Configuration configuration, EPRuntime epService) {
-        super(configuration, epService);
+    public RegressionEnvironmentEsper(Configuration configuration, EPRuntime runtime) {
+        super(configuration, runtime);
     }
 
     public RegressionEnvironment milestone(int num) {

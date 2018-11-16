@@ -12,7 +12,7 @@
 	<groupId>com.espertech</groupId>
 	<artifactId>esper-examples-parent</artifactId>
 	<packaging>pom</packaging>
-	<description>Esper CEP ESP engine for Java examples</description>
+	<description>Esper CEP Compiler and Runtime for Java examples</description>
 	<modules>
 		<module>autoid</module>
 		<module>benchmark</module>

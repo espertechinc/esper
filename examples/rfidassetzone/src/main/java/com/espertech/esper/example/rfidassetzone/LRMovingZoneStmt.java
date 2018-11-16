@@ -20,7 +20,7 @@ import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
 
 public class LRMovingZoneStmt {
-    public static void createStmt(EPRuntime epService,
+    public static void createStmt(EPRuntime runtime,
                                   int secTimeout,
                                   UpdateListener listener) {
         String epl = "@name('count') insert into CountZone " +
@@ -36,13 +36,13 @@ public class LRMovingZoneStmt {
 
         EPDeployment deployed;
         try {
-            EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments(epService.getRuntimePath()));
-            deployed = epService.getDeploymentService().deploy(compiled);
+            EPCompiled compiled = EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments(runtime.getRuntimePath()));
+            deployed = runtime.getDeploymentService().deploy(compiled);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
 
-        EPStatement stmtCount = epService.getDeploymentService().getStatement(deployed.getDeploymentId(), "count");
+        EPStatement stmtCount = runtime.getDeploymentService().getStatement(deployed.getDeploymentId(), "count");
         stmtCount.addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPRuntime runtime) {
                 for (int i = 0; i < newEvents.length; i++) {
@@ -52,7 +52,7 @@ public class LRMovingZoneStmt {
             }
         });
 
-        EPStatement stmtAlert = epService.getDeploymentService().getStatement(deployed.getDeploymentId(), "out");
+        EPStatement stmtAlert = runtime.getDeploymentService().getStatement(deployed.getDeploymentId(), "out");
         stmtAlert.addListener(listener);
     }
 }

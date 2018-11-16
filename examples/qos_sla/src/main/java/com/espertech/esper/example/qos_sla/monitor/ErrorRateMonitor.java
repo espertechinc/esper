@@ -18,12 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ErrorRateMonitor {
-    public ErrorRateMonitor(EPRuntime epService) {
+    public ErrorRateMonitor(EPRuntime runtime) {
         String fireEvery10SecondsEPL = "select * from pattern[every timer:at(*, *, *, *, *, */10)]";
-        EPStatement fireEvery10Seconds = MonitorUtil.compileDeploy(fireEvery10SecondsEPL, epService);
+        EPStatement fireEvery10Seconds = MonitorUtil.compileDeploy(fireEvery10SecondsEPL, runtime);
 
         String countEventsEPL = "select count(*) as size from OperationMeasurement(success=false)#time(10 min)";
-        EPStatement countEvents = MonitorUtil.compileDeploy(countEventsEPL, epService);
+        EPStatement countEvents = MonitorUtil.compileDeploy(countEventsEPL, runtime);
 
         fireEvery10Seconds.addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPRuntime runtime) {

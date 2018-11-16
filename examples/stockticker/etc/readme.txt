@@ -59,7 +59,7 @@ The RFID Location Report Simulator
 	Run "run_rfid_sim.bat" (Windows) or "run_rfid_sim.sh" (Unix) for this example.
 	
 	Arguments are: <number of threads> <number of asset groups> <number of seconds to run>
-		  number of threads: the number of threads sending events into the engine (e.g. 4)
+		  number of threads: the number of threads sending events into the runtime (e.g. 4)
 		  number of asset groups: number of groups tracked (e.g. 1000)
 		  number of seconds: the number of seconds the simulation runs (e.g. 60)
 
