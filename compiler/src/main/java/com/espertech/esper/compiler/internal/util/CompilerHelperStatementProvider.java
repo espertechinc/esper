@@ -107,7 +107,7 @@ public class CompilerHelperStatementProvider {
                 }
             }
 
-            String statementName = statementNameProvided == null ? Integer.toString(statementNumber) : statementNameProvided;
+            String statementName = statementNameProvided == null ? ("stmt-" + statementNumber) : statementNameProvided;
             if (statementNames.contains(statementName)) {
                 int count = 1;
                 String newStatementName = statementName + "-" + count;

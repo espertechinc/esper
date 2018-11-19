@@ -345,12 +345,19 @@ public class Deployer {
         // initialize all statements
         List<StatementLightweight> lightweights = new ArrayList<>();
         Map<Integer, Map<Integer, Object>> substitutionParameters;
+        Set<String> statementNames = new HashSet<>();
         try {
             int statementId = statementIdFirstStatement;
             for (StatementProvider statement : statementResources) {
                 StatementLightweight lightweight = initStatement(recovery, moduleName, statement, deploymentId, statementId, eventTypeResolver, moduleIncidentals, statementNameResolverRuntime, userObjectResolverRuntime, services);
                 lightweights.add(lightweight);
                 statementId++;
+
+                String statementName = lightweight.getStatementContext().getStatementName();
+                if (statementNames.contains(statementName)) {
+                    throw new EPDeployException("Duplicate statement name provide by statement name resolver for statement name '" + statementName + "'");
+                }
+                statementNames.add(statementName);
             }
 
             // set parameters
