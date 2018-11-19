@@ -33,7 +33,7 @@ public class DeploymentLifecycleServiceImpl implements DeploymentLifecycleServic
     public void addDeployment(String deploymentId, DeploymentInternal deployment) {
         DeploymentInternal existing = deploymentsByName.get(deploymentId);
         if (existing != null) {
-            throw new IllegalStateException("Deployment already exists by name '" + deploymentId + "'");
+            throw new IllegalStateException("Deployment already exists by deployment id '" + deploymentId + "'");
         }
         long crc = CRC32Util.computeCRC32(deploymentId);
         existing = deploymentsByCRC.get(crc);

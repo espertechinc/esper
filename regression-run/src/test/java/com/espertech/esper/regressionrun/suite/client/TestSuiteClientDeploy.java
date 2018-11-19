@@ -53,7 +53,7 @@ public class TestSuiteClientDeploy extends TestCase {
         RegressionRunner.run(session, ClientDeployStatementName.executions());
     }
 
-    public void testClientClientDeployResult() {
+    public void testClientDeployResult() {
         RegressionRunner.run(session, ClientDeployResult.executions());
     }
 

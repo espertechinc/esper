@@ -44,8 +44,10 @@ public class ClientDeployResult {
             try {
                 env.runtime().getDeploymentService().deploy(compiled, new DeploymentOptions().setDeploymentId("ABC"));
                 fail();
-            } catch (EPDeployException ex) {
+            } catch (EPDeployDeploymentExistsException ex) {
                 SupportMessageAssertUtil.assertMessage(ex, "Deployment by id 'ABC' already exists");
+            } catch (EPDeployException ex) {
+                throw new RuntimeException(ex);
             }
 
             env.undeployAll();
