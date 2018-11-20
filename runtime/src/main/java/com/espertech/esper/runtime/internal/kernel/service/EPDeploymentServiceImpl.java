@@ -123,6 +123,10 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         return new EPDeployment(deploymentId, deployed.getModuleProvider().getModuleName(), deployed.getModulePropertiesCached(), copy, CollectionUtil.copyArray(deployed.getDeploymentIdDependencies()), new Date(deployed.getLastUpdateDate()));
     }
 
+    public boolean isDeployed(String deploymentId) {
+        return services.getDeploymentLifecycleService().getDeploymentById(deploymentId) != null;
+    }
+
     public void undeployAll() throws EPUndeployException {
         undeployAllInternal(null);
     }

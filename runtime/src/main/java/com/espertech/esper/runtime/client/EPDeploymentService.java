@@ -125,4 +125,11 @@ public interface EPDeploymentService {
      * Removes all deployment state listener
      */
     void removeAllDeploymentStateListeners();
+
+    /**
+     * Returns indicator whether a deployment for this deployment id exists
+     * @param deploymentId deployment id
+     * @return true for deployed, false for not deployed
+     */
+    boolean isDeployed(String deploymentId);
 }

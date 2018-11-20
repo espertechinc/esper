@@ -65,6 +65,7 @@ public class ClientDeployResult {
                 throw new RuntimeException(ex);
             }
 
+            assertTrue(env.runtime().getDeploymentService().isDeployed(result.getDeploymentId()));
             assertNotNull(result.getDeploymentId());
             assertEquals(2, result.getStatements().length);
             assertEquals(1, env.deployment().getDeployments().length);
@@ -75,6 +76,8 @@ public class ClientDeployResult {
             assertEquals(0, result.getDeploymentIdDependencies().length);
 
             env.undeployAll();
+
+            assertFalse(env.runtime().getDeploymentService().isDeployed(result.getDeploymentId()));
         }
     }
 
