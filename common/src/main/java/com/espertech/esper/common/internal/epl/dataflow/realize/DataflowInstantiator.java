@@ -139,7 +139,8 @@ public class DataflowInstantiator {
                     metadata.getOperatorName(), operatorNum, agentInstanceContext, additionalParameters, options.getDataFlowInstanceId(), options.getParameterProvider(), operatorFactory, options.getDataFlowInstanceUserObject()));
         } catch (Throwable t) {
             OperatorMetadataDescriptor meta = dataflow.getOperatorMetadata().get(operatorNum);
-            throw new EPException("Failed to obtain operator instance for '" + meta.getOperatorName() + "': " + t.getMessage(), t);
+            String message = t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage();
+            throw new EPException("Failed to obtain operator instance for '" + meta.getOperatorName() + "': " + message, t);
         }
         return operator;
     }
