@@ -10,20 +10,38 @@
  */
 package com.espertech.esper.common.client.util;
 
+/**
+ * Exception for line item.
+ */
 public class ExceptionLineItem extends Exception {
     protected final String expression;
     protected final int lineNumber;
 
+    /**
+     * Ctor.
+     * @param message the message
+     * @param cause the cause
+     * @param expression the expression
+     * @param lineNumber line number starting at 1
+     */
     public ExceptionLineItem(String message, Throwable cause, String expression, int lineNumber) {
         super(message, cause);
         this.expression = replaceNewline(expression);
         this.lineNumber = lineNumber;
     }
 
+    /**
+     * Returns the expression
+     * @return expression
+     */
     public String getExpression() {
         return expression;
     }
 
+    /**
+     * Returns the line number starting at 1
+     * @return line number
+     */
     public int getLineNumber() {
         return lineNumber;
     }

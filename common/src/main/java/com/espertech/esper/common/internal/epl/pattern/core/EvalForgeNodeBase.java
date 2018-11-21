@@ -39,6 +39,7 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
 
     /**
      * Constructor creates a list of child nodes.
+     * @param attachPatternText whether to attach EPL subexpression text
      */
     public EvalForgeNodeBase(boolean attachPatternText) {
         childNodes = new ArrayList<>();

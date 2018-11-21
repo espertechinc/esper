@@ -12,6 +12,9 @@ package com.espertech.esper.common.client.util;
 
 import java.util.List;
 
+/**
+ * Interface for exceptions that have a line items
+ */
 public interface ExceptionWithLineItems {
     List<? extends ExceptionLineItem> getItems();
 }

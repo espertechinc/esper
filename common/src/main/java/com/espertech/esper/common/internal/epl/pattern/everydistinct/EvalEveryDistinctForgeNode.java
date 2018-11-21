@@ -43,6 +43,7 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
      * Ctor.
      *
      * @param expressions distinct-value expressions
+     * @param attachPatternText whether to attach EPL subexpression text
      */
     public EvalEveryDistinctForgeNode(boolean attachPatternText, List<ExprNode> expressions) {
         super(attachPatternText);

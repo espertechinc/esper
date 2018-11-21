@@ -41,6 +41,7 @@ public class EvalFilterForgeNode extends EvalForgeNodeBase {
     /**
      * Constructor.
      *
+     * @param attachPatternText whether to attach EPL subexpression text
      * @param filterSpecification specifies the filter properties
      * @param eventAsName         is the name to use for adding matching events to the MatchedEventMap
      *                            table used when indicating truth value of true.

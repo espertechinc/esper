@@ -40,6 +40,7 @@ public class EvalObserverForgeNode extends EvalForgeNodeBase {
      * Constructor.
      *
      * @param patternObserverSpec is the factory to use to get an observer instance
+     * @param attachPatternText whether to attach EPL subexpression text
      */
     public EvalObserverForgeNode(boolean attachPatternText, PatternObserverSpec patternObserverSpec) {
         super(attachPatternText);

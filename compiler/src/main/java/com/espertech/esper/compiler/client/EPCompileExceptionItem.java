@@ -16,6 +16,13 @@ import com.espertech.esper.common.client.util.ExceptionLineItem;
  * Exception information.
  */
 public class EPCompileExceptionItem extends ExceptionLineItem {
+    /**
+     * Ctor.
+     * @param message the message
+     * @param cause the cause
+     * @param expression the expression
+     * @param lineNumber line number starting at 1
+     */
     public EPCompileExceptionItem(String message, Throwable cause, String expression, int lineNumber) {
         super(message, cause, expression, lineNumber);
     }

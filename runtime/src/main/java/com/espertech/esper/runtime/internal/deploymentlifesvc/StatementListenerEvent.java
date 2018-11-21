@@ -43,7 +43,8 @@ public class StatementListenerEvent {
      * Ctor.
      *
      * @param statement  the statement
-     * @param eventType  the tyoe if event
+     * @param eventType  the type of event
+     * @param listener the listener
      */
     public StatementListenerEvent(EPStatement statement, ListenerEventType eventType, UpdateListener listener) {
         this.statement = statement;

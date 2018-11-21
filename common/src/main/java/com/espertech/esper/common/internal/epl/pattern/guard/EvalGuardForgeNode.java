@@ -40,6 +40,7 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
      * Constructor.
      *
      * @param patternGuardSpec - factory for guard construction
+     * @param attachPatternText whether to attach EPL subexpression text
      */
     public EvalGuardForgeNode(boolean attachPatternText, PatternGuardSpec patternGuardSpec) {
         super(attachPatternText);
