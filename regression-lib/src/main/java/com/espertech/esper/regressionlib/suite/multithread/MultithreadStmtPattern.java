@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.multithread;
 
 import com.espertech.esper.common.client.EPCompiled;
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
@@ -75,24 +76,24 @@ public class MultithreadStmtPattern implements RegressionExecutionWithConfigure 
             EPStatement stmt = env.statement(stmtName);
             listener[i] = new SupportMTUpdateListener();
             stmt.addListener(listener[i]);
-
-            synchronized (sendLock) {
-                sendLock.notifyAll();
-            }
         }
 
-        for (SendEventWaitCallable callable : callables) {
-            callable.setShutdown(true);
-        }
         synchronized (sendLock) {
             sendLock.notifyAll();
+        }
+
+        SupportCompileDeployUtil.threadSleep(100);
+        for (SendEventWaitCallable callable : callables) {
+            callable.setShutdown(true);
         }
 
         threadPool.shutdown();
         SupportCompileDeployUtil.threadpoolAwait(threadPool, 10, TimeUnit.SECONDS);
 
         for (int i = 0; i < numEvents; i++) {
-            assertTrue(listener[i].assertOneGetNewAndReset().get("a") instanceof SupportBean);
+            EventBean event = listener[i].assertOneGetNewAndReset();
+            Object a = event.get("a");
+            assertTrue(a instanceof SupportBean);
         }
 
         env.undeployAll();
