@@ -72,7 +72,7 @@ public enum QueryGraphRangeEnum {
     /**
      * Inverted-Range includes high endpoint but not low endpoint, i.e. (a,b]
      */
-    NOT_RANGE_HALF_CLOSED(true, "-(,])");
+    NOT_RANGE_HALF_CLOSED(true, "-(,]");
 
     private boolean range;
     private String stringOp;
