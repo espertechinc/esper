@@ -9,7 +9,7 @@ Bundle-Name: EsperIO-DB
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-db
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.0.0.beta1
+Bundle-Version: 8.0.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esperio.db;uses:="com.espertech.esper.runt

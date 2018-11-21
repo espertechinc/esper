@@ -17,5 +17,5 @@ public class RuntimeVersion {
     /**
      * Current runtime version.
      */
-    public static final String VERSION = "8.0.0-beta3";
+    public static final String VERSION = "8.0.0";
 }

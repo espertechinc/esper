@@ -8,7 +8,7 @@ Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: Esper Common
 Bundle-SymbolicName: com.espertech.esper-common
-Bundle-Version: 8.0.0.beta1
+Bundle-Version: 8.0.0
 Created-By: Apache Maven Bundle Plugin
 Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  sper.common.client.meta";version="8.0.0",com.espertech.esper.common.cli

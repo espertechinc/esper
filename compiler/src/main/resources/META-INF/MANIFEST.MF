@@ -10,7 +10,7 @@ Bundle-Name: Esper Compiler
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esper-compiler
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.0.0.beta1
+Bundle-Version: 8.0.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esper.compiler.client;uses:="com.espertech
