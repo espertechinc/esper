@@ -87,12 +87,18 @@ public class BetweenExpression extends ExpressionBase {
     public void toPrecedenceFreeEPL(StringWriter writer) {
         if (isLowEndpointIncluded && isHighEndpointIncluded) {
             this.getChildren().get(0).toEPL(writer, getPrecedence());
+            if (isNotBetween) {
+                writer.write(" not");
+            }
             writer.write(" between ");
             this.getChildren().get(1).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             writer.write(" and ");
             this.getChildren().get(2).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         } else {
             this.getChildren().get(0).toEPL(writer, getPrecedence());
+            if (isNotBetween) {
+                writer.write(" not");
+            }
             writer.write(" in ");
             if (isLowEndpointIncluded) {
                 writer.write('[');

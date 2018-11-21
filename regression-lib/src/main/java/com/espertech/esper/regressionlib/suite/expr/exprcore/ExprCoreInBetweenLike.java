@@ -14,15 +14,15 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 
 import java.util.ArrayList;
@@ -508,6 +508,12 @@ public class ExprCoreInBetweenLike {
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, false, false, true, true, true, true});
 
             env.undeployAll();
+
+            EPStatementObjectModel model = env.eplToModel(eplOne);
+            String epl = model.toEPL();
+            epl = epl.replace("intPrimitive between 2 and 4 as rc", "intPrimitive in [2:4] as rc");
+            epl = epl.replace("intPrimitive not between 2 and 4 as nrc", "intPrimitive not in [2:4] as nrc");
+            assertEquals(eplOne, epl);
 
             // test range reversed
             String eplTwo = "@name('s1') select intPrimitive between 4 and 2 as r1, intPrimitive in [4:2] as r2 from SupportBean";
