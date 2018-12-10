@@ -35,6 +35,8 @@ public class ConfigurationCompilerByteCode implements Serializable {
     private NameAccessModifier accessModifierScript = NameAccessModifier.PRIVATE;
     private NameAccessModifier accessModifierTable = NameAccessModifier.PRIVATE;
     private EventTypeBusModifier busModifierEventType = EventTypeBusModifier.NONBUS;
+    private int threadPoolCompilerNumThreads = 8;
+    private Integer threadPoolCompilerCapacity = null;
 
     /**
      * Set all access modifiers to public.
@@ -341,6 +343,40 @@ public class ConfigurationCompilerByteCode implements Serializable {
      */
     public void setAttachPatternEPL(boolean attachPatternEPL) {
         this.attachPatternEPL = attachPatternEPL;
+    }
+
+    /**
+     * Returns the number of threads available for parallel compilation of multiple EPL statements. The default is 8 threads.
+     * @return number of threads
+     */
+    public int getThreadPoolCompilerNumThreads() {
+        return threadPoolCompilerNumThreads;
+    }
+
+    /**
+     * Sets the number of threads available for parallel compilation of multiple EPL statements. The default is 8 threads.
+     * @param threadPoolCompilerNumThreads number of threads
+     */
+    public void setThreadPoolCompilerNumThreads(int threadPoolCompilerNumThreads) {
+        this.threadPoolCompilerNumThreads = threadPoolCompilerNumThreads;
+    }
+
+    /**
+     * Returns the capacity of the parallel compiler semaphore, or null if none defined (null is the default and is the unbounded case).
+     *
+     * @return capacity or null if none defined
+     */
+    public Integer getThreadPoolCompilerCapacity() {
+        return threadPoolCompilerCapacity;
+    }
+
+    /**
+     * Sets the capacity of the parallel compiler semaphore, or null if none defined (null is the default and is the unbounded case).
+     *
+     * @param threadPoolCompilerCapacity or null if none defined
+     */
+    public void setThreadPoolCompilerCapacity(Integer threadPoolCompilerCapacity) {
+        this.threadPoolCompilerCapacity = threadPoolCompilerCapacity;
     }
 
     private void checkModifier(NameAccessModifier modifier) {

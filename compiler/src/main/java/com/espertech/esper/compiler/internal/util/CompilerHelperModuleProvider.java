@@ -85,37 +85,49 @@ public class CompilerHelperModuleProvider {
         String moduleIdentPostfix = IdentifierUtil.getIdentifierMayStartNumeric(moduleAssignedName);
 
         // compile each statement
-        int statementNumber = 0;
         List<String> statementClassNames = new ArrayList<>();
-
         Set<String> statementNames = new HashSet<>();
         List<EPCompileExceptionItem> exceptions = new ArrayList<>();
-        for (Compilable compilable : compilables) {
-            String className = null;
-            EPCompileExceptionItem exception = null;
+        CompilerPool compilerPool = new CompilerPool(compilables.size(), compileTimeServices, moduleBytes);
 
-            try {
-                StatementCompileTimeServices statementCompileTimeServices = new StatementCompileTimeServices(statementNumber, compileTimeServices);
-                className = compileItem(compilable, optionalModuleName, moduleIdentPostfix, moduleBytes, statementNumber, packageName, statementNames, statementCompileTimeServices, compilerOptions);
-            } catch (StatementSpecCompileException ex) {
-                if (ex instanceof StatementSpecCompileSyntaxException) {
-                    exception = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
-                } else {
-                    exception = new EPCompileExceptionItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
+        try {
+            int statementNumber = 0;
+            for (Compilable compilable : compilables) {
+                String className = null;
+                EPCompileExceptionItem exception = null;
+
+                try {
+                    StatementCompileTimeServices statementCompileTimeServices = new StatementCompileTimeServices(statementNumber, compileTimeServices);
+                    CompilableItem compilableItem = compileItem(compilable, optionalModuleName, moduleIdentPostfix, statementNumber, packageName, statementNames, statementCompileTimeServices, compilerOptions);
+                    className = compilableItem.getProviderClassName();
+                    compilerPool.submit(statementNumber, compilableItem);
+                } catch (StatementSpecCompileException ex) {
+                    if (ex instanceof StatementSpecCompileSyntaxException) {
+                        exception = new EPCompileExceptionSyntaxItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
+                    } else {
+                        exception = new EPCompileExceptionItem(ex.getMessage(), ex, ex.getExpression(), compilable.lineNumber());
+                    }
+                    exceptions.add(exception);
                 }
-                exceptions.add(exception);
-            }
 
-            if (exception == null) {
-                statementClassNames.add(className);
+                if (exception == null) {
+                    statementClassNames.add(className);
+                }
+                statementNumber++;
             }
-            statementNumber++;
+        } catch (InterruptedException | RuntimeException ex) {
+            compilerPool.shutdownNow();
+            throw new EPCompileException(ex.getMessage(), ex);
         }
 
         if (!exceptions.isEmpty()) {
+            compilerPool.shutdown();
             EPCompileExceptionItem ex = exceptions.get(0);
             throw new EPCompileException(ex.getMessage() + " [" + ex.getExpression() + "]", ex, exceptions);
         }
+
+        // await async compilation
+        compilerPool.shutdownCollectResults();
 
         // compile module resource
         String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, moduleBytes, packageName, compileTimeServices);

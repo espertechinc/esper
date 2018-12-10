@@ -71,15 +71,14 @@ import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator
 
 public class CompilerHelperStatementProvider {
 
-    static String compileItem(Compilable compilable,
-                              String optionalModuleName,
-                              String moduleIdentPostfix,
-                              Map<String, byte[]> moduleBytes,
-                              int statementNumber,
-                              String packageName,
-                              Set<String> statementNames,
-                              StatementCompileTimeServices compileTimeServices,
-                              CompilerOptions compilerOptions)
+    static CompilableItem compileItem(Compilable compilable,
+                                          String optionalModuleName,
+                                          String moduleIdentPostfix,
+                                          int statementNumber,
+                                          String packageName,
+                                          Set<String> statementNames,
+                                          StatementCompileTimeServices compileTimeServices,
+                                          CompilerOptions compilerOptions)
             throws StatementSpecCompileException {
 
         // Stage 1 - parse statement
@@ -247,13 +246,11 @@ public class CompilerHelperStatementProvider {
                 classes.add(clazz);
             }
 
-            // Stage 5 - compile "fields" class first and all the rest later
+            // Stage 5 - sort to make the "fields" class first and all the rest later
             List<CodegenClass> sorted = sortClasses(classes);
-            for (CodegenClass clazz : sorted) {
-                JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices.getServices());
-            }
 
-            return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, StatementProvider.class, classPostfix);
+            String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, StatementProvider.class, classPostfix);
+            return new CompilableItem(statementProviderClassName, sorted);
         } catch (StatementSpecCompileException ex) {
             throw ex;
         } catch (ExprValidationException ex) {

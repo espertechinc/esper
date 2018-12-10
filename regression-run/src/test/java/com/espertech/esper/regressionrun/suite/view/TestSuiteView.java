@@ -148,6 +148,7 @@ public class TestSuiteView extends TestCase {
         configuration.getCommon().addVariable("TIME_WIN_ONE", int.class, 4);
         configuration.getCommon().addVariable("TIME_WIN_TWO", double.class, 4000);
 
+        configuration.getCompiler().getByteCode().setThreadPoolCompilerNumThreads(0);
         configuration.getCompiler().addPlugInSingleRowFunction("udf", ViewExpressionWindow.LocalUDF.class.getName(), "evaluateExpiryUDF");
     }
 }

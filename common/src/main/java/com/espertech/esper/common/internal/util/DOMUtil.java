@@ -32,6 +32,14 @@ public class DOMUtil {
         }
     }
 
+    public static void parseOptionalInteger(Element element, String name, Consumer<Integer> func) {
+        String str = getOptionalAttribute(element, name);
+        if (str != null) {
+            int i = parseInteger(name, str);
+            func.accept(i);
+        }
+    }
+
     public static String getRequiredAttribute(Node node, String key) throws ConfigurationException {
         Node valueNode = node.getAttributes().getNamedItem(key);
         if (valueNode == null) {
@@ -71,6 +79,14 @@ public class DOMUtil {
             return Boolean.parseBoolean(str);
         } catch (Throwable t) {
             throw new ConfigurationException("Failed to parse value for '" + name + "' value '" + str + "' as boolean: " + t.getMessage(), t);
+        }
+    }
+
+    private static int parseInteger(String name, String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (Throwable t) {
+            throw new ConfigurationException("Failed to parse value for '" + name + "' value '" + str + "' as int: " + t.getMessage(), t);
         }
     }
 }

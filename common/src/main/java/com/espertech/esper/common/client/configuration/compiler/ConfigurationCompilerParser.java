@@ -190,6 +190,8 @@ public class ConfigurationCompilerParser {
         parseOptionalBoolean(element, "attach-pattern-epl", codegen::setAttachPatternEPL);
         parseOptionalBoolean(element, "instrumented", codegen::setInstrumented);
         parseOptionalBoolean(element, "allow-subscriber", codegen::setAllowSubscriber);
+        parseOptionalInteger(element, "threadpool-compiler-num-threads", codegen::setThreadPoolCompilerNumThreads);
+        parseOptionalInteger(element, "threadpool-compiler-capacity", codegen::setThreadPoolCompilerCapacity);
 
         parseOptionalAccessMod(element, "access-modifier-context", codegen::setAccessModifierContext);
         parseOptionalAccessMod(element, "access-modifier-event-type", codegen::setAccessModifierEventType);

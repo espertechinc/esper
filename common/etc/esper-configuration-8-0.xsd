@@ -457,6 +457,8 @@
 			<xs:attribute name="access-modifier-script" type="esper:accessModifierEnum" use="optional"/>
 			<xs:attribute name="access-modifier-table" type="esper:accessModifierEnum" use="optional"/>
 			<xs:attribute name="access-modifier-variable" type="esper:accessModifierEnum" use="optional"/>
+			<xs:attribute name="threadpool-compiler-num-threads" type="xs:int" use="optional"/>
+			<xs:attribute name="threadpool-compiler-capacity" type="xs:int" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="threading">
