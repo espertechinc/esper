@@ -1,6 +1,6 @@
-# Esper - Complex Event Processing and Event Series Analysis for Java
+# Esper - Complex Event Processing, Streaming SQL and Event Series Analysis for Java
 
-Esper is a component for complex event processing (CEP) and event series analysis, available for Java as Esper, and for .NET as NEsper.
+Esper is a component for complex event processing (CEP), streaming SQL and event series analysis, available for Java as Esper, and for .NET as NEsper.
 
 Esper's home page and documentation are at http://www.espertech.com/esper
 
