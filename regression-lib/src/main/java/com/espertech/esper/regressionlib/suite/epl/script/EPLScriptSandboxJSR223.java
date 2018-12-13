@@ -34,7 +34,6 @@ public class EPLScriptSandboxJSR223 implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scripting = manager.getEngineByName("js");
-        String expressionFib = "fib(num); function fib(n) { if(n <= 1) return n; return fib(n-1) + fib(n-2); };";
         String expressionTwo = "var words = new java.util.ArrayList();\n" +
             "words.add('wordOne');\n" +
             "words.add('wordTwo');\n" +

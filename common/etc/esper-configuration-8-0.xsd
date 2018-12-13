@@ -631,6 +631,7 @@
 	</xs:element>
 	<xs:element name="scripts">
 		<xs:complexType>
+			<xs:attribute name="enabled" type="xs:boolean" use="optional"/>
 			<xs:attribute name="default-dialect" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>

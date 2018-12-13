@@ -140,6 +140,7 @@ public class ConfigurationCompilerParser {
         if (defaultDialect != null) {
             compiler.getScripts().setDefaultDialect(defaultDialect);
         }
+        parseOptionalBoolean(element, "enabled", b -> compiler.getScripts().setEnabled(b));
     }
 
     private static void handleLanguage(ConfigurationCompiler compiler, Element element) {

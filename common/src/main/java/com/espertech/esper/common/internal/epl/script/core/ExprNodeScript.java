@@ -98,6 +98,9 @@ public class ExprNodeScript extends ExprNodeBase implements ExprForge, ExprEnume
         if (script.getParameterNames().length != parameters.size()) {
             throw new ExprValidationException("Invalid number of parameters for script '" + script.getName() + "', expected " + script.getParameterNames().length + " parameters but received " + parameters.size() + " parameters");
         }
+        if (!validationContext.getStatementCompileTimeService().getConfiguration().getCompiler().getScripts().isEnabled()) {
+            throw new ExprValidationException("Script compilation has been disabled by configuration");
+        }
 
         // validate all expression parameters
         List<ExprNode> validatedParameters = new ArrayList<ExprNode>();

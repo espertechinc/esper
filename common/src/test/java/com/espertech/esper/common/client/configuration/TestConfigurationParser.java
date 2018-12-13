@@ -89,6 +89,7 @@ public class TestConfigurationParser extends TestCase {
         assertFalse(compiler.getExpression().isDuckTyping());
         assertNull(compiler.getExpression().getMathContext());
         assertEquals("js", compiler.getScripts().getDefaultDialect());
+        assertTrue(compiler.getScripts().isEnabled());
 
         ConfigurationRuntime runtime = config.getRuntime();
         assertTrue(runtime.getThreading().isInsertIntoDispatchPreserveOrder());
@@ -493,6 +494,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(RoundingMode.CEILING, compiler.getExpression().getMathContext().getRoundingMode());
 
         assertEquals("abc", compiler.getScripts().getDefaultDialect());
+        assertFalse(compiler.getScripts().isEnabled());
 
         /*
          * RUNTIME

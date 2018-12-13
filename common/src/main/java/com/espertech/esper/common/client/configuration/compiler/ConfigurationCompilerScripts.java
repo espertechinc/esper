@@ -17,6 +17,7 @@ import java.io.Serializable;
  */
 public class ConfigurationCompilerScripts implements Serializable {
     private static final long serialVersionUID = -3111856398932434323L;
+    private boolean enabled = true;
     private String defaultDialect = "js";
 
     /**
@@ -35,5 +36,21 @@ public class ConfigurationCompilerScripts implements Serializable {
      */
     public void setDefaultDialect(String defaultDialect) {
         this.defaultDialect = defaultDialect;
+    }
+
+    /**
+     * Returns indicator whether scripting is allowed or not is not allowed.
+     * @return indicator
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * Sets indicator whether scripting is allowed or not is not allowed.
+     * @param enabled indicator
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

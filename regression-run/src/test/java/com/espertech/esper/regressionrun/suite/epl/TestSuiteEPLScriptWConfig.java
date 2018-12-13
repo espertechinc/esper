@@ -12,6 +12,7 @@ package com.espertech.esper.regressionrun.suite.epl;
 
 import com.espertech.esper.regressionlib.suite.epl.script.EPLScriptExpressionConfiguration;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.suite.epl.script.EPLScriptExpressionDisable;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
@@ -22,6 +23,14 @@ public class TestSuiteEPLScriptWConfig extends TestCase {
         session.getConfiguration().getCommon().addEventType(SupportBean.class);
         session.getConfiguration().getCompiler().getScripts().setDefaultDialect("dummy");
         RegressionRunner.run(session, new EPLScriptExpressionConfiguration());
+        session.destroy();
+    }
+
+    public void testEPLScriptExpressionDisable() {
+        RegressionSession session = RegressionRunner.session();
+        session.getConfiguration().getCommon().addEventType(SupportBean.class);
+        session.getConfiguration().getCompiler().getScripts().setEnabled(false);
+        RegressionRunner.run(session, new EPLScriptExpressionDisable());
         session.destroy();
     }
 }
