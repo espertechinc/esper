@@ -1270,6 +1270,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitRowLimit(EsperEPL2GrammarParser.RowLimitContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#crontabLimitParameterSetList}.
+	 * @param ctx the parse tree
+	 */
+	void enterCrontabLimitParameterSetList(EsperEPL2GrammarParser.CrontabLimitParameterSetListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#crontabLimitParameterSetList}.
+	 * @param ctx the parse tree
+	 */
+	void exitCrontabLimitParameterSetList(EsperEPL2GrammarParser.CrontabLimitParameterSetListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#crontabLimitParameterSet}.
 	 * @param ctx the parse tree
 	 */

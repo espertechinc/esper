@@ -10,26 +10,26 @@
  */
 package com.espertech.esper.common.internal.context.controller.condition;
 
+import com.espertech.esper.common.internal.context.controller.initterm.ContextControllerInitTermUtil;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
-import com.espertech.esper.common.internal.schedule.ScheduleComputeHelper;
 import com.espertech.esper.common.internal.schedule.ScheduleSpec;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
 import java.util.List;
 
 public class ContextConditionDescriptorCrontab implements ContextConditionDescriptor {
-    private ExprEvaluator[] evaluators;
+    private ExprEvaluator[][] evaluatorsPerCrontab;
     private int scheduleCallbackId = -1;
     private boolean immediate;
 
-    public ExprEvaluator[] getEvaluators() {
-        return evaluators;
+    public ExprEvaluator[][] getEvaluatorsPerCrontab() {
+        return evaluatorsPerCrontab;
     }
 
-    public void setEvaluators(ExprEvaluator[] evaluators) {
-        this.evaluators = evaluators;
+    public void setEvaluatorsPerCrontab(ExprEvaluator[][] evaluatorsPerCrontab) {
+        this.evaluatorsPerCrontab = evaluatorsPerCrontab;
     }
 
     public int getScheduleCallbackId() {
@@ -52,8 +52,8 @@ public class ContextConditionDescriptorCrontab implements ContextConditionDescri
         this.immediate = immediate;
     }
 
-    public Long getExpectedEndTime(ContextManagerRealization realization, ScheduleSpec scheduleSpec) {
+    public Long getExpectedEndTime(ContextManagerRealization realization, ScheduleSpec[] scheduleSpecs) {
         ClasspathImportServiceRuntime classpathImportService = realization.getAgentInstanceContextCreate().getClasspathImportServiceRuntime();
-        return ScheduleComputeHelper.computeNextOccurance(scheduleSpec, realization.getAgentInstanceContextCreate().getTimeProvider().getTime(), classpathImportService.getTimeZone(), classpathImportService.getTimeAbacus());
+        return ContextControllerInitTermUtil.computeScheduleMinimumNextOccurance(scheduleSpecs, realization.getAgentInstanceContextCreate().getTimeProvider().getTime(), classpathImportService);
     }
 }

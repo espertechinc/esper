@@ -515,8 +515,11 @@ public class StatementSpecMapper {
     private static ContextDescriptorCondition unmapCreateContextRangeCondition(ContextSpecCondition endpoint, StatementSpecUnMapContext unmapContext) {
         if (endpoint instanceof ContextSpecConditionCrontab) {
             ContextSpecConditionCrontab crontab = (ContextSpecConditionCrontab) endpoint;
-            List<Expression> crontabExpr = unmapExpressionDeep(crontab.getCrontab(), unmapContext);
-            return new ContextDescriptorConditionCrontab(crontabExpr, crontab.isImmediate());
+            List<List<Expression>> crontabs = new ArrayList<>();
+            for (List<ExprNode> crontabItem : crontab.getCrontabs()) {
+                crontabs.add(unmapExpressionDeep(crontabItem, unmapContext));
+            }
+            return new ContextDescriptorConditionCrontab(crontabs, crontab.isImmediate());
         } else if (endpoint instanceof ContextSpecConditionPattern) {
             ContextSpecConditionPattern pattern = (ContextSpecConditionPattern) endpoint;
             PatternExpr patternExpr = unmapPatternEvalDeep(pattern.getPatternRaw(), unmapContext);
@@ -1361,7 +1364,10 @@ public class StatementSpecMapper {
     private static ContextSpecCondition mapCreateContextRangeCondition(ContextDescriptorCondition condition, StatementSpecMapContext mapContext) {
         if (condition instanceof ContextDescriptorConditionCrontab) {
             ContextDescriptorConditionCrontab crontab = (ContextDescriptorConditionCrontab) condition;
-            List<ExprNode> expr = mapExpressionDeep(crontab.getCrontabExpressions(), mapContext);
+            List<List<ExprNode>> expr = new ArrayList<>(crontab.getCrontabExpressions().size());
+            for (List<Expression> crontabItem : crontab.getCrontabExpressions()) {
+                expr.add(mapExpressionDeep(crontabItem, mapContext));
+            }
             return new ContextSpecConditionCrontab(expr, crontab.isNow());
         } else if (condition instanceof ContextDescriptorConditionFilter) {
             ContextDescriptorConditionFilter filter = (ContextDescriptorConditionFilter) condition;

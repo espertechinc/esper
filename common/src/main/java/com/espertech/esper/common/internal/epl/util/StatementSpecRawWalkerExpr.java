@@ -328,7 +328,9 @@ public class StatementSpecRawWalkerExpr {
     private static void collectExpressions(List<ExprNode> expressions, ContextSpecCondition endpoint) {
         if (endpoint instanceof ContextSpecConditionCrontab) {
             ContextSpecConditionCrontab crontab = (ContextSpecConditionCrontab) endpoint;
-            expressions.addAll(crontab.getCrontab());
+            for (List<ExprNode> crontabItem : crontab.getCrontabs()) {
+                expressions.addAll(crontabItem);
+            }
         }
     }
 }

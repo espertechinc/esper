@@ -34,9 +34,12 @@ public class ContextControllerConditionFactory {
         }
         if (endpoint instanceof ContextConditionDescriptorCrontab) {
             ContextConditionDescriptorCrontab crontab = (ContextConditionDescriptorCrontab) endpoint;
-            ScheduleSpec schedule = ScheduleExpressionUtil.crontabScheduleBuild(crontab.getEvaluators(), controller.getRealization().getAgentInstanceContextCreate());
+            ScheduleSpec[] schedules = new ScheduleSpec[crontab.getEvaluatorsPerCrontab().length];
+            for (int i = 0; i < schedules.length; i++) {
+                schedules[i] = ScheduleExpressionUtil.crontabScheduleBuild(crontab.getEvaluatorsPerCrontab()[i], controller.getRealization().getAgentInstanceContextCreate());
+            }
             long scheduleSlot = controller.getRealization().getAgentInstanceContextCreate().getScheduleBucket().allocateSlot();
-            return new ContextControllerConditionCrontabImpl(conditionPath, scheduleSlot, schedule, crontab, callback, controller);
+            return new ContextControllerConditionCrontabImpl(conditionPath, scheduleSlot, schedules, crontab, callback, controller);
         }
         if (endpoint instanceof ContextConditionDescriptorPattern) {
             ContextConditionDescriptorPattern pattern = (ContextConditionDescriptorPattern) endpoint;

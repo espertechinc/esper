@@ -51,6 +51,14 @@ public class ExprNodeUtilityCodegen {
         return codegenEvaluators(ExprNodeUtilityQuery.getForges(expressions), parent, originator, classScope);
     }
 
+    public static CodegenExpression codegenEvaluators(ExprForge[][] expressions, CodegenMethodScope parent, Class originator, CodegenClassScope classScope) {
+        CodegenExpression[] init = new CodegenExpression[expressions.length];
+        for (int i = 0; i < init.length; i++) {
+            init[i] = codegenEvaluators(expressions[i], parent, originator, classScope);
+        }
+        return newArrayWithInit(ExprEvaluator[].class, init);
+    }
+
     public static CodegenExpression codegenEvaluators(ExprForge[] expressions, CodegenMethodScope parent, Class originator, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(ExprEvaluator[].class, originator, classScope);
         method.getBlock().declareVar(ExprEvaluator[].class, "evals", newArrayByLength(ExprEvaluator.class, constant(expressions.length)));

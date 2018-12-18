@@ -167,9 +167,13 @@ public class ASTContextHelper {
         if (ctx == null) {
             return ContextSpecConditionNever.INSTANCE;
         }
-        if (ctx.crontabLimitParameterSet() != null) {
-            List<ExprNode> crontab = ASTExprHelper.exprCollectSubNodes(ctx.crontabLimitParameterSet(), 0, astExprNodeMap);
-            return new ContextSpecConditionCrontab(crontab, immediate);
+        if (ctx.crontabLimitParameterSetList() != null) {
+            List<List<ExprNode>> crontabs = new ArrayList<>();
+            for (EsperEPL2GrammarParser.CrontabLimitParameterSetContext crontabCtx : ctx.crontabLimitParameterSetList().crontabLimitParameterSet()) {
+                List<ExprNode> crontab = ASTExprHelper.exprCollectSubNodes(crontabCtx, 0, astExprNodeMap);
+                crontabs.add(crontab);
+            }
+            return new ContextSpecConditionCrontab(crontabs, immediate);
         } else if (ctx.patternInclusionExpression() != null) {
             EvalForgeNode evalNode = ASTExprHelper.patternGetRemoveTopNode(ctx.patternInclusionExpression(), astPatternNodeMap);
             boolean inclusive = false;

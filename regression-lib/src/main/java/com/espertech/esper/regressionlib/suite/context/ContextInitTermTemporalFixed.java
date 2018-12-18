@@ -18,12 +18,12 @@ import com.espertech.esper.common.client.context.InvalidContextPartitionSelector
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.context.AgentInstanceAssertionUtil;
 import com.espertech.esper.regressionlib.support.context.SupportContextMgmtHelper;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
@@ -33,6 +33,8 @@ import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,8 +43,11 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 public class ContextInitTermTemporalFixed {
+
+    private static final Logger log = LoggerFactory.getLogger(ContextInitTermTemporalFixed.class);
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
@@ -64,7 +69,8 @@ public class ContextInitTermTemporalFixed {
         execs.add(new ContextStartEndStartTurnedOn());
         execs.add(new ContextStart9End5AggUngrouped());
         execs.add(new ContextStart9End5AggGrouped());
-        // Support for DB-join: execs.add(new DBHistorical());
+        execs.add(new ContextStartEndDBHistorical());
+        execs.add(new ContextStartEndMultiCrontab());
         return execs;
     }
 
@@ -482,14 +488,14 @@ public class ContextInitTermTemporalFixed {
         }
     }
 
-    private static class DBHistorical implements RegressionExecution {
+    private static class ContextStartEndDBHistorical implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             String[] fields = "s1.mychar".split(",");
-            String stmtText = "context NineToFive select * from SupportBean_S0 as s0, sql:MyDB ['select * from mytesttable where ${id} = mytesttable.mybigint'] as s1";
+            String stmtText = "@name('s0') context NineToFive select * from SupportBean_S0 as s0, sql:MyDB ['select * from mytesttable where ${id} = mytesttable.mybigint'] as s1";
             env.compileDeploy(stmtText, path);
             env.addListener("s0");
 
@@ -1165,6 +1171,86 @@ public class ContextInitTermTemporalFixed {
         }
     }
 
+    public static class ContextStartEndMultiCrontab implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertionMultiCrontab(env,
+                "(0, 8, *, *, *, *), (0, 10, *, *, *, *)",
+                "(0, 9, *, *, *, *), (0, 12, *, *, *, *)",
+                new TimeRangePair[] {
+                    new TimeRangePair("2002-05-30T09:30:00.000", null, false),
+                    new TimeRangePair("2002-05-30T010:00:00.000", "2002-05-30T011:59:59.999", true),
+                    new TimeRangePair("2002-05-30T012:00:00.000", "2002-05-31T07:59:59.999", false),
+                    new TimeRangePair("2002-05-31T08:00:00.000", "2002-05-31T08:59:59.999", true),
+                    new TimeRangePair("2002-05-31T09:00:00.000", "2002-05-31T09:59:59.999", false),
+                    new TimeRangePair("2002-05-31T010:00:00.000", "2002-05-31T010:10:00.000", true)
+                });
+
+            runAssertionMultiCrontab(env,
+                "(0, 8, *, *, *, *)",
+                "(0, 12, *, *, [1, 2, 3, 4, 5], *), (0, 20, *, *, [0, 6], *)",
+                new TimeRangePair[] {
+                    new TimeRangePair("2018-12-06T09:30:00.000", null, true), // Thurs. Dec 6, 2018
+                    new TimeRangePair("2018-12-06T10:00:00.000", "2018-12-06T11:59:59.999", true),
+                    new TimeRangePair("2018-12-06T12:00:00.000", "2018-12-07T07:59:59.999", false),
+                    new TimeRangePair("2018-12-07T08:00:00.000", "2018-12-07T11:59:59.999", true),
+                    new TimeRangePair("2018-12-07T12:00:00.000", "2018-12-08T07:59:59.999", false),
+                    new TimeRangePair("2018-12-08T08:00:00.000", "2018-12-08T19:59:59.999", true),
+                    new TimeRangePair("2018-12-08T20:00:00.000", "2018-12-09T07:59:59.999", false),
+                    new TimeRangePair("2018-12-09T08:00:00.000", "2018-12-09T19:59:59.999", true),
+                    new TimeRangePair("2018-12-09T20:00:00.000", "2018-12-10T07:59:59.999", false),
+                    new TimeRangePair("2018-12-10T08:00:00.000", "2018-12-10T11:59:59.999", true),
+                    new TimeRangePair("2018-12-10T12:00:00.000", "2018-12-10T13:00:00.000", false)
+                });
+
+            runAssertionMultiCrontab(env,
+                "(0, 8, *, *, 1, *), (0, 9, *, *, 2, *)",
+                "(0, 10, *, *, *)",
+                new TimeRangePair[] {
+                    new TimeRangePair("2018-12-03T09:30:00.000", null, true), // Mon. Dec 3, 2018
+                    new TimeRangePair("2018-12-03T09:30:00.000", "2018-12-03T09:59:59.999", true),
+                    new TimeRangePair("2018-12-03T10:00:00.000", "2018-12-04T08:59:59.999", false),
+                    new TimeRangePair("2018-12-04T09:00:00.000", "2018-12-04T09:59:59.999", true),
+                    new TimeRangePair("2018-12-04T10:00:00.000", "2018-12-10T07:59:59.999", false),
+                    new TimeRangePair("2018-12-10T09:00:00.000", "2018-12-10T09:59:59.999", true),
+                });
+
+            String epl = "create context Ctx as start (0, 8, *, *, 1, *), (0, 9, *, *, 2, *) end (0, 12, *, *, [1,2,3,4,5], *), (0, 20, *, *, [0,6], *)";
+            env.eplToModelCompileDeploy(epl);
+            env.undeployAll();
+        }
+    }
+
+    private static void runAssertionMultiCrontab(RegressionEnvironment env, String startList, String endList, TimeRangePair[] pairs) {
+        String epl = "create context Ctx " +
+            "start " + startList +
+            "end " + endList + ";\n" +
+            "@name('s0') context Ctx select * from SupportBean";
+
+        sendTimeEvent(env, pairs[0].getStart());
+        assertNull(pairs[0].getEnd());
+        env.compileDeploy(epl).addListener("s0");
+        sendEventAndAssert(env, pairs[0].isExpected());
+
+        for (int i = 1; i < pairs.length; i++) {
+            long start = DateTime.parseDefaultMSec(pairs[i].getStart());
+            long end = DateTime.parseDefaultMSec(pairs[i].getEnd());
+            long current = start;
+
+            while (current < end) {
+                // Comment-me-in: log.info("Sending " + DateTime.print(current));
+                sendTimeEvent(env, current);
+                sendEventAndAssert(env, pairs[i].isExpected());
+                current += 5 * 60 * 1000; // advance in 5-minute intervals
+            }
+
+            // Comment-me-in: log.info("Sending " + DateTime.print(end));
+            sendTimeEvent(env, end);
+            sendEventAndAssert(env, pairs[i].isExpected());
+        }
+
+        env.undeployAll();
+    }
+
     private static void assertContextEventType(EventType eventType) {
         Assert.assertEquals(0, eventType.getPropertyNames().length);
         Assert.assertEquals("stmt0_ctxout_NineToFive_1", eventType.getName());
@@ -1201,6 +1287,30 @@ public class ContextInitTermTemporalFixed {
     public static class MiniSubscriber {
         public static void update() {
             // no action
+        }
+    }
+
+    private static class TimeRangePair {
+        private final String start;
+        private final String end;
+        private final boolean expected;
+
+        public TimeRangePair(String start, String end, boolean expected) {
+            this.start = start;
+            this.end = end;
+            this.expected = expected;
+        }
+
+        public String getStart() {
+            return start;
+        }
+
+        public String getEnd() {
+            return end;
+        }
+
+        public boolean isExpected() {
+            return expected;
         }
     }
 }

@@ -87,10 +87,15 @@ import com.espertech.esper.runtime.internal.kernel.updatedispatch.UpdateDispatch
 import com.espertech.esper.runtime.internal.kernel.updatedispatch.UpdateDispatchViewNonBlocking;
 import com.espertech.esper.runtime.internal.metrics.instrumentation.InstrumentationDefault;
 import com.espertech.esper.runtime.internal.metrics.instrumentation.InstrumentationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class Deployer {
+
+    private final static Logger log = LoggerFactory.getLogger(Deployer.class);
+
     public static DeploymentInternal deployFresh(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, StatementNameRuntimeOption statementNameResolverRuntime, StatementUserObjectRuntimeOption userObjectResolverRuntime, StatementSubstitutionParameterOption substitutionParameterResolver, EPRuntimeSPI epRuntime) throws EPDeployException {
         return deploy(false, deploymentId, statementIdFirstStatement, compiled, statementNameResolverRuntime, userObjectResolverRuntime, substitutionParameterResolver, epRuntime);
     }
@@ -376,7 +381,11 @@ public class Deployer {
             try {
                 stmt = DeployerStatement.deployStatement(recovery, lightweight, services, epRuntime);
             } catch (Throwable t) {
-                reverseDeployment(deploymentId, deploymentTypes, lightweights, statements, provider, services);
+                try {
+                    reverseDeployment(deploymentId, deploymentTypes, lightweights, statements, provider, services);
+                } catch (Throwable udex) {
+                    log.warn(udex.getMessage(), udex);
+                }
                 throw new EPDeployException("Failed to deploy: " + t.getMessage(), t);
             }
 

@@ -26,18 +26,18 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ContextSpecConditionCrontab implements ContextSpecCondition, ScheduleHandleCallbackProvider {
-    private final List<ExprNode> crontab;
+    private final List<List<ExprNode>> crontabs;
     private final boolean immediate;
-    private ExprForge[] forges;
+    private ExprForge[][] forgesPerCrontab;
     private int scheduleCallbackId = -1;
 
-    public ContextSpecConditionCrontab(List<ExprNode> crontab, boolean immediate) {
-        this.crontab = crontab;
+    public ContextSpecConditionCrontab(List<List<ExprNode>> crontabs, boolean immediate) {
+        this.crontabs = crontabs;
         this.immediate = immediate;
     }
 
-    public List<ExprNode> getCrontab() {
-        return crontab;
+    public List<List<ExprNode>> getCrontabs() {
+        return crontabs;
     }
 
     public boolean isImmediate() {
@@ -52,8 +52,8 @@ public class ContextSpecConditionCrontab implements ContextSpecCondition, Schedu
         this.scheduleCallbackId = scheduleCallbackId;
     }
 
-    public void setForges(ExprForge[] forges) {
-        this.forges = forges;
+    public void setForgesPerCrontab(ExprForge[][] forgesPerCrontab) {
+        this.forgesPerCrontab = forgesPerCrontab;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -64,7 +64,7 @@ public class ContextSpecConditionCrontab implements ContextSpecCondition, Schedu
         CodegenMethod method = parent.makeChild(ContextConditionDescriptorCrontab.class, this.getClass(), classScope);
         method.getBlock()
                 .declareVar(ContextConditionDescriptorCrontab.class, "condition", newInstance(ContextConditionDescriptorCrontab.class))
-                .exprDotMethod(ref("condition"), "setEvaluators", ExprNodeUtilityCodegen.codegenEvaluators(forges, method, this.getClass(), classScope))
+                .exprDotMethod(ref("condition"), "setEvaluatorsPerCrontab", ExprNodeUtilityCodegen.codegenEvaluators(forgesPerCrontab, method, this.getClass(), classScope))
                 .exprDotMethod(ref("condition"), "setScheduleCallbackId", constant(scheduleCallbackId))
                 .exprDotMethod(ref("condition"), "setImmediate", constant(immediate))
                 .methodReturn(ref("condition"));

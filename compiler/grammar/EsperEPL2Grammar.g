@@ -497,7 +497,7 @@ createContextDistinct :	DISTINCT LPAREN expressionList? RPAREN;
 	
 createContextRangePoint : createContextFilter 
                 | patternInclusionExpression (ATCHAR i=IDENT)?
-                | crontabLimitParameterSet
+                | crontabLimitParameterSetList
                 | AFTER timePeriod;
 		
 createContextFilter : eventFilterExpression (AS? i=IDENT)?;
@@ -663,6 +663,8 @@ rowLimit
 @init  { paraphrases.push("row limit clause"); }
 @after { paraphrases.pop(); }
 		: (n1=numberconstant | i1=IDENT) ((c=COMMA | o=OFFSET) (n2=numberconstant | i2=IDENT))?;	
+
+crontabLimitParameterSetList : crontabLimitParameterSet (COMMA crontabLimitParameterSet)*;			
 
 crontabLimitParameterSet : LPAREN expressionWithTimeList RPAREN;			
 

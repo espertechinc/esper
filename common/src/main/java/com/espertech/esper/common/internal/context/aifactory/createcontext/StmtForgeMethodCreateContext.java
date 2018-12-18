@@ -362,10 +362,15 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
     private ContextDetailMatchPair validateRewriteContextCondition(boolean isStartCondition, int nestingLevel, ContextSpecCondition endpoint, Set<String> eventTypesReferenced, MatchEventSpec priorMatches, Set<String> priorAllTags, CreateContextValidationEnv validationEnv) throws ExprValidationException {
         if (endpoint instanceof ContextSpecConditionCrontab) {
             ContextSpecConditionCrontab crontab = (ContextSpecConditionCrontab) endpoint;
-            ExprForge[] forges = ScheduleExpressionUtil.crontabScheduleValidate(ExprNodeOrigin.CONTEXTCONDITION, crontab.getCrontab(), false, validationEnv.getStatementRawInfo(), validationEnv.getServices());
-            crontab.setForges(forges);
+            ExprForge[][] forgesPerCrontab = new ExprForge[crontab.getCrontabs().size()][];
+            for (int i = 0; i < crontab.getCrontabs().size(); i++) {
+                List<ExprNode> item = crontab.getCrontabs().get(i);
+                ExprForge[] forges = ScheduleExpressionUtil.crontabScheduleValidate(ExprNodeOrigin.CONTEXTCONDITION, item, false, validationEnv.getStatementRawInfo(), validationEnv.getServices());
+                forgesPerCrontab[i] = forges;
+            }
+            crontab.setForgesPerCrontab(forgesPerCrontab);
             validationEnv.getScheduleHandleCallbackProviders().add(crontab);
-            return new ContextDetailMatchPair(crontab, new MatchEventSpec(), new LinkedHashSet<String>());
+            return new ContextDetailMatchPair(crontab, new MatchEventSpec(), new LinkedHashSet<>());
         }
 
         if (endpoint instanceof ContextSpecConditionTimePeriod) {

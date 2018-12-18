@@ -19,7 +19,7 @@ import java.util.List;
 public class ContextDescriptorConditionCrontab implements ContextDescriptorCondition {
 
     private static final long serialVersionUID = 5676956299459269157L;
-    private List<Expression> crontabExpressions;
+    private List<List<Expression>> crontabExpressions;
     private boolean now;
 
     /**
@@ -34,7 +34,7 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
      * @param crontabExpressions crontab expressions returning number sets for each crontab position
      * @param now                indicator whethet to include "now"
      */
-    public ContextDescriptorConditionCrontab(List<Expression> crontabExpressions, boolean now) {
+    public ContextDescriptorConditionCrontab(List<List<Expression>> crontabExpressions, boolean now) {
         this.crontabExpressions = crontabExpressions;
         this.now = now;
     }
@@ -44,7 +44,7 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
      *
      * @return crontab
      */
-    public List<Expression> getCrontabExpressions() {
+    public List<List<Expression>> getCrontabExpressions() {
         return crontabExpressions;
     }
 
@@ -53,7 +53,7 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
      *
      * @param crontabExpressions to set
      */
-    public void setCrontabExpressions(List<Expression> crontabExpressions) {
+    public void setCrontabExpressions(List<List<Expression>> crontabExpressions) {
         this.crontabExpressions = crontabExpressions;
     }
 
@@ -79,10 +79,19 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
         this.now = now;
     }
 
-    private static void write(StringWriter writer, List<Expression> expressions, boolean now) {
+    private static void write(StringWriter writer, List<List<Expression>> crontabs, boolean now) {
         if (now) {
             writer.append("@now and ");
         }
+        String delimiter = "";
+        for (List<Expression> crontab : crontabs) {
+            writer.append(delimiter);
+            write(writer, crontab);
+            delimiter = ", ";
+        }
+    }
+
+    private static void write(StringWriter writer, List<Expression> expressions) {
         writer.append("(");
         String delimiter = "";
         for (Expression e : expressions) {

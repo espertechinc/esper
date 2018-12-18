@@ -42,15 +42,18 @@ public class ContextControllerInitTermUtil {
         // we are not currently running if either of the endpoints is not crontab-triggered
         if ((spec.getStartCondition() instanceof ContextConditionDescriptorCrontab) &&
                 ((spec.getEndCondition() instanceof ContextConditionDescriptorCrontab))) {
-            ScheduleSpec scheduleStart = ((ContextControllerConditionCrontab) startCondition).getSchedule();
+            ScheduleSpec[] schedulesStart = ((ContextControllerConditionCrontab) startCondition).getSchedules();
 
             ContextConditionDescriptorCrontab endCron = (ContextConditionDescriptorCrontab) spec.getEndCondition();
-            ScheduleSpec scheduleEnd = ScheduleExpressionUtil.crontabScheduleBuild(endCron.getEvaluators(), controller.getRealization().getAgentInstanceContextCreate());
+            ScheduleSpec[] schedulesEnd = new ScheduleSpec[endCron.getEvaluatorsPerCrontab().length];
+            for (int i = 0; i < schedulesEnd.length; i++) {
+                schedulesEnd[i] = ScheduleExpressionUtil.crontabScheduleBuild(endCron.getEvaluatorsPerCrontab()[i], controller.getRealization().getAgentInstanceContextCreate());
+            }
 
             ClasspathImportServiceRuntime classpathImportService = controller.getRealization().getAgentInstanceContextCreate().getClasspathImportServiceRuntime();
             long time = controller.getRealization().getAgentInstanceContextCreate().getSchedulingService().getTime();
-            long nextScheduledStartTime = ScheduleComputeHelper.computeNextOccurance(scheduleStart, time, classpathImportService.getTimeZone(), classpathImportService.getTimeAbacus());
-            long nextScheduledEndTime = ScheduleComputeHelper.computeNextOccurance(scheduleEnd, time, classpathImportService.getTimeZone(), classpathImportService.getTimeAbacus());
+            long nextScheduledStartTime = computeScheduleMinimumNextOccurance(schedulesStart, time, classpathImportService);
+            long nextScheduledEndTime = computeScheduleMinimumNextOccurance(schedulesEnd, time, classpathImportService);
             return nextScheduledStartTime >= nextScheduledEndTime;
         }
 
@@ -89,5 +92,27 @@ public class ContextControllerInitTermUtil {
         }
 
         return identifier;
+    }
+
+    public static long computeScheduleMinimumNextOccurance(ScheduleSpec[] schedules, long time, ClasspathImportServiceRuntime classpathImportService) {
+        long value = Long.MAX_VALUE;
+        for (ScheduleSpec spec : schedules) {
+            long computed = ScheduleComputeHelper.computeNextOccurance(spec, time, classpathImportService.getTimeZone(), classpathImportService.getTimeAbacus());
+            if (computed < value) {
+                value = computed;
+            }
+        }
+        return value;
+    }
+
+    public static long computeScheduleMinimumDelta(ScheduleSpec[] schedules, long time, ClasspathImportServiceRuntime classpathImportService) {
+        long value = Long.MAX_VALUE;
+        for (ScheduleSpec spec : schedules) {
+            long computed = ScheduleComputeHelper.computeDeltaNextOccurance(spec, time, classpathImportService.getTimeZone(), classpathImportService.getTimeAbacus());
+            if (computed < value) {
+                value = computed;
+            }
+        }
+        return value;
     }
 }

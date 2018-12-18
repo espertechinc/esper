@@ -13,9 +13,9 @@ package com.espertech.esper.common.internal.context.controller.condition;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.controller.core.ContextController;
+import com.espertech.esper.common.internal.context.controller.initterm.ContextControllerInitTermUtil;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
-import com.espertech.esper.common.internal.schedule.ScheduleComputeHelper;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
 import com.espertech.esper.common.internal.schedule.ScheduleObjectType;
 import com.espertech.esper.common.internal.schedule.ScheduleSpec;
@@ -25,17 +25,17 @@ public class ContextControllerConditionCrontabImpl implements ContextControllerC
 
     private final IntSeqKey conditionPath;
     private final long scheduleSlot;
-    private final ScheduleSpec scheduleSpec;
+    private final ScheduleSpec[] scheduleSpecs;
     private final ContextConditionDescriptorCrontab crontab;
     private final ContextControllerConditionCallback callback;
     private final ContextController controller;
 
     private EPStatementHandleCallbackSchedule scheduleHandle;
 
-    public ContextControllerConditionCrontabImpl(IntSeqKey conditionPath, long scheduleSlot, ScheduleSpec scheduleSpec, ContextConditionDescriptorCrontab crontab, ContextControllerConditionCallback callback, ContextController controller) {
+    public ContextControllerConditionCrontabImpl(IntSeqKey conditionPath, long scheduleSlot, ScheduleSpec[] scheduleSpecs, ContextConditionDescriptorCrontab crontab, ContextControllerConditionCallback callback, ContextController controller) {
         this.conditionPath = conditionPath;
         this.scheduleSlot = scheduleSlot;
-        this.scheduleSpec = scheduleSpec;
+        this.scheduleSpecs = scheduleSpecs;
         this.crontab = crontab;
         this.callback = callback;
         this.controller = controller;
@@ -56,7 +56,7 @@ public class ContextControllerConditionCrontabImpl implements ContextControllerC
         };
         AgentInstanceContext agentInstanceContext = controller.getRealization().getAgentInstanceContextCreate();
         scheduleHandle = new EPStatementHandleCallbackSchedule(agentInstanceContext.getEpStatementAgentInstanceHandle(), scheduleCallback);
-        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(scheduleSpec, agentInstanceContext.getTimeProvider().getTime(), agentInstanceContext.getClasspathImportServiceRuntime().getTimeZone(), agentInstanceContext.getClasspathImportServiceRuntime().getTimeAbacus());
+        long nextScheduledTime = ContextControllerInitTermUtil.computeScheduleMinimumDelta(scheduleSpecs, agentInstanceContext.getTimeProvider().getTime(), agentInstanceContext.getClasspathImportServiceRuntime());
         agentInstanceContext.getAuditProvider().scheduleAdd(nextScheduledTime, agentInstanceContext, scheduleHandle, ScheduleObjectType.context, NAME_AUDITPROVIDER_SCHEDULE);
         agentInstanceContext.getSchedulingService().add(nextScheduledTime, scheduleHandle, scheduleSlot);
         return false;
@@ -80,14 +80,14 @@ public class ContextControllerConditionCrontabImpl implements ContextControllerC
     }
 
     public Long getExpectedEndTime() {
-        return crontab.getExpectedEndTime(controller.getRealization(), scheduleSpec);
+        return crontab.getExpectedEndTime(controller.getRealization(), scheduleSpecs);
     }
 
     public ContextConditionDescriptor getDescriptor() {
         return crontab;
     }
 
-    public ScheduleSpec getSchedule() {
-        return scheduleSpec;
+    public ScheduleSpec[] getSchedules() {
+        return scheduleSpecs;
     }
 }

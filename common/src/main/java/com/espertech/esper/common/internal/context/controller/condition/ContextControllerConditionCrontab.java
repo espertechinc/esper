@@ -13,5 +13,5 @@ package com.espertech.esper.common.internal.context.controller.condition;
 import com.espertech.esper.common.internal.schedule.ScheduleSpec;
 
 public interface ContextControllerConditionCrontab {
-    ScheduleSpec getSchedule();
+    ScheduleSpec[] getSchedules();
 }
