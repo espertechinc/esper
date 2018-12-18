@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprCurrentEvaluationContextNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.MinMaxTypeEnum;
+import com.espertech.esper.common.internal.epl.expression.funcs.ExprEventIdentityEqualsNode;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexFactoryProviderMXCIFQuadTree;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexFactoryProviderPointRegionQuadTree;
@@ -122,6 +123,9 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
         String nameLowerCase = name.toLowerCase(Locale.ENGLISH);
         if (nameLowerCase.equals("current_evaluation_context")) {
             return new ExprCurrentEvaluationContextNode();
+        }
+        if (nameLowerCase.equals(ExprEventIdentityEqualsNode.NAME)) {
+            return new ExprEventIdentityEqualsNode();
         }
         return null;
     }

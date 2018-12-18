@@ -138,6 +138,10 @@ public class TestSuiteExprCore extends TestCase {
         RegressionRunner.run(session, ExprCorePrior.executions());
     }
 
+    public void testExprEventIdentityEquals() {
+        RegressionRunner.run(session, ExprCoreEventIdentityEquals.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBeanArrayCollMap.class, SupportBeanComplexProps.class, SupportBean_StringAlphabetic.class, SupportMarkerInterface.class,
             SupportBeanDynRoot.class, SupportMarketDataBean.class, SupportBeanWithEnum.class, SupportEnumTwo.class,

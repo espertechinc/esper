@@ -10,13 +10,18 @@
  */
 package com.espertech.esper.common.internal.event.property;
 
+import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.event.propertyparser.PropertyParserNoDep;
 
 import java.io.StringWriter;
 
 public class PropertyParser {
     public static Property parseAndWalkLaxToSimple(String propertyName) {
-        return PropertyParserNoDep.parseAndWalkLaxToSimple(propertyName, false);
+        try {
+            return PropertyParserNoDep.parseAndWalkLaxToSimple(propertyName, false);
+        } catch (PropertyAccessException p) {
+            return new SimpleProperty(propertyName);
+        }
     }
 
     public static String unescapeBacktickForProperty(String unescapedPropertyName) {
