@@ -97,7 +97,7 @@ public class SelectExprInsertEventBeanFactory {
         }
 
         // handle writing to defined columns
-        Set<WriteablePropertyDescriptor> writableProps = EventTypeUtility.getWriteableProperties(eventType, false);
+        Set<WriteablePropertyDescriptor> writableProps = EventTypeUtility.getWriteableProperties(eventType, false, false);
         boolean isEligible = checkEligible(eventType, writableProps, allowNestableTargetFragmentTypes);
         if (!isEligible) {
             return null;
@@ -125,7 +125,7 @@ public class SelectExprInsertEventBeanFactory {
                                                                            ClasspathImportServiceCompileTime classpathImportService, String statementName,
                                                                            EventTypeAvroHandler eventTypeAvroHandler)
             throws ExprValidationException {
-        Set<WriteablePropertyDescriptor> writableProps = EventTypeUtility.getWriteableProperties(eventType, false);
+        Set<WriteablePropertyDescriptor> writableProps = EventTypeUtility.getWriteableProperties(eventType, false, false);
         boolean isEligible = checkEligible(eventType, writableProps, false);
         if (!isEligible) {
             return null;

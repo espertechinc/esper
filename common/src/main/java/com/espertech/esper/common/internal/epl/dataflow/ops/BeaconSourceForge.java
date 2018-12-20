@@ -165,7 +165,7 @@ public class BeaconSourceForge implements DataFlowOperatorForge {
 
     private static WriteablePropertyDescriptor[] setupProperties(String[] propertyNamesOffered, EventType outputEventType)
             throws ExprValidationException {
-        Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(outputEventType, false);
+        Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(outputEventType, false, false);
 
         List<WriteablePropertyDescriptor> writablesList = new ArrayList<WriteablePropertyDescriptor>();
 

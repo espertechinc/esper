@@ -202,7 +202,7 @@ public class PropertyHelper {
                 continue;
             }
 
-            result.add(new WriteablePropertyDescriptor(propertyName, writeMethod.getParameterTypes()[0], writeMethod));
+            result.add(new WriteablePropertyDescriptor(propertyName, writeMethod.getParameterTypes()[0], writeMethod, false));
         }
     }
 

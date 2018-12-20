@@ -51,7 +51,7 @@ public class SelectEvalStreamWUndRecastMapFactory {
         }
 
         // (B) not completely assignable: find matching properties
-        Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(mapResultType, true);
+        Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(mapResultType, true, false);
         List<Item> items = new ArrayList<Item>();
         List<WriteablePropertyDescriptor> written = new ArrayList<WriteablePropertyDescriptor>();
 

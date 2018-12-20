@@ -106,7 +106,7 @@ public class PropertyEvaluatorForgeFactory {
                 if (returnType.isArray() &&
                         streamEventType.getPropertyNames().length == 1 &&
                         JavaClassHelper.isSubclassOrImplementsInterface(JavaClassHelper.getBoxedType(returnType.getComponentType()), JavaClassHelper.getBoxedType(streamEventType.getPropertyType(streamEventType.getPropertyNames()[0])))) {
-                    Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(streamEventType, false);
+                    Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(streamEventType, false, false);
                     if (writables != null && !writables.isEmpty()) {
                         try {
                             EventBeanManufacturerForge manufacturer = EventTypeUtility.getManufacturer(streamEventType, new WriteablePropertyDescriptor[]{writables.iterator().next()}, services.getClasspathImportServiceCompileTime(), false, services.getEventTypeAvroHandler());

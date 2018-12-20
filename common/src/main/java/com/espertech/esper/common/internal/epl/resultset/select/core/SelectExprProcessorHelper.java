@@ -1146,7 +1146,7 @@ public class SelectExprProcessorHelper {
             return null;
         }
 
-        Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(targetType, false);
+        Set<WriteablePropertyDescriptor> writables = EventTypeUtility.getWriteableProperties(targetType, false, false);
         List<WriteablePropertyDescriptor> written = new ArrayList<>();
         List<Map.Entry<String, Object>> writtenOffered = new ArrayList<>();
 

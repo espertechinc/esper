@@ -16,21 +16,23 @@ import java.lang.reflect.Method;
  * Descriptor for writable properties.
  */
 public class WriteablePropertyDescriptor {
-    private String propertyName;
-    private Class type;
-    private Method writeMethod;
+    private final String propertyName;
+    private final Class type;
+    private final Method writeMethod;
+    private final boolean fragment;
 
     /**
      * Ctor.
-     *
      * @param propertyName name of property
      * @param type         type
      * @param writeMethod  optional write methods
+     * @param fragment whether the property is itself an event or array of events
      */
-    public WriteablePropertyDescriptor(String propertyName, Class type, Method writeMethod) {
+    public WriteablePropertyDescriptor(String propertyName, Class type, Method writeMethod, boolean fragment) {
         this.propertyName = propertyName;
         this.type = type;
         this.writeMethod = writeMethod;
+        this.fragment = fragment;
     }
 
     /**
@@ -58,6 +60,10 @@ public class WriteablePropertyDescriptor {
      */
     public Method getWriteMethod() {
         return writeMethod;
+    }
+
+    public boolean isFragment() {
+        return fragment;
     }
 
     public boolean equals(Object o) {

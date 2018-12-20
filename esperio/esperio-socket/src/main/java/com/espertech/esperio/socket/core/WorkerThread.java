@@ -195,7 +195,7 @@ public class WorkerThread extends Thread {
 
         EventTypeSPI eventTypeSPI = (EventTypeSPI) eventType;
 
-        Set<WriteablePropertyDescriptor> writablesSet = EventTypeUtility.getWriteableProperties(eventTypeSPI, false);
+        Set<WriteablePropertyDescriptor> writablesSet = EventTypeUtility.getWriteableProperties(eventTypeSPI, false, false);
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<SimpleTypeParser> parserList = new ArrayList<SimpleTypeParser>();
 

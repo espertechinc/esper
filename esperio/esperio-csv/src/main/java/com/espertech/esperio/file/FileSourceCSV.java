@@ -143,7 +143,7 @@ public class FileSourceCSV implements DataFlowSourceOperator {
     }
 
     private static ParseMakePropertiesDesc setupProperties(boolean requireOneMatch, String[] propertyNamesOffered, EventType outputEventType, StatementContext statementContext, final String dateFormat) {
-        Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(outputEventType, false);
+        Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(outputEventType, false, false);
 
         List<Integer> indexesList = new ArrayList<Integer>();
         List<SimpleTypeParser> parserList = new ArrayList<SimpleTypeParser>();

@@ -90,7 +90,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
                 throw new EPException("Invalid property type for property '" + propertyNameLineToUse + "', expected a property of type String");
             }
 
-            Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(outputEventType, false);
+            Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(outputEventType, false, false);
             List<WriteablePropertyDescriptor> writeableList = new ArrayList<WriteablePropertyDescriptor>();
 
             WriteablePropertyDescriptor writeableLine = EventTypeUtility.findWritable(propertyNameLineToUse, writeables);
@@ -197,7 +197,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
 
     private FileBeginEndProcessor getBeginEndProcessor(DataFlowOpInitializeContext context, int outputPort) {
         EventType portEventType = factory.getOutputPortTypes()[outputPort];
-        Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(portEventType, false);
+        Set<WriteablePropertyDescriptor> writeables = EventTypeUtility.getWriteableProperties(portEventType, false, false);
         List<WriteablePropertyDescriptor> writeableList = new ArrayList<WriteablePropertyDescriptor>();
         EventBeanManufacturer manufacturer;
         if (propertyNameFile != null) {

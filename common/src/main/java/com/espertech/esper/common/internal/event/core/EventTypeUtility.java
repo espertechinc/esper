@@ -79,7 +79,7 @@ public class EventTypeUtility {
         ExprValidationException compared = ((EventTypeSPI) newEventType).equalsCompareType(existingType);
         if (compared != null) {
             throw new ExprValidationException("Event type named '" + newEventType.getName() +
-                    "' has already been declared with differing column name or type information: " + compared.getMessage(), compared);
+                "' has already been declared with differing column name or type information: " + compared.getMessage(), compared);
         }
     }
 
@@ -136,7 +136,7 @@ public class EventTypeUtility {
      * @throws EventBeanManufactureException if a factory cannot be created for the type
      */
     public static EventBeanManufacturerForge getManufacturer(EventType eventType, WriteablePropertyDescriptor[] properties, ClasspathImportService classpathImportService, boolean allowAnyType, EventTypeAvroHandler avroHandler)
-            throws EventBeanManufactureException {
+        throws EventBeanManufactureException {
         if (!(eventType instanceof EventTypeSPI)) {
             return null;
         }
@@ -166,11 +166,12 @@ public class EventTypeUtility {
     /**
      * Returns descriptors for all writable properties.
      *
-     * @param eventType    to reflect on
-     * @param allowAnyType whether any type property can be populated
+     * @param eventType         to reflect on
+     * @param allowAnyType      whether any type property can be populated
+     * @param allowFragmentType whether to return writeable properties that are typed as event type
      * @return list of writable properties
      */
-    public static Set<WriteablePropertyDescriptor> getWriteableProperties(EventType eventType, boolean allowAnyType) {
+    public static Set<WriteablePropertyDescriptor> getWriteableProperties(EventType eventType, boolean allowAnyType, boolean allowFragmentType) {
         if (!(eventType instanceof EventTypeSPI)) {
             return null;
         }
@@ -187,14 +188,24 @@ public class EventTypeUtility {
             Set<WriteablePropertyDescriptor> writables = new LinkedHashSet<WriteablePropertyDescriptor>();
             for (Map.Entry<String, Object> types : mapdef.entrySet()) {
                 if (types.getValue() instanceof Class) {
-                    writables.add(new WriteablePropertyDescriptor(types.getKey(), (Class) types.getValue(), null));
+                    writables.add(new WriteablePropertyDescriptor(types.getKey(), (Class) types.getValue(), null, false));
                 }
                 if (types.getValue() instanceof String) {
                     String typeName = types.getValue().toString();
                     Class clazz = JavaClassHelper.getPrimitiveClassForName(typeName);
                     if (clazz != null) {
-                        writables.add(new WriteablePropertyDescriptor(types.getKey(), clazz, null));
+                        writables.add(new WriteablePropertyDescriptor(types.getKey(), clazz, null, false));
+                    } else if (allowFragmentType) {
+                        writables.add(new WriteablePropertyDescriptor(types.getKey(), clazz, null, true));
                     }
+                }
+                if (allowFragmentType && types.getValue() instanceof TypeBeanOrUnderlying) {
+                    TypeBeanOrUnderlying und = (TypeBeanOrUnderlying) types.getValue();
+                    writables.add(new WriteablePropertyDescriptor(types.getKey(), und.getEventType().getUnderlyingType(), null, true));
+                }
+                if (allowFragmentType && types.getValue() instanceof TypeBeanOrUnderlying[]) {
+                    TypeBeanOrUnderlying[] und = (TypeBeanOrUnderlying[]) types.getValue();
+                    writables.add(new WriteablePropertyDescriptor(types.getKey(), und[0].getEventType().getUnderlyingType(), null, true));
                 }
             }
             return writables;
@@ -202,7 +213,7 @@ public class EventTypeUtility {
             Set<WriteablePropertyDescriptor> writables = new LinkedHashSet<WriteablePropertyDescriptor>();
             EventPropertyDescriptor[] desc = typeSPI.getWriteableProperties();
             for (EventPropertyDescriptor prop : desc) {
-                writables.add(new WriteablePropertyDescriptor(prop.getPropertyName(), prop.getPropertyType(), null));
+                writables.add(new WriteablePropertyDescriptor(prop.getPropertyName(), prop.getPropertyType(), null, false));
             }
             return writables;
         } else {
@@ -261,9 +272,9 @@ public class EventTypeUtility {
         evaluationType = JavaClassHelper.getBoxedType(evaluationType);
 
         write.getBlock()
-                .declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("bean"))))
-                .declareVar(evaluationType, "eval", cast(evaluationType, ref("value")))
-                .expression(writer.writeCodegen(ref("eval"), ref("und"), ref("bean"), write, classScope));
+            .declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("bean"))))
+            .declareVar(evaluationType, "eval", cast(evaluationType, ref("value")))
+            .expression(writer.writeCodegen(ref("eval"), ref("und"), ref("bean"), write, classScope));
         return anonymous;
     }
 
@@ -283,9 +294,9 @@ public class EventTypeUtility {
         anonymous.addMethod("get", get);
 
         get.getBlock()
-                .declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("bean"))))
-                .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(getters.length)))
-                .declareVar(HashableMultiKey.class, "valuesMk", newInstance(HashableMultiKey.class, ref("values")));
+            .declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("bean"))))
+            .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(getters.length)))
+            .declareVar(HashableMultiKey.class, "valuesMk", newInstance(HashableMultiKey.class, ref("values")));
 
         for (int i = 0; i < getters.length; i++) {
             CodegenExpression result = getters[i].underlyingGetCodegen(ref("und"), get, classScope);
@@ -345,7 +356,7 @@ public class EventTypeUtility {
     }
 
     public static Pair<EventType[], Set<EventType>> getSuperTypesDepthFirst(String[] superTypesSet, EventUnderlyingType representation, EventTypeNameResolver eventTypeNameResolver)
-            throws EventAdapterException {
+        throws EventAdapterException {
         if (superTypesSet == null || superTypesSet.length == 0) {
             return new Pair<>(null, null);
         }
@@ -508,7 +519,7 @@ public class EventTypeUtility {
     }
 
     private static void mergeType(Map<String, Object> typing, EventType typeToMerge, Set<String> columnNames)
-            throws ExprValidationException {
+        throws ExprValidationException {
         for (EventPropertyDescriptor prop : typeToMerge.getPropertyDescriptors()) {
 
             Object existing = typing.get(prop.getPropertyName());
@@ -518,8 +529,8 @@ public class EventTypeUtility {
                 if (existing != null && existing instanceof Class) {
                     if (JavaClassHelper.getBoxedType((Class) existing) != JavaClassHelper.getBoxedType(assigned)) {
                         throw new ExprValidationException("Type by name '" + typeToMerge.getName() + "' contributes property '" +
-                                prop.getPropertyName() + "' defined as '" + JavaClassHelper.getClassNameFullyQualPretty(assigned) +
-                                "' which overides the same property of type '" + JavaClassHelper.getClassNameFullyQualPretty((Class) existing) + "'");
+                            prop.getPropertyName() + "' defined as '" + JavaClassHelper.getClassNameFullyQualPretty(assigned) +
+                            "' which overides the same property of type '" + JavaClassHelper.getClassNameFullyQualPretty((Class) existing) + "'");
                     }
                 }
                 typing.put(prop.getPropertyName(), prop.getPropertyType());
@@ -544,7 +555,7 @@ public class EventTypeUtility {
     }
 
     public static void validateTimestampProperties(EventType eventType, String startTimestampProperty, String endTimestampProperty)
-            throws ConfigurationException {
+        throws ConfigurationException {
 
         if (startTimestampProperty != null) {
             if (eventType.getGetter(startTimestampProperty) == null) {
@@ -671,7 +682,7 @@ public class EventTypeUtility {
     }
 
     public static PropertySetDescriptor getNestableProperties(Map<String, Object> propertiesToAdd, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeNestableGetterFactory factory, EventType[] optionalSuperTypes, BeanEventTypeFactory beanEventTypeFactory)
-            throws EPException {
+        throws EPException {
         List<String> propertyNameList = new ArrayList<String>();
         List<EventPropertyDescriptor> propertyDescriptors = new ArrayList<EventPropertyDescriptor>();
         Map<String, Object> nestableTypes = new LinkedHashMap<String, Object>();
@@ -803,7 +814,7 @@ public class EventTypeUtility {
                 EventType eventType = ((TypeBeanOrUnderlying) entry.getValue()).getEventType();
                 if (!(eventType instanceof BaseNestableEventType)) {
                     throw new EPException("Nestable type configuration encountered an unexpected property type name '"
-                            + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+                        + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
                 }
 
                 Class underlyingType = eventType.getUnderlyingType();
@@ -822,7 +833,7 @@ public class EventTypeUtility {
                 EventType eventType = ((TypeBeanOrUnderlying[]) entry.getValue())[0].getEventType();
                 if (!(eventType instanceof BaseNestableEventType) && !(eventType instanceof BeanEventType)) {
                     throw new EPException("Nestable type configuration encountered an unexpected property type name '"
-                            + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+                        + entry.getValue() + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
                 }
 
                 Class underlyingType = eventType.getUnderlyingType();
@@ -849,7 +860,7 @@ public class EventTypeUtility {
     private static void generateExceptionNestedProp(String name, Object value) throws EPException {
         String clazzName = (value == null) ? "null" : value.getClass().getSimpleName();
         throw new EPException("Nestable type configuration encountered an unexpected property type of '"
-                + clazzName + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
+            + clazzName + "' for property '" + name + "', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");
     }
 
     public static Class getNestablePropertyType(String propertyName,
@@ -986,7 +997,7 @@ public class EventTypeUtility {
                 return null;
             }
             if (simpleClass.isArray() &&
-                    (JavaClassHelper.isJavaBuiltinDataType(simpleClass.getComponentType()) || simpleClass.getComponentType() == Object.class)) {
+                (JavaClassHelper.isJavaBuiltinDataType(simpleClass.getComponentType()) || simpleClass.getComponentType() == Object.class)) {
                 return null;
             }
             EventType nestedEventType = beanEventTypeFactory.getCreateBeanType(simpleClass);
@@ -1006,7 +1017,7 @@ public class EventTypeUtility {
             return null;
         } else {
             String message = "Nestable map type configuration encountered an unexpected value type of '"
-                    + nestedType.getClass() + "' for property '" + propertyName + "', expected Class, Map.class or Map<String, Object> as value type";
+                + nestedType.getClass() + "' for property '" + propertyName + "', expected Class, Map.class or Map<String, Object> as value type";
             throw new PropertyAccessException(message);
         }
     }
@@ -1264,7 +1275,7 @@ public class EventTypeUtility {
             return outerGetter;
         } else {
             String message = "Nestable type configuration encountered an unexpected value type of '"
-                    + nestedType.getClass() + " for property '" + propertyName + "', expected Class, Map.class or Map<String, Object> as value type";
+                + nestedType.getClass() + " for property '" + propertyName + "', expected Class, Map.class or Map<String, Object> as value type";
             throw new PropertyAccessException(message);
         }
     }
@@ -1272,7 +1283,7 @@ public class EventTypeUtility {
     public static LinkedHashMap<String, Object> validateObjectArrayDef(String[] propertyNames, Object[] propertyTypes) {
         if (propertyNames.length != propertyTypes.length) {
             throw new ConfigurationException("Number of property names and property types do not match, found " + propertyNames.length + " property names and " +
-                    propertyTypes.length + " property types");
+                propertyTypes.length + " property types");
         }
 
         // validate property names for no-duplicates
@@ -1299,7 +1310,7 @@ public class EventTypeUtility {
     }
 
     public static TimestampPropertyDesc validatedDetermineTimestampProps(EventType type, String startProposed, String endProposed, EventType[] superTypes)
-            throws EPException {
+        throws EPException {
         // determine start&end timestamp as inherited
         String startTimestampPropertyName = startProposed;
         String endTimestampPropertyName = endProposed;
@@ -1327,7 +1338,7 @@ public class EventTypeUtility {
 
     private static EPException getExceptionTimestampInherited(String tstype, String firstName, String secondName, EventType superType) {
         String message = "Event type declares " + tstype + " timestamp as property '" + firstName + "' however inherited event type '" + superType.getName() +
-                "' declares " + tstype + " timestamp as property '" + secondName + "'";
+            "' declares " + tstype + " timestamp as property '" + secondName + "'";
         return new EPException(message);
     }
 
@@ -1500,7 +1511,7 @@ public class EventTypeUtility {
     }
 
     public static EventType createNonVariantType(boolean isAnonymous, CreateSchemaDesc spec, StatementBaseInfo base, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (spec.getAssignedType() == CreateSchemaDesc.AssignedType.VARIANT) {
             throw new IllegalStateException("Variant type is not allowed in this context");
         }
@@ -1591,7 +1602,7 @@ public class EventTypeUtility {
             return true;
         }
         if (metadata.getTypeClass() != EventTypeTypeClass.STATEMENTOUT &&
-                metadata.getTypeClass() != EventTypeTypeClass.TABLE_INTERNAL) {
+            metadata.getTypeClass() != EventTypeTypeClass.TABLE_INTERNAL) {
             return false;
         }
         return true;
