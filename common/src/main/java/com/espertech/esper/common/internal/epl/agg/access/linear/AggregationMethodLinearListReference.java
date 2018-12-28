@@ -19,10 +19,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class AggregationMethodLinearCollectionReference implements AggregationMultiFunctionAggregationMethod {
-    public final static AggregationMethodLinearCollectionReference INSTANCE = new AggregationMethodLinearCollectionReference();
+public class AggregationMethodLinearListReference implements AggregationMultiFunctionAggregationMethod {
+    public final static AggregationMethodLinearListReference INSTANCE = new AggregationMethodLinearListReference();
 
-    private AggregationMethodLinearCollectionReference() {
+    private AggregationMethodLinearListReference() {
     }
 
     public Object getValue(int aggColNum, AggregationRow row, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

@@ -30,21 +30,19 @@ public class ResultSetAggregationMethodWindow {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        /* TODO
         execs.add(new ResultSetAggregateWindowNonTable());
         execs.add(new ResultSetAggregateWindowTableAccess());
         execs.add(new ResultSetAggregateWindowTableIdentWCount());
-        execs.add(new ResultSetAggregateWindowCollectionReference());
-        */
+        execs.add(new ResultSetAggregateWindowListReference());
         execs.add(new ResultSetAggregateWindowInvalid());
         return execs;
     }
 
-    private static class ResultSetAggregateWindowCollectionReference implements RegressionExecution {
+    private static class ResultSetAggregateWindowListReference implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create table MyTable(windowcol window(*) @type('SupportBean'));\n" +
                 "into table MyTable select window(*) as windowcol from SupportBean;\n" +
-                "@name('s0') select MyTable.windowcol.collectionReference() as collref from SupportBean_S0";
+                "@name('s0') select MyTable.windowcol.listReference() as collref from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
             assertType(env, List.class, "collref");
@@ -148,8 +146,8 @@ public class ResultSetAggregationMethodWindow {
             tryInvalidCompile(env, path, "select MyTable.windowcol.first(id) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.windowcol.first(id)': Failed to validate aggregation function parameter expression 'id': Property named 'id' is not valid in any stream");
 
-            tryInvalidCompile(env, path, "select MyTable.windowcol.collectionReference(intPrimitive) from SupportBean_S0",
-                "Failed to validate select-clause expression 'MyTable.windowcol.collectionReferen...(51 chars)': Invalid number of parameters");
+            tryInvalidCompile(env, path, "select MyTable.windowcol.listReference(intPrimitive) from SupportBean_S0",
+                "Failed to validate select-clause expression 'MyTable.windowcol.listReference(int...(45 chars)': Invalid number of parameters");
 
             env.undeployAll();
         }

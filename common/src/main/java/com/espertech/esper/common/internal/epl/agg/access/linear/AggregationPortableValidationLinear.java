@@ -67,19 +67,19 @@ public class AggregationPortableValidationLinear implements AggregationPortableV
 
     public boolean isAggregationMethod(String name, ExprNode[] parameters, ExprValidationContext validationContext) {
         name = name.toLowerCase(Locale.ENGLISH);
-        return AggregationAccessorLinearType.fromString(name) != null || name.equals("countevents") || name.equals("collectionreference");
+        return AggregationAccessorLinearType.fromString(name) != null || name.equals("countevents") || name.equals("listreference");
     }
 
     public AggregationMultiFunctionMethodDesc validateAggregationMethod(ExprValidationContext validationContext, String aggMethodName, ExprNode[] params) throws ExprValidationException {
         aggMethodName = aggMethodName.toLowerCase(Locale.ENGLISH);
-        if (aggMethodName.equals("countevents") || aggMethodName.equals("collectionreference")) {
+        if (aggMethodName.equals("countevents") || aggMethodName.equals("listreference")) {
             if (params.length > 0) {
                 throw new ExprValidationException("Invalid number of parameters");
             }
             Class provider = AggregationMethodLinearCount.class;
             Class result = Integer.class;
-            if (aggMethodName.equals("collectionreference")) {
-                provider = AggregationMethodLinearCollectionReference.class;
+            if (aggMethodName.equals("listreference")) {
+                provider = AggregationMethodLinearListReference.class;
                 result = List.class;
             }
             return new AggregationMultiFunctionMethodDesc(new AggregationMethodLinearNoParamForge(provider, result), null, null, null);

@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -43,7 +44,39 @@ public class ResultSetAggregationMethodSorted {
         execs.add(new ResultSetAggregateSortedMultiCriteria());
         execs.add(new ResultSetAggregateSortedGrouped());
         execs.add(new ResultSetAggregateSortedInvalid());
+        execs.add(new ResultSetAggregateSortedDocSample());
         return execs;
+    }
+
+    private static class ResultSetAggregateSortedDocSample implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "@buseventtype @public create schema OrderEvent(orderId string, price double);\n" +
+                "@name('a') select sorted(price).lowerKey(price) as lowerPrice from OrderEvent#time(10 minutes);\n" +
+                "@name('b') select sorted(price).lowerEvent(price).orderId as lowerPriceOrderId from OrderEvent#time(10 minutes);\n" +
+                "create table OrderPrices(prices sorted(price) @type('OrderEvent'));\n" +
+                "into table OrderPrices select sorted(*) as prices from OrderEvent#time(10 minutes);\n" +
+                "@name('c') select OrderPrices.prices.firstKey() as lowestPrice, OrderPrices.prices.lastKey() as highestPrice from OrderEvent;\n" +
+                "@name('d') select (select prices.firstKey() from OrderPrices) as lowestPrice, * from OrderEvent;\n";
+            env.compileDeploy(epl).addListener("a").addListener("b").addListener("c").addListener("d");
+
+            env.sendEventMap(CollectionUtil.buildMap("orderId", "A", "price", 10d), "OrderEvent");
+            EPAssertionUtil.assertProps(env.listener("a").assertOneGetNewAndReset(), "lowerPrice".split(","), new Object[] {null});
+            EPAssertionUtil.assertProps(env.listener("b").assertOneGetNewAndReset(), "lowerPriceOrderId".split(","), new Object[] {null});
+            EPAssertionUtil.assertProps(env.listener("c").assertOneGetNewAndReset(), "lowestPrice,highestPrice".split(","), new Object[] {10d, 10d});
+            EPAssertionUtil.assertProps(env.listener("d").assertOneGetNewAndReset(), "lowestPrice".split(","), new Object[] {10d});
+
+            env.milestone(0);
+
+            env.sendEventMap(CollectionUtil.buildMap("orderId", "B", "price", 20d), "OrderEvent");
+            EPAssertionUtil.assertProps(env.listener("a").assertOneGetNewAndReset(), "lowerPrice".split(","), new Object[] {10d});
+            EPAssertionUtil.assertProps(env.listener("b").assertOneGetNewAndReset(), "lowerPriceOrderId".split(","), new Object[] {"A"});
+            EPAssertionUtil.assertProps(env.listener("c").assertOneGetNewAndReset(), "lowestPrice,highestPrice".split(","), new Object[] {10d, 20d});
+            EPAssertionUtil.assertProps(env.listener("d").assertOneGetNewAndReset(), "lowestPrice".split(","), new Object[] {10d});
+
+            env.undeployAll();
+        }
+
     }
 
     private static class ResultSetAggregateSortedInvalid implements RegressionExecution {
@@ -280,15 +313,17 @@ public class ResultSetAggregationMethodSorted {
                 "into table MyTable select sorted(*) as sortcol from SupportBean;\n" +
                 "@name('s0') select " +
                 "MyTable.sortcol.firstEvent() as fe," +
+                "MyTable.sortcol.minBy() as minb," +
                 "MyTable.sortcol.firstEvents() as fes," +
                 "MyTable.sortcol.firstKey() as fk," +
                 "MyTable.sortcol.lastEvent() as le," +
+                "MyTable.sortcol.maxBy() as maxb," +
                 "MyTable.sortcol.lastEvents() as les," +
                 "MyTable.sortcol.lastKey() as lk" +
                 " from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
 
-            assertType(env, SupportBean.class, "fe,le");
+            assertType(env, SupportBean.class, "fe,le,minb,maxb");
             assertType(env, SupportBean[].class, "fes,les");
             assertType(env, Integer.class, "fk,lk");
 
@@ -298,9 +333,11 @@ public class ResultSetAggregationMethodSorted {
             env.sendEventBean(new SupportBean_S0(-1));
             EventBean event = env.listener("s0").assertOneGetNewAndReset();
             assertEquals(firstEvent(treemap.firstEntry()), event.get("fe"));
+            assertEquals(firstEvent(treemap.firstEntry()), event.get("minb"));
             EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.firstEntry()), (SupportBean[]) event.get("fes"));
             assertEquals(treemap.firstKey(), event.get("fk"));
             assertEquals(firstEvent(treemap.lastEntry()), event.get("le"));
+            assertEquals(firstEvent(treemap.lastEntry()), event.get("maxb"));
             EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.lastEntry()), (SupportBean[]) event.get("les"));
             assertEquals(treemap.lastKey(), event.get("lk"));
 
