@@ -80,6 +80,10 @@ public class AIRegistryAggregationMultiPerm implements AIRegistryAggregation {
         return services.getArray()[context.getAgentInstanceId()].getEventBean(column, eventsPerStream, isNewData, context);
     }
 
+    public AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return services.getArray()[context.getAgentInstanceId()].getRow(agentInstanceId, eventsPerStream, isNewData, context);
+    }
+
     public void setRemovedCallback(AggregationRowRemovedCallback callback) {
         // not applicable
     }

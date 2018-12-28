@@ -10,17 +10,17 @@
  */
 package com.espertech.esper.common.internal.epl.expression.agg.accessagg;
 
-import com.espertech.esper.common.internal.epl.agg.core.AggregationTableReadDesc;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-public interface ExprAggMultiFunctionNode extends ExprEnumerationForge {
+public interface ExprAggMultiFunctionNode extends ExprEnumerationForge, ExprNode {
 
-    void validatePositionals(ExprValidationContext validationContext) throws ExprValidationException;
+    AggregationForgeFactory getAggregationForgeFactory();
 
-    AggregationTableReadDesc validateAggregationTableRead(ExprValidationContext context, TableMetadataColumnAggregation tableAccessColumn, TableMetaData table)
-            throws ExprValidationException;
+    int getColumn();
+
+    CodegenExpression getAggFuture(CodegenClassScope classScope);
 }

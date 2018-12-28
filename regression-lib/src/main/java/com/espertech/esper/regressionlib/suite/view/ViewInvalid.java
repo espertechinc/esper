@@ -44,13 +44,13 @@ public class ViewInvalid implements RegressionExecution {
         EventBean theEvent = env.statement("s0").iterator().next();
 
         String exceptionText = getSyntaxExceptionProperty("", theEvent);
-        assertTrue(exceptionText.startsWith("Failed to parse property '': Empty property name"));
+        assertTrue(exceptionText.startsWith("Property named '' is not a valid property name for this type"));
 
         exceptionText = getSyntaxExceptionProperty("-", theEvent);
-        assertTrue(exceptionText.startsWith("Failed to parse property '-'"));
+        assertTrue(exceptionText.startsWith("Property named '-' is not a valid property name for this type"));
 
         exceptionText = getSyntaxExceptionProperty("a[]", theEvent);
-        assertTrue(exceptionText.startsWith("Failed to parse property 'a[]'"));
+        assertTrue(exceptionText.startsWith("Property named 'a[]' is not a valid property name for this type"));
 
         env.undeployAll();
     }

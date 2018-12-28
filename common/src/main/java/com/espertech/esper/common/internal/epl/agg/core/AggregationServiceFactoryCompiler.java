@@ -246,12 +246,14 @@ public class AggregationServiceFactoryCompiler {
         CodegenMethod applyLeaveMethod = makeStateUpdate(!isGenerateTableEnter, AggregationCodegenUpdateType.APPLYLEAVE, methodForges, methodFactories, accessFactories, classScope, namedMethods);
         CodegenMethod clearMethod = makeStateUpdate(!isGenerateTableEnter, AggregationCodegenUpdateType.CLEAR, methodForges, methodFactories, accessFactories, classScope, namedMethods);
 
+        // get-access-state
+        CodegenMethod getAccessStateMethod = makeGetAccessState(numMethodFactories, accessFactories, classScope);
+
         // make state-update for tables
         CodegenMethod enterAggMethod = makeTableMethod(isGenerateTableEnter, AggregationCodegenTableUpdateType.ENTER, methodFactories, classScope);
         CodegenMethod leaveAggMethod = makeTableMethod(isGenerateTableEnter, AggregationCodegenTableUpdateType.LEAVE, methodFactories, classScope);
         CodegenMethod enterAccessMethod = makeTableAccess(isGenerateTableEnter, AggregationCodegenTableUpdateType.ENTER, numMethodFactories, accessFactories, classScope, namedMethods);
         CodegenMethod leaveAccessMethod = makeTableAccess(isGenerateTableEnter, AggregationCodegenTableUpdateType.LEAVE, numMethodFactories, accessFactories, classScope, namedMethods);
-        CodegenMethod getAccessStateMethod = makeTableGetAccessState(isGenerateTableEnter, numMethodFactories, accessFactories, classScope);
 
         // make getters
         CodegenMethod getValueMethod = makeGet(AggregationCodegenGetType.GETVALUE, methodFactories, accessAccessors, accessFactories, classScope, namedMethods);
@@ -340,20 +342,16 @@ public class AggregationServiceFactoryCompiler {
         return method;
     }
 
-    private static CodegenMethod makeTableGetAccessState(boolean isGenerateTableEnter, int offset, AggregationStateFactoryForge[] accessStateFactories, CodegenClassScope classScope) {
+    private static CodegenMethod makeGetAccessState(int offset, AggregationStateFactoryForge[] accessStateFactories, CodegenClassScope classScope) {
         CodegenMethod method = CodegenMethod.makeParentNode(Object.class, AggregationServiceFactoryCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, "column");
-        if (!isGenerateTableEnter) {
-            method.getBlock().methodThrowUnsupported();
-            return method;
-        }
 
-        int[] colums = new int[accessStateFactories.length];
-        for (int i = 0; i < accessStateFactories.length; i++) {
+        int[] colums = new int[accessStateFactories == null ? 0 : accessStateFactories.length];
+        for (int i = 0; i < colums.length; i++) {
             colums[i] = offset + i;
         }
 
         CodegenBlock[] blocks = method.getBlock().switchBlockOptions("column", colums, true);
-        for (int i = 0; i < accessStateFactories.length; i++) {
+        for (int i = 0; i < colums.length; i++) {
             AggregationStateFactoryForge stateFactoryForge = accessStateFactories[i];
             CodegenExpression expr = stateFactoryForge.codegenGetAccessTableState(i + offset, method, classScope);
             blocks[i].blockReturn(expr);
@@ -554,6 +552,9 @@ public class AggregationServiceFactoryCompiler {
         CodegenMethod getEventBeanMethod = CodegenMethod.makeParentNode(EventBean.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_COLUMN).addParam(EventBean[].class, NAME_EPS).addParam(boolean.class, NAME_ISNEWDATA).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
         forge.getEventBeanCodegen(getEventBeanMethod, classScope, namedMethods);
 
+        CodegenMethod getRowMethod = CodegenMethod.makeParentNode(AggregationRow.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_AGENTINSTANCEID).addParam(EventBean[].class, NAME_EPS).addParam(boolean.class, NAME_ISNEWDATA).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
+        forge.getRowCodegen(getRowMethod, classScope, namedMethods);
+
         CodegenMethod getGroupKeyMethod = CodegenMethod.makeParentNode(Object.class, forge.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(int.class, AggregationServiceCodegenNames.NAME_AGENTINSTANCEID);
         forge.getGroupKeyCodegen(getGroupKeyMethod, classScope);
 
@@ -585,6 +586,7 @@ public class AggregationServiceFactoryCompiler {
         CodegenStackGenerator.recursiveBuildStack(getValueMethod, "getValue", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getCollectionOfEventsMethod, "getCollectionOfEvents", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getEventBeanMethod, "getEventBean", innerMethods);
+        CodegenStackGenerator.recursiveBuildStack(getRowMethod, "getRow", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getGroupKeyMethod, "getGroupKey", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getGroupKeysMethod, "getGroupKeys", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getCollectionScalarMethod, "getCollectionScalar", innerMethods);

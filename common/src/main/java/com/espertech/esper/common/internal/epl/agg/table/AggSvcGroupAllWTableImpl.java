@@ -168,4 +168,8 @@ public class AggSvcGroupAllWTableImpl implements AggregationService, Aggregation
     public TableInstance getTableInstance() {
         return tableInstance;
     }
+
+    public AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        throw new UnsupportedOperationException();
+    }
 }

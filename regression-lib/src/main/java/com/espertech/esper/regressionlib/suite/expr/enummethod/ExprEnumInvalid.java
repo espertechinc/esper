@@ -36,7 +36,7 @@ public class ExprEnumInvalid implements RegressionExecution {
 
         // test not an enumeration method
         epl = "select contained.notAMethod(x=>x.boolPrimitive) from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.notAMethod()': Could not find event property, enumeration method or instance method named 'notAMethod' in collection of events of type '");
+        SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.notAMethod()': Could not find event property or method named 'notAMethod' in collection of events of type '");
 
         // invalid lambda expression for non-lambda func
         epl = "select makeTest(x=>1) from SupportBean_ST0_Container";

@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerBase;
 import com.espertech.esper.common.internal.context.mgr.ContextControllerSelectorUtil;

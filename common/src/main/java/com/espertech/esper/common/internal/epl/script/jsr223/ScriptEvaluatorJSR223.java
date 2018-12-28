@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.script.jsr223;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;

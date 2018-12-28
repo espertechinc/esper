@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 
 import java.util.Arrays;
 

@@ -187,6 +187,10 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
         method.getBlock().assignRef("row.refcount", exprDotMethod(ref("input"), "readInt"));
     }
 
+    public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        method.getBlock().methodReturn(REF_CURRENTROW);
+    }
+
     private CodegenExpression getGroupKeyCountCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(int.class, AggSvcGroupByRollupForge.class, classScope);
         method.getBlock().declareVar(int.class, "size", constant(1));

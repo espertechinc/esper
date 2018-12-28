@@ -238,6 +238,10 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
         method.getBlock().methodReturn(constantTrue());
     }
 
+    public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        method.getBlock().methodThrowUnsupported();
+    }
+
     private CodegenExpression getNumGroupsCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(int.class, this.getClass(), classScope);
         method.getBlock().declareVar(int.class, "size", constant(0))

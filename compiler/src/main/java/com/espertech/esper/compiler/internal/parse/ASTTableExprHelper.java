@@ -64,6 +64,6 @@ public class ASTTableExprHelper {
         }
 
         // we have a chain "variable[...].sub.xyz"
-        return TableCompileTimeUtil.handleTableAccessNode(classpathImportService, plugInAggregations, tableName, subpropName, chain);
+        return TableCompileTimeUtil.handleTableAccessNode(plugInAggregations, tableName, subpropName, chain);
     }
 }

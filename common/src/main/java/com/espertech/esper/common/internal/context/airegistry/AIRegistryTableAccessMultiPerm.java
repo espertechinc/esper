@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.airegistry;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.collection.ArrayWrap;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategy;
 
@@ -55,6 +56,10 @@ public class AIRegistryTableAccessMultiPerm implements AIRegistryTableAccess {
 
     public Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return strategies.getArray()[context.getAgentInstanceId()].evaluateTypableSingle(eventsPerStream, isNewData, context);
+    }
+
+    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return strategies.getArray()[context.getAgentInstanceId()].getRow(eventsPerStream, isNewData, context);
     }
 
     public int getInstanceCount() {

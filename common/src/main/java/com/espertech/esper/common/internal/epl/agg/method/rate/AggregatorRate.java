@@ -30,13 +30,13 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
  */
 public class AggregatorRate extends AggregatorMethodWDistinctWFilterBase {
 
-    protected AggregationFactoryMethodRate factory;
+    protected AggregationForgeFactoryRate factory;
     protected CodegenExpressionRef accumulator;
     protected CodegenExpressionRef latest;
     protected CodegenExpressionRef oldest;
     protected CodegenExpressionRef isSet;
 
-    public AggregatorRate(AggregationFactoryMethodRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorRate(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
         this.factory = factory;
         accumulator = membersColumnized.addMember(col, double.class, "accumulator");

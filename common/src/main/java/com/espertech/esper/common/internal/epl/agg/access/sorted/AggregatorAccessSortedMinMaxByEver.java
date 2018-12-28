@@ -72,8 +72,8 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
         CodegenExpression eps = symbols.getAddEPS(method);
         CodegenExpression ctx = symbols.getAddExprEvalCtx(method);
         method.getBlock().declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
-                .ifCondition(equalsNull(ref("theEvent"))).blockReturnNoValue()
-                .localMethod(addEventCodegen(method, namedMethods, classScope), ref("theEvent"), eps, ctx);
+            .ifCondition(equalsNull(ref("theEvent"))).blockReturnNoValue()
+            .localMethod(addEventCodegen(method, namedMethods, classScope), ref("theEvent"), eps, ctx);
     }
 
     protected void applyLeaveFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
@@ -82,19 +82,19 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
 
     public void clearCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().assignRef(currentMinMaxBean, constantNull())
-                .assignRef(currentMinMax, constantNull());
+            .assignRef(currentMinMax, constantNull());
     }
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .exprDotMethod(currentMinMaxSerde, "write", rowDotRef(row, currentMinMax), output, unitKey, writer)
-                .exprDotMethod(currentMinMaxBeanSerde, "write", rowDotRef(row, currentMinMaxBean), output, unitKey, writer);
+            .exprDotMethod(currentMinMaxSerde, "write", rowDotRef(row, currentMinMax), output, unitKey, writer)
+            .exprDotMethod(currentMinMaxBeanSerde, "write", rowDotRef(row, currentMinMaxBean), output, unitKey, writer);
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock()
-                .assignRef(rowDotRef(row, currentMinMax), cast(Object.class, exprDotMethod(currentMinMaxSerde, "read", input, unitKey)))
-                .assignRef(rowDotRef(row, currentMinMaxBean), cast(EventBean.class, exprDotMethod(currentMinMaxBeanSerde, "read", input, unitKey)));
+            .assignRef(rowDotRef(row, currentMinMax), cast(Object.class, exprDotMethod(currentMinMaxSerde, "read", input, unitKey)))
+            .assignRef(rowDotRef(row, currentMinMaxBean), cast(EventBean.class, exprDotMethod(currentMinMaxBeanSerde, "read", input, unitKey)));
     }
 
     public CodegenExpression getFirstValueCodegen(CodegenClassScope classScope, CodegenMethod method) {
@@ -132,14 +132,14 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
 
         CodegenMethod methodNode = parent.makeChild(void.class, this.getClass(), classScope).addParam(EventBean.class, "theEvent").addParam(EventBean[].class, NAME_EPS).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
         methodNode.getBlock().declareVar(Object.class, "comparable", localMethod(comparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
-                .ifCondition(equalsNull(currentMinMax))
-                .assignRef(currentMinMax, ref("comparable"))
-                .assignRef(currentMinMaxBean, ref("theEvent"))
-                .ifElse()
-                .declareVar(int.class, "compareResult", exprDotMethod(comparator, "compare", currentMinMax, ref("comparable")))
-                .ifCondition(relational(ref("compareResult"), forge.getSpec().isMax() ? LT : GT, constant(0)))
-                .assignRef(currentMinMax, ref("comparable"))
-                .assignRef(currentMinMaxBean, ref("theEvent"));
+            .ifCondition(equalsNull(currentMinMax))
+            .assignRef(currentMinMax, ref("comparable"))
+            .assignRef(currentMinMaxBean, ref("theEvent"))
+            .ifElse()
+            .declareVar(int.class, "compareResult", exprDotMethod(comparator, "compare", currentMinMax, ref("comparable")))
+            .ifCondition(relational(ref("compareResult"), forge.getSpec().isMax() ? LT : GT, constant(0)))
+            .assignRef(currentMinMax, ref("comparable"))
+            .assignRef(currentMinMaxBean, ref("theEvent"));
         return methodNode;
     }
 

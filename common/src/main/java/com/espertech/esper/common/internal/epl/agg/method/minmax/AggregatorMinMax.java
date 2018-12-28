@@ -32,11 +32,11 @@ import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeClas
  * Min/max aggregator for all values.
  */
 public class AggregatorMinMax extends AggregatorMethodWDistinctWFilterWValueBase {
-    private final AggregationFactoryMethodMinMax factory;
+    private final AggregationForgeFactoryMinMax factory;
     private final CodegenExpressionRef refSet;
     private final CodegenExpressionField serde;
 
-    public AggregatorMinMax(AggregationFactoryMethodMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorMinMax(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
         this.factory = factory;
         this.refSet = membersColumnized.addMember(col, SortedRefCountedSet.class, "refSet");

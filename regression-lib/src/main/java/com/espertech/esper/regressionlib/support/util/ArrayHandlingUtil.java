@@ -11,7 +11,7 @@
 package com.espertech.esper.regressionlib.support.util;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.util.ComparatorHashableMultiKey;
 
 import java.util.Arrays;

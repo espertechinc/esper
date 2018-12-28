@@ -15,9 +15,12 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
+import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionNode;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.propertydot.PropertyDotNonLambdaIndexedForge;
 import com.espertech.esper.common.internal.epl.expression.dot.propertydot.PropertyDotNonLambdaMappedForge;
+import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNodeSubprop;
+import com.espertech.esper.common.internal.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.SettingsApplicationDotMethodPointInsideRectange;
@@ -26,9 +29,14 @@ import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAf
 import com.espertech.esper.common.internal.epl.streamtype.PropertyResolutionDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeUtil;
+import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumn;
+import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.property.MappedProperty;
+import com.espertech.esper.common.internal.event.property.Property;
+import com.espertech.esper.common.internal.event.propertyparser.PropertyParserNoDep;
 import com.espertech.esper.common.internal.rettype.ClassEPType;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
@@ -38,10 +46,7 @@ import com.espertech.esper.common.internal.settings.SettingsApplicationDotMethod
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents an Dot-operator expression, for use when "(expression).method(...).method(...)"
@@ -68,22 +73,10 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             return appDotMethod;
         }
 
-        // validate all parameters
-        ExprNodeUtilityValidate.validate(ExprNodeOrigin.DOTNODEPARAMETER, chainSpec, validationContext);
-
-        // determine if there are enumeration method expressions in the chain
-        boolean hasEnumerationMethod = false;
-        for (ExprChainedSpec chain : chainSpec) {
-            if (EnumMethodEnum.isEnumerationMethod(chain.getName())) {
-                hasEnumerationMethod = true;
-                break;
-            }
-        }
-
         // determine if there is an implied binding, replace first chain element with evaluation node if there is
         if (validationContext.getStreamTypeService().hasTableTypes() &&
-                validationContext.getTableCompileTimeResolver() != null &&
-                chainSpec.size() > 1 && chainSpec.get(0).isProperty()) {
+            validationContext.getTableCompileTimeResolver() != null &&
+            chainSpec.size() > 1 && chainSpec.get(0).isProperty()) {
             Pair<ExprNode, List<ExprChainedSpec>> tableNode = TableCompileTimeUtil.getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.getClasspathImportService(), validationContext.getTableCompileTimeResolver());
             if (tableNode != null) {
                 ExprNode node = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.DOTNODE, tableNode.getFirst(), validationContext);
@@ -93,6 +86,30 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 chainSpec.clear();
                 chainSpec.addAll(tableNode.getSecond());
                 this.addChildNode(node);
+            }
+        }
+
+        // handle aggregation methods: method on aggregation state coming from certain aggregations or from table column (both table-access or table-in-from-clause)
+        // this is done here as a walker does not have the information that the validated child node has
+        Pair<ExprDotNodeAggregationMethodRootNode, List<ExprChainedSpec>> aggregationMethodNode = handleAggregationMethod(validationContext);
+        if (aggregationMethodNode != null) {
+            if (aggregationMethodNode.getSecond().isEmpty()) {
+                return aggregationMethodNode.getFirst();
+            }
+            chainSpec.clear();
+            chainSpec.addAll(aggregationMethodNode.getSecond());
+            this.getChildNodes()[0] = aggregationMethodNode.getFirst();
+        }
+
+        // validate all parameters
+        ExprNodeUtilityValidate.validate(ExprNodeOrigin.DOTNODEPARAMETER, chainSpec, validationContext);
+
+        // determine if there are enumeration method expressions in the chain
+        boolean hasEnumerationMethod = false;
+        for (ExprChainedSpec chain : chainSpec) {
+            if (EnumMethodEnum.isEnumerationMethod(chain.getName())) {
+                hasEnumerationMethod = true;
+                break;
             }
         }
 
@@ -366,7 +383,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             };
             EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
             ExprNodeUtilMethodDesc methodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(),
-                    methodSpec.getParameters(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+                methodSpec.getParameters(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
             // method resolved, hook up
             modifiedChain.remove(0);    // we identified this piece
@@ -375,7 +392,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
             ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
             forge = new ExprDotNodeForgeStaticMethod(this, false, firstItem.getName(), methodDesc.getReflectionMethod(),
-                    methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstant, validationContext.getStatementName());
+                methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstant, validationContext.getStatementName());
             return null;
         }
 
@@ -408,13 +425,81 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         return null;
     }
 
+    private Pair<ExprDotNodeAggregationMethodRootNode, List<ExprChainedSpec>> handleAggregationMethod(ExprValidationContext validationContext) throws ExprValidationException {
+        if (chainSpec.isEmpty() || getChildNodes().length == 0) {
+            return null;
+        }
+        ExprNode rootNode = getChildNodes()[0];
+        ExprChainedSpec chainFirst = chainSpec.get(0);
+        ExprNode[] aggMethodParams = chainFirst.getParameters().toArray(new ExprNode[0]);
+        String aggMethodName = chainFirst.getName();
+
+        // handle property, such as "sortedcolumn.floorKey('a')" since "floorKey" can also be a property
+        if (chainFirst.isProperty()) {
+            Property prop = PropertyParserNoDep.parseAndWalkLaxToSimple(chainFirst.getName(), false);
+            if (prop instanceof MappedProperty) {
+                MappedProperty mappedProperty = (MappedProperty) prop;
+                aggMethodName = mappedProperty.getPropertyNameAtomic();
+                aggMethodParams = new ExprNode[]{new ExprConstantNodeImpl(mappedProperty.getKey())};
+            }
+        }
+
+        if (!(rootNode instanceof ExprTableAccessNodeSubprop) && !(rootNode instanceof ExprAggMultiFunctionNode) && !(rootNode instanceof ExprTableIdentNode)) {
+            return null;
+        }
+
+        ExprDotNodeAggregationMethodForge aggregationMethodForge;
+        if (rootNode instanceof ExprAggMultiFunctionNode) {
+            // handle local aggregation
+            ExprAggMultiFunctionNode mf = (ExprAggMultiFunctionNode) rootNode;
+            if (!mf.getAggregationForgeFactory().getAggregationPortableValidation().isAggregationMethod(aggMethodName, aggMethodParams, validationContext)) {
+                return null;
+            }
+            aggregationMethodForge = new ExprDotNodeAggregationMethodForgeLocal(this, aggMethodName, aggMethodParams, mf.getAggregationForgeFactory().getAggregationPortableValidation(), mf);
+        } else if (rootNode instanceof ExprTableIdentNode) {
+            // handle table-column via from-clause
+            ExprTableIdentNode tableSubprop = (ExprTableIdentNode) rootNode;
+            TableMetadataColumn column = tableSubprop.getTableMetadata().getColumns().get(tableSubprop.getColumnName());
+            if (!(column instanceof TableMetadataColumnAggregation)) {
+                return null;
+            }
+            TableMetadataColumnAggregation columnAggregation = (TableMetadataColumnAggregation) column;
+            if (columnAggregation.isMethodAgg() || !columnAggregation.getAggregationPortableValidation().isAggregationMethod(aggMethodName, aggMethodParams, validationContext)) {
+                return null;
+            }
+            aggregationMethodForge = new ExprDotNodeAggregationMethodForgeTableIdent(this, aggMethodName, aggMethodParams, columnAggregation.getAggregationPortableValidation(), tableSubprop, columnAggregation);
+        } else if (rootNode instanceof ExprTableAccessNodeSubprop) {
+            // handle table-column via table-access
+            ExprTableAccessNodeSubprop tableSubprop = (ExprTableAccessNodeSubprop) rootNode;
+            TableMetadataColumn column = tableSubprop.getTableMeta().getColumns().get(tableSubprop.getSubpropName());
+            if (!(column instanceof TableMetadataColumnAggregation)) {
+                return null;
+            }
+            TableMetadataColumnAggregation columnAggregation = (TableMetadataColumnAggregation) column;
+            if (columnAggregation.isMethodAgg() || !columnAggregation.getAggregationPortableValidation().isAggregationMethod(aggMethodName, aggMethodParams, validationContext)) {
+                return null;
+            }
+            aggregationMethodForge = new ExprDotNodeAggregationMethodForgeTableAccess(this, aggMethodName, aggMethodParams, columnAggregation.getAggregationPortableValidation(), tableSubprop, columnAggregation);
+        } else {
+            throw new IllegalStateException("Unhandled aggregation method root node");
+        }
+
+        // validate
+        aggregationMethodForge.validate(validationContext);
+
+        List<ExprChainedSpec> newChain = chainSpec.size() == 1 ? Collections.emptyList() : new ArrayList<>(chainSpec.subList(1, chainSpec.size()));
+        ExprDotNodeAggregationMethodRootNode root = new ExprDotNodeAggregationMethodRootNode(aggregationMethodForge);
+        root.addChildNode(rootNode);
+        return new Pair<>(root, newChain);
+    }
+
     public FilterExprAnalyzerAffector getAffector(boolean isOuterJoin) {
         checkValidated(forge);
         return isOuterJoin ? null : forge.getFilterExprAnalyzerAffector();
     }
 
     private ExprDotNodeForge getPropertyPairEvaluator(ExprForge parameterForge, Pair<PropertyResolutionDescriptor, String> propertyInfoPair, ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         String propertyName = propertyInfoPair.getFirst().getPropertyName();
         EventPropertyDescriptor propertyDesc = EventTypeUtility.getNestablePropertyDescriptor(propertyInfoPair.getFirst().getStreamEventType(), propertyName);
         if (propertyDesc == null || (!propertyDesc.isMapped() && !propertyDesc.isIndexed())) {

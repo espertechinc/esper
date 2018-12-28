@@ -43,9 +43,9 @@ public class SupportReferenceCountedMapRCLFunctionHandler implements Aggregation
         throw new UnsupportedOperationException("The lookup function is only for table-column-reads");
     }
 
-    public AggregationMultiFunctionTableReaderMode getTableReaderMode() {
-        return new AggregationMultiFunctionTableReaderModeManaged().setInjectionStrategyTableReaderFactory(
-            new InjectionStrategyClassNewInstance(SupportReferenceCountedMapTableReaderFactory.class)
+    public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {
+        return new AggregationMultiFunctionAggregationMethodModeManaged().setInjectionStrategyAggregationMethodFactory(
+            new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAggregationMethodFactory.class)
                 .addExpression("eval", eval));
     }
 }

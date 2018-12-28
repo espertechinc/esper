@@ -20,10 +20,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.agg.access.countminsketch.*;
+import com.espertech.esper.common.internal.epl.agg.access.countminsketch.AggregationForgeFactoryAccessCountMinSketchAdd;
+import com.espertech.esper.common.internal.epl.agg.access.countminsketch.AggregationForgeFactoryAccessCountMinSketchState;
+import com.espertech.esper.common.internal.epl.agg.access.countminsketch.AggregationStateCountMinSketchForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationTableAccessAggReaderForge;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationTableReadDesc;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggType;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchSpecForge;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchSpecHashes;
@@ -31,8 +31,6 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
@@ -50,7 +48,7 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
     private static final int DEFAULT_SEED = 1234567;
     private static final CountMinSketchAgentStringUTF16Forge DEFAULT_AGENT = new CountMinSketchAgentStringUTF16Forge();
 
-    private static final String MSG_NAME = "Count-min-sketch";
+    public static final String MSG_NAME = "Count-min-sketch";
     private static final String NAME_EPS_OF_TOTAL_COUNT = "epsOfTotalCount";
     private static final String NAME_CONFIDENCE = "confidence";
     private static final String NAME_SEED = "seed";
@@ -58,6 +56,7 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
     private static final String NAME_AGENT = "agent";
 
     private final CountMinSketchAggType aggType;
+    private AggregationForgeFactory forgeFactory;
 
     public ExprAggMultiFunctionCountMinSketchNode(boolean distinct, CountMinSketchAggType aggType) {
         super(distinct);
@@ -76,7 +75,8 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
             }
             CountMinSketchSpecForge specification = validateSpecification(validationContext);
             AggregationStateCountMinSketchForge stateFactory = new AggregationStateCountMinSketchForge(this, specification);
-            return new AggregationForgeFactoryAccessCountMinSketchState(this, stateFactory);
+            forgeFactory = new AggregationForgeFactoryAccessCountMinSketchState(this, stateFactory);
+            return forgeFactory;
         }
 
         if (aggType != CountMinSketchAggType.ADD) {
@@ -95,36 +95,13 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
         // obtain evaluator
         ExprForge addOrFrequencyEvaluator = null;
         Class addOrFrequencyEvaluatorReturnType = null;
-        if (aggType == CountMinSketchAggType.ADD || aggType == CountMinSketchAggType.FREQ) {
+        if (aggType == CountMinSketchAggType.ADD) {
             addOrFrequencyEvaluator = getChildNodes()[0].getForge();
             addOrFrequencyEvaluatorReturnType = addOrFrequencyEvaluator.getEvaluationType();
         }
 
-        return new AggregationForgeFactoryAccessCountMinSketchAdd(this, addOrFrequencyEvaluator, addOrFrequencyEvaluatorReturnType);
-    }
-
-    public AggregationTableReadDesc validateAggregationTableRead(ExprValidationContext context, TableMetadataColumnAggregation tableAccessColumn, TableMetaData table) throws ExprValidationException {
-        if (aggType == CountMinSketchAggType.STATE || aggType == CountMinSketchAggType.ADD) {
-            throw new ExprValidationException(getMessagePrefix() + "cannot not be used for table access");
-        }
-        if (!(tableAccessColumn.getAggregationPortableValidation() instanceof AggregationPortableValidationCountMinSketch)) {
-            throw new ExprValidationException(getMessagePrefix() + "can only be used with count-min-sketch");
-        }
-        AggregationTableAccessAggReaderForge forge;
-        if (aggType == CountMinSketchAggType.FREQ) {
-            if (positionalParams.length == 0 || positionalParams.length > 1) {
-                throw new ExprValidationException(getMessagePrefix() + "requires a single parameter expression");
-            }
-            ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, this.getChildNodes(), context);
-            ExprNode frequencyEval = getChildNodes()[0];
-            forge = new AgregationTAAReaderCountMinSketchFreqForge(frequencyEval);
-        } else {
-            if (positionalParams.length != 0) {
-                throw new ExprValidationException(getMessagePrefix() + "requires a no parameter expressions");
-            }
-            forge = new AgregationTAAReaderCountMinSketchTopKForge();
-        }
-        return new AggregationTableReadDesc(forge, null, null, null);
+        forgeFactory = new AggregationForgeFactoryAccessCountMinSketchAdd(this, addOrFrequencyEvaluator, addOrFrequencyEvaluatorReturnType);
+        return forgeFactory;
     }
 
     public ExprEnumerationEval getExprEvaluatorEnumeration() {
@@ -263,6 +240,10 @@ public class ExprAggMultiFunctionCountMinSketchNode extends ExprAggregateNodeBas
 
     protected boolean isFilterExpressionAsLastParameter() {
         return false;
+    }
+
+    public AggregationForgeFactory getAggregationForgeFactory() {
+        return forgeFactory;
     }
 
     private String getMessagePrefix() {

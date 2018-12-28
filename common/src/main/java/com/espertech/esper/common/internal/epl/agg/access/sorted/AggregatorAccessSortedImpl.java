@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
@@ -19,7 +20,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenFieldSharableComparator;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.RefCountedSetAtomicInteger;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
@@ -32,9 +32,8 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.serde.CodegenSharableSerdeEventTyped;
 import com.espertech.esper.common.internal.serde.DIOSerdeTreeMapEventsMayDeque;
 
-import java.util.ArrayDeque;
-import java.util.Map;
-import java.util.TreeMap;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -88,13 +87,13 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
         CodegenExpressionRef ctx = symbols.getAddExprEvalCtx(method);
         CodegenMethod referenceAddToColl = referenceAddToCollCodegen(method, namedMethods, classScope);
         method.getBlock().declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
-                .ifRefNull("theEvent").blockReturnNoValue();
+            .ifRefNull("theEvent").blockReturnNoValue();
 
         if (joinRefs == null) {
             method.getBlock().localMethod(referenceAddToColl, ref("theEvent"), eps, ctx);
         } else {
             method.getBlock().ifCondition(exprDotMethod(joinRefs, "add", ref("theEvent")))
-                    .localMethod(referenceAddToColl, ref("theEvent"), eps, ctx);
+                .localMethod(referenceAddToColl, ref("theEvent"), eps, ctx);
         }
     }
 
@@ -103,19 +102,19 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
         CodegenExpressionRef ctx = symbols.getAddExprEvalCtx(method);
         CodegenMethod dereferenceRemove = dereferenceRemoveFromCollCodegen(method, namedMethods, classScope);
         method.getBlock().declareVar(EventBean.class, "theEvent", arrayAtIndex(eps, constant(forge.getSpec().getStreamNum())))
-                .ifRefNull("theEvent").blockReturnNoValue();
+            .ifRefNull("theEvent").blockReturnNoValue();
 
         if (joinRefs == null) {
             method.getBlock().localMethod(dereferenceRemove, ref("theEvent"), eps, ctx);
         } else {
             method.getBlock().ifCondition(exprDotMethod(joinRefs, "remove", ref("theEvent")))
-                    .localMethod(dereferenceRemove, ref("theEvent"), eps, ctx);
+                .localMethod(dereferenceRemove, ref("theEvent"), eps, ctx);
         }
     }
 
     public void clearCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(sorted, "clear")
-                .assignRef(size, constant(0));
+            .assignRef(size, constant(0));
         if (joinRefs != null) {
             method.getBlock().exprDotMethod(joinRefs, "clear");
         }
@@ -124,18 +123,18 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     public CodegenExpression getFirstValueCodegen(CodegenClassScope classScope, CodegenMethod parent) {
         CodegenMethod method = parent.makeChildWithScope(EventBean.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         method.getBlock().ifCondition(exprDotMethod(sorted, "isEmpty"))
-                .blockReturn(constantNull())
-                .declareVar(Map.Entry.class, "max", exprDotMethod(sorted, "firstEntry"))
-                .methodReturn(staticMethod(AggregatorAccessSortedImpl.class, "checkedPayloadMayDeque", exprDotMethod(ref("max"), "getValue")));
+            .blockReturn(constantNull())
+            .declareVar(Map.Entry.class, "max", exprDotMethod(sorted, "firstEntry"))
+            .methodReturn(staticMethod(AggregatorAccessSortedImpl.class, "checkedPayloadMayDeque", exprDotMethod(ref("max"), "getValue")));
         return localMethod(method);
     }
 
     public CodegenExpression getLastValueCodegen(CodegenClassScope classScope, CodegenMethod parent) {
         CodegenMethod method = parent.makeChildWithScope(EventBean.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         method.getBlock().ifCondition(exprDotMethod(sorted, "isEmpty"))
-                .blockReturn(constantNull())
-                .declareVar(Map.Entry.class, "min", exprDotMethod(sorted, "lastEntry"))
-                .methodReturn(staticMethod(AggregatorAccessSortedImpl.class, "checkedPayloadMayDeque", exprDotMethod(ref("min"), "getValue")));
+            .blockReturn(constantNull())
+            .declareVar(Map.Entry.class, "min", exprDotMethod(sorted, "lastEntry"))
+            .methodReturn(staticMethod(AggregatorAccessSortedImpl.class, "checkedPayloadMayDeque", exprDotMethod(ref("min"), "getValue")));
         return localMethod(method);
     }
 
@@ -157,8 +156,8 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
 
     public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .apply(writeInt(output, row, size))
-                .exprDotMethod(sortedSerde, "write", rowDotRef(row, sorted), output, unitKey, writer);
+            .apply(writeInt(output, row, size))
+            .exprDotMethod(sortedSerde, "write", rowDotRef(row, sorted), output, unitKey, writer);
         if (joinRefs != null) {
             method.getBlock().exprDotMethod(joinRefsSerde, "write", rowDotRef(row, joinRefs), output, unitKey, writer);
         }
@@ -166,9 +165,9 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock()
-                .apply(readInt(row, size, input))
-                .assignRef(rowDotRef(row, sorted), newInstance(TreeMap.class, comparator))
-                .exprDotMethod(sortedSerde, "read", rowDotRef(row, sorted), input, unitKey);
+            .apply(readInt(row, size, input))
+            .assignRef(rowDotRef(row, sorted), newInstance(TreeMap.class, comparator))
+            .exprDotMethod(sortedSerde, "read", rowDotRef(row, sorted), input, unitKey);
         if (joinRefs != null) {
             method.getBlock().assignRef(rowDotRef(row, joinRefs), cast(RefCountedSetAtomicInteger.class, exprDotMethod(joinRefsSerde, "read", input, unitKey)));
         }
@@ -202,19 +201,19 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
 
         CodegenMethod method = parent.makeChildWithScope(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.class, "theEvent").addParam(EventBean[].class, NAME_EPS).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
         method.getBlock().declareVar(Object.class, "comparable", localMethod(getComparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
-                .declareVar(Object.class, "existing", exprDotMethod(sorted, "get", ref("comparable")))
-                .ifRefNull("existing")
-                .exprDotMethod(sorted, "put", ref("comparable"), ref("theEvent"))
-                .ifElseIf(instanceOf(ref("existing"), EventBean.class))
-                .declareVar(ArrayDeque.class, "coll", newInstance(ArrayDeque.class, constant(2)))
-                .exprDotMethod(ref("coll"), "add", ref("existing"))
-                .exprDotMethod(ref("coll"), "add", ref("theEvent"))
-                .exprDotMethod(sorted, "put", ref("comparable"), ref("coll"))
-                .ifElse()
-                .declareVar(ArrayDeque.class, "q", cast(ArrayDeque.class, ref("existing")))
-                .exprDotMethod(ref("q"), "add", ref("theEvent"))
-                .blockEnd()
-                .increment(size);
+            .declareVar(Object.class, "existing", exprDotMethod(sorted, "get", ref("comparable")))
+            .ifRefNull("existing")
+            .exprDotMethod(sorted, "put", ref("comparable"), ref("theEvent"))
+            .ifElseIf(instanceOf(ref("existing"), EventBean.class))
+            .declareVar(ArrayDeque.class, "coll", newInstance(ArrayDeque.class, constant(2)))
+            .exprDotMethod(ref("coll"), "add", ref("existing"))
+            .exprDotMethod(ref("coll"), "add", ref("theEvent"))
+            .exprDotMethod(sorted, "put", ref("comparable"), ref("coll"))
+            .ifElse()
+            .declareVar(ArrayDeque.class, "q", cast(ArrayDeque.class, ref("existing")))
+            .exprDotMethod(ref("q"), "add", ref("theEvent"))
+            .blockEnd()
+            .increment(size);
 
         return method;
     }
@@ -224,18 +223,18 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
 
         CodegenMethod method = parent.makeChildWithScope(void.class, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EventBean.class, "theEvent").addParam(EventBean[].class, NAME_EPS).addParam(ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT);
         method.getBlock().declareVar(Object.class, "comparable", localMethod(getComparable, REF_EPS, constantTrue(), REF_EXPREVALCONTEXT))
-                .declareVar(Object.class, "existing", exprDotMethod(sorted, "get", ref("comparable")))
-                .ifRefNull("existing").blockReturnNoValue()
-                .ifCondition(exprDotMethod(ref("existing"), "equals", ref("theEvent")))
-                .exprDotMethod(sorted, "remove", ref("comparable"))
-                .decrement(size)
-                .ifElseIf(instanceOf(ref("existing"), ArrayDeque.class))
-                .declareVar(ArrayDeque.class, "q", cast(ArrayDeque.class, ref("existing")))
-                .exprDotMethod(ref("q"), "remove", ref("theEvent"))
-                .ifCondition(exprDotMethod(ref("q"), "isEmpty"))
-                .exprDotMethod(sorted, "remove", ref("comparable"))
-                .blockEnd()
-                .decrement(size);
+            .declareVar(Object.class, "existing", exprDotMethod(sorted, "get", ref("comparable")))
+            .ifRefNull("existing").blockReturnNoValue()
+            .ifCondition(exprDotMethod(ref("existing"), "equals", ref("theEvent")))
+            .exprDotMethod(sorted, "remove", ref("comparable"))
+            .decrement(size)
+            .ifElseIf(instanceOf(ref("existing"), ArrayDeque.class))
+            .declareVar(ArrayDeque.class, "q", cast(ArrayDeque.class, ref("existing")))
+            .exprDotMethod(ref("q"), "remove", ref("theEvent"))
+            .ifCondition(exprDotMethod(ref("q"), "isEmpty"))
+            .exprDotMethod(sorted, "remove", ref("comparable"))
+            .blockEnd()
+            .decrement(size);
 
         return method;
     }
@@ -243,11 +242,42 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
     public static CodegenExpression codegenGetAccessTableState(int column, CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(AggregationStateSorted.class, AggregatorAccessSortedImpl.class, classScope);
         method.getBlock()
-                .declareVar(AggregationStateSorted.class, "state", newInstance(AggregationStateSorted.class))
-                .exprDotMethod(ref("state"), "setSize", refCol("size", column))
-                .exprDotMethod(ref("state"), "setSorted", refCol("sorted", column))
-                .methodReturn(ref("state"));
+            .declareVar(AggregationStateSorted.class, "state", newInstance(AggregationStateSorted.class))
+            .exprDotMethod(ref("state"), "setSize", refCol("size", column))
+            .exprDotMethod(ref("state"), "setSorted", refCol("sorted", column))
+            .methodReturn(ref("state"));
         return localMethod(method);
+    }
+
+    public static void checkedPayloadAddAll(ArrayDeque<EventBean> events, Object value) {
+        if (value instanceof EventBean) {
+            events.add((EventBean) value);
+            return;
+        }
+        ArrayDeque<EventBean> q = (ArrayDeque<EventBean>) value;
+        events.addAll(q);
+    }
+
+    public static Object checkedPayloadGetUnderlyingArray(Object value, Class underlyingClass) {
+        if (value instanceof EventBean) {
+            Object array = Array.newInstance(underlyingClass, 1);
+            Array.set(array, 0, ((EventBean) value).getUnderlying());
+            return array;
+        }
+        ArrayDeque<EventBean> q = (ArrayDeque<EventBean>) value;
+        Object array = Array.newInstance(underlyingClass, q.size());
+        int index = 0;
+        for (EventBean event : q) {
+            Array.set(array, index++, event.getUnderlying());
+        }
+        return array;
+    }
+
+    public static Collection<EventBean> checkedPayloadGetCollEvents(Object value) {
+        if (value instanceof EventBean) {
+            return Collections.singletonList((EventBean) value);
+        }
+        return (Collection<EventBean>) value;
     }
 
     /**

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.table.strategy;
 
-import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionTableReader;
+import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionAggregationMethod;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationGivenEvent;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.table.core.Table;
@@ -22,7 +22,7 @@ public class ExprTableEvalStrategyFactory {
     private int aggColumnNum = -1;
     private int propertyIndex;
     private ExprEnumerationGivenEvent optionalEnumEval;
-    private AggregationMultiFunctionTableReader accessAggReader;
+    private AggregationMultiFunctionAggregationMethod aggregationMethod;
 
     public void setStrategyEnum(ExprTableEvalStrategyEnum strategyEnum) {
         this.strategyEnum = strategyEnum;
@@ -48,8 +48,8 @@ public class ExprTableEvalStrategyFactory {
         this.optionalEnumEval = optionalEnumEval;
     }
 
-    public void setAccessAggReader(AggregationMultiFunctionTableReader accessAggReader) {
-        this.accessAggReader = accessAggReader;
+    public void setAggregationMethod(AggregationMultiFunctionAggregationMethod aggregationMethod) {
+        this.aggregationMethod = aggregationMethod;
     }
 
     public ExprTableEvalStrategy makeStrategy(TableAndLockProvider provider) {
@@ -101,7 +101,7 @@ public class ExprTableEvalStrategyFactory {
         return optionalEnumEval;
     }
 
-    public AggregationMultiFunctionTableReader getAccessAggReader() {
-        return accessAggReader;
+    public AggregationMultiFunctionAggregationMethod getAggregationMethod() {
+        return aggregationMethod;
     }
 }

@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.view.sort;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.supportunit.event.EventFactoryHelper;
 import com.espertech.esper.common.internal.util.ComparatorHashableMultiKey;
 import com.espertech.esper.common.internal.util.ComparatorHashableMultiKeyCasting;

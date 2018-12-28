@@ -66,6 +66,10 @@ public class AIRegistryAggregationSingle implements AIRegistryAggregation, Aggre
         return service.getEventBean(column, eventsPerStream, isNewData, context);
     }
 
+    public AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return service.getRow(agentInstanceId, eventsPerStream, isNewData, context);
+    }
+
     public void setRemovedCallback(AggregationRowRemovedCallback callback) {
         // not applicable
     }

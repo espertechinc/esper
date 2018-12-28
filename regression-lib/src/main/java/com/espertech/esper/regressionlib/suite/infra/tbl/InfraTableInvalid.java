@@ -304,9 +304,9 @@ public class InfraTableInvalid {
                 "Contained-event expressions are not supported with tables");
             // join invalid
             tryInvalidCompile(env, path, "select aggvar_grouped_int[1].total.countMinSketchFrequency(theString) from SupportBean",
-                "Failed to validate select-clause expression 'aggvar_grouped_int[1].total.countMi...(62 chars)': Invalid combination of aggregation state and aggregation accessor [");
+                "Failed to validate select-clause expression 'aggvar_grouped_int[1].total.countMi...(62 chars)': Failed to resolve method 'countMinSketchFrequency': Could not find enumeration method, date-time method or instance method named 'countMinSketchFrequency' in class 'java.lang.Long' with matching parameter number and expected parameter type(s) 'String' ");
             tryInvalidCompile(env, path, "select total.countMinSketchFrequency(theString) from aggvar_grouped_int, SupportBean unidirectional",
-                "Failed to validate select-clause expression 'total.countMinSketchFrequency(theString)': Failed to validate method-chain expression 'total.countMinSketchFrequency(theString)': Invalid combination of aggregation state and aggregation accessor [");
+                "Failed to validate select-clause expression 'total.countMinSketchFrequency(theString)': Failed to resolve method 'countMinSketchFrequency': Could not find");
             // cannot be marked undirectional
             tryInvalidCompile(env, path, "select * from aggvar_grouped_int unidirectional, SupportBean",
                 "Tables cannot be marked as unidirectional [");

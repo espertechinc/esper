@@ -40,7 +40,7 @@ public class SupportAggMFEventsAsListHandler implements AggregationMultiFunction
         return new AggregationMultiFunctionAgentModeManaged().setInjectionStrategyAggregationAgentFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListAggregationAgentFactory.class));
     }
 
-    public AggregationMultiFunctionTableReaderMode getTableReaderMode() {
+    public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {
         throw new UnsupportedOperationException("Table-column-read not implemented");
     }
 }

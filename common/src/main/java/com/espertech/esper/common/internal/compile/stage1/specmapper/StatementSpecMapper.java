@@ -2044,10 +2044,7 @@ public class StatementSpecMapper {
             }
             ExprTableAccessNode tableNode;
             String tableName = table.getTableName();
-            if (b.getOptionalAggregate() != null) {
-                ExprNode exprNode = mapExpressionDeep(b.getOptionalAggregate(), mapContext);
-                tableNode = new ExprTableAccessNodeSubpropAccessor(tableName, b.getOptionalColumn(), exprNode);
-            } else if (b.getOptionalColumn() != null) {
+            if (b.getOptionalColumn() != null) {
                 tableNode = new ExprTableAccessNodeSubprop(tableName, b.getOptionalColumn());
             } else {
                 tableNode = new ExprTableAccessNodeTopLevel(tableName);
@@ -2416,31 +2413,14 @@ public class StatementSpecMapper {
             ExprTableAccessNode table = (ExprTableAccessNode) expr;
             if (table instanceof ExprTableAccessNodeTopLevel) {
                 ExprTableAccessNodeTopLevel topLevel = (ExprTableAccessNodeTopLevel) table;
-                return new TableAccessExpression(topLevel.getTableName(), unmapExpressionDeep(topLevel.getChildNodes(), unmapContext), null, null);
+                return new TableAccessExpression(topLevel.getTableName(), unmapExpressionDeep(topLevel.getChildNodes(), unmapContext), null);
             }
             if (table instanceof ExprTableAccessNodeSubprop) {
                 ExprTableAccessNodeSubprop sub = (ExprTableAccessNodeSubprop) table;
                 if (sub.getChildNodes().length == 0) {
                     return new PropertyValueExpression(table.getTableName() + "." + sub.getSubpropName());
                 } else {
-                    return new TableAccessExpression(sub.getTableName(), unmapExpressionDeep(sub.getChildNodes(), unmapContext), sub.getSubpropName(), null);
-                }
-            }
-            if (table instanceof ExprTableAccessNodeSubpropAccessor) {
-                ExprTableAccessNodeSubpropAccessor sub = (ExprTableAccessNodeSubpropAccessor) table;
-                if (sub.getChildNodes().length == 0) {
-                    DotExpression dotExpression = new DotExpression();
-                    dotExpression.add(table.getTableName() + "." + sub.getSubpropName(), Collections.EMPTY_LIST, true);
-                    List<Expression> params = unmapExpressionDeep(sub.getAggregateAccessMultiValueNode().getChildNodes(), unmapContext);
-                    String functionName = sub.getAggregateAccessMultiValueNode().getAggregationFunctionName();
-                    if (AggregationAccessorLinearType.fromString(functionName) != null && params.isEmpty()) {
-                        params.add(new WildcardExpression());
-                    }
-                    dotExpression.add(functionName, params);
-                    return dotExpression;
-                } else {
-                    Expression aggregate = unmapExpressionDeep(sub.getAggregateAccessMultiValueNode(), unmapContext);
-                    return new TableAccessExpression(sub.getTableName(), unmapExpressionDeep(sub.getChildNodes(), unmapContext), sub.getSubpropName(), aggregate);
+                    return new TableAccessExpression(sub.getTableName(), unmapExpressionDeep(sub.getChildNodes(), unmapContext), sub.getSubpropName());
                 }
             }
             if (table instanceof ExprTableAccessNodeKeys) {

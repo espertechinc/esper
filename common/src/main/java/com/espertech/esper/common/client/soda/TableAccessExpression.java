@@ -22,7 +22,6 @@ public class TableAccessExpression extends ExpressionBase {
     private String tableName;
     private List<Expression> keyExpressions;
     private String optionalColumn;
-    private Expression optionalAggregate;
 
     /**
      * Ctor.
@@ -36,13 +35,11 @@ public class TableAccessExpression extends ExpressionBase {
      * @param tableName         the table name
      * @param keyExpressions    the list of key expressions for each table primary key in the same order as declared
      * @param optionalColumn    optional column name
-     * @param optionalAggregate optional aggregation function
      */
-    public TableAccessExpression(String tableName, List<Expression> keyExpressions, String optionalColumn, Expression optionalAggregate) {
+    public TableAccessExpression(String tableName, List<Expression> keyExpressions, String optionalColumn) {
         this.tableName = tableName;
         this.keyExpressions = keyExpressions;
         this.optionalColumn = optionalColumn;
-        this.optionalAggregate = optionalAggregate;
     }
 
     public ExpressionPrecedenceEnum getPrecedence() {
@@ -59,10 +56,6 @@ public class TableAccessExpression extends ExpressionBase {
         if (optionalColumn != null) {
             writer.write(".");
             writer.write(optionalColumn);
-        }
-        if (optionalAggregate != null) {
-            writer.write(".");
-            optionalAggregate.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }
     }
 
@@ -118,23 +111,5 @@ public class TableAccessExpression extends ExpressionBase {
      */
     public void setOptionalColumn(String optionalColumn) {
         this.optionalColumn = optionalColumn;
-    }
-
-    /**
-     * Returns the optional table column aggregation accessor to use.
-     *
-     * @return table column aggregation accessor
-     */
-    public Expression getOptionalAggregate() {
-        return optionalAggregate;
-    }
-
-    /**
-     * Sets the optional table column aggregation accessor to use.
-     *
-     * @param optionalAggregate table column aggregation accessor
-     */
-    public void setOptionalAggregate(Expression optionalAggregate) {
-        this.optionalAggregate = optionalAggregate;
     }
 }

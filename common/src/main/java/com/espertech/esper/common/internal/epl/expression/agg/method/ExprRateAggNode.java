@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.rate.AggregationFactoryMethodRate;
+import com.espertech.esper.common.internal.epl.agg.method.rate.AggregationForgeFactoryRate;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -61,7 +61,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
             } else {
                 this.positionalParams = new ExprNode[]{optionalFilter};
             }
-            return new AggregationFactoryMethodRate(this, true, intervalTime, validationContext.getClasspathImportService().getTimeAbacus());
+            return new AggregationForgeFactoryRate(this, true, intervalTime, validationContext.getClasspathImportService().getTimeAbacus());
         }
 
         String message = "The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation";
@@ -87,7 +87,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
         if (optionalFilter != null) {
             positionalParams = ExprNodeUtilityMake.addExpression(positionalParams, optionalFilter);
         }
-        return new AggregationFactoryMethodRate(this, false, -1, validationContext.getClasspathImportService().getTimeAbacus());
+        return new AggregationForgeFactoryRate(this, false, -1, validationContext.getClasspathImportService().getTimeAbacus());
     }
 
     public String getAggregationFunctionName() {

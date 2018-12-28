@@ -25,10 +25,10 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.writeBoolean;
 
 public class AggregatorLeaving implements AggregatorMethod {
-    private final AggregationFactoryMethodLeaving factory;
+    private final AggregationForgeFactoryLeaving factory;
     private final CodegenExpressionRef leaving;
 
-    public AggregatorLeaving(AggregationFactoryMethodLeaving factory, int col, CodegenMemberCol membersColumnized) {
+    public AggregatorLeaving(AggregationForgeFactoryLeaving factory, int col, CodegenMemberCol membersColumnized) {
         this.factory = factory;
         this.leaving = membersColumnized.addMember(col, boolean.class, "leaving");
     }

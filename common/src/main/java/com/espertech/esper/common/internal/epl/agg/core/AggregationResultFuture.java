@@ -32,6 +32,8 @@ public interface AggregationResultFuture {
 
     Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
+    AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+
     AggregationService getContextPartitionAggregationService(int agentInstanceId);
 
     /**

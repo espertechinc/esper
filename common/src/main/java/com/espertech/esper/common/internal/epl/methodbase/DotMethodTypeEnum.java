@@ -12,7 +12,8 @@ package com.espertech.esper.common.internal.epl.methodbase;
 
 public enum DotMethodTypeEnum {
     ENUM("enumeration"),
-    DATETIME("date-time");
+    DATETIME("date-time"),
+    AGGMETHOD("aggregation");
 
     private final String typeName;
 

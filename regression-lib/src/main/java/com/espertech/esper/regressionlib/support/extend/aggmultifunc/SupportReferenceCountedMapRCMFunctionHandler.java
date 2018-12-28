@@ -46,7 +46,7 @@ public class SupportReferenceCountedMapRCMFunctionHandler implements Aggregation
             new InjectionStrategyClassNewInstance(SupportReferenceCountedMapAgentFactory.class).addExpression("eval", parameterExpressions[0]));
     }
 
-    public AggregationMultiFunctionTableReaderMode getTableReaderMode() {
+    public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {
         throw new UnsupportedOperationException("This agregation function is not designed for use with table columns");
     }
 }

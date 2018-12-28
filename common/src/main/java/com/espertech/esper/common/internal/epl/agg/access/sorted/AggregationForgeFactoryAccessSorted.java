@@ -75,7 +75,7 @@ public class AggregationForgeFactoryAccessSorted extends AggregationForgeFactory
     }
 
     public AggregationPortableValidation getAggregationPortableValidation() {
-        return new AggregationPortableValidationSorted(parent.getAggregationFunctionName(), containedEventType);
+        return new AggregationPortableValidationSorted(parent.getAggregationFunctionName(), containedEventType, optionalSortedStateDesc == null ? null : optionalSortedStateDesc.getCriteriaTypes());
     }
 
     public AggregationAgentForge getAggregationStateAgent(ClasspathImportService classpathImportService, String statementName) {

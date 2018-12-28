@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.*;
-import static com.espertech.esper.common.internal.epl.agg.method.sum.AggregationFactoryMethodSum.getCoercerNonBigIntDec;
+import static com.espertech.esper.common.internal.epl.agg.method.sum.AggregationForgeFactorySum.getCoercerNonBigIntDec;
 
 public class AggregatorSumNonBig extends AggregatorSumBase {
 

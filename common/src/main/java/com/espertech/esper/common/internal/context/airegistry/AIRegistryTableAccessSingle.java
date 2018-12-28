@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.airegistry;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategy;
 
@@ -46,6 +47,10 @@ public class AIRegistryTableAccessSingle implements AIRegistryTableAccess {
 
     public Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return service.evaluateTypableSingle(eventsPerStream, isNewData, context);
+    }
+
+    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return service.getRow(eventsPerStream, isNewData, context);
     }
 
     public int getInstanceCount() {

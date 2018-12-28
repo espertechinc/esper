@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.stddev.AggregationFactoryMethodStddev;
+import com.espertech.esper.common.internal.epl.agg.method.stddev.AggregationForgeFactoryStddev;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
@@ -33,7 +33,7 @@ public class ExprStddevNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return new AggregationFactoryMethodStddev(this, childType);
+        return new AggregationForgeFactoryStddev(this, childType);
     }
 
     public boolean isHasFilter() {

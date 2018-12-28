@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.table.strategy;
 
+import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.table.core.TableEvalLockUtil;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
@@ -28,5 +30,13 @@ public abstract class ExprTableEvalStrategyUngroupedBase implements ExprTableEva
         TableAndLockUngrouped pair = provider.get();
         TableEvalLockUtil.obtainLockUnless(pair.getLock(), context);
         return pair.getUngrouped().getEventUngrouped();
+    }
+
+    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        ObjectArrayBackedEventBean row = lockTableReadAndGet(context);
+        if (row == null) {
+            return null;
+        }
+        return ExprTableEvalStrategyUtil.getRow(row);
     }
 }

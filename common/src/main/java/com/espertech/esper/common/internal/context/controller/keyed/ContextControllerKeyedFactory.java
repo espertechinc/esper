@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifierPartitioned;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.context.airegistry.*;
 import com.espertech.esper.common.internal.context.controller.core.ContextController;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryBase;

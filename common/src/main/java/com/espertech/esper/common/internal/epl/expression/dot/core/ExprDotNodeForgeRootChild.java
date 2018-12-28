@@ -39,6 +39,9 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
     protected final ExprDotForge[] forgesUnpacking;
 
     public ExprDotNodeForgeRootChild(ExprDotNodeImpl parent, FilterExprAnalyzerAffector filterExprAnalyzerAffector, Integer streamNumReferenced, String rootPropertyName, boolean hasEnumerationMethod, ExprForge rootNodeForge, ExprEnumerationForge rootLambdaEvaluator, EPType typeInfo, ExprDotForge[] forgesIteratorEventBean, ExprDotForge[] forgesUnpacking, boolean checkedUnpackEvent) {
+        if (forgesUnpacking.length == 0) {
+            throw new IllegalArgumentException("Empty forges-unpacking");
+        }
         this.parent = parent;
         this.filterExprAnalyzerAffector = filterExprAnalyzerAffector;
         this.streamNumReferenced = streamNumReferenced;

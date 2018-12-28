@@ -156,7 +156,7 @@ public class EventBeanPropertyResolutionWDefaults {
             eventBean.get("a\u008F");
             fail();
         } catch (PropertyAccessException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, "Failed to parse property 'a\u008F': Unexpected token '\u008F'");
+            SupportMessageAssertUtil.assertMessage(ex, "Property named 'a\u008F' is not a valid property name for this type");
         }
     }
 

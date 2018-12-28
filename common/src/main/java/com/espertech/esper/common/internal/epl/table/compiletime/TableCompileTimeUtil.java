@@ -15,8 +15,6 @@ import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.compile.stage1.specmapper.ASTAggregationHelper;
-import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -79,7 +77,7 @@ public class TableCompileTimeUtil {
 
         // this is a table access expression
         String sub = classIdent.substring(index + 1, classIdent.length());
-        return handleTableAccessNode(classpathImportService, plugInAggregations, table.getTableName(), sub, chain);
+        return handleTableAccessNode(plugInAggregations, table.getTableName(), sub, chain);
     }
 
     public static Pair<ExprNode, List<ExprChainedSpec>> getTableNodeChainable(StreamTypeService streamTypeService,
@@ -97,21 +95,8 @@ public class TableCompileTimeUtil {
         StreamTableColPair pair = col.getPair();
         if (pair.getColumn() instanceof TableMetadataColumnAggregation) {
             TableMetadataColumnAggregation agg = (TableMetadataColumnAggregation) pair.getColumn();
-
-            if (chainSpec.size() > 1) {
-                String candidateAccessor = chainSpec.get(1).getName();
-                ExprAggregateNodeBase exprNode = (ExprAggregateNodeBase) ASTAggregationHelper.tryResolveAsAggregation(classpathImportService, false, candidateAccessor, new LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge>());
-                if (exprNode != null) {
-                    ExprNode node = new ExprTableIdentNodeSubpropAccessor(pair.getStreamNum(), col.getOptionalStreamName(), pair.tableMetadata, agg, exprNode);
-                    exprNode.addChildNodes(chainSpec.get(1).getParameters());
-                    chainSpec.remove(0);
-                    chainSpec.remove(0);
-                    return new Pair<>(node, chainSpec);
-                }
-            }
-
             Class returnType = pair.getTableMetadata().getPublicEventType().getPropertyType(pair.getColumn().getColumnName());
-            ExprTableIdentNode node = new ExprTableIdentNode(pair.tableMetadata, null, unresolvedPropertyName, returnType, pair.getStreamNum(), agg.getColumn());
+            ExprTableIdentNode node = new ExprTableIdentNode(pair.tableMetadata, null, unresolvedPropertyName, returnType, pair.getStreamNum(), agg.getColumnName(), agg.getColumn());
             chainSpec.remove(0);
             return new Pair<>(node, chainSpec);
         }
@@ -132,7 +117,7 @@ public class TableCompileTimeUtil {
         if (pair.getColumn() instanceof TableMetadataColumnAggregation) {
             TableMetadataColumnAggregation agg = (TableMetadataColumnAggregation) pair.getColumn();
             Class resultType = pair.tableMetadata.getPublicEventType().getPropertyType(agg.getColumnName());
-            return new ExprTableIdentNode(pair.tableMetadata, streamOrPropertyName, unresolvedPropertyName, resultType, pair.streamNum, agg.getColumn());
+            return new ExprTableIdentNode(pair.tableMetadata, streamOrPropertyName, unresolvedPropertyName, resultType, pair.streamNum, agg.getColumnName(), agg.getColumn());
         }
         return null;
     }
@@ -180,22 +165,12 @@ public class TableCompileTimeUtil {
     }
 
     public static Pair<ExprTableAccessNode, List<ExprChainedSpec>> handleTableAccessNode(
-            ClasspathImportServiceCompileTime classpathImportService,
-            LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
-            String tableName,
-            String sub,
-            List<ExprChainedSpec> chain) {
-
+        LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
+        String tableName,
+        String sub,
+        List<ExprChainedSpec> chain) {
         ExprTableAccessNode node = new ExprTableAccessNodeSubprop(tableName, sub);
         List<ExprChainedSpec> subchain = chain.subList(1, chain.size());
-
-        String candidateAccessor = subchain.get(0).getName();
-        ExprAggregateNodeBase exprNode = (ExprAggregateNodeBase) ASTAggregationHelper.tryResolveAsAggregation(classpathImportService, false, candidateAccessor, plugInAggregations);
-        if (exprNode != null) {
-            node = new ExprTableAccessNodeSubpropAccessor(tableName, sub, exprNode);
-            exprNode.addChildNodes(subchain.get(0).getParameters());
-            subchain.remove(0);
-        }
         return new Pair<>(node, subchain);
     }
 

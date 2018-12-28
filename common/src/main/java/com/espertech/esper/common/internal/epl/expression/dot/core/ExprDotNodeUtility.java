@@ -292,7 +292,7 @@ public class ExprDotNodeUtility {
                 continue;
             }
 
-            String message = "Could not find event property, enumeration method or instance method named '" +
+            String message = "Could not find event property or method named '" +
                     chainElement.getName() + "' in " + EPTypeHelper.toTypeDescriptive(currentInputType);
             throw new ExprValidationException(message);
         }

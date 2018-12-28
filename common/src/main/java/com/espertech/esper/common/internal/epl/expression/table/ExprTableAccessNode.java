@@ -183,6 +183,10 @@ public abstract class ExprTableAccessNode extends ExprNodeBase implements ExprFo
         return tableAccessNumber;
     }
 
+    public TableMetaData getTableMeta() {
+        return tableMeta;
+    }
+
     protected static CodegenExpression makeEvaluate(AccessEvaluationType evaluationType, ExprTableAccessNode accessNode, Class resultType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         if (accessNode.getTableAccessNumber() == -1) {
             throw new IllegalStateException("Table expression node has not been assigned");

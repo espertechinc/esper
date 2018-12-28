@@ -73,6 +73,10 @@ public class AIRegistryAggregationMap implements AIRegistryAggregation {
         return services.get(context.getAgentInstanceId()).getEventBean(column, eventsPerStream, isNewData, context);
     }
 
+    public AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return services.get(context.getAgentInstanceId()).getRow(agentInstanceId, eventsPerStream, isNewData, context);
+    }
+
     public void setRemovedCallback(AggregationRowRemovedCallback callback) {
         // not applicable
     }

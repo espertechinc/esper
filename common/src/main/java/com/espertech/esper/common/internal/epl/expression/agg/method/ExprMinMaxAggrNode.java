@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.minmax.AggregationFactoryMethodMinMax;
+import com.espertech.esper.common.internal.epl.agg.method.minmax.AggregationForgeFactoryMinMax;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -63,7 +63,7 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
 
-        return new AggregationFactoryMethodMinMax(this, child.getForge().getEvaluationType(), hasDataWindows);
+        return new AggregationForgeFactoryMinMax(this, child.getForge().getEvaluationType(), hasDataWindows);
     }
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {

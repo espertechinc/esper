@@ -303,7 +303,7 @@ public class ClasspathImportServiceCompileTime extends ClasspathImportServiceBas
         } catch (InstantiationException e) {
             throw new ClasspathImportException("Error instantiating aggregation factory class by name '" + className + "'", e);
         } catch (IllegalAccessException e) {
-            throw new ClasspathImportException("Illegal access instatiating aggregation factory class by name '" + className + "'", e);
+            throw new ClasspathImportException("Illegal access instantiating aggregation factory class by name '" + className + "'", e);
         }
 
         if (!(object instanceof AggregationFunctionForge)) {

@@ -33,7 +33,7 @@ public class AggregatorPlugInManaged extends AggregatorMethodWDistinctWFilterWVa
     protected CodegenExpressionRef plugin;
     private final AggregationFunctionModeManaged mode;
 
-    public AggregatorPlugInManaged(AggregationMethodFactoryPluginMethod factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter, AggregationFunctionModeManaged mode) {
+    public AggregatorPlugInManaged(AggregationForgeFactoryPlugin factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter, AggregationFunctionModeManaged mode) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
         this.mode = mode;
 

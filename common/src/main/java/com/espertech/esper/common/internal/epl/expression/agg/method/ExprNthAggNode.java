@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.nth.AggregationFactoryMethodNth;
+import com.espertech.esper.common.internal.epl.agg.method.nth.AggregationForgeFactoryNth;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -51,7 +51,7 @@ public class ExprNthAggNode extends ExprAggregateNodeBase {
             this.positionalParams = ExprNodeUtilityMake.addExpression(positionalParams, optionalFilter);
         }
 
-        return new AggregationFactoryMethodNth(this, first.getForge().getEvaluationType(), size);
+        return new AggregationForgeFactoryNth(this, first.getForge().getEvaluationType(), size);
     }
 
     public String getAggregationFunctionName() {

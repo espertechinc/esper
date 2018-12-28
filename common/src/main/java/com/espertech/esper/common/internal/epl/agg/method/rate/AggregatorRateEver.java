@@ -36,11 +36,11 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
  */
 public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
 
-    protected final AggregationFactoryMethodRate factory;
+    protected final AggregationForgeFactoryRate factory;
     protected final CodegenExpressionRef points;
     protected final CodegenExpressionRef hasLeave;
 
-    public AggregatorRateEver(AggregationFactoryMethodRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorRateEver(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
         this.factory = factory;
         points = membersColumnized.addMember(col, Deque.class, "points");

@@ -29,7 +29,7 @@ public class ExprTableEvalStrategyUngroupedAggAccessRead extends ExprTableEvalSt
             return null;
         }
         AggregationRow aggs = ExprTableEvalStrategyUtil.getRow(row);
-        return factory.getAccessAggReader().getValue(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, exprEvaluatorContext);
+        return factory.getAggregationMethod().getValue(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -38,7 +38,7 @@ public class ExprTableEvalStrategyUngroupedAggAccessRead extends ExprTableEvalSt
             return null;
         }
         AggregationRow aggs = ExprTableEvalStrategyUtil.getRow(row);
-        return factory.getAccessAggReader().getValueCollectionEvents(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
+        return factory.getAggregationMethod().getValueCollectionEvents(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -47,7 +47,7 @@ public class ExprTableEvalStrategyUngroupedAggAccessRead extends ExprTableEvalSt
             return null;
         }
         AggregationRow aggs = ExprTableEvalStrategyUtil.getRow(row);
-        return factory.getAccessAggReader().getValueEventBean(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
+        return factory.getAggregationMethod().getValueEventBean(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -56,7 +56,7 @@ public class ExprTableEvalStrategyUngroupedAggAccessRead extends ExprTableEvalSt
             return null;
         }
         AggregationRow aggs = ExprTableEvalStrategyUtil.getRow(row);
-        return factory.getAccessAggReader().getValueCollectionScalar(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
+        return factory.getAggregationMethod().getValueCollectionScalar(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
     }
 
     public Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

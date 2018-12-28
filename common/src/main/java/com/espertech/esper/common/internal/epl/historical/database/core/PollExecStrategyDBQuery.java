@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.type.SQLColumnValueContext;
 import com.espertech.esper.common.client.hook.type.SQLInputParameterContext;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowValueContext;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.historical.execstrategy.PollExecStrategy;

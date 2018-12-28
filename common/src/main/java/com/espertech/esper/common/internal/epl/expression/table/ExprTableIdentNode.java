@@ -35,14 +35,16 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForgeInstrum
     private final String unresolvedPropertyName;
     private final Class returnType;
     private final int streamNum;
+    private final String columnName;
     private final int columnNum;
 
-    public ExprTableIdentNode(TableMetaData tableMetadata, String streamOrPropertyName, String unresolvedPropertyName, Class returnType, int streamNum, int columnNum) {
+    public ExprTableIdentNode(TableMetaData tableMetadata, String streamOrPropertyName, String unresolvedPropertyName, Class returnType, int streamNum, String columnName, int columnNum) {
         this.tableMetadata = tableMetadata;
         this.streamOrPropertyName = streamOrPropertyName;
         this.unresolvedPropertyName = unresolvedPropertyName;
         this.returnType = returnType;
         this.streamNum = streamNum;
+        this.columnName = columnName;
         this.columnNum = columnNum;
     }
 
@@ -106,6 +108,38 @@ public class ExprTableIdentNode extends ExprNodeBase implements ExprForgeInstrum
 
     public ExprNode getForgeRenderable() {
         return this;
+    }
+
+    public TableMetaData getTableMetadata() {
+        return tableMetadata;
+    }
+
+    public int getStreamNum() {
+        return streamNum;
+    }
+
+    public int getColumnNum() {
+        return columnNum;
+    }
+
+    public String getUnresolvedPropertyName() {
+        return unresolvedPropertyName;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param streamNum       stream num
+     * @param eventsPerStream events
+     * @return value
+     */
+    public static AggregationRow tableColumnRow(int streamNum, EventBean[] eventsPerStream) {
+        ObjectArrayBackedEventBean oa = (ObjectArrayBackedEventBean) eventsPerStream[streamNum];
+        return ExprTableEvalStrategyUtil.getRow(oa);
     }
 
     /**

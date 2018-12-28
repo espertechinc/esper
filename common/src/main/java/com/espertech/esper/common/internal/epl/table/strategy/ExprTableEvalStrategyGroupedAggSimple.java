@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.table.strategy;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
 
@@ -24,23 +23,13 @@ public class ExprTableEvalStrategyGroupedAggSimple extends ExprTableEvalStrategy
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        ObjectArrayBackedEventBean row = lockTableReadAndGet(groupKey, exprEvaluatorContext);
-        if (row == null) {
-            return null;
-        }
-        AggregationRow aggs = ExprTableEvalStrategyUtil.getRow(row);
-        return aggs.getValue(factory.getAggColumnNum(), eventsPerStream, isNewData, exprEvaluatorContext);
+        AggregationRow aggs = getRow(eventsPerStream, isNewData, exprEvaluatorContext);
+        return aggs == null ? null : aggs.getValue(factory.getAggColumnNum(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, context);
-        ObjectArrayBackedEventBean row = lockTableReadAndGet(groupKey, context);
-        if (row == null) {
-            return null;
-        }
-        AggregationRow aggs = ExprTableEvalStrategyUtil.getRow(row);
-        return aggs.getCollectionOfEvents(factory.getAggColumnNum(), eventsPerStream, isNewData, context);
+        AggregationRow aggs = getRow(eventsPerStream, isNewData, context);
+        return aggs == null ? null : aggs.getCollectionOfEvents(factory.getAggColumnNum(), eventsPerStream, isNewData, context);
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

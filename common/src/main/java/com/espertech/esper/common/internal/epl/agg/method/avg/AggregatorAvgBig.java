@@ -42,11 +42,11 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
 
     private static final Logger log = LoggerFactory.getLogger(AggregatorAvgBig.class);
 
-    private final AggregationFactoryMethodAvg factory;
+    private final AggregationForgeFactoryAvg factory;
     private final CodegenExpressionRef sum;
     private final CodegenExpressionRef cnt;
 
-    public AggregatorAvgBig(AggregationFactoryMethodAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorAvgBig(AggregationForgeFactoryAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
         this.factory = factory;
         sum = membersColumnized.addMember(col, BigDecimal.class, "sum");

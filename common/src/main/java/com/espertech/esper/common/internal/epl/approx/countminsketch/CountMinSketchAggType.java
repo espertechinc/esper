@@ -14,9 +14,7 @@ import java.util.Locale;
 
 public enum CountMinSketchAggType {
     STATE("countMinSketch"),
-    ADD("countMinSketchAdd"),
-    FREQ("countMinSketchFrequency"),
-    TOPK("countMinSketchTopk");
+    ADD("countMinSketchAdd");
 
     private final String funcName;
 

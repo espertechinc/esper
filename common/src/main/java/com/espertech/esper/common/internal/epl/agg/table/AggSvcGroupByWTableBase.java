@@ -174,4 +174,8 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService, Agg
     public TableInstance getTableInstance() {
         return tableInstance;
     }
+
+    public AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        throw new UnsupportedOperationException();
+    }
 }

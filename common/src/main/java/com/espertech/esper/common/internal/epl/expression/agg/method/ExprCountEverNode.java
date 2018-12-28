@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.count.AggregationFactoryMethodCountEver;
+import com.espertech.esper.common.internal.epl.agg.method.count.AggregationForgeFactoryCountEver;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
@@ -45,7 +45,7 @@ public class ExprCountEverNode extends ExprAggregateNodeBase {
                 optionalFilter = positionalParams[1];
             }
         }
-        return new AggregationFactoryMethodCountEver(this, ignoreNulls);
+        return new AggregationForgeFactoryCountEver(this, ignoreNulls);
     }
 
     public boolean hasFilter() {

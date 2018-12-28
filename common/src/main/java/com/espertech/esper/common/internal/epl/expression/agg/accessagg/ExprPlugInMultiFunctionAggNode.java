@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionForge;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionHandler;
-import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionTableReaderModeManaged;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionValidationContext;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,20 +22,12 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.agg.access.plugin.AggregationForgeFactoryAccessPlugin;
-import com.espertech.esper.common.internal.epl.agg.access.plugin.AggregationPortableValidationPluginMultiFunc;
-import com.espertech.esper.common.internal.epl.agg.access.plugin.AggregationTableAccessAggReaderForgePlugIn;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationTableReadDesc;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprPlugInAggNodeMarker;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
-import com.espertech.esper.common.internal.rettype.EPType;
-import com.espertech.esper.common.internal.rettype.EPTypeHelper;
 
 import java.util.Collection;
 
@@ -68,30 +59,6 @@ public class ExprPlugInMultiFunctionAggNode extends ExprAggregateNodeBase implem
         AggregationMultiFunctionHandler handlerPlugin = aggregationMultiFunctionForge.validateGetHandler(ctx);
         factory = new AggregationForgeFactoryAccessPlugin(this, handlerPlugin);
         return factory;
-    }
-
-    public AggregationTableReadDesc validateAggregationTableRead(ExprValidationContext validationContext, TableMetadataColumnAggregation tableAccessColumn, TableMetaData table) throws ExprValidationException {
-        // child node validation
-        ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, this.getChildNodes(), validationContext);
-
-        // portable validation
-        AggregationPortableValidation validation = tableAccessColumn.getAggregationPortableValidation();
-        if (!(validation instanceof AggregationPortableValidationPluginMultiFunc)) {
-            throw new ExprValidationException("Invalid aggregation column type");
-        }
-
-        // obtain handler
-        AggregationMultiFunctionValidationContext ctx = new AggregationMultiFunctionValidationContext(functionName, validationContext.getStreamTypeService().getEventTypes(), positionalParams, validationContext.getStatementName(), validationContext, config, null, getChildNodes(), optionalFilter);
-        AggregationMultiFunctionHandler handler = aggregationMultiFunctionForge.validateGetHandler(ctx);
-
-        // set of reader
-        EPType epType = handler.getReturnType();
-        Class returnType = EPTypeHelper.getNormalizedClass(epType);
-        AggregationTableAccessAggReaderForgePlugIn forge = new AggregationTableAccessAggReaderForgePlugIn(returnType, (AggregationMultiFunctionTableReaderModeManaged) handler.getTableReaderMode());
-        EventType eventTypeCollection = EPTypeHelper.optionalIsEventTypeColl(epType);
-        EventType eventTypeSingle = EPTypeHelper.optionalIsEventTypeSingle(epType);
-        Class componentTypeCollection = EPTypeHelper.optionalIsComponentTypeColl(epType);
-        return new AggregationTableReadDesc(forge, eventTypeCollection, componentTypeCollection, eventTypeSingle);
     }
 
     public String getAggregationFunctionName() {
@@ -147,5 +114,9 @@ public class ExprPlugInMultiFunctionAggNode extends ExprAggregateNodeBase implem
 
     public ExprEnumerationEval getExprEvaluatorEnumeration() {
         return this;
+    }
+
+    public AggregationForgeFactory getAggregationForgeFactory() {
+        return factory;
     }
 }

@@ -221,7 +221,7 @@ public class TestSuiteInfraTable extends TestCase {
         configuration.getCompiler().addPlugInAggregationFunctionForge("csvWords", SupportSimpleWordCSVForge.class.getName());
 
         ConfigurationCompilerPlugInAggregationMultiFunction config = new ConfigurationCompilerPlugInAggregationMultiFunction(
-            "referenceCountedMap,referenceCountLookup".split(","), SupportReferenceCountedMapForge.class.getName());
+            "referenceCountedMap".split(","), SupportReferenceCountedMapForge.class.getName());
         configuration.getCompiler().addPlugInAggregationMultiFunction(config);
         ConfigurationCompilerPlugInAggregationMultiFunction configMultiFuncAgg = new ConfigurationCompilerPlugInAggregationMultiFunction("se1".split(","), SupportAggMFMultiRTForge.class.getName());
         configuration.getCompiler().addPlugInAggregationMultiFunction(configMultiFuncAgg);

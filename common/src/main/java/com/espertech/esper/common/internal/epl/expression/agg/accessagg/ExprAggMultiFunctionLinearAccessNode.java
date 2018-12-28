@@ -25,10 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
-import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeUtil;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -40,6 +37,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase implements ExprEnumerationForge, ExprAggMultiFunctionNode {
     private final AggregationAccessorLinearType stateType;
+    private AggregationForgeFactory aggregationForgeFactory;
     private EventType containedType;
     private Class scalarCollectionComponentType;
     private EventType streamType;
@@ -70,22 +68,12 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         EventType[] streamTypes = validationContext.getStreamTypeService().getEventTypes();
         streamType = desc.getStreamNum() >= streamTypes.length ? streamTypes[0] : streamTypes[desc.getStreamNum()];
 
-        return desc.getFactory();
+        aggregationForgeFactory = desc.getFactory();
+        return aggregationForgeFactory;
     }
 
-    public AggregationTableReadDesc validateAggregationTableRead(ExprValidationContext validationContext, TableMetadataColumnAggregation tableAccessColumn, TableMetaData table) throws ExprValidationException {
-        AggregationPortableValidation validation = tableAccessColumn.getAggregationPortableValidation();
-        if (!(validation instanceof AggregationPortableValidationLinear)) {
-            throw new ExprValidationException("Invalid aggregation column type for column '" + tableAccessColumn.getColumnName() + "'");
-        }
-        AggregationPortableValidationLinear validationLinear = (AggregationPortableValidationLinear) validation;
-
-        if (stateType == AggregationAccessorLinearType.FIRST || stateType == AggregationAccessorLinearType.LAST) {
-            return handleTableAccessFirstLast(getChildNodes(), stateType, validationContext, validationLinear);
-        } else if (stateType == AggregationAccessorLinearType.WINDOW) {
-            return handleTableAccessWindow(getChildNodes(), validationContext, validationLinear);
-        }
-        throw new IllegalStateException("Unrecognized type " + stateType);
+    public AggregationForgeFactory getAggregationForgeFactory() {
+        return aggregationForgeFactory;
     }
 
     public ExprEnumerationEval getExprEvaluatorEnumeration() {
@@ -213,7 +201,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             if (optionalFilter != null) {
                 positionalParams = ExprNodeUtilityMake.addExpression(positionalParams, optionalFilter);
             }
-            AggregationForgeFactory factory = new AggregationFactoryMethodFirstLastUnbound(this, containedType, accessorResultType, streamNum, optionalFilter != null);
+            AggregationForgeFactory factory = new AggregationForgeFactoryFirstLastUnbound(this, containedType, accessorResultType, streamNum, optionalFilter != null);
             return new AggregationLinearFactoryDesc(factory, containedType, scalarCollectionComponentType, streamNum);
         }
 
@@ -276,71 +264,6 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationAgentForge agent = AggregationAgentForgeFactory.make(streamNum, optionalFilter, validationContext.getClasspathImportService(), validationContext.getStreamTypeService().isOnDemandStreams(), validationContext.getStatementName());
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, JavaClassHelper.getArrayType(componentType), null, null, agent, containedType);
         return new AggregationLinearFactoryDesc(factory, containedType, null, 0);
-    }
-
-    private AggregationTableReadDesc handleTableAccessFirstLast(ExprNode[] childNodes, AggregationAccessorLinearType stateType, ExprValidationContext validationContext, AggregationPortableValidationLinear validationLinear)
-            throws ExprValidationException {
-        Class underlyingType = validationLinear.getContainedEventType().getUnderlyingType();
-        if (childNodes.length == 0) {
-            AggregationTAAReaderLinearFirstLastForge forge = new AggregationTAAReaderLinearFirstLastForge(underlyingType, stateType, null);
-            return new AggregationTableReadDesc(forge, null, null, validationLinear.getContainedEventType());
-        }
-        if (childNodes.length == 1) {
-            if (childNodes[0] instanceof ExprWildcard) {
-                AggregationTAAReaderLinearFirstLastForge forge = new AggregationTAAReaderLinearFirstLastForge(underlyingType, stateType, null);
-                return new AggregationTableReadDesc(forge, null, null, validationLinear.getContainedEventType());
-            }
-            if (childNodes[0] instanceof ExprStreamUnderlyingNode) {
-                throw new ExprValidationException("Stream-wildcard is not allowed for table column access");
-            }
-            // Expressions apply to events held, thereby validate in terms of event value expressions
-            ExprNode paramNode = childNodes[0];
-            StreamTypeServiceImpl streams = TableCompileTimeUtil.streamTypeFromTableColumn(validationLinear.getContainedEventType());
-            ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
-            paramNode = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
-            AggregationTAAReaderLinearFirstLastForge forge = new AggregationTAAReaderLinearFirstLastForge(paramNode.getForge().getEvaluationType(), stateType, paramNode);
-            return new AggregationTableReadDesc(forge, null, null, null);
-        }
-        if (childNodes.length == 2) {
-            Integer constant = null;
-            ExprNode indexEvalNode = childNodes[1];
-            Class indexEvalType = indexEvalNode.getForge().getEvaluationType();
-            if (indexEvalType != Integer.class && indexEvalType != int.class) {
-                throw new ExprValidationException(getErrorPrefix(stateType) + " requires a constant index expression that returns an integer value");
-            }
-
-            ExprNode indexExpr;
-            if (indexEvalNode.getForge().getForgeConstantType() == ExprForgeConstantType.COMPILETIMECONST) {
-                constant = (Integer) indexEvalNode.getForge().getExprEvaluator().evaluate(null, true, null);
-                indexExpr = null;
-            } else {
-                indexExpr = indexEvalNode;
-            }
-            AggregationTAAReaderLinearFirstLastIndexForge forge = new AggregationTAAReaderLinearFirstLastIndexForge(underlyingType, stateType, constant, indexExpr);
-            return new AggregationTableReadDesc(forge, null, null, validationLinear.getContainedEventType());
-        }
-        throw new ExprValidationException("Invalid number of parameters");
-    }
-
-    private AggregationTableReadDesc handleTableAccessWindow(ExprNode[] childNodes, ExprValidationContext validationContext, AggregationPortableValidationLinear validationLinear)
-            throws ExprValidationException {
-
-        if (childNodes.length == 0 || (childNodes.length == 1 && childNodes[0] instanceof ExprWildcard)) {
-            Class componentType = validationLinear.getContainedEventType().getUnderlyingType();
-            AggregationTAAReaderLinearWindowForge forge = new AggregationTAAReaderLinearWindowForge(JavaClassHelper.getArrayType(componentType), null);
-            return new AggregationTableReadDesc(forge, validationLinear.getContainedEventType(), null, null);
-        }
-        if (childNodes.length == 1) {
-            // Expressions apply to events held, thereby validate in terms of event value expressions
-            ExprNode paramNode = childNodes[0];
-            StreamTypeServiceImpl streams = TableCompileTimeUtil.streamTypeFromTableColumn(validationLinear.getContainedEventType());
-            ExprValidationContext localValidationContext = new ExprValidationContext(streams, validationContext);
-            paramNode = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, paramNode, localValidationContext);
-            Class paramNodeType = JavaClassHelper.getBoxedType(paramNode.getForge().getEvaluationType());
-            AggregationTAAReaderLinearWindowForge forge = new AggregationTAAReaderLinearWindowForge(JavaClassHelper.getArrayType(paramNodeType), paramNode);
-            return new AggregationTableReadDesc(forge, null, paramNodeType, null);
-        }
-        throw new ExprValidationException("Invalid number of parameters");
     }
 
     protected static boolean getIstreamOnly(StreamTypeService streamTypeService, int streamNum) {
@@ -406,4 +329,5 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     public EventType getStreamType() {
         return streamType;
     }
+
 }

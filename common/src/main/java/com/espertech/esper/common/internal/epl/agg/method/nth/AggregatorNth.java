@@ -38,13 +38,13 @@ import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeClas
 
 public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
 
-    private final AggregationFactoryMethodNth factory;
+    private final AggregationForgeFactoryNth factory;
     private final CodegenExpressionRef circularBuffer;
     private final CodegenExpressionRef currentBufferElementPointer;
     private final CodegenExpressionRef numDataPoints;
     private final CodegenExpressionField serdeValue;
 
-    public AggregatorNth(AggregationFactoryMethodNth factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
+    public AggregatorNth(AggregationForgeFactoryNth factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
         super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
         this.factory = factory;
         this.circularBuffer = membersColumnized.addMember(col, Object[].class, "buf");

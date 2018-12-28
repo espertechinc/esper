@@ -12,6 +12,7 @@ package com.espertech.esper.regressionrun.suite.resultset;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -85,6 +86,14 @@ public class TestSuiteResultSetAggregate extends TestCase {
         RegressionRunner.run(session, ResultSetAggregateFilterNamedParameter.executions());
     }
 
+    public void testResultSetAggregationMethodSorted() {
+        RegressionRunner.run(session, ResultSetAggregationMethodSorted.executions());
+    }
+
+    public void testResultSetAggregationMethodWindow() {
+        RegressionRunner.run(session, ResultSetAggregationMethodWindow.executions());
+    }
+
     private void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBeanString.class, SupportMarketDataBean.class,
             SupportBeanNumeric.class, SupportBean_S0.class, SupportBean_S1.class,
@@ -92,6 +101,7 @@ public class TestSuiteResultSetAggregate extends TestCase {
             configuration.getCommon().addEventType(clazz);
         }
         configuration.getCommon().addImport(SupportStaticMethodLib.class.getName());
+        configuration.getCommon().addImport(HashableMultiKey.class.getName());
         configuration.getCompiler().getByteCode().setIncludeDebugSymbols(true);
 
         configuration.getCompiler().addPlugInAggregationFunctionForge("concatMethodAgg", SupportConcatWManagedAggregationFunctionForge.class.getName());

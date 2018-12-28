@@ -22,14 +22,11 @@ import com.espertech.esper.common.internal.epl.agg.access.core.*;
 import com.espertech.esper.common.internal.epl.agg.access.sorted.*;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationTableReadDesc;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
-import com.espertech.esper.common.internal.epl.table.compiletime.TableMetadataColumnAggregation;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -42,28 +39,14 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     private final boolean ever;
     private final boolean sortedwin;
 
-    private transient EventType containedType;
+    private EventType containedType;
+    private AggregationForgeFactory aggregationForgeFactory;
 
     public ExprAggMultiFunctionSortedMinMaxByNode(boolean max, boolean ever, boolean sortedwin) {
         super(false);
         this.max = max;
         this.ever = ever;
         this.sortedwin = sortedwin;
-    }
-
-    public AggregationTableReadDesc validateAggregationTableRead(ExprValidationContext validationContext, TableMetadataColumnAggregation tableAccessColumn, TableMetaData table) throws ExprValidationException {
-        AggregationPortableValidation validation = tableAccessColumn.getAggregationPortableValidation();
-        if (!(validation instanceof AggregationPortableValidationSorted)) {
-            throw new ExprValidationException("Invalid aggregation column type for column '" + tableAccessColumn.getColumnName() + "'");
-        }
-        AggregationPortableValidationSorted validationSorted = (AggregationPortableValidationSorted) validation;
-        Class componentType = validationSorted.getContainedEventType().getUnderlyingType();
-        if (!sortedwin) {
-            AggregationTAAReaderSortedMinMaxByForge forge = new AggregationTAAReaderSortedMinMaxByForge(componentType, max, table);
-            return new AggregationTableReadDesc(forge, null, null, validationSorted.getContainedEventType());
-        }
-        AggregationTAAReaderSortedWindowForge forge = new AggregationTAAReaderSortedWindowForge(JavaClassHelper.getArrayType(componentType));
-        return new AggregationTableReadDesc(forge, validationSorted.getContainedEventType(), null, null);
     }
 
     public AggregationForgeFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
@@ -81,6 +64,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         }
 
         this.containedType = factory.getContainedEventType();
+        aggregationForgeFactory = factory;
         return factory;
     }
 
@@ -290,6 +274,10 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
 
     public ExprEnumerationEval getExprEvaluatorEnumeration() {
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
+    }
+
+    public AggregationForgeFactory getAggregationForgeFactory() {
+        return aggregationForgeFactory;
     }
 
     private String getErrorPrefix() {

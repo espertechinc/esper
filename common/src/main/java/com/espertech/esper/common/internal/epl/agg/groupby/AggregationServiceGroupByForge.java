@@ -243,6 +243,10 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
         method.getBlock().methodReturn(constantTrue());
     }
 
+    public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        method.getBlock().methodReturn(REF_CURRENTROW);
+    }
+
     private boolean hasRefCounting() {
         return aggGroupByDesc.isRefcounted() || aggGroupByDesc.isReclaimAged();
     }

@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.type;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational;
-import com.espertech.esper.common.internal.collection.HashableMultiKey;
+import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.util.SimpleNumberBigDecimalCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberBigIntegerCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;

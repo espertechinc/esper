@@ -125,8 +125,8 @@ public class SupportAggMFMultiRTHandler implements AggregationMultiFunctionHandl
         throw new UnsupportedOperationException("This implementation does not support tables");
     }
 
-    public AggregationMultiFunctionTableReaderMode getTableReaderMode() {
-        throw new UnsupportedOperationException("Table-column-read not implemented");
+    public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {
+        return null; // not implemented
     }
 
     private static class SupportAggregationStateKey implements AggregationMultiFunctionStateKey {

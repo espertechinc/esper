@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.access.countminsketch;
 
+import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionMethodDesc;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -17,14 +18,17 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleTableInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationValidationUtil;
+import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggMethod;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggType;
-import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionCountMinSketchNode.MSG_NAME;
 
 public class AggregationPortableValidationCountMinSketch implements AggregationPortableValidation {
 
@@ -47,7 +51,7 @@ public class AggregationPortableValidationCountMinSketch implements AggregationP
         if (factory instanceof AggregationForgeFactoryAccessCountMinSketchAdd) {
             AggregationForgeFactoryAccessCountMinSketchAdd add = (AggregationForgeFactoryAccessCountMinSketchAdd) factory;
             CountMinSketchAggType aggType = add.getParent().getAggType();
-            if (aggType == CountMinSketchAggType.FREQ || aggType == CountMinSketchAggType.ADD) {
+            if (aggType == CountMinSketchAggType.ADD) {
                 Class clazz = add.getAddOrFrequencyEvaluatorReturnType();
                 boolean foundMatch = false;
                 for (Class allowed : acceptableValueTypes) {
@@ -69,5 +73,32 @@ public class AggregationPortableValidationCountMinSketch implements AggregationP
                 .exprDotMethod(ref("v"), "setAcceptableValueTypes", constant(acceptableValueTypes))
                 .methodReturn(ref("v"));
         return localMethod(method);
+    }
+
+    public boolean isAggregationMethod(String name, ExprNode[] parameters, ExprValidationContext validationContext) {
+        return CountMinSketchAggMethod.fromNameMayMatch(name) != null;
+    }
+
+    public AggregationMultiFunctionMethodDesc validateAggregationMethod(ExprValidationContext validationContext, String aggMethodName, ExprNode[] params) throws ExprValidationException {
+        CountMinSketchAggMethod aggMethod = CountMinSketchAggMethod.fromNameMayMatch(aggMethodName);
+        AggregationMethodForge forge;
+        if (aggMethod == CountMinSketchAggMethod.FREQ) {
+            if (params.length == 0 || params.length > 1) {
+                throw new ExprValidationException(getMessagePrefix(aggMethod) + "requires a single parameter expression");
+            }
+            ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.AGGPARAM, params, validationContext);
+            ExprNode frequencyEval = params[0];
+            forge = new AgregationMethodCountMinSketchFreqForge(frequencyEval);
+        } else {
+            if (params.length != 0) {
+                throw new ExprValidationException(getMessagePrefix(aggMethod) + "requires a no parameter expressions");
+            }
+            forge = new AgregationMethodCountMinSketchTopKForge();
+        }
+        return new AggregationMultiFunctionMethodDesc(forge, null, null, null);
+    }
+
+    private String getMessagePrefix(CountMinSketchAggMethod aggType) {
+        return MSG_NAME + " aggregation function '" + aggType.getMethodName() + "' ";
     }
 }

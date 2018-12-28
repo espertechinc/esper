@@ -15,7 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationTableAccessAggReaderForge;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationGivenEventForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
@@ -32,7 +32,7 @@ public class ExprTableEvalStrategyFactoryForge {
     private int aggColumnNum = -1;
     private int propertyIndex = -1;
     private ExprEnumerationGivenEventForge optionalEnumEval;
-    private AggregationTableAccessAggReaderForge accessAggStrategy;
+    private AggregationMethodForge aggregationMethod;
 
     public ExprTableEvalStrategyFactoryForge(TableMetaData tableMeta, ExprForge[] optionalGroupKeys) {
         this.tableMeta = tableMeta;
@@ -55,8 +55,8 @@ public class ExprTableEvalStrategyFactoryForge {
         this.aggColumnNum = aggColumnNum;
     }
 
-    public void setAccessAggStrategy(AggregationTableAccessAggReaderForge accessAggStrategy) {
-        this.accessAggStrategy = accessAggStrategy;
+    public void setAggregationMethod(AggregationMethodForge aggregationMethod) {
+        this.aggregationMethod = aggregationMethod;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -69,7 +69,7 @@ public class ExprTableEvalStrategyFactoryForge {
                 .exprDotMethod(ref("factory"), "setAggColumnNum", constant(aggColumnNum))
                 .exprDotMethod(ref("factory"), "setPropertyIndex", constant(propertyIndex))
                 .exprDotMethod(ref("factory"), "setOptionalEnumEval", optionalEnumEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenExprEnumEval(optionalEnumEval, method, symbols, classScope, this.getClass()))
-                .exprDotMethod(ref("factory"), "setAccessAggReader", accessAggStrategy == null ? constantNull() : accessAggStrategy.codegenCreateReader(method, symbols, classScope))
+                .exprDotMethod(ref("factory"), "setAggregationMethod", aggregationMethod == null ? constantNull() : aggregationMethod.codegenCreateReader(method, symbols, classScope))
                 .methodReturn(ref("factory"));
         return localMethod(method);
     }

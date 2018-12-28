@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.client.hook.aggfunc.*;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.plugin.AggregationMethodFactoryPluginMethod;
+import com.espertech.esper.common.internal.epl.agg.method.plugin.AggregationForgeFactoryPlugin;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionUtil;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
@@ -107,7 +107,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprPlug
             throw new ExprValidationException("Aggregation function forge returned an unrecognized mode " + mode);
         }
 
-        return new AggregationMethodFactoryPluginMethod(this, aggregationFunctionForge, mode);
+        return new AggregationForgeFactoryPlugin(this, aggregationFunctionForge, mode);
     }
 
     public String getAggregationFunctionName() {

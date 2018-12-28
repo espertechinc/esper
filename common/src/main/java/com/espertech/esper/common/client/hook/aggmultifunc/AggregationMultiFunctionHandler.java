@@ -125,6 +125,7 @@ public interface AggregationMultiFunctionHandler {
      * Describes to the compiler how it should manage code for providing table column reader.
      *
      * @return mode object
+     * @param ctx
      */
-    AggregationMultiFunctionTableReaderMode getTableReaderMode();
+    AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx);
 }

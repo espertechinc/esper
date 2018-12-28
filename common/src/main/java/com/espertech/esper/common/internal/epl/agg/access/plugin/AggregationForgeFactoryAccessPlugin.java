@@ -79,6 +79,7 @@ public class AggregationForgeFactoryAccessPlugin extends AggregationForgeFactory
 
     public AggregationPortableValidation getAggregationPortableValidation() {
         AggregationPortableValidationPluginMultiFunc portable = new AggregationPortableValidationPluginMultiFunc();
+        portable.setHandler(handler);
         portable.setAggregationFunctionName(parent.getAggregationFunctionName());
         return portable;
     }

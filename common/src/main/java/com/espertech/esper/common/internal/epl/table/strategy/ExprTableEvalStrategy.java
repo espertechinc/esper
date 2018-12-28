@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.table.strategy;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
@@ -26,4 +27,6 @@ public interface ExprTableEvalStrategy {
     Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+
+    AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 }

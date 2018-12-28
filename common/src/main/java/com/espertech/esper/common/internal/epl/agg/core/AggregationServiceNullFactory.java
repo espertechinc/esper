@@ -113,4 +113,8 @@ public class AggregationServiceNullFactory implements AggregationServiceFactory,
 
     public void rowReadMethodCodegen(CodegenMethod method, int level) {
     }
+
+    public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+        method.getBlock().methodThrowUnsupported();
+    }
 }

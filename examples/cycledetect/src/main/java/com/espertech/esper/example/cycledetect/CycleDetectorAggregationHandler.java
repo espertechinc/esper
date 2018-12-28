@@ -67,7 +67,7 @@ public class CycleDetectorAggregationHandler implements AggregationMultiFunction
         throw new UnsupportedOperationException("Not supported with tables");
     }
 
-    public AggregationMultiFunctionTableReaderMode getTableReaderMode() {
+    public AggregationMultiFunctionAggregationMethodMode getAggregationMethodMode(AggregationMultiFunctionAggregationMethodContext ctx) {
         throw new UnsupportedOperationException("Not supported with tables");
     }
 }

@@ -31,9 +31,9 @@ public abstract class AggregationAccessorMinMaxByBase implements AggregationAcce
     public void getEnumerableEventsCodegen(AggregationAccessorForgeGetCodegenContext context) {
         AggregatorAccessSorted forge = (AggregatorAccessSorted) context.getAccessStateForge().getAggregator();
         context.getMethod().getBlock()
-                .declareVar(EventBean.class, "bean", max ? forge.getLastValueCodegen(context.getClassScope(), context.getMethod()) : forge.getFirstValueCodegen(context.getClassScope(), context.getMethod()))
-                .ifRefNullReturnNull("bean")
-                .methodReturn(staticMethod(Collections.class, "singletonList", ref("bean")));
+            .declareVar(EventBean.class, "bean", max ? forge.getLastValueCodegen(context.getClassScope(), context.getMethod()) : forge.getFirstValueCodegen(context.getClassScope(), context.getMethod()))
+            .ifRefNullReturnNull("bean")
+            .methodReturn(staticMethod(Collections.class, "singletonList", ref("bean")));
     }
 
     public void getEnumerableScalarCodegen(AggregationAccessorForgeGetCodegenContext context) {

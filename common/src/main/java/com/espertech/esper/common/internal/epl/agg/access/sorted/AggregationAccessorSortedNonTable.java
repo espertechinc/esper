@@ -38,15 +38,15 @@ public class AggregationAccessorSortedNonTable implements AggregationAccessorFor
         CodegenExpression iterator = max ? sorted.getReverseIteratorCodegen() : sorted.iteratorCodegen();
 
         context.getMethod().getBlock().ifCondition(equalsIdentity(size, constant(0))).blockReturn(constantNull())
-                .declareVar(JavaClassHelper.getArrayType(componentType), "array", newArrayByLength(componentType, size))
-                .declareVar(int.class, "count", constant(0))
-                .declareVar(Iterator.class, "it", iterator)
-                .whileLoop(exprDotMethod(ref("it"), "hasNext"))
-                .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
-                .assignArrayElement(ref("array"), ref("count"), cast(componentType, exprDotUnderlying(ref("bean"))))
-                .increment("count")
-                .blockEnd()
-                .methodReturn(ref("array"));
+            .declareVar(JavaClassHelper.getArrayType(componentType), "array", newArrayByLength(componentType, size))
+            .declareVar(int.class, "count", constant(0))
+            .declareVar(Iterator.class, "it", iterator)
+            .whileLoop(exprDotMethod(ref("it"), "hasNext"))
+            .declareVar(EventBean.class, "bean", cast(EventBean.class, exprDotMethod(ref("it"), "next")))
+            .assignArrayElement(ref("array"), ref("count"), cast(componentType, exprDotUnderlying(ref("bean"))))
+            .increment("count")
+            .blockEnd()
+            .methodReturn(ref("array"));
     }
 
     public void getEnumerableEventsCodegen(AggregationAccessorForgeGetCodegenContext context) {

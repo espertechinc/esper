@@ -28,7 +28,7 @@ public class AggregationAccessorMinMaxByNonTable extends AggregationAccessorMinM
     public void getValueCodegen(AggregationAccessorForgeGetCodegenContext context) {
         AggregatorAccessSorted forge = (AggregatorAccessSorted) context.getAccessStateForge().getAggregator();
         context.getMethod().getBlock().declareVar(EventBean.class, "event", max ? forge.getLastValueCodegen(context.getClassScope(), context.getMethod()) : forge.getFirstValueCodegen(context.getClassScope(), context.getMethod()))
-                .ifRefNullReturnNull("event")
-                .methodReturn(exprDotUnderlying(ref("event")));
+            .ifRefNullReturnNull("event")
+            .methodReturn(exprDotUnderlying(ref("event")));
     }
 }

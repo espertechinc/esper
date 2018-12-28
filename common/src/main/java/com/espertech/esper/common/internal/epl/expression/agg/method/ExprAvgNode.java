@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.avg.AggregationFactoryMethodAvg;
+import com.espertech.esper.common.internal.epl.agg.method.avg.AggregationForgeFactoryAvg;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
@@ -38,7 +38,7 @@ public class ExprAvgNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return new AggregationFactoryMethodAvg(this, childType, validationContext.getClasspathImportService().getDefaultMathContext());
+        return new AggregationForgeFactoryAvg(this, childType, validationContext.getClasspathImportService().getDefaultMathContext());
     }
 
     public String getAggregationFunctionName() {

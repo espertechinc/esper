@@ -132,10 +132,6 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         throw ExprNodeUtilityMake.makeUnsupportedCompileTime();
     }
 
-    public ExprEnumerationGivenEventForge getOptionalPropertyEnumEvaluator() {
-        return optionalPropertyEnumEvaluator;
-    }
-
     protected boolean equalsNodeInternal(ExprTableAccessNode other) {
         ExprTableAccessNodeSubprop that = (ExprTableAccessNodeSubprop) other;
         return subpropName.equals(that.subpropName);

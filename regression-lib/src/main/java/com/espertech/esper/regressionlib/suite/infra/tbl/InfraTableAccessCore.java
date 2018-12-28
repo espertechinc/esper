@@ -146,7 +146,8 @@ public class InfraTableAccessCore {
                 {"varaggESC[p00].theEvents.last(*)", SupportBean.class},
                 {"varaggESC[p00].theEvents.window(*).take(1)", Collection.class},
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            EventType eventType = env.statement("s0").getEventType();
+            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, eventType, SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
             env.undeployAll();
         }
     }

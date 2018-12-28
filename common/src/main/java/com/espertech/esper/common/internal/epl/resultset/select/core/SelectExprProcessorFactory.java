@@ -194,7 +194,7 @@ public class SelectExprProcessorFactory {
             return false;
         }
         ExprDotNode dotNode = (ExprDotNode) selectExpression;
-        if (dotNode.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH).equals(ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE)) {
+        if (!dotNode.getChainSpec().isEmpty() && dotNode.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH).equals(ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE)) {
             return true;
         }
         return false;

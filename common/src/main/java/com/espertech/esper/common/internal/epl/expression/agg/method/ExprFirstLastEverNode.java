@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.firstlastever.AggregationFactoryMethodFirstLastEver;
+import com.espertech.esper.common.internal.epl.agg.method.firstlastever.AggregationForgeFactoryFirstLastEver;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
@@ -52,7 +52,7 @@ public class ExprFirstLastEverNode extends ExprAggregateNodeBase {
         } else {
             resultType = positionalParams[0].getForge().getEvaluationType();
         }
-        return new AggregationFactoryMethodFirstLastEver(this, resultType);
+        return new AggregationForgeFactoryFirstLastEver(this, resultType);
     }
 
     public boolean hasFilter() {

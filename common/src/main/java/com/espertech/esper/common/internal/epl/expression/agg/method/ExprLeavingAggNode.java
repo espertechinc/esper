@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.method;
 
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
-import com.espertech.esper.common.internal.epl.agg.method.leaving.AggregationFactoryMethodLeaving;
+import com.espertech.esper.common.internal.epl.agg.method.leaving.AggregationForgeFactoryLeaving;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
@@ -29,7 +29,7 @@ public class ExprLeavingAggNode extends ExprAggregateNodeBase {
         if (optionalFilter == null && positionalParams.length > 0) {
             throw makeExceptionExpectedParamNum(0, 0);
         }
-        return new AggregationFactoryMethodLeaving(this);
+        return new AggregationForgeFactoryLeaving(this);
     }
 
     public String getAggregationFunctionName() {

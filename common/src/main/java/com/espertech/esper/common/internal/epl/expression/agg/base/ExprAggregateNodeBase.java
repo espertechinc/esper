@@ -37,13 +37,13 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * In terms of evaluation this base class will ask the assigned {@link AggregationResultFuture} for the current state,
  * using a column number assigned to the node.
  * <p>
- * Concrete subclasses must supply an aggregation state prototype node AggregationMethod that reflects
+ * Concrete subclasses must supply an aggregation state prototype node that reflects
  * each group's (there may be group-by critera) current aggregation state.
  */
 public abstract class ExprAggregateNodeBase extends ExprNodeBase implements ExprEvaluator, ExprAggregateNode, ExprForgeInstrumentable {
 
     protected int column = -1;
-    private AggregationForgeFactory aggregationMethodFactory;
+    private AggregationForgeFactory aggregationForgeFactory;
     protected ExprAggregateLocalGroupByDesc optionalAggregateLocalGroupByDesc;
     protected ExprNode optionalFilter;
     protected ExprNode[] positionalParams;
@@ -113,7 +113,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         validatePositionals(validationContext);
-        aggregationMethodFactory = validateAggregationChild(validationContext);
+        aggregationForgeFactory = validateAggregationChild(validationContext);
         if (!validationContext.isAggregationFutureNameAlreadySet()) {
             aggregationResultFutureMemberName = validationContext.getMemberNames().aggregationResultFutureRef();
         } else {
@@ -154,10 +154,10 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
      * @return prototype aggregation state as a factory for aggregation states per group-by key value
      */
     public AggregationForgeFactory getFactory() {
-        if (aggregationMethodFactory == null) {
+        if (aggregationForgeFactory == null) {
             throw new IllegalStateException("Aggregation method has not been set");
         }
-        return aggregationMethodFactory;
+        return aggregationForgeFactory;
     }
 
     public void setColumn(int column) {
@@ -182,10 +182,10 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     }
 
     public Class getEvaluationType() {
-        if (aggregationMethodFactory == null) {
+        if (aggregationForgeFactory == null) {
             throw new IllegalStateException("Aggregation method has not been set");
         }
-        return aggregationMethodFactory.getResultType();
+        return aggregationForgeFactory.getResultType();
     }
 
     public ExprForge getForge() {
@@ -304,7 +304,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return true;
     }
 
-    protected CodegenExpression getAggFuture(CodegenClassScope codegenClassScope) {
+    public CodegenExpression getAggFuture(CodegenClassScope codegenClassScope) {
         return codegenClassScope.getPackageScope().addOrGetFieldWellKnown(aggregationResultFutureMemberName, AggregationResultFuture.class);
     }
 }
