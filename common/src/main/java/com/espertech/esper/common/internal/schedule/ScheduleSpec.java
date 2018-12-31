@@ -249,8 +249,8 @@ public final class ScheduleSpec {
         }
 
         for (ScheduleUnit unit : ScheduleUnit.values()) {
-            if ((unit == ScheduleUnit.SECONDS) && (!unitValues.containsKey(unit))) {
-                // Seconds are optional
+            if ((unit == ScheduleUnit.SECONDS || unit == ScheduleUnit.MILLISECONDS || unit == ScheduleUnit.MICROSECONDS) && (!unitValues.containsKey(unit))) {
+                // Seconds, milliseconds and microseconds are optional
                 continue;
             }
 

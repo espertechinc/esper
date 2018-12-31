@@ -48,7 +48,7 @@ public class TimerAtObserverForge implements ObserverForge, ScheduleHandleCallba
             log.debug(".setObserverParameters " + parameters);
         }
 
-        if ((parameters.size() < 5) || (parameters.size() > 7)) {
+        if ((parameters.size() < 5) || (parameters.size() > 9)) {
             throw new ObserverParameterException("Invalid number of parameters for timer:at");
         }
 

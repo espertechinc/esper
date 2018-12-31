@@ -14,10 +14,10 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import org.junit.Assert;
@@ -40,7 +40,59 @@ public class PatternObserverTimerAt {
         execs.add(new PatternExpression());
         execs.add(new PatternPropertyAndSODAAndTimezone());
         execs.add(new PatternEvery15thMonth());
+        execs.add(new PatternWMilliseconds());
         return execs;
+    }
+
+    private static class PatternWMilliseconds implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runSequenceIsolatedMilliseconds(env, "2013-08-23T08:05:00.000",
+                "select * from pattern [ every timer:at(*, *, *, *, *, *, *, 200) ]",
+                new String[]{
+                    "2013-08-23T08:05:00.200",
+                    "2013-08-23T08:05:01.200",
+                    "2013-08-23T08:05:02.200",
+                    "2013-08-23T08:05:03.200"
+                });
+
+            runSequenceIsolatedMilliseconds(env, "2013-08-23T08:05:00.000",
+                "select * from pattern [ every timer:at(*, *, *, *, *, *, *, [200,201,202,300,500]) ]",
+                new String[]{
+                    "2013-08-23T08:05:00.200",
+                    "2013-08-23T08:05:00.201",
+                    "2013-08-23T08:05:00.202",
+                    "2013-08-23T08:05:00.300",
+                    "2013-08-23T08:05:00.500",
+                    "2013-08-23T08:05:01.200",
+                    "2013-08-23T08:05:01.201",
+                });
+
+            runSequenceIsolatedMilliseconds(env, "2013-08-23T08:05:00.373",
+                "select * from pattern [ every timer:at(*, *, *, *, *, * / 5, *, 0) ]",
+                new String[]{
+                    "2013-08-23T08:05:05.000",
+                    "2013-08-23T08:05:10.000",
+                    "2013-08-23T08:05:15.000",
+                    "2013-08-23T08:05:20.000"
+                });
+
+            runSequenceIsolatedMilliseconds(env, "2013-08-23T08:05:00.373",
+                "select * from pattern [ every timer:at(*, *, *, *, *, * / 5, *, 373) ]",
+                new String[]{
+                    "2013-08-23T08:05:05.373",
+                    "2013-08-23T08:05:10.373",
+                    "2013-08-23T08:05:15.373",
+                    "2013-08-23T08:05:20.373"
+                });
+
+            runSequenceIsolatedMilliseconds(env, "2013-08-23T08:05:00.000",
+                "select * from pattern [ every timer:at(10, 9, *, *, *, 2, *, 373, 0) ]",
+                new String[]{
+                    "2013-08-23T09:10:02.373",
+                    "2013-08-24T09:10:02.373",
+                    "2013-08-25T09:10:02.373"
+                });
+        }
     }
 
     public static class PatternTimerAtSimple implements RegressionExecution {
@@ -599,6 +651,30 @@ public class PatternObserverTimerAt {
 
             // send right-after time
             env.advanceTime(nextLong + 1000);
+            assertTrue("missing callback at " + next, env.listener("s0").getAndClearIsInvoked());
+        }
+    }
+
+    private static void runSequenceIsolatedMilliseconds(RegressionEnvironment env, String startTime, String epl, String[] times) {
+        sendTime(env, startTime);
+
+        env.compileDeploy("@name('s0') " + epl).addListener("s0");
+        runSequenceMilliseconds(env, times);
+
+        env.undeployAll();
+    }
+
+    private static void runSequenceMilliseconds(RegressionEnvironment env, String[] times) {
+        for (String next : times) {
+            // send right-before time
+            long nextLong = DateTime.parseDefaultMSec(next);
+            env.advanceTime(nextLong - 1);
+            // Comment-me-in: System.out.println("Advance to " + DateTime.print(nextLong - 1));
+            assertFalse("unexpected callback at " + next, env.listener("s0").isInvoked());
+
+            // send right-after time
+            env.advanceTime(nextLong);
+            // Comment-me-in: System.out.println("Advance to " + DateTime.print(nextLong));
             assertTrue("missing callback at " + next, env.listener("s0").getAndClearIsInvoked());
         }
     }

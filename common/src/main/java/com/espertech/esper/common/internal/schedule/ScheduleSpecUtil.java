@@ -33,7 +33,7 @@ public class ScheduleSpecUtil {
      * @throws ScheduleParameterException if the parameters are invalid
      */
     public static ScheduleSpec computeValues(Object[] args) throws ScheduleParameterException {
-        if (args.length <= 4 || args.length >= 8) {
+        if (args.length <= 4 || args.length >= 10) {
             throw new ScheduleParameterException(getExpressionCountException(args.length));
         }
         EnumMap<ScheduleUnit, SortedSet<Integer>> unitMap = new EnumMap<ScheduleUnit, SortedSet<Integer>>(ScheduleUnit.class);
@@ -94,6 +94,12 @@ public class ScheduleSpecUtil {
                 }
                 timezone = (String) args[6];
             }
+        }
+        if (args.length > 7) {
+            unitMap.put(ScheduleUnit.MILLISECONDS, computeValues(args[7], ScheduleUnit.MILLISECONDS));
+        }
+        if (args.length > 8) {
+            unitMap.put(ScheduleUnit.MICROSECONDS, computeValues(args[8], ScheduleUnit.MICROSECONDS));
         }
         CronParameter optionalDayOfMonthOp = getOptionalSpecialOp(daysOfMonth);
         CronParameter optionalDayOfWeekOp = getOptionalSpecialOp(daysOfWeek);

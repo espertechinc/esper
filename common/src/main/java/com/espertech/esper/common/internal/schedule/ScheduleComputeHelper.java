@@ -51,7 +51,11 @@ public final class ScheduleComputeHelper {
      */
     public static long computeNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone, TimeAbacus timeAbacus) {
         // Add the minimum resolution to the start time to ensure we don't get the same exact time
-        if (spec.getUnitValues().containsKey(ScheduleUnit.SECONDS)) {
+        if (spec.getUnitValues().containsKey(ScheduleUnit.MICROSECONDS) && timeAbacus.getOneSecond() == 1000000L) {
+            afterTimeInMillis += 1;
+        } else if (spec.getUnitValues().containsKey(ScheduleUnit.MILLISECONDS)) {
+            afterTimeInMillis += timeAbacus.getOneSecond() / 1000;
+        } else if (spec.getUnitValues().containsKey(ScheduleUnit.SECONDS)) {
             afterTimeInMillis += timeAbacus.getOneSecond();
         } else {
             afterTimeInMillis += 60 * timeAbacus.getOneSecond();
@@ -75,7 +79,16 @@ public final class ScheduleComputeHelper {
     }
 
     private static long compute(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone, TimeAbacus timeAbacus) {
-        long remainderMicros = -1;
+        SortedSet<Integer> minutesSet = spec.getUnitValues().get(ScheduleUnit.MINUTES);
+        SortedSet<Integer> hoursSet = spec.getUnitValues().get(ScheduleUnit.HOURS);
+        SortedSet<Integer> monthsSet = spec.getUnitValues().get(ScheduleUnit.MONTHS);
+        boolean isSecondsSpecified = spec.getUnitValues().containsKey(ScheduleUnit.SECONDS);
+        SortedSet<Integer> secondsSet = isSecondsSpecified ? spec.getUnitValues().get(ScheduleUnit.SECONDS) : null;
+        boolean isMillisecondsSpecified = spec.getUnitValues().containsKey(ScheduleUnit.MILLISECONDS);
+        SortedSet<Integer> millisecondsSet = isMillisecondsSpecified ? spec.getUnitValues().get(ScheduleUnit.MILLISECONDS) : null;
+        boolean isMicrosecondsSpecified = spec.getUnitValues().containsKey(ScheduleUnit.MICROSECONDS);
+        SortedSet<Integer> microsecondsSet = isMillisecondsSpecified ? spec.getUnitValues().get(ScheduleUnit.MICROSECONDS) : null;
+
         while (true) {
             Calendar after;
             if (spec.getOptionalTimeZone() != null) {
@@ -84,22 +97,29 @@ public final class ScheduleComputeHelper {
                 after = Calendar.getInstance(timeZone);
             }
             long remainder = timeAbacus.calendarSet(afterTimeInMillis, after);
-            if (remainderMicros == -1) {
-                remainderMicros = remainder;
-            }
 
             ScheduleCalendar result = new ScheduleCalendar();
-            result.setMilliseconds(after.get(Calendar.MILLISECOND));
 
-            SortedSet<Integer> minutesSet = spec.getUnitValues().get(ScheduleUnit.MINUTES);
-            SortedSet<Integer> hoursSet = spec.getUnitValues().get(ScheduleUnit.HOURS);
-            SortedSet<Integer> monthsSet = spec.getUnitValues().get(ScheduleUnit.MONTHS);
-            SortedSet<Integer> secondsSet = null;
-            boolean isSecondsSpecified = false;
+            if (isMicrosecondsSpecified) {
+                long nextValue = nextValue(microsecondsSet, (int) remainder);
+                remainder = nextValue;
+                if (nextValue == -1) {
+                    nextValue = nextValue(microsecondsSet, 0);
+                    remainder = nextValue;
+                    after.add(Calendar.MILLISECOND, 1);
+                }
+            } else {
+                result.setMilliseconds(after.get(Calendar.MILLISECOND));
+            }
 
-            if (spec.getUnitValues().containsKey(ScheduleUnit.SECONDS)) {
-                isSecondsSpecified = true;
-                secondsSet = spec.getUnitValues().get(ScheduleUnit.SECONDS);
+            if (isMillisecondsSpecified) {
+                result.setMilliseconds(nextValue(millisecondsSet, after.get(Calendar.MILLISECOND)));
+                if (result.getMilliseconds() == -1) {
+                    result.setMilliseconds(nextValue(millisecondsSet, 0));
+                    after.add(Calendar.SECOND, 1);
+                }
+            } else {
+                result.setMilliseconds(after.get(Calendar.MILLISECOND));
             }
 
             if (isSecondsSpecified) {
@@ -256,7 +276,7 @@ public final class ScheduleComputeHelper {
 
                 // If the day matches neither the day of month nor the day of week
                 if ((!daysOfWeekSet.contains(dayOfWeek)) &&
-                        (!daysOfMonthSet.contains(dayOfMonth))) {
+                    (!daysOfMonthSet.contains(dayOfMonth))) {
                     result.setSecond(nextValue(secondsSet, 0));
                     result.setMinute(nextValue(minutesSet, 0));
                     result.setHour(nextValue(hoursSet, 0));

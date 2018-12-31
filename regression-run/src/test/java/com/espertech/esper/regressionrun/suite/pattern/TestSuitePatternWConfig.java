@@ -53,6 +53,13 @@ public class TestSuitePatternWConfig extends TestCase {
         session.destroy();
     }
 
+    public void testPatternMicrosecondResolutionCrontab() {
+        RegressionSession session = RegressionRunner.session();
+        session.getConfiguration().getCommon().getTimeSource().setTimeUnit(TimeUnit.MICROSECONDS);
+        RegressionRunner.run(session, new PatternMicrosecondResolutionCrontab());
+        session.destroy();
+    }
+
     public void testPatternObserverTimerScheduleTimeZoneEST() {
         RegressionSession session = RegressionRunner.session();
         session.getConfiguration().getRuntime().getExpression().setTimeZone(TimeZone.getTimeZone("GMT-4:00"));

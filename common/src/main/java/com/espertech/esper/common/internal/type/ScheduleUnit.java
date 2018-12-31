@@ -45,7 +45,17 @@ public enum ScheduleUnit {
     /**
      * Second.
      */
-    SECONDS(0, 59);
+    SECONDS(0, 59),
+
+    /**
+     * Millisecond.
+     */
+    MILLISECONDS(0, 999),
+
+    /**
+     * Microsecond.
+     */
+    MICROSECONDS(0, 999);
 
     private final int min;
     private final int max;
