@@ -12,6 +12,7 @@ package com.espertech.esper.runtime.internal.kernel.updatedispatch;
 
 import com.espertech.esper.common.internal.schedule.TimeSourceService;
 import com.espertech.esper.common.internal.statement.dispatch.Dispatchable;
+import com.espertech.esper.common.internal.statement.dispatch.UpdateDispatchView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +81,20 @@ public class UpdateDispatchFutureSpin implements Dispatchable {
         }
 
         view.execute();
-        isCompleted = true;
 
+        completed();
+    }
+
+    public UpdateDispatchView getView() {
+        return view;
+    }
+
+    public void cancelled() {
+        completed();
+    }
+
+    private void completed() {
+        isCompleted = true;
         earlier = null;
     }
 }

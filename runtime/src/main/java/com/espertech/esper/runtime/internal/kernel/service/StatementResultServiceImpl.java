@@ -141,7 +141,7 @@ public class StatementResultServiceImpl implements StatementResultService {
 
         try {
             statementResultNaturalStrategy = ResultDeliveryStrategyFactory.create(epStatement, statementListenerSet.getSubscriber(), statementListenerSet.getSubscriberMethodName(),
-                    selectClauseTypes, selectClauseColumnNames, runtime.getURI(), runtime.getServicesContext().getClasspathImportServiceRuntime());
+                selectClauseTypes, selectClauseColumnNames, runtime.getURI(), runtime.getServicesContext().getClasspathImportServiceRuntime());
             isMakeNatural = true;
         } catch (ResultDeliveryStrategyInvalidException ex) {
             throw new EPSubscriberException(ex.getMessage(), ex);
@@ -235,6 +235,37 @@ public class StatementResultServiceImpl implements StatementResultService {
         }
     }
 
+    public void clearDeliveriesRemoveStream(EventBean[] removedEvents) {
+        StatementDispatchTLEntry entry = getDispatchTL().get();
+        Iterator<UniformPair<EventBean[]>> it = entry.getResults().iterator();
+        while (it.hasNext()) {
+            UniformPair<EventBean[]> pair = it.next();
+            if (pair.getSecond() == null) {
+                continue;
+            }
+            boolean containsDeleted = false;
+            for (EventBean removedEvent : removedEvents) {
+                for (EventBean dispatchEvent : pair.getSecond()) {
+                    if (removedEvent == dispatchEvent) {
+                        containsDeleted = true;
+                        break;
+                    }
+                }
+                if (containsDeleted) {
+                    break;
+                }
+            }
+            if (containsDeleted) {
+                it.remove();
+            }
+        }
+        if (!entry.getResults().isEmpty()) {
+            return;
+        }
+        entry.setDispatchWaiting(false);
+        epServicesContext.getDispatchService().removeAll(epStatement.getDispatchChildView());
+    }
+
     public EPServicesContext getEpServicesContext() {
         return epServicesContext;
     }
@@ -304,7 +335,7 @@ public class StatementResultServiceImpl implements StatementResultService {
                 listener.update(newEventArr, oldEventArr, epStatement, runtime);
             } catch (Throwable t) {
                 String message = "Unexpected exception invoking listener update method on listener class '" + listener.getClass().getSimpleName() +
-                        "' : " + t.getClass().getSimpleName() + " : " + t.getMessage();
+                    "' : " + t.getClass().getSimpleName() + " : " + t.getMessage();
                 log.error(message, t);
             }
         }

@@ -14,10 +14,11 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanTwo;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.util.SupportInfraUtil;
@@ -41,7 +42,86 @@ public class InfraNamedWindowOnDelete {
         execs.add(new InfraCoercionKeyMultiPropIndexes());
         execs.add(new InfraCoercionRangeMultiPropIndexes());
         execs.add(new InfraCoercionKeyAndRangeMultiPropIndexes());
+        execs.add(new InfraNamedWindowSilentDeleteOnDelete());
+        execs.add(new InfraNamedWindowSilentDeleteOnDeleteMany());
         return execs;
+    }
+
+    private static class InfraNamedWindowSilentDeleteOnDeleteMany implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                    "@name('create') create window MyWindow#groupwin(theString)#length(2) as SupportBean;\n" +
+                    "insert into MyWindow select * from SupportBean;\n" +
+                    "@name('delete') @hint('silent_delete') on SupportBean_S0 delete from MyWindow;\n" +
+                    "@name('count') select count(*) as cnt from MyWindow;\n";
+            env.compileDeploy(epl).addListener("create").addListener("delete").addListener("count");
+
+            env.sendEventBean(new SupportBean("A", 1));
+            env.sendEventBean(new SupportBean("A", 2));
+            env.sendEventBean(new SupportBean("B", 3));
+            env.sendEventBean(new SupportBean("B", 4));
+
+            assertEquals(4L, env.listener("count").getAndResetDataListsFlattened().getFirst()[3].get("cnt"));
+            env.listener("create").reset();
+
+            env.sendEventBean(new SupportBean_S0(0));
+            assertEquals(0L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            EPAssertionUtil.assertPropsPerRow(env.listener("delete").getAndResetLastNewData(), "theString,intPrimitive".split(","), new Object[][] {
+                new Object[] {"A", 1}, new Object[] {"A", 2}, new Object[] {"B", 3}, new Object[] {"B", 4}
+            });
+            assertFalse(env.listener("create").isInvoked());
+
+            env.undeployAll();
+        }
+    }
+
+    private static class InfraNamedWindowSilentDeleteOnDelete implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "@name('create') create window MyWindow#length(2) as SupportBean;\n" +
+                "insert into MyWindow select * from SupportBean;\n" +
+                "@name('delete') @hint('silent_delete') on SupportBean_S0 delete from MyWindow where p00 = theString;\n" +
+                "@name('count') select count(*) as cnt from MyWindow;\n";
+            env.compileDeploy(epl).addListener("create").addListener("delete").addListener("count");
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            assertEquals(1L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            assertEquals("E1", env.listener("create").assertOneGetNewAndReset().get("theString"));
+
+            env.sendEventBean(new SupportBean_S0(0, "E1"));
+            assertEquals(0L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            assertEquals("E1", env.listener("delete").assertOneGetNewAndReset().get("theString"));
+            assertFalse(env.listener("create").isInvoked());
+
+            env.sendEventBean(new SupportBean("E2", 2));
+            assertEquals(1L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            assertEquals("E2", env.listener("create").assertOneGetNewAndReset().get("theString"));
+
+            env.sendEventBean(new SupportBean("E3", 3));
+            assertEquals(2L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            assertEquals("E3", env.listener("create").assertOneGetNewAndReset().get("theString"));
+
+            env.sendEventBean(new SupportBean("E4", 4));
+            assertEquals(2L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            EPAssertionUtil.assertProps(env.listener("create").assertPairGetIRAndReset(), "theString".split(","), new Object[] {"E4"}, new Object[] {"E2"});
+
+            env.sendEventBean(new SupportBean_S0(0, "E4"));
+            assertEquals(1L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            assertEquals("E4", env.listener("delete").assertOneGetNewAndReset().get("theString"));
+            assertFalse(env.listener("create").isInvoked());
+
+            env.sendEventBean(new SupportBean_S0(0, "E3"));
+            assertEquals(0L, env.listener("count").assertOneGetNewAndReset().get("cnt"));
+            assertEquals("E3", env.listener("delete").assertOneGetNewAndReset().get("theString"));
+            assertFalse(env.listener("create").isInvoked());
+
+            env.sendEventBean(new SupportBean_S0(0, "EX"));
+            assertFalse(env.listener("count").isInvoked());
+            assertFalse(env.listener("delete").isInvoked());
+            assertFalse(env.listener("create").isInvoked());
+
+            env.undeployAll();
+        }
     }
 
     private static class InfraFirstUnique implements RegressionExecution {

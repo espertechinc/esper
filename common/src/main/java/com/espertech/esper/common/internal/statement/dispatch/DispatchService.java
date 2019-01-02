@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.statement.dispatch;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 
 /**
  * Implements dispatch service using a thread-local linked list of Dispatchable instances.
@@ -46,6 +47,18 @@ public class DispatchService {
                 next.execute();
             } else {
                 break;
+            }
+        }
+    }
+
+    public void removeAll(UpdateDispatchView updateDispatchView) {
+        ArrayDeque<Dispatchable> dispatchables = dispatchStateThreadLocal.get();
+        Iterator<Dispatchable> it = dispatchables.descendingIterator();
+        while (it.hasNext()) {
+            Dispatchable dispatchable = it.next();
+            if (dispatchable.getView() == updateDispatchView) {
+                it.remove();
+                dispatchable.cancelled();
             }
         }
     }

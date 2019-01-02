@@ -110,7 +110,12 @@ public enum HintEnum {
     /**
      * For use with output rate limiting.
      */
-    DISABLE_OUTPUTLIMIT_OPT("DISABLE_OUTPUTLIMIT_OPT", false, false, false);
+    DISABLE_OUTPUTLIMIT_OPT("DISABLE_OUTPUTLIMIT_OPT", false, false, false),
+
+    /**
+     * For use with named window to silent-delete.
+     */
+    SILENT_DELETE("SILENT_DELETE", false, false, false);
 
     private final String value;
     private final boolean acceptsParameters;

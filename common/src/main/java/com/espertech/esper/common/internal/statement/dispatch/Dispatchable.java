@@ -17,5 +17,9 @@ public interface Dispatchable {
     /**
      * Execute dispatch.
      */
-    public void execute();
+    void execute();
+
+    UpdateDispatchView getView();
+
+    void cancelled();
 }

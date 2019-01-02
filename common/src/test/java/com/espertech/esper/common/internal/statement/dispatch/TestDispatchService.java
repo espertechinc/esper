@@ -93,5 +93,13 @@ public class TestDispatchService extends TestCase {
             instanceList = new LinkedList<SupportDispatchable>();
             return instances;
         }
+
+        public UpdateDispatchView getView() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void cancelled() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

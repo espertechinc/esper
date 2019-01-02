@@ -12,6 +12,7 @@ package com.espertech.esper.runtime.internal.kernel.updatedispatch;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.StatementDispatchTLEntry;
 import com.espertech.esper.common.internal.context.util.StatementResultService;
 import com.espertech.esper.common.internal.statement.dispatch.DispatchService;
@@ -79,5 +80,21 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
 
     public StatementResultService getStatementResultService() {
         return statementResultService;
+    }
+
+    public UpdateDispatchView getView() {
+        return this;
+    }
+
+    public void newResult(UniformPair<EventBean[]> result) {
+
+    }
+
+    public void update(EventBean[] newData, EventBean[] oldData) {
+
+    }
+
+    public void cancelled() {
+        clear();
     }
 }

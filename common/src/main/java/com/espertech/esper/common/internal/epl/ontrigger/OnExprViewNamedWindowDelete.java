@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.ontrigger;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementResultService;
@@ -25,8 +26,11 @@ import java.util.Iterator;
  * View for the on-delete statement that handles removing events from a named window.
  */
 public class OnExprViewNamedWindowDelete extends OnExprViewNameWindowBase {
+    private final boolean silentDelete;
+
     public OnExprViewNamedWindowDelete(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance rootView, AgentInstanceContext agentInstanceContext) {
         super(lookupStrategy, rootView, agentInstanceContext);
+        silentDelete = HintEnum.SILENT_DELETE.getHint(agentInstanceContext.getAnnotations()) != null;
     }
 
     public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
@@ -35,6 +39,10 @@ public class OnExprViewNamedWindowDelete extends OnExprViewNameWindowBase {
         if ((matchingEvents != null) && (matchingEvents.length > 0)) {
             // Events to delete are indicated via old data
             this.rootView.update(null, matchingEvents);
+
+            if (silentDelete) {
+                this.rootView.clearDeliveriesRemoveStream(matchingEvents);
+            }
 
             StatementResultService statementResultService = agentInstanceContext.getStatementResultService();
             // The on-delete listeners receive the events deleted, but only if there is interest

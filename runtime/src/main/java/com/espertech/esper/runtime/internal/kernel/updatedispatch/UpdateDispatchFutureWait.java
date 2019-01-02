@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.kernel.updatedispatch;
 
 import com.espertech.esper.common.internal.statement.dispatch.Dispatchable;
+import com.espertech.esper.common.internal.statement.dispatch.UpdateDispatchView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +82,20 @@ public class UpdateDispatchFutureWait implements Dispatchable {
         }
 
         view.execute();
-        isCompleted = true;
 
+        completed();
+    }
+
+    public UpdateDispatchView getView() {
+        return view;
+    }
+
+    public void cancelled() {
+        completed();
+    }
+
+    private void completed() {
+        isCompleted = true;
         if (later != null) {
             synchronized (later) {
                 later.notify();

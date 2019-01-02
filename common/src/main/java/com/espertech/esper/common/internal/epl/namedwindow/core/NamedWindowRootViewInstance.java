@@ -192,4 +192,8 @@ public class NamedWindowRootViewInstance extends ViewSupport {
         }
         return (VirtualDWView) child;
     }
+
+    public void clearDeliveriesRemoveStream(EventBean[] removedEvents) {
+        agentInstanceContext.getStatementResultService().clearDeliveriesRemoveStream(removedEvents);
+    }
 }

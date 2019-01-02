@@ -29,4 +29,6 @@ public interface StatementResultService {
     boolean isMakeSynthetic();
 
     boolean isMakeNatural();
+
+    void clearDeliveriesRemoveStream(EventBean[] removedEvents);
 }
