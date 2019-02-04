@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
@@ -195,7 +196,13 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
             fieldNames[i] = name;
             try {
                 if (!(groupedEventType.isProperty(name))) {
-                    parentContainsMergeKeys = false;
+                    // for ident-nodes we also use the unresolved name as that has the unescaped property name
+                    if (criteriaExpressions[i] instanceof ExprIdentNode) {
+                        ExprIdentNode identNode = (ExprIdentNode) criteriaExpressions[i];
+                        if (!(groupedEventType.isProperty(identNode.getUnresolvedPropertyName()))) {
+                            parentContainsMergeKeys = false;
+                        }
+                    }
                 }
             } catch (PropertyAccessException ex) {
                 // expected

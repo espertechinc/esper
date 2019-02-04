@@ -53,7 +53,21 @@ public class ViewGroup {
         execs.add(new ViewGroupTimeWin());
         execs.add(new ViewGroupExpressionGrouped());
         execs.add(new ViewGroupExpressionBatch());
+        execs.add(new ViewGroupEscapedPropertyText());
         return execs;
+    }
+
+    private static class ViewGroupEscapedPropertyText implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create schema event as " + EventWithTags.class.getName() + ";\n" +
+                "\n" +
+                "insert into stream1\n" +
+                "select name, tags from event;\n" +
+                "\n" +
+                "select name, tags('a\\.b') from stream1.std:groupwin(name, tags('a\\.b')).win:length(10)\n" +
+                "having count(1) >= 5;\n";
+            env.compileDeploy(epl).undeployAll();
+        }
     }
 
     private static class ViewGroupInvalid implements RegressionExecution {
@@ -987,4 +1001,24 @@ public class ViewGroup {
         return new SupportMarketDataBean(symbol, price, 0L, null);
     }
 
+    public static class EventWithTags {
+        private String name;
+        private Map<String, String> tags;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Map<String, String> getTags() {
+            return tags;
+        }
+
+        public void setTags(Map<String, String> tags) {
+            this.tags = tags;
+        }
+    }
 }

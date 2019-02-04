@@ -542,7 +542,7 @@ public class WrapperEventType implements EventTypeSPI {
     private void checkForRepeatedPropertyNames(EventType eventType, Map<String, Object> properties) {
         for (String property : eventType.getPropertyNames()) {
             if (properties.keySet().contains(property)) {
-                throw new EPException("Property " + property + " occurs in both the underlying event and in the additional properties");
+                throw new EPException("Property '" + property + "' occurs in both the underlying event and in the additional properties");
             }
         }
     }
