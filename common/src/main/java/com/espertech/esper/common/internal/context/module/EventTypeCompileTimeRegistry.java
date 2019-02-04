@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.context.module;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepository;
 
 import java.util.Collection;
@@ -28,7 +30,13 @@ public class EventTypeCompileTimeRegistry {
         this.eventTypeRepositoryPreconfigured = eventTypeRepositoryPreconfigured;
     }
 
-    public void newType(EventType type) {
+    public void newType(EventType type)  {
+        try {
+            EventTypeUtility.validateModifiers(type.getName(), type.getMetadata().getBusModifier(), type.getMetadata().getAccessModifier());
+        } catch (ExprValidationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+
         if (type.getMetadata().getAccessModifier() == NameAccessModifier.PRECONFIGURED) {
             if (type.getMetadata().getApplicationType() != EventTypeApplicationType.XML) {
                 throw new IllegalArgumentException("Preconfigured-visibility is not allowed here");

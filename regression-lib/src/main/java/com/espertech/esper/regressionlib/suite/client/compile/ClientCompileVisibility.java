@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.client.compile;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerPath;
@@ -22,12 +23,14 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.runtime.client.EPDeployment;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
@@ -67,7 +70,29 @@ public class ClientCompileVisibility {
         execs.add(new ClientVisibilityAnnotationInvalid());
         execs.add(new ClientVisibilityAmbiguousTwoPath());
         execs.add(new ClientVisibilityDisambiguateWithUses());
+        execs.add(new ClientVisibilityBusRequiresPublic());
         return execs;
+    }
+
+    private static class ClientVisibilityBusRequiresPublic implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String message = "Event type 'ABC' with bus-visibility requires the public access modifier for the event type";
+            tryInvalidCompile(env, "@Private @BusEventType create schema ABC()", message);
+            tryInvalidCompile(env, "@BusEventType create schema ABC()", message);
+
+            tryInvalidCompileWConfigure(config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
+                "@private create schema ABC()", message);
+            tryInvalidCompileWConfigure(config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
+                "@protected create schema ABC()", message);
+
+            for (NameAccessModifier modifier : new NameAccessModifier[] {NameAccessModifier.PROTECTED, NameAccessModifier.PRIVATE}) {
+                tryInvalidCompileWConfigure(config -> {
+                        config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS);
+                        config.getCompiler().getByteCode().setAccessModifierEventType(modifier);
+                    },
+                    "create schema ABC()", message);
+            }
+        }
     }
 
     private static class ClientVisibilityDisambiguateWithUses implements RegressionExecution {
@@ -147,12 +172,6 @@ public class ClientCompileVisibility {
             env.sendEventMap(Collections.emptyMap(), "MyEvent");
             assertTrue(env.listener("s0").isInvoked());
             env.undeployAll();
-
-            env.compile("@protected @BusEventType create schema MyEvent(p0 string)");
-
-            String message = "Event type 'MyEvent' with bus-visibility requires protected or public access modifiers";
-            tryInvalidCompile(env, "@Private @BusEventType create schema MyEvent(p0 string)", message);
-            tryInvalidCompile(env, "@BusEventType create schema MyEvent(p0 string)", message);
         }
     }
 
@@ -344,5 +363,17 @@ public class ClientCompileVisibility {
         assertEquals("abc", deployed.getModuleName()); // Option-provided module-name wins
 
         env.undeployAll();
+    }
+
+    private static void tryInvalidCompileWConfigure(Consumer<Configuration> configurer, String epl, String message) {
+        try {
+            Configuration configuration = new Configuration();
+            configurer.accept(configuration);
+            CompilerArguments args = new CompilerArguments(configuration);
+            EPCompilerProvider.getCompiler().compile(epl, args);
+        }
+        catch (EPCompileException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, message);
+        }
     }
 }

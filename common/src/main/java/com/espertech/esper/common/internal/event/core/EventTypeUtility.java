@@ -1466,8 +1466,11 @@ public class EventTypeUtility {
     }
 
     public static void validateModifiers(String eventTypeName, EventTypeBusModifier eventBusVisibility, NameAccessModifier nameAccessModifier) throws ExprValidationException {
-        if (nameAccessModifier.isPrivateOrTransient() && eventBusVisibility == EventTypeBusModifier.BUS) {
-            throw new ExprValidationException("Event type '" + eventTypeName + "' with bus-visibility requires protected or public access modifiers");
+        if (eventBusVisibility != EventTypeBusModifier.BUS) {
+            return;
+        }
+        if (nameAccessModifier != NameAccessModifier.PRECONFIGURED && nameAccessModifier != NameAccessModifier.PUBLIC) {
+            throw new ExprValidationException("Event type '" + eventTypeName + "' with bus-visibility requires the public access modifier for the event type");
         }
     }
 

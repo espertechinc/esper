@@ -405,10 +405,13 @@ public class ExprDotNodeUtility {
                 currentTarget = refname;
                 currentTargetType = reftype;
                 if (!reftype.isPrimitive()) {
-                    block.ifRefNull(refname)
+                    CodegenBlock ifBlock = block.ifRefNull(refname)
                             .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
                     if (lastType != void.class) {
-                        block.blockReturn(constantNull());
+                        ifBlock.blockReturn(constantNull());
+                    }
+                    else {
+                        ifBlock.blockEnd();
                     }
                 }
                 block.apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, ref(refname)));
