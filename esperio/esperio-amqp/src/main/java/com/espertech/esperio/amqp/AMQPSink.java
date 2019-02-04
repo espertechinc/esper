@@ -104,6 +104,10 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
                 }
                 holder = new ObjectToAMQPCollectorContext(new AMQPEmitter() {
                     public void send(byte[] bytes) {
+                        if (settings.isLogMessages() && log.isDebugEnabled()) {
+                            log.debug("Sending " + bytes.length + " bytes, exchange " + settings.getExchange() + ", key " + settings.getRoutingKey());
+                        }
+
                         try {
                             channel.basicPublish(settings.getExchange(), settings.getRoutingKey(), null, bytes);
                         } catch (IOException e) {
@@ -114,6 +118,10 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
                     }
 
                     public void send(byte[] bytes, Map<String, Object> headers) {
+                        if (settings.isLogMessages() && log.isDebugEnabled()) {
+                            log.debug("Sending " + bytes.length + " bytes, exchange " + settings.getExchange() + ", key " + settings.getRoutingKey());
+                        }
+
                         try {
                             Builder builder = new Builder();
                             channel.basicPublish(settings.getExchange(), settings.getRoutingKey(), builder.headers(headers).build(), bytes);
@@ -131,6 +139,10 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
                 }
                 holder = new ObjectToAMQPCollectorContext(new AMQPEmitter() {
                     public void send(byte[] bytes) {
+                        if (settings.isLogMessages() && log.isDebugEnabled()) {
+                            log.debug("Sending " + bytes.length + " bytes, queue " + settings.getQueueName());
+                        }
+
                         try {
                             channel.basicPublish("", settings.getQueueName(), null, bytes);
                         } catch (IOException e) {
@@ -141,6 +153,10 @@ public class AMQPSink implements DataFlowOperator, DataFlowOperatorLifecycle {
                     }
 
                     public void send(byte[] bytes, Map<String, Object> headers) {
+                        if (settings.isLogMessages() && log.isDebugEnabled()) {
+                            log.debug("Sending " + bytes.length + " bytes, queue " + settings.getQueueName());
+                        }
+
                         try {
                             Builder builder = new Builder();
                             channel.basicPublish("", settings.getQueueName(), builder.headers(headers).build(), bytes);
