@@ -1087,7 +1087,14 @@ public class ResultSetProcessorRowPerGroupImpl {
                         .declareVar(EventBean[].class, "sorted", exprDotMethod(REF_ORDERBYPROCESSOR, "sortTwoKeys", ref("newKeyEvent"), ref("newSortKey"), ref("oldKeyEvent"), ref("oldSortKey")))
                         .methodReturn(newInstance(UniformPair.class, ref("sorted"), constantNull()));
             } else {
-                methodNode.getBlock().methodReturn(newInstance(UniformPair.class, newArrayWithInit(EventBean.class, ref("newKeyEvent"), ref("oldKeyEvent")), constantNull()));
+                methodNode.getBlock()
+                    .ifCondition(and(notEqualsNull(ref("newKeyEvent")), notEqualsNull(ref("oldKeyEvent"))))
+                    .blockReturn(newInstance(UniformPair.class, newArrayWithInit(EventBean.class, ref("newKeyEvent"), ref("oldKeyEvent")), constantNull()))
+                    .ifCondition(notEqualsNull(ref("newKeyEvent")))
+                    .blockReturn(newInstance(UniformPair.class, newArrayWithInit(EventBean.class, ref("newKeyEvent")), constantNull()))
+                    .ifCondition(notEqualsNull(ref("oldKeyEvent")))
+                    .blockReturn(newInstance(UniformPair.class, newArrayWithInit(EventBean.class, ref("oldKeyEvent")), constantNull()))
+                    .methodReturn(constantNull());
             }
         };
 

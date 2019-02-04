@@ -11,9 +11,10 @@
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
@@ -33,7 +34,26 @@ public class ResultSetQueryTypeRowPerGroupHaving {
         execs.add(new ResultSetQueryTypeHavingCount());
         execs.add(new ResultSetQueryTypeSumJoin());
         execs.add(new ResultSetQueryTypeSumOneView());
+        execs.add(new ResultSetQueryTypeRowPerGroupBatch());
         return execs;
+    }
+
+    private static class ResultSetQueryTypeRowPerGroupBatch implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            env.compileDeploy("@name('s0') select count(*) as y from SupportBean#time_batch(1 seconds) group by theString having count(*) > 0");
+            env.addListener("s0");
+
+            env.sendEventBean(new SupportBean("E1", 0));
+            env.advanceTime(1000);
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "y".split(","), new Object[] {1L});
+
+            env.sendEventBean(new SupportBean("E2", 0));
+            env.advanceTime(2000);
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "y".split(","), new Object[] {1L});
+
+            env.undeployAll();
+        }
     }
 
     private static class ResultSetQueryTypeHavingCount implements RegressionExecution {
