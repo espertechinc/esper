@@ -375,8 +375,10 @@ public class ExprDotNodeUtility {
         Class currentTargetType;
         if (optionalResultWrapLambda != null) {
             currentTargetType = EPTypeHelper.getCodegenReturnType(optionalResultWrapLambda.getTypeInfo());
-            block.ifRefNullReturnNull("inner")
-                    .declareVar(currentTargetType, "wrapped", optionalResultWrapLambda.codegenConvertNonNull(ref("inner"), methodNode, codegenClassScope));
+            if (lastType != void.class) {
+                block.ifRefNullReturnNull("inner");
+            }
+            block.declareVar(currentTargetType, "wrapped", optionalResultWrapLambda.codegenConvertNonNull(ref("inner"), methodNode, codegenClassScope));
         } else {
             block.declareVar(innerType, "wrapped", ref("inner"));
             currentTargetType = innerType;
@@ -404,8 +406,10 @@ public class ExprDotNodeUtility {
                 currentTargetType = reftype;
                 if (!reftype.isPrimitive()) {
                     block.ifRefNull(refname)
-                            .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()))
-                            .blockReturn(constantNull());
+                            .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
+                    if (lastType != void.class) {
+                        block.blockReturn(constantNull());
+                    }
                 }
                 block.apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, ref(refname)));
             }

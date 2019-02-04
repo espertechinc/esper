@@ -102,7 +102,7 @@ public class TestSuiteExprDateTime extends TestCase {
     }
 
     public void testExprDTToDateCalMSec() {
-        RegressionRunner.run(session, new ExprDTToDateCalMSec());
+        RegressionRunner.run(session, ExprDTToDateCalMSec.executions());
     }
 
     public void testExprDTWithDate() {
