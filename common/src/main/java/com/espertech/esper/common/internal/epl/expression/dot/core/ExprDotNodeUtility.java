@@ -166,13 +166,13 @@ public class ExprDotNodeUtility {
     }
 
     public static ExprDotNodeRealizedChain getChainEvaluators(
-            Integer streamOfProviderIfApplicable,
-            EPType inputType,
-            List<ExprChainedSpec> chainSpec,
-            ExprValidationContext validationContext,
-            boolean isDuckTyping,
-            ExprDotNodeFilterAnalyzerInput inputDesc)
-            throws ExprValidationException {
+        Integer streamOfProviderIfApplicable,
+        EPType inputType,
+        List<ExprChainedSpec> chainSpec,
+        ExprValidationContext validationContext,
+        boolean isDuckTyping,
+        ExprDotNodeFilterAnalyzerInput inputDesc)
+        throws ExprValidationException {
         List<ExprDotForge> methodForges = new ArrayList<>();
         EPType currentInputType = inputType;
         EnumMethodEnum lastLambdaFunc = null;
@@ -293,7 +293,7 @@ public class ExprDotNodeUtility {
             }
 
             String message = "Could not find event property or method named '" +
-                    chainElement.getName() + "' in " + EPTypeHelper.toTypeDescriptive(currentInputType);
+                chainElement.getName() + "' in " + EPTypeHelper.toTypeDescriptive(currentInputType);
             throw new ExprValidationException(message);
         }
 
@@ -399,18 +399,17 @@ public class ExprDotNodeUtility {
             Class reftype = EPTypeHelper.getCodegenReturnType(forges[i].getTypeInfo());
             if (reftype == void.class) {
                 block.expression(forges[i].codegen(ref(currentTarget), currentTargetType, methodNode, exprSymbol, codegenClassScope))
-                        .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
+                    .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
             } else {
                 block.declareVar(reftype, refname, forges[i].codegen(ref(currentTarget), currentTargetType, methodNode, exprSymbol, codegenClassScope));
                 currentTarget = refname;
                 currentTargetType = reftype;
                 if (!reftype.isPrimitive()) {
                     CodegenBlock ifBlock = block.ifRefNull(refname)
-                            .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
+                        .apply(instblock(codegenClassScope, "aExprDotChainElement", typeInformation, constantNull()));
                     if (lastType != void.class) {
                         ifBlock.blockReturn(constantNull());
-                    }
-                    else {
+                    } else {
                         ifBlock.blockEnd();
                     }
                 }
@@ -426,7 +425,7 @@ public class ExprDotNodeUtility {
     }
 
     private static ExprNodeUtilMethodDesc getValidateMethodDescriptor(Class methodTarget, final String methodName, List<ExprNode> parameters, ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         ExprNodeUtilResolveExceptionHandler exceptionHandler = new ExprNodeUtilResolveExceptionHandler() {
             public ExprValidationException handle(Exception e) {
                 return new ExprValidationException("Failed to resolve method '" + methodName + "': " + e.getMessage(), e);
@@ -434,6 +433,6 @@ public class ExprDotNodeUtility {
         };
         EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
         return ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(methodTarget.getName(), methodTarget, methodName, parameters,
-                wildcardType != null, wildcardType, exceptionHandler, methodName, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+            wildcardType != null, wildcardType, exceptionHandler, methodName, validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
     }
 }
