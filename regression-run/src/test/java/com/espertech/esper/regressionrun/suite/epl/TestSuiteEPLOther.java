@@ -144,6 +144,10 @@ public class TestSuiteEPLOther extends TestCase {
         RegressionRunner.run(session, EPLOtherPatternQueries.executions());
     }
 
+    public void testEPLOtherNestedClass() {
+        RegressionRunner.run(session, EPLOtherNestedClass.executions());
+    }
+
     private static void configure(Configuration configuration) {
         configuration.getCommon().addEventType("ObjectEvent", Object.class);
 
