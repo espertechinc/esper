@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerPath;
 import com.espertech.esper.compiler.client.EPCompileException;
@@ -22,7 +23,6 @@ import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.runtime.client.EPDeployment;
@@ -85,11 +85,11 @@ public class ClientCompileVisibility {
             tryInvalidCompileWConfigure(config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
                 "@protected create schema ABC()", message);
 
-            for (NameAccessModifier modifier : new NameAccessModifier[] {NameAccessModifier.PROTECTED, NameAccessModifier.PRIVATE}) {
+            for (NameAccessModifier modifier : new NameAccessModifier[]{NameAccessModifier.PROTECTED, NameAccessModifier.PRIVATE}) {
                 tryInvalidCompileWConfigure(config -> {
-                        config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS);
-                        config.getCompiler().getByteCode().setAccessModifierEventType(modifier);
-                    },
+                    config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS);
+                    config.getCompiler().getByteCode().setAccessModifierEventType(modifier);
+                },
                     "create schema ABC()", message);
             }
         }
@@ -371,8 +371,7 @@ public class ClientCompileVisibility {
             configurer.accept(configuration);
             CompilerArguments args = new CompilerArguments(configuration);
             EPCompilerProvider.getCompiler().compile(epl, args);
-        }
-        catch (EPCompileException ex) {
+        } catch (EPCompileException ex) {
             SupportMessageAssertUtil.assertMessage(ex, message);
         }
     }
