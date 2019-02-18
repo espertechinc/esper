@@ -18,6 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.espertech.esper.compiler.internal.util.CompilerVersion.COMPILER_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -33,7 +34,7 @@ public class ClientCompileOutput {
             EPCompiled compiled = env.compile("select * from SupportBean");
 
             EPCompiledManifest manifest = compiled.getManifest();
-            assertEquals("8.1.0", manifest.getCompilerVersion());
+            assertEquals(COMPILER_VERSION, manifest.getCompilerVersion());
             assertNotNull(manifest.getModuleProviderClassName());
         }
     }

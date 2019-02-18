@@ -8,8 +8,29 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.util;
+package com.espertech.esper.runtime.client;
 
-public class Version {
-    public static final String VERSION = "8.1.0";
+/**
+ * Deploy exception to indicate that the compiler version mismatches
+ */
+public class EPDeployDeploymentVersionException extends EPDeployException {
+
+    /**
+     * Ctor.
+     *
+     * @param message message
+     * @param ex exception
+     */
+    public EPDeployDeploymentVersionException(String message, Exception ex) {
+        super(message, ex);
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param message message
+     */
+    public EPDeployDeploymentVersionException(String message) {
+        super(message);
+    }
 }

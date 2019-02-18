@@ -53,7 +53,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.compiler.internal.util.CompilerHelperModuleProvider.makeInitEventTypes;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperStatementProvider.getNameFromAnnotation;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator.verifySubstitutionParams;
-import static com.espertech.esper.compiler.internal.util.Version.COMPILER_VERSION;
+import static com.espertech.esper.compiler.internal.util.CompilerVersion.COMPILER_VERSION;
 
 public class CompilerHelperFAFProvider {
     private final static String MEMBERNAME_QUERY_METHOD_PROVIDER = "provider";

@@ -250,7 +250,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
      * @param startTime optional start time
      */
     protected void doInitialize(Long startTime) {
-        log.info("Initializing runtime URI '" + runtimeURI + "' version " + RuntimeVersion.VERSION);
+        log.info("Initializing runtime URI '" + runtimeURI + "' version " + RuntimeVersion.RUNTIME_VERSION);
 
         // Retain config-at-initialization since config-last-provided can be set to new values and "initialize" can be called
         this.configAtInitialization = configLastProvided;
