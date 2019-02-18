@@ -10,20 +10,20 @@ Bundle-Name: Esper Compiler
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esper-compiler
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.0.0
+Bundle-Version: 8.1.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esper.compiler.client;uses:="com.espertech
  .esper.common.client,com.espertech.esper.common.client.configuration,co
  m.espertech.esper.common.client.module,com.espertech.esper.common.clien
- t.soda,com.espertech.esper.compiler.client.option";version="8.0.0",com.
+ t.soda,com.espertech.esper.compiler.client.option";version="8.1.0",com.
  espertech.esper.compiler.client.option;uses:="com.espertech.esper.commo
  n.client.util,com.espertech.esper.common.internal.compile.stage2,com.es
- pertech.esper.common.internal.compile.stage3";version="8.0.0",com.esper
+ pertech.esper.common.internal.compile.stage3";version="8.1.0",com.esper
  tech.esper.compiler.client.util;uses:="com.espertech.esper.common.clien
- t";version="8.0.0",com.espertech.esper.compiler.internal.generated;uses
+ t";version="8.1.0",com.espertech.esper.compiler.internal.generated;uses
  :="org.antlr.v4.runtime,org.antlr.v4.runtime.atn,org.antlr.v4.runtime.d
- fa,org.antlr.v4.runtime.tree";version="8.0.0",com.espertech.esper.compi
+ fa,org.antlr.v4.runtime.tree";version="8.1.0",com.espertech.esper.compi
  ler.internal.parse;uses:="com.espertech.esper.common.client,com.esperte
  ch.esper.common.client.configuration,com.espertech.esper.common.client.
  configuration.compiler,com.espertech.esper.common.client.hook.aggmultif
@@ -41,7 +41,7 @@ Export-Package: com.espertech.esper.compiler.client;uses:="com.espertech
  om.espertech.esper.common.internal.type,com.espertech.esper.common.inte
  rnal.util,com.espertech.esper.compiler.internal.generated,org.antlr.v4.
  runtime,org.antlr.v4.runtime.atn,org.antlr.v4.runtime.dfa,org.antlr.v4.
- runtime.tree";version="8.0.0",com.espertech.esper.compiler.internal.uti
+ runtime.tree";version="8.1.0",com.espertech.esper.compiler.internal.uti
  l;uses:="com.espertech.esper.common.client,com.espertech.esper.common.c
  lient.configuration,com.espertech.esper.common.client.module,com.espert
  ech.esper.common.client.soda,com.espertech.esper.common.client.util,com
@@ -53,7 +53,7 @@ Export-Package: com.espertech.esper.compiler.client;uses:="com.espertech
  nternal.compile.stage3,com.espertech.esper.common.internal.epl.expressi
  on.core,com.espertech.esper.common.internal.epl.fafquery.querymethod,co
  m.espertech.esper.common.internal.settings,com.espertech.esper.compiler
- .client";version="8.0.0"
+ .client";version="8.1.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.annotation,com.espertech.esper.common.client.configuration,
  com.espertech.esper.common.client.configuration.common,com.espertech.es

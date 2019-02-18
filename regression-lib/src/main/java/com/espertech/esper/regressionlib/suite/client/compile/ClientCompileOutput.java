@@ -33,7 +33,7 @@ public class ClientCompileOutput {
             EPCompiled compiled = env.compile("select * from SupportBean");
 
             EPCompiledManifest manifest = compiled.getManifest();
-            assertEquals("8.0.0", manifest.getCompilerVersion());
+            assertEquals("8.1.0", manifest.getCompilerVersion());
             assertNotNull(manifest.getModuleProviderClassName());
         }
     }

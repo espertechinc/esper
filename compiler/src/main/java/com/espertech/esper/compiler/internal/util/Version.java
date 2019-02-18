@@ -11,5 +11,5 @@
 package com.espertech.esper.compiler.internal.util;
 
 public class Version {
-    public final static String COMPILER_VERSION = "8.0.0";
+    public final static String COMPILER_VERSION = "8.1.0";
 }

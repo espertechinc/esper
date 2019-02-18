@@ -10,7 +10,7 @@ Bundle-Name: Esper Runtime
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esper-runtime
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.0.0
+Bundle-Version: 8.1.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
@@ -21,33 +21,33 @@ Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
  ule,com.espertech.esper.common.client.render,com.espertech.esper.common
  .client.util,com.espertech.esper.common.client.variable,com.espertech.e
  sper.runtime.client.option,com.espertech.esper.runtime.client.util,java
- x.naming,org.w3c.dom";version="8.0.0",com.espertech.esper.runtime.clien
- t.option;uses:="com.espertech.esper.common.client";version="8.0.0",com.
+ x.naming,org.w3c.dom";version="8.1.0",com.espertech.esper.runtime.clien
+ t.option;uses:="com.espertech.esper.common.client";version="8.1.0",com.
  espertech.esper.runtime.client.plugin;uses:="com.espertech.esper.runtim
- e.client";version="8.0.0",com.espertech.esper.runtime.client.scopetest;
+ e.client";version="8.1.0",com.espertech.esper.runtime.client.scopetest;
  uses:="com.espertech.esper.common.client,com.espertech.esper.common.int
- ernal.collection,com.espertech.esper.runtime.client";version="8.0.0",co
+ ernal.collection,com.espertech.esper.runtime.client";version="8.1.0",co
  m.espertech.esper.runtime.client.util;uses:="com.espertech.esper.common
  .client,com.espertech.esper.common.internal.util,com.espertech.esper.ru
- ntime.client";version="8.0.0",com.espertech.esper.runtime.internal.data
+ ntime.client";version="8.1.0",com.espertech.esper.runtime.internal.data
  flow.op.beaconsource;uses:="com.espertech.esper.common.client,com.esper
  tech.esper.common.internal.epl.dataflow.interfaces,com.espertech.esper.
  common.internal.epl.expression.core,com.espertech.esper.common.internal
- .event.core";version="8.0.0",com.espertech.esper.runtime.internal.dataf
+ .event.core";version="8.1.0",com.espertech.esper.runtime.internal.dataf
  low.op.emitter;uses:="com.espertech.esper.common.client.dataflow.core,c
  om.espertech.esper.common.client.dataflow.util,com.espertech.esper.comm
  on.internal.epl.dataflow.interfaces,com.espertech.esper.common.internal
- .epl.expression.core";version="8.0.0",com.espertech.esper.runtime.inter
+ .epl.expression.core";version="8.1.0",com.espertech.esper.runtime.inter
  nal.dataflow.op.epstatementsource;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.client.dataflow.core,com.espertech.esper
  .common.client.dataflow.util,com.espertech.esper.common.internal.contex
  t.util,com.espertech.esper.common.internal.epl.dataflow.interfaces,com.
  espertech.esper.common.internal.epl.expression.core,com.espertech.esper
- .runtime.client";version="8.0.0",com.espertech.esper.runtime.internal.d
+ .runtime.client";version="8.1.0",com.espertech.esper.runtime.internal.d
  ataflow.op.eventbussink;uses:="com.espertech.esper.common.client,com.es
  pertech.esper.common.client.dataflow.core,com.espertech.esper.common.in
  ternal.context.util,com.espertech.esper.common.internal.epl.dataflow.in
- terfaces,com.espertech.esper.common.internal.event.core";version="8.0.0
+ terfaces,com.espertech.esper.common.internal.event.core";version="8.1.0
  ",com.espertech.esper.runtime.internal.dataflow.op.eventbussource;uses:
  ="com.espertech.esper.common.client,com.espertech.esper.common.client.d
  ataflow.annotations,com.espertech.esper.common.client.dataflow.core,com
@@ -57,11 +57,11 @@ Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
  0",com.espertech.esper.runtime.internal.dataflow.op.filter;uses:="com.e
  spertech.esper.common.client,com.espertech.esper.common.internal.contex
  t.util,com.espertech.esper.common.internal.epl.dataflow.interfaces,com.
- espertech.esper.common.internal.epl.expression.core";version="8.0.0",co
+ espertech.esper.common.internal.epl.expression.core";version="8.1.0",co
  m.espertech.esper.runtime.internal.dataflow.op.logsink;uses:="com.esper
  tech.esper.common.client,com.espertech.esper.common.client.render,com.e
  spertech.esper.common.internal.epl.dataflow.interfaces,com.espertech.es
- per.common.internal.epl.expression.core";version="8.0.0",com.espertech.
+ per.common.internal.epl.expression.core";version="8.1.0",com.espertech.
  esper.runtime.internal.dataflow.op.select;uses:="com.espertech.esper.co
  mmon.client,com.espertech.esper.common.client.dataflow.util,com.esperte
  ch.esper.common.internal.collection,com.espertech.esper.common.internal
@@ -70,22 +70,22 @@ Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
  ech.esper.common.internal.context.util,com.espertech.esper.common.inter
  nal.epl.dataflow.interfaces,com.espertech.esper.common.internal.event.c
  ore,com.espertech.esper.common.internal.statement.dispatch,com.espertec
- h.esper.common.internal.view.core";version="8.0.0",com.espertech.esper.
+ h.esper.common.internal.view.core";version="8.1.0",com.espertech.esper.
  runtime.internal.deploymentlifesvc;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.runtime.client,com.espertech.esper.runtime.int
- ernal.kernel.service";version="8.0.0",com.espertech.esper.runtime.inter
+ ernal.kernel.service";version="8.1.0",com.espertech.esper.runtime.inter
  nal.filtersvcimpl;uses:="com.espertech.esper.common.client,com.espertec
  h.esper.common.client.meta,com.espertech.esper.common.client.util,com.e
  spertech.esper.common.internal.collection,com.espertech.esper.common.in
  ternal.context.util,com.espertech.esper.common.internal.epl.expression.
  core,com.espertech.esper.common.internal.filterspec,com.espertech.esper
  .common.internal.filtersvc,com.espertech.esper.runtime.internal.metrics
- .jmx";version="8.0.0",com.espertech.esper.runtime.internal.kernel.faf;u
+ .jmx";version="8.1.0",com.espertech.esper.runtime.internal.kernel.faf;u
  ses:="com.espertech.esper.common.client,com.espertech.esper.common.clie
  nt.context,com.espertech.esper.common.client.fireandforget,com.espertec
  h.esper.common.internal.context.query,com.espertech.esper.common.intern
  al.epl.fafquery.querymethod,com.espertech.esper.runtime.internal.kernel
- .service";version="8.0.0",com.espertech.esper.runtime.internal.kernel.s
+ .service";version="8.1.0",com.espertech.esper.runtime.internal.kernel.s
  ervice;uses:="com.espertech.esper.common.client,com.espertech.esper.com
  mon.client.configuration,com.espertech.esper.common.client.configuratio
  n.common,com.espertech.esper.common.client.configuration.runtime,com.es
@@ -138,7 +138,7 @@ Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
  .espertech.esper.runtime.internal.metrics.jmx,com.espertech.esper.runti
  me.internal.schedulesvcimpl,com.espertech.esper.runtime.internal.statem
  entlifesvc,com.espertech.esper.runtime.internal.timer,javax.naming,org.
- slf4j,org.w3c.dom";version="8.0.0",com.espertech.esper.runtime.internal
+ slf4j,org.w3c.dom";version="8.1.0",com.espertech.esper.runtime.internal
  .kernel.statement;uses:="com.espertech.esper.common.client,com.espertec
  h.esper.common.client.context,com.espertech.esper.common.client.util,co
  m.espertech.esper.common.internal.collection,com.espertech.esper.common
@@ -164,31 +164,31 @@ Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
  tech.esper.common.internal.statement.dispatch,com.espertech.esper.commo
  n.internal.statement.resource,com.espertech.esper.common.internal.view.
  core,com.espertech.esper.runtime.client,com.espertech.esper.runtime.int
- ernal.kernel.service";version="8.0.0",com.espertech.esper.runtime.inter
+ ernal.kernel.service";version="8.1.0",com.espertech.esper.runtime.inter
  nal.kernel.thread;uses:="com.espertech.esper.common.client,com.espertec
  h.esper.common.client.configuration.runtime,com.espertech.esper.common.
  internal.collection,com.espertech.esper.common.internal.context.util,co
  m.espertech.esper.common.internal.event.util,com.espertech.esper.common
  .internal.statement.thread,com.espertech.esper.runtime.internal.kernel.
- service,org.w3c.dom";version="8.0.0",com.espertech.esper.runtime.intern
+ service,org.w3c.dom";version="8.1.0",com.espertech.esper.runtime.intern
  al.kernel.updatedispatch;uses:="com.espertech.esper.common.client,com.e
  spertech.esper.common.internal.collection,com.espertech.esper.common.in
  ternal.context.util,com.espertech.esper.common.internal.schedule,com.es
  pertech.esper.common.internal.statement.dispatch,com.espertech.esper.co
- mmon.internal.view.core";version="8.0.0",com.espertech.esper.runtime.in
+ mmon.internal.view.core";version="8.1.0",com.espertech.esper.runtime.in
  ternal.metrics.codahale_metrics.metrics;uses:="com.espertech.esper.runt
- ime.internal.metrics.codahale_metrics.metrics.core";version="8.0.0",com
+ ime.internal.metrics.codahale_metrics.metrics.core";version="8.1.0",com
  .espertech.esper.runtime.internal.metrics.codahale_metrics.metrics.core
  ;uses:="com.espertech.esper.runtime.internal.metrics.codahale_metrics.m
- etrics.stats";version="8.0.0",com.espertech.esper.runtime.internal.metr
+ etrics.stats";version="8.1.0",com.espertech.esper.runtime.internal.metr
  ics.codahale_metrics.metrics.reporting;uses:="com.espertech.esper.runti
  me.internal.metrics.codahale_metrics.metrics.core,javax.management";ver
- sion="8.0.0",com.espertech.esper.runtime.internal.metrics.codahale_metr
+ sion="8.1.0",com.espertech.esper.runtime.internal.metrics.codahale_metr
  ics.metrics.stats;uses:="com.espertech.esper.runtime.internal.metrics.c
- odahale_metrics.metrics.core";version="8.0.0",com.espertech.esper.runti
+ odahale_metrics.metrics.core";version="8.1.0",com.espertech.esper.runti
  me.internal.metrics.codahale_metrics.metrics.util;uses:="com.espertech.
  esper.runtime.internal.metrics.codahale_metrics.metrics.core,javax.mana
- gement";version="8.0.0",com.espertech.esper.runtime.internal.metrics.in
+ gement";version="8.1.0",com.espertech.esper.runtime.internal.metrics.in
  strumentation;uses:="com.espertech.esper.common.client,com.espertech.es
  per.common.internal.collection,com.espertech.esper.common.internal.cont
  ext.util,com.espertech.esper.common.internal.epl.expression.core,com.es
@@ -199,7 +199,7 @@ Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
  ternal.metrics.instrumentation,com.espertech.esper.common.internal.rett
  ype,com.espertech.esper.common.internal.schedule,com.espertech.esper.co
  mmon.internal.type,com.espertech.esper.runtime.client,com.espertech.esp
- er.runtime.internal.filtersvcimpl";version="8.0.0",com.espertech.esper.
+ er.runtime.internal.filtersvcimpl";version="8.1.0",com.espertech.esper.
  runtime.internal.metrics.jmx;uses:="com.espertech.esper.runtime.interna
  l.metrics.codahale_metrics.metrics.core,javax.management";version="8.0.
  0",com.espertech.esper.runtime.internal.metrics.stmtmetrics;uses:="com.
@@ -207,28 +207,28 @@ Export-Package: com.espertech.esper.runtime.client;uses:="com.espertech.
  .common.client.metric,com.espertech.esper.common.internal.event.core,co
  m.espertech.esper.common.internal.filtersvc,com.espertech.esper.common.
  internal.metrics.stmtmetrics,com.espertech.esper.common.internal.schedu
- le,com.espertech.esper.runtime.client";version="8.0.0",com.espertech.es
+ le,com.espertech.esper.runtime.client";version="8.1.0",com.espertech.es
  per.runtime.internal.namedwindow;uses:="com.espertech.esper.common.inte
  rnal.context.util,com.espertech.esper.common.internal.epl.namedwindow.c
  onsume,com.espertech.esper.common.internal.epl.table.core,com.espertech
  .esper.common.internal.epl.variable.core,com.espertech.esper.common.int
  ernal.metrics.stmtmetrics,com.espertech.esper.common.internal.schedule,
  com.espertech.esper.common.internal.settings,com.espertech.esper.common
- .internal.util";version="8.0.0",com.espertech.esper.runtime.internal.sc
+ .internal.util";version="8.1.0",com.espertech.esper.runtime.internal.sc
  hedulesvcimpl;uses:="com.espertech.esper.common.internal.schedule,com.e
- spertech.esper.runtime.internal.metrics.jmx";version="8.0.0",com.espert
+ spertech.esper.runtime.internal.metrics.jmx";version="8.1.0",com.espert
  ech.esper.runtime.internal.statementlifesvc;uses:="com.espertech.esper.
  common.internal.context.util,com.espertech.esper.runtime.internal.kerne
- l.statement";version="8.0.0",com.espertech.esper.runtime.internal.subsc
+ l.statement";version="8.1.0",com.espertech.esper.runtime.internal.subsc
  riber;uses:="com.espertech.esper.common.client,com.espertech.esper.comm
  on.internal.collection,com.espertech.esper.common.internal.settings,com
  .espertech.esper.common.internal.util,com.espertech.esper.runtime.clien
- t,org.slf4j";version="8.0.0",com.espertech.esper.runtime.internal.suppo
+ t,org.slf4j";version="8.1.0",com.espertech.esper.runtime.internal.suppo
  rt;uses:="com.espertech.esper.common.client,com.espertech.esper.common.
  internal.context.util,com.espertech.esper.common.internal.event.bean.co
  re,com.espertech.esper.common.internal.event.bean.service";version="8.0
  .0",com.espertech.esper.runtime.internal.timer;uses:="com.espertech.esp
- er.common.internal.schedule";version="8.0.0"
+ er.common.internal.schedule";version="8.1.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.configuration,com.espertech.esper.common.client.configurati
  on.common,com.espertech.esper.common.client.configuration.runtime,com.e
