@@ -18,6 +18,33 @@ import junit.framework.TestCase;
 import java.util.*;
 
 public class TestCollectionUtil extends TestCase {
+
+    public void testSubdivide() {
+        runAssertionSubdivide3("", "");
+        runAssertionSubdivide3("a", "a");
+        runAssertionSubdivide3("a,b", "a,b");
+        runAssertionSubdivide3("a,b,c", "a,b,c");
+        runAssertionSubdivide3("a,b,c,d", "a,b,c|d");
+        runAssertionSubdivide3("a,b,c,d,e", "a,b,c|d,e");
+        runAssertionSubdivide3("a,b,c,d,e,f", "a,b,c|d,e,f");
+        runAssertionSubdivide3("a,b,c,d,e,f,g", "a,b,c|d,e,f|g");
+        runAssertionSubdivide3("a,b,c,d,e,f,g,h", "a,b,c|d,e,f|g,h");
+        runAssertionSubdivide3("a,b,c,d,e,f,g,h,i", "a,b,c|d,e,f|g,h,i");
+        runAssertionSubdivide3("a,b,c,d,e,f,g,h,i,j", "a,b,c|d,e,f|g,h,i|j");
+
+        runAssertionSubdivide("", "", 2);
+        runAssertionSubdivide("a", "a", 2);
+        runAssertionSubdivide("a,b", "a,b", 2);
+        runAssertionSubdivide("a,b,c", "a,b|c", 2);
+        runAssertionSubdivide("a,b,c,d", "a,b|c,d", 2);
+        runAssertionSubdivide("a,b,c,d,e", "a,b|c,d|e", 2);
+
+        runAssertionSubdivide("", "", 1);
+        runAssertionSubdivide("a", "a", 1);
+        runAssertionSubdivide("a,b", "a|b", 1);
+        runAssertionSubdivide("a,b,c", "a|b|c", 1);
+    }
+
     public void testArrayExpandSingle() {
         runAssertionExpandSingle("a", "", "a");
         runAssertionExpandSingle("a,b", "a", "b");
@@ -215,5 +242,25 @@ public class TestCollectionUtil extends TestCase {
             set.add(a);
         }
         return set;
+    }
+
+    private void runAssertionSubdivide3(String csv, String expected) {
+        runAssertionSubdivide(csv, expected, 3);
+    }
+
+    private void runAssertionSubdivide(String csv, String expected, int size) {
+        List<String> input = new ArrayList<>(Arrays.asList(csv.split(",")));
+        List<List<String>> lists = CollectionUtil.subdivide(input, size);
+
+        StringBuilder out = new StringBuilder();
+        String delimiter = "";
+        for (List<String> list : lists) {
+            String items = String.join(",", list.toArray(new String[0]));
+            out.append(delimiter);
+            out.append(items);
+            delimiter = "|";
+        }
+
+        assertEquals(expected, out.toString());
     }
 }

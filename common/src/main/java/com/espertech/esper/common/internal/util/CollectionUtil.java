@@ -806,4 +806,23 @@ public class CollectionUtil {
         result[appendedTo.length] = appended;
         return result;
     }
+
+    public static <T> List<List<T>> subdivide(List<T> items, int size) {
+        if (size < 1) {
+            throw new IllegalArgumentException("Invalid size " + size);
+        }
+        if (items.size() <= size) {
+            return Collections.singletonList(items);
+        }
+        List<List<T>> lists = new ArrayList<>();
+        int start = 0;
+        int remainder = items.size();
+        while (remainder > size) {
+            lists.add(items.subList(start, start + size));
+            start += size;
+            remainder -= size;
+        }
+        lists.add(items.subList(start, start + remainder));
+        return lists;
+    }
 }

@@ -66,6 +66,8 @@ import static com.espertech.esper.compiler.internal.util.CompilerHelperStatement
 import static com.espertech.esper.compiler.internal.util.CompilerVersion.COMPILER_VERSION;
 
 public class CompilerHelperModuleProvider {
+    private final static int NUM_STATEMENT_NAMES_PER_BATCH = 1000;
+
     protected static EPCompiled compile(List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions) throws EPCompileException {
         String packageName = "generated";
         Map<String, byte[]> moduleBytes = new HashMap<>();
@@ -216,11 +218,7 @@ public class CompilerHelperModuleProvider {
 
         // instantiate factories for statements
         CodegenMethod statementsMethod = CodegenMethod.makeParentNode(List.class, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        statementsMethod.getBlock().declareVar(List.class, "statements", newInstance(ArrayList.class, constant(statementClassNames.size())));
-        for (String statementClassName : statementClassNames) {
-            statementsMethod.getBlock().exprDotMethod(ref("statements"), "add", CodegenExpressionBuilder.newInstance(statementClassName));
-        }
-        statementsMethod.getBlock().methodReturn(ref("statements"));
+        makeStatementsMethod(statementsMethod, statementClassNames, classScope);
 
         // build stack
         CodegenStackGenerator.recursiveBuildStack(getModuleNameMethod, "getModuleName", methods);
@@ -240,6 +238,28 @@ public class CompilerHelperModuleProvider {
         JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, ModuleProvider.class, moduleIdentPostfix);
+    }
+
+    private static void makeStatementsMethod(CodegenMethod statementsMethod, List<String> statementClassNames, CodegenClassScope classScope) {
+        statementsMethod.getBlock().declareVar(List.class, "statements", newInstance(ArrayList.class, constant(statementClassNames.size())));
+        if (statementClassNames.size() <= NUM_STATEMENT_NAMES_PER_BATCH) {
+            makeStatementsAdd(statementsMethod, statementClassNames);
+        } else {
+            // subdivide to N each
+            List<List<String>> lists = CollectionUtil.subdivide(statementClassNames, NUM_STATEMENT_NAMES_PER_BATCH);
+            for (List<String> names : lists) {
+                CodegenMethod sub = statementsMethod.makeChild(void.class, CompilerHelperModuleProvider.class, classScope).addParam(List.class, "statements");
+                makeStatementsAdd(sub, names);
+                statementsMethod.getBlock().localMethod(sub, ref("statements"));
+            }
+        }
+        statementsMethod.getBlock().methodReturn(ref("statements"));
+    }
+
+    private static void makeStatementsAdd(CodegenMethod statementsMethod, Collection<String> statementClassNames) {
+        for (String statementClassName : statementClassNames) {
+            statementsMethod.getBlock().exprDotMethod(ref("statements"), "add", CodegenExpressionBuilder.newInstance(statementClassName));
+        }
     }
 
     private static void makeModuleProperties(Map<ModuleProperty, Object> props, CodegenMethod method) {
