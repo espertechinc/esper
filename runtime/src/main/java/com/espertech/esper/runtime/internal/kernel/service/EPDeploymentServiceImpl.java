@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.context.util.UndeployPreconditionExce
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.DependencyGraph;
 import com.espertech.esper.runtime.client.*;
+import com.espertech.esper.runtime.client.util.RuntimeVersion;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.DeploymentLifecycleService;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.StatementIdRecoveryService;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
@@ -46,6 +47,12 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
 
         if (runtime.isDestroyed()) {
             throw new EPRuntimeDestroyedException(runtime.getURI());
+        }
+
+        try {
+            RuntimeVersion.checkVersion(compiled.getManifest().getCompilerVersion());
+        } catch (RuntimeVersion.VersionException ex) {
+            throw new EPDeployDeploymentVersionException(ex.getMessage(), ex);
         }
 
         if (compiled.getManifest().getModuleProviderClassName() == null) {
@@ -302,7 +309,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         }
         EPStatement[] stmts = deployed.getStatements();
         DeploymentStateEventDeployed event = new DeploymentStateEventDeployed(services.getRuntimeURI(),
-                deployed.getDeploymentId(), deployed.getModuleProvider().getModuleName(), stmts);
+            deployed.getDeploymentId(), deployed.getModuleProvider().getModuleName(), stmts);
         for (DeploymentStateListener listener : listeners) {
             try {
                 listener.onDeployment(event);
@@ -319,7 +326,7 @@ public class EPDeploymentServiceImpl implements EPDeploymentServiceSPI {
         }
         EPStatement[] statements = result.getStatements();
         DeploymentStateEventUndeployed event = new DeploymentStateEventUndeployed(services.getRuntimeURI(),
-                result.getDeploymentId(), result.getModuleProvider().getModuleName(), statements);
+            result.getDeploymentId(), result.getModuleProvider().getModuleName(), statements);
         for (DeploymentStateListener listener : listeners) {
             try {
                 listener.onUndeployment(event);

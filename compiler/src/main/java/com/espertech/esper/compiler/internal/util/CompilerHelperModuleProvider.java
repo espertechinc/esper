@@ -63,7 +63,7 @@ import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperStatementProvider.compileItem;
-import static com.espertech.esper.compiler.internal.util.Version.COMPILER_VERSION;
+import static com.espertech.esper.compiler.internal.util.CompilerVersion.COMPILER_VERSION;
 
 public class CompilerHelperModuleProvider {
     protected static EPCompiled compile(List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions) throws EPCompileException {
