@@ -59,7 +59,7 @@ public class TableDeployTimeResolver {
         String deploymentId;
         if (visibility == NameAccessModifier.PRIVATE) {
             deploymentId = services.getDeploymentId();
-        } else if (visibility == NameAccessModifier.PUBLIC) {
+        } else if (visibility == NameAccessModifier.PUBLIC || visibility == NameAccessModifier.PROTECTED) {
             deploymentId = services.getTablePathRegistry().getDeploymentId(tableName, optionalModuleName);
             if (deploymentId == null) {
                 throw new EPException("Failed to resolve path table '" + tableName + "'");
