@@ -38,6 +38,7 @@ import static org.junit.Assert.fail;
 public class EPLInsertIntoTransposeStream {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new EPLInsertIntoTransposeCreateSchemaPOJO());
         execs.add(new EPLInsertIntoTransposeMapAndObjectArray());
         execs.add(new EPLInsertIntoTransposeFunctionToStreamWithProps());
         execs.add(new EPLInsertIntoTransposeFunctionToStream());
@@ -47,6 +48,25 @@ public class EPLInsertIntoTransposeStream {
         execs.add(new EPLInsertIntoTransposePOJOPropertyStream());
         execs.add(new EPLInsertIntoInvalidTranspose());
         return execs;
+    }
+
+    private static class EPLInsertIntoTransposeCreateSchemaPOJO implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create schema SupportBeanTwo as " + SupportBeanTwo.class.getName() + ";\n" +
+                "on SupportBean event insert into astream select transpose(" + EPLInsertIntoTransposeStream.class.getName() + ".makeSB2Event(event));\n" +
+                "on SupportBean event insert into bstream select transpose(" + EPLInsertIntoTransposeStream.class.getName() + ".makeSB2Event(event));\n" +
+                "@name('a') select * from astream\n;" +
+                "@name('b') select * from bstream\n;";
+            env.compileDeploy(epl).addListener("a").addListener("b");
+
+            env.sendEventBean(new SupportBean("E1", 1));
+
+            String[] fields = new String[] {"stringTwo"};
+            EPAssertionUtil.assertProps(env.listener("a").assertOneGetNewAndReset(), fields, new Object[] {"E1"});
+            EPAssertionUtil.assertProps(env.listener("b").assertOneGetNewAndReset(), fields, new Object[] {"E1"});
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLInsertIntoTransposeMapAndObjectArray implements RegressionExecution {
@@ -293,6 +313,10 @@ public class EPLInsertIntoTransposeStream {
 
     public static Object[] localGenerateOA(String string, int intPrimitive) {
         return new Object[]{string, intPrimitive};
+    }
+
+    public static SupportBeanTwo makeSB2Event(SupportBean sb) {
+        return new SupportBeanTwo(sb.getTheString(), sb.getIntPrimitive());
     }
 
     public static GenericData.Record localGenerateAvro(String string, int intPrimitive) {

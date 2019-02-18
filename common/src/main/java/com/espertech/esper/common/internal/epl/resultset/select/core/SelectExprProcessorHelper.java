@@ -101,8 +101,8 @@ public class SelectExprProcessorHelper {
         for (SelectExprStreamDesc spec : selectedStreams) {
             // handle special "transpose(...)" function
             if ((spec.getStreamSelected() != null && spec.getStreamSelected().getOptionalName() == null)
-                    ||
-                    (spec.getExpressionSelectedAsStream() != null)) {
+                ||
+                (spec.getExpressionSelectedAsStream() != null)) {
                 unnamedStreams.add(spec);
             } else {
                 namedStreams.add(spec.getStreamSelected());
@@ -304,14 +304,14 @@ public class SelectExprProcessorHelper {
                 targetFragment = insertIntoTargetType.getFragmentType(columnNames[i]);
             }
             if ((insertIntoTargetType != null) &&
-                    (fragmentType.getFragmentType().getUnderlyingType() == expressionReturnTypes[i]) &&
-                    ((targetFragment == null) || (targetFragment != null && targetFragment.isNative()))) {
+                (fragmentType.getFragmentType().getUnderlyingType() == expressionReturnTypes[i]) &&
+                ((targetFragment == null) || (targetFragment != null && targetFragment.isNative()))) {
                 EventPropertyGetterSPI getter = ((EventTypeSPI) eventTypeStream).getGetterSPI(propertyName);
                 Class returnType = eventTypeStream.getPropertyType(propertyName);
                 exprForges[i] = new ExprEvalByGetter(streamNum, getter, returnType);
             } else if ((insertIntoTargetType != null) && expressionReturnTypes[i] instanceof Class &&
-                    (fragmentType.getFragmentType().getUnderlyingType() == ((Class) expressionReturnTypes[i]).getComponentType()) &&
-                    ((targetFragment == null) || (targetFragment != null && targetFragment.isNative()))) {
+                (fragmentType.getFragmentType().getUnderlyingType() == ((Class) expressionReturnTypes[i]).getComponentType()) &&
+                ((targetFragment == null) || (targetFragment != null && targetFragment.isNative()))) {
                 // same for arrays: may need to unwrap the fragment if the target type has this underlying type
                 EventPropertyGetterSPI getter = ((EventTypeSPI) eventTypeStream).getGetterSPI(propertyName);
                 Class returnType = eventTypeStream.getPropertyType(propertyName);
@@ -423,12 +423,8 @@ public class SelectExprProcessorHelper {
                             if (returnType == Object[].class || JavaClassHelper.isImplementsInterface(returnType, Map.class) || JavaClassHelper.isJavaBuiltinDataType(returnType)) {
                                 throw new ExprValidationException("Invalid expression return type '" + returnType.getName() + "' for transpose function");
                             }
-                            BeanEventTypeStem stem = args.getCompileTimeServices().getBeanEventTypeStemService().getCreateStem(returnType, null);
-                            NameAccessModifier visibility = getVisibility(returnType.getName());
-                            EventTypeMetadata metadata = new EventTypeMetadata(returnType.getName(), moduleName, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, visibility, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
-                            underlyingEventType = new BeanEventType(stem, metadata, beanEventTypeFactoryProtected, null, null, null, null);
+                            underlyingEventType = allocateBeanTransposeUnderlyingType(returnType, moduleName, beanEventTypeFactoryProtected);
                             underlyingExprForge = expression.getForge();
-                            args.getEventTypeCompileTimeRegistry().newType(underlyingEventType);
                         }
                     }
                 } else {
@@ -465,7 +461,7 @@ public class SelectExprProcessorHelper {
                     args.getEventTypeCompileTimeRegistry().newType(resultEventType);
 
                     return new SelectEvalStreamWUnderlying(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard,
-                            unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprForge, table, typeService.getEventTypes());
+                        unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprForge, table, typeService.getEventTypes());
                 } else {
                     EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, moduleName, EventTypeTypeClass.STATEMENTOUT, EventTypeApplicationType.MAP, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
                     resultEventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata, selPropertyTypes, null, null, null, null, beanEventTypeFactoryProtected, args.getEventTypeCompileTimeResolver());
@@ -527,8 +523,8 @@ public class SelectExprProcessorHelper {
                 if (insertIntoTargetType != null && selectedStreams.get(0).getExpressionSelectedAsStream() != null) {
                     if (exprForges.length != 0) {
                         throw new ExprValidationException("Cannot transpose additional properties in the select-clause to target event type '" +
-                                insertIntoTargetType.getName() +
-                                "' with underlying type '" + insertIntoTargetType.getUnderlyingType().getName() + "', the " + ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE + " function must occur alone in the select clause");
+                            insertIntoTargetType.getName() +
+                            "' with underlying type '" + insertIntoTargetType.getUnderlyingType().getName() + "', the " + ClasspathImportServiceCompileTime.EXT_SINGLEROW_FUNCTION_TRANSPOSE + " function must occur alone in the select clause");
                     }
                     ExprNode expression = unnamedStreams.get(0).getExpressionSelectedAsStream().getSelectExpression();
                     Class returnType = expression.getForge().getEvaluationType();
@@ -552,7 +548,7 @@ public class SelectExprProcessorHelper {
                             }
                             ExprForge evalExprForge = exprNode.getForge();
                             return new SelectEvalStreamWUnderlying(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard,
-                                    unnamedStreams, false, false, underlyingStreamNumber, null, evalExprForge, null, typeService.getEventTypes());
+                                unnamedStreams, false, false, underlyingStreamNumber, null, evalExprForge, null, typeService.getEventTypes());
                         }
                     }
                     throw SelectEvalInsertUtil.makeEventTypeCastException(returnType, insertIntoTargetType);
@@ -596,7 +592,7 @@ public class SelectExprProcessorHelper {
                     }
 
                     return new SelectEvalStreamWUnderlying(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard,
-                            unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprForge, table, typeService.getEventTypes());
+                        unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprForge, table, typeService.getEventTypes());
                 } else {
                     // there are one or more streams selected with column name such as "stream.* as columnOne"
                     if (insertIntoTargetType instanceof BeanEventType) {
@@ -906,6 +902,28 @@ public class SelectExprProcessorHelper {
         }
     }
 
+    private EventType allocateBeanTransposeUnderlyingType(Class returnType, String moduleName, BeanEventTypeFactory beanEventTypeFactoryProtected) {
+        // check if the module has already registered the same bean type.
+        // since private bean-types are registered by fully-qualified class name this prevents name-duplicate.
+        for (EventType eventType : args.getEventTypeCompileTimeRegistry().getNewTypesAdded()) {
+            if (!(eventType instanceof BeanEventType)) {
+                continue;
+            }
+            BeanEventType beanEventType = (BeanEventType) eventType;
+            if (beanEventType.getUnderlyingType() == returnType) {
+                return beanEventType;
+            }
+        }
+
+        // the bean-type have not been allocated
+        BeanEventTypeStem stem = args.getCompileTimeServices().getBeanEventTypeStemService().getCreateStem(returnType, null);
+        NameAccessModifier visibility = getVisibility(returnType.getName());
+        EventTypeMetadata metadata = new EventTypeMetadata(returnType.getName(), moduleName, EventTypeTypeClass.STREAM, EventTypeApplicationType.CLASS, visibility, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
+        BeanEventType type = new BeanEventType(stem, metadata, beanEventTypeFactoryProtected, null, null, null, null);
+        args.getEventTypeCompileTimeRegistry().newType(type);
+        return type;
+    }
+
     private boolean isGroupByRollupNullableExpression(ExprNode expr, GroupByRollupInfo groupByRollupInfo) {
         // if all levels include this key, we are fine
         for (AggregationGroupByRollupLevel level : groupByRollupInfo.getRollupDesc().getLevels()) {
@@ -928,7 +946,7 @@ public class SelectExprProcessorHelper {
     }
 
     private SelectExprProcessorForge makeObjectArrayConsiderReorder(SelectExprForgeContext selectExprForgeContext, ObjectArrayEventType resultEventType, ExprForge[] exprForges, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices)
-            throws ExprValidationException {
+        throws ExprValidationException {
         TypeWidenerSPI[] wideners = new TypeWidenerSPI[selectExprForgeContext.getColumnNames().length];
         int[] remapped = new int[selectExprForgeContext.getColumnNames().length];
         boolean needRemap = false;
@@ -1049,7 +1067,7 @@ public class SelectExprProcessorHelper {
     }
 
     private TypeAndForgePair handleTypableExpression(ExprForge forge, int expressionNum, EventTypeNameGeneratorStatement eventTypeNameGeneratorStatement)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (!(forge instanceof ExprTypableReturnForge)) {
             return null;
         }
@@ -1071,7 +1089,7 @@ public class SelectExprProcessorHelper {
     }
 
     private TypeAndForgePair handleInsertIntoEnumeration(String insertIntoColName, EPType insertIntoTarget, ExprForge forge)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (!(forge instanceof ExprEnumerationForge) || insertIntoTarget == null || (!EPTypeHelper.isCarryEvent(insertIntoTarget))) {
             return null;
         }
@@ -1113,7 +1131,7 @@ public class SelectExprProcessorHelper {
     }
 
     private void checkTypeCompatible(String insertIntoCol, EventType targetType, EventType selectedType)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (selectedType instanceof BeanEventType && targetType instanceof BeanEventType) {
             BeanEventType selected = (BeanEventType) selectedType;
             BeanEventType target = (BeanEventType) targetType;
@@ -1123,16 +1141,16 @@ public class SelectExprProcessorHelper {
         }
         if (!EventTypeUtility.isTypeOrSubTypeOf(targetType, selectedType)) {
             throw new ExprValidationException(
-                    "Incompatible type detected attempting to insert into column '" +
-                            insertIntoCol + "' type '" + targetType.getName() + "' compared to selected type '" + selectedType.getName() + "'");
+                "Incompatible type detected attempting to insert into column '" +
+                    insertIntoCol + "' type '" + targetType.getName() + "' compared to selected type '" + selectedType.getName() + "'");
         }
     }
 
     private TypeAndForgePair handleInsertIntoTypableExpression(EPType insertIntoTarget, ExprForge forge, SelectProcessorArgs args)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (!(forge instanceof ExprTypableReturnForge)
-                || insertIntoTarget == null
-                || (!EPTypeHelper.isCarryEvent(insertIntoTarget))) {
+            || insertIntoTarget == null
+            || (!EPTypeHelper.isCarryEvent(insertIntoTarget))) {
             return null;
         }
 
@@ -1169,7 +1187,7 @@ public class SelectExprProcessorHelper {
             if (provided.getValue() instanceof Class) {
                 try {
                     wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(provided.getKey(), (Class) provided.getValue(),
-                            expected, written.get(i).getPropertyName(), false, typeWidenerCustomizer, args.getStatementName());
+                        expected, written.get(i).getPropertyName(), false, typeWidenerCustomizer, args.getStatementName());
                 } catch (TypeWidenerException ex) {
                     throw new ExprValidationException(ex.getMessage(), ex);
                 }
@@ -1233,15 +1251,15 @@ public class SelectExprProcessorHelper {
 
     public static CodegenExpression applyWidenersCodegenMultirow(CodegenExpressionRef rows, TypeWidenerSPI[] wideners, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenMethod method = codegenMethodScope.makeChild(void.class, SelectExprProcessorHelper.class, codegenClassScope).addParam(Object[][].class, "rows").getBlock()
-                .forEach(Object[].class, "row", rows)
-                .expression(applyWidenersCodegen(ref("row"), wideners, codegenMethodScope, codegenClassScope))
-                .blockEnd()
-                .methodEnd();
+            .forEach(Object[].class, "row", rows)
+            .expression(applyWidenersCodegen(ref("row"), wideners, codegenMethodScope, codegenClassScope))
+            .blockEnd()
+            .methodEnd();
         return localMethodBuild(method).pass(rows).call();
     }
 
     private TypeAndForgePair handleAtEventbeanEnumeration(boolean isEventBeans, ExprForge forge)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (!(forge instanceof ExprEnumerationForge) || !isEventBeans) {
             return null;
         }
@@ -1299,7 +1317,7 @@ public class SelectExprProcessorHelper {
 
     private static void verifyInsertInto(InsertIntoDesc insertIntoDesc,
                                          List<SelectClauseExprCompiledSpec> selectionList)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // Verify all column names are unique
         Set<String> names = new HashSet<String>();
         for (String element : insertIntoDesc.getColumnNames()) {
@@ -1311,7 +1329,7 @@ public class SelectExprProcessorHelper {
 
         // Verify number of columns matches the select clause
         if ((!insertIntoDesc.getColumnNames().isEmpty()) &&
-                (insertIntoDesc.getColumnNames().size() != selectionList.size())) {
+            (insertIntoDesc.getColumnNames().size() != selectionList.size())) {
             throw new ExprValidationException("Number of supplied values in the select or values clause does not match insert-into clause");
         }
     }
