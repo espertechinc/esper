@@ -60,4 +60,12 @@ public class ExprDotNodeAggregationMethodForgeTableAccess extends ExprDotNodeAgg
     protected void toEPL(StringWriter writer) {
         subprop.toPrecedenceFreeEPL(writer);
     }
+
+    protected String getTableName() {
+        return subprop.getTableName();
+    }
+
+    protected String getTableColumnName() {
+        return column.getColumnName();
+    }
 }

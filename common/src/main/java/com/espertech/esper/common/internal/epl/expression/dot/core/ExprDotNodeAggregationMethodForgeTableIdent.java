@@ -50,4 +50,12 @@ public class ExprDotNodeAggregationMethodForgeTableIdent extends ExprDotNodeAggr
     protected void toEPL(StringWriter writer) {
         identNode.toPrecedenceFreeEPL(writer);
     }
+
+    protected String getTableName() {
+        return identNode.getTableMetadata().getTableName();
+    }
+
+    protected String getTableColumnName() {
+        return column.getColumnName();
+    }
 }

@@ -47,4 +47,12 @@ public class ExprDotNodeAggregationMethodForgeLocal extends ExprDotNodeAggregati
     protected void toEPL(StringWriter writer) {
         agg.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
     }
+
+    protected String getTableName() {
+        return null;
+    }
+
+    protected String getTableColumnName() {
+        return null;
+    }
 }
