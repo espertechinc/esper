@@ -3,13 +3,13 @@ Esper Changelog
 
 Changes in version 8.1.0
 ------------------------
-  - Support for parallel multi-threaded compiling of multi-statement module
+  - Support for parallel multi-threaded compiling of multi-statement modules
   - Support for named window on-delete silent delete
   - Support for crontab to have milliseconds
   - Support for aggregation methods
   - Support for nested events in online tools
   - Support for context conditions to list multiple crontabs
-  - Support for event_identity_equals
+  - Support for event_identity_equals (returns a boolean value indicating whether two events are the same event)
   - Support for disabling script compile by configuration
   - Fixed issue #128 Not-in ranges is erased by compiler when called "toEpl"
   - Fixed issue #134 Compile exception calling a Calendar method
