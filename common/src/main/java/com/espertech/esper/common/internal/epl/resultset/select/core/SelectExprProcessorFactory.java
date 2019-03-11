@@ -91,7 +91,7 @@ public class SelectExprProcessorFactory {
             forge = new BindSelectExprProcessorForge(synthetic, bindProcessor);
         } else {
             descriptor = new SelectSubscriberDescriptor();
-            forge = synthetic;
+            forge = new ListenerOnlySelectExprProcessorForge(synthetic);
         }
 
         return new SelectExprProcessorDescriptor(descriptor, forge);

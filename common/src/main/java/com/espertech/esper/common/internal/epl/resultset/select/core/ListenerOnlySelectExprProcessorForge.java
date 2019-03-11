@@ -26,13 +26,11 @@ import com.espertech.esper.common.internal.event.core.NaturalEventBean;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.context.module.EPStatementInitServices.GETSTATEMENTRESULTSERVICE;
 
-public class BindSelectExprProcessorForge implements SelectExprProcessorForge {
+public class ListenerOnlySelectExprProcessorForge implements SelectExprProcessorForge {
     private final SelectExprProcessorForge syntheticProcessorForge;
-    private final BindProcessorForge bindProcessorForge;
 
-    public BindSelectExprProcessorForge(SelectExprProcessorForge syntheticProcessorForge, BindProcessorForge bindProcessorForge) {
+    public ListenerOnlySelectExprProcessorForge(SelectExprProcessorForge syntheticProcessorForge) {
         this.syntheticProcessorForge = syntheticProcessorForge;
-        this.bindProcessorForge = bindProcessorForge;
     }
 
     public EventType getResultEventType() {
@@ -44,25 +42,12 @@ public class BindSelectExprProcessorForge implements SelectExprProcessorForge {
 
         CodegenExpressionRef isSythesize = selectSymbol.getAddSynthesize(processMethod);
         CodegenMethod syntheticMethod = syntheticProcessorForge.processCodegen(resultEventType, eventBeanFactory, processMethod, selectSymbol, exprSymbol, codegenClassScope);
-        CodegenMethod bindMethod = bindProcessorForge.processCodegen(processMethod, exprSymbol, codegenClassScope);
-        CodegenExpression isNewData = exprSymbol.getAddIsNewData(processMethod);
-        CodegenExpression exprCtx = exprSymbol.getAddExprEvalCtx(processMethod);
 
         CodegenExpressionField stmtResultSvc = codegenClassScope.addFieldUnshared(true, StatementResultService.class, exprDotMethod(EPStatementInitServices.REF, GETSTATEMENTRESULTSERVICE));
         processMethod.getBlock()
-                .declareVar(boolean.class, "makeNatural", exprDotMethod(stmtResultSvc, "isMakeNatural"))
-                .declareVar(boolean.class, "synthesize", or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
-                .ifCondition(not(ref("makeNatural")))
-                .ifCondition(ref("synthesize"))
-                .declareVar(EventBean.class, "synthetic", localMethod(syntheticMethod))
-                .blockReturn(ref("synthetic"))
-                .blockReturn(constantNull())
-                .declareVar(EventBean.class, "syntheticEvent", constantNull())
-                .ifCondition(ref("synthesize"))
-                .assignRef("syntheticEvent", localMethod(syntheticMethod))
-                .blockEnd()
-                .declareVar(Object[].class, "parameters", localMethod(bindMethod))
-                .methodReturn(newInstance(NaturalEventBean.class, resultEventType, ref("parameters"), ref("syntheticEvent")));
+                .ifCondition(or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
+                .blockReturn(localMethod(syntheticMethod))
+                .methodReturn(constantNull());
 
         return processMethod;
     }
