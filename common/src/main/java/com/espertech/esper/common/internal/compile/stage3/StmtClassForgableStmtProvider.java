@@ -69,7 +69,7 @@ public class StmtClassForgableStmtProvider implements StmtClassForgable {
         CodegenStackGenerator.recursiveBuildStack(getStatementAIFactoryProviderMethod, "getStatementAIFactoryProvider", methods);
         CodegenStackGenerator.recursiveBuildStack(ctor, "ctor", methods);
 
-        return new CodegenClass(StatementProvider.class, packageScope.getPackageName(), statementProviderClassName, classScope, members, ctor, methods, Collections.emptyList());
+        return new CodegenClass(StatementProvider.class, statementProviderClassName, classScope, members, ctor, methods, Collections.emptyList());
     }
 
     public String getClassName() {

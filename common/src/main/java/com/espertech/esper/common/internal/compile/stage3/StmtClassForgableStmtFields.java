@@ -75,7 +75,7 @@ public class StmtClassForgableStmtFields implements StmtClassForgable {
         CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", methods);
         CodegenStackGenerator.recursiveBuildStack(unassignMethod, "unassign", methods);
 
-        return new CodegenClass(StatementFields.class, packageScope.getPackageName(), className, classScope, members, ctor, methods, Collections.emptyList());
+        return new CodegenClass(StatementFields.class, className, classScope, members, ctor, methods, Collections.emptyList());
     }
 
     private void generateSubstitutionParamMembers(List<CodegenTypedParam> members) {

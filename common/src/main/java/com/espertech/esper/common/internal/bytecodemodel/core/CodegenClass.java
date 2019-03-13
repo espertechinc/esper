@@ -27,14 +27,13 @@ public class CodegenClass {
     private final List<CodegenInnerClass> innerClasses;
 
     public CodegenClass(Class interfaceClass,
-                        String packageName,
                         String className,
                         CodegenClassScope codegenClassScope,
                         List<CodegenTypedParam> explicitMembers,
                         CodegenCtor optionalCtor,
                         CodegenClassMethods methods,
                         List<CodegenInnerClass> innerClasses) {
-        this.packageName = packageName;
+        this.packageName = codegenClassScope.getPackageScope().getPackageName();
         this.className = className;
         this.interfaceImplemented = interfaceClass;
         this.explicitMembers = explicitMembers;
@@ -45,7 +44,6 @@ public class CodegenClass {
         allInnerClasses.addAll(codegenClassScope.getAdditionalInnerClasses());
         this.innerClasses = allInnerClasses;
     }
-
 
     public String getPackageName() {
         return packageName;

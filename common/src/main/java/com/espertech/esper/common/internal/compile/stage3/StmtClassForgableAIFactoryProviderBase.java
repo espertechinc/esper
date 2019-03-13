@@ -81,7 +81,7 @@ public abstract class StmtClassForgableAIFactoryProviderBase implements StmtClas
         CodegenStackGenerator.recursiveBuildStack(setValueMethod, "setValue", methods);
         CodegenStackGenerator.recursiveBuildStack(codegenCtor, "ctor", methods);
 
-        return new CodegenClass(StatementAIFactoryProvider.class, packageScope.getPackageName(), className, classScope, members, codegenCtor, methods, Collections.emptyList());
+        return new CodegenClass(StatementAIFactoryProvider.class, className, classScope, members, codegenCtor, methods, Collections.emptyList());
     }
 
     public String getClassName() {
