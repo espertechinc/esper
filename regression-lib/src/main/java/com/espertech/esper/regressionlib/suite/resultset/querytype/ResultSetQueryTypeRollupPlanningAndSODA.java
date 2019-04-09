@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.resultset.querytype;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.soda.AnnotationPart;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevelForge;
 import com.espertech.esper.common.internal.epl.agg.rollup.GroupByRollupPlanDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -130,10 +130,10 @@ public class ResultSetQueryTypeRollupPlanningAndSODA implements RegressionExecut
 
     private static void comparePlan(String[] expectedCSV) {
         GroupByRollupPlanDesc plan = SupportGroupRollupPlanHook.getPlan();
-        AggregationGroupByRollupLevel[] levels = plan.getRollupDesc().getLevels();
+        AggregationGroupByRollupLevelForge[] levels = plan.getRollupDesc().getLevels();
         String[][] received = new String[levels.length][];
         for (int i = 0; i < levels.length; i++) {
-            AggregationGroupByRollupLevel level = levels[i];
+            AggregationGroupByRollupLevelForge level = levels[i];
             if (level.isAggregationTop()) {
                 received[i] = new String[0];
             } else {

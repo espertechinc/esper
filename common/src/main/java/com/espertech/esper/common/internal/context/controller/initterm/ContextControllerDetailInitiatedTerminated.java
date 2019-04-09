@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.initterm;
 
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptor;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerDetail;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -21,6 +22,7 @@ public class ContextControllerDetailInitiatedTerminated implements ContextContro
     private boolean overlapping;
     private ExprEvaluator distinctEval;
     private Class[] distinctTypes;
+    private MultiKeyGeneratedSerde distinctMultiKeySerde;
 
     public ContextConditionDescriptor getStartCondition() {
         return startCondition;
@@ -60,5 +62,13 @@ public class ContextControllerDetailInitiatedTerminated implements ContextContro
 
     public void setDistinctTypes(Class[] distinctTypes) {
         this.distinctTypes = distinctTypes;
+    }
+
+    public MultiKeyGeneratedSerde getDistinctMultiKeySerde() {
+        return distinctMultiKeySerde;
+    }
+
+    public void setDistinctMultiKeySerde(MultiKeyGeneratedSerde distinctMultiKeySerde) {
+        this.distinctMultiKeySerde = distinctMultiKeySerde;
     }
 }

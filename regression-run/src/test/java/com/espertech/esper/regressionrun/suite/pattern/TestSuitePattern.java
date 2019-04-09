@@ -155,7 +155,7 @@ public class TestSuitePattern extends TestCase {
             ISupportBaseAB.class, ISupportA.class, ISupportB.class, ISupportD.class, ISupportBaseD.class, ISupportBaseDBase.class, ISupportAImplSuperG.class,
             ISupportAImplSuperGImplPlus.class, SupportOverrideBase.class, SupportOverrideOne.class, SupportOverrideOneA.class, SupportOverrideOneB.class,
             ISupportCImpl.class, ISupportABCImpl.class, ISupportAImpl.class, ISupportBImpl.class, ISupportDImpl.class, ISupportBCImpl.class,
-            ISupportBaseABImpl.class, ISupportAImplSuperGImpl.class}) {
+            ISupportBaseABImpl.class, ISupportAImplSuperGImpl.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
 

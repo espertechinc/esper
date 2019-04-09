@@ -49,8 +49,8 @@ public class AIRegistryTableAccessSingle implements AIRegistryTableAccess {
         return service.evaluateTypableSingle(eventsPerStream, isNewData, context);
     }
 
-    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return service.getRow(eventsPerStream, isNewData, context);
+    public AggregationRow getAggregationRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return service.getAggregationRow(eventsPerStream, isNewData, context);
     }
 
     public int getInstanceCount() {

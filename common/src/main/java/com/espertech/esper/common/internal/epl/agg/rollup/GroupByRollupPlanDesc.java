@@ -10,14 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.agg.rollup;
 
-import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDescForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 public class GroupByRollupPlanDesc {
     private final ExprNode[] expressions;
-    private final AggregationGroupByRollupDesc rollupDesc;
+    private final AggregationGroupByRollupDescForge rollupDesc;
 
-    public GroupByRollupPlanDesc(ExprNode[] expressions, AggregationGroupByRollupDesc rollupDesc) {
+    public GroupByRollupPlanDesc(ExprNode[] expressions, AggregationGroupByRollupDescForge rollupDesc) {
         this.expressions = expressions;
         this.rollupDesc = rollupDesc;
     }
@@ -26,7 +26,7 @@ public class GroupByRollupPlanDesc {
         return expressions;
     }
 
-    public AggregationGroupByRollupDesc getRollupDesc() {
+    public AggregationGroupByRollupDescForge getRollupDesc() {
         return rollupDesc;
     }
 }

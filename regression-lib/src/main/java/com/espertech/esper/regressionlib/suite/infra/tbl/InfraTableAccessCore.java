@@ -28,6 +28,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
@@ -46,7 +47,6 @@ public class InfraTableAccessCore {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-
         execs.add(new InfraTableAccessCoreUnGroupedWindowAndSum());
         execs.add(new InfraIntegerIndexedPropertyLookAlike());
         execs.add(new InfraFilterBehavior());
@@ -65,7 +65,85 @@ public class InfraTableAccessCore {
         execs.add(new InfraSubquery());
         execs.add(new InfraOnMergeExpressions());
         execs.add(new InfraTableAccessCoreSplitStream());
+        execs.add(new InfraTableAccessMultikeyWArrayOneArrayKey());
+        execs.add(new InfraTableAccessMultikeyWArrayTwoArrayKey());
         return execs;
+    }
+
+    private static class InfraTableAccessMultikeyWArrayTwoArrayKey implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create table MyTable(k1 int[primitive] primary key, k2 int[primitive] primary key, value int);\n" +
+                "insert into MyTable select intOne as k1, intTwo as k2, value from SupportEventWithManyArray(id = 'I');\n" +
+                "@name('s0') select MyTable[intOne, intTwo].value as c0 from SupportEventWithManyArray(id = 'Q');\n" +
+                "@name('s1') select MyTable.keys() as keys from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0").addListener("s1");
+
+            sendManyArrayI(env, new int[] {1, 2}, new int[] {1, 2}, 10);
+            sendManyArrayI(env, new int[] {1, 3}, new int[] {1, 1}, 20);
+            sendManyArrayI(env, new int[] {1, 2}, new int[] {1, 1}, 30);
+
+            env.milestone(0);
+
+            sendManyArrayQAssert(env, new int[] {1, 2}, new int[] {1, 2}, 10);
+            sendManyArrayQAssert(env, new int[] {1, 2}, new int[] {1, 1}, 30);
+            sendManyArrayQAssert(env, new int[] {1, 3}, new int[] {1, 1}, 20);
+            sendManyArrayQAssert(env, new int[] {1, 2}, new int[] {1, 2, 2}, null);
+
+            env.sendEventBean(new SupportBean());
+            Object[] keys = (Object[]) env.listener("s1").assertOneGetNewAndReset().get("keys");
+            EPAssertionUtil.assertEqualsAnyOrder(keys, new Object[] {
+                new Object[] {new int[] {1, 2}, new int[] {1, 2}},
+                new Object[] {new int[] {1, 3}, new int[] {1, 1}},
+                new Object[] {new int[] {1, 2}, new int[] {1, 1}},
+            });
+
+            env.undeployAll();
+        }
+
+        private void sendManyArrayQAssert(RegressionEnvironment env, int[] arrayOne, int[] arrayTwo, Integer expected) {
+            env.sendEventBean(new SupportEventWithManyArray("Q").withIntOne(arrayOne).withIntTwo(arrayTwo));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        }
+
+        private void sendManyArrayI(RegressionEnvironment env, int[] arrayOne, int[] arrayTwo, int value) {
+            env.sendEventBean(new SupportEventWithManyArray("I").withIntOne(arrayOne).withIntTwo(arrayTwo).withValue(value));
+        }
+    }
+
+    private static class InfraTableAccessMultikeyWArrayOneArrayKey implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create table MyTable(k int[primitive] primary key, value int);\n" +
+                "insert into MyTable select intOne as k, value from SupportEventWithManyArray(id = 'I');\n" +
+                "@name('s0') select MyTable[intOne].value as c0 from SupportEventWithManyArray(id = 'Q');\n" +
+                "@name('s1') select MyTable.keys() as keys from SupportBean;\n";
+            env.compileDeploy(epl).addListener("s0").addListener("s1");
+
+            sendManyArrayI(env, new int[] {1, 2}, 10);
+            sendManyArrayI(env, new int[] {2, 1}, 20);
+            sendManyArrayI(env, new int[] {1, 2, 1}, 30);
+
+            env.milestone(0);
+
+            sendManyArrayQAssert(env, new int[] {1, 2}, 10);
+            sendManyArrayQAssert(env, new int[] {1, 2, 1}, 30);
+            sendManyArrayQAssert(env, new int[] {2, 1}, 20);
+            sendManyArrayQAssert(env, new int[] {1, 2, 2}, null);
+
+            env.sendEventBean(new SupportBean());
+            Object[] keys = (Object[]) env.listener("s1").assertOneGetNewAndReset().get("keys");
+            EPAssertionUtil.assertEqualsAnyOrder(keys, new Object[] {new int[] {2, 1}, new int[] {1, 2}, new int[] {1, 2, 1}});
+
+            env.undeployAll();
+        }
+
+        private void sendManyArrayQAssert(RegressionEnvironment env, int[] arrayOne, Integer expected) {
+            env.sendEventBean(new SupportEventWithManyArray("Q").withIntOne(arrayOne));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        }
+
+        private void sendManyArrayI(RegressionEnvironment env, int[] arrayOne, int value) {
+            env.sendEventBean(new SupportEventWithManyArray("I").withIntOne(arrayOne).withValue(value));
+        }
     }
 
     private static class InfraIntegerIndexedPropertyLookAlike implements RegressionExecution {

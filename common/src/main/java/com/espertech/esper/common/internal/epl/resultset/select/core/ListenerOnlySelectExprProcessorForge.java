@@ -21,7 +21,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.StatementResultService;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.event.core.NaturalEventBean;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.context.module.EPStatementInitServices.GETSTATEMENTRESULTSERVICE;
@@ -45,9 +44,9 @@ public class ListenerOnlySelectExprProcessorForge implements SelectExprProcessor
 
         CodegenExpressionField stmtResultSvc = codegenClassScope.addFieldUnshared(true, StatementResultService.class, exprDotMethod(EPStatementInitServices.REF, GETSTATEMENTRESULTSERVICE));
         processMethod.getBlock()
-                .ifCondition(or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
-                .blockReturn(localMethod(syntheticMethod))
-                .methodReturn(constantNull());
+            .ifCondition(or(isSythesize, exprDotMethod(stmtResultSvc, "isMakeSynthetic")))
+            .blockReturn(localMethod(syntheticMethod))
+            .methodReturn(constantNull());
 
         return processMethod;
     }

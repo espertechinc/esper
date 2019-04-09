@@ -17,10 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
+import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.util.IdentifierUtil;
 import com.espertech.esper.common.internal.compile.stage1.Compilable;
@@ -86,7 +83,8 @@ public class CompilerHelperFAFProvider {
         String statementNameFromAnnotation = getNameFromAnnotation(annotations);
         String statementName = statementNameFromAnnotation == null ? "q0" : statementNameFromAnnotation.trim();
         StatementRawInfo statementRawInfo = new StatementRawInfo(0, statementName, annotations, statementType, contextDescriptor, null, compilable, null);
-        StatementSpecCompiled specCompiled = StatementRawCompiler.compile(raw, compilable, false, true, annotations, visitor.getSubselects(), new ArrayList<>(raw.getTableExpressions()), statementRawInfo, statementCompileTimeServices);
+        StatementSpecCompiledDesc compiledDesc = StatementRawCompiler.compile(raw, compilable, false, true, annotations, visitor.getSubselects(), new ArrayList<>(raw.getTableExpressions()), statementRawInfo, statementCompileTimeServices);
+        StatementSpecCompiled specCompiled = compiledDesc.getCompiled();
         FireAndForgetSpec fafSpec = specCompiled.getRaw().getFireAndForgetSpec();
 
         String packageName = "generated";
@@ -171,7 +169,7 @@ public class CompilerHelperFAFProvider {
         List<CodegenTypedParam> members = new ArrayList<>();
         members.add(new CodegenTypedParam(FAFQueryMethodProvider.class, MEMBERNAME_QUERY_METHOD_PROVIDER).setFinal(false));
 
-        CodegenClass clazz = new CodegenClass(FAFProvider.class, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
+        CodegenClass clazz = new CodegenClass(CodegenClassType.FAFPROVIDER, FAFProvider.class, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
         JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, FAFProvider.class, classPostfix);

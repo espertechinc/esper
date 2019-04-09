@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanTwo;
 import com.espertech.esper.regressionlib.support.util.IndexAssertion;
@@ -27,8 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
     private static final Logger log = LoggerFactory.getLogger(InfraNWTableFAFIndex.class);
@@ -39,7 +39,157 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
         execs.add(new InfraSelectIndexChoiceJoin(false));
         execs.add(new InfraSelectIndexChoice(true));
         execs.add(new InfraSelectIndexChoice(false));
+        execs.add(new InfraSelectIndexMultikeyWArray(true));
+        execs.add(new InfraSelectIndexMultikeyWArray(false));
+        execs.add(new InfraSelectIndexMultikeyWArrayTwoField(true));
+        execs.add(new InfraSelectIndexMultikeyWArrayTwoField(false));
+        execs.add(new InfraSelectIndexMultikeyWArrayCompositeArray(true));
+        execs.add(new InfraSelectIndexMultikeyWArrayCompositeArray(false));
+        execs.add(new InfraSelectIndexMultikeyWArrayCompositeTwoArray(true));
+        execs.add(new InfraSelectIndexMultikeyWArrayCompositeTwoArray(false));
         return execs;
+    }
+
+    private static class InfraSelectIndexMultikeyWArrayCompositeTwoArray implements RegressionExecution {
+        private final boolean namedWindow;
+
+        public InfraSelectIndexMultikeyWArrayCompositeTwoArray(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = namedWindow ?
+                "@public create window MyInfra#keepall as (id string, arrayOne string[], arrayTwo string[], value int);\n" :
+                "@public create table MyInfra(id string primary key, arrayOne string[], arrayTwo string[], value int);\n";
+            epl += "insert into MyInfra select id, stringOne as arrayOne, stringTwo as arrayTwo, value from SupportEventWithManyArray;\n" +
+                "create index MyInfraIndex on MyInfra(arrayOne, arrayTwo, value btree);\n";
+            env.compileDeploy(epl, path);
+
+            sendManyArray(env, "E1", new String[] {"a", "b"}, new String[] {"c", "d"}, 100);
+            sendManyArray(env, "E2", new String[] {"a", "b"}, new String[] {"e", "f"}, 200);
+            sendManyArray(env, "E3", new String[] {"a"}, new String[] {"b"}, 300);
+
+            env.milestone(0);
+
+            assertFAF(env, path, "arrayOne = {'a', 'b'} and arrayTwo = {'e', 'f'} and value > 150", "E2");
+            assertFAF(env, path, "arrayOne = {'a'} and arrayTwo = {'b'} and value > 150", "E3");
+            assertFAF(env, path, "arrayOne = {'a', 'b'} and arrayTwo = {'c', 'd'} and value > 90", "E1");
+            assertFAFNot(env, path, "arrayOne = {'a', 'b'} and arrayTwo = {'c', 'd'} and value > 200");
+            assertFAFNot(env, path, "arrayOne = {'a', 'b'} and arrayTwo = {'c', 'e'} and value > 90");
+            assertFAFNot(env, path, "arrayOne = {'ax', 'b'} and arrayTwo = {'c', 'd'} and value > 90");
+
+            env.undeployAll();
+        }
+
+        private void sendManyArray(RegressionEnvironment env, String id, String[] arrayOne, String[] arrayTwo, int value) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(arrayOne).withStringTwo(arrayTwo).withValue(value));
+        }
+    }
+
+    private static class InfraSelectIndexMultikeyWArrayCompositeArray implements RegressionExecution {
+        private final boolean namedWindow;
+
+        public InfraSelectIndexMultikeyWArrayCompositeArray(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = namedWindow ?
+                "@public create window MyInfra#keepall as (id string, arrayOne string[], value int);\n" :
+                "@public create table MyInfra(id string primary key, arrayOne string[], value int);\n";
+            epl += "insert into MyInfra select id, stringOne as arrayOne, value from SupportEventWithManyArray;\n" +
+                "create index MyInfraIndex on MyInfra(arrayOne, value btree);\n";
+            env.compileDeploy(epl, path);
+
+            sendManyArray(env, "E1", new String[] {"a", "b"}, 100);
+            sendManyArray(env, "E2", new String[] {"a", "b"}, 200);
+            sendManyArray(env, "E3", new String[] {"a"}, 300);
+
+            env.milestone(0);
+
+            assertFAF(env, path, "arrayOne = {'a', 'b'} and value < 150", "E1");
+            assertFAF(env, path, "arrayOne = {'a', 'b'} and value > 150", "E2");
+            assertFAF(env, path, "arrayOne = {'a'} and value > 200", "E3");
+            assertFAFNot(env, path, "arrayOne = {'a'} and value > 400");
+            assertFAFNot(env, path, "arrayOne = {'a', 'c'} and value < 150");
+
+            env.undeployAll();
+        }
+
+        private void sendManyArray(RegressionEnvironment env, String id, String[] arrayOne, int value) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(arrayOne).withValue(value));
+        }
+    }
+
+    private static class InfraSelectIndexMultikeyWArrayTwoField implements RegressionExecution {
+        private final boolean namedWindow;
+
+        public InfraSelectIndexMultikeyWArrayTwoField(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = namedWindow ?
+                "@public create window MyInfra#keepall as (id string, arrayOne string[], arrayTwo string[]);\n" :
+                "@public create table MyInfra(id string primary key, arrayOne string[], arrayTwo string[]);\n";
+            epl += "insert into MyInfra select id, stringOne as arrayOne, stringTwo as arrayTwo from SupportEventWithManyArray;\n" +
+                "create index MyInfraIndex on MyInfra(arrayOne, arrayTwo);\n";
+            env.compileDeploy(epl, path);
+
+            sendManyArray(env, "E1", new String[] {"a", "b"}, new String[] {"c", "d"});
+            sendManyArray(env, "E2", new String[] {"a"}, new String[] {"b"});
+
+            env.milestone(0);
+
+            assertFAF(env, path, "arrayOne = {'a', 'b'} and arrayTwo = {'c', 'd'}", "E1");
+            assertFAF(env, path, "arrayOne = {'a'} and arrayTwo = {'b'}", "E2");
+            assertFAFNot(env, path, "arrayOne = {'a', 'b', 'c'} and arrayTwo = {'c', 'd'}");
+            assertFAFNot(env, path, "arrayOne = {'a', 'b'} and arrayTwo = {'c', 'c'}");
+
+            env.undeployAll();
+        }
+
+        private void sendManyArray(RegressionEnvironment env, String id, String[] arrayOne, String[] arrayTwo) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(arrayOne).withStringTwo(arrayTwo));
+        }
+    }
+
+    private static class InfraSelectIndexMultikeyWArray implements RegressionExecution {
+        private final boolean namedWindow;
+
+        public InfraSelectIndexMultikeyWArray(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = namedWindow ?
+                "@public create window MyInfra#keepall as (id string, array string[]);\n" :
+                "@public create table MyInfra(id string primary key, array string[]);\n";
+            epl += "insert into MyInfra select id, stringOne as array from SupportEventWithManyArray;\n" +
+                   "create index MyInfraIndex on MyInfra(array);\n";
+            env.compileDeploy(epl, path);
+
+            sendManyArray(env, "E1", new String[] {"a", "b"});
+            sendManyArray(env, "E2", new String[] {"a"});
+            sendManyArray(env, "E3", null);
+
+            env.milestone(0);
+
+            assertFAF(env, path, "array = {'a', 'b'}", "E1");
+            assertFAF(env, path, "array = {'a'}", "E2");
+            assertFAF(env, path, "array is null", "E3");
+            assertFAFNot(env, path, "array = {'b'}");
+
+            env.undeployAll();
+        }
+
+        private void sendManyArray(RegressionEnvironment env, String id, String[] strings) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(strings));
+        }
     }
 
     private static class InfraSelectIndexChoiceJoin implements RegressionExecution {
@@ -271,5 +421,18 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
         }
 
         env.undeployAll();
+    }
+
+    private static void assertFAF(RegressionEnvironment env, RegressionPath path, String epl, String expectedId) {
+        String faf = "@Hint('index(MyInfraIndex, bust)') select * from MyInfra where " + epl;
+        EPFireAndForgetQueryResult result = env.compileExecuteFAF(faf, path);
+        assertEquals(1, result.getArray().length);
+        assertEquals(expectedId, result.getArray()[0].get("id"));
+    }
+
+    private static void assertFAFNot(RegressionEnvironment env, RegressionPath path, String epl) {
+        String faf = "@Hint('index(MyInfraIndex, bust)') select * from MyInfra where " + epl;
+        EPFireAndForgetQueryResult result = env.compileExecuteFAF(faf, path);
+        assertEquals(0, result.getArray().length);
     }
 }

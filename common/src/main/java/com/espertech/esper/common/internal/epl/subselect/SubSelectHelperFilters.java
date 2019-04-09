@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompile
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecOptions;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -27,10 +28,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeArgs;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeUtil;
-import com.espertech.esper.common.internal.view.core.ViewProcessingException;
+import com.espertech.esper.common.internal.view.core.*;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -38,9 +36,9 @@ import java.util.List;
 import java.util.Map;
 
 public class SubSelectHelperFilters {
-    public static void handleSubselectSelectClauses(ExprSubselectNode subselect, EventType outerEventType, String outerEventTypeName, String outerStreamName,
-                                                    LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                                                    StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
+    public static List<StmtClassForgableFactory> handleSubselectSelectClauses(ExprSubselectNode subselect, EventType outerEventType, String outerEventTypeName, String outerStreamName,
+                                                                              LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                                                              StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
             throws ExprValidationException {
 
         if (subselect.getSubselectNumber() == -1) {
@@ -52,6 +50,7 @@ public class SubSelectHelperFilters {
 
         List<ViewFactoryForge> viewForges;
         String subselecteventTypeName;
+        List<StmtClassForgableFactory> additionalForgeables;
 
         // construct view factory chain
         EventType eventType;
@@ -67,14 +66,18 @@ public class SubSelectHelperFilters {
                     throw new ExprValidationException("Subqueries require one or more views to limit the stream, consider declaring a length or time window");
                 }
 
-                viewForges = ViewFactoryForgeUtil.createForges(filterStreamSpecCompiled.getViewSpecs(), args, filterStreamSpecCompiled.getFilterSpecCompiled().getResultEventType());
+                ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(filterStreamSpecCompiled.getViewSpecs(), args, filterStreamSpecCompiled.getFilterSpecCompiled().getResultEventType());
+                viewForges = viewForgeDesc.getForges();
+                additionalForgeables = viewForgeDesc.getMultikeyForges();
                 // Register filter, create view factories
                 eventType = viewForges.isEmpty() ? filterStreamSpecCompiled.getFilterSpecCompiled().getResultEventType() : viewForges.get(viewForges.size() - 1).getEventType();
                 subselect.setRawEventType(eventType);
             } else {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
                 NamedWindowMetaData namedWindow = namedSpec.getNamedWindow();
-                viewForges = ViewFactoryForgeUtil.createForges(namedSpec.getViewSpecs(), args, namedWindow.getEventType());
+                ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(namedSpec.getViewSpecs(), args, namedWindow.getEventType());
+                viewForges = viewForgeDesc.getForges();
+                additionalForgeables = viewForgeDesc.getMultikeyForges();
                 String namedWindowName = namedWindow.getEventType().getName();
                 subselecteventTypeName = namedWindowName;
                 EPLValidationUtil.validateContextName(false, namedWindowName, namedWindow.getContextName(), statementRawInfo.getContextName(), true);
@@ -154,5 +157,7 @@ public class SubSelectHelperFilters {
                 }
             }
         }
+
+        return additionalForgeables;
     }
 }

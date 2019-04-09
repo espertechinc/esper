@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.table.core;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 
-import java.util.Set;
+import java.util.Collection;
 
 public interface TableInstanceGrouped extends TableInstance {
     ObjectArrayBackedEventBean getRowForGroupKey(Object groupKey);
@@ -22,7 +22,7 @@ public interface TableInstanceGrouped extends TableInstance {
 
     void handleRowUpdated(ObjectArrayBackedEventBean row);
 
-    Set<Object> getGroupKeys();
+    Collection<Object> getGroupKeys();
 
     Table getTable();
 }

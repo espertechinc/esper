@@ -147,9 +147,9 @@ public class SelectForge implements DataFlowOperatorForge {
 
         DataFlowOpForgeInitializeResult initializeResult = new DataFlowOpForgeInitializeResult();
         initializeResult.setTypeDescriptors(new GraphTypeDesc[]{new GraphTypeDesc(false, true, outputEventType)});
-        initializeResult.setAdditionalForgables(forablesResult.getForgeResult());
+        initializeResult.setAdditionalForgeables(forablesResult.getForgeResult());
 
-        for (StmtClassForgable forgable : forablesResult.getForgeResult().getForgables()) {
+        for (StmtClassForgable forgable : forablesResult.getForgeResult().getForgeables()) {
             if (forgable.getForgableType() == StmtClassForgableType.AIFACTORYPROVIDER) {
                 classNameAIFactoryProvider = forgable.getClassName();
             }

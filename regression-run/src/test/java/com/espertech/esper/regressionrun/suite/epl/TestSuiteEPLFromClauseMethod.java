@@ -52,7 +52,8 @@ public class TestSuiteEPLFromClauseMethod extends TestCase {
 
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBeanTwo.class, SupportBean_A.class,
-            SupportBean_S0.class, SupportBeanInt.class, SupportTradeEventWithSide.class}) {
+            SupportBean_S0.class, SupportBeanInt.class, SupportTradeEventWithSide.class,
+            SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

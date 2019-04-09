@@ -14,15 +14,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
-import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.regressionlib.support.subscriber.SupportSubscriberMultirowObjectArrayNStmt;
 import com.espertech.esper.runtime.client.EPStatement;
 
@@ -30,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -42,7 +38,110 @@ public class InfraTableSelect {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
         execs.add(new InfraTableSelectStarPublicTypeVisibility());
         execs.add(new InfraTableSelectEnum());
+        execs.add(new InfraTableSelectMultikeyWArraySingleArray());
+        execs.add(new InfraTableSelectMultikeyWArrayTwoArray());
+        execs.add(new InfraTableSelectMultikeyWArrayComposite());
         return execs;
+    }
+
+    private static class InfraTableSelectMultikeyWArrayComposite implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = "create table MyTable(k0 string primary key, k1 string primary key, k2 string primary key, v string);\n" +
+                "create index MyIndex on MyTable(k0, k1, v btree);\n" +
+                "insert into MyTable select p00 as k0, p01 as k1, p02 as k2, p03 as v from SupportBean_S0;\n" +
+                "@name('s0') select t.v as v from SupportBean_S1, MyTable as t where k0 = p10 and k1 = p11 and v > p12;\n";
+            env.compileDeploy(epl, path).addListener("s0");
+
+            sendS0(env, "A", "BB", "CCC", "X1");
+            sendS0(env, "A", "BB", "DDDD", "X4");
+            sendS0(env, "A", "CC", "CCC", "X3");
+            sendS0(env, "C", "CC", "CCC", "X4");
+
+            env.milestone(0);
+
+            sendS1Assert(env, "A", "CC", "", "X3");
+            sendS1Assert(env, "C", "CC", "", "X4");
+            sendS1Assert(env, "A", "BB", "X3", "X4");
+            sendS1Assert(env, "A", "BB", "Z", null);
+
+            env.undeployAll();
+        }
+
+        private void sendS0(RegressionEnvironment env, String p00, String p01, String p02, String p03) {
+            env.sendEventBean(new SupportBean_S0(0, p00, p01, p02, p03));
+        }
+
+        private void sendS1Assert(RegressionEnvironment env, String p10, String p11, String p12, String expected) {
+            env.sendEventBean(new SupportBean_S1(0, p10, p11, p12));
+            if (expected == null) {
+                assertFalse(expected, env.listener("s0").isInvoked());
+            } else {
+                assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("v"));
+            }
+        }
+    }
+
+    private static class InfraTableSelectMultikeyWArrayTwoArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = "create table MyTable(k1 int[primitive] primary key, k2 int[primitive] primary key, value int);\n" +
+                "insert into MyTable select intOne as k1, intTwo as k2, value from SupportEventWithManyArray(id = 'I');\n" +
+                "@name('s0') select t.value as c0 from SupportEventWithManyArray(id='Q'), MyTable as t where k1 = intOne and k2 = intTwo;\n";
+            env.compileDeploy(epl, path).addListener("s0");
+
+            sendManyArray(env, "I", new int[]{1, 2}, new int[]{3, 4}, 10);
+            sendManyArray(env, "I", new int[]{1, 3}, new int[]{1}, 20);
+            sendManyArray(env, "I", new int[]{2}, new int[]{}, 30);
+
+            env.milestone(0);
+
+            sendManyArrayAssert(env, "Q", new int[]{2}, new int[0], 30);
+            sendManyArrayAssert(env, "Q", new int[]{1, 2}, new int[]{3, 4}, 10);
+            sendManyArrayAssert(env, "Q", new int[]{1, 3}, new int[]{1}, 20);
+
+            env.undeployAll();
+        }
+
+        private void sendManyArrayAssert(RegressionEnvironment env, String id, int[] intOne, int[] intTwo, int expected) {
+            sendManyArray(env, id, intOne, intTwo, -1);
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        }
+
+        private void sendManyArray(RegressionEnvironment env, String id, int[] intOne, int[] intTwo, int value) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(intOne).withIntTwo(intTwo).withValue(value));
+        }
+    }
+
+    private static class InfraTableSelectMultikeyWArraySingleArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = "create table MyTable(k int[primitive] primary key, value int);\n" +
+                "insert into MyTable select array as k, value from SupportEventWithIntArray;\n" +
+                "@name('s0') select t.value as c0 from SupportEventWithManyArray, MyTable as t where k = intOne;\n";
+            env.compileDeploy(epl, path).addListener("s0");
+
+            sendIntArray(env, "E1", new int[]{1, 2}, 10);
+            sendIntArray(env, "E2", new int[]{1, 3}, 20);
+            sendIntArray(env, "E3", new int[]{2}, 30);
+
+            env.milestone(0);
+
+            sendAssertManyArray(env, new int[]{2}, 30);
+            sendAssertManyArray(env, new int[]{1, 3}, 20);
+            sendAssertManyArray(env, new int[]{1, 2}, 10);
+
+            env.undeployAll();
+        }
+
+        private void sendAssertManyArray(RegressionEnvironment env, int[] ints, int expected) {
+            env.sendEventBean(new SupportEventWithManyArray().withIntOne(ints));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        }
+
+        private void sendIntArray(RegressionEnvironment env, String id, int[] ints, int value) {
+            env.sendEventBean(new SupportEventWithIntArray(id, ints, value));
+        }
     }
 
     private static class InfraTableSelectEnum implements RegressionExecution {

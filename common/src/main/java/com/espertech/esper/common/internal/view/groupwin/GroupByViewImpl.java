@@ -12,12 +12,10 @@ package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.common.internal.view.core.View;
@@ -193,16 +191,7 @@ public class GroupByViewImpl extends ViewSupport implements GroupByView, AgentIn
 
     private Object getGroupKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
-        ExprEvaluator[] criteriaEvaluators = groupByViewFactory.getCriteriaEvals();
-        if (criteriaEvaluators.length == 1) {
-            return criteriaEvaluators[0].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-
-        Object[] values = new Object[criteriaEvaluators.length];
-        for (int i = 0; i < criteriaEvaluators.length; i++) {
-            values[i] = criteriaEvaluators[i].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-        return new HashableMultiKey(values);
+        return groupByViewFactory.getCriteriaEval().evaluate(eventsPerStream, true, agentInstanceContext);
     }
 
     protected static Object addUpgradeToDequeIfPopulated(Object holder, EventBean theEvent) {

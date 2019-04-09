@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
-import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,14 +29,11 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EPS;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil.METHOD_TOPAIRNULLIFALLNULL;
-import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen;
 import static com.espertech.esper.common.internal.epl.resultset.rowpergroup.ResultSetProcessorRowPerGroupImpl.*;
 
 public class ResultSetProcessorRowPerGroupUnbound {
 
     public static void applyViewResultCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeyViewSingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
-
         method.getBlock().declareVar(EventBean[].class, NAME_EPS, newArrayByLength(EventBean.class, constant(1)));
 
         {
@@ -45,7 +41,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
             {
                 CodegenBlock newLoop = ifNew.forEach(EventBean.class, "aNewData", REF_NEWDATA);
                 newLoop.assignArrayElement(NAME_EPS, constant(0), ref("aNewData"))
-                        .declareVar(Object.class, "mk", localMethod(generateGroupKeyViewSingle, REF_EPS, constantTrue()))
+                        .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantTrue()))
                         .exprDotMethod(ref("groupReps"), "put", ref("mk"), ref("aNewData"))
                         .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", REF_EPS, ref("mk"), REF_AGENTINSTANCECONTEXT);
             }
@@ -56,7 +52,7 @@ public class ResultSetProcessorRowPerGroupUnbound {
             {
                 CodegenBlock oldLoop = ifOld.forEach(EventBean.class, "anOldData", REF_OLDDATA);
                 oldLoop.assignArrayElement(NAME_EPS, constant(0), ref("anOldData"))
-                        .declareVar(Object.class, "mk", localMethod(generateGroupKeyViewSingle, REF_EPS, constantFalse()))
+                        .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), REF_EPS, constantFalse()))
                         .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", REF_EPS, ref("mk"), REF_AGENTINSTANCECONTEXT);
             }
         }
@@ -112,10 +108,9 @@ public class ResultSetProcessorRowPerGroupUnbound {
 
     static CodegenMethod processViewResultNewDepthOneUnboundCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         CodegenMethod shortcutEvalGivenKey = ResultSetProcessorRowPerGroupImpl.shortcutEvalGivenKeyCodegen(forge.getOptionalHavingNode(), classScope, instance);
-        CodegenMethod generateGroupKeySingle = ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
 
         Consumer<CodegenMethod> code = methodNode -> {
-            methodNode.getBlock().declareVar(Object.class, "groupKey", localMethod(generateGroupKeySingle, REF_NEWDATA, constantTrue()));
+            methodNode.getBlock().declareVar(Object.class, "groupKey", localMethod(forge.getGenerateGroupKeySingle(), REF_NEWDATA, constantTrue()));
             if (forge.isSelectRStream()) {
                 methodNode.getBlock().declareVar(EventBean.class, "rstream", localMethod(shortcutEvalGivenKey, REF_NEWDATA, ref("groupKey"), constantFalse(), REF_ISSYNTHESIZE));
             }

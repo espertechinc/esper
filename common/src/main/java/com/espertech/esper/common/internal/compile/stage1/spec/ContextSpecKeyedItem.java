@@ -14,6 +14,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.controller.keyed.ContextControllerDetailKeyedItem;
@@ -36,6 +38,7 @@ public class ContextSpecKeyedItem implements Serializable {
 
     private FilterSpecCompiled filterSpecCompiled;
     private EventPropertyGetterSPI[] getters;
+    private MultiKeyClassRef optionalMultiKey;
 
     public ContextSpecKeyedItem(FilterSpecRaw filterSpecRaw, List<String> propertyNames, String aliasName) {
         this.filterSpecRaw = filterSpecRaw;
@@ -67,6 +70,14 @@ public class ContextSpecKeyedItem implements Serializable {
         return getters;
     }
 
+    public MultiKeyClassRef getOptionalMultiKey() {
+        return optionalMultiKey;
+    }
+
+    public void setOptionalMultiKey(MultiKeyClassRef optionalMultiKey) {
+        this.optionalMultiKey = optionalMultiKey;
+    }
+
     public String getAliasName() {
         return aliasName;
     }
@@ -76,26 +87,29 @@ public class ContextSpecKeyedItem implements Serializable {
         Class[] types = EventTypeUtility.getPropertyTypes(filterSpecCompiled.getFilterForEventType(), propertyNames.toArray(new String[0]));
 
         method.getBlock()
-                .declareVar(FilterSpecActivatable.class, "activatable", localMethod(filterSpecCompiled.makeCodegen(method, symbols, classScope)))
-                .declareVar(ExprFilterSpecLookupable[].class, "lookupables", newArrayByLength(ExprFilterSpecLookupable.class, constant(getters.length)));
+            .declareVar(FilterSpecActivatable.class, "activatable", localMethod(filterSpecCompiled.makeCodegen(method, symbols, classScope)))
+            .declareVar(ExprFilterSpecLookupable[].class, "lookupables", newArrayByLength(ExprFilterSpecLookupable.class, constant(getters.length)));
         for (int i = 0; i < getters.length; i++) {
-            CodegenExpression getter = EventTypeUtility.codegenGetterWCoerce(getters[i], types[i], types[i], method, this.getClass(), classScope);
+            CodegenExpression getter = EventTypeUtility.codegenGetterWCoerceWArray(getters[i], types[i], types[i], method, this.getClass(), classScope);
             CodegenExpression lookupable = newInstance(ExprFilterSpecLookupable.class, constant(propertyNames.get(i)), getter,
-                    constant(types[i]), constantFalse());
+                constant(types[i]), constantFalse());
             CodegenExpression eventType = exprDotMethod(ref("activatable"), "getFilterForEventType");
             method.getBlock()
-                    .assignArrayElement(ref("lookupables"), constant(i), lookupable)
-                    .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", eventType, arrayAtIndex(ref("lookupables"), constant(i))));
+                .assignArrayElement(ref("lookupables"), constant(i), lookupable)
+                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", eventType, arrayAtIndex(ref("lookupables"), constant(i))));
         }
 
+        CodegenExpression getter = MultiKeyCodegen.codegenGetterMayMultiKey(filterSpecCompiled.getFilterForEventType(), getters, types, null, optionalMultiKey, method, classScope);
+
         method.getBlock()
-                .declareVar(ContextControllerDetailKeyedItem.class, "item", newInstance(ContextControllerDetailKeyedItem.class))
-                .exprDotMethod(ref("item"), "setGetter", EventTypeUtility.codegenGetterMayMultiKeyWCoerce(filterSpecCompiled.getFilterForEventType(), getters, types, null, method, this.getClass(), classScope))
-                .exprDotMethod(ref("item"), "setLookupables", ref("lookupables"))
-                .exprDotMethod(ref("item"), "setPropertyTypes", constant(types))
-                .exprDotMethod(ref("item"), "setFilterSpecActivatable", ref("activatable"))
-                .exprDotMethod(ref("item"), "setAliasName", constant(aliasName))
-                .methodReturn(ref("item"));
+            .declareVar(ContextControllerDetailKeyedItem.class, "item", newInstance(ContextControllerDetailKeyedItem.class))
+            .exprDotMethod(ref("item"), "setGetter", getter)
+            .exprDotMethod(ref("item"), "setLookupables", ref("lookupables"))
+            .exprDotMethod(ref("item"), "setPropertyTypes", constant(types))
+            .exprDotMethod(ref("item"), "setOptionalMultikeySerde", MultiKeyCodegen.codegenOptionalSerde(optionalMultiKey))
+            .exprDotMethod(ref("item"), "setFilterSpecActivatable", ref("activatable"))
+            .exprDotMethod(ref("item"), "setAliasName", constant(aliasName))
+            .methodReturn(ref("item"));
         return localMethod(method);
     }
 }

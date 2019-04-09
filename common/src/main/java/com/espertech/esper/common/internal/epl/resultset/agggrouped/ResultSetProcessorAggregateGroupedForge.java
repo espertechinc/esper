@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -36,6 +37,7 @@ import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.generateGroupKeyArrayViewCodegen;
 
 /**
  * Result-set processor prototype for the aggregate-grouped case:
@@ -55,6 +57,11 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
     private final EventType[] eventTypes;
     private final OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory;
     private final Class[] groupKeyTypes;
+    private final MultiKeyClassRef multiKeyClassRef;
+
+    private CodegenMethod generateGroupKeySingle;
+    private CodegenMethod generateGroupKeyArrayView;
+    private CodegenMethod generateGroupKeyArrayJoin;
 
     public ResultSetProcessorAggregateGroupedForge(EventType resultEventType,
                                                    ExprNode[] groupKeyNodeExpressions,
@@ -66,7 +73,8 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
                                                    boolean isHistoricalOnly,
                                                    ResultSetProcessorOutputConditionType outputConditionType,
                                                    OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
-                                                   EventType[] eventTypes) {
+                                                   EventType[] eventTypes,
+                                                   MultiKeyClassRef multiKeyClassRef) {
         this.resultEventType = resultEventType;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.optionalHavingNode = optionalHavingNode;
@@ -79,6 +87,7 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
         this.eventTypes = eventTypes;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
+        this.multiKeyClassRef = multiKeyClassRef;
     }
 
     public EventType getResultEventType() {
@@ -154,9 +163,9 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         ResultSetProcessorUtil.evaluateHavingClauseCodegen(optionalHavingNode, classScope, instance);
         ResultSetProcessorAggregateGroupedImpl.removedAggregationGroupKeyCodegen(classScope, instance);
 
-        ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(groupKeyNodeExpressions, classScope, instance);
-        ResultSetProcessorGroupedUtil.generateGroupKeyArrayViewCodegen(groupKeyNodeExpressions, classScope, instance);
-        ResultSetProcessorGroupedUtil.generateGroupKeyArrayJoinCodegen(groupKeyNodeExpressions, classScope, instance);
+        generateGroupKeySingle = ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(groupKeyNodeExpressions, multiKeyClassRef, classScope, instance);
+        generateGroupKeyArrayView = generateGroupKeyArrayViewCodegen(generateGroupKeySingle, classScope, instance);
+        generateGroupKeyArrayJoin = ResultSetProcessorGroupedUtil.generateGroupKeyArrayJoinCodegen(generateGroupKeySingle, classScope, instance);
 
         ResultSetProcessorAggregateGroupedImpl.generateOutputBatchedSingleCodegen(this, classScope, instance);
         ResultSetProcessorAggregateGroupedImpl.generateOutputBatchedViewUnkeyedCodegen(this, classScope, instance);
@@ -227,5 +236,21 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
 
     public String getInstrumentedQName() {
         return "ResultSetProcessGroupedRowPerEvent";
+    }
+
+    public CodegenMethod getGenerateGroupKeySingle() {
+        return generateGroupKeySingle;
+    }
+
+    public CodegenMethod getGenerateGroupKeyArrayView() {
+        return generateGroupKeyArrayView;
+    }
+
+    public CodegenMethod getGenerateGroupKeyArrayJoin() {
+        return generateGroupKeyArrayJoin;
+    }
+
+    public MultiKeyClassRef getMultiKeyClassRef() {
+        return multiKeyClassRef;
     }
 }

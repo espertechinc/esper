@@ -54,14 +54,14 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
             method.getBlock().ifRefNull("value").blockReturnNoValue();
         }
         if (distinct != null) {
-            method.getBlock().ifCondition(not(exprDotMethod(distinct, "add", ref("value")))).blockReturnNoValue();
+            method.getBlock().ifCondition(not(exprDotMethod(distinct, "add", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
         }
         method.getBlock().apply(increment);
     }
 
     protected void applyTableEnterFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
-            method.getBlock().ifCondition(not(exprDotMethod(distinct, "add", ref("value")))).blockReturnNoValue();
+            method.getBlock().ifCondition(not(exprDotMethod(distinct, "add", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
         }
         method.getBlock().increment(cnt);
     }
@@ -88,14 +88,14 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
             method.getBlock().ifRefNull("value").blockReturnNoValue();
         }
         if (distinct != null) {
-            method.getBlock().ifCondition(not(exprDotMethod(distinct, "remove", ref("value")))).blockReturnNoValue();
+            method.getBlock().ifCondition(not(exprDotMethod(distinct, "remove", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
         }
         method.getBlock().apply(decrement);
     }
 
     protected void applyTableLeaveFiltered(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
-            method.getBlock().ifCondition(not(exprDotMethod(distinct, "remove", ref("value")))).blockReturnNoValue();
+            method.getBlock().ifCondition(not(exprDotMethod(distinct, "remove", toDistinctValueKey(ref("value"))))).blockReturnNoValue();
         }
         method.getBlock().decrement(cnt);
     }

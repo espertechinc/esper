@@ -191,7 +191,7 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
 
     @Override
     public Iterator<EventBean> iterator() {
-        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct());
+        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct(), parent.getDistinctKeyGetter());
     }
 
     public void terminated() {

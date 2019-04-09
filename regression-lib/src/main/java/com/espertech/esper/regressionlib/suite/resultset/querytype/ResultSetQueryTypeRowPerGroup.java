@@ -47,7 +47,67 @@ public class ResultSetQueryTypeRowPerGroup {
         execs.add(new ResultSetQueryTypeSelectAvgExprGroupBy());
         execs.add(new ResultSetQueryTypeUnboundStreamIterate());
         execs.add(new ResultSetQueryTypeReclaimSideBySide());
+        execs.add(new ResultSetQueryTypeRowPerGrpMultikeyWArray(false, true));
+        execs.add(new ResultSetQueryTypeRowPerGrpMultikeyWArray(false, false));
+        execs.add(new ResultSetQueryTypeRowPerGrpMultikeyWArray(true, false));
+        execs.add(new ResultSetQueryTypeRowPerGrpMultikeyWReclaim());
         return execs;
+    }
+
+    public static class ResultSetQueryTypeRowPerGrpMultikeyWReclaim implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String epl = "@Hint('reclaim_group_aged=10,reclaim_group_freq=1') @name('s0') select theString, intPrimitive, sum(longPrimitive) as thesum from SupportBean group by theString, intPrimitive";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendEventSBAssert(env, "A", 0, 100, 100);
+            sendEventSBAssert(env, "A", 0, 101, 201);
+
+            env.milestone(0);
+            env.advanceTime(11000);
+
+            sendEventSBAssert(env, "A", 0, 104, 104);
+
+            env.undeployAll();
+        }
+    }
+
+    public static class ResultSetQueryTypeRowPerGrpMultikeyWArray implements RegressionExecution {
+        private final boolean join;
+        private final boolean unbound;
+
+        public ResultSetQueryTypeRowPerGrpMultikeyWArray(boolean join, boolean unbound) {
+            this.join = join;
+            this.unbound = unbound;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String epl = join ?
+                "@Name('s0') select sum(value) as thesum from SupportEventWithIntArray#keepall, SupportBean#keepall group by array" :
+                (unbound ?
+                    "@Name('s0') select sum(value) as thesum from SupportEventWithIntArray group by array" :
+                    "@Name('s0') select sum(value) as thesum from SupportEventWithIntArray#keepall group by array"
+                    );
+
+            env.compileDeploy(epl).addListener("s0");
+            env.sendEventBean(new SupportBean());
+
+            sendAssertIntArray(env, "E1", new int[] {1, 2}, 5, 5);
+
+            env.milestone(0);
+
+            sendAssertIntArray(env, "E2", new int[] {1, 2}, 10, 15);
+            sendAssertIntArray(env, "E3", new int[] {1}, 11, 11);
+            sendAssertIntArray(env, "E4", new int[] {1, 3}, 12, 12);
+
+            env.milestone(1);
+
+            sendAssertIntArray(env, "E5", new int[] {1}, 13, 24);
+            sendAssertIntArray(env, "E6", new int[] {1, 3}, 15, 27);
+            sendAssertIntArray(env, "E7", new int[] {1, 2}, 16, 31);
+
+            env.undeployAll();
+        }
     }
 
     public static class ResultSetQueryTypeRowPerGroupSimple implements RegressionExecution {
@@ -814,7 +874,20 @@ public class ResultSetQueryTypeRowPerGroup {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
     }
 
+    private static void sendEventSBAssert(RegressionEnvironment env, String theString, int intPrimitive, int longPrimitive, long expected) {
+        SupportBean sb = new SupportBean(theString, intPrimitive);
+        sb.setLongPrimitive(longPrimitive);
+        env.sendEventBean(sb);
+        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("thesum"));
+    }
+
     private static void sendTimer(RegressionEnvironment env, long timeInMSec) {
         env.advanceTime(timeInMSec);
+    }
+
+    private static void sendAssertIntArray(RegressionEnvironment env, String id, int[] array, int value, int expected) {
+        final String[] fields = "thesum".split(",");
+        env.sendEventBean(new SupportEventWithIntArray(id, array, value));
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {expected});
     }
 }

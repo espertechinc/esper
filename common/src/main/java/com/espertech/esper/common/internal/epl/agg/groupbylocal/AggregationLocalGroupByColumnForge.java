@@ -12,20 +12,20 @@ package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorSlotPairForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class AggregationLocalGroupByColumnForge {
     private final boolean defaultGroupLevel;
-    private final ExprForge[] partitionForges;
+    private final ExprNode[] partitionForges;
     private final int methodOffset;
     private final boolean methodAgg;
     private final AggregationAccessorSlotPairForge pair;
     private final int levelNum;
 
-    public AggregationLocalGroupByColumnForge(boolean defaultGroupLevel, ExprForge[] partitionForges, int methodOffset, boolean methodAgg, AggregationAccessorSlotPairForge pair, int levelNum) {
+    public AggregationLocalGroupByColumnForge(boolean defaultGroupLevel, ExprNode[] partitionForges, int methodOffset, boolean methodAgg, AggregationAccessorSlotPairForge pair, int levelNum) {
         this.defaultGroupLevel = defaultGroupLevel;
         this.partitionForges = partitionForges;
         this.methodOffset = methodOffset;
@@ -34,7 +34,7 @@ public class AggregationLocalGroupByColumnForge {
         this.levelNum = levelNum;
     }
 
-    public ExprForge[] getPartitionForges() {
+    public ExprNode[] getPartitionForges() {
         return partitionForges;
     }
 

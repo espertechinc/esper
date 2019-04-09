@@ -12,11 +12,15 @@ package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.soda.ForClauseKeyword;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.ForClauseItemSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.InsertIntoDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseElementWildcard;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseElementCompiled;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompiledSpec;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalWildcardNonJoin;
@@ -42,11 +46,13 @@ public class SelectExprProcessorFactory {
 
         SelectExprProcessorForge synthetic = getProcessorInternal(args, insertIntoDesc);
         if (args.isFireAndForget() || !withSubscriber) {
-            return new SelectExprProcessorDescriptor(new SelectSubscriberDescriptor(), synthetic);
+            return new SelectExprProcessorDescriptor(new SelectSubscriberDescriptor(), synthetic, Collections.emptyList());
         }
 
         // Handle for-clause delivery contract checking
         ExprNode[] groupedDeliveryExpr = null;
+        MultiKeyClassRef groupedDeliveryMultiKey = null;
+        List<StmtClassForgableFactory> additionalForgeables = Collections.emptyList();
         boolean forDelivery = false;
         if (args.getForClauseSpec() != null) {
             for (ForClauseItemSpec item : args.getForClauseSpec().getClauses()) {
@@ -75,6 +81,10 @@ public class SelectExprProcessorFactory {
                     groupedDeliveryExpr[i] = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.FORCLAUSE, item.getExpressions().get(i), validationContext);
                 }
                 forDelivery = true;
+
+                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(groupedDeliveryExpr, false);
+                groupedDeliveryMultiKey = multiKeyPlan.getOptionalClassRef();
+                additionalForgeables = multiKeyPlan.getMultiKeyForgables();
             }
             if (groupedDeliveryExpr != null && groupedDeliveryExpr.length == 0) {
                 groupedDeliveryExpr = null;
@@ -87,14 +97,14 @@ public class SelectExprProcessorFactory {
 
         if (allowSubscriber) {
             BindProcessorForge bindProcessor = new BindProcessorForge(synthetic, args.getSelectionList(), args.getTypeService().getEventTypes(), args.getTypeService().getStreamNames(), args.getTableCompileTimeResolver());
-            descriptor = new SelectSubscriberDescriptor(bindProcessor.getExpressionTypes(), bindProcessor.getColumnNamesAssigned(), forDelivery, groupedDeliveryExpr);
+            descriptor = new SelectSubscriberDescriptor(bindProcessor.getExpressionTypes(), bindProcessor.getColumnNamesAssigned(), forDelivery, groupedDeliveryExpr, groupedDeliveryMultiKey);
             forge = new BindSelectExprProcessorForge(synthetic, bindProcessor);
         } else {
             descriptor = new SelectSubscriberDescriptor();
             forge = new ListenerOnlySelectExprProcessorForge(synthetic);
         }
 
-        return new SelectExprProcessorDescriptor(descriptor, forge);
+        return new SelectExprProcessorDescriptor(descriptor, forge, additionalForgeables);
     }
 
     private static SelectExprProcessorForge getProcessorInternal(SelectProcessorArgs args, InsertIntoDesc insertIntoDesc)

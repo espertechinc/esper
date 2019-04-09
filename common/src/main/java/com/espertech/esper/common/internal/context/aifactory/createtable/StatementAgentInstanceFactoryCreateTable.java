@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.context.aifactory.createtable;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
@@ -36,6 +39,9 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
     private AggregationRowFactory aggregationRowFactory;
     private DataInputOutputSerde aggregationSerde;
     private EventPropertyValueGetter primaryKeyGetter;
+    private MultiKeyGeneratedSerde primaryKeySerde;
+    private MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform;
+    private MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform;
 
     private Table table;
 
@@ -63,6 +69,18 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         this.primaryKeyGetter = primaryKeyGetter;
     }
 
+    public void setPrimaryKeySerde(MultiKeyGeneratedSerde primaryKeySerde) {
+        this.primaryKeySerde = primaryKeySerde;
+    }
+
+    public void setPrimaryKeyObjectArrayTransform(MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform) {
+        this.primaryKeyObjectArrayTransform = primaryKeyObjectArrayTransform;
+    }
+
+    public void setPrimaryKeyIntoTableTransform(MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform) {
+        this.primaryKeyIntoTableTransform = primaryKeyIntoTableTransform;
+    }
+
     public void ready(StatementContext statementContext, ModuleIncidentals moduleIncidentals, boolean recovery) {
         table = statementContext.getTableManagementService().getTable(statementContext.getDeploymentId(), tableName);
         if (table == null) {
@@ -73,6 +91,9 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         table.setAggregationRowFactory(aggregationRowFactory);
         table.setTableSerdes(statementContext.getTableManagementService().getTableSerdes(table, aggregationSerde, statementContext));
         table.setPrimaryKeyGetter(primaryKeyGetter);
+        table.setPrimaryKeySerde(primaryKeySerde);
+        table.setPrimaryKeyObjectArrayTransform(primaryKeyObjectArrayTransform);
+        table.setPrimaryKeyIntoTableTransform(primaryKeyIntoTableTransform);
         table.tableReady();
     }
 

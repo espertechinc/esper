@@ -14,12 +14,15 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.NumberSetPermutationEnumeration;
 import com.espertech.esper.common.internal.collection.NumberSetShiftGroupEnumeration;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalStreamIndexListForge;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalViewableDesc;
-import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyForge;
-import com.espertech.esper.common.internal.epl.historical.lookupstrategy.HistoricalIndexLookupStrategyForge;
+import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeHistoricalDesc;
 import com.espertech.esper.common.internal.epl.join.indexlookupplan.*;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
@@ -118,7 +121,7 @@ import java.util.*;
  * Builds a query plan for 3 or more streams in a join.
  */
 public class NStreamQueryPlanBuilder {
-    protected static QueryPlanForge build(QueryGraphForge queryGraph,
+    protected static QueryPlanForgeDesc build(QueryGraphForge queryGraph,
                                           EventType[] typesPerStream,
                                           HistoricalViewableDesc historicalViewableDesc,
                                           DependencyGraph dependencyGraph,
@@ -132,6 +135,8 @@ public class NStreamQueryPlanBuilder {
         }
 
         int numStreams = queryGraph.getNumStreams();
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+
         QueryPlanIndexForge[] indexSpecs = QueryPlanIndexBuilder.buildIndexSpec(queryGraph, typesPerStream, indexedStreamsUniqueProps);
         if (log.isDebugEnabled()) {
             log.debug(".build Index build completed, indexes=" + QueryPlanIndexForge.print(indexSpecs));
@@ -165,7 +170,9 @@ public class NStreamQueryPlanBuilder {
                 worstDepth = bestChainResult.depth;
             }
 
-            planNodeSpecs[streamNo] = createStreamPlan(streamNo, bestChain, queryGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult);
+            QueryPlanNodeForgeDesc planDesc = createStreamPlan(streamNo, bestChain, queryGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult);
+            planNodeSpecs[streamNo] = planDesc.getForge();
+            additionalForgeables.addAll(planDesc.getAdditionalForgeables());
             if (log.isDebugEnabled()) {
                 log.debug(".build spec=" + planNodeSpecs[streamNo]);
             }
@@ -183,16 +190,18 @@ public class NStreamQueryPlanBuilder {
                 public void visit(QueryPlanNodeForge node) {
                     if (node instanceof HistoricalDataPlanNodeForge) {
                         HistoricalDataPlanNodeForge historical = (HistoricalDataPlanNodeForge) node;
-                        Pair<HistoricalIndexLookupStrategyForge, PollResultIndexingStrategyForge> pair = historicalStreamIndexLists[historical.getStreamNum()].getStrategy(historical.getLookupStreamNum());
-                        historical.setHistoricalIndexLookupStrategy(pair.getFirst());
-                        historical.setPollResultIndexingStrategy(pair.getSecond());
+                        JoinSetComposerPrototypeHistoricalDesc desc = historicalStreamIndexLists[historical.getStreamNum()].getStrategy(historical.getLookupStreamNum());
+                        historical.setPollResultIndexingStrategy(desc.getIndexingForge());
+                        historical.setHistoricalIndexLookupStrategy(desc.getLookupForge());
+                        additionalForgeables.addAll(desc.getAdditionalForgeables());
                     }
                 }
             };
             plan.accept(visitor);
         }
 
-        return new QueryPlanForge(indexSpecs, planNodeSpecs);
+        QueryPlanForge forge = new QueryPlanForge(indexSpecs, planNodeSpecs);
+        return new QueryPlanForgeDesc(forge, additionalForgeables);
     }
 
     /**
@@ -210,13 +219,14 @@ public class NStreamQueryPlanBuilder {
      * @param streamJoinAnalysisResult   stream join analysis
      * @return NestedIterationNode with lookups attached underneath
      */
-    protected static QueryPlanNodeForge createStreamPlan(int lookupStream, int[] bestChain, QueryGraphForge queryGraph,
+    protected static QueryPlanNodeForgeDesc createStreamPlan(int lookupStream, int[] bestChain, QueryGraphForge queryGraph,
                                                          QueryPlanIndexForge[] indexSpecsPerStream, EventType[] typesPerStream,
                                                          boolean[] isHistorical, HistoricalStreamIndexListForge[] historicalStreamIndexLists,
                                                          TableMetaData[] tablesPerStream,
                                                          StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult) {
         NestedIterationNodeForge nestedIterNode = new NestedIterationNodeForge(bestChain);
         int currentLookupStream = lookupStream;
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         // Walk through each successive lookup
         for (int i = 0; i < bestChain.length; i++) {
@@ -230,15 +240,16 @@ public class NStreamQueryPlanBuilder {
                 historicalStreamIndexLists[indexedStream].addIndex(currentLookupStream);
                 node = new HistoricalDataPlanNodeForge(indexedStream, lookupStream, currentLookupStream, typesPerStream.length, null);
             } else {
-                TableLookupPlanForge tableLookupPlan = createLookupPlan(queryGraph, currentLookupStream, indexedStream, streamJoinAnalysisResult.isVirtualDW(indexedStream), indexSpecsPerStream[indexedStream], typesPerStream, tablesPerStream[indexedStream]);
-                node = new TableLookupNodeForge(tableLookupPlan);
+                TableLookupPlanDesc tableLookupPlan = createLookupPlan(queryGraph, currentLookupStream, indexedStream, streamJoinAnalysisResult.isVirtualDW(indexedStream), indexSpecsPerStream[indexedStream], typesPerStream, tablesPerStream[indexedStream]);
+                node = new TableLookupNodeForge(tableLookupPlan.getForge());
+                additionalForgeables.addAll(tableLookupPlan.getAdditionalForgeables());
             }
             nestedIterNode.addChildNode(node);
 
             currentLookupStream = bestChain[i];
         }
 
-        return nestedIterNode;
+        return new QueryPlanNodeForgeDesc(nestedIterNode, additionalForgeables);
     }
 
     /**
@@ -255,9 +266,10 @@ public class NStreamQueryPlanBuilder {
      * @param indexedStreamIsVDW     vdw indicators
      * @return plan for performing a lookup in a given table using one of the indexes supplied
      */
-    public static TableLookupPlanForge createLookupPlan(QueryGraphForge queryGraph, int currentLookupStream, int indexedStream,
+    public static TableLookupPlanDesc createLookupPlan(QueryGraphForge queryGraph, int currentLookupStream, int indexedStream,
                                                         boolean indexedStreamIsVDW,
-                                                        QueryPlanIndexForge indexSpecs, EventType[] typesPerStream,
+                                                        QueryPlanIndexForge indexSpecs,
+                                                        EventType[] typesPerStream,
                                                         TableMetaData indexedStreamTableMeta) {
         QueryGraphValueForge queryGraphValue = queryGraph.getGraphValue(currentLookupStream, indexedStream);
         QueryGraphValuePairHashKeyIndexForge hashKeyProps = queryGraphValue.getHashKeyProps();
@@ -313,7 +325,8 @@ public class NStreamQueryPlanBuilder {
                 }
 
                 if (indexNum != null) {
-                    return new InKeywordTableLookupPlanSingleIdxForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, single.getKeyExprs());
+                    InKeywordTableLookupPlanSingleIdxForge forge = new InKeywordTableLookupPlanSingleIdxForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, single.getKeyExprs());
+                    return new TableLookupPlanDesc(forge, Collections.emptyList());
                 }
             }
 
@@ -336,7 +349,8 @@ public class NStreamQueryPlanBuilder {
                     }
                 }
                 if (foundAll) {
-                    return new InKeywordTableLookupPlanMultiIdxForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNameArray, multi.getKey().getKeyExpr());
+                    InKeywordTableLookupPlanMultiIdxForge forge = new InKeywordTableLookupPlanMultiIdxForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNameArray, multi.getKey().getKeyExpr());
+                    return new TableLookupPlanDesc(forge, Collections.emptyList());
                 }
             }
 
@@ -349,7 +363,8 @@ public class NStreamQueryPlanBuilder {
             if (indexNum == null) {
                 indexNum = new TableLookupIndexReqKey(indexSpecs.addIndex(new String[0], new Class[0], typesPerStream[indexedStream]), null);
             }
-            return new FullTableScanLookupPlanForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum);
+            FullTableScanLookupPlanForge forge = new FullTableScanLookupPlanForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum);
+            return new TableLookupPlanDesc(forge, Collections.emptyList());
         }
 
         if (indexNum == null) {
@@ -394,7 +409,15 @@ public class NStreamQueryPlanBuilder {
                 }
             }
             Class[] coercionTypesArray = coercionTypes.getCoercionTypes();
-            return new IndexedTableLookupPlanHashedOnlyForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, hashPropsKeys.toArray(new QueryGraphValueEntryHashKeyedForge[hashPropsKeys.size()]), indexSpecs, coercionTypesArray);
+            MultiKeyClassRef tableLookupMultiKey = null;
+            List<StmtClassForgableFactory> additionalForgeables = Collections.emptyList();
+            if (indexNum.getTableName() != null) {
+                MultiKeyPlan tableMultiKeyPlan = MultiKeyPlanner.planMultiKey(coercionTypesArray, true);
+                tableLookupMultiKey = tableMultiKeyPlan.getOptionalClassRef();
+                additionalForgeables = tableMultiKeyPlan.getMultiKeyForgables();
+            }
+            IndexedTableLookupPlanHashedOnlyForge forge = new IndexedTableLookupPlanHashedOnlyForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, hashPropsKeys.toArray(new QueryGraphValueEntryHashKeyedForge[hashPropsKeys.size()]), indexSpecs, coercionTypesArray, tableLookupMultiKey);
+            return new TableLookupPlanDesc(forge, additionalForgeables);
         }
 
         // sorted index lookup
@@ -406,10 +429,20 @@ public class NStreamQueryPlanBuilder {
             if (coercionTypesRange.isCoerce()) {
                 coercionType = coercionTypesRange.getCoercionTypes()[0];
             }
-            return new SortedTableLookupPlanForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, range, coercionType);
+            SortedTableLookupPlanForge forge = new SortedTableLookupPlanForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, range, coercionType);
+            return new TableLookupPlanDesc(forge, Collections.emptyList());
         } else {
+            MultiKeyClassRef tableLookupMultiKey = null;
+            List<StmtClassForgableFactory> additionalForgeables = Collections.emptyList();
+            if (indexNum.getTableName() != null) {
+                MultiKeyPlan tableMultiKeyPlan = MultiKeyPlanner.planMultiKey(coercionTypesHash.getCoercionTypes(), true);
+                tableLookupMultiKey = tableMultiKeyPlan.getOptionalClassRef();
+                additionalForgeables = tableMultiKeyPlan.getMultiKeyForgables();
+            }
+
             // composite range and index lookup
-            return new CompositeTableLookupPlanForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, hashPropsKeys, coercionTypesHash.getCoercionTypes(), rangePropsKeys, coercionTypesRange.getCoercionTypes());
+            CompositeTableLookupPlanForge forge = new CompositeTableLookupPlanForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, hashPropsKeys, coercionTypesHash.getCoercionTypes(), rangePropsKeys, coercionTypesRange.getCoercionTypes(), indexSpecs, tableLookupMultiKey);
+            return new TableLookupPlanDesc(forge, additionalForgeables);
         }
     }
 
@@ -615,9 +648,10 @@ public class NStreamQueryPlanBuilder {
         }
     }
 
-    private static TableLookupPlanForge getFullTableScanTable(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableMetaData indexedStreamTableMeta) {
+    private static TableLookupPlanDesc getFullTableScanTable(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableMetaData indexedStreamTableMeta) {
         TableLookupIndexReqKey indexName = new TableLookupIndexReqKey(indexedStreamTableMeta.getTableName(), indexedStreamTableMeta.getTableModuleName(), indexedStreamTableMeta.getTableName());
-        return new FullTableScanUniquePerKeyLookupPlanForge(lookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexName);
+        FullTableScanUniquePerKeyLookupPlanForge forge = new FullTableScanUniquePerKeyLookupPlanForge(lookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexName);
+        return new TableLookupPlanDesc(forge, Collections.emptyList());
     }
 
     private static SubordPropRangeKeyForge[] getRangeFuncsAsSubProp(List<QueryGraphValueEntryRangeForge> funcs) {

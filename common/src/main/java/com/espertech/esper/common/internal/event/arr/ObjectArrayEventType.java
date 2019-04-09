@@ -69,10 +69,6 @@ public class ObjectArrayEventType extends BaseNestableEventType {
         }
     }
 
-    public EventBeanReader getReader() {
-        return null;
-    }
-
     public ObjectArrayEventBeanPropertyWriter getWriter(String propertyName) {
         if (writablePropertyDescriptors == null) {
             initializeWriters();

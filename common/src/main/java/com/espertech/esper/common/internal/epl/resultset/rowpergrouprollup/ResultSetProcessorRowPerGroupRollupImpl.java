@@ -46,7 +46,8 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil.METHOD_ITERATORTODEQUE;
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil.METHOD_TOPAIRNULLIFALLNULL;
-import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.*;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGJOINRESULTKEYEDJOIN;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGVIEWRESULTKEYEDVIEW;
 import static com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup.ResultSetProcessorRowPerGroupRollupUtil.*;
 import static com.espertech.esper.common.internal.util.CollectionUtil.*;
 
@@ -198,8 +199,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             return;
         }
 
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
-
         method.getBlock().exprDotMethod(REF_AGGREGATIONSVC, "clearResults", REF_AGENTINSTANCECONTEXT)
                 .declareVar(Iterator.class, "it", exprDotMethod(REF_VIEWABLE, "iterator"))
                 .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
@@ -208,7 +207,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         {
             method.getBlock().whileLoop(exprDotMethod(ref("it"), "hasNext"))
                     .assignArrayElement(ref("eventsPerStream"), constant(0), cast(EventBean.class, exprDotMethod(ref("it"), "next")))
-                    .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()))
+                    .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()))
                     .forLoopIntSimple("j", arrayLength(ref("levels")))
                     .declareVar(Object.class, "subkey", exprDotMethod(arrayAtIndex(ref("levels"), ref("j")), "computeSubkey", ref("groupKeyComplete")))
                     .assignArrayElement("groupKeys", ref("j"), ref("subkey"))
@@ -340,7 +339,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     private static CodegenMethod handleOutputLimitFirstViewHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         initGroupRepsPerLevelBufCodegen(instance, forge);
@@ -364,7 +362,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forNew = ifNewApplyAgg.forEach(EventBean.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("aNewData")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -377,7 +375,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forOld = ifOldApplyAgg.forEach(EventBean.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("anOldData")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                         {
                             forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -390,7 +388,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forNewFirst = ifNewFirst.forEach(EventBean.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("aNewData")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             CodegenBlock eachlvl = forNewFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -411,7 +409,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forOldFirst = ifOldFirst.forEach(EventBean.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("anOldData")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             CodegenBlock eachlvl = forOldFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -439,7 +437,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     private static CodegenMethod handleOutputLimitFirstJoinNoHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         initGroupRepsPerLevelBufCodegen(instance, forge);
@@ -464,7 +461,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forNew = ifNewApplyAgg.forEach(MultiKey.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             CodegenBlock forLvl = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -485,7 +482,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forOld = ifOldApplyAgg.forEach(MultiKey.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                         {
                             CodegenBlock forLvl = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -513,7 +510,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     private static CodegenMethod handleOutputLimitFirstJoinHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         initGroupRepsPerLevelBufCodegen(instance, forge);
@@ -537,7 +533,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forNew = ifNewApplyAgg.forEach(MultiKey.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -550,7 +546,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forOld = ifOldApplyAgg.forEach(MultiKey.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                         {
                             forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -563,7 +559,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forNewFirst = ifNewFirst.forEach(MultiKey.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             CodegenBlock eachlvl = forNewFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -584,7 +580,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forOldFirst = ifOldFirst.forEach(MultiKey.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             CodegenBlock eachlvl = forOldFirst.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -612,7 +608,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     private static CodegenMethod handleOutputLimitFirstViewNoHavingCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         initGroupRepsPerLevelBufCodegen(instance, forge);
@@ -637,7 +632,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forNew = ifNewApplyAgg.forEach(EventBean.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("aNewData")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
                             CodegenBlock forLvl = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -658,7 +653,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     {
                         CodegenBlock forOld = ifOldApplyAgg.forEach(EventBean.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("anOldData")))
-                                .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                                .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                         {
                             CodegenBlock forLvl = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                     .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -802,7 +797,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         }
         initGroupRepsPerLevelBufCodegen(instance, forge);
 
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         CodegenMethod generateAndSort = generateAndSortCodegen(forge, classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
@@ -827,7 +821,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forNew = ifNew.forEach(EventBean.class, "aNewData", ref("newData"))
                             .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("aNewData")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                     {
                         CodegenBlock forLevel = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -845,7 +839,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forOld = ifOld.forEach(EventBean.class, "anOldData", ref("oldData"))
                             .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("anOldData")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                     {
                         CodegenBlock forLevel = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -869,7 +863,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             initRStreamEventsSortArrayBufCodegen(instance, forge);
         }
         initGroupRepsPerLevelBufCodegen(instance, forge);
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
         CodegenMethod generateAndSort = generateAndSortCodegen(forge, classScope, instance);
@@ -894,7 +887,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forNew = ifNew.forEach(MultiKey.class, "aNewData", ref("newData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                     {
                         CodegenBlock forLevel = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -912,7 +905,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forOld = ifOld.forEach(MultiKey.class, "anOldData", ref("oldData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                     {
                         CodegenBlock forLevel = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -934,7 +927,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     private static void handleOutputLimitAllViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         initGroupRepsPerLevelBufCodegen(instance, forge);
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         if (forge.isSelectRStream()) {
             initRStreamEventsSortArrayBufCodegen(instance, forge);
@@ -963,7 +955,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forNew = ifNew.forEach(EventBean.class, "aNewData", ref("newData"))
                             .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("aNewData")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                     {
                         CodegenBlock forLevel = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -981,7 +973,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forOld = ifOld.forEach(EventBean.class, "anOldData", ref("oldData"))
                             .assignRef("eventsPerStream", newArrayWithInit(EventBean.class, ref("anOldData")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                     {
                         CodegenBlock forLevel = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -1002,7 +994,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
     private static void handleOutputLimitAllJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         CodegenMethod generateOutputBatchedGivenArray = generateOutputBatchedGivenArrayCodegen(forge, classScope, instance);
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         CodegenExpression levelNumber = exprDotMethod(ref("level"), "getLevelNumber");
         initGroupRepsPerLevelBufCodegen(instance, forge);
         if (forge.isSelectRStream()) {
@@ -1032,7 +1023,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forNew = ifNew.forEach(MultiKey.class, "aNewData", ref("newData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantTrue()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                     {
                         CodegenBlock forLevel = forNew.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -1050,7 +1041,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock forOld = ifOld.forEach(MultiKey.class, "anOldData", ref("oldData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
-                            .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), constantFalse()));
+                            .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                     {
                         CodegenBlock forLevel = forOld.forEach(AggregationGroupByRollupLevel.class, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                                 .declareVar(Object.class, "groupKey", exprDotMethod(ref("level"), "computeSubkey", ref("groupKeyComplete")))
@@ -1116,7 +1107,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     static CodegenMethod generateGroupKeysViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         Consumer<CodegenMethod> code = methodNode -> {
             methodNode.getBlock().ifRefNullReturnNull("events")
                     .declareVar(Object[][].class, "result", newArrayByLength(Object[].class, arrayLength(ref("events"))))
@@ -1125,7 +1115,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             {
                 CodegenBlock forLoop = methodNode.getBlock().forLoopIntSimple("i", arrayLength(ref("events")));
                 forLoop.assignArrayElement("eventsPerStream", constant(0), arrayAtIndex(ref("events"), ref("i")))
-                        .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), REF_ISNEWDATA))
+                        .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), REF_ISNEWDATA))
                         .assignArrayElement("result", ref("i"), newArrayByLength(Object.class, arrayLength(ref("levels"))));
                 {
                     forLoop.forLoopIntSimple("j", arrayLength(ref("levels")))
@@ -1143,7 +1133,6 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     private static CodegenMethod generateGroupKeysJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
         Consumer<CodegenMethod> code = methodNode -> {
             methodNode.getBlock().ifCondition(or(equalsNull(ref("events")), exprDotMethod(ref("events"), "isEmpty"))).blockReturn(constantNull())
                     .declareVar(Object[][].class, "result", newArrayByLength(Object[].class, exprDotMethod(ref("events"), "size")))
@@ -1153,7 +1142,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 CodegenBlock forLoop = methodNode.getBlock().forEach(MultiKey.class, "eventrow", ref("events"));
                 forLoop.increment("count")
                         .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("eventrow"), "getArray")))
-                        .declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), REF_ISNEWDATA))
+                        .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), REF_ISNEWDATA))
                         .assignArrayElement("result", ref("count"), newArrayByLength(Object.class, arrayLength(ref("levels"))));
                 {
                     forLoop.forLoopIntSimple("j", arrayLength(ref("levels")))
@@ -1311,9 +1300,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     private static CodegenMethod generateGroupKeysRowCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(forge.getGroupKeyNodeExpressions(), classScope, instance);
-
-        Consumer<CodegenMethod> code = methodNode -> methodNode.getBlock().declareVar(Object.class, "groupKeyComplete", localMethod(generateGroupKeySingle, ref("eventsPerStream"), REF_ISNEWDATA))
+        Consumer<CodegenMethod> code = methodNode -> methodNode.getBlock().declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), REF_ISNEWDATA))
                 .declareVar(AggregationGroupByRollupLevel[].class, "levels", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                 .declareVar(Object[].class, "result", newArrayByLength(Object.class, arrayLength(ref("levels"))))
                 .forLoopIntSimple("j", arrayLength(ref("levels")))

@@ -16,5 +16,6 @@ public enum StmtClassForgableType {
     STMTPROVIDER,
     RSPPROVIDER,
     OPVPROVIDER,
-    FAF;
+    FAF,
+    MULTIKEY;
 }

@@ -117,8 +117,8 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         List<ScheduleHandleCallbackProvider> scheduleds = new ArrayList<>();
 
         // add additional forgeables
-        for (StmtForgeMethodResult additional : dataflowForge.getAdditionalForgables()) {
-            forgables.addAll(0, additional.getForgables());
+        for (StmtForgeMethodResult additional : dataflowForge.getAdditionalForgeables()) {
+            forgables.addAll(0, additional.getForgeables());
             scheduleds.addAll(additional.getScheduleds());
         }
 
@@ -165,7 +165,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         }
 
         return new DataflowDescForge(desc.getGraphName(), declaredTypes, operatorMetadata, operatorBuildOrder,
-                operatorForges, initForgesResult.getLogicalChannels(), initForgesResult.getAdditionalForgables());
+                operatorForges, initForgesResult.getLogicalChannels(), initForgesResult.getAdditionalForgeables());
     }
 
     private static InitForgesResult determineChannelsInitForges(Map<Integer, DataFlowOperatorForge> operatorForges, Set<Integer> operatorBuildOrder, Map<Integer, Annotation[]> operatorAnnotations, Map<Integer, OperatorDependencyEntry> operatorDependencies, Map<Integer, OperatorMetadataDescriptor> operatorMetadata, Map<String, EventType> declaredTypes, CreateDataFlowDesc desc, DataFlowOpForgeCodegenEnv codegenEnv, StatementBaseInfo base, StatementCompileTimeServices services)
@@ -191,7 +191,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         // Therefore we need to meet ends: on one end the declared types, on the other the implied and dynamically-determined types based on input.
         // We do this in operator build order.
         Map<Integer, List<LogicalChannelProducingPortCompiled>> compiledOutputPorts = new HashMap<Integer, List<LogicalChannelProducingPortCompiled>>();
-        List<StmtForgeMethodResult> additionalForgables = new ArrayList<>();
+        List<StmtForgeMethodResult> additionalForgeables = new ArrayList<>();
         for (int operatorNum : operatorBuildOrder) {
 
             OperatorMetadataDescriptor metadata = operatorMetadata.get(operatorNum);
@@ -207,8 +207,8 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
             GraphTypeDesc[] typesPerOutput = null;
             if (initializeResult != null) {
                 typesPerOutput = initializeResult.getTypeDescriptors();
-                if (initializeResult.getAdditionalForgables() != null) {
-                    additionalForgables.add(initializeResult.getAdditionalForgables());
+                if (initializeResult.getAdditionalForgeables() != null) {
+                    additionalForgeables.add(initializeResult.getAdditionalForgeables());
                 }
             }
 
@@ -264,7 +264,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
                 }
             }
         }
-        return new InitForgesResult(channels, additionalForgables);
+        return new InitForgesResult(channels, additionalForgeables);
     }
 
     private static Map<Integer, DataFlowOperatorForge> instantiateOperatorForges(Map<Integer, OperatorDependencyEntry> operatorDependencies, Map<Integer, OperatorMetadataDescriptor> operatorMetadata, Map<Integer, Annotation[]> operatorAnnotations, Map<String, EventType> declaredTypes, CreateDataFlowDesc createDataFlowDesc, StatementBaseInfo base, StatementCompileTimeServices services)
@@ -895,19 +895,19 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
 
     private static class InitForgesResult {
         private final List<LogicalChannel> logicalChannels;
-        private final List<StmtForgeMethodResult> additionalForgables;
+        private final List<StmtForgeMethodResult> additionalForgeables;
 
-        public InitForgesResult(List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> additionalForgables) {
+        public InitForgesResult(List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> additionalForgeables) {
             this.logicalChannels = logicalChannels;
-            this.additionalForgables = additionalForgables;
+            this.additionalForgeables = additionalForgeables;
         }
 
         public List<LogicalChannel> getLogicalChannels() {
             return logicalChannels;
         }
 
-        public List<StmtForgeMethodResult> getAdditionalForgables() {
-            return additionalForgables;
+        public List<StmtForgeMethodResult> getAdditionalForgeables() {
+            return additionalForgeables;
         }
     }
 }

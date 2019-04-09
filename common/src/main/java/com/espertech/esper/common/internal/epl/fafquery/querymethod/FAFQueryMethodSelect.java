@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
@@ -19,9 +20,6 @@ import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototyp
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactory;
-import com.espertech.esper.common.internal.event.core.EventBeanReader;
-import com.espertech.esper.common.internal.event.core.EventBeanReaderDefaultImpl;
-import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -37,12 +35,12 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
     private ExprEvaluator[] consumerFilters;
     private ResultSetProcessorFactoryProvider resultSetProcessorFactoryProvider;
     private FireAndForgetProcessor[] processors;
-    private EventBeanReader eventBeanReaderDistinct;
     private JoinSetComposerPrototype joinSetComposerPrototype;
     private QueryGraph queryGraph;
     private Map<Integer, ExprTableEvalStrategyFactory> tableAccesses;
     private boolean hasTableAccess;
     private boolean isDistinct;
+    private EventPropertyValueGetter distinctKeyGetter;
 
     private FAFQueryMethodSelectExec selectExec;
 
@@ -88,15 +86,10 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
 
     public void setDistinct(boolean distinct) {
         isDistinct = distinct;
-        if (isDistinct) {
-            EventType resultEventType = resultSetProcessorFactoryProvider.getResultEventType();
-            if (resultEventType instanceof EventTypeSPI) {
-                eventBeanReaderDistinct = ((EventTypeSPI) resultEventType).getReader();
-            }
-            if (eventBeanReaderDistinct == null) {
-                eventBeanReaderDistinct = new EventBeanReaderDefaultImpl(resultEventType);
-            }
-        }
+    }
+
+    public void setDistinctKeyGetter(EventPropertyValueGetter distinctKeyGetter) {
+        this.distinctKeyGetter = distinctKeyGetter;
     }
 
     /**
@@ -180,10 +173,6 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
         return processors;
     }
 
-    public EventBeanReader getEventBeanReaderDistinct() {
-        return eventBeanReaderDistinct;
-    }
-
     public JoinSetComposerPrototype getJoinSetComposerPrototype() {
         return joinSetComposerPrototype;
     }
@@ -202,5 +191,9 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
 
     public Map<Integer, ExprTableEvalStrategyFactory> getTableAccesses() {
         return tableAccesses;
+    }
+
+    public EventPropertyValueGetter getDistinctKeyGetter() {
+        return distinctKeyGetter;
     }
 }

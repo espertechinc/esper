@@ -269,20 +269,16 @@ public class RankWindowView extends ViewSupport implements DataWindowView {
     }
 
     public Object getUniqueKey(EventBean theEvent) {
-        return getUniqueKey(eventsPerStream, rankWindowViewFactory.uniqueEvaluators, theEvent, agentInstanceContext);
+        return getUniqueKey(eventsPerStream, rankWindowViewFactory.criteriaEval, theEvent, agentInstanceContext);
     }
 
     public Object getSortValues(EventBean theEvent) {
         return getSortKey(eventsPerStream, rankWindowViewFactory.sortCriteriaEvaluators, theEvent, agentInstanceContext);
     }
 
-    public static Object getUniqueKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext) {
+    public static Object getUniqueKey(EventBean[] eventsPerStream, ExprEvaluator evaluator, EventBean theEvent, ExprEvaluatorContext evalContext) {
         eventsPerStream[0] = theEvent;
-        if (evaluators.length > 1) {
-            return getCriteriaMultiKey(eventsPerStream, evaluators, evalContext);
-        } else {
-            return evaluators[0].evaluate(eventsPerStream, true, evalContext);
-        }
+        return evaluator.evaluate(eventsPerStream, true, evalContext);
     }
 
     public static Object getSortKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext) {
@@ -292,15 +288,6 @@ public class RankWindowView extends ViewSupport implements DataWindowView {
         } else {
             return evaluators[0].evaluate(eventsPerStream, true, evalContext);
         }
-    }
-
-    public static HashableMultiKey getCriteriaMultiKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, ExprEvaluatorContext evalContext) {
-        Object[] result = new Object[evaluators.length];
-        int count = 0;
-        for (ExprEvaluator expr : evaluators) {
-            result[count++] = expr.evaluate(eventsPerStream, true, evalContext);
-        }
-        return new HashableMultiKey(result);
     }
 
     public static HashableMultiKey getSortMultiKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, ExprEvaluatorContext evalContext) {

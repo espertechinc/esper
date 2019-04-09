@@ -110,7 +110,7 @@ public class TestSuiteInfraTable extends TestCase {
     }
 
     public void testInfraTableOnUpdate() {
-        RegressionRunner.run(session, new InfraTableOnUpdate());
+        RegressionRunner.run(session, InfraTableOnUpdate.executions());
     }
 
     public void testInfraTableOutputRateLimiting() {
@@ -210,12 +210,14 @@ public class TestSuiteInfraTable extends TestCase {
             SupportIntrusionEvent.class, SupportTrafficEvent.class, SupportMySortValueEvent.class,
             SupportBean_S2.class, SupportBeanSimple.class, SupportByteArrEventStringId.class,
             SupportBeanRange.class, SupportTwoKeyEvent.class, SupportCtorSB2WithObjectArray.class,
-            Support10ColEvent.class, SupportTopGroupSubGroupEvent.class, SupportBeanNumeric.class}) {
+            Support10ColEvent.class, SupportTopGroupSubGroupEvent.class, SupportBeanNumeric.class,
+            SupportEventWithManyArray.class, SupportEventWithManyArray.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 
         configuration.getCompiler().addPlugInSingleRowFunction("singlerow", InfraTableInvalid.class.getName(), "mySingleRowFunction");
         configuration.getCompiler().addPlugInSingleRowFunction("pluginServiceEventBean", InfraTableSelect.class.getName(), "myServiceEventBean");
+        configuration.getCompiler().addPlugInSingleRowFunction("toIntArray", InfraTableOnUpdate.class.getName(), "toIntArray");
 
         configuration.getCompiler().addPlugInAggregationFunctionForge("myaggsingle", SupportCountBackAggregationFunctionForge.class.getName());
         configuration.getCompiler().addPlugInAggregationFunctionForge("csvWords", SupportSimpleWordCSVForge.class.getName());

@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompil
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.OnTriggerActivatorDesc;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
@@ -36,6 +37,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationPlan;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlan;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlanner;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
@@ -64,6 +66,7 @@ public class OnTriggerPlanValidator {
             streamName = "stream_1";
         }
         String namedWindowTypeName = onTriggerDesc.getWindowName();
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         // Materialize sub-select views
         // 0 - named window stream
@@ -72,7 +75,9 @@ public class OnTriggerPlanValidator {
         String[] subselectStreamNames = new String[]{zeroStreamAliasName, streamSpec.getOptionalStreamName()};
         EventType[] subselectEventTypes = new EventType[]{namedWindowOrTableType, activatorResult.getActivatorResultEventType()};
         String[] subselectEventTypeNames = new String[]{namedWindowTypeName, activatorResult.getTriggerEventTypeName()};
-        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, subselectStreamNames, subselectEventTypes, subselectEventTypeNames, services);
+        SubSelectHelperForgePlan subselectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, subselectStreamNames, subselectEventTypes, subselectEventTypeNames, services);
+        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subselectForgePlan.getSubselects();
+        additionalForgeables.addAll(subselectForgePlan.getAdditionalForgeables());
 
         StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[]{namedWindowOrTableType, activatorResult.getActivatorResultEventType()}, new String[]{zeroStreamAliasName, streamName}, new boolean[]{false, true}, true, false);
 
@@ -118,11 +123,12 @@ public class OnTriggerPlanValidator {
 
         ResultSetProcessorDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(base.getStatementSpec()),
                 typeService, null, new boolean[0], true, base.getContextPropertyRegistry(), false, true, base.getStatementRawInfo(), services);
+        additionalForgeables.addAll(resultSetProcessorPrototype.getAdditionalForgeables());
 
         // plan table access
         Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges = ExprTableEvalHelperPlan.planTableAccess(base.getStatementSpec().getTableAccessNodes());
 
-        return new OnTriggerPlanValidationResult(subselectForges, tableAccessForges, resultSetProcessorPrototype, validatedJoin, zeroStreamAliasName);
+        return new OnTriggerPlanValidationResult(subselectForges, tableAccessForges, resultSetProcessorPrototype, validatedJoin, zeroStreamAliasName, additionalForgeables);
     }
 
     protected static ExprNode validateJoinNamedWindow(ExprNodeOrigin exprNodeOrigin,

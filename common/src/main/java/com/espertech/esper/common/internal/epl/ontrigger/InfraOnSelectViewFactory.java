@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.ontrigger;
 
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.AuditEnum;
 import com.espertech.esper.common.client.soda.StreamSelector;
@@ -23,26 +24,25 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
-import com.espertech.esper.common.internal.event.core.EventBeanReader;
 
 /**
  * View for the on-select statement that handles selecting events from a named window.
  */
 public class InfraOnSelectViewFactory extends InfraOnExprBaseViewFactory {
     private final boolean addToFront;
-    private final EventBeanReader eventBeanReader;
     private final boolean isDistinct;
+    private final EventPropertyValueGetter distinctKeyGetter;
     private final boolean selectAndDelete;
     private final StreamSelector optionalStreamSelector;
     private final Table optionalInsertIntoTable;
     private final boolean insertInto;
     private final ResultSetProcessorFactoryProvider resultSetProcessorPrototype;
 
-    public InfraOnSelectViewFactory(EventType infraEventType, boolean addToFront, EventBeanReader eventBeanReader, boolean isDistinct, boolean selectAndDelete, StreamSelector optionalStreamSelector, Table optionalInsertIntoTable, boolean insertInto, ResultSetProcessorFactoryProvider resultSetProcessorPrototype) {
+    public InfraOnSelectViewFactory(EventType infraEventType, boolean addToFront, boolean isDistinct, EventPropertyValueGetter distinctKeyGetter, boolean selectAndDelete, StreamSelector optionalStreamSelector, Table optionalInsertIntoTable, boolean insertInto, ResultSetProcessorFactoryProvider resultSetProcessorPrototype) {
         super(infraEventType);
         this.addToFront = addToFront;
-        this.eventBeanReader = eventBeanReader;
         this.isDistinct = isDistinct;
+        this.distinctKeyGetter = distinctKeyGetter;
         this.selectAndDelete = selectAndDelete;
         this.optionalStreamSelector = optionalStreamSelector;
         this.optionalInsertIntoTable = optionalInsertIntoTable;
@@ -80,8 +80,8 @@ public class InfraOnSelectViewFactory extends InfraOnExprBaseViewFactory {
         return addToFront;
     }
 
-    public EventBeanReader getEventBeanReader() {
-        return eventBeanReader;
+    public EventPropertyValueGetter getDistinctKeyGetter() {
+        return distinctKeyGetter;
     }
 
     public boolean isDistinct() {

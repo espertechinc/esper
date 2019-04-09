@@ -120,7 +120,8 @@ public class TestSuiteInfraNamedWindow extends TestCase {
             SupportOverrideOneA.class, SupportOverrideOne.class, SupportOverrideBase.class,
             SupportQueueEnter.class, SupportQueueLeave.class, SupportBeanAtoFBase.class,
             SupportBeanAbstractSub.class, SupportBean_ST0.class, SupportBeanTwo.class,
-            SupportCountAccessEvent.class, BookDesc.class, SupportBean_Container.class}) {
+            SupportCountAccessEvent.class, BookDesc.class, SupportBean_Container.class,
+            SupportEventWithManyArray.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

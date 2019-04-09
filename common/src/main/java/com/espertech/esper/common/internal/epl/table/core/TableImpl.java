@@ -22,7 +22,7 @@ public class TableImpl extends TableBase {
     }
 
     protected PropertyHashedEventTableFactory setupPrimaryKeyIndexFactory() {
-        return new PropertyHashedEventTableFactory(0, metaData.getKeyColumns(), true, metaData.getTableName(), primaryKeyGetter);
+        return new PropertyHashedEventTableFactory(0, metaData.getKeyColumns(), true, metaData.getTableName(), primaryKeyGetter, primaryKeyObjectArrayTransform);
     }
 
     public TableInstance getTableInstance(int agentInstanceId) {

@@ -14,15 +14,15 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForge;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRangeForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.*;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
-import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,15 +32,17 @@ import java.util.Collections;
  * Plan to perform an indexed table lookup.
  */
 public class IndexedTableLookupPlanHashedOnlyForge extends TableLookupPlanForge {
-    private QueryGraphValueEntryHashKeyedForge[] hashKeys;
-    private QueryPlanIndexForge indexSpecs;
-    private Class[] optionalCoercionTypes;
+    private final QueryGraphValueEntryHashKeyedForge[] hashKeys;
+    private final QueryPlanIndexForge indexSpecs;
+    private final Class[] optionalCoercionTypes;
+    private final MultiKeyClassRef optionalEPLTableLookupMultiKey;
 
-    public IndexedTableLookupPlanHashedOnlyForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryHashKeyedForge[] hashKeys, QueryPlanIndexForge indexSpecs, Class[] optionalCoercionTypes) {
+    public IndexedTableLookupPlanHashedOnlyForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryHashKeyedForge[] hashKeys, QueryPlanIndexForge indexSpecs, Class[] optionalCoercionTypes, MultiKeyClassRef optionalEPLTableLookupMultiKey) {
         super(lookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, new TableLookupIndexReqKey[]{indexNum});
         this.hashKeys = hashKeys;
         this.indexSpecs = indexSpecs;
         this.optionalCoercionTypes = optionalCoercionTypes;
+        this.optionalEPLTableLookupMultiKey = optionalEPLTableLookupMultiKey;
     }
 
     public TableLookupKeyDesc getKeyDescriptor() {
@@ -49,8 +51,8 @@ public class IndexedTableLookupPlanHashedOnlyForge extends TableLookupPlanForge 
 
     public String toString() {
         return "IndexedTableLookupPlan " +
-                super.toString() +
-                " keyProperty=" + getKeyDescriptor();
+            super.toString() +
+            " keyProperty=" + getKeyDescriptor();
     }
 
     public Class typeOfPlanFactory() {
@@ -63,7 +65,6 @@ public class IndexedTableLookupPlanHashedOnlyForge extends TableLookupPlanForge 
 
     public Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
 
-        EventPropertyGetterSPI[] getterSPIS = QueryGraphValueEntryHashKeyedForge.getGettersIfPropsOnly(hashKeys);
         ExprForge[] forges = QueryGraphValueEntryHashKeyedForge.getForges(hashKeys);
         Class[] types = ExprNodeUtilityQuery.getExprResultTypes(forges);
 
@@ -77,10 +78,20 @@ public class IndexedTableLookupPlanHashedOnlyForge extends TableLookupPlanForge 
         }
 
         CodegenExpression getter;
-        if (getterSPIS != null) {
-            getter = EventTypeUtility.codegenGetterMayMultiKeyWCoerce(typesPerStream[getLookupStream()], getterSPIS, types, coercionTypes, method, this.getClass(), classScope);
+        EventType eventType = typesPerStream[getLookupStream()];
+        EventPropertyGetterSPI[] getterSPIS = QueryGraphValueEntryHashKeyedForge.getGettersIfPropsOnly(hashKeys);
+        if (indexForge != null) {
+            if (getterSPIS != null) {
+                getter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, getterSPIS, types, coercionTypes, indexForge.getHashMultiKeyClasses(), method, classScope);
+            } else {
+                getter = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, coercionTypes, indexForge.getHashMultiKeyClasses(), method, classScope);
+            }
         } else {
-            getter = ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(forges, coercionTypes, method, this.getClass(), classScope);
+            if (getterSPIS != null) {
+                getter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, getterSPIS, types, coercionTypes, optionalEPLTableLookupMultiKey, method, classScope);
+            } else {
+                getter = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, coercionTypes, optionalEPLTableLookupMultiKey, method, classScope);
+            }
         }
         return Collections.singletonList(getter);
     }

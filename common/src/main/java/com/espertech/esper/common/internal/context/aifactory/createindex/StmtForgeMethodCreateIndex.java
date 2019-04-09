@@ -15,6 +15,8 @@ import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateIndexDesc;
 import com.espertech.esper.common.internal.compile.stage3.*;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryProvider;
@@ -98,6 +100,10 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
             table.addIndex(spec.getIndexName(), base.getModuleName(), imk, explicitIndexDesc.toRuntime());
         }
 
+        // determine Multikey class
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(explicitIndexDesc.getHashTypes(), false);
+        explicitIndexDesc.setHashMultiKeyClasses(multiKeyPlan.getOptionalClassRef());
+
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
@@ -111,6 +117,9 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
         StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
         List<StmtClassForgable> forgables = new ArrayList<>();
+        for (StmtClassForgableFactory additional : multiKeyPlan.getMultiKeyForgables()) {
+            forgables.add(additional.make(packageScope, classPostfix));
+        }
         forgables.add(aiFactoryForgable);
         forgables.add(stmtProvider);
         return new StmtForgeMethodResult(forgables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());

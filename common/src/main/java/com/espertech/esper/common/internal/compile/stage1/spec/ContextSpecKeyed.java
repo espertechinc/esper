@@ -14,6 +14,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptorFilter;
 import com.espertech.esper.common.internal.context.controller.keyed.ContextControllerDetailKeyed;
@@ -28,6 +30,7 @@ public class ContextSpecKeyed implements ContextSpec {
     private final List<ContextSpecKeyedItem> items;
     private List<ContextSpecConditionFilter> optionalInit;
     private ContextSpecCondition optionalTermination;
+    private MultiKeyClassRef multiKeyClassRef;
 
     public ContextSpecKeyed(List<ContextSpecKeyedItem> items, List<ContextSpecConditionFilter> optionalInit, ContextSpecCondition optionalTermination) {
         this.items = items;
@@ -47,6 +50,10 @@ public class ContextSpecKeyed implements ContextSpec {
         this.optionalTermination = optionalTermination;
     }
 
+    public void setMultiKeyClassRef(MultiKeyClassRef multiKeyClassRef) {
+        this.multiKeyClassRef = multiKeyClassRef;
+    }
+
     public List<ContextSpecConditionFilter> getOptionalInit() {
         return optionalInit;
     }
@@ -61,7 +68,8 @@ public class ContextSpecKeyed implements ContextSpec {
 
         method.getBlock()
                 .declareVar(ContextControllerDetailKeyed.class, "detail", newInstance(ContextControllerDetailKeyed.class))
-                .exprDotMethod(ref("detail"), "setItems", ref("items"));
+                .exprDotMethod(ref("detail"), "setItems", ref("items"))
+                .exprDotMethod(ref("detail"), "setMultiKeyFromObjectArray", MultiKeyCodegen.codegenMultiKeyFromArrayTransform(multiKeyClassRef, method, classScope));
 
         if (optionalInit != null && !optionalInit.isEmpty()) {
             method.getBlock().declareVar(ContextConditionDescriptorFilter[].class, "init", newArrayByLength(ContextConditionDescriptorFilter.class, constant(optionalInit.size())));

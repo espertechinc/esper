@@ -16,8 +16,9 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
@@ -99,7 +100,7 @@ public class ResultSetProcessorGroupedUtil {
         }
     }
 
-    public static CodegenMethod generateGroupKeySingleCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, CodegenInstanceAux instance) {
+    public static CodegenMethod generateGroupKeySingleCodegen(ExprNode[] groupKeyExpressions, MultiKeyClassRef optionalMultiKeyClasses, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = methodNode -> {
             String[] expressions = null;
             if (classScope.isInstrumented()) {
@@ -107,22 +108,22 @@ public class ResultSetProcessorGroupedUtil {
             }
             methodNode.getBlock().apply(instblock(classScope, "qResultSetProcessComputeGroupKeys", REF_ISNEWDATA, constant(expressions), REF_EPS));
 
-            if (groupKeyExpressions.length == 1) {
-                CodegenMethod expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[0].getForge(), methodNode, classScope);
+            if (optionalMultiKeyClasses != null) {
+                CodegenMethod method = MultiKeyCodegen.codegenMethod(groupKeyExpressions, optionalMultiKeyClasses, methodNode, classScope);
                 methodNode.getBlock()
-                        .declareVar(Object.class, "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))
-                        .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
-                        .methodReturn(ref("key"));
+                    .declareVar(Object.class, "key", localMethod(method, REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))
+                    .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
+                    .methodReturn(ref("key"));
                 return;
             }
 
-            methodNode.getBlock().declareVar(Object[].class, "keys", newArrayByLength(Object.class, constant(groupKeyExpressions.length)));
-            for (int i = 0; i < groupKeyExpressions.length; i++) {
-                CodegenMethod expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[i].getForge(), methodNode, classScope);
-                methodNode.getBlock().assignArrayElement("keys", constant(i), localMethod(expression, REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT));
+            if (groupKeyExpressions.length > 1) {
+                throw new IllegalStateException("Multiple group-by expression and no multikey");
             }
+
+            CodegenMethod expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[0].getForge(), methodNode, classScope);
             methodNode.getBlock()
-                    .declareVar(HashableMultiKey.class, "key", newInstance(HashableMultiKey.class, ref("keys")))
+                    .declareVar(Object.class, "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))
                     .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
                     .methodReturn(ref("key"));
         };
@@ -130,9 +131,7 @@ public class ResultSetProcessorGroupedUtil {
         return instance.getMethods().addMethod(Object.class, "generateGroupKeySingle", CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA), ResultSetProcessorUtil.class, classScope, code);
     }
 
-    public static CodegenMethod generateGroupKeyArrayViewCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(groupKeyExpressions, classScope, instance);
-
+    public static CodegenMethod generateGroupKeyArrayViewCodegen(CodegenMethod generateGroupKeySingle, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = method -> {
             method.getBlock().ifRefNullReturnNull("events")
                     .declareVar(EventBean[].class, "eventsPerStream", newArrayByLength(EventBean.class, constant(1)))
@@ -147,8 +146,7 @@ public class ResultSetProcessorGroupedUtil {
         return instance.getMethods().addMethod(Object[].class, "generateGroupKeyArrayView", CodegenNamedParam.from(EventBean[].class, "events", boolean.class, NAME_ISNEWDATA), ResultSetProcessorRowPerGroup.class, classScope, code);
     }
 
-    public static CodegenMethod generateGroupKeyArrayJoinCodegen(ExprNode[] groupKeyExpressions, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        CodegenMethod generateGroupKeySingle = generateGroupKeySingleCodegen(groupKeyExpressions, classScope, instance);
+    public static CodegenMethod generateGroupKeyArrayJoinCodegen(CodegenMethod generateGroupKeySingle, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = method -> {
             method.getBlock().ifCondition(exprDotMethod(ref("resultSet"), "isEmpty")).blockReturn(constantNull())
                     .declareVar(Object[].class, "keys", newArrayByLength(Object.class, exprDotMethod(ref("resultSet"), "size")))

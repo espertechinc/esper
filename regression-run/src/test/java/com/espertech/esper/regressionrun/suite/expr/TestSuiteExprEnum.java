@@ -151,7 +151,7 @@ public class TestSuiteExprEnum extends TestCase {
             SupportSelectorEvent.class, SupportContainerEvent.class,
             Item.class, LocationReport.class, Zone.class, SupportBeanComplexProps.class,
             SupportEventWithLongArray.class, SupportContainerLevelEvent.class, SupportSelectorWithListEvent.class,
-            SupportBean_Container.class, SupportContainerLevel1Event.class, BookDesc.class}) {
+            SupportBean_Container.class, SupportContainerLevel1Event.class, BookDesc.class, SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

@@ -12,10 +12,8 @@ package com.espertech.esper.common.internal.view.unique;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
 
 import java.util.HashMap;
@@ -151,16 +149,7 @@ public class UniqueByPropertyView extends ViewSupport implements DataWindowView 
 
     protected Object getUniqueKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
-        ExprEvaluator[] criteriaExpressionsEvals = viewFactory.criteriaEvals;
-        if (criteriaExpressionsEvals.length == 1) {
-            return criteriaExpressionsEvals[0].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-
-        Object[] values = new Object[criteriaExpressionsEvals.length];
-        for (int i = 0; i < criteriaExpressionsEvals.length; i++) {
-            values[i] = criteriaExpressionsEvals[i].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-        return new HashableMultiKey(values);
+        return viewFactory.criteriaEval.evaluate(eventsPerStream, true, agentInstanceContext);
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {

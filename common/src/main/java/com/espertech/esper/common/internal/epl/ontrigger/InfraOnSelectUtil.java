@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 public class InfraOnSelectUtil {
     public static EventBean[] handleDistintAndInsert(EventBean[] newData, InfraOnSelectViewFactory parent, AgentInstanceContext agentInstanceContext, TableInstance tableInstanceInsertInto, boolean audit) {
         if (parent.isDistinct()) {
-            newData = EventBeanUtility.getDistinctByProp(newData, parent.getEventBeanReader());
+            newData = EventBeanUtility.getDistinctByProp(newData, parent.getDistinctKeyGetter());
         }
 
         if (tableInstanceInsertInto != null) {

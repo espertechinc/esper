@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryForgeBase;
 import com.espertech.esper.common.internal.epl.join.queryplan.CoercionDesc;
@@ -25,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
 public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryForgeBase {
 
@@ -32,13 +35,15 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
     private final EventType eventType;
     private final boolean unique;
     private final CoercionDesc hashCoercionDesc;
+    private final MultiKeyClassRef multiKeyClassRef;
 
-    public PropertyHashedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] indexedProps, EventType eventType, boolean unique, CoercionDesc hashCoercionDesc) {
+    public PropertyHashedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] indexedProps, EventType eventType, boolean unique, CoercionDesc hashCoercionDesc, MultiKeyClassRef multiKeyClassRef) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexedProps = indexedProps;
         this.eventType = eventType;
         this.unique = unique;
         this.hashCoercionDesc = hashCoercionDesc;
+        this.multiKeyClassRef = multiKeyClassRef;
     }
 
     protected Class typeOf() {
@@ -52,16 +57,19 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
         params.add(constant(unique));
         Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, indexedProps);
         EventPropertyGetterSPI[] getters = EventTypeUtility.getGetters(eventType, indexedProps);
-        CodegenExpression getter = EventTypeUtility.codegenGetterMayMultiKeyWCoerce(eventType, getters, propertyTypes, hashCoercionDesc.getCoercionTypes(), method, this.getClass(), classScope);
+
+        CodegenExpression getter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, getters, propertyTypes, hashCoercionDesc.getCoercionTypes(), multiKeyClassRef, method, classScope);
         params.add(getter);
+        params.add(constantNull()); // no fire-and-forget transform for subqueries
+        params.add(MultiKeyCodegen.codegenOptionalSerde(multiKeyClassRef));
         return params;
     }
 
     public String toQueryPlan() {
         return this.getClass().getSimpleName() +
-                (unique ? " unique" : " non-unique") +
-                " streamNum=" + indexedStreamNum +
-                " propertyNames=" + Arrays.toString(indexedProps);
+            (unique ? " unique" : " non-unique") +
+            " streamNum=" + indexedStreamNum +
+            " propertyNames=" + Arrays.toString(indexedProps);
     }
 
     public Class getEventTableClass() {

@@ -33,7 +33,7 @@ public class ExprDotForgeDistinct extends ExprDotForgeEnumMethodBase {
 
         if (bodiesAndParameters.isEmpty()) {
             super.setTypeInfo(EPTypeHelper.collectionOfSingleValue(collectionComponentType));
-            return new EnumDistinctScalarForge(numStreamsIncoming);
+            return new EnumDistinctScalarForge(numStreamsIncoming, collectionComponentType);
         }
 
         ExprDotEvalParamLambda first = (ExprDotEvalParamLambda) bodiesAndParameters.get(0);

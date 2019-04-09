@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanForge;
+import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanForgeDesc;
 import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupNodeForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.TableOuterLookupNodeForge;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -37,7 +38,8 @@ public class TestTwoStreamQueryPlanBuilder extends TestCase {
 
     public void testBuildNoOuter() {
         QueryGraphForge graph = makeQueryGraph();
-        QueryPlanForge spec = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, null, new StreamJoinAnalysisResultCompileTime(2));
+        QueryPlanForgeDesc specDesc = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, null, new StreamJoinAnalysisResultCompileTime(2));
+        QueryPlanForge spec = specDesc.getForge();
 
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"p01", "p02"}, spec.getIndexSpecs()[0].getIndexProps()[0]);
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"p11", "p12"}, spec.getIndexSpecs()[1].getIndexProps()[0]);
@@ -46,7 +48,8 @@ public class TestTwoStreamQueryPlanBuilder extends TestCase {
 
     public void testBuildOuter() {
         QueryGraphForge graph = makeQueryGraph();
-        QueryPlanForge spec = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, OuterJoinType.LEFT, new StreamJoinAnalysisResultCompileTime(2));
+        QueryPlanForgeDesc specDesc = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, OuterJoinType.LEFT, new StreamJoinAnalysisResultCompileTime(2));
+        QueryPlanForge spec = specDesc.getForge();
 
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"p01", "p02"}, spec.getIndexSpecs()[0].getIndexProps()[0]);
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"p11", "p12"}, spec.getIndexSpecs()[1].getIndexProps()[0]);

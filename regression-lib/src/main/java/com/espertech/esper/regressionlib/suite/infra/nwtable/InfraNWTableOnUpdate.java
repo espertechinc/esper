@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +40,52 @@ public class InfraNWTableOnUpdate {
         execs.add(new InfraSubquerySelf(true));
         execs.add(new InfraSubquerySelf(false));
 
+        execs.add(new InfraSubqueryMultikeyWArray(true));
+        execs.add(new InfraSubqueryMultikeyWArray(false));
+
         return execs;
+    }
+
+    private static class InfraSubqueryMultikeyWArray implements RegressionExecution {
+
+        private boolean namedWindow;
+
+        public InfraSubqueryMultikeyWArray(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String stmtTextCreate = namedWindow ?
+                "@name('create') create window MyInfra#keepall() as (value int)" :
+                "@name('create') create table MyInfra(value int)";
+            env.compileDeploy(stmtTextCreate, path).addListener("create");
+            env.compileExecuteFAF("insert into MyInfra select 0 as value", path);
+
+            String epl = "on SupportBean update MyInfra set value = (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array)";
+            env.compileDeploy(epl, path);
+
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("E2", new int[]{1, 2}, 11));
+
+            env.milestone(0);
+            assertUpdate(env, 21);
+
+            env.sendEventBean(new SupportEventWithIntArray("E3", new int[]{1, 2}, 12));
+            assertUpdate(env, 33);
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportEventWithIntArray("E4", new int[]{1}, 13));
+            assertUpdate(env, null);
+
+            env.undeployAll();
+        }
+
+        private void assertUpdate(RegressionEnvironment env, Integer expected) {
+            env.sendEventBean(new SupportBean());
+            assertEquals(expected, env.iterator("create").next().get("value"));
+        }
     }
 
     public static class InfraNWTableOnUpdateSceneOne implements RegressionExecution {

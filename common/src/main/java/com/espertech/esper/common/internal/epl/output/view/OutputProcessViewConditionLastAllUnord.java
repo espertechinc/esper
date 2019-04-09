@@ -179,7 +179,7 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
     }
 
     public Iterator<EventBean> iterator() {
-        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct());
+        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct(), parent.getDistinctKeyGetter());
     }
 
     public void terminated() {
@@ -197,8 +197,8 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
     private void continueOutputProcessingViewAndJoin(boolean doOutput, boolean forceUpdate, UniformPair<EventBean[]> newOldEvents) {
 
         if (parent.isDistinct() && newOldEvents != null) {
-            newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
-            newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
+            newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getDistinctKeyGetter()));
+            newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getDistinctKeyGetter()));
         }
 
         if (doOutput) {

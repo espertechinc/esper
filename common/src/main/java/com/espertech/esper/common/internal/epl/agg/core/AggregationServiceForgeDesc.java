@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeGroupKey;
 
 import java.util.List;
@@ -18,11 +19,13 @@ public class AggregationServiceForgeDesc {
     private final AggregationServiceFactoryForge aggregationServiceFactoryForge;
     private final List<AggregationServiceAggExpressionDesc> expressions;
     private final List<ExprAggregateNodeGroupKey> groupKeyExpressions;
+    private final List<StmtClassForgableFactory> additionalForgeables;
 
-    public AggregationServiceForgeDesc(AggregationServiceFactoryForge aggregationServiceFactoryForge, List<AggregationServiceAggExpressionDesc> expressions, List<ExprAggregateNodeGroupKey> groupKeyExpressions) {
+    public AggregationServiceForgeDesc(AggregationServiceFactoryForge aggregationServiceFactoryForge, List<AggregationServiceAggExpressionDesc> expressions, List<ExprAggregateNodeGroupKey> groupKeyExpressions, List<StmtClassForgableFactory> additionalForgeables) {
         this.aggregationServiceFactoryForge = aggregationServiceFactoryForge;
         this.expressions = expressions;
         this.groupKeyExpressions = groupKeyExpressions;
+        this.additionalForgeables = additionalForgeables;
     }
 
     public AggregationServiceFactoryForge getAggregationServiceFactoryForge() {
@@ -35,5 +38,9 @@ public class AggregationServiceForgeDesc {
 
     public List<ExprAggregateNodeGroupKey> getGroupKeyExpressions() {
         return groupKeyExpressions;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }

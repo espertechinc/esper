@@ -10,13 +10,19 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+
+import java.util.List;
+
 public class SelectExprProcessorDescriptor {
     private final SelectSubscriberDescriptor subscriberDescriptor;
     private final SelectExprProcessorForge forge;
+    private final List<StmtClassForgableFactory> additionalForgeables;
 
-    public SelectExprProcessorDescriptor(SelectSubscriberDescriptor subscriberDescriptor, SelectExprProcessorForge forge) {
+    public SelectExprProcessorDescriptor(SelectSubscriberDescriptor subscriberDescriptor, SelectExprProcessorForge forge, List<StmtClassForgableFactory> additionalForgeables) {
         this.subscriberDescriptor = subscriberDescriptor;
         this.forge = forge;
+        this.additionalForgeables = additionalForgeables;
     }
 
     public SelectSubscriberDescriptor getSubscriberDescriptor() {
@@ -25,5 +31,9 @@ public class SelectExprProcessorDescriptor {
 
     public SelectExprProcessorForge getForge() {
         return forge;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }

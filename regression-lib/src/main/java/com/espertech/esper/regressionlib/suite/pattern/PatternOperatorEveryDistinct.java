@@ -13,9 +13,10 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class PatternOperatorEveryDistinct {
@@ -45,7 +47,35 @@ public class PatternOperatorEveryDistinct {
         execs.add(new PatternFollowedByWithDistinct());
         execs.add(new PatternInvalid());
         execs.add(new PatternMonthScoped());
+        execs.add(new PatternEveryDistinctMultikeyWArray());
         return execs;
+    }
+
+    public static class PatternEveryDistinctMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.compileDeploy("@name('s0') select * from pattern[every-distinct(a.array) a=SupportEventWithIntArray]");
+            env.addListener("s0");
+
+            sendAssertReceived(env, "E1", new int[]{1, 2}, true);
+            sendAssertReceived(env, "E2", new int[]{1, 2}, false);
+            sendAssertReceived(env, "E3", new int[]{1}, true);
+            sendAssertReceived(env, "E4", new int[]{}, true);
+            sendAssertReceived(env, "E5", null, true);
+
+            env.milestone(0);
+
+            sendAssertReceived(env, "E10", new int[]{1, 2}, false);
+            sendAssertReceived(env, "E11", new int[]{1}, false);
+            sendAssertReceived(env, "E12", new int[]{}, false);
+            sendAssertReceived(env, "E13", null, false);
+
+            env.undeployAll();
+        }
+
+        private void sendAssertReceived(RegressionEnvironment env, String id, int[] array, boolean received) {
+            env.sendEventBean(new SupportEventWithIntArray(id, array));
+            assertEquals(received, env.listener("s0").getAndClearIsInvoked());
+        }
     }
 
     public static class PatternEveryDistinctSimple implements RegressionExecution {

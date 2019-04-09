@@ -28,5 +28,5 @@ public interface ExprTableEvalStrategy {
 
     Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
-    AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+    AggregationRow getAggregationRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 }

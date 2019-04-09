@@ -41,6 +41,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationPlan;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlan;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlanner;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
@@ -68,7 +69,8 @@ public class OnTriggerSetUtil {
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).withAllowBindingConsumption(true).build();
 
         // handle subselects
-        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, new String[]{optionalStreamName}, new EventType[]{activatorResult.getActivatorResultEventType()}, new String[]{activatorResult.getTriggerEventTypeName()}, services);
+        SubSelectHelperForgePlan subSelectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, new String[]{optionalStreamName}, new EventType[]{activatorResult.getActivatorResultEventType()}, new String[]{activatorResult.getTriggerEventTypeName()}, services);
+        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subSelectForgePlan.getSubselects();
 
         // validate assignments
         for (OnTriggerSetAssignment assignment : desc.getAssignments()) {
@@ -102,6 +104,6 @@ public class OnTriggerSetUtil {
         forgables.add(new StmtClassForgableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
 
         StmtClassForgableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgableAIFactoryProviderOnTrigger(className, packageScope, forge);
-        return new OnTriggerSetPlan(onTrigger, forgables, resultSetProcessor.getSelectSubscriberDescriptor());
+        return new OnTriggerSetPlan(onTrigger, forgables, resultSetProcessor.getSelectSubscriberDescriptor(), subSelectForgePlan.getAdditionalForgeables());
     }
 }

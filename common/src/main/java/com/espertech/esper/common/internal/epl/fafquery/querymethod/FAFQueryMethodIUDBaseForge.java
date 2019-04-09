@@ -42,7 +42,7 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 
 import java.lang.annotation.Annotation;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -70,12 +70,12 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
     public FAFQueryMethodIUDBaseForge(StatementSpecCompiled spec, Compilable compilable, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         this.annotations = spec.getAnnotations();
         this.hasTableAccess = spec.getRaw().getIntoTableSpec() != null ||
-                (spec.getTableAccessNodes() != null && spec.getTableAccessNodes().size() > 0);
+            (spec.getTableAccessNodes() != null && spec.getTableAccessNodes().size() > 0);
         if (spec.getRaw().getInsertIntoDesc() != null && services.getTableCompileTimeResolver().resolve(spec.getRaw().getInsertIntoDesc().getEventTypeName()) != null) {
             hasTableAccess = true;
         }
         if (spec.getRaw().getFireAndForgetSpec() instanceof FireAndForgetSpecUpdate ||
-                spec.getRaw().getFireAndForgetSpec() instanceof FireAndForgetSpecDelete) {
+            spec.getRaw().getFireAndForgetSpec() instanceof FireAndForgetSpecDelete) {
             hasTableAccess |= spec.getStreamSpecs()[0] instanceof TableQueryStreamSpec;
         }
 
@@ -117,19 +117,21 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
     }
 
     public final List<StmtClassForgable> makeForgables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope) {
-        return Collections.singletonList(new StmtClassForgableQueryMethodProvider(queryMethodProviderClassName, packageScope, this));
+        List<StmtClassForgable> forgables = new ArrayList<>();
+        forgables.add(new StmtClassForgableQueryMethodProvider(queryMethodProviderClassName, packageScope, this));
+        return forgables;
     }
 
     public final void makeMethod(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpressionRef queryMethod = ref("qm");
         method.getBlock()
-                .declareVar(typeOfMethod(), queryMethod.getRef(), newInstance(typeOfMethod()))
-                .exprDotMethod(queryMethod, "setAnnotations", annotations == null ? constantNull() : localMethod(makeAnnotations(Annotation[].class, annotations, method, classScope)))
-                .exprDotMethod(queryMethod, "setProcessor", processor.make(method, symbols, classScope))
-                .exprDotMethod(queryMethod, "setQueryGraph", queryGraph == null ? constantNull() : queryGraph.make(method, symbols, classScope))
-                .exprDotMethod(queryMethod, "setInternalEventRouteDest", exprDotMethod(symbols.getAddInitSvc(method), EPStatementInitServices.GETINTERNALEVENTROUTEDEST))
-                .exprDotMethod(queryMethod, "setTableAccesses", ExprTableEvalStrategyUtil.codegenInitMap(tableAccessForges, this.getClass(), method, symbols, classScope))
-                .exprDotMethod(queryMethod, "setHasTableAccess", constant(hasTableAccess));
+            .declareVar(typeOfMethod(), queryMethod.getRef(), newInstance(typeOfMethod()))
+            .exprDotMethod(queryMethod, "setAnnotations", annotations == null ? constantNull() : localMethod(makeAnnotations(Annotation[].class, annotations, method, classScope)))
+            .exprDotMethod(queryMethod, "setProcessor", processor.make(method, symbols, classScope))
+            .exprDotMethod(queryMethod, "setQueryGraph", queryGraph == null ? constantNull() : queryGraph.make(method, symbols, classScope))
+            .exprDotMethod(queryMethod, "setInternalEventRouteDest", exprDotMethod(symbols.getAddInitSvc(method), EPStatementInitServices.GETINTERNALEVENTROUTEDEST))
+            .exprDotMethod(queryMethod, "setTableAccesses", ExprTableEvalStrategyUtil.codegenInitMap(tableAccessForges, this.getClass(), method, symbols, classScope))
+            .exprDotMethod(queryMethod, "setHasTableAccess", constant(hasTableAccess));
         makeInlineSpecificSetter(queryMethod, method, symbols, classScope);
         method.getBlock().methodReturn(queryMethod);
     }

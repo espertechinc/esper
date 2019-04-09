@@ -20,6 +20,13 @@ public class CodegenChainElement {
     public CodegenChainElement(String method, CodegenExpression[] optionalParams) {
         this.method = method;
         this.optionalParams = optionalParams;
+        if (optionalParams != null) {
+            for (int i = 0; i < optionalParams.length; i++) {
+                if (optionalParams[i] == null) {
+                    throw new IllegalArgumentException("Invalid null expression parameter at position " + i);
+                }
+            }
+        }
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {

@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.epl.output.view;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryForge;
@@ -31,13 +33,15 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class OutputProcessViewDirectDistinctOrAfterFactoryForge implements OutputProcessViewFactoryForge {
     private final OutputStrategyPostProcessForge outputStrategyPostProcessForge;
     private final boolean isDistinct;
+    private final MultiKeyClassRef distinctMultiKey;
     protected final ExprTimePeriod afterTimePeriod;
     protected final Integer afterConditionNumberOfEvents;
     protected final EventType resultEventType;
 
-    public OutputProcessViewDirectDistinctOrAfterFactoryForge(OutputStrategyPostProcessForge outputStrategyPostProcessForge, boolean isDistinct, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType) {
+    public OutputProcessViewDirectDistinctOrAfterFactoryForge(OutputStrategyPostProcessForge outputStrategyPostProcessForge, boolean isDistinct, MultiKeyClassRef distinctMultiKey, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType) {
         this.outputStrategyPostProcessForge = outputStrategyPostProcessForge;
         this.isDistinct = isDistinct;
+        this.distinctMultiKey = distinctMultiKey;
         this.afterTimePeriod = afterTimePeriod;
         this.afterConditionNumberOfEvents = afterConditionNumberOfEvents;
         this.resultEventType = resultEventType;
@@ -51,7 +55,7 @@ public class OutputProcessViewDirectDistinctOrAfterFactoryForge implements Outpu
         method.getBlock().methodReturn(
                 newInstance(OutputProcessViewDirectDistinctOrAfterFactory.class,
                         outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope),
-                        constant(isDistinct),
+                        constant(isDistinct), MultiKeyCodegen.codegenGetterEventDistinct(isDistinct, resultEventType, distinctMultiKey, method, classScope),
                         afterTimePeriod == null ? constantNull() : afterTimePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope),
                         constant(afterConditionNumberOfEvents),
                         EventTypeUtility.resolveTypeCodegen(resultEventType, symbols.getAddInitSvc(method))));

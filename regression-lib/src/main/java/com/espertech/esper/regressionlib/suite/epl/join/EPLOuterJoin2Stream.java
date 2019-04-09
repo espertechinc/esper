@@ -61,7 +61,47 @@ public class EPLOuterJoin2Stream {
         execs.add(new EPLJoinRightOuterJoin());
         execs.add(new EPLJoinLeftOuterJoin());
         execs.add(new EPLJoinEventType());
+        execs.add(new EPLJoinFullOuterMultikeyWArrayPrimitive());
         return execs;
+    }
+
+    private static class EPLJoinFullOuterMultikeyWArrayPrimitive implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * " +
+                "from SupportEventWithIntArray#keepall one " +
+                "full outer join " +
+                "SupportEventWithManyArray#keepall two " +
+                "on array = intOne";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendIntArrayAssert(env, "IA1", new int[] {1, 2}, new Object[][] {{"IA1", null}});
+            sendManyArrayAssert(env, "MA1", new int[] {3, 4}, new Object[][] {{null, "MA1"}});
+            sendIntArrayAssert(env, "IA2", new int[] {1}, new Object[][] {{"IA2", null}});
+            sendManyArrayAssert(env, "MA2", new int[] {2}, new Object[][] {{null, "MA2"}});
+
+            env.milestone(0);
+
+            sendManyArrayAssert(env, "MA3", new int[] {1}, new Object[][] {{"IA2", "MA3"}});
+            sendIntArrayAssert(env, "IA3", new int[] {3, 4}, new Object[][] {{"IA3", "MA1"}});
+            sendManyArrayAssert(env, "MA4", new int[] {3, 4}, new Object[][] {{"IA3", "MA4"}});
+            sendIntArrayAssert(env, "IA4", new int[] {3, 4}, new Object[][] {{"IA4", "MA1"}, {"IA4", "MA4"}});
+
+            env.undeployAll();
+        }
+
+        private void sendIntArrayAssert(RegressionEnvironment env, String id, int[] array, Object[][] expected) {
+            env.sendEventBean(new SupportEventWithIntArray(id, array));
+            assertEvents(env, expected);
+        }
+
+        private void sendManyArrayAssert(RegressionEnvironment env, String id, int[] intOne, Object[][] expected) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(intOne));
+            assertEvents(env, expected);
+        }
+
+        private void assertEvents(RegressionEnvironment env, Object[][] expected) {
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "one.id,two.id".split(","), expected);
+        }
     }
 
     private static class EPLJoinRangeOuterJoin implements RegressionExecution {

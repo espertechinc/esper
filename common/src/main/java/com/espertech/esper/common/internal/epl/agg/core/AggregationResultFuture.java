@@ -32,13 +32,12 @@ public interface AggregationResultFuture {
 
     Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
-    AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    AggregationRow getAggregationRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
     AggregationService getContextPartitionAggregationService(int agentInstanceId);
 
     /**
      * Set the current aggregation state row - for use when evaluation nodes are asked to evaluate.
-     *
      * @param groupKey        - single key identifying the row of aggregation states
      * @param agentInstanceId context partition id
      * @param rollupLevel     rollup level

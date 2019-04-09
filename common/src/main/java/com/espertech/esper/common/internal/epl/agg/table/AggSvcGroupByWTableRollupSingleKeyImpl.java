@@ -27,14 +27,14 @@ public class AggSvcGroupByWTableRollupSingleKeyImpl extends AggSvcGroupByWTableB
     public void applyEnterInternal(EventBean[] eventsPerStream, Object compositeGroupByKey, ExprEvaluatorContext exprEvaluatorContext) {
         Object[] groupKeyPerLevel = (Object[]) compositeGroupByKey;
         for (Object groupByKey : groupKeyPerLevel) {
-            applyEnterGroupKey(eventsPerStream, groupByKey, exprEvaluatorContext);
+            applyEnterTableKey(eventsPerStream, groupByKey, exprEvaluatorContext);
         }
     }
 
     public void applyLeaveInternal(EventBean[] eventsPerStream, Object compositeGroupByKey, ExprEvaluatorContext exprEvaluatorContext) {
         Object[] groupKeyPerLevel = (Object[]) compositeGroupByKey;
         for (Object groupByKey : groupKeyPerLevel) {
-            applyLeaveGroupKey(eventsPerStream, groupByKey, exprEvaluatorContext);
+            applyLeaveTableKey(eventsPerStream, groupByKey, exprEvaluatorContext);
         }
     }
 }

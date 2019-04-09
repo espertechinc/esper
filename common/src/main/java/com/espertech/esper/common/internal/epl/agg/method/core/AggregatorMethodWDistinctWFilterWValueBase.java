@@ -64,14 +64,14 @@ public abstract class AggregatorMethodWDistinctWFilterWValueBase extends Aggrega
             method.getBlock().ifRefNull("val").blockReturnNoValue();
         }
         if (distinct != null) {
-            method.getBlock().ifCondition(not(exprDotMethod(distinct, enter ? "add" : "remove", ref("val")))).blockReturnNoValue();
+            method.getBlock().ifCondition(not(exprDotMethod(distinct, enter ? "add" : "remove", toDistinctValueKey(ref("val"))))).blockReturnNoValue();
         }
     }
 
     private void applyTableValuePrefix(boolean enter, CodegenExpressionRef value, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().ifCondition(equalsNull(value)).blockReturnNoValue();
         if (distinct != null) {
-            method.getBlock().ifCondition(not(exprDotMethod(distinct, enter ? "add" : "remove", value))).blockReturnNoValue();
+            method.getBlock().ifCondition(not(exprDotMethod(distinct, enter ? "add" : "remove", toDistinctValueKey(value)))).blockReturnNoValue();
         }
     }
 }

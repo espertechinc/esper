@@ -88,7 +88,7 @@ public class AggregationServiceNull implements AggregationService {
         return this;
     }
 
-    public AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+    public AggregationRow getAggregationRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return null;
     }
 }

@@ -16,15 +16,19 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.event.core.DecoratingEventBean;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
+import com.espertech.esper.common.internal.event.core.WrapperEventType;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
+    private final WrapperEventType wrapperEventType;
     private final EventPropertyGetterSPI underlyingGetter;
 
-    public WrapperUnderlyingPropertyGetter(EventPropertyGetterSPI underlyingGetter) {
+    public WrapperUnderlyingPropertyGetter(WrapperEventType wrapperEventType, EventPropertyGetterSPI underlyingGetter) {
+        this.wrapperEventType = wrapperEventType;
         this.underlyingGetter = underlyingGetter;
     }
 
@@ -42,10 +46,10 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
 
     private CodegenMethod getCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
-                .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
-                .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
-                .ifRefNullReturnNull("wrappedEvent")
-                .methodReturn(underlyingGetter.eventBeanGetCodegen(ref("wrappedEvent"), codegenMethodScope, codegenClassScope));
+            .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
+            .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
+            .ifRefNullReturnNull("wrappedEvent")
+            .methodReturn(underlyingGetter.eventBeanGetCodegen(ref("wrappedEvent"), codegenMethodScope, codegenClassScope));
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -66,10 +70,10 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
 
     private CodegenMethod getFragmentCodegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         return codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(EventBean.class, "theEvent").getBlock()
-                .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
-                .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
-                .ifRefNullReturnNull("wrappedEvent")
-                .methodReturn(underlyingGetter.eventBeanFragmentCodegen(ref("wrappedEvent"), codegenMethodScope, codegenClassScope));
+            .declareVarWCast(DecoratingEventBean.class, "wrapperEvent", "theEvent")
+            .declareVar(EventBean.class, "wrappedEvent", exprDotMethod(ref("wrapperEvent"), "getUnderlyingEvent"))
+            .ifRefNullReturnNull("wrappedEvent")
+            .methodReturn(underlyingGetter.eventBeanFragmentCodegen(ref("wrappedEvent"), codegenMethodScope, codegenClassScope));
     }
 
     public CodegenExpression eventBeanGetCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -85,7 +89,18 @@ public class WrapperUnderlyingPropertyGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        throw implementationNotProvided();
+        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "und");
+        Class undType = wrapperEventType.getUnderlyingEventType().getUnderlyingType();
+        if (wrapperEventType.getUnderlyingType() == Pair.class) {
+            method.getBlock().declareVarWCast(Pair.class, "pair", "und")
+                .declareVar(undType, "wrapped", cast(undType, exprDotMethod(ref("pair"), "getFirst")))
+                .methodReturn(underlyingGetter.underlyingGetCodegen(ref("wrapped"), codegenMethodScope, codegenClassScope));
+            return localMethod(method, ref("und"));
+        } else {
+            method.getBlock().declareVar(undType, "wrapped", cast(undType, ref("und")))
+                .methodReturn(underlyingGetter.underlyingGetCodegen(ref("wrapped"), codegenMethodScope, codegenClassScope));
+            return localMethod(method, ref("und"));
+        }
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

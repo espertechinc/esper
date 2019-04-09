@@ -28,15 +28,14 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.PathRegistry;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.ColumnDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateSchemaDesc;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
-import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
@@ -264,6 +263,28 @@ public class EventTypeUtility {
         return anonymous;
     }
 
+    public static CodegenExpression codegenGetterWCoerceWArray(EventPropertyGetterSPI getter, Class getterType, Class optionalCoercionType, CodegenMethod method, Class generator, CodegenClassScope classScope) {
+        getterType = JavaClassHelper.getBoxedType(getterType);
+        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyValueGetter.class);
+        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(CodegenNamedParam.from(EventBean.class, "bean"));
+        anonymous.addMethod("get", get);
+
+        CodegenExpression result = getter.eventBeanGetCodegen(ref("bean"), method, classScope);
+        if (optionalCoercionType != null && getterType != optionalCoercionType && JavaClassHelper.isNumeric(getterType)) {
+            SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(getterType, JavaClassHelper.getBoxedType(optionalCoercionType));
+            get.getBlock().declareVar(getterType, "prop", cast(getterType, result));
+            result = coercer.coerceCodegen(ref("prop"), getterType);
+        }
+
+        if (getterType.isArray()) {
+            Class mkType = MultiKeyPlanner.getMKClassForComponentType(getterType.getComponentType());
+            result = newInstance(mkType, cast(getterType, result));
+        }
+
+        get.getBlock().methodReturn(result);
+        return anonymous;
+    }
+
     public static CodegenExpression codegenWriter(EventType eventType, Class targetType, Class evaluationType, EventPropertyWriterSPI writer, CodegenMethod method, Class generator, CodegenClassScope classScope) {
         CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyWriter.class);
         CodegenMethod write = CodegenMethod.makeParentNode(void.class, generator, classScope).addParam(CodegenNamedParam.from(Object.class, "value", EventBean.class, "bean"));
@@ -275,41 +296,6 @@ public class EventTypeUtility {
             .declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("bean"))))
             .declareVar(evaluationType, "eval", cast(evaluationType, ref("value")))
             .expression(writer.writeCodegen(ref("eval"), ref("und"), ref("bean"), write, classScope));
-        return anonymous;
-    }
-
-    public static CodegenExpression codegenGetterMayMultiKeyWCoerce(EventType eventType,
-                                                                    EventPropertyGetterSPI[] getters,
-                                                                    Class[] types,
-                                                                    Class[] optionalCoercionTypes,
-                                                                    CodegenMethod method,
-                                                                    Class generator,
-                                                                    CodegenClassScope classScope) {
-        if (getters.length == 1) {
-            return codegenGetterWCoerce(getters[0], types[0], optionalCoercionTypes == null ? null : optionalCoercionTypes[0], method, generator, classScope);
-        }
-
-        CodegenExpressionNewAnonymousClass anonymous = newAnonymousClass(method.getBlock(), EventPropertyValueGetter.class);
-        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(CodegenNamedParam.from(EventBean.class, "bean"));
-        anonymous.addMethod("get", get);
-
-        get.getBlock()
-            .declareVar(eventType.getUnderlyingType(), "und", cast(eventType.getUnderlyingType(), exprDotUnderlying(ref("bean"))))
-            .declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(getters.length)))
-            .declareVar(HashableMultiKey.class, "valuesMk", newInstance(HashableMultiKey.class, ref("values")));
-
-        for (int i = 0; i < getters.length; i++) {
-            CodegenExpression result = getters[i].underlyingGetCodegen(ref("und"), get, classScope);
-            Class typeBoxed = JavaClassHelper.getBoxedType(types[i]);
-            if (optionalCoercionTypes != null && typeBoxed != JavaClassHelper.getBoxedType(optionalCoercionTypes[i])) {
-                SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(typeBoxed, JavaClassHelper.getBoxedType(optionalCoercionTypes[i]));
-                get.getBlock().declareVar(typeBoxed, "prop_" + i, CodegenLegoCast.castSafeFromObjectType(typeBoxed, result));
-                result = coercer.coerceCodegen(ref("prop_" + i), typeBoxed);
-            }
-            get.getBlock().assignArrayElement("values", constant(i), result);
-        }
-        get.getBlock().methodReturn(ref("valuesMk"));
-
         return anonymous;
     }
 

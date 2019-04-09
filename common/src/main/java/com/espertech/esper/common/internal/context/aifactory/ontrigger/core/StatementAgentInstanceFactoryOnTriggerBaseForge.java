@@ -59,4 +59,8 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBaseForge {
         method.getBlock().methodReturn(ref("saiff"));
         return method;
     }
+
+    public EventType getResultEventType() {
+        return resultEventType;
+    }
 }

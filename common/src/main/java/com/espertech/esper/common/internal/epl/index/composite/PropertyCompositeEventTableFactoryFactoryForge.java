@@ -16,6 +16,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryForge;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
@@ -34,16 +36,18 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
     private final boolean isFireAndForget;
     private final String[] optKeyProps;
     private final Class[] optKeyTypes;
+    private final MultiKeyClassRef hashMultikeyClasses;
     private final String[] rangeProps;
     private final Class[] rangeTypes;
     private final EventType eventType;
 
-    public PropertyCompositeEventTableFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] optKeyProps, Class[] optKeyTypes, String[] rangeProps, Class[] rangeTypes, EventType eventType) {
+    public PropertyCompositeEventTableFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] optKeyProps, Class[] optKeyTypes, MultiKeyClassRef hashMultikeyClasses, String[] rangeProps, Class[] rangeTypes, EventType eventType) {
         this.indexedStreamNum = indexedStreamNum;
         this.subqueryNum = subqueryNum;
         this.isFireAndForget = isFireAndForget;
         this.optKeyProps = optKeyProps;
         this.optKeyTypes = optKeyTypes;
+        this.hashMultikeyClasses = hashMultikeyClasses;
         this.rangeProps = rangeProps;
         this.rangeTypes = rangeTypes;
         this.eventType = eventType;
@@ -51,9 +55,9 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
 
     public String toQueryPlan() {
         return this.getClass().getName() +
-                " streamNum=" + indexedStreamNum +
-                " keys=" + optKeyProps == null ? "none" : Arrays.toString(optKeyProps) +
-                " ranges=" + Arrays.toString(rangeProps);
+            " streamNum=" + indexedStreamNum +
+            " keys=" + optKeyProps == null ? "none" : Arrays.toString(optKeyProps) +
+            " ranges=" + Arrays.toString(rangeProps);
     }
 
     public Class getEventTableClass() {
@@ -67,7 +71,7 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
         if (optKeyProps != null && optKeyProps.length > 0) {
             Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, optKeyProps);
             EventPropertyGetterSPI[] getters = EventTypeUtility.getGetters(eventType, optKeyProps);
-            hashGetter = EventTypeUtility.codegenGetterMayMultiKeyWCoerce(eventType, getters, propertyTypes, optKeyTypes, method, this.getClass(), classScope);
+            hashGetter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, getters, propertyTypes, optKeyTypes, hashMultikeyClasses, method, classScope);
         }
 
         method.getBlock().declareVar(EventPropertyValueGetter[].class, "rangeGetters", newArrayByLength(EventPropertyValueGetter.class, constant(rangeProps.length)));
@@ -85,6 +89,7 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
         params.add(constant(optKeyProps));
         params.add(constant(optKeyTypes));
         params.add(hashGetter);
+        params.add(MultiKeyCodegen.codegenOptionalSerde(hashMultikeyClasses));
         params.add(constant(rangeProps));
         params.add(constant(rangeTypes));
         params.add(ref("rangeGetters"));

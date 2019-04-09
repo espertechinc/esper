@@ -32,7 +32,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.InsertIntoDesc;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompiledSpec;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevelForge;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.etc.*;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowCompileTimeResolver;
@@ -926,7 +926,7 @@ public class SelectExprProcessorHelper {
 
     private boolean isGroupByRollupNullableExpression(ExprNode expr, GroupByRollupInfo groupByRollupInfo) {
         // if all levels include this key, we are fine
-        for (AggregationGroupByRollupLevel level : groupByRollupInfo.getRollupDesc().getLevels()) {
+        for (AggregationGroupByRollupLevelForge level : groupByRollupInfo.getRollupDesc().getLevels()) {
             if (level.isAggregationTop()) {
                 return true;
             }

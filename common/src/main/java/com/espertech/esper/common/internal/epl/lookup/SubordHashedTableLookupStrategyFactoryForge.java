@@ -15,10 +15,12 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.join.queryplan.CoercionDesc;
 import com.espertech.esper.common.internal.epl.lookupplan.SubordPropHashKeyForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
@@ -41,8 +43,9 @@ public class SubordHashedTableLookupStrategyFactoryForge implements SubordTableL
     private final String[] hashStrictKeys;
     private final int[] keyStreamNumbers;
     private final EventType[] outerStreamTypesZeroIndexed;
+    private final MultiKeyClassRef hashMultikeyClasses;
 
-    public SubordHashedTableLookupStrategyFactoryForge(boolean isNWOnTrigger, int numStreamsOuter, List<SubordPropHashKeyForge> hashKeys, CoercionDesc hashKeyCoercionTypes, boolean isStrictKeys, String[] hashStrictKeys, int[] keyStreamNumbers, EventType[] outerStreamTypesZeroIndexed) {
+    public SubordHashedTableLookupStrategyFactoryForge(boolean isNWOnTrigger, int numStreamsOuter, List<SubordPropHashKeyForge> hashKeys, CoercionDesc hashKeyCoercionTypes, boolean isStrictKeys, String[] hashStrictKeys, int[] keyStreamNumbers, EventType[] outerStreamTypesZeroIndexed, MultiKeyClassRef hashMultikeyClasses) {
         this.isNWOnTrigger = isNWOnTrigger;
         this.numStreamsOuter = numStreamsOuter;
         this.hashKeys = hashKeys;
@@ -51,6 +54,7 @@ public class SubordHashedTableLookupStrategyFactoryForge implements SubordTableL
         this.hashStrictKeys = hashStrictKeys;
         this.keyStreamNumbers = keyStreamNumbers;
         this.outerStreamTypesZeroIndexed = outerStreamTypesZeroIndexed;
+        this.hashMultikeyClasses = hashMultikeyClasses;
     }
 
     public String toQueryPlan() {
@@ -68,9 +72,8 @@ public class SubordHashedTableLookupStrategyFactoryForge implements SubordTableL
                     keyStreamNums[i] = keyStreamNums[i] + 1;
                 }
             }
-            CodegenExpression eval = ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyPropPerStream(
-                    keyStreamTypes, hashStrictKeys, hashKeyCoercionTypes.getCoercionTypes(), keyStreamNums,
-                    methodNode, this.getClass(), classScope);
+            ExprForge[] forges = ExprNodeUtilityQuery.forgesForProperties(keyStreamTypes, hashStrictKeys, keyStreamNums);
+            CodegenExpression eval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashKeyCoercionTypes.getCoercionTypes(), hashMultikeyClasses, methodNode, classScope);
             methodNode.getBlock().methodReturn(newInstance(SubordHashedTableLookupStrategyPropFactory.class, constant(hashStrictKeys), constant(keyStreamNums), eval));
             return localMethod(methodNode);
         } else {
@@ -78,8 +81,9 @@ public class SubordHashedTableLookupStrategyFactoryForge implements SubordTableL
             for (int i = 0; i < hashKeys.size(); i++) {
                 forges[i] = hashKeys.get(i).getHashKey().getKeyExpr().getForge();
             }
+
             String[] expressions = ExprNodeUtilityPrint.toExpressionStringsMinPrecedence(forges);
-            CodegenExpression eval = ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(forges, hashKeyCoercionTypes.getCoercionTypes(), methodNode, this.getClass(), classScope);
+            CodegenExpression eval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashKeyCoercionTypes.getCoercionTypes(), hashMultikeyClasses, methodNode, classScope);
             methodNode.getBlock().methodReturn(newInstance(SubordHashedTableLookupStrategyExprFactory.class, constant(expressions), eval, constant(isNWOnTrigger), constant(numStreamsOuter)));
             return localMethod(methodNode);
         }

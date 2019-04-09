@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.querygraph;
 
 
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.collection.UniformPair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.Map;
  * Property lists stored as a value for each stream-to-stream relationship, for use by {@link QueryGraphForge}.
  */
 public class QueryGraphRangeUtil {
-    private static final Map<HashableMultiKey, QueryGraphRangeConsolidateDesc> OPS_TABLE = new HashMap<HashableMultiKey, QueryGraphRangeConsolidateDesc>();
+    private static final Map<UniformPair<QueryGraphRangeEnum>, QueryGraphRangeConsolidateDesc> OPS_TABLE = new HashMap<>();
 
     static {
         add(QueryGraphRangeEnum.LESS_OR_EQUAL, QueryGraphRangeEnum.GREATER_OR_EQUAL, QueryGraphRangeEnum.RANGE_CLOSED);
@@ -30,14 +30,14 @@ public class QueryGraphRangeUtil {
     }
 
     private static void add(QueryGraphRangeEnum opOne, QueryGraphRangeEnum opTwo, QueryGraphRangeEnum range) {
-        HashableMultiKey keyOne = getKey(opOne, opTwo);
+        UniformPair<QueryGraphRangeEnum> keyOne = getKey(opOne, opTwo);
         OPS_TABLE.put(keyOne, new QueryGraphRangeConsolidateDesc(range, false));
-        HashableMultiKey keyRev = getKey(opTwo, opOne);
+        UniformPair<QueryGraphRangeEnum> keyRev = getKey(opTwo, opOne);
         OPS_TABLE.put(keyRev, new QueryGraphRangeConsolidateDesc(range, true));
     }
 
-    private static HashableMultiKey getKey(QueryGraphRangeEnum op1, QueryGraphRangeEnum op2) {
-        return new HashableMultiKey(new Object[]{op1, op2});
+    private static UniformPair<QueryGraphRangeEnum> getKey(QueryGraphRangeEnum op1, QueryGraphRangeEnum op2) {
+        return new UniformPair<>(op1, op2);
     }
 
     public static QueryGraphRangeConsolidateDesc getCanConsolidate(QueryGraphRangeEnum op1, QueryGraphRangeEnum op2) {

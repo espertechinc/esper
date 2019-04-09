@@ -12,10 +12,12 @@ package com.espertech.esper.common.internal.epl.pattern.everydistinct;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodComputeForge;
@@ -38,11 +40,12 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
     private TimePeriodComputeForge timePeriodComputeForge;
     private ExprNode expiryTimeExp;
     private List<ExprNode> distinctExpressions;
+    private MultiKeyClassRef distinctMultiKey;
 
     /**
      * Ctor.
      *
-     * @param expressions distinct-value expressions
+     * @param expressions       distinct-value expressions
      * @param attachPatternText whether to attach EPL subexpression text
      */
     public EvalEveryDistinctForgeNode(boolean attachPatternText, List<ExprNode> expressions) {
@@ -59,12 +62,15 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
     }
 
     protected void inlineCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+        CodegenExpression distinctEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(distinctExpressions.toArray(new ExprNode[0]),
+            null, distinctMultiKey, method, classScope);
         method.getBlock()
-                .exprDotMethod(ref("node"), "setChildNode", localMethod(getChildNodes().get(0).makeCodegen(method, symbols, classScope)))
-                .exprDotMethod(ref("node"), "setDistinctExpression", ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(ExprNodeUtilityQuery.getForges(ExprNodeUtilityQuery.toArray(distinctExpressions)), null, method, this.getClass(), classScope))
-                .exprDotMethod(ref("node"), "setDistinctTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(distinctExpressions)))
-                .exprDotMethod(ref("node"), "setConvertor", convertor.makeAnonymous(method, classScope))
-                .exprDotMethod(ref("node"), "setTimePeriodCompute", timePeriodComputeForge == null ? constantNull() : timePeriodComputeForge.makeEvaluator(method, classScope));
+            .exprDotMethod(ref("node"), "setChildNode", localMethod(getChildNodes().get(0).makeCodegen(method, symbols, classScope)))
+            .exprDotMethod(ref("node"), "setDistinctExpression", distinctEval)
+            .exprDotMethod(ref("node"), "setDistinctTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(distinctExpressions)))
+            .exprDotMethod(ref("node"), "setDistinctMultiKeySerde", MultiKeyCodegen.codegenOptionalSerde(distinctMultiKey))
+            .exprDotMethod(ref("node"), "setConvertor", convertor.makeAnonymous(method, classScope))
+            .exprDotMethod(ref("node"), "setTimePeriodCompute", timePeriodComputeForge == null ? constantNull() : timePeriodComputeForge.makeEvaluator(method, classScope));
     }
 
     public void collectSelfFilterAndSchedule(List<FilterSpecCompiled> filters, List<ScheduleHandleCallbackProvider> schedules) {
@@ -102,8 +108,9 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
         this.convertor = convertor;
     }
 
-    public void setDistinctExpressions(List<ExprNode> distinctExpressions, TimePeriodComputeForge timePeriodComputeForge, ExprNode expiryTimeExp) {
+    public void setDistinctExpressions(List<ExprNode> distinctExpressions, MultiKeyClassRef distincMultiKey, TimePeriodComputeForge timePeriodComputeForge, ExprNode expiryTimeExp) {
         this.distinctExpressions = distinctExpressions;
+        this.distinctMultiKey = distincMultiKey;
         this.timePeriodComputeForge = timePeriodComputeForge;
         this.expiryTimeExp = expiryTimeExp;
     }

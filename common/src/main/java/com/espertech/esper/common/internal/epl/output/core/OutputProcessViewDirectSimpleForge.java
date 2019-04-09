@@ -100,7 +100,7 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
     }
 
     public void iteratorCodegen(CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().methodReturn(staticMethod(OutputStrategyUtil.class, "getIterator", ref(NAME_JOINEXECSTRATEGY), ref(NAME_RESULTSETPROCESSOR), ref(NAME_PARENTVIEW), constant(false)));
+        method.getBlock().methodReturn(staticMethod(OutputStrategyUtil.class, "getIterator", ref(NAME_JOINEXECSTRATEGY), ref(NAME_RESULTSETPROCESSOR), ref(NAME_PARENTVIEW), constant(false), constantNull()));
     }
 
     public void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {

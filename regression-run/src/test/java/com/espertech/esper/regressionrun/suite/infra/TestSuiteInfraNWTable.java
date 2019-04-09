@@ -130,7 +130,7 @@ public class TestSuiteInfraNWTable extends TestCase {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class, SupportBean_A.class,
             SupportBean_B.class, SupportBeanRange.class, SupportSimpleBeanOne.class, SupportSimpleBeanTwo.class,
             SupportBean_ST0.class, SupportSpatialPoint.class, SupportMarketDataBean.class, SupportBean_Container.class,
-            OrderBean.class}) {
+            OrderBean.class, SupportEventWithIntArray.class, SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

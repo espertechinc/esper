@@ -43,7 +43,6 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-
         execs.add(new InfraOnSelectIndexSimple(true));
         execs.add(new InfraOnSelectIndexSimple(false));
 
@@ -83,7 +82,48 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
         execs.add(new InfraPatternCorrelation(true));
         execs.add(new InfraPatternCorrelation(false));
 
+        execs.add(new InfraOnSelectMultikeyWArray(true));
+        execs.add(new InfraOnSelectMultikeyWArray(false));
         return execs;
+    }
+
+    private static class InfraOnSelectMultikeyWArray implements RegressionExecution {
+        private final boolean namedWindow;
+
+        public InfraOnSelectMultikeyWArray(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String[] fields = new String[]{"a", "b"};
+            RegressionPath path = new RegressionPath();
+
+            String stmtTextCreate = namedWindow ?
+                "@name('create') create window MyInfraPC#keepall as (id string, array int[], value int)" :
+                "@name('create') create table MyInfraPC(id string primary key, array int[], value int)";
+            env.compileDeploy(stmtTextCreate, path);
+
+            String stmtTextSelect = "@name('s0') on SupportBean select array, sum(value) as thesum from MyInfraPC group by array";
+            env.compileDeploy(stmtTextSelect, path).addListener("s0");
+
+            env.compileExecuteFAF("insert into MyInfraPC values('E1', {1, 2}, 10)", path);
+            env.compileExecuteFAF("insert into MyInfraPC values('E2', {1, 2}, 11)", path);
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean());
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "thesum".split(","), new Object[] {21});
+
+            env.compileExecuteFAF("insert into MyInfraPC values('E3', {1, 2}, 21)", path);
+            env.compileExecuteFAF("insert into MyInfraPC values('E4', {1}, 22)", path);
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportBean());
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "thesum".split(","), new Object[][] {{42}, {22}});
+
+            env.undeployAll();
+        }
     }
 
     public static class InfraOnSelectIndexSimple implements RegressionExecution {

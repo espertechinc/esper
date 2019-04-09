@@ -35,16 +35,16 @@ public class DataflowDescForge {
     private final Set<Integer> operatorBuildOrder;
     private final Map<Integer, DataFlowOperatorForge> operatorFactories;
     private final List<LogicalChannel> logicalChannels;
-    private final List<StmtForgeMethodResult> additionalForgables;
+    private final List<StmtForgeMethodResult> additionalForgeables;
 
-    public DataflowDescForge(String dataflowName, Map<String, EventType> declaredTypes, Map<Integer, OperatorMetadataDescriptor> operatorMetadata, Set<Integer> operatorBuildOrder, Map<Integer, DataFlowOperatorForge> operatorFactories, List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> additionalForgables) {
+    public DataflowDescForge(String dataflowName, Map<String, EventType> declaredTypes, Map<Integer, OperatorMetadataDescriptor> operatorMetadata, Set<Integer> operatorBuildOrder, Map<Integer, DataFlowOperatorForge> operatorFactories, List<LogicalChannel> logicalChannels, List<StmtForgeMethodResult> additionalForgeables) {
         this.dataflowName = dataflowName;
         this.declaredTypes = declaredTypes;
         this.operatorMetadata = operatorMetadata;
         this.operatorBuildOrder = operatorBuildOrder;
         this.operatorFactories = operatorFactories;
         this.logicalChannels = logicalChannels;
-        this.additionalForgables = additionalForgables;
+        this.additionalForgeables = additionalForgeables;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -65,8 +65,8 @@ public class DataflowDescForge {
         return operatorFactories;
     }
 
-    public List<StmtForgeMethodResult> getAdditionalForgables() {
-        return additionalForgables;
+    public List<StmtForgeMethodResult> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 
     private static CodegenExpression makeOpChannels(List<LogicalChannel> logicalChannels, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

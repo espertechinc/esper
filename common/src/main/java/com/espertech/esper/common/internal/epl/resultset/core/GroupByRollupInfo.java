@@ -10,23 +10,39 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.core;
 
-import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDescForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+
+import java.util.List;
 
 public class GroupByRollupInfo {
     private final ExprNode[] exprNodes;
-    private final AggregationGroupByRollupDesc rollupDesc;
+    private final AggregationGroupByRollupDescForge rollupDesc;
+    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final MultiKeyClassRef optionalMultiKey;
 
-    public GroupByRollupInfo(ExprNode[] exprNodes, AggregationGroupByRollupDesc rollupDesc) {
+    public GroupByRollupInfo(ExprNode[] exprNodes, AggregationGroupByRollupDescForge rollupDesc, List<StmtClassForgableFactory> additionalForgeables, MultiKeyClassRef optionalMultiKey) {
         this.exprNodes = exprNodes;
         this.rollupDesc = rollupDesc;
+        this.additionalForgeables = additionalForgeables;
+        this.optionalMultiKey = optionalMultiKey;
     }
 
     public ExprNode[] getExprNodes() {
         return exprNodes;
     }
 
-    public AggregationGroupByRollupDesc getRollupDesc() {
+    public AggregationGroupByRollupDescForge getRollupDesc() {
         return rollupDesc;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
+    }
+
+    public MultiKeyClassRef getOptionalMultiKey() {
+        return optionalMultiKey;
     }
 }

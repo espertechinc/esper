@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
@@ -21,13 +22,15 @@ public class AggregationLocalGroupByLevel {
     private final Class[] groupKeyTypes;
     private final ExprEvaluator groupKeyEval;
     private final boolean isDefaultLevel;
+    private final MultiKeyGeneratedSerde optionalMultiKeySerde;
 
-    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerde rowSerde, Class[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel) {
+    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerde rowSerde, Class[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel, MultiKeyGeneratedSerde optionalMultiKeySerde) {
         this.rowFactory = rowFactory;
         this.rowSerde = rowSerde;
         this.groupKeyTypes = groupKeyTypes;
         this.groupKeyEval = groupKeyEval;
         this.isDefaultLevel = isDefaultLevel;
+        this.optionalMultiKeySerde = optionalMultiKeySerde;
     }
 
     public AggregationRowFactory getRowFactory() {
@@ -48,5 +51,9 @@ public class AggregationLocalGroupByLevel {
 
     public boolean isDefaultLevel() {
         return isDefaultLevel;
+    }
+
+    public MultiKeyGeneratedSerde getOptionalMultiKeySerde() {
+        return optionalMultiKeySerde;
     }
 }

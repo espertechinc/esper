@@ -37,7 +37,7 @@ public class PropertyHashedArrayFactory implements EventTableFactory {
         this.propertyGetters = propertyGetters;
         this.factories = new PropertyHashedEventTableFactory[propertyGetters.length];
         for (int i = 0; i < factories.length; i++) {
-            factories[i] = new PropertyHashedEventTableFactory(streamNum, new String[]{propertyNames[i]}, unique, null, propertyGetters[i]);
+            factories[i] = new PropertyHashedEventTableFactory(streamNum, new String[]{propertyNames[i]}, unique, null, propertyGetters[i], null);
         }
     }
 

@@ -389,23 +389,34 @@ public class EPAssertionUtil {
                     continue;
                 }
 
-                if (received[i] instanceof Object[] && expectedObject instanceof Object[]) {
-                    boolean result = Arrays.equals((Object[]) received[i], (Object[]) expectedObject);
-                    if (result) {
-                        found = true;
-                        numMatches++;
-                        // Blank out received object so as to not match again
-                        received[i] = null;
-                        break;
-                    }
+                boolean result;
+                if (received[i] instanceof boolean[] && expectedObject instanceof boolean[]) {
+                    result = Arrays.equals((boolean[]) received[i], (boolean[]) expectedObject);
+                } else if (received[i] instanceof byte[] && expectedObject instanceof byte[]) {
+                    result = Arrays.equals((byte[]) received[i], (byte[]) expectedObject);
+                } else if (received[i] instanceof char[] && expectedObject instanceof char[]) {
+                    result = Arrays.equals((char[]) received[i], (char[]) expectedObject);
+                } else if (received[i] instanceof short[] && expectedObject instanceof short[]) {
+                    result = Arrays.equals((short[]) received[i], (short[]) expectedObject);
+                } else if (received[i] instanceof int[] && expectedObject instanceof int[]) {
+                    result = Arrays.equals((int[]) received[i], (int[]) expectedObject);
+                } else if (received[i] instanceof long[] && expectedObject instanceof long[]) {
+                    result = Arrays.equals((long[]) received[i], (long[]) expectedObject);
+                } else if (received[i] instanceof float[] && expectedObject instanceof float[]) {
+                    result = Arrays.equals((float[]) received[i], (float[]) expectedObject);
+                } else if (received[i] instanceof double[] && expectedObject instanceof double[]) {
+                    result = Arrays.equals((double[]) received[i], (double[]) expectedObject);
+                } else if (received[i] instanceof Object[] && expectedObject instanceof Object[]) {
+                    result = Arrays.deepEquals((Object[]) received[i], (Object[]) expectedObject);
                 } else {
-                    if (received[i].equals(expectedObject)) {
-                        found = true;
-                        numMatches++;
-                        // Blank out received object so as to not match again
-                        received[i] = null;
-                        break;
-                    }
+                    result = received[i].equals(expectedObject);
+                }
+                if (result) {
+                    found = true;
+                    numMatches++;
+                    // Blank out received object so as to not match again
+                    received[i] = null;
+                    break;
                 }
             }
 

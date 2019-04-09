@@ -14,6 +14,8 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -32,6 +34,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class OutputProcessViewConditionForge implements OutputProcessViewFactoryForge {
     private final OutputStrategyPostProcessForge outputStrategyPostProcessForge;
     private final boolean isDistinct;
+    private final MultiKeyClassRef distinctMultiKey;
     private final ExprTimePeriod afterTimePeriodExpr;
     private final Integer afterNumberOfEvents;
     private final OutputConditionFactoryForge outputConditionFactoryForge;
@@ -44,9 +47,10 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
     private final EventType[] eventTypes;
     private final EventType resultEventType;
 
-    public OutputProcessViewConditionForge(OutputStrategyPostProcessForge outputStrategyPostProcessForge, boolean isDistinct, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, OutputConditionFactoryForge outputConditionFactoryForge, int streamCount, ResultSetProcessorOutputConditionType conditionType, boolean terminable, boolean hasAfter, boolean unaggregatedUngrouped, SelectClauseStreamSelectorEnum selectClauseStreamSelector, EventType[] eventTypes, EventType resultEventType) {
+    public OutputProcessViewConditionForge(OutputStrategyPostProcessForge outputStrategyPostProcessForge, boolean isDistinct, MultiKeyClassRef distinctMultiKey, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, OutputConditionFactoryForge outputConditionFactoryForge, int streamCount, ResultSetProcessorOutputConditionType conditionType, boolean terminable, boolean hasAfter, boolean unaggregatedUngrouped, SelectClauseStreamSelectorEnum selectClauseStreamSelector, EventType[] eventTypes, EventType resultEventType) {
         this.outputStrategyPostProcessForge = outputStrategyPostProcessForge;
         this.isDistinct = isDistinct;
+        this.distinctMultiKey = distinctMultiKey;
         this.afterTimePeriodExpr = afterTimePeriodExpr;
         this.afterNumberOfEvents = afterNumberOfEvents;
         this.outputConditionFactoryForge = outputConditionFactoryForge;
@@ -76,6 +80,7 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
                 .exprDotMethod(spec, "setPostProcessFactory", outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope))
                 .exprDotMethod(spec, "setHasAfter", constant(hasAfter))
                 .exprDotMethod(spec, "setDistinct", constant(isDistinct))
+                .exprDotMethod(spec, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(isDistinct, resultEventType, distinctMultiKey, method, classScope))
                 .exprDotMethod(spec, "setResultEventType", EventTypeUtility.resolveTypeCodegen(resultEventType, symbols.getAddInitSvc(method)))
                 .exprDotMethod(spec, "setAfterTimePeriod", afterTimePeriodExpr == null ? constantNull() : afterTimePeriodExpr.getTimePeriodComputeForge().makeEvaluator(method, classScope))
                 .exprDotMethod(spec, "setAfterConditionNumberOfEvents", constant(afterNumberOfEvents))

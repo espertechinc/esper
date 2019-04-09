@@ -85,7 +85,8 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
 
         List<ViewSpec> viewSpecs = createWindowDesc.getViewSpecs();
         ViewFactoryForgeArgs viewArgs = new ViewFactoryForgeArgs(0, false, -1, createWindowDesc.getStreamSpecOptions(), createWindowDesc.getWindowName(), base.getStatementRawInfo(), services);
-        List<ViewFactoryForge> viewForges = ViewFactoryForgeUtil.createForges(viewSpecs.toArray(new ViewSpec[viewSpecs.size()]), viewArgs, namedWindowType);
+        ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(viewSpecs.toArray(new ViewSpec[viewSpecs.size()]), viewArgs, namedWindowType);
+        List<ViewFactoryForge> viewForges = viewForgeDesc.getForges();
         List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>();
         ViewFactoryForgeUtil.determineViewSchedules(viewForges, schedules);
         verifyDataWindowViewFactoryChain(viewForges);
@@ -138,6 +139,11 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+
+        for (StmtClassForgableFactory additional : viewForgeDesc.getMultikeyForges()) {
+            forgables.add(additional.make(packageScope, classPostfix));
+        }
+
         forgables.add(new StmtClassForgableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);

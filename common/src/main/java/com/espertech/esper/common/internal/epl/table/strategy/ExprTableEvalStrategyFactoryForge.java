@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationMethodForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationGivenEventForge;
@@ -61,16 +62,22 @@ public class ExprTableEvalStrategyFactoryForge {
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(ExprTableEvalStrategyFactory.class, this.getClass(), classScope);
+
+        CodegenExpression groupKeyEval = constantNull();
+        if (optionalGroupKeys != null && optionalGroupKeys.length > 0) {
+            groupKeyEval = MultiKeyCodegen.codegenEvaluatorReturnObjectOrArrayWCoerce(optionalGroupKeys, tableMeta.getKeyTypes(), true, method, this.getClass(), classScope);
+        }
+
         method.getBlock()
-                .declareVar(ExprTableEvalStrategyFactory.class, "factory", newInstance(ExprTableEvalStrategyFactory.class))
-                .exprDotMethod(ref("factory"), "setStrategyEnum", constant(strategyEnum))
-                .exprDotMethod(ref("factory"), "setTable", TableDeployTimeResolver.makeResolveTable(tableMeta, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("factory"), "setGroupKeyEval", optionalGroupKeys == null || optionalGroupKeys.length == 0 ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(optionalGroupKeys, tableMeta.getKeyTypes(), method, this.getClass(), classScope))
-                .exprDotMethod(ref("factory"), "setAggColumnNum", constant(aggColumnNum))
-                .exprDotMethod(ref("factory"), "setPropertyIndex", constant(propertyIndex))
-                .exprDotMethod(ref("factory"), "setOptionalEnumEval", optionalEnumEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenExprEnumEval(optionalEnumEval, method, symbols, classScope, this.getClass()))
-                .exprDotMethod(ref("factory"), "setAggregationMethod", aggregationMethod == null ? constantNull() : aggregationMethod.codegenCreateReader(method, symbols, classScope))
-                .methodReturn(ref("factory"));
+            .declareVar(ExprTableEvalStrategyFactory.class, "factory", newInstance(ExprTableEvalStrategyFactory.class))
+            .exprDotMethod(ref("factory"), "setStrategyEnum", constant(strategyEnum))
+            .exprDotMethod(ref("factory"), "setTable", TableDeployTimeResolver.makeResolveTable(tableMeta, symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("factory"), "setGroupKeyEval", groupKeyEval)
+            .exprDotMethod(ref("factory"), "setAggColumnNum", constant(aggColumnNum))
+            .exprDotMethod(ref("factory"), "setPropertyIndex", constant(propertyIndex))
+            .exprDotMethod(ref("factory"), "setOptionalEnumEval", optionalEnumEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenExprEnumEval(optionalEnumEval, method, symbols, classScope, this.getClass()))
+            .exprDotMethod(ref("factory"), "setAggregationMethod", aggregationMethod == null ? constantNull() : aggregationMethod.codegenCreateReader(method, symbols, classScope))
+            .methodReturn(ref("factory"));
         return localMethod(method);
     }
 }

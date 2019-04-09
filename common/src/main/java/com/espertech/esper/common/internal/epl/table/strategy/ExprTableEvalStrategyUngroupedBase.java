@@ -32,7 +32,7 @@ public abstract class ExprTableEvalStrategyUngroupedBase implements ExprTableEva
         return pair.getUngrouped().getEventUngrouped();
     }
 
-    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+    public AggregationRow getAggregationRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         ObjectArrayBackedEventBean row = lockTableReadAndGet(context);
         if (row == null) {
             return null;

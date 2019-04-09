@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.type.SQLColumnValueContext;
 import com.espertech.esper.common.client.hook.type.SQLInputParameterContext;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowValueContext;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.historical.execstrategy.PollExecStrategy;
@@ -26,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 
 /**
  * Viewable providing historical data from a database.
@@ -86,14 +85,14 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
         if (hasJDBCLogging) {
             parameters = new Object[factory.inputParameters.length];
         }
-        HashableMultiKey mk = factory.inputParameters.length == 1 ? null : (HashableMultiKey) lookupValuePerStream;
+        Object[] mk = factory.inputParameters.length == 1 ? null : (Object[]) lookupValuePerStream;
         for (int i = 0; i < factory.inputParameters.length; i++) {
             try {
                 Object parameter;
                 if (mk == null) {
                     parameter = lookupValuePerStream;
                 } else {
-                    parameter = mk.getKeys()[i];
+                    parameter = mk[i];
                 }
 
                 if (factory.columnTypeConversionHook != null) {
@@ -126,8 +125,8 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
             long endTimeNS = System.nanoTime();
             long endTimeMS = System.currentTimeMillis();
             JDBC_PERF_LOG.info("Statement '" + factory.preparedStatementText + "' delta nanosec " + (endTimeNS - startTimeNS) +
-                    " delta msec " + (endTimeMS - startTimeMS) +
-                    " parameters " + Arrays.toString(parameters));
+                " delta msec " + (endTimeMS - startTimeMS) +
+                " parameters " + Arrays.toString(parameters));
         } else {
             try {
                 resultSet = preparedStatement.executeQuery();

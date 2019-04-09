@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.type;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.util.SimpleNumberBigDecimalCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberBigIntegerCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
@@ -49,11 +48,11 @@ public enum RelationalOpEnum {
      */
     LE("<=");
 
-    private static Map<HashableMultiKey, RelationalOpEnum.Computer> computers;
+    private static Map<RelationalOpDesc, RelationalOpEnum.Computer> computers;
 
     private String expressionText;
 
-    private RelationalOpEnum(String expressionText) {
+    RelationalOpEnum(String expressionText) {
         this.expressionText = expressionText;
     }
 
@@ -88,34 +87,34 @@ public enum RelationalOpEnum {
 
     static {
         computers = new HashMap<>();
-        computers.put(new HashableMultiKey(new Object[]{String.class, GT}), new GTStringComputer());
-        computers.put(new HashableMultiKey(new Object[]{String.class, GE}), new GEStringComputer());
-        computers.put(new HashableMultiKey(new Object[]{String.class, LT}), new LTStringComputer());
-        computers.put(new HashableMultiKey(new Object[]{String.class, LE}), new LEStringComputer());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, GT}), new GTIntegerComputer());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, GE}), new GEIntegerComputer());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, LT}), new LTIntegerComputer());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, LE}), new LEIntegerComputer());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, GT}), new GTLongComputer());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, GE}), new GELongComputer());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, LT}), new LTLongComputer());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, LE}), new LELongComputer());
-        computers.put(new HashableMultiKey(new Object[]{Double.class, GT}), new GTDoubleComputer());
-        computers.put(new HashableMultiKey(new Object[]{Double.class, GE}), new GEDoubleComputer());
-        computers.put(new HashableMultiKey(new Object[]{Double.class, LT}), new LTDoubleComputer());
-        computers.put(new HashableMultiKey(new Object[]{Double.class, LE}), new LEDoubleComputer());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, GT}), new GTFloatComputer());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, GE}), new GEFloatComputer());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, LT}), new LTFloatComputer());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, LE}), new LEFloatComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, GT}), new GTBigDecComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, GE}), new GEBigDecComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, LT}), new LTBigDecComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, LE}), new LEBigDecComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, GT}), new GTBigIntComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, GE}), new GEBigIntComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, LT}), new LTBigIntComputer());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, LE}), new LEBigIntComputer());
+        computers.put(new RelationalOpDesc(String.class, GT), new GTStringComputer());
+        computers.put(new RelationalOpDesc(String.class, GE), new GEStringComputer());
+        computers.put(new RelationalOpDesc(String.class, LT), new LTStringComputer());
+        computers.put(new RelationalOpDesc(String.class, LE), new LEStringComputer());
+        computers.put(new RelationalOpDesc(Integer.class, GT), new GTIntegerComputer());
+        computers.put(new RelationalOpDesc(Integer.class, GE), new GEIntegerComputer());
+        computers.put(new RelationalOpDesc(Integer.class, LT), new LTIntegerComputer());
+        computers.put(new RelationalOpDesc(Integer.class, LE), new LEIntegerComputer());
+        computers.put(new RelationalOpDesc(Long.class, GT), new GTLongComputer());
+        computers.put(new RelationalOpDesc(Long.class, GE), new GELongComputer());
+        computers.put(new RelationalOpDesc(Long.class, LT), new LTLongComputer());
+        computers.put(new RelationalOpDesc(Long.class, LE), new LELongComputer());
+        computers.put(new RelationalOpDesc(Double.class, GT), new GTDoubleComputer());
+        computers.put(new RelationalOpDesc(Double.class, GE), new GEDoubleComputer());
+        computers.put(new RelationalOpDesc(Double.class, LT), new LTDoubleComputer());
+        computers.put(new RelationalOpDesc(Double.class, LE), new LEDoubleComputer());
+        computers.put(new RelationalOpDesc(Float.class, GT), new GTFloatComputer());
+        computers.put(new RelationalOpDesc(Float.class, GE), new GEFloatComputer());
+        computers.put(new RelationalOpDesc(Float.class, LT), new LTFloatComputer());
+        computers.put(new RelationalOpDesc(Float.class, LE), new LEFloatComputer());
+        computers.put(new RelationalOpDesc(BigDecimal.class, GT), new GTBigDecComputer());
+        computers.put(new RelationalOpDesc(BigDecimal.class, GE), new GEBigDecComputer());
+        computers.put(new RelationalOpDesc(BigDecimal.class, LT), new LTBigDecComputer());
+        computers.put(new RelationalOpDesc(BigDecimal.class, LE), new LEBigDecComputer());
+        computers.put(new RelationalOpDesc(BigInteger.class, GT), new GTBigIntComputer());
+        computers.put(new RelationalOpDesc(BigInteger.class, GE), new GEBigIntComputer());
+        computers.put(new RelationalOpDesc(BigInteger.class, LT), new LTBigIntComputer());
+        computers.put(new RelationalOpDesc(BigInteger.class, LE), new LEBigIntComputer());
     }
 
     /**
@@ -128,12 +127,12 @@ public enum RelationalOpEnum {
      */
     public RelationalOpEnum.Computer getComputer(Class coercedType, Class typeOne, Class typeTwo) {
         if ((coercedType != Double.class) &&
-                (coercedType != Float.class) &&
-                (coercedType != Integer.class) &&
-                (coercedType != Long.class) &&
-                (coercedType != String.class) &&
-                (coercedType != BigDecimal.class) &&
-                (coercedType != BigInteger.class)) {
+            (coercedType != Float.class) &&
+            (coercedType != Integer.class) &&
+            (coercedType != Long.class) &&
+            (coercedType != String.class) &&
+            (coercedType != BigDecimal.class) &&
+            (coercedType != BigInteger.class)) {
             throw new IllegalArgumentException("Unsupported type for relational op compare, type " + coercedType);
         }
 
@@ -144,13 +143,13 @@ public enum RelationalOpEnum {
             return makeBigIntegerComputer(typeOne, typeTwo);
         }
 
-        HashableMultiKey key = new HashableMultiKey(new Object[]{coercedType, this});
+        RelationalOpDesc key = new RelationalOpDesc(coercedType, this);
         return computers.get(key);
     }
 
     private Computer makeBigDecimalComputer(Class typeOne, Class typeTwo) {
         if ((typeOne == BigDecimal.class) && (typeTwo == BigDecimal.class)) {
-            return computers.get(new HashableMultiKey(new Object[]{BigDecimal.class, this}));
+            return computers.get(new RelationalOpDesc(BigDecimal.class, this));
         }
         SimpleNumberBigDecimalCoercer convertorOne = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeOne);
         SimpleNumberBigDecimalCoercer convertorTwo = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeTwo);
@@ -168,7 +167,7 @@ public enum RelationalOpEnum {
 
     private Computer makeBigIntegerComputer(Class typeOne, Class typeTwo) {
         if ((typeOne == BigInteger.class) && (typeTwo == BigInteger.class)) {
-            return computers.get(new HashableMultiKey(new Object[]{BigInteger.class, this}));
+            return computers.get(new RelationalOpDesc(BigInteger.class, this));
         }
         SimpleNumberBigIntegerCoercer convertorOne = SimpleNumberCoercerFactory.getCoercerBigInteger(typeOne);
         SimpleNumberBigIntegerCoercer convertorTwo = SimpleNumberCoercerFactory.getCoercerBigInteger(typeTwo);
@@ -907,5 +906,31 @@ public enum RelationalOpEnum {
         CodegenExpression leftConv = convLeft.coerceBoxedBigIntCodegen(lhs, lhsType);
         CodegenExpression rightConv = convRight.coerceBoxedBigIntCodegen(rhs, rhsType);
         return relational(exprDotMethod(leftConv, "compareTo", rightConv), rel, constant(0));
+    }
+
+    public static class RelationalOpDesc {
+        private final Class type;
+        private final RelationalOpEnum op;
+
+        public RelationalOpDesc(Class type, RelationalOpEnum op) {
+            this.type = type;
+            this.op = op;
+        }
+
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RelationalOpDesc that = (RelationalOpDesc) o;
+
+            if (!type.equals(that.type)) return false;
+            return op == that.op;
+        }
+
+        public int hashCode() {
+            int result = type.hashCode();
+            result = 31 * result + op.hashCode();
+            return result;
+        }
     }
 }

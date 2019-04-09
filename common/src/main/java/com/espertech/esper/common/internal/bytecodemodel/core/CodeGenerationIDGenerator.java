@@ -10,7 +10,21 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
+import com.espertech.esper.common.internal.util.UuidGenerator;
+
+import java.io.StringWriter;
+
 public class CodeGenerationIDGenerator {
+    public static String generateClassNameUUID() {
+        return UuidGenerator.generate().replace("-", "_");
+    }
+
+    public static String generateClassNameWithUUID(Class interfaceClass, String postfix, String uuid) {
+        StringWriter writer = new StringWriter();
+        writer.append(interfaceClass.getSimpleName()).append("_").append(postfix).append("_").append(uuid);
+        return writer.toString();
+    }
+
     public static String generateClassNameSimple(Class interfaceClass, String postfix) {
         return interfaceClass.getSimpleName() + "_" + postfix;
     }

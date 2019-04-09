@@ -15,15 +15,19 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.annotation.IterableUnbound;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseElementCompiled;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompiledSpec;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDescForge;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevelForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
 import com.espertech.esper.common.internal.epl.agg.rollup.GroupByRollupPerLevelForge;
@@ -302,18 +306,22 @@ public class ResultSetProcessorFactoryFactory {
         // Analyze rollup
         GroupByRollupInfo groupByRollupInfo = analyzeValidateGroupBy(groupByClauseExpressions, validationContext);
         ExprNode[] groupByNodesValidated = groupByRollupInfo == null ? ExprNodeUtilityQuery.EMPTY_EXPR_ARRAY : groupByRollupInfo.getExprNodes();
-        AggregationGroupByRollupDesc groupByRollupDesc = groupByRollupInfo == null ? null : groupByRollupInfo.getRollupDesc();
+        AggregationGroupByRollupDescForge groupByRollupDesc = groupByRollupInfo == null ? null : groupByRollupInfo.getRollupDesc();
+        MultiKeyClassRef groupByMultiKey = groupByRollupInfo == null ? null : groupByRollupInfo.getOptionalMultiKey();
+        List<StmtClassForgableFactory> additionalForgeables = groupByRollupInfo == null ? new ArrayList<>() : new ArrayList<>(groupByRollupInfo.getAdditionalForgeables());
 
         // Construct the appropriate aggregation service
         boolean hasGroupBy = groupByNodesValidated.length > 0;
         AggregationServiceForgeDesc aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(
-                selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy,
+                selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, groupByMultiKey,
+                havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy,
                 statementRawInfo.getAnnotations(), services.getVariableCompileTimeResolver(), false,
                 spec.getWhereClause(), spec.getHavingClause(),
                 typeService.getEventTypes(), groupByRollupDesc,
                 spec.getContextName(), spec.getIntoTableSpec(), services.getTableCompileTimeResolver(),
                 isUnidirectional, isFireAndForget, isOnSelect,
                 services.getClasspathImportServiceCompileTime(), statementRawInfo.getStatementName());
+        additionalForgeables.addAll(aggregationServiceForgeDesc.getAdditionalForgeables());
 
         // Compare local-aggregation versus group-by
         boolean localGroupByMatchesGroupBy = analyzeLocalGroupBy(groupByNodesValidated, selectAggregateExprNodes, havingAggregateExprNodes, orderByAggregateExprNodes);
@@ -323,6 +331,7 @@ public class ResultSetProcessorFactoryFactory {
                 null, isFireAndForget, spec.getAnnotations(), statementRawInfo, services);
         SelectExprProcessorDescriptor selectExprProcessorDesc = SelectExprProcessorFactory.getProcessor(args, insertIntoDesc, true);
         SelectExprProcessorForge selectExprProcessorForge = selectExprProcessorDesc.getForge();
+        additionalForgeables.addAll(selectExprProcessorDesc.getAdditionalForgeables());
         SelectSubscriberDescriptor selectSubscriberDescriptor = selectExprProcessorDesc.getSubscriberDescriptor();
         EventType resultEventType = selectExprProcessorForge.getResultEventType();
 
@@ -385,7 +394,7 @@ public class ResultSetProcessorFactoryFactory {
                 log.debug(".getProcessor Using no result processor");
                 ResultSetProcessorHandThroughFactoryForge forge = new ResultSetProcessorHandThroughFactoryForge(resultEventType, selectExprProcessorForge, isSelectRStream);
                 return new ResultSetProcessorDesc(forge, ResultSetProcessorType.HANDTHROUGH, new SelectExprProcessorForge[]{selectExprProcessorForge},
-                        join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor);
+                        join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
             }
 
             // (1b)
@@ -394,7 +403,7 @@ public class ResultSetProcessorFactoryFactory {
             // There might be some order-by expressions.
             ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, hasOrderBy, typeService.getEventTypes());
             return new ResultSetProcessorDesc(forge, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
-                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor);
+                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
         }
 
         // (2)
@@ -404,7 +413,7 @@ public class ResultSetProcessorFactoryFactory {
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst) {
             ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, hasOrderBy, typeService.getEventTypes());
             return new ResultSetProcessorDesc(forge, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
-                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor);
+                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
         }
 
         if ((groupByNodesValidated.length == 0) && isAggregated) {
@@ -416,7 +425,7 @@ public class ResultSetProcessorFactoryFactory {
                 log.debug(".getProcessor Using ResultSetProcessorRowForAll");
                 ResultSetProcessorRowForAllForge forge = new ResultSetProcessorRowForAllForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, hasOrderBy, outputConditionType);
                 return new ResultSetProcessorDesc(forge, ResultSetProcessorType.FULLYAGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
-                        join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor);
+                        join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
             }
 
             // (4)
@@ -425,7 +434,7 @@ public class ResultSetProcessorFactoryFactory {
             log.debug(".getProcessor Using ResultSetProcessorRowPerEventImpl");
             ResultSetProcessorRowPerEventForge forge = new ResultSetProcessorRowPerEventForge(selectExprProcessorForge.getResultEventType(), selectExprProcessorForge, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, outputConditionType, hasOrderBy);
             return new ResultSetProcessorDesc(forge, ResultSetProcessorType.AGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
-                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor);
+                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
         }
 
         // Handle group-by cases
@@ -479,18 +488,18 @@ public class ResultSetProcessorFactoryFactory {
             SelectExprProcessorForge[] selectExprProcessorForges;
             boolean rollup;
             if (groupByRollupDesc != null) {
-                forge = new ResultSetProcessorRowPerGroupRollupForge(resultEventType, rollupPerLevelForges, groupByNodesValidated, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes());
+                forge = new ResultSetProcessorRowPerGroupRollupForge(resultEventType, rollupPerLevelForges, groupByNodesValidated, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes(), groupByMultiKey);
                 type = ResultSetProcessorType.FULLYAGGREGATED_GROUPED_ROLLUP;
                 selectExprProcessorForges = rollupPerLevelForges.getSelectExprProcessorForges();
                 rollup = true;
             } else {
-                forge = new ResultSetProcessorRowPerGroupForge(resultEventType, typeService.getEventTypes(), selectExprProcessorForge, groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, noDataWindowSingleStream, isHistoricalOnly, iterateUnbounded, outputConditionType, typeService.getEventTypes(), optionalOutputFirstConditionFactoryForge);
+                forge = new ResultSetProcessorRowPerGroupForge(resultEventType, typeService.getEventTypes(), groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, noDataWindowSingleStream, isHistoricalOnly, iterateUnbounded, outputConditionType, typeService.getEventTypes(), optionalOutputFirstConditionFactoryForge, groupByMultiKey);
                 type = ResultSetProcessorType.FULLYAGGREGATED_GROUPED;
                 selectExprProcessorForges = new SelectExprProcessorForge[]{selectExprProcessorForge};
                 rollup = false;
             }
             return new ResultSetProcessorDesc(forge, type, selectExprProcessorForges,
-                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, rollup, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor);
+                    join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, rollup, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
         }
 
         if (groupByRollupDesc != null) {
@@ -500,9 +509,9 @@ public class ResultSetProcessorFactoryFactory {
         // (6)
         // There is a group-by clause, and one or more event properties in the select clause that are not under an aggregation
         // function are not listed in the group-by clause (output one row per event, not one row per group)
-        ResultSetProcessorAggregateGroupedForge forge = new ResultSetProcessorAggregateGroupedForge(resultEventType, groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, isHistoricalOnly, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes());
+        ResultSetProcessorAggregateGroupedForge forge = new ResultSetProcessorAggregateGroupedForge(resultEventType, groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, isHistoricalOnly, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes(), groupByMultiKey);
         return new ResultSetProcessorDesc(forge, ResultSetProcessorType.AGGREGATED_GROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
-                join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor);
+                join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
     }
 
     private static void validateOutputLimit(OutputLimitSpec outputLimitSpec, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
@@ -556,11 +565,35 @@ public class ResultSetProcessorFactoryFactory {
             validated[i] = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.GROUPBY, groupBy.getGroupByNodes()[i], validationContext);
         }
 
+        MultiKeyPlan groupByMKPLan = MultiKeyPlanner.planMultiKey(validated, false);
         if (groupBy.getGroupByRollupLevels() == null) {
-            return new GroupByRollupInfo(validated, null);
+            return new GroupByRollupInfo(validated, null, groupByMKPLan.getMultiKeyForgables(), groupByMKPLan.getOptionalClassRef());
         }
 
-        AggregationGroupByRollupDesc rollup = AggregationGroupByRollupDesc.make(groupBy.getGroupByRollupLevels());
+        // make rollup levels
+        List<AggregationGroupByRollupLevelForge> levels = new ArrayList<>();
+        int countOffset = 0;
+        int countNumber = -1;
+        Class[] allGroupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(validated);
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(groupByMKPLan.getMultiKeyForgables());
+        for (int[] mki : groupBy.getGroupByRollupLevels()) {
+            countNumber++;
+
+            if (mki.length == 0) {
+                levels.add(new AggregationGroupByRollupLevelForge(countNumber, -1, null, allGroupKeyTypes, groupByMKPLan.getOptionalClassRef(), null));
+            } else {
+                ExprNode[] levelExpressions = new ExprNode[mki.length];
+                for (int i = 0; i < levelExpressions.length; i++) {
+                    levelExpressions[i] = validated[mki[i]];
+                }
+                MultiKeyPlan levelMKPLan = MultiKeyPlanner.planMultiKey(levelExpressions, false);
+                additionalForgeables.addAll(levelMKPLan.getMultiKeyForgables());
+                levels.add(new AggregationGroupByRollupLevelForge(countNumber, countOffset, mki, allGroupKeyTypes, groupByMKPLan.getOptionalClassRef(), levelMKPLan.getOptionalClassRef()));
+                countOffset++;
+            }
+        }
+        AggregationGroupByRollupLevelForge[] levelsarr = levels.toArray(new AggregationGroupByRollupLevelForge[levels.size()]);
+        AggregationGroupByRollupDescForge rollup = new AggregationGroupByRollupDescForge(levelsarr);
 
         // callback when hook reporting enabled
         try {
@@ -572,10 +605,10 @@ public class ResultSetProcessorFactoryFactory {
             throw new EPException("Failed to obtain hook for " + HookType.INTERNAL_QUERY_PLAN);
         }
 
-        return new GroupByRollupInfo(validated, rollup);
+        return new GroupByRollupInfo(validated, rollup, additionalForgeables, groupByMKPLan.getOptionalClassRef());
     }
 
-    private static GroupByRollupPerLevelForge getRollUpPerLevelExpressions(ResultSetSpec spec, ExprNode[] groupByNodesValidated, AggregationGroupByRollupDesc groupByRollupDesc,
+    private static GroupByRollupPerLevelForge getRollUpPerLevelExpressions(ResultSetSpec spec, ExprNode[] groupByNodesValidated, AggregationGroupByRollupDescForge groupByRollupDesc,
                                                                            GroupByRollupInfo groupByRollupInfo,
                                                                            InsertIntoDesc insertIntoDesc, StreamTypeService typeService, ExprValidationContext validationContext,
                                                                            boolean isFireAndForget, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices)
@@ -602,7 +635,7 @@ public class ResultSetProcessorFactoryFactory {
 
         // for each level obtain a separate select expression processor
         for (int i = 0; i < numLevels; i++) {
-            AggregationGroupByRollupLevel level = groupByRollupDesc.getLevels()[i];
+            AggregationGroupByRollupLevelForge level = groupByRollupDesc.getLevels()[i];
 
             // determine properties rolled up for this level
             ExprNodePropOrStreamSet rolledupProps = getRollupProperties(level, propsPerGroupByExpr);
@@ -627,7 +660,7 @@ public class ResultSetProcessorFactoryFactory {
         return new GroupByRollupPerLevelForge(processors, havingClauses, orderByElements);
     }
 
-    private static OrderByElementForge[] rewriteRollupOrderBy(List<OrderByItem> items, ExprNode[] orderByList, ExprValidationContext validationContext, ExprNodePropOrStreamSet rolledupProps, ExprNode[] groupByNodes, AggregationGroupByRollupLevel level)
+    private static OrderByElementForge[] rewriteRollupOrderBy(List<OrderByItem> items, ExprNode[] orderByList, ExprValidationContext validationContext, ExprNodePropOrStreamSet rolledupProps, ExprNode[] groupByNodes, AggregationGroupByRollupLevelForge level)
             throws ExprValidationException {
         OrderByElementForge[] elements = new OrderByElementForge[orderByList.length];
         for (int i = 0; i < orderByList.length; i++) {
@@ -637,7 +670,7 @@ public class ResultSetProcessorFactoryFactory {
         return elements;
     }
 
-    private static ExprNodePropOrStreamSet getRollupProperties(AggregationGroupByRollupLevel level, ExprNodePropOrStreamSet[] propsPerGroupByExpr) {
+    private static ExprNodePropOrStreamSet getRollupProperties(AggregationGroupByRollupLevelForge level, ExprNodePropOrStreamSet[] propsPerGroupByExpr) {
         // determine properties rolled up for this level
         ExprNodePropOrStreamSet rolledupProps = new ExprNodePropOrStreamSet();
         for (int i = 0; i < propsPerGroupByExpr.length; i++) {
@@ -659,7 +692,7 @@ public class ResultSetProcessorFactoryFactory {
         return rolledupProps;
     }
 
-    private static SelectClauseElementCompiled[] getRollUpSelectClause(SelectClauseSpecCompiled selectClauseSpec, ExprNode[] selectClauseLevel, AggregationGroupByRollupLevel level, ExprNodePropOrStreamSet rolledupProps, ExprNode[] groupByNodesValidated, ExprValidationContext validationContext)
+    private static SelectClauseElementCompiled[] getRollUpSelectClause(SelectClauseSpecCompiled selectClauseSpec, ExprNode[] selectClauseLevel, AggregationGroupByRollupLevelForge level, ExprNodePropOrStreamSet rolledupProps, ExprNode[] groupByNodesValidated, ExprValidationContext validationContext)
             throws ExprValidationException {
         SelectClauseElementCompiled[] rewritten = new SelectClauseElementCompiled[selectClauseSpec.getSelectExprList().length];
         for (int i = 0; i < rewritten.length; i++) {
@@ -680,7 +713,7 @@ public class ResultSetProcessorFactoryFactory {
                                                             ExprValidationContext validationContext,
                                                             ExprNodePropOrStreamSet rolledupProps,
                                                             ExprNode[] groupByNodes,
-                                                            AggregationGroupByRollupLevel level)
+                                                            AggregationGroupByRollupLevelForge level)
             throws ExprValidationException {
         // rewrite grouping expressions
         ExprNodeGroupingVisitorWParent groupingVisitor = new ExprNodeGroupingVisitorWParent();

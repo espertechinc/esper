@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
  * Interface for a service that routes events within the runtimefor further processing.
  */
 public interface InternalEventRouter {
-    void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect);
+    void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementContext statementContext, boolean hasSubselect);
 
     void removePreprocessing(EventType eventType, InternalEventRouterDesc desc);
 

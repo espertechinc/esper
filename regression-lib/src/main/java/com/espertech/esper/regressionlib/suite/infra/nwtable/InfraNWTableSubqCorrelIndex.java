@@ -13,12 +13,13 @@ package com.espertech.esper.regressionlib.suite.infra.nwtable;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexDescSubquery;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanTwo;
 import com.espertech.esper.regressionlib.support.util.IndexAssertion;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.util.CollectionUtil.appendArrayConditional;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
@@ -63,7 +65,102 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
         execs.add(new InfraNWTableSubqCorrelIndexNoIndexShareIndexChoice(true));
         execs.add(new InfraNWTableSubqCorrelIndexNoIndexShareIndexChoice(false));
 
+        execs.add(new InfraNWTableSubqIndexShareMultikeyWArraySingleArray(true));
+        execs.add(new InfraNWTableSubqIndexShareMultikeyWArraySingleArray(false));
+
+        execs.add(new InfraNWTableSubqIndexShareMultikeyWArrayTwoArray(true));
+        execs.add(new InfraNWTableSubqIndexShareMultikeyWArrayTwoArray(false));
+
         return execs;
+    }
+
+    private static class InfraNWTableSubqIndexShareMultikeyWArraySingleArray implements RegressionExecution {
+        private final boolean namedWindow;
+
+        public InfraNWTableSubqIndexShareMultikeyWArraySingleArray(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String infra;
+            RegressionPath path = new RegressionPath();
+            if (namedWindow) {
+                infra = "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall as (k string[], v int);\n" +
+                    "create index MyInfraIndex on MyInfra(k);\n";
+            } else {
+                infra = "create table MyInfra(k string[] primary key, v int);\n";
+            }
+            env.compileDeploy(infra, path);
+
+            insert(env, path, "{'a', 'b'}", 10);
+            insert(env, path, "{'a', 'c'}", 20);
+            insert(env, path, "{'a'}", 30);
+
+            String epl = "@name('s0') select (select v from MyInfra as mi where mi.k = ma.stringOne) as v from SupportEventWithManyArray as ma";
+            epl = namedWindow ? "@Hint('index(MyInfraIndex, bust)')" + epl : epl;
+            env.compileDeploy(epl, path).addListener("s0");
+
+            sendAssertManyArray(env, "a,c", 20);
+            sendAssertManyArray(env, "a,b", 10);
+            sendAssertManyArray(env, "a", 30);
+            sendAssertManyArray(env, "a,d", null);
+
+            env.undeployAll();
+        }
+
+        private void sendAssertManyArray(RegressionEnvironment env, String stringOne, Integer expected) {
+            env.sendEventBean(new SupportEventWithManyArray("id").withStringOne(stringOne.split(",")));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("v"));
+        }
+
+        private void insert(RegressionEnvironment env, RegressionPath path, String k, int v) {
+            env.compileExecuteFAF("insert into MyInfra(k,v) values (" + k + "," + v + ")", path);
+        }
+    }
+
+    private static class InfraNWTableSubqIndexShareMultikeyWArrayTwoArray implements RegressionExecution {
+        private final boolean namedWindow;
+
+        public InfraNWTableSubqIndexShareMultikeyWArrayTwoArray(boolean namedWindow) {
+            this.namedWindow = namedWindow;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String infra;
+            RegressionPath path = new RegressionPath();
+            if (namedWindow) {
+                infra = "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall as (k1 string[], k2 string[], v int);\n" +
+                    "create index MyInfraIndex on MyInfra(k1, k2);\n";
+            } else {
+                infra = "create table MyInfra(k1 string[] primary key, k2 string[] primary key, v int);\n";
+            }
+            env.compileDeploy(infra, path);
+
+            insert(env, path, "{'a', 'b'}", "{'c', 'd'}", 10);
+            insert(env, path, "{'a'}", "{'b'}", 20);
+            insert(env, path, "{'a'}", "{'c', 'd'}", 30);
+
+            String epl = "@name('s0') select (select v from MyInfra as mi where mi.k1 = ma.stringOne and mi.k2 = ma.stringTwo) as v from SupportEventWithManyArray as ma";
+            epl = namedWindow ? "@Hint('index(MyInfraIndex, bust)')" + epl : epl;
+            env.compileDeploy(epl, path).addListener("s0");
+
+            sendAssertManyArray(env, "a", "b", 20);
+            sendAssertManyArray(env, "a,b", "c,d", 10);
+            sendAssertManyArray(env, "a", "c,d", 30);
+            sendAssertManyArray(env, "a", "c", null);
+            sendAssertManyArray(env, "a,b", "d,c", null);
+
+            env.undeployAll();
+        }
+
+        private void sendAssertManyArray(RegressionEnvironment env, String stringOne, String stringTwo, Integer expected) {
+            env.sendEventBean(new SupportEventWithManyArray("id").withStringOne(stringOne.split(",")).withStringTwo(stringTwo.split(",")));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("v"));
+        }
+
+        private void insert(RegressionEnvironment env, RegressionPath path, String k1, String k2, int v) {
+            env.compileExecuteFAF("insert into MyInfra(k1,k2,v) values (" + k1 + "," + k2 + "," + v + ")", path);
+        }
     }
 
     private static class InfraNWTableSubqCorrelIndexNoIndexShareIndexChoice implements RegressionExecution {

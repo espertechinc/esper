@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.Compilable;
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompiled;
@@ -18,6 +21,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamS
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -26,6 +30,7 @@ import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetP
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalViewableDesc;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzer;
 import com.espertech.esper.common.internal.epl.join.analyze.OuterJoinAnalyzer;
+import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeDesc;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeForge;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeForgeFactory;
 import com.espertech.esper.common.internal.epl.join.hint.ExcludePlanHint;
@@ -43,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +70,9 @@ public class FAFQueryMethodSelectDesc {
     private final String contextName;
     private boolean hasTableAccess;
     private final boolean isDistinct;
+    private final MultiKeyClassRef distinctMultiKey;
     private Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges;
+    private final List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
     public FAFQueryMethodSelectDesc(StatementSpecCompiled statementSpec,
                                     Compilable compilable,
@@ -154,6 +162,7 @@ public class FAFQueryMethodSelectDesc {
         resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(resultSetSpec,
                 typeService, null, new boolean[0], true, null,
                 true, false, statementRawInfo, services);
+        additionalForgeables.addAll(resultSetProcessor.getAdditionalForgeables());
 
         // plan table access
         tableAccessForges = ExprTableEvalHelperPlan.planTableAccess(statementSpec.getRaw().getTableExpressions());
@@ -168,11 +177,17 @@ public class FAFQueryMethodSelectDesc {
             }
 
             boolean hasAggregations = resultSetProcessor.getResultSetProcessorType().isAggregated();
-            joins = JoinSetComposerPrototypeForgeFactory.makeComposerPrototype(statementSpec, streamJoinAnalysisResult,
-                    types, new HistoricalViewableDesc(numStreams), true, hasAggregations, statementRawInfo, services);
+            JoinSetComposerPrototypeDesc desc = JoinSetComposerPrototypeForgeFactory.makeComposerPrototype(statementSpec, streamJoinAnalysisResult,
+                types, new HistoricalViewableDesc(numStreams), true, hasAggregations, statementRawInfo, services);
+            additionalForgeables.addAll(desc.getAdditionalForgeables());
+            joins = desc.getForge();
         } else {
             joins = null;
         }
+
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultSetProcessor.getResultEventType());
+        additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
+        this.distinctMultiKey = multiKeyPlan.getOptionalClassRef();
     }
 
     public JoinSetComposerPrototypeForge getJoins() {
@@ -217,5 +232,13 @@ public class FAFQueryMethodSelectDesc {
 
     public boolean isDistinct() {
         return isDistinct;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
+    }
+
+    public MultiKeyClassRef getDistinctMultiKey() {
+        return distinctMultiKey;
     }
 }

@@ -19,12 +19,16 @@ import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeDefineItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeMeasureItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSpec;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -60,7 +64,7 @@ public class RowRecogNFAViewPlanUtil {
 
     private static final Logger log = LoggerFactory.getLogger(RowRecogNFAViewFactoryForge.class);
 
-    public static RowRecogDescForge validateAndPlan(EventType parentEventType,
+    public static RowRecogPlan validateAndPlan(EventType parentEventType,
                                                     boolean unbound,
                                                     StatementBaseInfo base,
                                                     StatementCompileTimeServices services)
@@ -70,6 +74,7 @@ public class RowRecogNFAViewPlanUtil {
         MatchRecognizeSpec matchRecognizeSpec = base.getStatementSpec().getRaw().getMatchRecognizeSpec();
         Annotation[] annotations = statementRawInfo.getAnnotations();
         boolean iterateOnly = HintEnum.ITERATE_ONLY.getHint(annotations) != null;
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         // Expand repeats and permutations
         RowRecogExprNode expandedPatternNode = RowRecogPatternExpandUtil.expand(matchRecognizeSpec.getPattern());
@@ -192,6 +197,11 @@ public class RowRecogNFAViewPlanUtil {
         AggregationServiceForgeDesc[] aggregationServices = null;
         if (!measureAggregateExprNodes.isEmpty()) {
             aggregationServices = planAggregations(measureAggregateExprNodes, compositeTypeServiceMeasure, allStreamNames, allTypes, streamVariables, variablesMultiple, base, services);
+            for (AggregationServiceForgeDesc svc : aggregationServices) {
+                if (svc != null) {
+                    additionalForgeables.addAll(svc.getAdditionalForgeables());
+                }
+            }
         }
 
         // validate each MEASURE clause expression
@@ -239,6 +249,7 @@ public class RowRecogNFAViewPlanUtil {
 
         // validate partition-by expressions, if any
         ExprNode[] partitionBy;
+        MultiKeyClassRef partitionMultiKey;
         if (!matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
             StreamTypeService typeServicePartition = new StreamTypeServiceImpl(parentEventType, "MATCH_RECOGNIZE_PARTITION", true);
             List<ExprNode> validated = new ArrayList<>();
@@ -248,8 +259,12 @@ public class RowRecogNFAViewPlanUtil {
             }
             matchRecognizeSpec.setPartitionByExpressions(validated);
             partitionBy = ExprNodeUtilityQuery.toArray(validated);
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(partitionBy, false);
+            partitionMultiKey = multiKeyPlan.getOptionalClassRef();
+            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
         } else {
             partitionBy = null;
+            partitionMultiKey = null;
         }
 
         // validate interval if present
@@ -338,9 +353,9 @@ public class RowRecogNFAViewPlanUtil {
             }
         }
 
-        return new RowRecogDescForge(parentEventType, rowEventType, compositeEventType, multimatchEventType,
+        RowRecogDescForge forge = new RowRecogDescForge(parentEventType, rowEventType, compositeEventType, multimatchEventType,
                 multimatchStreamNumToVariable, multimatchVariableToStreamNum,
-                partitionBy, variableStreams,
+                partitionBy, partitionMultiKey, variableStreams,
                 matchRecognizeSpec.getInterval() != null, iterateOnly, unbound,
                 orTerminated, collectMultimatches, defineAsksMultimatches,
                 numEventsEventsPerStreamDefine, multimatchVariablesArray,
@@ -348,6 +363,7 @@ public class RowRecogNFAViewPlanUtil {
                 matchRecognizeSpec.isAllMatches(), matchRecognizeSpec.getSkip().getSkip(),
                 columnForges, columnNames,
                 intervalCompute, previousRandomAccessIndexes, aggregationServices);
+        return new RowRecogPlan(forge, additionalForgeables);
     }
 
     private static AggregationServiceForgeDesc[] planAggregations(List<ExprAggregateNode> measureAggregateExprNodes,
@@ -429,7 +445,7 @@ public class RowRecogNFAViewPlanUtil {
             EventType[] typesPerStream = new EventType[]{allTypes[entry.getKey()]};
             AggregationServiceForgeDesc desc = AggregationServiceFactoryFactory.getService(
                     entry.getValue(), Collections.emptyMap(), declareds,
-                    new ExprNode[0], Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                    new ExprNode[0], null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                     false, base.getStatementRawInfo().getAnnotations(),
                     services.getVariableCompileTimeResolver(), true, null, null,
                     typesPerStream, null, base.getContextName(), null, services.getTableCompileTimeResolver(),

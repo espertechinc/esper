@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -46,9 +47,9 @@ import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcess
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 
 public interface ResultSetProcessorHelperFactory {
-    ResultSetProcessorRowPerGroupUnboundHelper makeRSRowPerGroupUnboundGroupRep(Class[] groupKeyTypes, EventType eventType, AgentInstanceContext agentInstanceContext);
+    ResultSetProcessorRowPerGroupUnboundHelper makeRSRowPerGroupUnboundGroupRep(Class[] groupKeyTypes, MultiKeyGeneratedSerde optionalMultiKeySerde, EventType eventType, AgentInstanceContext agentInstanceContext);
 
-    ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(AgentInstanceContext agentInstanceContext, Class[] groupKeyTypes, OutputConditionPolledFactory optionalOutputFirstConditionFactory, AggregationGroupByRollupDesc optionalGroupByRollupDesc, int optionalRollupLevel);
+    ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(AgentInstanceContext agentInstanceContext, Class[] groupKeyTypes, OutputConditionPolledFactory optionalOutputFirstConditionFactory, AggregationGroupByRollupDesc optionalGroupByRollupDesc, int optionalRollupLevel, MultiKeyGeneratedSerde optionalMultiKeySerde);
 
     OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(EventType[] eventTypes, AgentInstanceContext agentInstanceContext);
 
@@ -76,19 +77,19 @@ public interface ResultSetProcessorHelperFactory {
 
     ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, AgentInstanceContext agentInstanceContext);
 
-    ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(AgentInstanceContext agentInstanceContext, Class[] groupKeyTypes, EventType[] eventTypes);
+    ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(AgentInstanceContext agentInstanceContext, Class[] groupKeyTypes, MultiKeyGeneratedSerde optionalMultiKeySerde, EventType[] eventTypes);
 
-    ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, Class[] groupKeyTypes, EventType[] eventTypes);
+    ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup processor, Class[] groupKeyTypes, MultiKeyGeneratedSerde optionalMultiKeySerde, EventType[] eventTypes);
 
-    ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, Class[] groupKeyTypes, EventType[] eventTypes);
+    ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup processor, Class[] groupKeyTypes, MultiKeyGeneratedSerde optionalMultiKeySerde, EventType[] eventTypes);
 
-    ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped resultSetProcessorAggregateGrouped, Class[] groupKeyTypes, EventType[] eventTypes);
+    ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped processor, Class[] groupKeyTypes, MultiKeyGeneratedSerde optionalMultiKeySerde, EventType[] eventTypes);
 
-    ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped resultSetProcessorAggregateGrouped, Class[] groupKeyTypes);
+    ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped processor, Class[] groupKeyTypes, MultiKeyGeneratedSerde optionalMultiKeySerde);
 
-    ResultSetProcessorRowPerGroupRollupOutputLastHelper makeRSRowPerGroupRollupLast(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup resultSetProcessorRowPerGroupRollup, Class[] groupKeyTypes, EventType[] eventTypes);
+    ResultSetProcessorRowPerGroupRollupOutputLastHelper makeRSRowPerGroupRollupLast(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup processor, Class[] groupKeyTypes, EventType[] eventTypes);
 
-    ResultSetProcessorRowPerGroupRollupOutputAllHelper makeRSRowPerGroupRollupAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup resultSetProcessorRowPerGroupRollup, Class[] groupKeyTypes, EventType[] eventTypes);
+    ResultSetProcessorRowPerGroupRollupOutputAllHelper makeRSRowPerGroupRollupAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup processor, Class[] groupKeyTypes, EventType[] eventTypes);
 
-    ResultSetProcessorRowPerGroupRollupUnboundHelper makeRSRowPerGroupRollupSnapshotUnbound(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup resultSetProcessorRowPerGroupRollup, Class[] groupKeyTypes, int numStreams, EventType[] eventTypes);
+    ResultSetProcessorRowPerGroupRollupUnboundHelper makeRSRowPerGroupRollupSnapshotUnbound(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup processor, Class[] groupKeyTypes, int numStreams, EventType[] eventTypes);
 }

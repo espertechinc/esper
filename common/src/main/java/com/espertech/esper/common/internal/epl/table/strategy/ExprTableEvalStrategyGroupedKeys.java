@@ -15,7 +15,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.table.core.TableInstanceGrouped;
 
 import java.util.Collection;
-import java.util.Set;
 
 public class ExprTableEvalStrategyGroupedKeys extends ExprTableEvalStrategyGroupedBase {
 
@@ -25,7 +24,7 @@ public class ExprTableEvalStrategyGroupedKeys extends ExprTableEvalStrategyGroup
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         TableInstanceGrouped grouped = lockTableRead(context);
-        Set<Object> keys = grouped.getGroupKeys();
+        Collection<Object> keys = grouped.getGroupKeys();
         return keys.toArray(new Object[keys.size()]);
     }
 

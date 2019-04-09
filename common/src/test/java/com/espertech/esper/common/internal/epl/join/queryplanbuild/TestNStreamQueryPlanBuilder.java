@@ -60,9 +60,9 @@ public class TestNStreamQueryPlanBuilder extends TestCase {
     }
 
     public void testBuild() {
-        QueryPlanForge plan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream, new HistoricalViewableDesc(6), dependencyGraph, null, false, new String[queryGraph.getNumStreams()][][], new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5));
+        QueryPlanForgeDesc plan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream, new HistoricalViewableDesc(6), dependencyGraph, null, false, new String[queryGraph.getNumStreams()][][], new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5));
 
-        log.debug(".testBuild plan=" + plan);
+        log.debug(".testBuild plan=" + plan.getForge());
     }
 
     public void testCreateStreamPlan() {
@@ -71,12 +71,12 @@ public class TestNStreamQueryPlanBuilder extends TestCase {
             log.debug(".testCreateStreamPlan index " + i + " = " + indexes[i]);
         }
 
-        QueryPlanNodeForge plan = NStreamQueryPlanBuilder.createStreamPlan(0, new int[]{2, 4, 3, 1}, queryGraph, indexes, typesPerStream, new boolean[5], null, new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5));
+        QueryPlanNodeForgeDesc plan = NStreamQueryPlanBuilder.createStreamPlan(0, new int[]{2, 4, 3, 1}, queryGraph, indexes, typesPerStream, new boolean[5], null, new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5));
 
         log.debug(".testCreateStreamPlan plan=" + plan);
 
-        assertTrue(plan instanceof NestedIterationNodeForge);
-        NestedIterationNodeForge nested = (NestedIterationNodeForge) plan;
+        assertTrue(plan.getForge() instanceof NestedIterationNodeForge);
+        NestedIterationNodeForge nested = (NestedIterationNodeForge) plan.getForge();
         TableLookupNodeForge tableLookupSpec = (TableLookupNodeForge) nested.getChildNodes().get(0);
 
         // Check lookup strategy for first lookup

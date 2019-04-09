@@ -15,6 +15,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorForge;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
@@ -38,8 +40,9 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelectForge extends Stat
     private final TableMetaData optionalInsertIntoTable;
     private final boolean selectAndDelete;
     private final boolean distinct;
+    private final MultiKeyClassRef distinctMultiKey;
 
-    public StatementAgentInstanceFactoryOnTriggerInfraSelectForge(ViewableActivatorForge activator, EventType resultEventType, Map<ExprSubselectNode, SubSelectFactoryForge> subselects, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, NamedWindowMetaData namedWindow, TableMetaData table, SubordinateWMatchExprQueryPlanForge queryPlanForge, String resultSetProcessorProviderClassName, boolean insertInto, boolean addToFront, TableMetaData optionalInsertIntoTable, boolean selectAndDelete, boolean distinct) {
+    public StatementAgentInstanceFactoryOnTriggerInfraSelectForge(ViewableActivatorForge activator, EventType resultEventType, Map<ExprSubselectNode, SubSelectFactoryForge> subselects, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, NamedWindowMetaData namedWindow, TableMetaData table, SubordinateWMatchExprQueryPlanForge queryPlanForge, String resultSetProcessorProviderClassName, boolean insertInto, boolean addToFront, TableMetaData optionalInsertIntoTable, boolean selectAndDelete, boolean distinct, MultiKeyClassRef distinctMultiKey) {
         super(activator, resultEventType, subselects, tableAccesses, null, namedWindow, table, queryPlanForge);
         this.resultSetProcessorProviderClassName = resultSetProcessorProviderClassName;
         this.insertInto = insertInto;
@@ -47,6 +50,7 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelectForge extends Stat
         this.optionalInsertIntoTable = optionalInsertIntoTable;
         this.selectAndDelete = selectAndDelete;
         this.distinct = distinct;
+        this.distinctMultiKey = distinctMultiKey;
     }
 
     public Class typeOfSubclass() {
@@ -60,6 +64,7 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelectForge extends Stat
                 .exprDotMethod(saiff, "setAddToFront", constant(addToFront))
                 .exprDotMethod(saiff, "setSelectAndDelete", constant(selectAndDelete))
                 .exprDotMethod(saiff, "setDistinct", constant(distinct))
+                .exprDotMethod(saiff, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(distinct, getResultEventType(), distinctMultiKey, method, classScope))
                 .exprDotMethod(saiff, "setOptionalInsertIntoTable", optionalInsertIntoTable == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(optionalInsertIntoTable, symbols.getAddInitSvc(method)));
 
     }

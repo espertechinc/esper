@@ -13,17 +13,21 @@ package com.espertech.esper.regressionlib.suite.epl.subselect;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
-import org.junit.Assert;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EPLSubselectAggregatedMultirowAndColumn {
 
@@ -40,7 +44,66 @@ public class EPLSubselectAggregatedMultirowAndColumn {
         execs.add(new EPLSubselectMulticolumnGroupedWHaving());
         execs.add(new EPLSubselectMulticolumnInvalid());
         execs.add(new EPLSubselectMulticolumnGroupBy());
+        execs.add(new EPLSubselectMultirowGroupedMultikeyWArray());
+        execs.add(new EPLSubselectMultirowGroupedIndexSharedMultikeyWArray());
         return execs;
+    }
+
+    private static class EPLSubselectMultirowGroupedIndexSharedMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            // test uncorrelated
+            RegressionPath path = new RegressionPath();
+            String epl = "@Hint('enable_window_subquery_indexshare') create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+                "insert into MyWindow select * from SupportEventWithManyArray;\n";
+            env.compileDeploy(epl, path);
+
+            sendManyArray(env, "E1", new int[]{1, 2}, 10);
+            sendManyArray(env, "E2", new int[]{1}, 20);
+            sendManyArray(env, "E3", new int[]{1}, 21);
+            sendManyArray(env, "E4", new int[]{1, 2}, 11);
+
+            epl = "@name('s0') select " +
+                "(select intOne as c0, sum(value) as c1 from MyWindow group by intOne).take(10) as e1 from SupportBean_S0";
+            env.compileDeploy(epl, path).addListener("s0");
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean_S0(1));
+            Map[] maps = getSortMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c1");
+            assertTrue(Arrays.equals(new int[]{1, 2}, (int[]) maps[0].get("c0")));
+            assertEquals(21, maps[0].get("c1"));
+            assertTrue(Arrays.equals(new int[]{1}, (int[]) maps[1].get("c0")));
+            assertEquals(41, maps[1].get("c1"));
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLSubselectMultirowGroupedMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array) as subq from SupportBean";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("E2", new int[]{1, 2}, 11));
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean());
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "subq".split(","), new Object[]{21});
+
+            env.sendEventBean(new SupportEventWithIntArray("E3", new int[]{1, 2}, 12));
+            env.sendEventBean(new SupportBean());
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "subq".split(","), new Object[]{33});
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportEventWithIntArray("E4", new int[]{1}, 13));
+            env.sendEventBean(new SupportBean());
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "subq".split(","), new Object[]{null});
+
+            env.undeployAll();
+        }
     }
 
     public static class EPLSubselectMulticolumnInvalid implements RegressionExecution {
@@ -140,7 +203,7 @@ public class EPLSubselectAggregatedMultirowAndColumn {
 
             // try SODA
             EPStatementObjectModel model = env.eplToModel(eplNoDelete);
-            Assert.assertEquals(eplNoDelete, model.toEPL());
+            assertEquals(eplNoDelete, model.toEPL());
             env.compileDeploy(model, path).addListener("s0").milestoneInc(milestone);
             runAssertionNoDelete(env, fieldName, fields);
             env.undeployAll();
@@ -197,6 +260,7 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             sendSBEventAndTrigger(env, "G1", 1, 100L);
             assertMapFieldAndReset(env, fieldName, fieldsMultiGroup, new Object[]{"G1", 1, "G1x", 1000, 100L});
 
+            env.milestoneInc(milestone);
             sendSBEventAndTrigger(env, "G1", 1, 101L);
             assertMapFieldAndReset(env, fieldName, fieldsMultiGroup, new Object[]{"G1", 1, "G1x", 1000, 201L});
 
@@ -512,9 +576,17 @@ public class EPLSubselectAggregatedMultirowAndColumn {
     }
 
     protected static void assertMapMultiRow(String fieldName, EventBean event, final String sortKey, String[] names, Object[][] values) {
-        Collection<Map> subq = (Collection<Map>) event.get(fieldName);
-        if (values == null && subq == null) {
+        Map[] maps = getSortMapMultiRow(fieldName, event, sortKey);
+        if (values == null && maps == null) {
             return;
+        }
+        EPAssertionUtil.assertPropsPerRow(maps, names, values);
+    }
+
+    protected static Map[] getSortMapMultiRow(String fieldName, EventBean event, final String sortKey) {
+        Collection<Map> subq = (Collection<Map>) event.get(fieldName);
+        if (subq == null) {
+            return null;
         }
         Map[] maps = subq.toArray(new Map[subq.size()]);
         Arrays.sort(maps, new Comparator<Map>() {
@@ -522,6 +594,10 @@ public class EPLSubselectAggregatedMultirowAndColumn {
                 return ((Comparable) o1.get(sortKey)).compareTo(o2.get(sortKey));
             }
         });
-        EPAssertionUtil.assertPropsPerRow(maps, names, values);
+        return maps;
+    }
+
+    private static void sendManyArray(RegressionEnvironment env, String id, int[] ints, int value) {
+        env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(ints).withValue(value));
     }
 }

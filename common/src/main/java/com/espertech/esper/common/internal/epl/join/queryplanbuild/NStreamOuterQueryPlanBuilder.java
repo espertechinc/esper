@@ -11,19 +11,18 @@
 package com.espertech.esper.common.internal.epl.join.queryplanbuild;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OuterJoinDesc;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalStreamIndexListForge;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalViewableDesc;
-import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyForge;
-import com.espertech.esper.common.internal.epl.historical.lookupstrategy.HistoricalIndexLookupStrategyForge;
 import com.espertech.esper.common.internal.epl.join.assemble.AssemblyStrategyTreeBuilder;
 import com.espertech.esper.common.internal.epl.join.assemble.BaseAssemblyNodeFactory;
+import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeHistoricalDesc;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.*;
 import com.espertech.esper.common.internal.epl.join.queryplanouter.InnerJoinGraph;
@@ -44,7 +43,7 @@ import java.util.*;
  * Builds a query plan for 3 or more streams in a outer join.
  */
 public class NStreamOuterQueryPlanBuilder {
-    protected static QueryPlanForge build(QueryGraphForge queryGraph,
+    protected static QueryPlanForgeDesc build(QueryGraphForge queryGraph,
                                           OuterJoinDesc[] outerJoinDescList,
                                           String[] streamNames,
                                           EventType[] typesPerStream,
@@ -56,13 +55,14 @@ public class NStreamOuterQueryPlanBuilder {
                                           StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
                                           StatementRawInfo statementRawInfo,
                                           StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (log.isDebugEnabled()) {
             log.debug(".build filterQueryGraph=" + queryGraph);
         }
 
         int numStreams = queryGraph.getNumStreams();
         QueryPlanNodeForge[] planNodeSpecs = new QueryPlanNodeForge[numStreams];
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
 
         // Build index specifications
         QueryPlanIndexForge[] indexSpecs = QueryPlanIndexBuilder.buildIndexSpec(queryGraph, typesPerStream, indexedStreamsUniqueProps);
@@ -100,11 +100,13 @@ public class NStreamOuterQueryPlanBuilder {
                 continue;
             }
 
-            QueryPlanNodeForge queryPlanNode = buildPlanNode(numStreams, streamNo, streamNames, queryGraph, outerInnerGraph, outerJoinDescList, innerJoinGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), dependencyGraph, historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult, statementRawInfo, services);
+            QueryPlanNodeForgeDesc desc = buildPlanNode(numStreams, streamNo, streamNames, queryGraph, outerInnerGraph, outerJoinDescList, innerJoinGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), dependencyGraph, historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult, statementRawInfo, services);
+            QueryPlanNodeForge queryPlanNode = desc.getForge();
+            additionalForgeables.addAll(desc.getAdditionalForgeables());
 
             if (log.isDebugEnabled()) {
                 log.debug(".build spec for stream '" + streamNames[streamNo] +
-                        "' number " + streamNo + " is " + queryPlanNode);
+                    "' number " + streamNo + " is " + queryPlanNode);
             }
 
             planNodeSpecs[streamNo] = queryPlanNode;
@@ -115,10 +117,10 @@ public class NStreamOuterQueryPlanBuilder {
             log.debug(".build query plan=" + queryPlan.toString());
         }
 
-        return queryPlan;
+        return new QueryPlanForgeDesc(queryPlan, additionalForgeables);
     }
 
-    private static QueryPlanNodeForge buildPlanNode(int numStreams,
+    private static QueryPlanNodeForgeDesc buildPlanNode(int numStreams,
                                                     int streamNo,
                                                     String[] streamNames,
                                                     QueryGraphForge queryGraph,
@@ -134,11 +136,12 @@ public class NStreamOuterQueryPlanBuilder {
                                                     StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
                                                     StatementRawInfo statementRawInfo,
                                                     StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // For each stream build an array of substreams, considering required streams (inner joins) first
         // The order is relevant therefore preserving order via a LinkedHashMap.
         LinkedHashMap<Integer, int[]> substreamsPerStream = new LinkedHashMap<Integer, int[]>();
         boolean[] requiredPerStream = new boolean[numStreams];
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         // Recursive populating the required (outer) and optional (inner) relationships
         // of this stream and the substream
@@ -163,8 +166,10 @@ public class NStreamOuterQueryPlanBuilder {
         verifyJoinedPerStream(streamNo, substreamsPerStream);
 
         // build list of instructions for lookup
-        List<LookupInstructionPlanForge> lookupInstructions = buildLookupInstructions(streamNo, substreamsPerStream, requiredPerStream,
-                streamNames, queryGraph, indexSpecs, typesPerStream, outerJoinDescList, isHistorical, historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult, statementRawInfo, services);
+        LookupInstructionPlanDesc lookupDesc = buildLookupInstructions(streamNo, substreamsPerStream, requiredPerStream,
+            streamNames, queryGraph, indexSpecs, typesPerStream, outerJoinDescList, isHistorical, historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult, statementRawInfo, services);
+        List<LookupInstructionPlanForge> lookupInstructions = lookupDesc.getForges();
+        additionalForgeables.addAll(lookupDesc.getAdditionalForgeables());
 
         // build historical index and lookup strategies
         for (LookupInstructionPlanForge lookups : lookupInstructions) {
@@ -172,9 +177,10 @@ public class NStreamOuterQueryPlanBuilder {
                 if (historical == null) {
                     continue;
                 }
-                Pair<HistoricalIndexLookupStrategyForge, PollResultIndexingStrategyForge> pair = historicalStreamIndexLists[historical.getStreamNum()].getStrategy(historical.getLookupStreamNum());
-                historical.setHistoricalIndexLookupStrategy(pair.getFirst());
-                historical.setPollResultIndexingStrategy(pair.getSecond());
+                JoinSetComposerPrototypeHistoricalDesc desc = historicalStreamIndexLists[historical.getStreamNum()].getStrategy(historical.getLookupStreamNum());
+                historical.setHistoricalIndexLookupStrategy(desc.getLookupForge());
+                historical.setPollResultIndexingStrategy(desc.getIndexingForge());
+                additionalForgeables.addAll(desc.getAdditionalForgeables());
             }
         }
 
@@ -182,8 +188,9 @@ public class NStreamOuterQueryPlanBuilder {
         BaseAssemblyNodeFactory assemblyTopNodeFactory = AssemblyStrategyTreeBuilder.build(streamNo, substreamsPerStream, requiredPerStream);
         List<BaseAssemblyNodeFactory> assemblyInstructionFactories = BaseAssemblyNodeFactory.getDescendentNodesBottomUp(assemblyTopNodeFactory);
 
-        return new LookupInstructionQueryPlanNodeForge(streamNo, streamNames[streamNo], numStreams, requiredPerStream,
-                lookupInstructions, assemblyInstructionFactories);
+        LookupInstructionQueryPlanNodeForge forge = new LookupInstructionQueryPlanNodeForge(streamNo, streamNames[streamNo], numStreams, requiredPerStream,
+            lookupInstructions, assemblyInstructionFactories);
+        return new QueryPlanNodeForgeDesc(forge, additionalForgeables);
     }
 
     private static void addNotYetNavigated(int streamNo, int numStreams, LinkedHashMap<Integer, int[]> substreamsPerStream, NStreamQueryPlanBuilder.BestChainResult bestChain) {
@@ -221,22 +228,24 @@ public class NStreamOuterQueryPlanBuilder {
         }
     }
 
-    private static List<LookupInstructionPlanForge> buildLookupInstructions(
-            int rootStreamNum,
-            LinkedHashMap<Integer, int[]> substreamsPerStream,
-            boolean[] requiredPerStream,
-            String[] streamNames,
-            QueryGraphForge queryGraph,
-            QueryPlanIndexForge[] indexSpecs,
-            EventType[] typesPerStream,
-            OuterJoinDesc[] outerJoinDescList,
-            boolean[] isHistorical,
-            HistoricalStreamIndexListForge[] historicalStreamIndexLists,
-            TableMetaData[] tablesPerStream,
-            StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
-            StatementRawInfo statementRawInfo,
-            StatementCompileTimeServices services) {
+    private static LookupInstructionPlanDesc buildLookupInstructions(
+        int rootStreamNum,
+        LinkedHashMap<Integer, int[]> substreamsPerStream,
+        boolean[] requiredPerStream,
+        String[] streamNames,
+        QueryGraphForge queryGraph,
+        QueryPlanIndexForge[] indexSpecs,
+        EventType[] typesPerStream,
+        OuterJoinDesc[] outerJoinDescList,
+        boolean[] isHistorical,
+        HistoricalStreamIndexListForge[] historicalStreamIndexLists,
+        TableMetaData[] tablesPerStream,
+        StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
+        StatementRawInfo statementRawInfo,
+        StatementCompileTimeServices services) {
+
         List<LookupInstructionPlanForge> result = new LinkedList<LookupInstructionPlanForge>();
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         for (int fromStream : substreamsPerStream.keySet()) {
             int[] substreams = substreamsPerStream.get(fromStream);
@@ -271,7 +280,9 @@ public class NStreamOuterQueryPlanBuilder {
                     historicalStreamIndexLists[toStream].addIndex(fromStream);
                     historicalPlans[i] = new HistoricalDataPlanNodeForge(toStream, rootStreamNum, fromStream, typesPerStream.length, outerJoinExpr == null ? null : outerJoinExpr.getForge());
                 } else {
-                    plans[i] = NStreamQueryPlanBuilder.createLookupPlan(queryGraph, fromStream, toStream, streamJoinAnalysisResult.isVirtualDW(toStream), indexSpecs[toStream], typesPerStream, tablesPerStream[toStream]);
+                    TableLookupPlanDesc planDesc = NStreamQueryPlanBuilder.createLookupPlan(queryGraph, fromStream, toStream, streamJoinAnalysisResult.isVirtualDW(toStream), indexSpecs[toStream], typesPerStream, tablesPerStream[toStream]);
+                    plans[i] = planDesc.getForge();
+                    additionalForgeables.addAll(planDesc.getAdditionalForgeables());
                 }
             }
 
@@ -280,7 +291,7 @@ public class NStreamOuterQueryPlanBuilder {
             result.add(instruction);
         }
 
-        return result;
+        return new LookupInstructionPlanDesc(result, additionalForgeables);
     }
 
     /**
@@ -311,7 +322,7 @@ public class NStreamOuterQueryPlanBuilder {
                                          boolean[] requiredPerStream,
                                          DependencyGraph dependencyGraph
     )
-            throws ExprValidationException {
+        throws ExprValidationException {
         // add this stream to the set of completed streams
         completedStreams.add(streamNum);
 
@@ -375,14 +386,14 @@ public class NStreamOuterQueryPlanBuilder {
         for (int stream : requiredStreams) {
             streamCallStack.push(stream);
             recursiveBuild(stream, streamCallStack, queryGraph, outerInnerGraph, innerJoinGraph,
-                    completedStreams, substreamsPerStream, requiredPerStream, dependencyGraph);
+                completedStreams, substreamsPerStream, requiredPerStream, dependencyGraph);
             streamCallStack.pop();
         }
         // look at all the optional streams and add their dependent streams
         for (int stream : optionalStreams) {
             streamCallStack.push(stream);
             recursiveBuild(stream, streamCallStack, queryGraph, outerInnerGraph, innerJoinGraph,
-                    completedStreams, substreamsPerStream, requiredPerStream, dependencyGraph);
+                completedStreams, substreamsPerStream, requiredPerStream, dependencyGraph);
             streamCallStack.pop();
         }
     }
@@ -408,7 +419,7 @@ public class NStreamOuterQueryPlanBuilder {
                                                   Set<Integer> completedStreams,
                                                   LinkedHashMap<Integer, int[]> substreamsPerStream,
                                                   DependencyGraph dependencyGraph)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // add this stream to the set of completed streams
         completedStreams.add(streamNum);
 
@@ -565,7 +576,7 @@ public class NStreamOuterQueryPlanBuilder {
                 streamTwo = desc.getOptRightNode().getStreamId();
 
                 if ((streamOne > streamMax) || (streamTwo > streamMax) ||
-                        (streamOne == streamTwo)) {
+                    (streamOne == streamTwo)) {
                     throw new IllegalArgumentException("Outer join descriptors reference future streams, or same streams");
                 }
 
@@ -619,14 +630,14 @@ public class NStreamOuterQueryPlanBuilder {
 
         if (streams.size() != streamsJoinedPerStream.size()) {
             throw new IllegalArgumentException("Not all streams found, streamsJoinedPerStream=" +
-                    print(streamsJoinedPerStream));
+                print(streamsJoinedPerStream));
         }
     }
 
     private static void recursiveAdd(int validatedStream, int currentStream, Map<Integer, int[]> streamsJoinedPerStream, Set<Integer> streams, boolean verify) {
         if (currentStream >= streamsJoinedPerStream.size() && verify) {
             throw new IllegalArgumentException("Error in stream " + currentStream + " streamsJoinedPerStream=" +
-                    print(streamsJoinedPerStream));
+                print(streamsJoinedPerStream));
         }
         int[] joinedStreams = streamsJoinedPerStream.get(currentStream);
         for (int i = 0; i < joinedStreams.length; i++) {

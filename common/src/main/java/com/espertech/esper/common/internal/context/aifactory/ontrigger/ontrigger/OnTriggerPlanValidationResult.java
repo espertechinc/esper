@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger;
 
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -17,6 +18,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 
+import java.util.List;
 import java.util.Map;
 
 public class OnTriggerPlanValidationResult {
@@ -25,13 +27,15 @@ public class OnTriggerPlanValidationResult {
     private final ResultSetProcessorDesc resultSetProcessorPrototype;
     private final ExprNode validatedJoin;
     private final String zeroStreamAliasName;
+    private final List<StmtClassForgableFactory> additionalForgeables;
 
-    public OnTriggerPlanValidationResult(Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges, ResultSetProcessorDesc resultSetProcessorPrototype, ExprNode validatedJoin, String zeroStreamAliasName) {
+    public OnTriggerPlanValidationResult(Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges, ResultSetProcessorDesc resultSetProcessorPrototype, ExprNode validatedJoin, String zeroStreamAliasName, List<StmtClassForgableFactory> additionalForgeables) {
         this.subselectForges = subselectForges;
         this.tableAccessForges = tableAccessForges;
         this.resultSetProcessorPrototype = resultSetProcessorPrototype;
         this.validatedJoin = validatedJoin;
         this.zeroStreamAliasName = zeroStreamAliasName;
+        this.additionalForgeables = additionalForgeables;
     }
 
     public Map<ExprSubselectNode, SubSelectFactoryForge> getSubselectForges() {
@@ -52,5 +56,9 @@ public class OnTriggerPlanValidationResult {
 
     public String getZeroStreamAliasName() {
         return zeroStreamAliasName;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }

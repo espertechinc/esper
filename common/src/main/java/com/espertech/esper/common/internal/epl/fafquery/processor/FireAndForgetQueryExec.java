@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.fafquery.processor;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.collection.CombinationEnumeration;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
@@ -239,19 +238,16 @@ public class FireAndForgetQueryExec {
         Set<EventBean> result;
         if (indexMultiKey.getHashIndexedProps().length > 0 && indexMultiKey.getRangeIndexedProps().length == 0) {
             PropertyHashedEventTable table = (PropertyHashedEventTable) eventTable;
-            if (indexMultiKey.getHashIndexedProps().length == 1) {
-                result = table.lookup(keyValues[0]);
-            } else {
-                result = table.lookup(new HashableMultiKey(keyValues));
-            }
+            Object lookupKey = table.getMultiKeyTransform().from(keyValues);
+            result = table.lookup(lookupKey);
         } else if (indexMultiKey.getHashIndexedProps().length == 0 && indexMultiKey.getRangeIndexedProps().length == 1) {
             PropertySortedEventTable table = (PropertySortedEventTable) eventTable;
             result = table.lookupConstants(rangeValues[0]);
         } else {
             PropertyCompositeEventTable table = (PropertyCompositeEventTable) eventTable;
             Class[] rangeCoercion = table.getOptRangeCoercedTypes();
-            CompositeIndexLookup lookup = CompositeIndexLookupFactory.make(keyValues, rangeValues, rangeCoercion);
-            result = new HashSet<EventBean>();
+            CompositeIndexLookup lookup = CompositeIndexLookupFactory.make(keyValues, table.getMultiKeyTransform(), rangeValues, rangeCoercion);
+            result = new HashSet<>();
             lookup.lookup(table.getIndex(), result, table.getPostProcessor());
         }
         if (result != null) {

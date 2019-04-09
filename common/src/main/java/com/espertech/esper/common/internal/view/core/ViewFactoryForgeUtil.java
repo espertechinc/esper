@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage1.spec.ViewSpec;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCompare;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -50,7 +51,7 @@ public class ViewFactoryForgeUtil {
         }
     }
 
-    public static List<ViewFactoryForge> createForges(ViewSpec[] viewSpecDefinitions, ViewFactoryForgeArgs args, EventType parentEventType)
+    public static ViewFactoryForgeDesc createForges(ViewSpec[] viewSpecDefinitions, ViewFactoryForgeArgs args, EventType parentEventType)
             throws ExprValidationException {
         try {
             // Clone the view spec list to prevent parameter modification
@@ -86,9 +87,25 @@ public class ViewFactoryForgeUtil {
                     throw new ViewProcessingException(ex.getMessage(), ex);
                 }
             }
-            return forgesGrouped;
+
+            // get multikey forges
+            List<StmtClassForgableFactory> multikeyForges = getMultikeyForges(forgesGrouped);
+            return new ViewFactoryForgeDesc(forgesGrouped, multikeyForges);
         } catch (ViewProcessingException ex) {
             throw new ExprValidationException("Failed to validate data window declaration: " + ex.getMessage(), ex);
+        }
+    }
+
+    private static List<StmtClassForgableFactory> getMultikeyForges(List<ViewFactoryForge> forges) {
+        List<StmtClassForgableFactory> factories = new ArrayList<>(1);
+        getMultikeyForgesRecursive(forges, factories);
+        return factories;
+    }
+
+    private static void getMultikeyForgesRecursive(List<ViewFactoryForge> forges, List<StmtClassForgableFactory> multikeyForges) {
+        for (ViewFactoryForge forge : forges) {
+            multikeyForges.addAll(forge.initAdditionalForgeables());
+            getMultikeyForgesRecursive(forge.getInnerForges(), multikeyForges);
         }
     }
 

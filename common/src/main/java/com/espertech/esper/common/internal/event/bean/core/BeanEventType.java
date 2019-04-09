@@ -418,10 +418,6 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
         return deepSuperTypes;
     }
 
-    public EventBeanReader getReader() {
-        return new BeanEventBeanReader(this);
-    }
-
     public EventBeanCopyMethodForge getCopyMethodForge(String[] properties) {
         String copyMethodName = stem.getOptionalLegacyDef() == null ? null : stem.getOptionalLegacyDef().getCopyMethod();
         if (copyMethodName == null) {

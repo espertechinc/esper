@@ -17,10 +17,10 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethod
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,25 +30,23 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 
 public class AggregationServiceCodegenUtil {
-    public static CodegenMethod computeMultiKeyCodegen(int idNumber, ExprForge[] partitionForges, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
+    public static CodegenMethod computeMultiKeyCodegen(int idNumber, ExprNode[] partitionForges, MultiKeyClassRef optionalMultiKey, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
         Consumer<CodegenMethod> code = method -> {
-            if (partitionForges.length == 1) {
-                CodegenExpression expression = partitionForges[0].evaluateCodegen(Object.class, method, exprSymbol, classScope);
+
+            if (optionalMultiKey == null) {
+                CodegenExpression expression = partitionForges[0].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
                 exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
                 method.getBlock().methodReturn(expression);
-            } else {
-                CodegenExpression[] expressions = new CodegenExpression[partitionForges.length];
-                for (int i = 0; i < partitionForges.length; i++) {
-                    expressions[i] = partitionForges[i].evaluateCodegen(Object.class, method, exprSymbol, classScope);
-                }
-                exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
-                method.getBlock().declareVar(Object[].class, "keys", newArrayByLength(Object.class, constant(partitionForges.length)));
-                for (int i = 0; i < expressions.length; i++) {
-                    method.getBlock().assignArrayElement("keys", constant(i), expressions[i]);
-                }
-                method.getBlock().methodReturn(newInstance(HashableMultiKey.class, ref("keys")));
+                return;
             }
+
+            CodegenExpression[] expressions = new CodegenExpression[partitionForges.length];
+            for (int i = 0; i < partitionForges.length; i++) {
+                expressions[i] = partitionForges[i].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
+            }
+            exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
+            method.getBlock().methodReturn(newInstance(optionalMultiKey.getClassNameMK(), expressions));
         };
 
         return namedMethods.addMethodWithSymbols(Object.class, "computeKeyArrayCodegen_" + idNumber, CodegenNamedParam.from(EventBean[].class, NAME_EPS, boolean.class, NAME_ISNEWDATA, ExprEvaluatorContext.class, NAME_EXPREVALCONTEXT), AggregationServiceCodegenUtil.class, classScope, code, exprSymbol);

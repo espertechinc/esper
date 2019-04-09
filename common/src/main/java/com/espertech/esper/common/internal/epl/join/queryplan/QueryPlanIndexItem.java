@@ -11,6 +11,8 @@
 package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventAdvancedIndexProvisionRuntime;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
@@ -29,18 +31,22 @@ public class QueryPlanIndexItem {
     private final String[] hashProps;
     private final Class[] hashPropTypes;
     private final EventPropertyValueGetter hashGetter;
+    private final MultiKeyGeneratedFromObjectArray transformFireAndForget;
+    private final MultiKeyGeneratedSerde hashMultiKeySerde;
     private final String[] rangeProps;
     private final Class[] rangePropTypes;
     private final EventPropertyValueGetter[] rangeGetters;
     private final boolean unique;
     private final EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc;
 
-    public QueryPlanIndexItem(String[] hashProps, Class[] hashPropTypes, EventPropertyValueGetter hashGetter,
+    public QueryPlanIndexItem(String[] hashProps, Class[] hashPropTypes, EventPropertyValueGetter hashGetter, MultiKeyGeneratedFromObjectArray transformFireAndForget, MultiKeyGeneratedSerde hashMultiKeySerde,
                               String[] rangeProps, Class[] rangePropTypes, EventPropertyValueGetter[] rangeGetters,
                               boolean unique, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc) {
         this.hashProps = hashProps;
         this.hashPropTypes = hashPropTypes;
         this.hashGetter = hashGetter;
+        this.hashMultiKeySerde = hashMultiKeySerde;
+        this.transformFireAndForget = transformFireAndForget;
         this.rangeProps = (rangeProps == null || rangeProps.length == 0) ? null : rangeProps;
         this.rangePropTypes = rangePropTypes;
         this.rangeGetters = rangeGetters;
@@ -80,16 +86,24 @@ public class QueryPlanIndexItem {
         return advancedIndexProvisionDesc;
     }
 
+    public MultiKeyGeneratedSerde getHashMultiKeySerde() {
+        return hashMultiKeySerde;
+    }
+
+    public MultiKeyGeneratedFromObjectArray getTransformFireAndForget() {
+        return transformFireAndForget;
+    }
+
     @Override
     public String toString() {
         return "QueryPlanIndexItem{" +
-                "unique=" + unique +
-                ", hashProps=" + Arrays.asList(hashProps) +
-                ", rangeProps=" + Arrays.asList(rangeProps) +
-                ", hashPropTypes=" + Arrays.asList(hashPropTypes) +
-                ", rangePropTypes=" + Arrays.asList(rangePropTypes) +
-                ", advanced=" + advancedIndexProvisionDesc +
-                "}";
+            "unique=" + unique +
+            ", hashProps=" + Arrays.asList(hashProps) +
+            ", rangeProps=" + Arrays.asList(rangeProps) +
+            ", hashPropTypes=" + Arrays.asList(hashPropTypes) +
+            ", rangePropTypes=" + Arrays.asList(rangePropTypes) +
+            ", advanced=" + advancedIndexProvisionDesc +
+            "}";
     }
 
     public boolean equalsCompareSortedProps(QueryPlanIndexItem other) {

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.view;
 
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -29,6 +30,7 @@ public class OutputProcessViewConditionSpec {
     private boolean isUnaggregatedUngrouped;
     private SelectClauseStreamSelectorEnum selectClauseStreamSelector;
     private boolean isDistinct;
+    private EventPropertyValueGetter distinctKeyGetter;
     private boolean hasAfter;
     private TimePeriodCompute afterTimePeriod;
     private Integer afterConditionNumberOfEvents;
@@ -136,5 +138,13 @@ public class OutputProcessViewConditionSpec {
 
     public void setEventTypes(EventType[] eventTypes) {
         this.eventTypes = eventTypes;
+    }
+
+    public EventPropertyValueGetter getDistinctKeyGetter() {
+        return distinctKeyGetter;
+    }
+
+    public void setDistinctKeyGetter(EventPropertyValueGetter distinctKeyGetter) {
+        this.distinctKeyGetter = distinctKeyGetter;
     }
 }

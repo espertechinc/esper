@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
 import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimAgedEvalFuncFactory;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
@@ -29,7 +30,8 @@ public interface AggregationServiceFactoryService {
                                       Class[] groupByTypes,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq,
-                                      TimeAbacus timeAbacus);
+                                      TimeAbacus timeAbacus,
+                                      MultiKeyGeneratedSerde optionalGroupByMultiKeySerde);
 
     AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory,
                                             AggregationGroupByRollupDesc groupByRollupDesc,

@@ -63,7 +63,41 @@ public class EPLVariables {
         execs.add(new EPLVariableCoercion());
         execs.add(new EPLVariableInvalidSet());
         execs.add(new EPLVariableFilterConstantCustomTypePreconfigured());
+        execs.add(new EPLVariableSetSubqueryMultikeyWArray());
         return execs;
+    }
+
+    private static class EPLVariableSetSubqueryMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('var') @public create variable int total_sum = -1;\n" +
+                "on SupportBean set total_sum = (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array)";
+            env.compileDeploy(epl);
+
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[] {1, 2}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("E2", new int[] {1, 2}, 11));
+
+            env.milestone(0);
+            assertVariable(env, -1);
+
+            env.sendEventBean(new SupportBean());
+            assertVariable(env, 21);
+
+            env.sendEventBean(new SupportEventWithIntArray("E3", new int[] {1, 2}, 12));
+            env.sendEventBean(new SupportBean());
+            assertVariable(env, 33);
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportEventWithIntArray("E4", new int[] {1}, 13));
+            env.sendEventBean(new SupportBean());
+            assertVariable(env, null);
+
+            env.undeployAll();
+        }
+
+        private void assertVariable(RegressionEnvironment env, Integer expected) {
+            assertEquals(expected, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "total_sum"));
+        }
     }
 
     private static class EPLVariableFilterConstantCustomTypePreconfigured implements RegressionExecution {

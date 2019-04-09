@@ -23,13 +23,13 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalFactoryNode;
 import com.espertech.esper.common.internal.filterspec.MatchedEventMapMinimal;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
@@ -81,6 +81,7 @@ public class StatementInformationalsCompileTime {
     private final String[] selectClauseColumnNames;
     private final boolean forClauseDelivery;
     private final ExprNode[] groupDelivery;
+    private final MultiKeyClassRef groupDeliveryMultiKey;
     private final Map<StatementProperty, Object> properties;
     private final boolean hasMatchRecognize;
     private final boolean instrumented;
@@ -89,7 +90,7 @@ public class StatementInformationalsCompileTime {
     private final boolean allowSubscriber;
     private final ExpressionScriptProvided[] onScripts;
 
-    public StatementInformationalsCompileTime(String statementNameCompileTime, boolean alwaysSynthesizeOutputEvents, String optionalContextName, String optionalContextModuleName, NameAccessModifier optionalContextVisibility, boolean canSelfJoin, boolean hasSubquery, boolean needDedup, Annotation[] annotations, boolean stateless, Serializable userObjectCompileTime, int numFilterCallbacks, int numScheduleCallbacks, int numNamedWindowCallbacks, StatementType statementType, int priority, boolean preemptive, boolean hasVariables, boolean writesToTables, boolean hasTableAccess, Class[] selectClauseTypes, String[] selectClauseColumnNames, boolean forClauseDelivery, ExprNode[] groupDelivery, Map<StatementProperty, Object> properties, boolean hasMatchRecognize, boolean instrumented, CodegenPackageScope packageScope, String insertIntoLatchName, boolean allowSubscriber, ExpressionScriptProvided[] onScripts) {
+    public StatementInformationalsCompileTime(String statementNameCompileTime, boolean alwaysSynthesizeOutputEvents, String optionalContextName, String optionalContextModuleName, NameAccessModifier optionalContextVisibility, boolean canSelfJoin, boolean hasSubquery, boolean needDedup, Annotation[] annotations, boolean stateless, Serializable userObjectCompileTime, int numFilterCallbacks, int numScheduleCallbacks, int numNamedWindowCallbacks, StatementType statementType, int priority, boolean preemptive, boolean hasVariables, boolean writesToTables, boolean hasTableAccess, Class[] selectClauseTypes, String[] selectClauseColumnNames, boolean forClauseDelivery, ExprNode[] groupDelivery, MultiKeyClassRef groupDeliveryMultiKey, Map<StatementProperty, Object> properties, boolean hasMatchRecognize, boolean instrumented, CodegenPackageScope packageScope, String insertIntoLatchName, boolean allowSubscriber, ExpressionScriptProvided[] onScripts) {
         this.statementNameCompileTime = statementNameCompileTime;
         this.alwaysSynthesizeOutputEvents = alwaysSynthesizeOutputEvents;
         this.optionalContextName = optionalContextName;
@@ -114,6 +115,7 @@ public class StatementInformationalsCompileTime {
         this.selectClauseColumnNames = selectClauseColumnNames;
         this.forClauseDelivery = forClauseDelivery;
         this.groupDelivery = groupDelivery;
+        this.groupDeliveryMultiKey = groupDeliveryMultiKey;
         this.properties = properties;
         this.hasMatchRecognize = hasMatchRecognize;
         this.instrumented = instrumented;
@@ -125,44 +127,45 @@ public class StatementInformationalsCompileTime {
 
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(StatementInformationalsRuntime.class, this.getClass(), classScope);
+
         CodegenExpressionRef info = ref("info");
         method.getBlock()
-                .declareVar(StatementInformationalsRuntime.class, info.getRef(), newInstance(StatementInformationalsRuntime.class))
-                .exprDotMethod(info, "setStatementNameCompileTime", constant(statementNameCompileTime))
-                .exprDotMethod(info, "setAlwaysSynthesizeOutputEvents", constant(alwaysSynthesizeOutputEvents))
-                .exprDotMethod(info, "setOptionalContextName", constant(optionalContextName))
-                .exprDotMethod(info, "setOptionalContextModuleName", constant(optionalContextModuleName))
-                .exprDotMethod(info, "setOptionalContextVisibility", constant(optionalContextVisibility))
-                .exprDotMethod(info, "setCanSelfJoin", constant(canSelfJoin))
-                .exprDotMethod(info, "setHasSubquery", constant(hasSubquery))
-                .exprDotMethod(info, "setNeedDedup", constant(needDedup))
-                .exprDotMethod(info, "setStateless", constant(stateless))
-                .exprDotMethod(info, "setAnnotations", annotations == null ? constantNull() : localMethod(makeAnnotations(Annotation[].class, annotations, method, classScope)))
-                .exprDotMethod(info, "setUserObjectCompileTime", SerializerUtil.expressionForUserObject(userObjectCompileTime))
-                .exprDotMethod(info, "setNumFilterCallbacks", constant(numFilterCallbacks))
-                .exprDotMethod(info, "setNumScheduleCallbacks", constant(numScheduleCallbacks))
-                .exprDotMethod(info, "setNumNamedWindowCallbacks", constant(numNamedWindowCallbacks))
-                .exprDotMethod(info, "setStatementType", constant(statementType))
-                .exprDotMethod(info, "setPriority", constant(priority))
-                .exprDotMethod(info, "setPreemptive", constant(preemptive))
-                .exprDotMethod(info, "setHasVariables", constant(hasVariables))
-                .exprDotMethod(info, "setWritesToTables", constant(writesToTables))
-                .exprDotMethod(info, "setHasTableAccess", constant(hasTableAccess))
-                .exprDotMethod(info, "setSelectClauseTypes", constant(selectClauseTypes))
-                .exprDotMethod(info, "setSelectClauseColumnNames", constant(selectClauseColumnNames))
-                .exprDotMethod(info, "setForClauseDelivery", constant(forClauseDelivery))
-                .exprDotMethod(info, "setGroupDeliveryEval", groupDelivery == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(ExprNodeUtilityQuery.getForges(groupDelivery), null, method, this.getClass(), classScope))
-                .exprDotMethod(info, "setProperties", makeProperties(properties, method, classScope))
-                .exprDotMethod(info, "setHasMatchRecognize", constant(hasMatchRecognize))
-                .exprDotMethod(info, "setAuditProvider", makeAuditProvider(method, classScope))
-                .exprDotMethod(info, "setInstrumented", constant(instrumented))
-                .exprDotMethod(info, "setInstrumentationProvider", makeInstrumentationProvider(method, classScope))
-                .exprDotMethod(info, "setSubstitutionParamTypes", makeSubstitutionParamTypes())
-                .exprDotMethod(info, "setSubstitutionParamNames", makeSubstitutionParamNames(method, classScope))
-                .exprDotMethod(info, "setInsertIntoLatchName", constant(insertIntoLatchName))
-                .exprDotMethod(info, "setAllowSubscriber", constant(allowSubscriber))
-                .exprDotMethod(info, "setOnScripts", makeOnScripts(onScripts, method, classScope))
-                .methodReturn(info);
+            .declareVar(StatementInformationalsRuntime.class, info.getRef(), newInstance(StatementInformationalsRuntime.class))
+            .exprDotMethod(info, "setStatementNameCompileTime", constant(statementNameCompileTime))
+            .exprDotMethod(info, "setAlwaysSynthesizeOutputEvents", constant(alwaysSynthesizeOutputEvents))
+            .exprDotMethod(info, "setOptionalContextName", constant(optionalContextName))
+            .exprDotMethod(info, "setOptionalContextModuleName", constant(optionalContextModuleName))
+            .exprDotMethod(info, "setOptionalContextVisibility", constant(optionalContextVisibility))
+            .exprDotMethod(info, "setCanSelfJoin", constant(canSelfJoin))
+            .exprDotMethod(info, "setHasSubquery", constant(hasSubquery))
+            .exprDotMethod(info, "setNeedDedup", constant(needDedup))
+            .exprDotMethod(info, "setStateless", constant(stateless))
+            .exprDotMethod(info, "setAnnotations", annotations == null ? constantNull() : localMethod(makeAnnotations(Annotation[].class, annotations, method, classScope)))
+            .exprDotMethod(info, "setUserObjectCompileTime", SerializerUtil.expressionForUserObject(userObjectCompileTime))
+            .exprDotMethod(info, "setNumFilterCallbacks", constant(numFilterCallbacks))
+            .exprDotMethod(info, "setNumScheduleCallbacks", constant(numScheduleCallbacks))
+            .exprDotMethod(info, "setNumNamedWindowCallbacks", constant(numNamedWindowCallbacks))
+            .exprDotMethod(info, "setStatementType", constant(statementType))
+            .exprDotMethod(info, "setPriority", constant(priority))
+            .exprDotMethod(info, "setPreemptive", constant(preemptive))
+            .exprDotMethod(info, "setHasVariables", constant(hasVariables))
+            .exprDotMethod(info, "setWritesToTables", constant(writesToTables))
+            .exprDotMethod(info, "setHasTableAccess", constant(hasTableAccess))
+            .exprDotMethod(info, "setSelectClauseTypes", constant(selectClauseTypes))
+            .exprDotMethod(info, "setSelectClauseColumnNames", constant(selectClauseColumnNames))
+            .exprDotMethod(info, "setForClauseDelivery", constant(forClauseDelivery))
+            .exprDotMethod(info, "setGroupDeliveryEval", MultiKeyCodegen.codegenExprEvaluatorMayMultikey(groupDelivery, null, groupDeliveryMultiKey, method, classScope))
+            .exprDotMethod(info, "setProperties", makeProperties(properties, method, classScope))
+            .exprDotMethod(info, "setHasMatchRecognize", constant(hasMatchRecognize))
+            .exprDotMethod(info, "setAuditProvider", makeAuditProvider(method, classScope))
+            .exprDotMethod(info, "setInstrumented", constant(instrumented))
+            .exprDotMethod(info, "setInstrumentationProvider", makeInstrumentationProvider(method, classScope))
+            .exprDotMethod(info, "setSubstitutionParamTypes", makeSubstitutionParamTypes())
+            .exprDotMethod(info, "setSubstitutionParamNames", makeSubstitutionParamNames(method, classScope))
+            .exprDotMethod(info, "setInsertIntoLatchName", constant(insertIntoLatchName))
+            .exprDotMethod(info, "setAllowSubscriber", constant(allowSubscriber))
+            .exprDotMethod(info, "setOnScripts", makeOnScripts(onScripts, method, classScope))
+            .methodReturn(info);
         return localMethod(method);
     }
 
@@ -365,7 +368,7 @@ public class StatementInformationalsCompileTime {
 
         CodegenMethod method = parent.makeChild(Map.class, StatementInformationalsCompileTime.class, classScope);
         method.getBlock()
-                .declareVar(Map.class, "properties", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(properties.size()))));
+            .declareVar(Map.class, "properties", newInstance(HashMap.class, constant(CollectionUtil.capacityHashMap(properties.size()))));
         for (Map.Entry<StatementProperty, Object> entry : properties.entrySet()) {
             method.getBlock().exprDotMethod(ref("properties"), "put", field.apply(entry.getKey()), value.apply(entry.getValue()));
         }

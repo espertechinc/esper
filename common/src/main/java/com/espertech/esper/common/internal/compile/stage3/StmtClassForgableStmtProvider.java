@@ -14,10 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
+import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.context.module.*;
 
@@ -69,7 +66,7 @@ public class StmtClassForgableStmtProvider implements StmtClassForgable {
         CodegenStackGenerator.recursiveBuildStack(getStatementAIFactoryProviderMethod, "getStatementAIFactoryProvider", methods);
         CodegenStackGenerator.recursiveBuildStack(ctor, "ctor", methods);
 
-        return new CodegenClass(StatementProvider.class, statementProviderClassName, classScope, members, ctor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.STATEMENTPROVIDER, StatementProvider.class, statementProviderClassName, classScope, members, ctor, methods, Collections.emptyList());
     }
 
     public String getClassName() {

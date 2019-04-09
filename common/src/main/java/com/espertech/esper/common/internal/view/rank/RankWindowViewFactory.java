@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.rank;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -25,12 +26,13 @@ import java.util.Comparator;
  */
 public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     protected boolean[] isDescendingValues;
-    protected ExprEvaluator[] uniqueEvaluators;
-    protected Class[] uniqueTypes;
+    protected ExprEvaluator criteriaEval;
+    protected Class[] criteriaTypes;
     protected ExprEvaluator[] sortCriteriaEvaluators;
     protected Class[] sortCriteriaTypes;
     protected ExprEvaluator size;
     protected boolean useCollatorSort;
+    protected MultiKeyGeneratedSerde multiKeySerde;
 
     protected EventType eventType;
     protected Comparator<Object> comparator;
@@ -61,8 +63,8 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return isDescendingValues;
     }
 
-    public ExprEvaluator[] getUniqueEvaluators() {
-        return uniqueEvaluators;
+    public ExprEvaluator getCriteriaEval() {
+        return criteriaEval;
     }
 
     public ExprEvaluator[] getSortCriteriaEvaluators() {
@@ -85,8 +87,8 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         this.isDescendingValues = isDescendingValues;
     }
 
-    public void setUniqueEvaluators(ExprEvaluator[] uniqueEvaluators) {
-        this.uniqueEvaluators = uniqueEvaluators;
+    public void setCriteriaEval(ExprEvaluator criteriaEval) {
+        this.criteriaEval = criteriaEval;
     }
 
     public void setSortCriteriaEvaluators(ExprEvaluator[] sortCriteriaEvaluators) {
@@ -105,11 +107,19 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         this.useCollatorSort = useCollatorSort;
     }
 
-    public void setUniqueTypes(Class[] uniqueTypes) {
-        this.uniqueTypes = uniqueTypes;
+    public void setCriteriaTypes(Class[] criteriaTypes) {
+        this.criteriaTypes = criteriaTypes;
     }
 
     public String getViewName() {
         return ViewEnum.RANK_WINDOW.getName();
+    }
+
+    public MultiKeyGeneratedSerde getMultiKeySerde() {
+        return multiKeySerde;
+    }
+
+    public void setMultiKeySerde(MultiKeyGeneratedSerde multiKeySerde) {
+        this.multiKeySerde = multiKeySerde;
     }
 }

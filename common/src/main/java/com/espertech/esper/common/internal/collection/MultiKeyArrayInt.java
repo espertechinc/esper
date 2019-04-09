@@ -12,10 +12,10 @@ package com.espertech.esper.common.internal.collection;
 
 import java.util.Arrays;
 
-public final class MultiKeyInt {
+public final class MultiKeyArrayInt implements MultiKeyArrayWrap {
     private final int[] keys;
 
-    public MultiKeyInt(int[] keys) {
+    public MultiKeyArrayInt(int[] keys) {
         this.keys = keys;
     }
 
@@ -27,7 +27,7 @@ public final class MultiKeyInt {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MultiKeyInt that = (MultiKeyInt) o;
+        MultiKeyArrayInt that = (MultiKeyArrayInt) o;
 
         if (!Arrays.equals(keys, that.keys)) return false;
 
@@ -36,6 +36,16 @@ public final class MultiKeyInt {
 
     public int hashCode() {
         return Arrays.hashCode(keys);
+    }
+
+    public String toString() {
+        return "MultiKeyInt{" +
+            "keys=" + Arrays.toString(keys) +
+            '}';
+    }
+
+    public Object getArray() {
+        return keys;
     }
 }
 

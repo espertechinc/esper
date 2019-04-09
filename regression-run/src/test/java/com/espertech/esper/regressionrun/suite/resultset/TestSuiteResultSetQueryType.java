@@ -107,7 +107,8 @@ public class TestSuiteResultSetQueryType extends TestCase {
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class, SupportMarketDataBean.class,
             SupportCarEvent.class, SupportCarInfoEvent.class, SupportEventABCProp.class, SupportBeanString.class,
-            SupportPriceEvent.class, SupportMarketDataIDBean.class, SupportBean_A.class, SupportBean_B.class}) {
+            SupportPriceEvent.class, SupportMarketDataIDBean.class, SupportBean_A.class, SupportBean_B.class,
+            SupportEventWithIntArray.class, SupportThreeArrayEvent.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.keyed;
 
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptor;
 import com.espertech.esper.common.internal.context.controller.condition.ContextConditionDescriptorFilter;
@@ -29,6 +30,7 @@ public class ContextControllerDetailKeyed implements ContextControllerDetail, St
 
     private List<FilterSpecActivatable> filterSpecActivatables;
     private boolean hasAsName;
+    private MultiKeyGeneratedFromObjectArray multiKeyFromObjectArray;
 
     public void setItems(ContextControllerDetailKeyedItem[] items) {
         this.items = items;
@@ -52,6 +54,14 @@ public class ContextControllerDetailKeyed implements ContextControllerDetail, St
 
     public void setOptionalTermination(ContextConditionDescriptor optionalTermination) {
         this.optionalTermination = optionalTermination;
+    }
+
+    public MultiKeyGeneratedFromObjectArray getMultiKeyFromObjectArray() {
+        return multiKeyFromObjectArray;
+    }
+
+    public void setMultiKeyFromObjectArray(MultiKeyGeneratedFromObjectArray multiKeyFromObjectArray) {
+        this.multiKeyFromObjectArray = multiKeyFromObjectArray;
     }
 
     public void ready(StatementContext statementContext, ModuleIncidentals moduleIncidentals, boolean recovery) {

@@ -16,17 +16,22 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
-import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.join.hint.IndexHint;
 import com.espertech.esper.common.internal.epl.lookupplan.SubordPropPlan;
-import com.espertech.esper.common.internal.epl.lookupplansubord.SubordinateQueryIndexDescForge;
-import com.espertech.esper.common.internal.epl.lookupplansubord.SubordinateQueryPlanDescForge;
-import com.espertech.esper.common.internal.epl.lookupplansubord.SubordinateQueryPlanner;
-import com.espertech.esper.common.internal.epl.lookupplansubord.SubordinateQueryPlannerUtil;
+import com.espertech.esper.common.internal.epl.lookupplansubord.*;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowDeployTimeResolver;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -36,6 +41,7 @@ import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,9 +57,11 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
     private final ExprNode[] groupKeys;
     private final AggregationServiceForgeDesc aggregationServiceForgeDesc;
     private final SubordinateQueryPlanDescForge queryPlan;
+    private final List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
+    private final MultiKeyClassRef groupByMultiKey;
 
     public SubSelectStrategyFactoryIndexShareForge(int subqueryNumber, SubSelectActivationPlan subselectActivation, EventType[] outerEventTypesSelect, NamedWindowMetaData namedWindow, TableMetaData table, boolean fullTableScan, IndexHint indexHint, SubordPropPlan joinedPropPlan, ExprForge filterExprEval, ExprNode[] groupKeys, AggregationServiceForgeDesc aggregationServiceForgeDesc, StatementBaseInfo statement, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         this.subqueryNumber = subqueryNumber;
         this.namedWindow = namedWindow;
         this.table = table;
@@ -64,27 +72,31 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
         boolean queryPlanLogging = services.getConfiguration().getCommon().getLogging().isEnableQueryPlan();
 
         // We only use existing indexes in all cases. This means "create index" is required.
+        SubordinateQueryPlan plan;
         if (table != null) {
-            queryPlan = SubordinateQueryPlanner.planSubquery(outerEventTypesSelect, joinedPropPlan, false, fullTableScan, indexHint, true, subqueryNumber,
-                    false, table.getIndexMetadata(), table.getUniquenessAsSet(), true,
-                    table.getInternalEventType(), statement.getStatementRawInfo(), services);
+            plan = SubordinateQueryPlanner.planSubquery(outerEventTypesSelect, joinedPropPlan, false, fullTableScan, indexHint, true, subqueryNumber,
+                false, table.getIndexMetadata(), table.getUniquenessAsSet(), true,
+                table.getInternalEventType(), statement.getStatementRawInfo(), services);
+        } else {
+            plan = SubordinateQueryPlanner.planSubquery(outerEventTypesSelect, joinedPropPlan, false, fullTableScan, indexHint, true, subqueryNumber,
+                namedWindow.isVirtualDataWindow(), namedWindow.getIndexMetadata(), namedWindow.getUniquenessAsSet(), true,
+                namedWindow.getEventType(), statement.getStatementRawInfo(), services);
+        }
 
-            if (queryPlan != null && queryPlan.getIndexDescs() != null) {
-                for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
-                    SubordinateQueryIndexDescForge index = queryPlan.getIndexDescs()[i];
+        queryPlan = plan == null ? null : plan.getForge();
+        if (plan != null) {
+            additionalForgeables.addAll(plan.getAdditionalForgeables());
+        }
+
+        if (queryPlan != null && queryPlan.getIndexDescs() != null) {
+            for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
+                SubordinateQueryIndexDescForge index = queryPlan.getIndexDescs()[i];
+
+                if (table != null) {
                     if (table.getTableVisibility() == NameAccessModifier.PUBLIC) {
                         services.getModuleDependenciesCompileTime().addPathIndex(false, table.getTableName(), table.getTableModuleName(), index.getIndexName(), index.getIndexModuleName(), services.getNamedWindowCompileTimeRegistry(), services.getTableCompileTimeRegistry());
                     }
-                }
-            }
-        } else {
-            queryPlan = SubordinateQueryPlanner.planSubquery(outerEventTypesSelect, joinedPropPlan, false, fullTableScan, indexHint, true, subqueryNumber,
-                    namedWindow.isVirtualDataWindow(), namedWindow.getIndexMetadata(), namedWindow.getUniquenessAsSet(), true,
-                    namedWindow.getEventType(), statement.getStatementRawInfo(), services);
-
-            if (queryPlan != null && queryPlan.getIndexDescs() != null) {
-                for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
-                    SubordinateQueryIndexDescForge index = queryPlan.getIndexDescs()[i];
+                } else {
                     if (namedWindow.getEventType().getMetadata().getAccessModifier() == NameAccessModifier.PUBLIC) {
                         services.getModuleDependenciesCompileTime().addPathIndex(true, namedWindow.getEventType().getName(), namedWindow.getNamedWindowModuleName(), index.getIndexName(), index.getIndexModuleName(), services.getNamedWindowCompileTimeRegistry(), services.getTableCompileTimeRegistry());
                     }
@@ -93,25 +105,30 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
         }
 
         SubordinateQueryPlannerUtil.queryPlanLogOnSubq(queryPlanLogging, QUERY_PLAN_LOG, queryPlan, subqueryNumber, statement.getStatementRawInfo().getAnnotations(), services.getClasspathImportServiceCompileTime());
+
+        if (groupKeys == null || groupKeys.length == 0) {
+            groupByMultiKey = null;
+        } else {
+            MultiKeyPlan mkplan = MultiKeyPlanner.planMultiKey(groupKeys, false);
+            additionalForgeables.addAll(mkplan.getMultiKeyForgables());
+            groupByMultiKey = mkplan.getOptionalClassRef();
+        }
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(SubSelectStrategyFactoryIndexShare.class, this.getClass(), classScope);
 
-        CodegenExpression groupKeyEval = constantNull();
-        if (groupKeys != null) {
-            groupKeyEval = ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(ExprNodeUtilityQuery.getForges(groupKeys), null, method, this.getClass(), classScope);
-        }
+        CodegenExpression groupKeyEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(groupKeys, null, groupByMultiKey, method, classScope);
 
         method.getBlock()
-                .declareVar(SubSelectStrategyFactoryIndexShare.class, "s", newInstance(SubSelectStrategyFactoryIndexShare.class))
-                .exprDotMethod(ref("s"), "setTable", table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("s"), "setNamedWindow", namedWindow == null ? constantNull() : NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("s"), "setAggregationServiceFactory", SubSelectStrategyFactoryLocalViewPreloadedForge.makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols))
-                .exprDotMethod(ref("s"), "setFilterExprEval", filterExprEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprEval, method, this.getClass(), classScope))
-                .exprDotMethod(ref("s"), "setGroupKeyEval", groupKeyEval)
-                .exprDotMethod(ref("s"), "setQueryPlan", queryPlan == null ? constantNull() : queryPlan.make(method, symbols, classScope))
-                .methodReturn(ref("s"));
+            .declareVar(SubSelectStrategyFactoryIndexShare.class, "s", newInstance(SubSelectStrategyFactoryIndexShare.class))
+            .exprDotMethod(ref("s"), "setTable", table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("s"), "setNamedWindow", namedWindow == null ? constantNull() : NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("s"), "setAggregationServiceFactory", SubSelectStrategyFactoryLocalViewPreloadedForge.makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols))
+            .exprDotMethod(ref("s"), "setFilterExprEval", filterExprEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprEval, method, this.getClass(), classScope))
+            .exprDotMethod(ref("s"), "setGroupKeyEval", groupKeyEval)
+            .exprDotMethod(ref("s"), "setQueryPlan", queryPlan == null ? constantNull() : queryPlan.make(method, symbols, classScope))
+            .methodReturn(ref("s"));
         return localMethod(method);
     }
 
@@ -129,5 +146,9 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
 
     public boolean hasPrevious() {
         return false;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }

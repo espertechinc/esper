@@ -55,8 +55,8 @@ public class AIRegistryTableAccessMap implements AIRegistryTableAccess {
         return services.get(context.getAgentInstanceId()).evaluateTypableSingle(eventsPerStream, isNewData, context);
     }
 
-    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return services.get(context.getAgentInstanceId()).getRow(eventsPerStream, isNewData, context);
+    public AggregationRow getAggregationRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return services.get(context.getAgentInstanceId()).getAggregationRow(eventsPerStream, isNewData, context);
     }
 
     public int getInstanceCount() {

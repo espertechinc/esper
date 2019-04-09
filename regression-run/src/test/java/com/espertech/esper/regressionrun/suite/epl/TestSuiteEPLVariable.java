@@ -60,7 +60,8 @@ public class TestSuiteEPLVariable extends TestCase {
 
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class, SupportBean_S2.class,
-            SupportBean_A.class, SupportBean_B.class, SupportMarketDataBean.class, EPLVariables.MyVariableCustomEvent.class}) {
+            SupportBean_A.class, SupportBean_B.class, SupportMarketDataBean.class, EPLVariables.MyVariableCustomEvent.class,
+            SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

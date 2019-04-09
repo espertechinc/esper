@@ -23,8 +23,7 @@ public class ExprTableEvalStrategyGroupedProp extends ExprTableEvalStrategyGroup
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        ObjectArrayBackedEventBean row = lockTableReadAndGet(groupKey, exprEvaluatorContext);
+        ObjectArrayBackedEventBean row = getRow(eventsPerStream, isNewData, exprEvaluatorContext);
         if (row == null) {
             return null;
         }
@@ -32,8 +31,7 @@ public class ExprTableEvalStrategyGroupedProp extends ExprTableEvalStrategyGroup
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, context);
-        ObjectArrayBackedEventBean row = lockTableReadAndGet(groupKey, context);
+        ObjectArrayBackedEventBean row = getRow(eventsPerStream, isNewData, context);
         if (row == null) {
             return null;
         }
@@ -41,8 +39,7 @@ public class ExprTableEvalStrategyGroupedProp extends ExprTableEvalStrategyGroup
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, context);
-        ObjectArrayBackedEventBean row = lockTableReadAndGet(groupKey, context);
+        ObjectArrayBackedEventBean row = getRow(eventsPerStream, isNewData, context);
         if (row == null) {
             return null;
         }
@@ -50,8 +47,7 @@ public class ExprTableEvalStrategyGroupedProp extends ExprTableEvalStrategyGroup
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, context);
-        ObjectArrayBackedEventBean row = lockTableReadAndGet(groupKey, context);
+        ObjectArrayBackedEventBean row = getRow(eventsPerStream, isNewData, context);
         if (row == null) {
             return null;
         }

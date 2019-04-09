@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.historical.common.HistoricalViewa
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzer;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanForge;
+import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanForgeDesc;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventTypeFactory;
@@ -44,18 +45,18 @@ public class TestQueryPlanBuilder extends TestCase {
         };
 
         QueryGraphForge queryGraph = new QueryGraphForge(2, null, false);
-        QueryPlanForge plan = QueryPlanBuilder.getPlan(typesPerStream, new OuterJoinDesc[0], queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResultCompileTime(2), true, null, null);
-        assertPlan(plan);
+        QueryPlanForgeDesc plan = QueryPlanBuilder.getPlan(typesPerStream, new OuterJoinDesc[0], queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResultCompileTime(2), true, null, null);
+        assertPlan(plan.getForge());
 
         plan = QueryPlanBuilder.getPlan(typesPerStream, descList, queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResultCompileTime(2), true, null, null);
-        assertPlan(plan);
+        assertPlan(plan.getForge());
 
         FilterExprAnalyzer.analyze(SupportExprNodeFactory.makeEqualsNode(), queryGraph, false);
         plan = QueryPlanBuilder.getPlan(typesPerStream, descList, queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResultCompileTime(2), true, null, null);
-        assertPlan(plan);
+        assertPlan(plan.getForge());
 
         plan = QueryPlanBuilder.getPlan(typesPerStream, new OuterJoinDesc[0], queryGraph, null, new HistoricalViewableDesc(5), dependencyGraph, null, new StreamJoinAnalysisResultCompileTime(2), true, null, null);
-        assertPlan(plan);
+        assertPlan(plan.getForge());
     }
 
     private void assertPlan(QueryPlanForge plan) {

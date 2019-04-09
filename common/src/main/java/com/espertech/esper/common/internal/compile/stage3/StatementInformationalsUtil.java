@@ -122,7 +122,8 @@ public class StatementInformationalsUtil {
             filterSpecCompileds.size(), schedules.size(), namedWindowConsumers.size(), base.getStatementRawInfo().getStatementType(),
             annotationData.getPriority(), annotationData.isPremptive(), hasVariables, writesToTables, hasTableAccess,
             selectSubscriberDescriptor.getSelectClauseTypes(), selectSubscriberDescriptor.getSelectClauseColumnNames(),
-            selectSubscriberDescriptor.isForClauseDelivery(), selectSubscriberDescriptor.getGroupDelivery(), properties,
+            selectSubscriberDescriptor.isForClauseDelivery(), selectSubscriberDescriptor.getGroupDelivery(),
+            selectSubscriberDescriptor.getGroupDeliveryMultiKey(), properties,
             base.getStatementSpec().getRaw().getMatchRecognizeSpec() != null, services.isInstrumented(),
             packageScope, insertIntoLatchName, allowSubscriber, onScripts.toArray(new ExpressionScriptProvided[0]));
     }

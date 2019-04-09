@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.composite;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
@@ -40,16 +41,18 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory {
     protected final String[] optionalKeyedProps;
     protected final Class[] optKeyCoercedTypes;
     protected final EventPropertyValueGetter hashGetter;
+    protected final MultiKeyGeneratedFromObjectArray transformFireAndForget;
     protected final String[] rangeProps;
     protected final Class[] optRangeCoercedTypes;
     protected final EventPropertyValueGetter[] rangeGetters;
     protected final CompositeIndexEnterRemove chain;
 
-    public PropertyCompositeEventTableFactory(int streamNum, String[] optionalKeyedProps, Class[] optKeyCoercedTypes, EventPropertyValueGetter hashGetter, String[] rangeProps, Class[] optRangeCoercedTypes, EventPropertyValueGetter[] rangeGetters) {
+    public PropertyCompositeEventTableFactory(int streamNum, String[] optionalKeyedProps, Class[] optKeyCoercedTypes, EventPropertyValueGetter hashGetter, MultiKeyGeneratedFromObjectArray transformFireAndForget, String[] rangeProps, Class[] optRangeCoercedTypes, EventPropertyValueGetter[] rangeGetters) {
         this.streamNum = streamNum;
         this.optionalKeyedProps = optionalKeyedProps;
         this.optKeyCoercedTypes = optKeyCoercedTypes;
         this.hashGetter = hashGetter;
+        this.transformFireAndForget = transformFireAndForget;
         this.rangeProps = rangeProps;
         this.optRangeCoercedTypes = optRangeCoercedTypes;
         this.rangeGetters = rangeGetters;

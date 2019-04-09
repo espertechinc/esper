@@ -11,7 +11,6 @@
 package com.espertech.esperio.http;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.event.core.EventBeanReader;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.util.PlaceholderParseException;
 import com.espertech.esper.common.internal.util.PlaceholderParser;
@@ -76,9 +75,11 @@ public class EsperIOHTTPUpdateListener implements UpdateListener {
 
     private void processEvent(EventBean theEvent) {
         EventTypeSPI spi = (EventTypeSPI) theEvent.getEventType();
-        EventBeanReader reader = spi.getReader();
-        Object[] props = reader.read(theEvent);
         String[] names = spi.getPropertyNames();
+        Object[] props = new Object[names.length];
+        for (int i = 0; i < names.length; i++) {
+            props[i] = theEvent.get(names[i]);
+        }
         Map<String, String> parameters = formPairs(names, props, "stream", stream);
 
         URI requestURI;

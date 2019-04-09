@@ -23,12 +23,12 @@ public class ExprTableEvalStrategyGroupedAggSimple extends ExprTableEvalStrategy
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationRow aggs = getRow(eventsPerStream, isNewData, exprEvaluatorContext);
+        AggregationRow aggs = getAggregationRow(eventsPerStream, isNewData, exprEvaluatorContext);
         return aggs == null ? null : aggs.getValue(factory.getAggColumnNum(), eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        AggregationRow aggs = getRow(eventsPerStream, isNewData, context);
+        AggregationRow aggs = getAggregationRow(eventsPerStream, isNewData, context);
         return aggs == null ? null : aggs.getCollectionOfEvents(factory.getAggColumnNum(), eventsPerStream, isNewData, context);
     }
 

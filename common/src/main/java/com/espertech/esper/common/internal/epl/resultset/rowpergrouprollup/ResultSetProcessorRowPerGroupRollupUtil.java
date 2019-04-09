@@ -102,7 +102,7 @@ public class ResultSetProcessorRowPerGroupRollupUtil {
     public static ResultSetProcessorGroupedOutputFirstHelper[] initializeOutputFirstHelpers(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, Class[] groupKeyTypes, AggregationGroupByRollupDesc groupByRollupDesc, OutputConditionPolledFactory outputConditionPolledFactory) {
         ResultSetProcessorGroupedOutputFirstHelper[] outputFirstHelpers = new ResultSetProcessorGroupedOutputFirstHelper[groupByRollupDesc.getLevels().length];
         for (int i = 0; i < groupByRollupDesc.getLevels().length; i++) {
-            outputFirstHelpers[i] = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, groupKeyTypes, outputConditionPolledFactory, groupByRollupDesc, i);
+            outputFirstHelpers[i] = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, groupKeyTypes, outputConditionPolledFactory, groupByRollupDesc, i, null);
         }
         return outputFirstHelpers;
     }

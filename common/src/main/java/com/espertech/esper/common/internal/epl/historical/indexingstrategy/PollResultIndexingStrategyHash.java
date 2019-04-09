@@ -48,6 +48,6 @@ public class PollResultIndexingStrategyHash implements PollResultIndexingStrateg
     }
 
     public void init() {
-        factory = new PropertyHashedEventTableFactory(streamNum, propertyNames, false, null, valueGetter);
+        factory = new PropertyHashedEventTableFactory(streamNum, propertyNames, false, null, valueGetter, null);
     }
 }

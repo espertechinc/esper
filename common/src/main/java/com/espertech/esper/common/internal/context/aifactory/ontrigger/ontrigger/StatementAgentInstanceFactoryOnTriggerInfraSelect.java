@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger;
 
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.soda.StreamSelector;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindow;
@@ -19,9 +19,6 @@ import com.espertech.esper.common.internal.epl.ontrigger.InfraOnExprBaseViewFact
 import com.espertech.esper.common.internal.epl.ontrigger.InfraOnSelectViewFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
 import com.espertech.esper.common.internal.epl.table.core.Table;
-import com.espertech.esper.common.internal.event.core.EventBeanReader;
-import com.espertech.esper.common.internal.event.core.EventBeanReaderDefaultImpl;
-import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 
 public class StatementAgentInstanceFactoryOnTriggerInfraSelect extends StatementAgentInstanceFactoryOnTriggerInfraBase {
     private ResultSetProcessorFactoryProvider resultSetProcessorFactoryProvider;
@@ -30,6 +27,7 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelect extends Statement
     private Table optionalInsertIntoTable;
     private boolean selectAndDelete;
     private boolean isDistinct;
+    private EventPropertyValueGetter distinctKeyGetter;
 
     public void setResultSetProcessorFactoryProvider(ResultSetProcessorFactoryProvider resultSetProcessorFactoryProvider) {
         this.resultSetProcessorFactoryProvider = resultSetProcessorFactoryProvider;
@@ -55,26 +53,17 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelect extends Statement
         isDistinct = distinct;
     }
 
+    public void setDistinctKeyGetter(EventPropertyValueGetter distinctKeyGetter) {
+        this.distinctKeyGetter = distinctKeyGetter;
+    }
+
     public void setAddToFront(boolean addToFront) {
         this.addToFront = addToFront;
     }
 
     protected InfraOnExprBaseViewFactory setupFactory(EventType infraEventType, NamedWindow namedWindow, Table table, StatementContext statementContext) {
-        EventBeanReader eventBeanReader = null;
-        StreamSelector optionalStreamSelector = null;
-
-        if (isDistinct) {
-            EventType outputEventType = resultSetProcessorFactoryProvider.getResultEventType();
-            if (outputEventType instanceof EventTypeSPI) {
-                eventBeanReader = ((EventTypeSPI) outputEventType).getReader();
-            }
-            if (eventBeanReader == null) {
-                eventBeanReader = new EventBeanReaderDefaultImpl(outputEventType);
-            }
-        }
-
         return new InfraOnSelectViewFactory(infraEventType, addToFront,
-                eventBeanReader, isDistinct, selectAndDelete, optionalStreamSelector, optionalInsertIntoTable, insertInto, resultSetProcessorFactoryProvider);
+            isDistinct, distinctKeyGetter, selectAndDelete, null, optionalInsertIntoTable, insertInto, resultSetProcessorFactoryProvider);
     }
 
     public StatementAgentInstanceLock obtainAgentInstanceLock(StatementContext statementContext, int agentInstanceId) {

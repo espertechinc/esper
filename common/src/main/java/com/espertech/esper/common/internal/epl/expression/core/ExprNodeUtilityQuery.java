@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.expression.core;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.*;
@@ -19,6 +20,15 @@ import java.util.*;
 public class ExprNodeUtilityQuery {
     public static final ExprNode[] EMPTY_EXPR_ARRAY = new ExprNode[0];
     public static final ExprForge[] EMPTY_FORGE_ARRAY = new ExprForge[0];
+
+    public static ExprForge[] forgesForProperties(EventType[] eventTypes, String[] propertyNames, int[] keyStreamNums) {
+        ExprForge[] forges = new ExprForge[propertyNames.length];
+        for (int i = 0; i < propertyNames.length; i++) {
+            ExprIdentNodeImpl node = new ExprIdentNodeImpl(eventTypes[keyStreamNums[i]], propertyNames[i], keyStreamNums[i]);
+            forges[i] = node.getForge();
+        }
+        return forges;
+    }
 
     public static boolean isConstant(ExprNode exprNode) {
         return exprNode.getForge().getForgeConstantType().isConstant();

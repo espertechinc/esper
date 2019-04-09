@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
+import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -234,7 +235,7 @@ public class CompilerHelperModuleProvider {
         CodegenStackGenerator.recursiveBuildStack(initializeScriptsMethod, "initializeScripts", methods);
         CodegenStackGenerator.recursiveBuildStack(statementsMethod, "statements", methods);
 
-        CodegenClass clazz = new CodegenClass(ModuleProvider.class, moduleClassName, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
+        CodegenClass clazz = new CodegenClass(CodegenClassType.MODULEPROVIDER, ModuleProvider.class, moduleClassName, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
         JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, ModuleProvider.class, moduleIdentPostfix);

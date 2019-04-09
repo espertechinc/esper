@@ -60,10 +60,6 @@ public class MapEventType extends BaseNestableEventType {
         }
     }
 
-    public EventBeanReader getReader() {
-        return new MapEventBeanReader(this);
-    }
-
     public Object getValue(String propertyName, Map values) {
         MapEventPropertyGetter getter = (MapEventPropertyGetter) getGetter(propertyName);
         return getter.getMap(values);

@@ -13,8 +13,10 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.util.MultiKeyGenerated;
 import com.espertech.esper.common.client.util.StatementType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.ContextSpecKeyed;
 import com.espertech.esper.common.internal.compile.stage1.spec.ContextSpecKeyedItem;
 import com.espertech.esper.common.internal.context.aifactory.createwindow.StatementAgentInstanceFactoryCreateNW;
@@ -29,6 +31,15 @@ import com.espertech.esper.common.internal.filterspec.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 public class ContextControllerKeyedUtil {
+
+    public static Object[] unpackKey(Object key) {
+        if (key instanceof MultiKeyGenerated) {
+            return MultiKeyGenerated.toObjectArray((MultiKeyGenerated) key);
+        } else if (key instanceof MultiKeyArrayWrap) {
+            return new Object[]{((MultiKeyArrayWrap) key).getArray()};
+        }
+        return new Object[]{key};
+    }
 
     protected static ContextControllerKeyedSvc getService(ContextControllerKeyedFactory factory, ContextManagerRealization realization) {
         if (factory.getFactoryEnv().isRoot()) {
@@ -73,7 +84,7 @@ public class ContextControllerKeyedUtil {
                     }
                     if (EventTypeUtility.isTypeOrSubTypeOf(compareFrom, compareTo) || EventTypeUtility.isTypeOrSubTypeOf(compareTo, compareFrom)) {
                         throw new ExprValidationException("For context '" + contextName + "' the event type '" + compareFrom.getName() + "' is listed twice: Event type '" +
-                                compareFrom.getName() + "' is a subtype or supertype of event type '" + compareTo.getName() + "'");
+                            compareFrom.getName() + "' is a subtype or supertype of event type '" + compareTo.getName() + "'");
                     }
 
                 }
@@ -97,8 +108,8 @@ public class ContextControllerKeyedUtil {
                 // compare number of properties
                 if (nextItem.getPropertyNames().size() != types.length) {
                     throw new ExprValidationException("For context '" + contextName + "' expected the same number of property names for each event type, found " +
-                            types.length + " properties for event type '" + firstItem.getFilterSpecCompiled().getFilterForEventType().getName() +
-                            "' and " + nextItem.getPropertyNames().size() + " properties for event type '" + nextItem.getFilterSpecCompiled().getFilterForEventType().getName() + "'");
+                        types.length + " properties for event type '" + firstItem.getFilterSpecCompiled().getFilterForEventType().getName() +
+                        "' and " + nextItem.getPropertyNames().size() + " properties for event type '" + nextItem.getFilterSpecCompiled().getFilterForEventType().getName() + "'");
                 }
 
                 // compare property types
@@ -110,9 +121,9 @@ public class ContextControllerKeyedUtil {
                     boolean right = JavaClassHelper.isSubclassOrImplementsInterface(typesBoxed[i], typeBoxed);
                     if (typeBoxed != typesBoxed[i] && !left && !right) {
                         throw new ExprValidationException("For context '" + contextName + "' for context '" + contextName + "' found mismatch of property types, property '" + names[i] +
-                                "' of type '" + JavaClassHelper.getClassNameFullyQualPretty(types[i]) +
-                                "' compared to property '" + property +
-                                "' of type '" + JavaClassHelper.getClassNameFullyQualPretty(typeBoxed) + "'");
+                            "' of type '" + JavaClassHelper.getClassNameFullyQualPretty(types[i]) +
+                            "' compared to property '" + property +
+                            "' of type '" + JavaClassHelper.getClassNameFullyQualPretty(typeBoxed) + "'");
                     }
                 }
             }
@@ -160,9 +171,9 @@ public class ContextControllerKeyedUtil {
         if (lookupables.length == 1) {
             addendumFilters[0] = getFilterMayEqualOrNull(lookupables[0], getterKey);
         } else {
-            Object[] keys = getterKey instanceof HashableMultiKey ? ((HashableMultiKey) getterKey).getKeys() : (Object[]) getterKey;
+            MultiKeyGenerated keyProvisioning = (MultiKeyGenerated) getterKey;
             for (int i = 0; i < lookupables.length; i++) {
-                addendumFilters[i] = getFilterMayEqualOrNull(lookupables[i], keys[i]);
+                addendumFilters[i] = getFilterMayEqualOrNull(lookupables[i], keyProvisioning.getKey(i));
             }
         }
 
@@ -192,6 +203,9 @@ public class ContextControllerKeyedUtil {
     }
 
     private static FilterValueSetParam getFilterMayEqualOrNull(ExprFilterSpecLookupable lookupable, Object keyValue) {
+        if (keyValue != null && keyValue.getClass().isArray()) {
+            keyValue = MultiKeyPlanner.toMultiKey(keyValue);
+        }
         return new FilterValueSetParamImpl(lookupable, FilterOperator.IS, keyValue);
     }
 

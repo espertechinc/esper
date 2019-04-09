@@ -13,12 +13,13 @@ package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.UniformPair;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecution;
@@ -79,7 +80,114 @@ public class ResultSetOutputLimitRowPerGroup {
         execs.add(new ResultSetOutputFirstHavingJoinNoJoin());
         execs.add(new ResultSetOutputFirstCrontab());
         execs.add(new ResultSetOutputFirstEveryNEvents());
+        execs.add(new ResultSetOutputFirstMultikeyWArray());
+        execs.add(new ResultSetOutputAllMultikeyWArray());
+        execs.add(new ResultSetOutputLastMultikeyWArray());
+        execs.add(new ResultSetOutputSnapshotMultikeyWArray());
         return execs;
+    }
+
+    private static class ResultSetOutputSnapshotMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String[] fields = "c0,c1,c2".split(",");
+            env.advanceTime(0);
+
+            String epl = "@name('s0') select theString as c0, longPrimitive as c1, sum(intPrimitive) as c2 from SupportBean group by theString, longPrimitive " +
+                "output snapshot every 10 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendBeanEvent(env, "A", 0, 10);
+            sendBeanEvent(env, "B", 1, 11);
+            sendBeanEvent(env, "A", 0, 12);
+            sendBeanEvent(env, "B", 1, 13);
+
+            env.milestone(0);
+
+            env.advanceTime(10000);
+            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 22}, {"B", 1L, 24}});
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ResultSetOutputLastMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String[] fields = "theString,longPrimitive,thesum".split(",");
+            String epl = "@name('s0') select theString, longPrimitive, sum(intPrimitive) as thesum from SupportBean#keepall " +
+                "group by theString, longPrimitive output last every 1 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendBeanEvent(env, "A", 0, 10);
+            sendBeanEvent(env, "B", 1, 11);
+
+            env.milestone(0);
+
+            sendBeanEvent(env, "A", 0, 12);
+            sendBeanEvent(env, "C", 0, 13);
+
+            env.advanceTime(1000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 22}, {"B", 1L, 11}, {"C", 0L, 13}});
+
+            sendBeanEvent(env, "A", 0, 14);
+
+            env.advanceTime(2000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 36}});
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ResultSetOutputAllMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String[] fields = "theString,longPrimitive,thesum".split(",");
+            String epl = "@name('s0') select theString, longPrimitive, sum(intPrimitive) as thesum from SupportBean#keepall " +
+                "group by theString, longPrimitive output all every 1 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendBeanEvent(env, "A", 0, 10);
+            sendBeanEvent(env, "B", 1, 11);
+
+            env.milestone(0);
+
+            sendBeanEvent(env, "A", 0, 12);
+            sendBeanEvent(env, "C", 0, 13);
+
+            env.advanceTime(1000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 22}, {"B", 1L, 11}, {"C", 0L, 13}});
+
+            sendBeanEvent(env, "A", 0, 14);
+
+            env.advanceTime(2000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 36}, {"B", 1L, 11}, {"C", 0L, 13}});
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ResultSetOutputFirstMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String[] fields = new String[]{"thesum"};
+            String epl = "@name('s0') select sum(value) as thesum from SupportEventWithIntArray group by array output first every 10 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
+            assertFalse(env.listener("s0").isInvoked());
+
+            env.undeployAll();
+        }
     }
 
     private static class ResultSetCrontabNumberSetVariations implements RegressionExecution {
@@ -1286,6 +1394,14 @@ public class ResultSetOutputLimitRowPerGroup {
 
     private static void sendBeanEvent(RegressionEnvironment env, String theString, int intPrimitive) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
+    }
+
+    private static void sendBeanEvent(RegressionEnvironment env, String theString, long longPrimitive, int intPrimitive) {
+        SupportBean b = new SupportBean();
+        b.setTheString(theString);
+        b.setLongPrimitive(longPrimitive);
+        b.setIntPrimitive(intPrimitive);
+        env.sendEventBean(b);
     }
 
     private static void sendTimer(RegressionEnvironment env, long timeInMSec) {

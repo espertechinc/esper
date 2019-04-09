@@ -51,10 +51,10 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
     private final static CodegenExpressionRef REF_REMOVEDKEYS = ref("removedKeys");
 
     protected final AggregationRowStateForgeDesc rowStateForgeDesc;
-    protected final AggregationGroupByRollupDesc rollupDesc;
+    protected final AggregationGroupByRollupDescForge rollupDesc;
     protected final ExprNode[] groupByNodes;
 
-    public AggSvcGroupByRollupForge(AggregationRowStateForgeDesc rowStateForgeDesc, AggregationGroupByRollupDesc rollupDesc, ExprNode[] groupByNodes) {
+    public AggSvcGroupByRollupForge(AggregationRowStateForgeDesc rowStateForgeDesc, AggregationGroupByRollupDescForge rollupDesc, ExprNode[] groupByNodes) {
         this.rowStateForgeDesc = rowStateForgeDesc;
         this.rollupDesc = rollupDesc;
         this.groupByNodes = groupByNodes;
@@ -71,7 +71,7 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
                 .declareVar(AggregationRowFactory.class, "rowFactory", CodegenExpressionBuilder.newInstance(classNames.getRowFactoryTop(), ref("this")))
                 .declareVar(DataInputOutputSerde.class, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
                 .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add("groupByRollup",
-                        ref("svcFactory"), rollupDesc.codegen(), ref("rowFactory"), rowStateForgeDesc.getUseFlags().toExpression(),
+                        ref("svcFactory"), rollupDesc.codegen(method, classScope), ref("rowFactory"), rowStateForgeDesc.getUseFlags().toExpression(),
                         ref("rowSerde"), constant(groupByTypes)));
     }
 
@@ -208,7 +208,7 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
 
         method.getBlock().declareVar(Object[].class, "groupKeyPerLevel", cast(Object[].class, AggregationServiceCodegenNames.REF_GROUPKEY));
         for (int i = 0; i < rollupDesc.getNumLevels(); i++) {
-            AggregationGroupByRollupLevel level = rollupDesc.getLevels()[i];
+            AggregationGroupByRollupLevelForge level = rollupDesc.getLevels()[i];
             String groupKeyName = "groupKey_" + i;
             method.getBlock().declareVar(Object.class, groupKeyName, arrayAtIndex(ref("groupKeyPerLevel"), constant(i)));
 

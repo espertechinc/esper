@@ -112,7 +112,7 @@ public class TestSuiteContext extends TestCase {
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
             SupportBean_S2.class, ISupportBaseAB.class, ISupportA.class, SupportWebEvent.class,
-            ISupportAImpl.class, SupportGroupSubgroupEvent.class}) {
+            ISupportAImpl.class, SupportGroupSubgroupEvent.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
 

@@ -54,6 +54,6 @@ public class FAFQueryMethodSelectExecSomeContextNoJoin implements FAFQueryMethod
             events = filtered(events, select.getWhereClause(), agentInstanceContext);
         }
 
-        return processedNonJoin(resultSetProcessor, events, select.getEventBeanReaderDistinct());
+        return processedNonJoin(resultSetProcessor, events, select.getDistinctKeyGetter());
     }
 }

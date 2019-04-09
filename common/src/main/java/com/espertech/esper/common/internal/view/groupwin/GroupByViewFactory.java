@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -21,7 +22,8 @@ import com.espertech.esper.common.internal.view.core.*;
 public class GroupByViewFactory implements ViewFactory {
 
     protected ViewFactory[] groupeds;
-    protected ExprEvaluator[] criteriaEvals;
+    protected ExprEvaluator criteriaEval;
+    protected MultiKeyGeneratedSerde multiKeySerde;
     protected String[] propertyNames;
     protected Class[] criteriaTypes;
     protected EventType eventType;
@@ -62,16 +64,8 @@ public class GroupByViewFactory implements ViewFactory {
         return reclaimFrequency;
     }
 
-    public ExprEvaluator[] getCriteriaEvals() {
-        return criteriaEvals;
-    }
-
     public String[] getPropertyNames() {
         return propertyNames;
-    }
-
-    public void setCriteriaEvals(ExprEvaluator[] criteriaEvals) {
-        this.criteriaEvals = criteriaEvals;
     }
 
     public void setPropertyNames(String[] propertyNames) {
@@ -120,5 +114,21 @@ public class GroupByViewFactory implements ViewFactory {
 
     public String getViewName() {
         return ViewEnum.GROUP_PROPERTY.getName();
+    }
+
+    public ExprEvaluator getCriteriaEval() {
+        return criteriaEval;
+    }
+
+    public void setCriteriaEval(ExprEvaluator criteriaEval) {
+        this.criteriaEval = criteriaEval;
+    }
+
+    public MultiKeyGeneratedSerde getMultiKeySerde() {
+        return multiKeySerde;
+    }
+
+    public void setMultiKeySerde(MultiKeyGeneratedSerde multiKeySerde) {
+        this.multiKeySerde = multiKeySerde;
     }
 }

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.rollup;
 
 import com.espertech.esper.common.internal.collection.CombinationEnumeration;
-import com.espertech.esper.common.internal.collection.MultiKeyInt;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayInt;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -108,7 +108,7 @@ public class GroupByExpressionHelper {
         // enumerate combinations building an index list
         CombinationEnumeration combinationEnumeration = new CombinationEnumeration(perNodeCombinations);
         Set<Integer> combination = new TreeSet<Integer>();
-        Set<MultiKeyInt> indexList = new LinkedHashSet<MultiKeyInt>();
+        Set<MultiKeyArrayInt> indexList = new LinkedHashSet<MultiKeyArrayInt>();
         for (; combinationEnumeration.hasMoreElements(); ) {
             combination.clear();
             Object[] combinationOA = combinationEnumeration.nextElement();
@@ -119,13 +119,13 @@ public class GroupByExpressionHelper {
                 }
             }
             int[] indexArr = CollectionUtil.intArray(combination);
-            indexList.add(new MultiKeyInt(indexArr));
+            indexList.add(new MultiKeyArrayInt(indexArr));
         }
 
         // obtain rollup levels
         int[][] rollupLevels = new int[indexList.size()][];
         int count = 0;
-        for (MultiKeyInt mk : indexList) {
+        for (MultiKeyArrayInt mk : indexList) {
             rollupLevels[count++] = mk.getKeys();
         }
         int numberOfLevels = rollupLevels.length;

@@ -237,10 +237,6 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
         return null;
     }
 
-    public EventBeanReader getReader() {
-        return null;
-    }
-
     public String getStartTimestampPropertyName() {
         return startTimestampPropertyName;
     }

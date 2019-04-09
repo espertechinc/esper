@@ -27,10 +27,7 @@ import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselect
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationPlan;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperActivations;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlanner;
+import com.espertech.esper.common.internal.epl.subselect.*;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 
 import java.util.ArrayList;
@@ -84,10 +81,12 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         // create subselect information
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
-        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
 
         // handle subselects
-        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, typeService.getStreamNames(), typeService.getEventTypes(), new String[]{triggereventTypeName}, services);
+        SubSelectHelperForgePlan subSelectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, typeService.getStreamNames(), typeService.getEventTypes(), new String[]{triggereventTypeName}, services);
+        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subSelectForgePlan.getSubselects();
 
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).build();
 
@@ -113,12 +112,15 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         StmtClassForgableAIFactoryProviderUpdate aiFactoryForgable = new StmtClassForgableAIFactoryProviderUpdate(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor(new Class[]{streamEventType.getUnderlyingType()},
-                new String[]{"*"}, false, null);
+                new String[]{"*"}, false, null, null);
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, Collections.emptyList(), Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
         List<StmtClassForgable> forgables = new ArrayList<>();
+        for (StmtClassForgableFactory additional : subSelectForgePlan.getAdditionalForgeables()) {
+            forgables.add(additional.make(packageScope, classPostfix));
+        }
         forgables.add(aiFactoryForgable);
         forgables.add(stmtProvider);
         forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 0));

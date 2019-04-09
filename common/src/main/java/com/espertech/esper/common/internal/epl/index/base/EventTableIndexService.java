@@ -12,13 +12,15 @@ package com.espertech.esper.common.internal.epl.index.base;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventAdvancedIndexProvisionRuntime;
 
 public interface EventTableIndexService {
     boolean allowInitIndex(boolean isRecoveringResilient);
 
-    EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexTypes, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, Object optionalSerde, boolean isFireAndForget, StatementContext statementContext);
+    EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexTypes, MultiKeyGeneratedFromObjectArray transformFireAndForget, MultiKeyGeneratedSerde optionalMultiKeySerde, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, Object optionalSerde, boolean isFireAndForget, StatementContext statementContext);
 
     EventTableFactory createUnindexed(int indexedStreamNum, EventType eventType, Object optionalSerde, boolean isFireAndForget, StatementContext statementContext);
 
@@ -26,6 +28,7 @@ public interface EventTableIndexService {
 
     EventTableFactory createComposite(int indexedStreamNum,
                                       EventType eventType, String[] indexProps, Class[] indexCoercionTypes, EventPropertyValueGetter indexGetter,
+                                      MultiKeyGeneratedFromObjectArray transformFireAndForget, MultiKeyGeneratedSerde optionalMultiKeySerde,
                                       String[] rangeProps, Class[] rangeCoercionTypes, EventPropertyValueGetter[] rangeGetters,
                                       Object optionalSerde, boolean isFireAndForget);
 

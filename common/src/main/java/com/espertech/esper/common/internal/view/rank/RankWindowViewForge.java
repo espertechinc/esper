@@ -14,10 +14,15 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.view.util.ViewMultiKeyHelper;
 
 import java.util.List;
 
@@ -30,28 +35,12 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
  */
 public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, DataWindowViewForgeWithPrevious {
     private List<ExprNode> viewParameters;
-
-    /**
-     * The unique-by expressions.
-     */
-    protected ExprNode[] uniqueCriteriaExpressions;
-
-    /**
-     * The sort-by expressions.
-     */
+    protected ExprNode[] criteriaExpressions;
     protected ExprNode[] sortCriteriaExpressions;
-
-    /**
-     * The flags defining the ascending or descending sort order.
-     */
     protected boolean[] isDescendingValues;
-
-    /**
-     * The sort window size.
-     */
     protected ExprForge sizeForge;
-
     protected boolean useCollatorSort;
+    protected MultiKeyClassRef multiKeyClassNames;
 
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         this.viewParameters = parameters;
@@ -99,8 +88,8 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
         sizeForge = ViewForgeSupport.validateSizeParam(getViewName(), validated[indexNumericSize], indexNumericSize);
 
         // compile unique expressions
-        uniqueCriteriaExpressions = new ExprNode[indexNumericSize];
-        System.arraycopy(validated, 0, uniqueCriteriaExpressions, 0, indexNumericSize);
+        criteriaExpressions = new ExprNode[indexNumericSize];
+        System.arraycopy(validated, 0, criteriaExpressions, 0, indexNumericSize);
 
         // compile sort expressions
         sortCriteriaExpressions = new ExprNode[validated.length - indexNumericSize - 1];
@@ -118,6 +107,13 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
         }
     }
 
+    @Override
+    public List<StmtClassForgableFactory> initAdditionalForgeables() {
+        MultiKeyPlan desc = MultiKeyPlanner.planMultiKey(criteriaExpressions, false);
+        multiKeyClassNames = desc.getOptionalClassRef();
+        return desc.getMultiKeyForgables();
+    }
+
     protected Class typeOfFactory() {
         return RankWindowViewFactory.class;
     }
@@ -132,9 +128,8 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
                 .exprDotMethod(factory, "setSortCriteriaEvaluators", codegenEvaluators(sortCriteriaExpressions, method, this.getClass(), classScope))
                 .exprDotMethod(factory, "setSortCriteriaTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(sortCriteriaExpressions)))
                 .exprDotMethod(factory, "setIsDescendingValues", constant(isDescendingValues))
-                .exprDotMethod(factory, "setUseCollatorSort", constant(useCollatorSort))
-                .exprDotMethod(factory, "setUniqueEvaluators", codegenEvaluators(uniqueCriteriaExpressions, method, this.getClass(), classScope))
-                .exprDotMethod(factory, "setUniqueTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(uniqueCriteriaExpressions)));
+                .exprDotMethod(factory, "setUseCollatorSort", constant(useCollatorSort));
+        ViewMultiKeyHelper.assign(criteriaExpressions, multiKeyClassNames, method, factory, symbols, classScope);
     }
 
     public String getViewName() {

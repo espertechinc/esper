@@ -30,10 +30,54 @@ public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
     public ExprEvaluator getExprEvaluator() {
         ExprForge lhs = getForgeRenderable().getChildNodes()[0].getForge();
         ExprForge rhs = getForgeRenderable().getChildNodes()[1].getForge();
+        Class lhsType = lhs.getEvaluationType();
         if (!getForgeRenderable().isIs()) {
-            return new ExprEqualsNodeForgeNCEvalEquals(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            if (lhsType != null && lhsType.isArray()) {
+                Class componentType = lhsType.getComponentType();
+                if (componentType == boolean.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayBoolean(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                } else if (componentType == byte.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayByte(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                } else if (componentType == char.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayChar(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                } else if (componentType == long.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayLong(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                } else if (componentType == double.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayDouble(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                } else if (componentType == float.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayFloat(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                } else if (componentType == short.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayShort(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                } else if (componentType == int.class) {
+                    return new ExprEqualsNodeForgeNCEvalEqualsArrayInt(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+                }
+                return new ExprEqualsNodeForgeNCEvalEqualsArrayObject(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            }
+            return new ExprEqualsNodeForgeNCEvalEqualsNonArray(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
         }
-        return new ExprEqualsNodeForgeNCEvalIs(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+
+        if (lhsType != null && lhsType.isArray()) {
+            Class componentType = lhsType.getComponentType();
+            if (componentType == boolean.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayBoolean(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            } else if (componentType == byte.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayByte(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            } else if (componentType == char.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayChar(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            } else if (componentType == long.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayLong(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            } else if (componentType == double.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayDouble(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            } else if (componentType == float.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayFloat(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            } else if (componentType == short.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayShort(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            } else if (componentType == int.class) {
+                return new ExprEqualsNodeForgeNCEvalIsArrayInt(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+            }
+            return new ExprEqualsNodeForgeNCEvalIsArrayObject(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
+        }
+        return new ExprEqualsNodeForgeNCEvalIsNonArray(getForgeRenderable(), lhs.getExprEvaluator(), rhs.getExprEvaluator());
     }
 
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
@@ -47,9 +91,9 @@ public class ExprEqualsNodeForgeNC extends ExprEqualsNodeForge {
             if (lhs.getEvaluationType() == null || rhs.getEvaluationType() == null) {
                 return constantNull();
             }
-            return localMethod(ExprEqualsNodeForgeNCEvalEquals.codegen(ExprEqualsNodeForgeNC.this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs));
+            return localMethod(ExprEqualsNodeForgeNCForgeEquals.codegen(ExprEqualsNodeForgeNC.this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs));
         }
-        return localMethod(ExprEqualsNodeForgeNCEvalIs.codegen(ExprEqualsNodeForgeNC.this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs));
+        return localMethod(ExprEqualsNodeForgeNCForgeIs.codegen(ExprEqualsNodeForgeNC.this, codegenMethodScope, exprSymbol, codegenClassScope, lhs, rhs));
     }
 
     public ExprForgeConstantType getForgeConstantType() {

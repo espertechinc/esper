@@ -121,7 +121,7 @@ public class OutputProcessViewDirect extends OutputProcessView {
     }
 
     public Iterator<EventBean> iterator() {
-        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, false);
+        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, false, null);
     }
 
     public void terminated() {

@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EPException;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -45,16 +44,16 @@ public class MethodTargetStrategyStaticMethod implements MethodTargetStrategy, M
                 case SINGLE:
                     return method.invoke(null, lookupValues);
                 case MULTIKEY:
-                    return method.invoke(null, ((HashableMultiKey) lookupValues).getKeys());
+                    return method.invoke(null, (Object[]) lookupValues);
                 default:
                     throw new IllegalStateException("Unrecognized value for " + invokeType);
             }
         } catch (InvocationTargetException ex) {
             throw new EPException("Method '" + method.getName() + "' of class '" + method.getDeclaringClass().getName() +
-                    "' reported an exception: " + ex.getTargetException(), ex.getTargetException());
+                "' reported an exception: " + ex.getTargetException(), ex.getTargetException());
         } catch (IllegalAccessException ex) {
             throw new EPException("Method '" + method.getName() + "' of class '" + method.getDeclaringClass().getName() +
-                    "' reported an exception: " + ex, ex);
+                "' reported an exception: " + ex, ex);
         }
     }
 
@@ -84,7 +83,7 @@ public class MethodTargetStrategyStaticMethod implements MethodTargetStrategy, M
             method = clazz.getMethod(methodName, methodParameters);
         } catch (NoSuchMethodException ex) {
             throw new EPException("Failed to find method '" + methodName + "' of class '" + clazz.getName() + "' with parameters " +
-                    JavaClassHelper.getParameterAsString(methodParameters));
+                JavaClassHelper.getParameterAsString(methodParameters));
         }
         return method;
     }

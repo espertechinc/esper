@@ -16,6 +16,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 
@@ -38,7 +39,31 @@ public class ResultSetQueryTypeAggregateGrouped {
         execs.add(new ResultSetQueryTypeSumOneView());
         execs.add(new ResultSetQueryTypeSumJoin());
         execs.add(new ResultSetQueryTypeInsertInto());
+        execs.add(new ResultSetQueryTypeMultikeyWArray());
         return execs;
+    }
+
+    private static class ResultSetQueryTypeMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select id, sum(value) as thesum from SupportEventWithIntArray group by array";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssertIntArray(env, "E1", new int[] {1, 2}, 5, 5);
+
+            env.milestone(0);
+
+            sendAssertIntArray(env, "E2", new int[] {1, 2}, 10, 15);
+            sendAssertIntArray(env, "E3", new int[] {1}, 11, 11);
+            sendAssertIntArray(env, "E4", new int[] {1, 3}, 12, 12);
+
+            env.milestone(1);
+
+            sendAssertIntArray(env, "E5", new int[] {1}, 13, 24);
+            sendAssertIntArray(env, "E6", new int[] {1, 3}, 15, 27);
+            sendAssertIntArray(env, "E7", new int[] {1, 2}, 16, 31);
+
+            env.undeployAll();
+        }
     }
 
     private static class ResultSetQueryTypeCriteriaByDotMethod implements RegressionExecution {
@@ -335,5 +360,11 @@ public class ResultSetQueryTypeAggregateGrouped {
         bean.setLongPrimitive(longPrimitive);
         env.sendEventBean(bean);
         return bean;
+    }
+
+    private static void sendAssertIntArray(RegressionEnvironment env, String id, int[] array, int value, int expected) {
+        final String[] fields = "id,thesum".split(",");
+        env.sendEventBean(new SupportEventWithIntArray(id, array, value));
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {id, expected});
     }
 }

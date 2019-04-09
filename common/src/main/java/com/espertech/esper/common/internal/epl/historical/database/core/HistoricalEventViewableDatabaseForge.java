@@ -16,8 +16,11 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
@@ -45,12 +48,12 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
         this.outputTypes = outputTypes;
     }
 
-    public void validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
-            throws ExprValidationException {
+    public List<StmtClassForgableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
+        throws ExprValidationException {
 
         int count = 0;
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services)
-                .withAllowBindingConsumption(true).build();
+            .withAllowBindingConsumption(true).build();
         ExprNode[] inputParamNodes = new ExprNode[inputParameters.length];
         for (String inputParam : inputParameters) {
             ExprNode raw = findSQLExpressionNode(streamNum, count, base.getStatementSpec().getRaw().getSqlParameters());
@@ -70,6 +73,12 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
             }
         }
         this.inputParamEvaluators = ExprNodeUtilityQuery.getForges(inputParamNodes);
+
+        // plan multikey
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false);
+        this.multiKeyClassRef = multiKeyPlan.getOptionalClassRef();
+
+        return multiKeyPlan.getMultiKeyForgables();
     }
 
     public Class typeOfImplementation() {
@@ -78,10 +87,10 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
 
     public void codegenSetter(CodegenExpressionRef ref, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock()
-                .exprDotMethod(ref, "setDatabaseName", constant(databaseName))
-                .exprDotMethod(ref, "setInputParameters", constant(inputParameters))
-                .exprDotMethod(ref, "setPreparedStatementText", constant(preparedStatementText))
-                .exprDotMethod(ref, "setOutputTypes", makeOutputTypes(method, symbols, classScope));
+            .exprDotMethod(ref, "setDatabaseName", constant(databaseName))
+            .exprDotMethod(ref, "setInputParameters", constant(inputParameters))
+            .exprDotMethod(ref, "setPreparedStatementText", constant(preparedStatementText))
+            .exprDotMethod(ref, "setOutputTypes", makeOutputTypes(method, symbols, classScope));
     }
 
     private CodegenExpression makeOutputTypes(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

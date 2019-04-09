@@ -173,7 +173,7 @@ public class WrapperEventType implements EventTypeSPI {
             return getter;
         } else if (underlyingEventType.isProperty(property)) {
             EventPropertyGetterSPI underlyingGetter = ((EventTypeSPI) underlyingEventType).getGetterSPI(property);
-            WrapperUnderlyingPropertyGetter getter = new WrapperUnderlyingPropertyGetter(underlyingGetter);
+            WrapperUnderlyingPropertyGetter getter = new WrapperUnderlyingPropertyGetter(this, underlyingGetter);
             propertyGetterCache.put(property, getter);
             return getter;
         } else {
@@ -272,10 +272,6 @@ public class WrapperEventType implements EventTypeSPI {
         } else {
             return null;
         }
-    }
-
-    public EventBeanReader getReader() {
-        return null;
     }
 
     public EventType[] getSuperTypes() {

@@ -40,6 +40,7 @@ import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaD
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternContext;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationDesc;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationPlan;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperActivations;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -66,9 +67,12 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
         List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
 
         // create subselect information
-        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
+        additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 
         // obtain activator
         final StreamSpecCompiled streamSpec = base.getStatementSpec().getStreamSpecs()[0];
@@ -103,7 +107,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         // context-factory creation
         //
         // handle on-merge for table
-        com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerDesc onTriggerDesc = base.getStatementSpec().getRaw().getOnTriggerDesc();
+        OnTriggerDesc onTriggerDesc = base.getStatementSpec().getRaw().getOnTriggerDesc();
         OnTriggerPlan onTriggerPlan;
 
         if (onTriggerDesc instanceof OnTriggerWindowDesc) {
@@ -125,16 +129,21 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
             // variable assignments
             OnTriggerSetDesc desc = (OnTriggerSetDesc) onTriggerDesc;
             OnTriggerSetPlan plan = OnTriggerSetUtil.handleSetVariable(aiFactoryProviderClassName, packageScope, classPostfix, activatorResult, streamSpec.getOptionalStreamName(), subselectActivation, desc, base, services);
-            onTriggerPlan = new OnTriggerPlan(plan.getForgable(), plan.getForgables(), plan.getSelectSubscriberDescriptor());
+            onTriggerPlan = new OnTriggerPlan(plan.getForgable(), plan.getForgables(), plan.getSelectSubscriberDescriptor(), plan.getAdditionalForgeables());
         } else {
             // split-stream use case
             OnTriggerSplitStreamDesc desc = (OnTriggerSplitStreamDesc) onTriggerDesc;
             onTriggerPlan = OnSplitStreamUtil.handleSplitStream(aiFactoryProviderClassName, packageScope,
                     classPostfix, desc, streamSpec, activatorResult, subselectActivation, base, services);
         }
+        additionalForgeables.addAll(onTriggerPlan.getAdditionalForgeables());
 
         // build forge list
         List<StmtClassForgable> forgables = new ArrayList<>(2);
+        for (StmtClassForgableFactory additional : additionalForgeables) {
+            forgables.add(additional.make(packageScope, classPostfix));
+        }
+
         forgables.addAll(onTriggerPlan.getForgables());
         forgables.add(onTriggerPlan.getFactory());
 
@@ -146,8 +155,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         return new StmtForgeMethodResult(forgables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()));
     }
 
-    private OnTriggerActivatorDesc activatorNamedWindow(NamedWindowConsumerStreamSpec namedSpec, StatementCompileTimeServices services)
-            throws ExprValidationException {
+    private OnTriggerActivatorDesc activatorNamedWindow(NamedWindowConsumerStreamSpec namedSpec, StatementCompileTimeServices services) {
         NamedWindowMetaData namedWindow = namedSpec.getNamedWindow();
         String triggerEventTypeName = namedSpec.getNamedWindow().getEventType().getName();
 

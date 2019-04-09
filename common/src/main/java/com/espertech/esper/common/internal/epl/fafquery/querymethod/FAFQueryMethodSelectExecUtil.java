@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryUtil;
@@ -26,7 +27,6 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperStart;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategy;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactory;
-import com.espertech.esper.common.internal.event.core.EventBeanReader;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 
 import java.lang.annotation.Annotation;
@@ -64,15 +64,15 @@ public class FAFQueryMethodSelectExecUtil {
         return deque;
     }
 
-    static EPPreparedQueryResult processedNonJoin(ResultSetProcessor resultSetProcessor, Collection<EventBean> events, EventBeanReader distinctHandler) {
+    static EPPreparedQueryResult processedNonJoin(ResultSetProcessor resultSetProcessor, Collection<EventBean> events, EventPropertyValueGetter distinctKeyGetter) {
         EventBean[] rows = events.toArray(new EventBean[events.size()]);
         UniformPair<EventBean[]> results = resultSetProcessor.processViewResult(rows, null, true);
 
         EventBean[] distinct;
-        if (distinctHandler == null) {
+        if (distinctKeyGetter == null) {
             distinct = results.getFirst();
         } else {
-            distinct = EventBeanUtility.getDistinctByProp(results.getFirst(), distinctHandler);
+            distinct = EventBeanUtility.getDistinctByProp(results.getFirst(), distinctKeyGetter);
         }
 
         return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), distinct);

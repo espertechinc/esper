@@ -112,7 +112,8 @@ public class TestSuiteEPLSubselect extends TestCase {
             SupportValueEvent.class, SupportIdAndValueEvent.class, SupportBeanArrayCollMap.class,
             SupportSensorEvent.class, SupportBeanRange.class, SupportSimpleBeanOne.class, SupportSimpleBeanTwo.class,
             SupportBean_ST0.class, SupportBean_ST1.class, SupportBean_ST2.class, SupportTradeEventTwo.class,
-            SupportMaxAmountEvent.class, SupportMarketDataBean.class}) {
+            SupportMaxAmountEvent.class, SupportMarketDataBean.class, SupportEventWithIntArray.class,
+            SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

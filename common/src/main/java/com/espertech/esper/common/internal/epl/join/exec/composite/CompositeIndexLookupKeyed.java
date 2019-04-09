@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.exec.composite;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,10 +19,12 @@ import java.util.Set;
 public class CompositeIndexLookupKeyed implements CompositeIndexLookup {
 
     private final Object[] keys;
+    private final MultiKeyGeneratedFromObjectArray multiKeyTransform;
     private CompositeIndexLookup next;
 
-    public CompositeIndexLookupKeyed(Object[] keys) {
+    public CompositeIndexLookupKeyed(Object[] keys, MultiKeyGeneratedFromObjectArray multiKeyTransform) {
         this.keys = keys;
+        this.multiKeyTransform = multiKeyTransform;
     }
 
     public void setNext(CompositeIndexLookup next) {
@@ -30,12 +32,7 @@ public class CompositeIndexLookupKeyed implements CompositeIndexLookup {
     }
 
     public void lookup(Map parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
-        Object key;
-        if (keys.length == 1) {
-            key = keys[0];
-        } else {
-            key = new HashableMultiKey(keys);
-        }
+        Object key = multiKeyTransform.from(keys);
         Map innerIndex = (Map) parent.get(key);
         if (innerIndex == null) {
             return;

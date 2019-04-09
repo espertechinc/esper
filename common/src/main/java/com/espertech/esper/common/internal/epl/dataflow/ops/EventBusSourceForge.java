@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiledDesc;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiler;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeBuilder;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
@@ -69,8 +70,9 @@ public class EventBusSourceForge implements DataFlowOperatorForge {
                 filters = Collections.singletonList(filter);
             }
             StreamTypeServiceImpl streamTypeService = new StreamTypeServiceImpl(eventType, eventType.getName(), true);
-            filterSpecCompiled = FilterSpecCompiler.makeFilterSpec(eventType, eventType.getName(), filters, null,
-                    null, null, streamTypeService, null, context.getStatementRawInfo(), context.getServices());
+            FilterSpecCompiledDesc compiledDesc = FilterSpecCompiler.makeFilterSpec(eventType, eventType.getName(), filters, null,
+                null, null, streamTypeService, null, context.getStatementRawInfo(), context.getServices());
+            filterSpecCompiled = compiledDesc.getFilterSpecCompiled();
         } catch (ExprValidationException ex) {
             throw new ExprValidationException("Failed to obtain filter parameters: " + ex.getMessage(), ex);
         }

@@ -108,7 +108,7 @@ public class StmtClassForgableOPVFactoryProvider implements StmtClassForgable {
             CodegenStackGenerator.recursiveBuildStack(getFactoryMethod, "getOutputProcessViewFactory", methods);
 
             // render and compile
-            return new CodegenClass(OutputProcessViewFactoryProvider.class, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            return new CodegenClass(CodegenClassType.OUTPUTPROCESSVIEWFACTORYPROVIDER, OutputProcessViewFactoryProvider.class, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
         } catch (Throwable t) {
             throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " : " + t.getMessage(), t);
         }

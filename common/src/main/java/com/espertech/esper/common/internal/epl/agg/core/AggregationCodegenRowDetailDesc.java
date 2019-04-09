@@ -10,13 +10,17 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+
 public class AggregationCodegenRowDetailDesc {
     private final AggregationCodegenRowDetailStateDesc stateDesc;
     private final AggregationAccessorSlotPairForge[] accessAccessors;
+    private final MultiKeyClassRef multiKeyClassRef;
 
-    public AggregationCodegenRowDetailDesc(AggregationCodegenRowDetailStateDesc stateDesc, AggregationAccessorSlotPairForge[] accessAccessors) {
+    public AggregationCodegenRowDetailDesc(AggregationCodegenRowDetailStateDesc stateDesc, AggregationAccessorSlotPairForge[] accessAccessors, MultiKeyClassRef multiKeyClassRef) {
         this.stateDesc = stateDesc;
         this.accessAccessors = accessAccessors;
+        this.multiKeyClassRef = multiKeyClassRef;
     }
 
     public AggregationCodegenRowDetailStateDesc getStateDesc() {
@@ -25,5 +29,9 @@ public class AggregationCodegenRowDetailDesc {
 
     public AggregationAccessorSlotPairForge[] getAccessAccessors() {
         return accessAccessors;
+    }
+
+    public MultiKeyClassRef getMultiKeyClassRef() {
+        return multiKeyClassRef;
     }
 }

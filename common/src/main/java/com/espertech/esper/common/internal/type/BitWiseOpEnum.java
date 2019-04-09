@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.common.internal.type;
 
-import com.espertech.esper.common.client.util.HashableMultiKey;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +30,7 @@ public enum BitWiseOpEnum {
      */
     BXOR("^");
 
-    private static Map<HashableMultiKey, BitWiseOpEnum.Computer> computers;
+    private static Map<BitwiseOpDesc, BitWiseOpEnum.Computer> computers;
 
     private String expressionText;
 
@@ -50,22 +48,22 @@ public enum BitWiseOpEnum {
     }
 
     static {
-        computers = new HashMap<HashableMultiKey, BitWiseOpEnum.Computer>();
-        computers.put(new HashableMultiKey(new Object[]{Byte.class, BAND}), new BAndByte());
-        computers.put(new HashableMultiKey(new Object[]{Short.class, BAND}), new BAndShort());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, BAND}), new BAndInt());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, BAND}), new BAndLong());
-        computers.put(new HashableMultiKey(new Object[]{Boolean.class, BAND}), new BAndBoolean());
-        computers.put(new HashableMultiKey(new Object[]{Byte.class, BOR}), new BOrByte());
-        computers.put(new HashableMultiKey(new Object[]{Short.class, BOR}), new BOrShort());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, BOR}), new BOrInt());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, BOR}), new BOrLong());
-        computers.put(new HashableMultiKey(new Object[]{Boolean.class, BOR}), new BOrBoolean());
-        computers.put(new HashableMultiKey(new Object[]{Byte.class, BXOR}), new BXorByte());
-        computers.put(new HashableMultiKey(new Object[]{Short.class, BXOR}), new BXorShort());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, BXOR}), new BXorInt());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, BXOR}), new BXorLong());
-        computers.put(new HashableMultiKey(new Object[]{Boolean.class, BXOR}), new BXorBoolean());
+        computers = new HashMap<>();
+        computers.put(new BitwiseOpDesc(Byte.class, BAND), new BAndByte());
+        computers.put(new BitwiseOpDesc(Short.class, BAND), new BAndShort());
+        computers.put(new BitwiseOpDesc(Integer.class, BAND), new BAndInt());
+        computers.put(new BitwiseOpDesc(Long.class, BAND), new BAndLong());
+        computers.put(new BitwiseOpDesc(Boolean.class, BAND), new BAndBoolean());
+        computers.put(new BitwiseOpDesc(Byte.class, BOR), new BOrByte());
+        computers.put(new BitwiseOpDesc(Short.class, BOR), new BOrShort());
+        computers.put(new BitwiseOpDesc(Integer.class, BOR), new BOrInt());
+        computers.put(new BitwiseOpDesc(Long.class, BOR), new BOrLong());
+        computers.put(new BitwiseOpDesc(Boolean.class, BOR), new BOrBoolean());
+        computers.put(new BitwiseOpDesc(Byte.class, BXOR), new BXorByte());
+        computers.put(new BitwiseOpDesc(Short.class, BXOR), new BXorShort());
+        computers.put(new BitwiseOpDesc(Integer.class, BXOR), new BXorInt());
+        computers.put(new BitwiseOpDesc(Long.class, BXOR), new BXorLong());
+        computers.put(new BitwiseOpDesc(Boolean.class, BXOR), new BXorBoolean());
     }
 
     /**
@@ -76,13 +74,13 @@ public enum BitWiseOpEnum {
      */
     public Computer getComputer(Class coercedType) {
         if ((coercedType != Byte.class) &&
-                (coercedType != Short.class) &&
-                (coercedType != Integer.class) &&
-                (coercedType != Long.class) &&
-                (coercedType != Boolean.class)) {
+            (coercedType != Short.class) &&
+            (coercedType != Integer.class) &&
+            (coercedType != Long.class) &&
+            (coercedType != Boolean.class)) {
             throw new IllegalArgumentException("Expected base numeric or boolean type for computation result but got type " + coercedType);
         }
-        HashableMultiKey key = new HashableMultiKey(new Object[]{coercedType, this});
+        BitwiseOpDesc key = new BitwiseOpDesc(coercedType, this);
         return computers.get(key);
     }
 
@@ -288,5 +286,31 @@ public enum BitWiseOpEnum {
      */
     public String getComputeDescription() {
         return expressionText;
+    }
+
+    public static class BitwiseOpDesc {
+        private final Class type;
+        private final BitWiseOpEnum bitwise;
+
+        public BitwiseOpDesc(Class type, BitWiseOpEnum bitwise) {
+            this.type = type;
+            this.bitwise = bitwise;
+        }
+
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            BitwiseOpDesc that = (BitwiseOpDesc) o;
+
+            if (!type.equals(that.type)) return false;
+            return bitwise == that.bitwise;
+        }
+
+        public int hashCode() {
+            int result = type.hashCode();
+            result = 31 * result + bitwise.hashCode();
+            return result;
+        }
     }
 }

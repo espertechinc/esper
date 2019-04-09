@@ -95,7 +95,7 @@ public class TestSuiteResultSetOutputLimit extends TestCase {
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
             SupportMarketDataBean.class, SupportBeanNumeric.class, SupportBean_ST0.class, SupportBean_A.class,
-            SupportScheduleSimpleEvent.class, SupportBeanString.class}) {
+            SupportScheduleSimpleEvent.class, SupportBeanString.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

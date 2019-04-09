@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.event.core.DecoratingEventBean;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
@@ -88,7 +89,15 @@ public class WrapperMapPropertyGetter implements EventPropertyGetterSPI {
     }
 
     public CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        throw implementationNotProvided();
+        CodegenMethod method = codegenMethodScope.makeChild(Object.class, this.getClass(), codegenClassScope).addParam(Object.class, "und");
+        if (wrapperEventType.getUnderlyingType() == Pair.class) {
+            method.getBlock().declareVarWCast(Pair.class, "pair", "und")
+                .declareVar(Map.class, "wrapped", cast(Map.class, exprDotMethod(ref("pair"), "getSecond")))
+                .methodReturn(mapGetter.underlyingGetCodegen(ref("wrapped"), codegenMethodScope, codegenClassScope));
+        } else {
+            method.getBlock().methodReturn(constantNull());
+        }
+        return localMethod(method, ref("und"));
     }
 
     public CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

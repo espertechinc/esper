@@ -36,7 +36,67 @@ public class InfraNamedWindowOnUpdate {
         execs.add(new InfraSubclass());
         execs.add(new InfraUpdateCopyMethodBean());
         execs.add(new InfraUpdateWrapper());
+        execs.add(new InfraUpdateMultikeyWArrayPrimitiveArray());
+        execs.add(new InfraUpdateMultikeyWArrayTwoFields());
         return execs;
+    }
+
+    private static class InfraUpdateMultikeyWArrayTwoFields implements RegressionExecution {
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('create') create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+                "insert into MyWindow select * from SupportEventWithManyArray;\n" +
+                "on SupportEventWithIntArray as sewia " +
+                "update MyWindow as mw set value = sewia.value " +
+                "where mw.id = sewia.id and mw.intOne = sewia.array;\n";
+            env.compileDeploy(epl);
+
+            env.sendEventBean(new SupportEventWithManyArray("ID1").withIntOne(new int[] {1, 2}));
+            env.sendEventBean(new SupportEventWithManyArray("ID2").withIntOne(new int[] {3, 4}));
+            env.sendEventBean(new SupportEventWithManyArray("ID3").withIntOne(new int[] {1}));
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportEventWithIntArray("ID2", new int[] {3, 4}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("ID3", new int[] {1}, 11));
+            env.sendEventBean(new SupportEventWithIntArray("ID1", new int[] {1, 2}, 12));
+            env.sendEventBean(new SupportEventWithIntArray("IDX", new int[] {1}, 14));
+            env.sendEventBean(new SupportEventWithIntArray("ID1", new int[] {1, 2, 3}, 15));
+
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "id,value".split(","),
+                new Object[][] {{"ID1", 12}, {"ID2", 10}, {"ID3", 11}});
+
+            env.undeployAll();
+        }
+    }
+
+    private static class InfraUpdateMultikeyWArrayPrimitiveArray implements RegressionExecution {
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('create') create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+                         "insert into MyWindow select * from SupportEventWithManyArray;\n" +
+                         "on SupportEventWithIntArray as sewia " +
+                             "update MyWindow as mw set value = sewia.value " +
+                             "where mw.intOne = sewia.array;\n";
+            env.compileDeploy(epl);
+
+            env.sendEventBean(new SupportEventWithManyArray("E1").withIntOne(new int[] {1, 2}));
+            env.sendEventBean(new SupportEventWithManyArray("E2").withIntOne(new int[] {3, 4}));
+            env.sendEventBean(new SupportEventWithManyArray("E3").withIntOne(new int[] {1}));
+            env.sendEventBean(new SupportEventWithManyArray("E4").withIntOne(new int[] {}));
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportEventWithIntArray("U1", new int[] {3, 4}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("U2", new int[] {1}, 11));
+            env.sendEventBean(new SupportEventWithIntArray("U3", new int[] {}, 12));
+            env.sendEventBean(new SupportEventWithIntArray("U4", new int[] {1, 2}, 13));
+
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "id,value".split(","),
+                new Object[][] {{"E1", 13}, {"E2", 10}, {"E3", 11}, {"E4", 12}});
+
+            env.undeployAll();
+        }
     }
 
     private static class InfraUpdateWrapper implements RegressionExecution {

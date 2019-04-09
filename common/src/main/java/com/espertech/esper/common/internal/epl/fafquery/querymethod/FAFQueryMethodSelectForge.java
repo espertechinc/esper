@@ -16,8 +16,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScop
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.faf.StmtClassForgableQueryMethodProvider;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableRSPFactoryProvider;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
@@ -47,6 +49,9 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
 
     public List<StmtClassForgable> makeForgables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope) {
         List<StmtClassForgable> forgables = new ArrayList<>();
+        for (StmtClassForgableFactory additional : desc.getAdditionalForgeables()) {
+            forgables.add(additional.make(packageScope, classPostfix));
+        }
 
         // generate RSP
         forgables.add(new StmtClassForgableRSPFactoryProvider(classNameResultSetProcessor, desc.getResultSetProcessor(), packageScope, statementRawInfo));
@@ -73,6 +78,7 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
                 .exprDotMethod(select, "setTableAccesses", ExprTableEvalStrategyUtil.codegenInitMap(desc.getTableAccessForges(), this.getClass(), method, symbols, classScope))
                 .exprDotMethod(select, "setHasTableAccess", constant(desc.isHasTableAccess()))
                 .exprDotMethod(select, "setDistinct", constant(desc.isDistinct()))
+                .exprDotMethod(select, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(desc.isDistinct(), desc.getResultSetProcessor().getResultEventType(), desc.getDistinctMultiKey(), method, classScope))
                 .methodReturn(select);
     }
 }

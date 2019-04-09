@@ -22,7 +22,6 @@ import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMeth
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -46,11 +45,7 @@ public class CompilerHelperFAFQuery {
         }
 
         // compile with statement-field first
-        classes.sort(new Comparator<CodegenClass>() {
-            public int compare(CodegenClass o1, CodegenClass o2) {
-                return o1.getInterfaceImplemented() == StatementFields.class ? -1 : 0;
-            }
-        });
+        classes.sort((o1, o2) -> Integer.compare(o1.getClassType().getSortCode(), o2.getClassType().getSortCode()));
 
         for (CodegenClass clazz : classes) {
             JaninoCompiler.compile(clazz, moduleBytes, compileTimeServices);

@@ -439,7 +439,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             QueryPlanForge planEquals = SupportQueryPlanBuilder.start(2)
                 .addIndexHashSingleNonUnique(1, "a", "p10")
-                .setLookupPlanInner(0, new IndexedTableLookupPlanHashedOnlyForge(0, 1, false, types, getIndexKey("a"), new QueryGraphValueEntryHashKeyedForge[]{SupportExprNodeFactory.makeKeyed("p00")}, null, null)).get();
+                .setLookupPlanInner(0, new IndexedTableLookupPlanHashedOnlyForge(0, 1, false, types, getIndexKey("a"), new QueryGraphValueEntryHashKeyedForge[]{SupportExprNodeFactory.makeKeyed("p00")}, null, null, null)).get();
             tryAssertion(env, epl + "where p00 = p10", planEquals);
             tryAssertion(env, epl + "where p00 = p10 and p00 in (p11, p12, p13)", planEquals);
 

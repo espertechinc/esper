@@ -20,8 +20,11 @@ import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForge;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -58,7 +61,7 @@ import java.util.*;
 public class StreamSpecCompiler {
     private final static Logger log = LoggerFactory.getLogger(StreamSpecCompiler.class);
 
-    public static StreamSpecCompiled compile(StreamSpecRaw spec,
+    public static StreamSpecCompiledDesc compile(StreamSpecRaw spec,
                                              Set<String> eventTypeReferences,
                                              boolean isInsertInto,
                                              boolean isJoin,
@@ -70,18 +73,18 @@ public class StreamSpecCompiler {
                                              StatementCompileTimeServices services)
             throws ExprValidationException {
         if (spec instanceof DBStatementStreamSpec) {
-            return (DBStatementStreamSpec) spec;
+            return new StreamSpecCompiledDesc((DBStatementStreamSpec) spec, Collections.emptyList());
         } else if (spec instanceof FilterStreamSpecRaw) {
             return compileFilter((FilterStreamSpecRaw) spec, isInsertInto, isJoin, isContextDeclaration, isOnTrigger, optionalStreamName, statementRawInfo, services);
         } else if (spec instanceof PatternStreamSpecRaw) {
             return compilePattern((PatternStreamSpecRaw) spec, eventTypeReferences, isInsertInto, isJoin, isContextDeclaration, isOnTrigger, optionalStreamName, streamNum, statementRawInfo, services);
         } else if (spec instanceof MethodStreamSpec) {
-            return compileMethod((MethodStreamSpec) spec);
+            return new StreamSpecCompiledDesc(compileMethod((MethodStreamSpec) spec), Collections.emptyList());
         }
         throw new IllegalStateException("Unrecognized stream spec " + spec);
     }
 
-    public static StreamSpecCompiled compileFilter(FilterStreamSpecRaw streamSpec, boolean isInsertInto, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
+    public static StreamSpecCompiledDesc compileFilter(FilterStreamSpecRaw streamSpec, boolean isInsertInto, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
             throws ExprValidationException {
         // Determine the event type
         FilterSpecRaw rawFilterSpec = streamSpec.getRawFilterSpec();
@@ -96,8 +99,9 @@ public class StreamSpecCompiler {
                 throw new ExprValidationException("Contained-event expressions are not supported with tables");
             }
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{table.getInternalEventType()}, new String[]{optionalStreamName}, new boolean[]{true}, false, false);
-            List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, null, null, statementRawInfo, services);
-            return new TableQueryStreamSpec(streamSpec.getOptionalStreamName(), streamSpec.getViewSpecs(), streamSpec.getOptions(), table, validatedNodes);
+            FilterSpecValidatedDesc desc = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, null, null, statementRawInfo, services);
+            TableQueryStreamSpec tableStreamSpec = new TableQueryStreamSpec(streamSpec.getOptionalStreamName(), streamSpec.getViewSpecs(), streamSpec.getOptions(), table, desc.getExpressions());
+            return new StreamSpecCompiledDesc(tableStreamSpec, desc.getAdditionalForgeables());
         }
 
         // Could be a named window
@@ -105,13 +109,14 @@ public class StreamSpecCompiler {
         if (namedWindowInfo != null) {
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{namedWindowInfo.getEventType()}, new String[]{optionalStreamName}, new boolean[]{true}, false, false);
 
-            List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, null, null, statementRawInfo, services);
+            FilterSpecValidatedDesc validated = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, null, null, statementRawInfo, services);
 
             PropertyEvaluatorForge optionalPropertyEvaluator = null;
             if (rawFilterSpec.getOptionalPropertyEvalSpec() != null) {
                 optionalPropertyEvaluator = PropertyEvaluatorForgeFactory.makeEvaluator(rawFilterSpec.getOptionalPropertyEvalSpec(), namedWindowInfo.getEventType(), streamSpec.getOptionalStreamName(), statementRawInfo, services);
             }
-            return new NamedWindowConsumerStreamSpec(namedWindowInfo, streamSpec.getOptionalStreamName(), streamSpec.getViewSpecs(), validatedNodes, streamSpec.getOptions(), optionalPropertyEvaluator);
+            NamedWindowConsumerStreamSpec consumer = new NamedWindowConsumerStreamSpec(namedWindowInfo, streamSpec.getOptionalStreamName(), streamSpec.getViewSpecs(), validated.getExpressions(), streamSpec.getOptions(), optionalPropertyEvaluator);
+            return new StreamSpecCompiledDesc(consumer, validated.getAdditionalForgeables());
         }
 
         EventType eventType = resolveTypeName(eventTypeName, services.getEventTypeCompileTimeResolver());
@@ -120,14 +125,14 @@ public class StreamSpecCompiler {
         // Also decompose all AND super nodes into individual expressions
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{streamSpec.getOptionalStreamName()}, new boolean[]{true}, false, false);
 
-        FilterSpecCompiled spec = FilterSpecCompiler.makeFilterSpec(eventType, eventTypeName, rawFilterSpec.getFilterExpressions(), rawFilterSpec.getOptionalPropertyEvalSpec(),
-                null, null,  // no tags
-                streamTypeService, streamSpec.getOptionalStreamName(), statementRawInfo, services);
-
-        return new FilterStreamSpecCompiled(spec, streamSpec.getViewSpecs(), streamSpec.getOptionalStreamName(), streamSpec.getOptions());
+        FilterSpecCompiledDesc desc = FilterSpecCompiler.makeFilterSpec(eventType, eventTypeName, rawFilterSpec.getFilterExpressions(), rawFilterSpec.getOptionalPropertyEvalSpec(),
+            null, null,  // no tags
+            streamTypeService, streamSpec.getOptionalStreamName(), statementRawInfo, services);
+        FilterStreamSpecCompiled compiled = new FilterStreamSpecCompiled(desc.getFilterSpecCompiled(), streamSpec.getViewSpecs(), streamSpec.getOptionalStreamName(), streamSpec.getOptions());
+        return new StreamSpecCompiledDesc(compiled, desc.getAdditionalForgeables());
     }
 
-    public static PatternStreamSpecCompiled compilePattern(PatternStreamSpecRaw streamSpecRaw,
+    public static StreamSpecCompiledDesc compilePattern(PatternStreamSpecRaw streamSpecRaw,
                                                            Set<String> eventTypeReferences,
                                                            boolean isInsertInto,
                                                            boolean isJoin,
@@ -141,7 +146,7 @@ public class StreamSpecCompiler {
         return compilePatternWTags(streamSpecRaw, eventTypeReferences, isInsertInto, null, null, isJoin, isContextDeclaration, isOnTrigger, streamNum, statementRawInfo, services);
     }
 
-    public static PatternStreamSpecCompiled compilePatternWTags(PatternStreamSpecRaw streamSpecRaw,
+    public static StreamSpecCompiledDesc compilePatternWTags(PatternStreamSpecRaw streamSpecRaw,
                                                                 Set<String> eventTypeReferences,
                                                                 boolean isInsertInto,
                                                                 MatchEventSpec tags,
@@ -186,20 +191,22 @@ public class StreamSpecCompiler {
         // construct root : assigns factory node ids
         EvalForgeNode top = streamSpecRaw.getEvalForgeNode();
         EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo.getAnnotations());
-        recursiveCompile(top, eventTypeReferences, isInsertInto, tags, nodeStack, allTagNamesOrdered, streamNum, statementRawInfo, services);
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
+        recursiveCompile(top, eventTypeReferences, isInsertInto, tags, nodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
 
         PatternCompileHook hook = (PatternCompileHook) ClasspathImportUtil.getAnnotationHook(statementRawInfo.getAnnotations(), HookType.INTERNAL_PATTERNCOMPILE, PatternCompileHook.class, services.getClasspathImportServiceCompileTime());
         if (hook != null) {
             hook.pattern(root);
         }
 
-        return new PatternStreamSpecCompiled(root, tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, streamSpecRaw.getViewSpecs(), streamSpecRaw.getOptionalStreamName(), streamSpecRaw.getOptions(), streamSpecRaw.isSuppressSameEventMatches(), streamSpecRaw.isDiscardPartialsOnMatch());
+        PatternStreamSpecCompiled compiled = new PatternStreamSpecCompiled(root, tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, streamSpecRaw.getViewSpecs(), streamSpecRaw.getOptionalStreamName(), streamSpecRaw.getOptions(), streamSpecRaw.isSuppressSameEventMatches(), streamSpecRaw.isDiscardPartialsOnMatch());
+        return new StreamSpecCompiledDesc(compiled, additionalForgeables);
     }
 
-    private static void recursiveCompile(EvalForgeNode evalNode, Set<String> eventTypeReferences, boolean isInsertInto, MatchEventSpec tags, Stack<EvalForgeNode> parentNodeStack, LinkedHashSet<String> allTagNamesOrdered, int streamNum, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+    private static void recursiveCompile(EvalForgeNode evalNode, Set<String> eventTypeReferences, boolean isInsertInto, MatchEventSpec tags, Stack<EvalForgeNode> parentNodeStack, LinkedHashSet<String> allTagNamesOrdered, int streamNum, List<StmtClassForgableFactory> additionalForgeables, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         parentNodeStack.push(evalNode);
         for (EvalForgeNode child : evalNode.getChildNodes()) {
-            recursiveCompile(child, eventTypeReferences, isInsertInto, tags, parentNodeStack, allTagNamesOrdered, streamNum, statementRawInfo, services);
+            recursiveCompile(child, eventTypeReferences, isInsertInto, tags, parentNodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
         }
         parentNodeStack.pop();
 
@@ -301,9 +308,10 @@ public class StreamSpecCompiler {
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(filterTypes, true, false);
             List<ExprNode> exprNodes = filterNode.getRawFilterSpec().getFilterExpressions();
 
-            FilterSpecCompiled spec = FilterSpecCompiler.makeFilterSpec(resolvedEventType, eventName, exprNodes,
-                    filterNode.getRawFilterSpec().getOptionalPropertyEvalSpec(), filterTaggedEventTypes, arrayCompositeEventTypes, streamTypeService, null, statementRawInfo, services);
-            filterNode.setFilterSpec(spec);
+            FilterSpecCompiledDesc compiled = FilterSpecCompiler.makeFilterSpec(resolvedEventType, eventName, exprNodes,
+                filterNode.getRawFilterSpec().getOptionalPropertyEvalSpec(), filterTaggedEventTypes, arrayCompositeEventTypes, streamTypeService, null, statementRawInfo, services);
+            filterNode.setFilterSpec(compiled.getFilterSpecCompiled());
+            additionalForgeables.addAll(compiled.getAdditionalForgeables());
         } else if (evalNode instanceof EvalObserverForgeNode) {
             EvalObserverForgeNode observerNode = (EvalObserverForgeNode) evalNode;
             try {
@@ -392,7 +400,10 @@ public class StreamSpecCompiler {
             if (distinctExpressions.isEmpty()) {
                 throw new ExprValidationException("Every-distinct node requires one or more distinct-value expressions that each return non-constant result values");
             }
-            distinctNode.setDistinctExpressions(distinctExpressions, timePeriodComputeForge, expiryTimeExp);
+
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(distinctExpressions.toArray(new ExprNode[0]), false);
+            distinctNode.setDistinctExpressions(distinctExpressions, multiKeyPlan.getOptionalClassRef(), timePeriodComputeForge, expiryTimeExp);
+            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
         } else if (evalNode instanceof EvalMatchUntilForgeNode) {
             EvalMatchUntilForgeNode matchUntilNode = (EvalMatchUntilForgeNode) evalNode;
 

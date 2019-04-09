@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowStateForgeDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
@@ -19,18 +20,20 @@ public class AggGroupByDesc {
     private final boolean isFireAndForget;
     private final boolean isOnSelect;
     private final ExprNode[] groupByNodes;
+    private final MultiKeyClassRef optionalGroupByMultiKey;
 
     private boolean refcounted;
     private boolean reclaimAged;
     private AggSvcGroupByReclaimAgedEvalFuncFactoryForge reclaimEvaluationFunctionMaxAge;
     private AggSvcGroupByReclaimAgedEvalFuncFactoryForge reclaimEvaluationFunctionFrequency;
 
-    public AggGroupByDesc(AggregationRowStateForgeDesc rowStateForgeDescs, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect, ExprNode[] groupByNodes) {
+    public AggGroupByDesc(AggregationRowStateForgeDesc rowStateForgeDescs, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect, ExprNode[] groupByNodes, MultiKeyClassRef optionalGroupByMultiKey) {
         this.rowStateForgeDescs = rowStateForgeDescs;
         this.isUnidirectional = isUnidirectional;
         this.isFireAndForget = isFireAndForget;
         this.isOnSelect = isOnSelect;
         this.groupByNodes = groupByNodes;
+        this.optionalGroupByMultiKey = optionalGroupByMultiKey;
     }
 
     public AggregationRowStateForgeDesc getRowStateForgeDescs() {
@@ -91,5 +94,9 @@ public class AggGroupByDesc {
 
     public Object getNumAccess() {
         return rowStateForgeDescs.getNumAccess();
+    }
+
+    public MultiKeyClassRef getOptionalGroupByMultiKey() {
+        return optionalGroupByMultiKey;
     }
 }

@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.historical.common.HistoricalStrea
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalViewableDesc;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanForge;
+import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanForgeDesc;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanNodeForgeAllUnidirectionalOuter;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanNodeNoOpForge;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
@@ -35,17 +36,17 @@ import org.slf4j.LoggerFactory;
 public class QueryPlanBuilder {
     private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
-    public static QueryPlanForge getPlan(EventType[] typesPerStream,
-                                         OuterJoinDesc[] outerJoinDescList,
-                                         QueryGraphForge queryGraph,
-                                         String[] streamNames,
-                                         HistoricalViewableDesc historicalViewableDesc,
-                                         DependencyGraph dependencyGraph,
-                                         HistoricalStreamIndexListForge[] historicalStreamIndexLists,
-                                         StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
-                                         boolean isQueryPlanLogging,
-                                         StatementRawInfo statementRawInfo,
-                                         StatementCompileTimeServices services)
+    public static QueryPlanForgeDesc getPlan(EventType[] typesPerStream,
+                                             OuterJoinDesc[] outerJoinDescList,
+                                             QueryGraphForge queryGraph,
+                                             String[] streamNames,
+                                             HistoricalViewableDesc historicalViewableDesc,
+                                             DependencyGraph dependencyGraph,
+                                             HistoricalStreamIndexListForge[] historicalStreamIndexLists,
+                                             StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
+                                             boolean isQueryPlanLogging,
+                                             StatementRawInfo statementRawInfo,
+                                             StatementCompileTimeServices services)
             throws ExprValidationException {
         String methodName = ".getPlan ";
 
@@ -63,8 +64,8 @@ public class QueryPlanBuilder {
                 outerJoinType = outerJoinDescList[0].getOuterJoinType();
             }
 
-            QueryPlanForge queryPlan = TwoStreamQueryPlanBuilder.build(typesPerStream, queryGraph, outerJoinType, streamJoinAnalysisResult);
-            removeUnidirectionalAndTable(queryPlan, streamJoinAnalysisResult);
+            QueryPlanForgeDesc queryPlan = TwoStreamQueryPlanBuilder.build(typesPerStream, queryGraph, outerJoinType, streamJoinAnalysisResult);
+            removeUnidirectionalAndTable(queryPlan.getForge(), streamJoinAnalysisResult);
 
             if (log.isDebugEnabled()) {
                 log.debug(methodName + "2-Stream queryPlan=" + queryPlan);
@@ -77,13 +78,13 @@ public class QueryPlanBuilder {
         boolean isAllInnerJoins = outerJoinDescList.length == 0 || OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescList);
 
         if (isAllInnerJoins && !hasPreferMergeJoin) {
-            QueryPlanForge queryPlan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream,
+            QueryPlanForgeDesc queryPlan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream,
                     historicalViewableDesc, dependencyGraph, historicalStreamIndexLists,
                     hasForceNestedIter, streamJoinAnalysisResult.getUniqueKeys(),
                     streamJoinAnalysisResult.getTablesPerStream(), streamJoinAnalysisResult);
 
             if (queryPlan != null) {
-                removeUnidirectionalAndTable(queryPlan, streamJoinAnalysisResult);
+                removeUnidirectionalAndTable(queryPlan.getForge(), streamJoinAnalysisResult);
 
                 if (log.isDebugEnabled()) {
                     log.debug(methodName + "N-Stream inner-join queryPlan=" + queryPlan);
@@ -96,10 +97,10 @@ public class QueryPlanBuilder {
             }
         }
 
-        QueryPlanForge queryPlan = NStreamOuterQueryPlanBuilder.build(queryGraph, outerJoinDescList, streamNames, typesPerStream,
+        QueryPlanForgeDesc queryPlan = NStreamOuterQueryPlanBuilder.build(queryGraph, outerJoinDescList, streamNames, typesPerStream,
                 historicalViewableDesc, dependencyGraph, historicalStreamIndexLists, streamJoinAnalysisResult.getUniqueKeys(),
                 streamJoinAnalysisResult.getTablesPerStream(), streamJoinAnalysisResult, statementRawInfo, services);
-        removeUnidirectionalAndTable(queryPlan, streamJoinAnalysisResult);
+        removeUnidirectionalAndTable(queryPlan.getForge(), streamJoinAnalysisResult);
         return queryPlan;
     }
 

@@ -73,7 +73,69 @@ public class ResultSetOutputLimitAggregateGrouped {
         execs.add(new ResultSetJoinAll());
         execs.add(new ResultSetJoinLast());
         execs.add(new ResultSetOutputFirstHavingJoinNoJoin());
+        execs.add(new ResultSetOutputAllMultikeyWArray());
+        execs.add(new ResultSetOutputLastMultikeyWArray());
         return execs;
+    }
+
+    private static class ResultSetOutputLastMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String[] fields = "theString,longPrimitive,intPrimitive,thesum".split(",");
+            String epl = "@name('s0') select theString, longPrimitive, intPrimitive, sum(intPrimitive) as thesum from SupportBean#keepall " +
+                "group by theString, longPrimitive output last every 1 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendBeanEvent(env, "A", 0, 10);
+            sendBeanEvent(env, "B", 1, 11);
+
+            env.milestone(0);
+
+            sendBeanEvent(env, "A", 0, 12);
+            sendBeanEvent(env, "C", 0, 13);
+
+            env.advanceTime(1000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
+                {"B", 1L, 11, 11}, {"A", 0L, 12, 22}, {"C", 0L, 13, 13}});
+
+            sendBeanEvent(env, "A", 0, 14);
+
+            env.advanceTime(2000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
+                {"A", 0L, 14, 36}});
+
+            env.undeployAll();
+        }
+    }
+
+    private static class ResultSetOutputAllMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String[] fields = "theString,longPrimitive,intPrimitive,thesum".split(",");
+            String epl = "@name('s0') select theString, longPrimitive, intPrimitive, sum(intPrimitive) as thesum from SupportBean#keepall " +
+                "group by theString, longPrimitive output all every 1 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendBeanEvent(env, "A", 0, 10);
+            sendBeanEvent(env, "B", 1, 11);
+
+            env.milestone(0);
+
+            sendBeanEvent(env, "A", 0, 12);
+            sendBeanEvent(env, "C", 0, 13);
+
+            env.advanceTime(1000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
+                {"A", 0L, 10, 10}, {"B", 1L, 11, 11}, {"A", 0L, 12, 22}, {"C", 0L, 13, 13}});
+
+            sendBeanEvent(env, "A", 0, 14);
+
+            env.advanceTime(2000);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
+                {"A", 0L, 14, 36}, {"B", 1L, 11, 11}, {"C", 0L, 13, 13}});
+
+            env.undeployAll();
+        }
     }
 
     private static class ResultSetUnaggregatedOutputFirst implements RegressionExecution {

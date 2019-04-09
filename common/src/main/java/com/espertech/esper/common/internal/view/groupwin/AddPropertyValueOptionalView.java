@@ -12,7 +12,8 @@ package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
@@ -22,7 +23,6 @@ import com.espertech.esper.common.internal.view.core.ViewSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -98,7 +98,7 @@ public final class AddPropertyValueOptionalView extends ViewSupport implements A
             public EventBean next() {
                 EventBean nextEvent = parentIterator.next();
                 return addProperty(nextEvent, groupByViewFactory.propertyNames, propertyValues, groupByViewFactory.eventType,
-                        agentInstanceContext.getEventBeanTypedEventFactory());
+                    agentInstanceContext.getEventBeanTypedEventFactory());
             }
 
             public void remove() {
@@ -136,14 +136,15 @@ public final class AddPropertyValueOptionalView extends ViewSupport implements A
                                            EventType targetEventType,
                                            EventBeanTypedEventFactory eventAdapterService) {
         Map<String, Object> values = new HashMap<String, Object>();
-        if (propertyValues instanceof HashableMultiKey) {
-            HashableMultiKey props = (HashableMultiKey) propertyValues;
-            Object[] propertyValuesArr = props.getKeys();
-
+        if (propertyValues instanceof MultiKeyGenerated) {
+            MultiKeyGenerated props = (MultiKeyGenerated) propertyValues;
             for (int i = 0; i < propertyNames.length; i++) {
-                values.put(propertyNames[i], propertyValuesArr[i]);
+                values.put(propertyNames[i], props.getKey(i));
             }
         } else {
+            if (propertyValues instanceof MultiKeyArrayWrap) {
+                propertyValues = ((MultiKeyArrayWrap) propertyValues).getArray();
+            }
             values.put(propertyNames[0], propertyValues);
         }
 
@@ -151,8 +152,7 @@ public final class AddPropertyValueOptionalView extends ViewSupport implements A
     }
 
     public final String toString() {
-        return this.getClass().getName() + " propertyNames=" + Arrays.toString(groupByViewFactory.criteriaEvals) +
-                " propertyValue=" + propertyValues;
+        return this.getClass().getName() + " propertyValue=" + propertyValues;
     }
 
     private static final Logger log = LoggerFactory.getLogger(AddPropertyValueOptionalView.class);

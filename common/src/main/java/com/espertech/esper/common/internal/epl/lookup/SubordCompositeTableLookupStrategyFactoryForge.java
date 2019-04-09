@@ -14,9 +14,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRange;
 import com.espertech.esper.common.internal.epl.lookupplan.SubordPropHashKeyForge;
@@ -36,14 +37,16 @@ public class SubordCompositeTableLookupStrategyFactoryForge implements SubordTab
     private final int numStreams;
     private final List<SubordPropHashKeyForge> hashKeys;
     private final Class[] hashTypes;
+    private final MultiKeyClassRef hashMultikeyClasses;
     private final List<SubordPropRangeKeyForge> rangeProps;
     private final Class[] coercionRangeTypes;
 
-    public SubordCompositeTableLookupStrategyFactoryForge(boolean isNWOnTrigger, int numStreams, List<SubordPropHashKeyForge> keyExpr, Class[] coercionKeyTypes, List<SubordPropRangeKeyForge> rangeProps, Class[] coercionRangeTypes) {
+    public SubordCompositeTableLookupStrategyFactoryForge(boolean isNWOnTrigger, int numStreams, List<SubordPropHashKeyForge> keyExpr, Class[] coercionKeyTypes, MultiKeyClassRef hashMultikeyClasses, List<SubordPropRangeKeyForge> rangeProps, Class[] coercionRangeTypes) {
         this.isNWOnTrigger = isNWOnTrigger;
         this.numStreams = numStreams;
         this.hashKeys = keyExpr;
         this.hashTypes = coercionKeyTypes;
+        this.hashMultikeyClasses = hashMultikeyClasses;
         this.rangeProps = rangeProps;
         this.coercionRangeTypes = coercionRangeTypes;
     }
@@ -63,7 +66,7 @@ public class SubordCompositeTableLookupStrategyFactoryForge implements SubordTab
                 forges[i] = hashKeys.get(i).getHashKey().getKeyExpr().getForge();
             }
             expressions.addAll(Arrays.asList(ExprNodeUtilityPrint.toExpressionStringsMinPrecedence(forges)));
-            hashEval = ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(forges, hashTypes, method, this.getClass(), classScope);
+            hashEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashTypes, hashMultikeyClasses, method, classScope);
         }
 
         method.getBlock().declareVar(QueryGraphValueEntryRange[].class, "rangeEvals", newArrayByLength(QueryGraphValueEntryRange.class, constant(rangeProps.size())));
@@ -73,8 +76,8 @@ public class SubordCompositeTableLookupStrategyFactoryForge implements SubordTab
         }
 
         method.getBlock().methodReturn(newInstance(SubordCompositeTableLookupStrategyFactory.class,
-                constant(isNWOnTrigger), constant(numStreams), constant(expressions.toArray(new String[0])),
-                hashEval, ref("rangeEvals")));
+            constant(isNWOnTrigger), constant(numStreams), constant(expressions.toArray(new String[0])),
+            hashEval, ref("rangeEvals")));
         return localMethod(method);
     }
 }

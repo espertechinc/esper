@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.util.SimpleNumberBigDecimalCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberBigIntegerCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
@@ -58,34 +57,34 @@ public enum MathArithTypeEnum {
      */
     MODULO("%");
 
-    private static Map<HashableMultiKey, Computer> computers;
+    private static Map<MathArithDesc, Computer> computers;
 
     static {
         computers = new HashMap<>();
-        computers.put(new HashableMultiKey(new Object[]{Double.class, ADD}), new AddDouble());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, ADD}), new AddFloat());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, ADD}), new AddLong());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, ADD}), new AddInt());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, ADD}), new AddBigDec());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, ADD}), new AddBigInt());
-        computers.put(new HashableMultiKey(new Object[]{Double.class, SUBTRACT}), new SubtractDouble());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, SUBTRACT}), new SubtractFloat());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, SUBTRACT}), new SubtractLong());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, SUBTRACT}), new SubtractInt());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, SUBTRACT}), new SubtractBigDec());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, SUBTRACT}), new SubtractBigInt());
-        computers.put(new HashableMultiKey(new Object[]{Double.class, MULTIPLY}), new MultiplyDouble());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, MULTIPLY}), new MultiplyFloat());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, MULTIPLY}), new MultiplyLong());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, MULTIPLY}), new MultiplyInt());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, MULTIPLY}), new MultiplyBigDec());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, MULTIPLY}), new MultiplyBigInt());
-        computers.put(new HashableMultiKey(new Object[]{Double.class, MODULO}), new ModuloDouble());
-        computers.put(new HashableMultiKey(new Object[]{Float.class, MODULO}), new ModuloFloat());
-        computers.put(new HashableMultiKey(new Object[]{Long.class, MODULO}), new ModuloLong());
-        computers.put(new HashableMultiKey(new Object[]{Integer.class, MODULO}), new ModuloInt());
-        computers.put(new HashableMultiKey(new Object[]{BigDecimal.class, MODULO}), new ModuloDouble());
-        computers.put(new HashableMultiKey(new Object[]{BigInteger.class, MODULO}), new ModuloLong());
+        computers.put(new MathArithDesc(Double.class, ADD), new AddDouble());
+        computers.put(new MathArithDesc(Float.class, ADD), new AddFloat());
+        computers.put(new MathArithDesc(Long.class, ADD), new AddLong());
+        computers.put(new MathArithDesc(Integer.class, ADD), new AddInt());
+        computers.put(new MathArithDesc(BigDecimal.class, ADD), new AddBigDec());
+        computers.put(new MathArithDesc(BigInteger.class, ADD), new AddBigInt());
+        computers.put(new MathArithDesc(Double.class, SUBTRACT), new SubtractDouble());
+        computers.put(new MathArithDesc(Float.class, SUBTRACT), new SubtractFloat());
+        computers.put(new MathArithDesc(Long.class, SUBTRACT), new SubtractLong());
+        computers.put(new MathArithDesc(Integer.class, SUBTRACT), new SubtractInt());
+        computers.put(new MathArithDesc(BigDecimal.class, SUBTRACT), new SubtractBigDec());
+        computers.put(new MathArithDesc(BigInteger.class, SUBTRACT), new SubtractBigInt());
+        computers.put(new MathArithDesc(Double.class, MULTIPLY), new MultiplyDouble());
+        computers.put(new MathArithDesc(Float.class, MULTIPLY), new MultiplyFloat());
+        computers.put(new MathArithDesc(Long.class, MULTIPLY), new MultiplyLong());
+        computers.put(new MathArithDesc(Integer.class, MULTIPLY), new MultiplyInt());
+        computers.put(new MathArithDesc(BigDecimal.class, MULTIPLY), new MultiplyBigDec());
+        computers.put(new MathArithDesc(BigInteger.class, MULTIPLY), new MultiplyBigInt());
+        computers.put(new MathArithDesc(Double.class, MODULO), new ModuloDouble());
+        computers.put(new MathArithDesc(Float.class, MODULO), new ModuloFloat());
+        computers.put(new MathArithDesc(Long.class, MODULO), new ModuloLong());
+        computers.put(new MathArithDesc(Integer.class, MODULO), new ModuloInt());
+        computers.put(new MathArithDesc(BigDecimal.class, MODULO), new ModuloDouble());
+        computers.put(new MathArithDesc(BigInteger.class, MODULO), new ModuloLong());
     }
 
     /**
@@ -123,13 +122,13 @@ public enum MathArithTypeEnum {
      */
     public Computer getComputer(Class coercedType, Class typeOne, Class typeTwo, boolean isIntegerDivision, boolean isDivisionByZeroReturnsNull, MathContext optionalMathContext) {
         if ((coercedType != Double.class) &&
-                (coercedType != Float.class) &&
-                (coercedType != Long.class) &&
-                (coercedType != Integer.class) &&
-                (coercedType != BigDecimal.class) &&
-                (coercedType != BigInteger.class) &&
-                (coercedType != Short.class) &&
-                (coercedType != Byte.class)) {
+            (coercedType != Float.class) &&
+            (coercedType != Long.class) &&
+            (coercedType != Integer.class) &&
+            (coercedType != BigDecimal.class) &&
+            (coercedType != BigInteger.class) &&
+            (coercedType != Short.class) &&
+            (coercedType != Byte.class)) {
             throw new IllegalArgumentException("Expected base numeric type for computation result but got type " + coercedType);
         }
 
@@ -141,7 +140,7 @@ public enum MathArithTypeEnum {
         }
 
         if (this != DIVIDE) {
-            HashableMultiKey key = new HashableMultiKey(new Object[]{coercedType, this});
+            MathArithDesc key = new MathArithDesc(coercedType, this);
             Computer computer = computers.get(key);
             if (computer == null) {
                 throw new IllegalArgumentException("Could not determine process or type " + this + " type " + coercedType);
@@ -169,7 +168,7 @@ public enum MathArithTypeEnum {
                 }
                 return new DivideBigDec(divisionByZeroReturnsNull);
             }
-            return computers.get(new HashableMultiKey(new Object[]{BigDecimal.class, this}));
+            return computers.get(new MathArithDesc(BigDecimal.class, this));
         }
         SimpleNumberBigDecimalCoercer convertorOne = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeOne);
         SimpleNumberBigDecimalCoercer convertorTwo = SimpleNumberCoercerFactory.getCoercerBigDecimal(typeTwo);
@@ -193,10 +192,10 @@ public enum MathArithTypeEnum {
 
     private Computer makeBigIntegerComputer(Class typeOne, Class typeTwo) {
         if ((typeOne == BigDecimal.class) && (typeTwo == BigDecimal.class)) {
-            return computers.get(new HashableMultiKey(new Object[]{BigDecimal.class, this}));
+            return computers.get(new MathArithDesc(BigDecimal.class, this));
         }
         if ((typeOne == BigInteger.class) && (typeTwo == BigInteger.class)) {
-            Computer computer = computers.get(new HashableMultiKey(new Object[]{BigInteger.class, this}));
+            Computer computer = computers.get(new MathArithDesc(BigInteger.class, this));
             if (computer != null) {
                 return computer;
             }
@@ -410,10 +409,10 @@ public enum MathArithTypeEnum {
                 return op(codegenAsDouble(left, ltype), "/", codegenAsDouble(right, rtype));
             }
             CodegenMethod method = codegenMethodScope.makeChild(Double.class, DivideDouble.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                    .declareVar(double.class, "d2Double", codegenAsDouble(ref("d2"), rtype))
-                    .ifCondition(equalsIdentity(ref("d2Double"), constant(0)))
-                    .blockReturn(constantNull())
-                    .methodReturn(op(codegenAsDouble(ref("d1"), ltype), "/", ref("d2Double")));
+                .declareVar(double.class, "d2Double", codegenAsDouble(ref("d2"), rtype))
+                .ifCondition(equalsIdentity(ref("d2Double"), constant(0)))
+                .blockReturn(constantNull())
+                .methodReturn(op(codegenAsDouble(ref("d1"), ltype), "/", ref("d2Double")));
             return localMethodBuild(method).pass(left).pass(right).call();
         }
     }
@@ -466,9 +465,9 @@ public enum MathArithTypeEnum {
 
         public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
             CodegenMethod method = codegenMethodScope.makeChild(Integer.class, DivideInt.class, codegenClassScope).addParam(int.class, "i1").addParam(int.class, "i2").getBlock()
-                    .ifCondition(equalsIdentity(ref("i2"), constant(0)))
-                    .blockReturn(constantNull())
-                    .methodReturn(op(ref("i1"), "/", ref("i2")));
+                .ifCondition(equalsIdentity(ref("i2"), constant(0)))
+                .blockReturn(constantNull())
+                .methodReturn(op(ref("i1"), "/", ref("i2")));
             return localMethod(method, codegenAsInt(left, ltype), codegenAsInt(right, rtype));
         }
     }
@@ -754,9 +753,9 @@ public enum MathArithTypeEnum {
 
         public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
             CodegenMethod method = codegenMethodScope.makeChild(BigDecimal.class, SubtractBigDecConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                    .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
-                    .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
-                    .methodReturn(exprDotMethod(ref("s1"), "subtract", ref("s2")));
+                .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
+                .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
+                .methodReturn(exprDotMethod(ref("s1"), "subtract", ref("s2")));
             return localMethodBuild(method).pass(left).pass(right).call();
         }
     }
@@ -787,9 +786,9 @@ public enum MathArithTypeEnum {
 
         public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
             CodegenMethod method = codegenMethodScope.makeChild(BigDecimal.class, MultiplyBigDecConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                    .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
-                    .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
-                    .methodReturn(exprDotMethod(ref("s1"), "multiply", ref("s2")));
+                .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
+                .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype))
+                .methodReturn(exprDotMethod(ref("s1"), "multiply", ref("s2")));
             return localMethodBuild(method).pass(left).pass(right).call();
         }
     }
@@ -835,14 +834,14 @@ public enum MathArithTypeEnum {
 
         public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
             CodegenBlock block = codegenMethodScope.makeChild(BigDecimal.class, DivideBigDecConvComputerBase.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                    .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
-                    .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype));
+                .declareVar(BigDecimal.class, "s1", convOne.coerceBoxedBigDecCodegen(ref("d1"), ltype))
+                .declareVar(BigDecimal.class, "s2", convTwo.coerceBoxedBigDecCodegen(ref("d2"), rtype));
             CodegenBlock ifZeroDivisor = block.ifCondition(equalsIdentity(exprDotMethod(ref("s2"), "doubleValue"), constant(0)));
             if (divisionByZeroReturnsNull) {
                 ifZeroDivisor.blockReturn(constantNull());
             } else {
                 ifZeroDivisor.declareVar(double.class, "result", op(exprDotMethod(ref("s1"), "doubleValue"), "/", constant(0)))
-                        .blockReturn(newInstance(BigDecimal.class, ref("result")));
+                    .blockReturn(newInstance(BigDecimal.class, ref("result")));
             }
             CodegenMethod method = block.methodReturn(doDivideCodegen(ref("s1"), ref("s2"), codegenClassScope));
             return localMethodBuild(method).pass(left).pass(right).call();
@@ -1003,11 +1002,11 @@ public enum MathArithTypeEnum {
 
         public CodegenExpression codegen(CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope, CodegenExpressionRef left, CodegenExpressionRef right, Class ltype, Class rtype) {
             CodegenMethod method = codegenMethodScope.makeChild(BigInteger.class, DivideBigIntConvComputer.class, codegenClassScope).addParam(ltype, "d1").addParam(rtype, "d2").getBlock()
-                    .declareVar(BigInteger.class, "s1", convOne.coerceBoxedBigIntCodegen(ref("d1"), ltype))
-                    .declareVar(BigInteger.class, "s2", convTwo.coerceBoxedBigIntCodegen(ref("d2"), rtype))
-                    .ifCondition(equalsIdentity(exprDotMethod(ref("s2"), "doubleValue"), constant(0)))
-                    .blockReturn(constantNull())
-                    .methodReturn(exprDotMethod(ref("s1"), "divide", ref("s2")));
+                .declareVar(BigInteger.class, "s1", convOne.coerceBoxedBigIntCodegen(ref("d1"), ltype))
+                .declareVar(BigInteger.class, "s2", convTwo.coerceBoxedBigIntCodegen(ref("d2"), rtype))
+                .ifCondition(equalsIdentity(exprDotMethod(ref("s2"), "doubleValue"), constant(0)))
+                .blockReturn(constantNull())
+                .methodReturn(exprDotMethod(ref("s1"), "divide", ref("s2")));
             return localMethodBuild(method).pass(left).pass(right).call();
         }
     }
@@ -1051,5 +1050,31 @@ public enum MathArithTypeEnum {
 
     public static CodegenExpression codegenAsFloat(CodegenExpression ref, Class type) {
         return SimpleNumberCoercerFactory.SimpleNumberCoercerFloat.codegenFloat(ref, type);
+    }
+
+    public static class MathArithDesc {
+        private final Class type;
+        private final MathArithTypeEnum arith;
+
+        public MathArithDesc(Class type, MathArithTypeEnum arith) {
+            this.type = type;
+            this.arith = arith;
+        }
+
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            MathArithDesc that = (MathArithDesc) o;
+
+            if (!type.equals(that.type)) return false;
+            return arith == that.arith;
+        }
+
+        public int hashCode() {
+            int result = type.hashCode();
+            result = 31 * result + arith.hashCode();
+            return result;
+        }
     }
 }

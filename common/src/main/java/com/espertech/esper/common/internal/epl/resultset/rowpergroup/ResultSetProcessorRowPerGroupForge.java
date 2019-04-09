@@ -16,7 +16,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -33,7 +36,6 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.common.internal.epl.resultset.rowforall.ResultSetProcessorRowForAll;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
 import java.util.Collections;
@@ -41,6 +43,8 @@ import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.generateGroupKeyArrayJoinCodegen;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.generateGroupKeyArrayViewCodegen;
 
 /**
  * Result set processor prototype for the fully-grouped case:
@@ -52,7 +56,6 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
 
     private final EventType resultEventType;
     private final EventType[] typesPerStream;
-    private final SelectExprProcessorForge selectExprProcessorForge;
     private final ExprNode[] groupKeyNodeExpressions;
     private final ExprForge optionalHavingNode;
     private final boolean isSorting;
@@ -65,10 +68,14 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
     private final EventType[] eventTypes;
     private final OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory;
     private final Class[] groupKeyTypes;
+    private final MultiKeyClassRef multiKeyClassRef;
+
+    private CodegenMethod generateGroupKeySingle;
+    private CodegenMethod generateGroupKeyArrayView;
+    private CodegenMethod generateGroupKeyArrayJoin;
 
     public ResultSetProcessorRowPerGroupForge(EventType resultEventType,
                                               EventType[] typesPerStream,
-                                              SelectExprProcessorForge selectExprProcessorForge,
                                               ExprNode[] groupKeyNodeExpressions,
                                               ExprForge optionalHavingNode,
                                               boolean isSelectRStream,
@@ -80,11 +87,11 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
                                               boolean iterateUnbounded,
                                               ResultSetProcessorOutputConditionType outputConditionType,
                                               EventType[] eventTypes,
-                                              OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory) {
+                                              OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
+                                              MultiKeyClassRef multiKeyClassRef) {
         this.resultEventType = resultEventType;
         this.typesPerStream = typesPerStream;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
-        this.selectExprProcessorForge = selectExprProcessorForge;
         this.optionalHavingNode = optionalHavingNode;
         this.isSorting = isSorting;
         this.isSelectRStream = isSelectRStream;
@@ -97,6 +104,7 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         this.eventTypes = eventTypes;
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
+        this.multiKeyClassRef = multiKeyClassRef;
     }
 
     public EventType getResultEventType() {
@@ -159,6 +167,10 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         return ResultSetProcessorRowPerGroup.class;
     }
 
+    public MultiKeyClassRef getMultiKeyClassRef() {
+        return multiKeyClassRef;
+    }
+
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
         instance.getMethods().addMethod(SelectExprProcessor.class, "getSelectExprProcessor", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_SELECTEXPRPROCESSOR));
         instance.getMethods().addMethod(AggregationService.class, "getAggregationService", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGGREGATIONSVC));
@@ -166,7 +178,9 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         instance.getMethods().addMethod(boolean.class, "hasHavingClause", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(constant(optionalHavingNode != null)));
         instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
         ResultSetProcessorUtil.evaluateHavingClauseCodegen(optionalHavingNode, classScope, instance);
-        ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(getGroupKeyNodeExpressions(), classScope, instance);
+        generateGroupKeySingle = ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(getGroupKeyNodeExpressions(), multiKeyClassRef, classScope, instance);
+        generateGroupKeyArrayView = generateGroupKeyArrayViewCodegen(generateGroupKeySingle, classScope, instance);
+        generateGroupKeyArrayJoin = generateGroupKeyArrayJoinCodegen(generateGroupKeySingle, classScope, instance);
         ResultSetProcessorRowPerGroupImpl.generateOutputBatchedNoSortWMapCodegen(this, classScope, instance);
         ResultSetProcessorRowPerGroupImpl.generateOutputBatchedArrFromIteratorCodegen(this, classScope, instance);
         ResultSetProcessorRowPerGroupImpl.removedAggregationGroupKeyCodegen(classScope, instance);
@@ -174,10 +188,11 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         if (unboundedProcessor) {
             CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
             instance.addMember(NAME_GROUPREPS, ResultSetProcessorRowPerGroupUnboundHelper.class);
+            CodegenExpression groupKeyMKSerde = MultiKeyCodegen.codegenOptionalSerde(getMultiKeyClassRef());
             CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(typesPerStream[0], EPStatementInitServices.REF));
             instance.getServiceCtor().getBlock().assignRef(NAME_GROUPREPS, exprDotMethod(factory, "makeRSRowPerGroupUnboundGroupRep",
-                    constant(groupKeyTypes), eventType, REF_AGENTINSTANCECONTEXT))
-                    .exprDotMethod(REF_AGGREGATIONSVC, "setRemovedCallback", ref(NAME_GROUPREPS));
+                constant(groupKeyTypes), groupKeyMKSerde, eventType, REF_AGENTINSTANCECONTEXT))
+                .exprDotMethod(REF_AGGREGATIONSVC, "setRemovedCallback", ref(NAME_GROUPREPS));
         } else {
             instance.getServiceCtor().getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setRemovedCallback", ref("this"));
         }
@@ -265,5 +280,17 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
 
     public String getInstrumentedQName() {
         return "ResultSetProcessGroupedRowPerGroup";
+    }
+
+    public CodegenMethod getGenerateGroupKeySingle() {
+        return generateGroupKeySingle;
+    }
+
+    public CodegenMethod getGenerateGroupKeyArrayView() {
+        return generateGroupKeyArrayView;
+    }
+
+    public CodegenMethod getGenerateGroupKeyArrayJoin() {
+        return generateGroupKeyArrayJoin;
     }
 }

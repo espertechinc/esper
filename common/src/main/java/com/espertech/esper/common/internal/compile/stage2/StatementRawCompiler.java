@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.compile.stage1.Compilable;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -34,7 +35,7 @@ import java.util.*;
 public class StatementRawCompiler {
     private final static Logger log = LoggerFactory.getLogger(StatementRawCompiler.class);
 
-    public static StatementSpecCompiled compile(StatementSpecRaw spec,
+    public static StatementSpecCompiledDesc compile(StatementSpecRaw spec,
                                                 Compilable compilable,
                                                 boolean isSubquery,
                                                 boolean isOnDemandQuery,
@@ -45,6 +46,7 @@ public class StatementRawCompiler {
                                                 StatementCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
         List<StreamSpecCompiled> compiledStreams;
         Set<String> eventTypeReferences = new HashSet<String>();
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         if (!isOnDemandQuery && spec.getFireAndForgetSpec() != null) {
             throw new StatementSpecCompileException("Provided EPL expression is an on-demand query expression (not a continuous query)", compilable.toEPL());
@@ -123,9 +125,10 @@ public class StatementRawCompiler {
         int subselectNumber = 0;
         for (ExprSubselectNode subselect : subselectNodes) {
             StatementSpecRaw raw = subselect.getStatementSpecRaw();
-            StatementSpecCompiled compiled = compile(raw, compilable, true, isOnDemandQuery, annotations, Collections.emptyList(), Collections.emptyList(),
-                    statementRawInfo, compileTimeServices);
-            subselect.setStatementSpecCompiled(compiled, subselectNumber);
+            StatementSpecCompiledDesc desc = compile(raw, compilable, true, isOnDemandQuery, annotations, Collections.emptyList(), Collections.emptyList(),
+                statementRawInfo, compileTimeServices);
+            additionalForgeables.addAll(desc.getAdditionalForgeables());
+            subselect.setStatementSpecCompiled(desc.getCompiled(), subselectNumber);
             subselectNumber++;
         }
 
@@ -142,8 +145,9 @@ public class StatementRawCompiler {
             int streamNum = 0;
             for (StreamSpecRaw rawSpec : spec.getStreamSpecs()) {
                 streamNum++;
-                StreamSpecCompiled compiled = StreamSpecCompiler.compile(rawSpec, eventTypeReferences, spec.getInsertIntoDesc() != null, spec.getStreamSpecs().size() > 1, false, spec.getOnTriggerDesc() != null, rawSpec.getOptionalStreamName(), streamNum, statementRawInfo, compileTimeServices);
-                compiledStreams.add(compiled);
+                StreamSpecCompiledDesc desc = StreamSpecCompiler.compile(rawSpec, eventTypeReferences, spec.getInsertIntoDesc() != null, spec.getStreamSpecs().size() > 1, false, spec.getOnTriggerDesc() != null, rawSpec.getOptionalStreamName(), streamNum, statementRawInfo, compileTimeServices);
+                additionalForgeables.addAll(desc.getAdditionalForgeables());
+                compiledStreams.add(desc.getStreamSpecCompiled());
             }
         } catch (ExprValidationException ex) {
             if (ex.getMessage() == null) {
@@ -159,7 +163,8 @@ public class StatementRawCompiler {
             throw new StatementSpecCompileException(text + ": " + ex.getClass().getName() + ":" + ex.getMessage(), ex, compilable.toEPL());
         }
 
-        return new StatementSpecCompiled(spec, compiledStreams.toArray(new StreamSpecCompiled[compiledStreams.size()]), selectClauseCompiled, annotations, groupByRollupExpressions, subselectNodes, visitor.getDeclaredExpressions(), tableAccessNodes);
+        StatementSpecCompiled compiled = new StatementSpecCompiled(spec, compiledStreams.toArray(new StreamSpecCompiled[compiledStreams.size()]), selectClauseCompiled, annotations, groupByRollupExpressions, subselectNodes, visitor.getDeclaredExpressions(), tableAccessNodes);
+        return new StatementSpecCompiledDesc(compiled, additionalForgeables);
     }
 
     public static SelectClauseSpecCompiled compileSelectClause(SelectClauseSpecRaw spec) {

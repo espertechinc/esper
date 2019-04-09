@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
 
@@ -42,16 +41,16 @@ public class MethodTargetStrategyVariable implements MethodTargetStrategy {
                 case SINGLE:
                     return factory.method.invoke(target, lookupValues);
                 case MULTIKEY:
-                    return factory.method.invoke(target, ((HashableMultiKey) lookupValues).getKeys());
+                    return factory.method.invoke(target, (Object[]) lookupValues);
                 default:
                     throw new IllegalStateException("Unrecognized value for " + factory.invokeType);
             }
         } catch (InvocationTargetException ex) {
             throw new EPException("Method '" + factory.method.getName() + "' of class '" + factory.method.getDeclaringClass().getName() +
-                    "' reported an exception: " + ex.getTargetException(), ex.getTargetException());
+                "' reported an exception: " + ex.getTargetException(), ex.getTargetException());
         } catch (IllegalAccessException ex) {
             throw new EPException("Method '" + factory.method.getName() + "' of class '" + factory.method.getDeclaringClass().getName() +
-                    "' reported an exception: " + ex, ex);
+                "' reported an exception: " + ex, ex);
         }
     }
 

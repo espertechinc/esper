@@ -14,12 +14,11 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
-import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableRSPFactoryProvider;
+import com.espertech.esper.common.internal.compile.stage3.*;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorForge;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StmtClassForgableAIFactoryProviderOnTrigger;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -70,9 +69,11 @@ public class OnTriggerWindowUtil {
         EventType resultEventType = namedWindow != null ? namedWindow.getEventType() : table.getPublicEventType();
         NameAccessModifier infraVisibility = namedWindow != null ? namedWindow.getEventType().getMetadata().getAccessModifier() : table.getTableVisibility();
         validateOnExpressionContext(planDesc.getContextName(), infraContextName, infraTitle);
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(1);
 
         // validate expressions and plan subselects
         OnTriggerPlanValidationResult validationResult = OnTriggerPlanValidator.validateOnTriggerPlan(infraEventType, planDesc.getOnTriggerDesc(), planDesc.getStreamSpec(), planDesc.getActivatorResult(), planDesc.getSubselectActivation(), base, services);
+        additionalForgeables.addAll(validationResult.getAdditionalForgeables());
 
         ExprNode validatedJoin = validationResult.getValidatedJoin();
         EventType activatorResultEventType = planDesc.getActivatorResult().getActivatorResultEventType();
@@ -88,9 +89,11 @@ public class OnTriggerWindowUtil {
 
         // query plan
         boolean onlyUseExistingIndexes = table != null;
-        SubordinateWMatchExprQueryPlanForge queryPlan = SubordinateQueryPlanner.planOnExpression(
-                validatedJoin, activatorResultEventType, indexHint, enabledSubqueryIndexShare, -1, excludePlanHint, isVirtualWindow,
-                indexMetadata, infraEventType, optionalUniqueKeySet, onlyUseExistingIndexes, base.getStatementRawInfo(), services);
+        SubordinateWMatchExprQueryPlanResult planResult = SubordinateQueryPlanner.planOnExpression(
+            validatedJoin, activatorResultEventType, indexHint, enabledSubqueryIndexShare, -1, excludePlanHint, isVirtualWindow,
+            indexMetadata, infraEventType, optionalUniqueKeySet, onlyUseExistingIndexes, base.getStatementRawInfo(), services);
+        SubordinateWMatchExprQueryPlanForge queryPlan = planResult.getForge();
+        additionalForgeables.addAll(planResult.getAdditionalForgeables());
 
         // indicate index dependencies
         if (queryPlan.getIndexes() != null && infraVisibility == NameAccessModifier.PUBLIC) {
@@ -126,7 +129,9 @@ public class OnTriggerWindowUtil {
 
             boolean selectAndDelete = planDesc.getOnTriggerDesc().isDeleteAndSelect();
             boolean distinct = base.getStatementSpec().getSelectClauseCompiled().isDistinct();
-            forge = new StatementAgentInstanceFactoryOnTriggerInfraSelectForge(activator, outputEventType, subselectForges, tableAccessForges, namedWindow, table, queryPlan, classNameRSP, insertInto, addToFront, optionalInsertIntoTable, selectAndDelete, distinct);
+            MultiKeyPlan distinctMultiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(distinct, outputEventType);
+            additionalForgeables.addAll(distinctMultiKeyPlan.getMultiKeyForgables());
+            forge = new StatementAgentInstanceFactoryOnTriggerInfraSelectForge(activator, outputEventType, subselectForges, tableAccessForges, namedWindow, table, queryPlan, classNameRSP, insertInto, addToFront, optionalInsertIntoTable, selectAndDelete, distinct, distinctMultiKeyPlan.getOptionalClassRef());
         } else {
             StatementSpecCompiled defaultSelectAllSpec = new StatementSpecCompiled();
             defaultSelectAllSpec.getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());
@@ -157,7 +162,7 @@ public class OnTriggerWindowUtil {
                 queryPlan, base.getStatementSpec().getAnnotations(), services.getClasspathImportServiceCompileTime());
 
         StmtClassForgableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgableAIFactoryProviderOnTrigger(className, packageScope, forge);
-        return new OnTriggerPlan(onTrigger, forgables, resultSetProcessor.getSelectSubscriberDescriptor());
+        return new OnTriggerPlan(onTrigger, forgables, resultSetProcessor.getSelectSubscriberDescriptor(), additionalForgeables);
     }
 
     protected static void validateOnExpressionContext(String onExprContextName, String desiredContextName, String title)

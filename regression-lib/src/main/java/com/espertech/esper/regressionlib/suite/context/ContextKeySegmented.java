@@ -12,13 +12,14 @@ package com.espertech.esper.regressionlib.suite.context;
 
 import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportWebEvent;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorPartitioned;
@@ -57,7 +58,80 @@ public class ContextKeySegmented {
         execs.add(new ContextKeySegmentedInvalid());
         execs.add(new ContextKeySegmentedTermByFilter());
         execs.add(new ContextKeySegmentedMatchRecognize());
+        execs.add(new ContextKeySegmentedMultikeyWArrayOfPrimitive());
+        execs.add(new ContextKeySegmentedMultikeyWArrayTwoField());
         return execs;
+    }
+
+    private static class ContextKeySegmentedMultikeyWArrayTwoField implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context PartitionByArray partition by id, array from SupportEventWithIntArray;\n" +
+                "@name('s0') context PartitionByArray select sum(value) as thesum from SupportEventWithIntArray;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssertArray(env, "G1", new int[]{1, 2}, 1, 1);
+            sendAssertArray(env, "G2", new int[]{1, 2}, 2, 2);
+            sendAssertArray(env, "G1", new int[]{1}, 3, 3);
+
+            env.milestone(0);
+
+            sendAssertArray(env, "G2", new int[]{1, 2}, 10, 2 + 10);
+            sendAssertArray(env, "G1", new int[]{1, 2}, 15, 1 + 15);
+            sendAssertArray(env, "G1", new int[]{1}, 18, 3 + 18);
+
+            SupportSelectorPartitioned selector = new SupportSelectorPartitioned(Collections.singletonList(new Object[]{"G2", new int[]{1, 2}}));
+            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(selector), "thesum".split(","), new Object[][]{{2 + 10}});
+
+            ContextPartitionSelectorFiltered selectorWFilter = contextPartitionIdentifier -> {
+                ContextPartitionIdentifierPartitioned partitioned = (ContextPartitionIdentifierPartitioned) contextPartitionIdentifier;
+                return partitioned.getKeys()[0].equals("G2") && Arrays.equals((int[]) partitioned.getKeys()[1], new int[]{1, 2});
+            };
+            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(selectorWFilter), "thesum".split(","), new Object[][]{{2 + 10}});
+
+            env.undeployAll();
+        }
+
+        private void sendAssertArray(RegressionEnvironment env, String id, int[] array, int value, int expected) {
+            env.sendEventBean(new SupportEventWithIntArray(id, array, value));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("thesum"));
+        }
+    }
+
+    private static class ContextKeySegmentedMultikeyWArrayOfPrimitive implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context PartitionByArray partition by array from SupportEventWithIntArray;\n" +
+                "@name('s0') context PartitionByArray select sum(value) as thesum from SupportEventWithIntArray;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssertArray(env, "E1", new int[]{1, 2}, 10, 10);
+            sendAssertArray(env, "E2", new int[]{1, 2}, 11, 21);
+            sendAssertArray(env, "E3", new int[]{1}, 12, 12);
+            sendAssertArray(env, "E4", new int[]{}, 13, 13);
+            sendAssertArray(env, "E5", null, 14, 14);
+
+            env.milestone(0);
+
+            sendAssertArray(env, "E10", null, 20, 14 + 20);
+            sendAssertArray(env, "E11", new int[]{1, 2}, 21, 21 + 21);
+            sendAssertArray(env, "E12", new int[]{1}, 22, 12 + 22);
+            sendAssertArray(env, "E13", new int[]{}, 23, 13 + 23);
+
+            SupportSelectorPartitioned selectorPartition = new SupportSelectorPartitioned(Collections.singletonList(new Object[]{new int[]{1, 2}}));
+            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(selectorPartition), "thesum".split(","), new Object[][]{{21 + 21}});
+
+            ContextPartitionSelectorFiltered selectorWFilter = contextPartitionIdentifier -> {
+                ContextPartitionIdentifierPartitioned partitioned = (ContextPartitionIdentifierPartitioned) contextPartitionIdentifier;
+                return Arrays.equals((int[]) partitioned.getKeys()[0], new int[]{1});
+            };
+            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(selectorWFilter), "thesum".split(","), new Object[][]{{12 + 22}});
+
+            env.undeployAll();
+        }
+
+        private void sendAssertArray(RegressionEnvironment env, String id, int[] array, int value, int expected) {
+            env.sendEventBean(new SupportEventWithIntArray(id, array, value));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("thesum"));
+        }
     }
 
     private static class ContextKeySegmentedPatternFilter implements RegressionExecution {

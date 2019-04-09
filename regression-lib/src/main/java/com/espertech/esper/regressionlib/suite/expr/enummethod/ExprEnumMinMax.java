@@ -43,10 +43,10 @@ public class ExprEnumMinMax {
             env.addListener("s0");
             String[] fields = "c0".split(",");
 
-            env.sendEventBean(new SupportEventWithLongArray(new long[]{150000, 140000, 200000, 190000}));
+            env.sendEventBean(new SupportEventWithLongArray("E1", new long[]{150000, 140000, 200000, 190000}));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
 
-            env.sendEventBean(new SupportEventWithLongArray(new long[]{150000, 139999, 200000, 190000}));
+            env.sendEventBean(new SupportEventWithLongArray("E2", new long[]{150000, 139999, 200000, 190000}));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
 
             env.undeployAll();

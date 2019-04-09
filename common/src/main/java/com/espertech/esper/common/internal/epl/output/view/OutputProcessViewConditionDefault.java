@@ -171,8 +171,8 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(deltaSet.getViewEventsSet(), isGenerateSynthetic);
 
         if (parent.isDistinct() && newOldEvents != null) {
-            newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
-            newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
+            newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getDistinctKeyGetter()));
+            newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getDistinctKeyGetter()));
         }
 
         if ((!isGenerateSynthetic) && (!isGenerateNatural)) {
@@ -226,8 +226,8 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(deltaSet.getJoinEventsSet(), isGenerateSynthetic);
 
         if (parent.isDistinct() && newOldEvents != null) {
-            newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
-            newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
+            newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getDistinctKeyGetter()));
+            newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getDistinctKeyGetter()));
         }
 
         if ((!isGenerateSynthetic) && (!isGenerateNatural)) {
@@ -266,7 +266,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
     }
 
     public Iterator<EventBean> iterator() {
-        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct());
+        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct(), parent.getDistinctKeyGetter());
     }
 
     public void terminated() {

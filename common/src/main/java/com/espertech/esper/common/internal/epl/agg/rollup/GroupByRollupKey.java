@@ -38,8 +38,8 @@ public class GroupByRollupKey {
 
     public String toString() {
         return "GroupRollupKey{" +
-                "level=" + level +
-                ", groupKey=" + groupKey +
-                '}';
+            "level=" + level +
+            ", groupKey=" + groupKey +
+            '}';
     }
 }

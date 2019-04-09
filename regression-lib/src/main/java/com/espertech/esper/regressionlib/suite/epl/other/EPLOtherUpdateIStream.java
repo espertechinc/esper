@@ -25,6 +25,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanCopyMethod;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
@@ -65,7 +66,38 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateListenerDeliveryMultiupdate());
         execs.add(new EPLOtherUpdateListenerDeliveryMultiupdateMixed());
         execs.add(new EPLOtherUpdateMapIndexProps());
+        execs.add(new EPLOtherUpdateSubqueryMultikeyWArray());
         return execs;
+    }
+
+    private static class EPLOtherUpdateSubqueryMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema Arriving(value int);\n" +
+                "update istream Arriving set value = (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array);\n" +
+                "@name('s0') select * from Arriving;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("E2", new int[]{1, 2}, 11));
+
+            env.milestone(0);
+            assertUpdate(env, 21);
+
+            env.sendEventBean(new SupportEventWithIntArray("E3", new int[]{1, 2}, 12));
+            assertUpdate(env, 33);
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportEventWithIntArray("E4", new int[]{1}, 13));
+            assertUpdate(env, null);
+
+            env.undeployAll();
+        }
+
+        private void assertUpdate(RegressionEnvironment env, Integer expected) {
+            env.sendEventMap(new HashMap<>(), "Arriving");
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        }
     }
 
     public static class EPLOtherUpdateBean implements RegressionExecution {

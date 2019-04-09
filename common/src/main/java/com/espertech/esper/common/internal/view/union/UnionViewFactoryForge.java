@@ -70,6 +70,10 @@ public class UnionViewFactoryForge extends ViewFactoryForgeBase implements DataW
         }
     }
 
+    public List<ViewFactoryForge> getInnerForges() {
+        return unioned;
+    }
+
     public String getViewName() {
         return IntersectViewFactoryForge.getViewNameUnionIntersect(false, unioned);
     }

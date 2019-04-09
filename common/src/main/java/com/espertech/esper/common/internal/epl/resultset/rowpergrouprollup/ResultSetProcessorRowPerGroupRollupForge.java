@@ -18,10 +18,12 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDescForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.rollup.GroupByRollupPerLevelForge;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
@@ -32,7 +34,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQu
 import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPolledFactoryForge;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
-import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.common.internal.epl.resultset.rowforall.ResultSetProcessorRowForAll;
 
 import java.util.Collections;
@@ -42,6 +43,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EPS;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen;
 
 /**
  * Result set processor prototype for the fully-grouped case:
@@ -56,7 +58,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
     private final boolean isSelectRStream;
     private final boolean isUnidirectional;
     private final OutputLimitSpec outputLimitSpec;
-    private final AggregationGroupByRollupDesc groupByRollupDesc;
+    private final AggregationGroupByRollupDescForge groupByRollupDesc;
     private final boolean isJoin;
     private final boolean isHistoricalOnly;
     private final ResultSetProcessorOutputConditionType outputConditionType;
@@ -64,6 +66,9 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
     private final EventType[] eventTypes;
     private final Class[] groupKeyTypes;
     private final boolean unbounded;
+    private final MultiKeyClassRef multiKeyClassRef;
+
+    private CodegenMethod generateGroupKeySingle;
 
     public ResultSetProcessorRowPerGroupRollupForge(EventType resultEventType,
                                                     GroupByRollupPerLevelForge perLevelForges,
@@ -73,13 +78,14 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
                                                     OutputLimitSpec outputLimitSpec,
                                                     boolean isSorting,
                                                     boolean noDataWindowSingleStream,
-                                                    AggregationGroupByRollupDesc groupByRollupDesc,
+                                                    AggregationGroupByRollupDescForge groupByRollupDesc,
                                                     boolean isJoin,
                                                     boolean isHistoricalOnly,
                                                     boolean iterateUnbounded,
                                                     ResultSetProcessorOutputConditionType outputConditionType,
                                                     OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
-                                                    EventType[] eventTypes) {
+                                                    EventType[] eventTypes,
+                                                    MultiKeyClassRef multiKeyClassRef) {
         this.resultEventType = resultEventType;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelForges = perLevelForges;
@@ -96,6 +102,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
         this.eventTypes = eventTypes;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
+        this.multiKeyClassRef = multiKeyClassRef;
     }
 
     public EventType getResultEventType() {
@@ -122,7 +129,7 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         return groupKeyNodeExpressions;
     }
 
-    public AggregationGroupByRollupDesc getGroupByRollupDesc() {
+    public AggregationGroupByRollupDescForge getGroupByRollupDesc() {
         return groupByRollupDesc;
     }
 
@@ -163,11 +170,11 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         instance.getMethods().addMethod(AgentInstanceContext.class, "getAgentInstanceContext", Collections.emptyList(), this.getClass(), classScope, methodNode -> methodNode.getBlock().methodReturn(REF_AGENTINSTANCECONTEXT));
         instance.getMethods().addMethod(boolean.class, "isSelectRStream", Collections.emptyList(), ResultSetProcessorRowForAll.class, classScope, methodNode -> methodNode.getBlock().methodReturn(constant(isSelectRStream)));
 
-        CodegenExpressionField rollupDesc = classScope.addFieldUnshared(true, AggregationGroupByRollupDesc.class, groupByRollupDesc.codegen());
+        CodegenExpressionField rollupDesc = classScope.addFieldUnshared(true, AggregationGroupByRollupDesc.class, groupByRollupDesc.codegen(classScope.getPackageScope().getInitMethod(), classScope));
         instance.getMethods().addMethod(AggregationGroupByRollupDesc.class, "getGroupByRollupDesc", Collections.emptyList(), ResultSetProcessorRowPerGroupRollup.class, classScope, methodNode -> methodNode.getBlock().methodReturn(rollupDesc));
 
+        generateGroupKeySingle = generateGroupKeySingleCodegen(getGroupKeyNodeExpressions(), multiKeyClassRef, classScope, instance);
         ResultSetProcessorRowPerGroupRollupImpl.removedAggregationGroupKeyCodegen(classScope, instance);
-        ResultSetProcessorGroupedUtil.generateGroupKeySingleCodegen(getGroupKeyNodeExpressions(), classScope, instance);
         ResultSetProcessorRowPerGroupRollupImpl.generateOutputBatchedMapUnsortedCodegen(this, instance, classScope);
         ResultSetProcessorRowPerGroupRollupImpl.generateOutputBatchedCodegen(this, instance, classScope);
 
@@ -268,5 +275,9 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
 
     public String getInstrumentedQName() {
         return "ResultSetProcessGroupedRowPerGroup";
+    }
+
+    public CodegenMethod getGenerateGroupKeySingle() {
+        return generateGroupKeySingle;
     }
 }

@@ -58,59 +58,18 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService, Agg
         applyLeaveInternal(eventsPerStream, groupByKey, exprEvaluatorContext);
     }
 
-    protected void applyEnterGroupKey(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
-        ObjectArrayBackedEventBean bean = tableInstance.getCreateRowIntoTable(groupByKey, exprEvaluatorContext);
-        currentAggregationRow = (AggregationRow) bean.getProperties()[0];
-
-        InstrumentationCommon instrumentationCommon = exprEvaluatorContext.getInstrumentationProvider();
-        instrumentationCommon.qAggregationGroupedApplyEnterLeave(true, methodPairs.length, accessAgents.length, groupByKey);
-
-        for (int i = 0; i < methodPairs.length; i++) {
-            TableColumnMethodPairEval methodPair = methodPairs[i];
-            instrumentationCommon.qAggNoAccessEnterLeave(true, i, null, null);
-            Object columnResult = methodPair.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
-            currentAggregationRow.enterAgg(methodPair.getColumn(), columnResult);
-            instrumentationCommon.aAggNoAccessEnterLeave(true, i, null);
-        }
-
-        for (int i = 0; i < accessAgents.length; i++) {
-            instrumentationCommon.qAggAccessEnterLeave(true, i, null);
-            accessAgents[i].applyEnter(eventsPerStream, exprEvaluatorContext, currentAggregationRow, accessColumnsZeroOffset[i]);
-            instrumentationCommon.aAggAccessEnterLeave(true, i);
-        }
-
-        tableInstance.handleRowUpdated(bean);
-
-        instrumentationCommon.aAggregationGroupedApplyEnterLeave(true);
+    void applyEnterGroupKey(EventBean[] eventsPerStream, Object groupByKeyUntransformed, ExprEvaluatorContext exprEvaluatorContext) {
+        Object groupByKey = tableInstance.getTable().getPrimaryKeyIntoTableTransform().from(groupByKeyUntransformed);
+        applyEnterTableKey(eventsPerStream, groupByKey, exprEvaluatorContext);
     }
 
-    protected void applyLeaveGroupKey(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
-        ObjectArrayBackedEventBean bean = tableInstance.getCreateRowIntoTable(groupByKey, exprEvaluatorContext);
-        currentAggregationRow = (AggregationRow) bean.getProperties()[0];
-
-        InstrumentationCommon instrumentationCommon = exprEvaluatorContext.getInstrumentationProvider();
-        instrumentationCommon.qAggregationGroupedApplyEnterLeave(false, methodPairs.length, accessAgents.length, groupByKey);
-
-        for (int i = 0; i < methodPairs.length; i++) {
-            TableColumnMethodPairEval methodPair = methodPairs[i];
-            instrumentationCommon.qAggNoAccessEnterLeave(false, i, null, null);
-            Object columnResult = methodPair.getEvaluator().evaluate(eventsPerStream, false, exprEvaluatorContext);
-            currentAggregationRow.leaveAgg(methodPair.getColumn(), columnResult);
-            instrumentationCommon.aAggNoAccessEnterLeave(false, i, null);
-        }
-
-        for (int i = 0; i < accessAgents.length; i++) {
-            instrumentationCommon.qAggAccessEnterLeave(false, i, null);
-            accessAgents[i].applyLeave(eventsPerStream, exprEvaluatorContext, currentAggregationRow, accessColumnsZeroOffset[i]);
-            instrumentationCommon.aAggAccessEnterLeave(false, i);
-        }
-
-        tableInstance.handleRowUpdated(bean);
-
-        instrumentationCommon.aAggregationGroupedApplyEnterLeave(false);
+    void applyLeaveGroupKey(EventBean[] eventsPerStream, Object groupByKeyUntransformed, ExprEvaluatorContext exprEvaluatorContext) {
+        Object groupByKey = tableInstance.getTable().getPrimaryKeyIntoTableTransform().from(groupByKeyUntransformed);
+        applyLeaveTableKey(eventsPerStream, groupByKey, exprEvaluatorContext);
     }
 
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
+    public void setCurrentAccess(Object groupByKeyUntransformed, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
+        Object groupByKey = tableInstance.getTable().getPrimaryKeyIntoTableTransform().from(groupByKeyUntransformed);
         ObjectArrayBackedEventBean bean = tableInstance.getRowForGroupKey(groupByKey);
         if (bean != null) {
             currentAggregationRow = (AggregationRow) bean.getProperties()[0];
@@ -175,7 +134,59 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService, Agg
         return tableInstance;
     }
 
-    public AggregationRow getRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+    public AggregationRow getAggregationRow(int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
+    }
+
+    protected void applyEnterTableKey(EventBean[] eventsPerStream, Object tableKey, ExprEvaluatorContext exprEvaluatorContext) {
+        ObjectArrayBackedEventBean bean = tableInstance.getCreateRowIntoTable(tableKey, exprEvaluatorContext);
+        currentAggregationRow = (AggregationRow) bean.getProperties()[0];
+
+        InstrumentationCommon instrumentationCommon = exprEvaluatorContext.getInstrumentationProvider();
+        instrumentationCommon.qAggregationGroupedApplyEnterLeave(true, methodPairs.length, accessAgents.length, tableKey);
+
+        for (int i = 0; i < methodPairs.length; i++) {
+            TableColumnMethodPairEval methodPair = methodPairs[i];
+            instrumentationCommon.qAggNoAccessEnterLeave(true, i, null, null);
+            Object columnResult = methodPair.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
+            currentAggregationRow.enterAgg(methodPair.getColumn(), columnResult);
+            instrumentationCommon.aAggNoAccessEnterLeave(true, i, null);
+        }
+
+        for (int i = 0; i < accessAgents.length; i++) {
+            instrumentationCommon.qAggAccessEnterLeave(true, i, null);
+            accessAgents[i].applyEnter(eventsPerStream, exprEvaluatorContext, currentAggregationRow, accessColumnsZeroOffset[i]);
+            instrumentationCommon.aAggAccessEnterLeave(true, i);
+        }
+
+        tableInstance.handleRowUpdated(bean);
+
+        instrumentationCommon.aAggregationGroupedApplyEnterLeave(true);
+    }
+
+    protected void applyLeaveTableKey(EventBean[] eventsPerStream, Object tableKey, ExprEvaluatorContext exprEvaluatorContext) {
+        ObjectArrayBackedEventBean bean = tableInstance.getCreateRowIntoTable(tableKey, exprEvaluatorContext);
+        currentAggregationRow = (AggregationRow) bean.getProperties()[0];
+
+        InstrumentationCommon instrumentationCommon = exprEvaluatorContext.getInstrumentationProvider();
+        instrumentationCommon.qAggregationGroupedApplyEnterLeave(false, methodPairs.length, accessAgents.length, tableKey);
+
+        for (int i = 0; i < methodPairs.length; i++) {
+            TableColumnMethodPairEval methodPair = methodPairs[i];
+            instrumentationCommon.qAggNoAccessEnterLeave(false, i, null, null);
+            Object columnResult = methodPair.getEvaluator().evaluate(eventsPerStream, false, exprEvaluatorContext);
+            currentAggregationRow.leaveAgg(methodPair.getColumn(), columnResult);
+            instrumentationCommon.aAggNoAccessEnterLeave(false, i, null);
+        }
+
+        for (int i = 0; i < accessAgents.length; i++) {
+            instrumentationCommon.qAggAccessEnterLeave(false, i, null);
+            accessAgents[i].applyLeave(eventsPerStream, exprEvaluatorContext, currentAggregationRow, accessColumnsZeroOffset[i]);
+            instrumentationCommon.aAggAccessEnterLeave(false, i);
+        }
+
+        tableInstance.handleRowUpdated(bean);
+
+        instrumentationCommon.aAggregationGroupedApplyEnterLeave(false);
     }
 }

@@ -35,7 +35,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
     private final EventType[] eventTypes;
 
     public OutputProcessViewConditionFactory(OutputProcessViewConditionSpec spec) {
-        super(spec.getPostProcessFactory(), spec.isDistinct(), spec.getAfterTimePeriod(), spec.getAfterConditionNumberOfEvents(), spec.getResultEventType());
+        super(spec.getPostProcessFactory(), spec.isDistinct(), spec.getDistinctKeyGetter(), spec.getAfterTimePeriod(), spec.getAfterConditionNumberOfEvents(), spec.getResultEventType());
         this.outputConditionFactory = spec.getOutputConditionFactory();
         this.streamCount = spec.getStreamCount();
         this.conditionType = spec.getConditionType();

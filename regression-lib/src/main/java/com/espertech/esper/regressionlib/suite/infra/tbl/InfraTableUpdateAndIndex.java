@@ -67,7 +67,7 @@ public class InfraTableUpdateAndIndex {
                 env.compileExecuteFAF("update MyTableEUIV set pkey1 = 0", path);
                 fail();
             } catch (EPException ex) {
-                SupportMessageAssertUtil.assertMessage(ex, "Unique index violation, index 'MyTableEUIV' is a unique index and key 'HashableMultiKey[E1, 0]' already exists");
+                SupportMessageAssertUtil.assertMessage(ex, "Unique index violation, index 'MyTableEUIV' is a unique index and key 'MultiKeyGenerated[E1,0]' already exists");
                 // assert events are unchanged - no update actually performed
                 EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey0,pkey1".split(","), new Object[][]{{"E1", 10}, {"E1", 20}});
             }
@@ -78,7 +78,7 @@ public class InfraTableUpdateAndIndex {
                 env.sendEventBean(new SupportBean_S1(0));
                 fail();
             } catch (EPException ex) {
-                SupportMessageAssertUtil.assertMessage(ex.getCause(), "Unexpected exception in statement 'on-update': Unique index violation, index 'MyTableEUIV' is a unique index and key 'HashableMultiKey[E1, 0]' already exists");
+                SupportMessageAssertUtil.assertMessage(ex.getCause(), "Unexpected exception in statement 'on-update': Unique index violation, index 'MyTableEUIV' is a unique index and key 'MultiKeyGenerated[E1,0]' already exists");
                 // assert events are unchanged - no update actually performed
                 EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("create").iterator(), "pkey0,pkey1".split(","), new Object[][]{{"E1", 10}, {"E1", 20}});
             }

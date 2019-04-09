@@ -57,14 +57,6 @@ public interface EventTypeSPI extends EventType {
      */
     public EventBeanWriter getWriter(String[] properties);
 
-    /**
-     * Returns a reader for reading all properties of an event. This is completely optional
-     * and need only be implemented for performance.
-     *
-     * @return reader
-     */
-    public EventBeanReader getReader();
-
     public ExprValidationException equalsCompareType(EventType eventType);
 
     EventPropertyGetterSPI getGetterSPI(String propertyExpression);

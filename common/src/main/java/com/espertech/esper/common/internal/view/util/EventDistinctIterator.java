@@ -12,13 +12,10 @@ package com.espertech.esper.common.internal.view.util;
 
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.internal.collection.ArrayEventIterator;
 import com.espertech.esper.common.internal.collection.SingleEventIterator;
-import com.espertech.esper.common.internal.event.core.EventBeanReader;
-import com.espertech.esper.common.internal.event.core.EventBeanReaderDefaultImpl;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
-import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -29,23 +26,18 @@ import java.util.Iterator;
 public class EventDistinctIterator implements Iterator<EventBean> {
     private static final Iterator<EventBean> NULL_ITER = new SingleEventIterator(null);
     private final Iterator<EventBean> sourceIterator;
+    private final EventPropertyValueGetter distinctKeyGetter;
     private Iterator<EventBean> resultIterator;
-    private EventBeanReader eventBeanReader;
 
     /**
      * Ctor.
      *
-     * @param sourceIterator is the source event iterator
-     * @param eventType      type of event
+     * @param sourceIterator    is the source event iterator
+     * @param distinctKeyGetter distinct key getter
      */
-    public EventDistinctIterator(Iterator<EventBean> sourceIterator, EventType eventType) {
+    public EventDistinctIterator(Iterator<EventBean> sourceIterator, EventPropertyValueGetter distinctKeyGetter) {
         this.sourceIterator = sourceIterator;
-        if (eventType instanceof EventTypeSPI) {
-            eventBeanReader = ((EventTypeSPI) eventType).getReader();
-        }
-        if (eventBeanReader == null) {
-            eventBeanReader = new EventBeanReaderDefaultImpl(eventType);
-        }
+        this.distinctKeyGetter = distinctKeyGetter;
     }
 
     public EventBean next() {
@@ -82,7 +74,7 @@ public class EventDistinctIterator implements Iterator<EventBean> {
         }
 
         // build distinct set
-        EventBean[] unique = EventBeanUtility.getDistinctByProp(events, eventBeanReader);
+        EventBean[] unique = EventBeanUtility.getDistinctByProp(events, distinctKeyGetter);
         resultIterator = new ArrayEventIterator(unique);
     }
 

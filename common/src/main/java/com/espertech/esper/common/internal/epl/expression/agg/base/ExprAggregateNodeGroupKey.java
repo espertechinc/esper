@@ -11,12 +11,13 @@
 package com.espertech.esper.common.internal.epl.expression.agg.base;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.util.MultiKeyGenerated;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldName;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationResultFuture;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoCast;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -46,14 +47,18 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge
     public CodegenExpression evaluateCodegen(Class requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbol, CodegenClassScope classScope) {
         CodegenExpression future = classScope.getPackageScope().addOrGetFieldWellKnown(aggregationResultFutureMemberName, AggregationResultFuture.class);
         CodegenMethod method = parent.makeChild(returnType, this.getClass(), classScope);
-        CodegenExpression getGroupKey = exprDotMethod(future, "getGroupKey", exprDotMethod(symbol.getAddExprEvalCtx(method), "getAgentInstanceId"));
-        if (numGroupKeys == 1) {
-            method.getBlock().methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, getGroupKey));
-        } else {
-            method.getBlock()
-                    .declareVar(HashableMultiKey.class, "mk", cast(HashableMultiKey.class, getGroupKey))
-                    .methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, arrayAtIndex(exprDotMethod(ref("mk"), "getKeys"), constant(groupKeyIndex))));
-        }
+        method.getBlock()
+            .declareVar(Object.class, "key", exprDotMethod(future, "getGroupKey", exprDotMethod(symbol.getAddExprEvalCtx(method), "getAgentInstanceId")));
+
+        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKeyGenerated.class))
+            .declareVar(MultiKeyGenerated.class, "mk", cast(MultiKeyGenerated.class, ref("key")))
+            .blockReturn(CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(ref("mk"), "getKey", constant(groupKeyIndex))));
+
+        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKeyArrayWrap.class))
+            .declareVar(MultiKeyArrayWrap.class, "mk", cast(MultiKeyArrayWrap.class, ref("key")))
+            .blockReturn(CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(ref("mk"), "getArray")));
+
+        method.getBlock().methodReturn(CodegenLegoCast.castSafeFromObjectType(returnType, ref("key")));
         return localMethod(method);
     }
 

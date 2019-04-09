@@ -118,4 +118,9 @@ public class IntersectViewFactoryForge extends ViewFactoryForgeBase implements D
         }
         return null;
     }
+
+    @Override
+    public List<ViewFactoryForge> getInnerForges() {
+        return intersected;
+    }
 }

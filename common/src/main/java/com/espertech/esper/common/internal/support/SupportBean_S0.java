@@ -20,6 +20,7 @@ public class SupportBean_S0 implements Serializable {
     private String p01;
     private String p02;
     private String p03;
+    private int value;
 
     public static Object[] makeS0(String propOne, String[] propTwo) {
         idCounter++;

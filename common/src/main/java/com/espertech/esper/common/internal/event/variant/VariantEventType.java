@@ -217,10 +217,6 @@ public class VariantEventType implements EventTypeSPI {
         return null;
     }
 
-    public EventBeanReader getReader() {
-        return null;
-    }
-
     public EventPropertyGetterMapped getGetterMapped(String mappedProperty) {
         return null;
     }

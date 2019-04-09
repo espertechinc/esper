@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -20,13 +21,13 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacusField;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,13 +76,14 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
         }
 
         CodegenExpressionField timeAbacus = classScope.addOrGetFieldSharable(TimeAbacusField.INSTANCE);
+        CodegenExpression multiKeySerde = MultiKeyCodegen.codegenOptionalSerde(aggGroupByDesc.getOptionalGroupByMultiKey());
         method.getBlock()
-                .declareVar(AggregationRowFactory.class, "rowFactory", CodegenExpressionBuilder.newInstance(classNames.getRowFactoryTop(), ref("this")))
-                .declareVar(DataInputOutputSerde.class, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
-                .declareVar(AggregationServiceFactory.class, "svcFactory", CodegenExpressionBuilder.newInstance(classNames.getServiceFactory(), ref("this")))
-                .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add(
-                        "groupBy", ref("svcFactory"), ref("rowFactory"), aggGroupByDesc.getRowStateForgeDescs().getUseFlags().toExpression(),
-                        ref("rowSerde"), constant(groupByTypes), reclaimAge, reclaimFreq, timeAbacus));
+            .declareVar(AggregationRowFactory.class, "rowFactory", CodegenExpressionBuilder.newInstance(classNames.getRowFactoryTop(), ref("this")))
+            .declareVar(DataInputOutputSerde.class, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
+            .declareVar(AggregationServiceFactory.class, "svcFactory", CodegenExpressionBuilder.newInstance(classNames.getServiceFactory(), ref("this")))
+            .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add(
+                "groupBy", ref("svcFactory"), ref("rowFactory"), aggGroupByDesc.getRowStateForgeDescs().getUseFlags().toExpression(),
+                ref("rowSerde"), constant(groupByTypes), reclaimAge, reclaimFreq, timeAbacus, multiKeySerde));
     }
 
     public void rowCtorCodegen(AggregationRowCtorDesc rowCtorDesc) {
@@ -143,7 +145,7 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
     public void applyEnterCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods, AggregationClassNames classNames) {
         method.getBlock()
-                .apply(instblock(classScope, "qAggregationGroupedApplyEnterLeave", constantTrue(), constant(aggGroupByDesc.getNumMethods()), constant(aggGroupByDesc.getNumAccess()), REF_GROUPKEY));
+            .apply(instblock(classScope, "qAggregationGroupedApplyEnterLeave", constantTrue(), constant(aggGroupByDesc.getNumMethods()), constant(aggGroupByDesc.getNumAccess()), REF_GROUPKEY));
 
         if (aggGroupByDesc.isReclaimAged()) {
             AggSvcGroupByReclaimAgedImpl.applyEnterCodegenSweep(method, classScope, classNames);
@@ -155,8 +157,8 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
         CodegenBlock block = method.getBlock().assignRef(REF_CURRENTROW, cast(classNames.getRowTop(), exprDotMethod(REF_AGGREGATORSPERGROUP, "get", REF_GROUPKEY)));
         block.ifCondition(equalsNull(REF_CURRENTROW))
-                .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
-                .exprDotMethod(REF_AGGREGATORSPERGROUP, "put", REF_GROUPKEY, REF_CURRENTROW);
+            .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
+            .exprDotMethod(REF_AGGREGATORSPERGROUP, "put", REF_GROUPKEY, REF_CURRENTROW);
 
         if (hasRefCounting()) {
             block.exprDotMethod(REF_CURRENTROW, "increaseRefcount");
@@ -166,16 +168,16 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
         }
 
         block.exprDotMethod(REF_CURRENTROW, "applyEnter", REF_EPS, REF_EXPREVALCONTEXT)
-                .apply(instblock(classScope, "aAggregationGroupedApplyEnterLeave", constantTrue()));
+            .apply(instblock(classScope, "aAggregationGroupedApplyEnterLeave", constantTrue()));
     }
 
     public void applyLeaveCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods, AggregationClassNames classNames) {
         method.getBlock()
-                .apply(instblock(classScope, "qAggregationGroupedApplyEnterLeave", constantFalse(), constant(aggGroupByDesc.getNumMethods()), constant(aggGroupByDesc.getNumAccess()), REF_GROUPKEY))
-                .assignRef(REF_CURRENTROW, cast(classNames.getRowTop(), exprDotMethod(REF_AGGREGATORSPERGROUP, "get", REF_GROUPKEY)))
-                .ifCondition(equalsNull(REF_CURRENTROW))
-                .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
-                .exprDotMethod(REF_AGGREGATORSPERGROUP, "put", REF_GROUPKEY, REF_CURRENTROW);
+            .apply(instblock(classScope, "qAggregationGroupedApplyEnterLeave", constantFalse(), constant(aggGroupByDesc.getNumMethods()), constant(aggGroupByDesc.getNumAccess()), REF_GROUPKEY))
+            .assignRef(REF_CURRENTROW, cast(classNames.getRowTop(), exprDotMethod(REF_AGGREGATORSPERGROUP, "get", REF_GROUPKEY)))
+            .ifCondition(equalsNull(REF_CURRENTROW))
+            .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
+            .exprDotMethod(REF_AGGREGATORSPERGROUP, "put", REF_GROUPKEY, REF_CURRENTROW);
 
         if (hasRefCounting()) {
             method.getBlock().exprDotMethod(REF_CURRENTROW, "decreaseRefcount");
@@ -187,7 +189,7 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
         if (hasRefCounting()) {
             method.getBlock().ifCondition(relational(exprDotMethod(REF_CURRENTROW, "getRefcount"), LE, constant(0)))
-                    .exprDotMethod(REF_REMOVEDKEYS, "add", REF_GROUPKEY);
+                .exprDotMethod(REF_REMOVEDKEYS, "add", REF_GROUPKEY);
         }
 
         method.getBlock().apply(instblock(classScope, "aAggregationGroupedApplyEnterLeave", constantFalse()));
@@ -205,9 +207,9 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
     public void setCurrentAccessCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
         method.getBlock().assignRef(REF_CURRENTGROUPKEY, REF_GROUPKEY)
-                .assignRef(REF_CURRENTROW, cast(classNames.getRowTop(), exprDotMethod(REF_AGGREGATORSPERGROUP, "get", REF_GROUPKEY)))
-                .ifCondition(equalsNull(REF_CURRENTROW))
-                .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()));
+            .assignRef(REF_CURRENTROW, cast(classNames.getRowTop(), exprDotMethod(REF_AGGREGATORSPERGROUP, "get", REF_GROUPKEY)))
+            .ifCondition(equalsNull(REF_CURRENTROW))
+            .assignRef(REF_CURRENTROW, CodegenExpressionBuilder.newInstance(classNames.getRowTop()));
     }
 
     public void clearResultsCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -235,8 +237,8 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
     public void acceptGroupDetailCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitGrouped", exprDotMethod(REF_AGGREGATORSPERGROUP, "size"))
-                .forEach(Map.Entry.class, "entry", exprDotMethod(REF_AGGREGATORSPERGROUP, "entrySet"))
-                .exprDotMethod(REF_AGGVISITOR, "visitGroup", exprDotMethod(ref("entry"), "getKey"), exprDotMethod(ref("entry"), "getValue"));
+            .forEach(Map.Entry.class, "entry", exprDotMethod(REF_AGGREGATORSPERGROUP, "entrySet"))
+            .exprDotMethod(REF_AGGVISITOR, "visitGroup", exprDotMethod(ref("entry"), "getKey"), exprDotMethod(ref("entry"), "getValue"));
     }
 
     public void isGroupedCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -254,10 +256,10 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
     private CodegenMethod handleRemovedKeysCodegen(CodegenMethod scope, CodegenClassScope classScope) {
         CodegenMethod method = scope.makeChild(void.class, AggregationServiceGroupByForge.class, classScope);
         method.getBlock().ifCondition(not(exprDotMethod(REF_REMOVEDKEYS, "isEmpty")))
-                .forEach(Object.class, "removedKey", REF_REMOVEDKEYS)
-                .exprDotMethod(REF_AGGREGATORSPERGROUP, "remove", ref("removedKey"))
-                .blockEnd()
-                .exprDotMethod(REF_REMOVEDKEYS, "clear");
+            .forEach(Object.class, "removedKey", REF_REMOVEDKEYS)
+            .exprDotMethod(REF_AGGREGATORSPERGROUP, "remove", ref("removedKey"))
+            .blockEnd()
+            .exprDotMethod(REF_REMOVEDKEYS, "clear");
         return method;
     }
 }

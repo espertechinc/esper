@@ -12,9 +12,7 @@ package com.espertech.esper.common.internal.view.firstunique;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.view.core.*;
 
@@ -114,16 +112,7 @@ public class FirstUniqueByPropertyView extends ViewSupport implements DataWindow
 
     protected Object getUniqueKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
-        ExprEvaluator[] uniqueCriteriaEval = viewFactory.criteriaEvals;
-        if (uniqueCriteriaEval.length == 1) {
-            return uniqueCriteriaEval[0].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-
-        Object[] values = new Object[uniqueCriteriaEval.length];
-        for (int i = 0; i < uniqueCriteriaEval.length; i++) {
-            values[i] = uniqueCriteriaEval[i].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-        return new HashableMultiKey(values);
+        return viewFactory.criteriaEval.evaluate(eventsPerStream, true, agentInstanceContext);
     }
 
     /**

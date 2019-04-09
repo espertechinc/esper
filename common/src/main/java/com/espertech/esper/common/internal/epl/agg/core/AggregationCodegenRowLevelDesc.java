@@ -30,7 +30,7 @@ public class AggregationCodegenRowLevelDesc {
 
     public static AggregationCodegenRowLevelDesc fromTopOnly(AggregationRowStateForgeDesc rowStateDesc) {
         AggregationCodegenRowDetailStateDesc state = new AggregationCodegenRowDetailStateDesc(rowStateDesc.getMethodForges(), rowStateDesc.getOptionalMethodFactories(), rowStateDesc.getAccessFactoriesForges());
-        AggregationCodegenRowDetailDesc top = new AggregationCodegenRowDetailDesc(state, rowStateDesc.getAccessAccessorsForges());
+        AggregationCodegenRowDetailDesc top = new AggregationCodegenRowDetailDesc(state, rowStateDesc.getAccessAccessorsForges(), null);
         return new AggregationCodegenRowLevelDesc(top, null);
     }
 }

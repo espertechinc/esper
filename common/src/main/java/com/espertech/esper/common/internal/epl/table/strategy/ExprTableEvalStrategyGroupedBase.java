@@ -27,24 +27,27 @@ public abstract class ExprTableEvalStrategyGroupedBase implements ExprTableEvalS
         this.factory = factory;
     }
 
-    protected ObjectArrayBackedEventBean lockTableReadAndGet(Object group, ExprEvaluatorContext context) {
-        TableAndLockGrouped tableAndLockGrouped = provider.get();
-        TableEvalLockUtil.obtainLockUnless(tableAndLockGrouped.getLock(), context);
-        return tableAndLockGrouped.getGrouped().getRowForGroupKey(group);
-    }
-
     protected TableInstanceGrouped lockTableRead(ExprEvaluatorContext context) {
         TableAndLockGrouped tableAndLockGrouped = provider.get();
         TableEvalLockUtil.obtainLockUnless(tableAndLockGrouped.getLock(), context);
         return tableAndLockGrouped.getGrouped();
     }
 
-    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, context);
-        ObjectArrayBackedEventBean row = lockTableReadAndGet(groupKey, context);
+    public AggregationRow getAggregationRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        ObjectArrayBackedEventBean row = getRow(eventsPerStream, isNewData, context);
         if (row == null) {
             return null;
         }
         return ExprTableEvalStrategyUtil.getRow(row);
+    }
+
+    protected ObjectArrayBackedEventBean getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        Object groupKey = factory.getGroupKeyEval().evaluate(eventsPerStream, isNewData, context);
+        TableAndLockGrouped tableAndLockGrouped = provider.get();
+        TableEvalLockUtil.obtainLockUnless(tableAndLockGrouped.getLock(), context);
+        if (groupKey instanceof Object[]) {
+            groupKey = tableAndLockGrouped.getGrouped().getTable().getPrimaryKeyObjectArrayTransform().from((Object[]) groupKey);
+        }
+        return tableAndLockGrouped.getGrouped().getRowForGroupKey(groupKey);
     }
 }

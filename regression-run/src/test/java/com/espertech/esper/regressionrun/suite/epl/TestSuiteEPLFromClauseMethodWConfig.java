@@ -17,10 +17,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
-import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodCacheExpiry;
-import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodCacheLRU;
-import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodJoinPerformance;
-import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.EPLFromClauseMethodVariable;
+import com.espertech.esper.regressionlib.suite.epl.fromclausemethod.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.epl.SupportJoinMethods;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodInvocations;
@@ -95,6 +92,20 @@ public class TestSuiteEPLFromClauseMethodWConfig extends TestCase {
         configuration.getCommon().addEventType(SupportBean_S2.class);
 
         RegressionRunner.run(session, EPLFromClauseMethodVariable.executions());
+
+        session.destroy();
+    }
+
+    public void testEPLFromClauseMethodMultikeyWArray() {
+        RegressionSession session = RegressionRunner.session();
+
+        ConfigurationCommonMethodRef methodConfig = new ConfigurationCommonMethodRef();
+        methodConfig.setExpiryTimeCache(1, 10);
+        session.getConfiguration().getCommon().addMethodRef(EPLFromClauseMethodMultikeyWArray.SupportJoinResultIsArray.class.getName(), methodConfig);
+        session.getConfiguration().getCommon().addEventType(SupportEventWithManyArray.class);
+        session.getConfiguration().getCommon().getLogging().setEnableQueryPlan(true);
+
+        RegressionRunner.run(session, EPLFromClauseMethodMultikeyWArray.executions());
 
         session.destroy();
     }

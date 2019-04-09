@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.IntSeqKey;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerBase;
 import com.espertech.esper.common.internal.context.mgr.ContextControllerSelectorUtil;
@@ -55,7 +54,7 @@ public abstract class ContextControllerKeyed extends ContextControllerBase {
                 return;
             }
             for (Object[] key : partitioned.getPartitionKeys()) {
-                Object keyForLookup = key.length == 1 ? key[0] : new HashableMultiKey(key);
+                Object keyForLookup = factory.getKeyedSpec().getMultiKeyFromObjectArray().from(key);
                 int subpathOrCPId = getSubpathOrCPId(path, keyForLookup);
                 if (subpathOrCPId != -1) {
                     realization.contextPartitionRecursiveVisit(path, subpathOrCPId, this, visitor, selectorPerLevel);
@@ -69,7 +68,7 @@ public abstract class ContextControllerKeyed extends ContextControllerBase {
                 if (factory.getFactoryEnv().isLeaf()) {
                     identifier.setContextPartitionId(subpathOrCPId);
                 }
-                Object[] keys = key instanceof HashableMultiKey ? ((HashableMultiKey) key).getKeys() : new Object[]{key};
+                Object[] keys = ContextControllerKeyedUtil.unpackKey(key);
                 identifier.setKeys(keys);
                 if (filtered.filter(identifier)) {
                     realization.contextPartitionRecursiveVisit(path, subpathOrCPId, this, visitor, selectorPerLevel);

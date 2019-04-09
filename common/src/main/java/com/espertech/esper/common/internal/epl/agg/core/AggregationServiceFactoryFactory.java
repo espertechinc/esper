@@ -15,7 +15,9 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.Hint;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.annotation.HookType;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.IntoTableSpec;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.groupall.AggregationServiceGroupAllForge;
 import com.espertech.esper.common.internal.epl.agg.groupby.*;
@@ -58,6 +60,7 @@ public class AggregationServiceFactoryFactory {
                                                          Map<ExprNode, String> selectClauseNamedNodes,
                                                          List<ExprDeclaredNode> declaredExpressions,
                                                          ExprNode[] groupByNodes,
+                                                         MultiKeyClassRef optionalGroupByMultiKey,
                                                          List<ExprAggregateNode> havingAggregateExprNodes,
                                                          List<ExprAggregateNode> orderByAggregateExprNodes,
                                                          List<ExprAggregateNodeGroupKey> groupKeyExpressions,
@@ -68,7 +71,7 @@ public class AggregationServiceFactoryFactory {
                                                          ExprNode whereClause,
                                                          ExprNode havingClause,
                                                          EventType[] typesPerStream,
-                                                         AggregationGroupByRollupDesc groupByRollupDesc,
+                                                         AggregationGroupByRollupDescForge groupByRollupDesc,
                                                          String optionalContextName,
                                                          IntoTableSpec intoTableSpec,
                                                          TableCompileTimeResolver tableCompileTimeResolver,
@@ -83,7 +86,7 @@ public class AggregationServiceFactoryFactory {
             if (intoTableSpec != null) {
                 throw new ExprValidationException("Into-table requires at least one aggregation function");
             }
-            return new AggregationServiceForgeDesc(AggregationServiceNullFactory.INSTANCE, Collections.<AggregationServiceAggExpressionDesc>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList());
+            return new AggregationServiceForgeDesc(AggregationServiceNullFactory.INSTANCE, Collections.<AggregationServiceAggExpressionDesc>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), Collections.emptyList());
         }
 
         // Validate the absence of "prev" function in where-clause:
@@ -150,7 +153,7 @@ public class AggregationServiceFactoryFactory {
 
             // return factory
             AggregationServiceFactoryForge serviceForge = new AggregationServiceFactoryForgeTable(metadata, bindingMatchResult.getMethodPairs(), bindingMatchResult.getTargetStates(), bindingMatchResult.getAgents(), groupByRollupDesc);
-            return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions);
+            return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions, Collections.emptyList());
         }
 
         // Assign a column number to each aggregation node. The regular aggregation goes first followed by access-aggregation.
@@ -187,11 +190,14 @@ public class AggregationServiceFactoryFactory {
 
         AggregationServiceFactoryForge serviceForge;
         AggregationUseFlags useFlags = new AggregationUseFlags(isUnidirectional, isFireAndForget, isOnSelect);
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         // analyze local group by
         AggregationLocalGroupByPlanForge localGroupByPlan = null;
         if (localGroupDesc != null) {
-            localGroupByPlan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggForges, methodAggFactories, accessFactories, localGroupDesc, groupByNodes, accessorPairsForge, classpathImportService, isFireAndForget, statementName);
+            AggregationLocalGroupByPlanDesc plan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggForges, methodAggFactories, accessFactories, localGroupDesc, groupByNodes, optionalGroupByMultiKey, accessorPairsForge, classpathImportService, isFireAndForget, statementName);
+            localGroupByPlan = plan.getForge();
+            additionalForgeables.addAll(plan.getAdditionalForgeables());
             try {
                 AggregationLocalLevelHook hook = (AggregationLocalLevelHook) ClasspathImportUtil.getAnnotationHook(annotations, HookType.INTERNAL_AGGLOCALLEVEL, AggregationLocalLevelHook.class, classpathImportService);
                 if (hook != null) {
@@ -213,7 +219,7 @@ public class AggregationServiceFactoryFactory {
                 serviceForge = new AggregationServiceGroupAllForge(rowStateDesc);
             }
         } else {
-            AggGroupByDesc groupDesc = new AggGroupByDesc(rowStateDesc, isUnidirectional, isFireAndForget, isOnSelect, groupByNodes);
+            AggGroupByDesc groupDesc = new AggGroupByDesc(rowStateDesc, isUnidirectional, isFireAndForget, isOnSelect, groupByNodes, optionalGroupByMultiKey);
             boolean hasNoReclaim = HintEnum.DISABLE_RECLAIM_GROUP.getHint(annotations) != null;
             Hint reclaimGroupAged = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             Hint reclaimGroupFrequency = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
@@ -240,7 +246,7 @@ public class AggregationServiceFactoryFactory {
             }
         }
 
-        return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions);
+        return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions, additionalForgeables);
     }
 
     private static void addEquivalent(ExprAggregateNode aggNodeToAdd, List<AggregationServiceAggExpressionDesc> equivalencyList) {
@@ -301,7 +307,7 @@ public class AggregationServiceFactoryFactory {
         groupDesc.setReclaimEvaluationFunctionFrequency(evaluationFunctionFrequency);
     }
 
-    private static AggregationGroupByLocalGroupDesc analyzeLocalGroupBy(List<AggregationServiceAggExpressionDesc> aggregations, ExprNode[] groupByNodes, AggregationGroupByRollupDesc groupByRollupDesc, IntoTableSpec intoTableSpec) throws ExprValidationException {
+    private static AggregationGroupByLocalGroupDesc analyzeLocalGroupBy(List<AggregationServiceAggExpressionDesc> aggregations, ExprNode[] groupByNodes, AggregationGroupByRollupDescForge groupByRollupDesc, IntoTableSpec intoTableSpec) throws ExprValidationException {
 
         boolean hasOver = false;
         for (AggregationServiceAggExpressionDesc desc : aggregations) {

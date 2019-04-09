@@ -12,12 +12,10 @@ package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import com.espertech.esper.common.internal.view.core.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.common.internal.view.core.View;
@@ -194,16 +192,7 @@ public class GroupByViewReclaimAged extends ViewSupport implements GroupByView, 
 
     private Object getGroupKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
-        ExprEvaluator[] criteriaEvaluators = groupByViewFactory.getCriteriaEvals();
-        if (criteriaEvaluators.length == 1) {
-            return criteriaEvaluators[0].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-
-        Object[] values = new Object[criteriaEvaluators.length];
-        for (int i = 0; i < criteriaEvaluators.length; i++) {
-            values[i] = criteriaEvaluators[i].evaluate(eventsPerStream, true, agentInstanceContext);
-        }
-        return new HashableMultiKey(values);
+        return groupByViewFactory.getCriteriaEval().evaluate(eventsPerStream, true, agentInstanceContext);
     }
 
     private static final Logger log = LoggerFactory.getLogger(GroupByViewReclaimAged.class);

@@ -97,7 +97,8 @@ public class TestSuiteResultSetAggregate extends TestCase {
     private void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBeanString.class, SupportMarketDataBean.class,
             SupportBeanNumeric.class, SupportBean_S0.class, SupportBean_S1.class,
-            SupportBean_A.class, SupportBean_B.class, SupportEventPropertyWithMethod.class}) {
+            SupportBean_A.class, SupportBean_B.class, SupportEventPropertyWithMethod.class,
+            SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
         configuration.getCommon().addImport(SupportStaticMethodLib.class.getName());

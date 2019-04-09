@@ -17,6 +17,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenMakeable;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventAdvancedIndexProvisionCompileTime;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
@@ -38,6 +40,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeSymbol> {
     private final String[] hashProps;
     private Class[] hashTypes;
+    private MultiKeyClassRef hashMultiKeyClasses;
     private final String[] rangeProps;
     private final Class[] rangeTypes;
     private final boolean unique;
@@ -95,6 +98,14 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         this.hashTypes = hashTypes;
     }
 
+    public void setHashMultiKeyClasses(MultiKeyClassRef hashMultiKeyClasses) {
+        this.hashMultiKeyClasses = hashMultiKeyClasses;
+    }
+
+    public MultiKeyClassRef getHashMultiKeyClasses() {
+        return hashMultiKeyClasses;
+    }
+
     public boolean isUnique() {
         return unique;
     }
@@ -106,13 +117,13 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
     @Override
     public String toString() {
         return "QueryPlanIndexItem{" +
-                "unique=" + unique +
-                ", hashProps=" + Arrays.asList(hashProps) +
-                ", rangeProps=" + Arrays.asList(rangeProps) +
-                ", hashTypes=" + Arrays.asList(hashTypes) +
-                ", rangeTypes=" + Arrays.asList(rangeTypes) +
-                ", advanced=" + (advancedIndexProvisionDesc == null ? null : advancedIndexProvisionDesc.getIndexDesc().getIndexTypeName()) +
-                "}";
+            "unique=" + unique +
+            ", hashProps=" + Arrays.asList(hashProps) +
+            ", rangeProps=" + Arrays.asList(rangeProps) +
+            ", hashTypes=" + Arrays.asList(hashTypes) +
+            ", rangeTypes=" + Arrays.asList(rangeTypes) +
+            ", advanced=" + (advancedIndexProvisionDesc == null ? null : advancedIndexProvisionDesc.getIndexDesc().getIndexTypeName()) +
+            "}";
     }
 
     public boolean equalsCompareSortedProps(QueryPlanIndexItemForge other) {
@@ -153,14 +164,10 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
     public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(QueryPlanIndexItem.class, this.getClass(), classScope);
 
-        CodegenExpression valueGetter;
-        if (hashProps.length == 0) { // full table scan
-            valueGetter = constantNull();
-        } else {
-            EventPropertyGetterSPI[] propertyGetters = EventTypeUtility.getGetters(eventType, hashProps);
-            Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, hashProps);
-            valueGetter = EventTypeUtility.codegenGetterMayMultiKeyWCoerce(eventType, propertyGetters, propertyTypes, hashTypes, method, this.getClass(), classScope);
-        }
+        EventPropertyGetterSPI[] propertyGetters = EventTypeUtility.getGetters(eventType, hashProps);
+        Class[] propertyTypes = EventTypeUtility.getPropertyTypes(eventType, hashProps);
+
+        CodegenExpression valueGetter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, propertyGetters, propertyTypes, hashTypes, hashMultiKeyClasses, method, classScope);
 
         CodegenExpression rangeGetters;
         if (rangeProps.length == 0) {
@@ -179,28 +186,14 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
             rangeGetters = localMethod(makeMethod);
         }
 
+        CodegenExpression multiKeyTransform = MultiKeyCodegen.codegenMultiKeyFromArrayTransform(hashMultiKeyClasses, method, classScope);
+
         method.getBlock().methodReturn(newInstance(QueryPlanIndexItem.class,
-                constant(hashProps), constant(hashTypes), valueGetter,
-                constant(rangeProps), constant(rangeTypes), rangeGetters,
-                constant(unique),
-                advancedIndexProvisionDesc == null ? constantNull() : advancedIndexProvisionDesc.codegenMake(method, classScope)));
+            constant(hashProps), constant(hashTypes), valueGetter, multiKeyTransform, MultiKeyCodegen.codegenOptionalSerde(hashMultiKeyClasses),
+            constant(rangeProps), constant(rangeTypes), rangeGetters,
+            constant(unique),
+            advancedIndexProvisionDesc == null ? constantNull() : advancedIndexProvisionDesc.codegenMake(method, classScope)));
         return localMethod(method);
-    }
-
-    private static String[] getNames(IndexedPropDesc[] props) {
-        String[] names = new String[props.length];
-        for (int i = 0; i < props.length; i++) {
-            names[i] = props[i].getIndexPropName();
-        }
-        return names;
-    }
-
-    private static Class[] getTypes(IndexedPropDesc[] props) {
-        Class[] types = new Class[props.length];
-        for (int i = 0; i < props.length; i++) {
-            types[i] = props[i].getCoercionType();
-        }
-        return types;
     }
 
     private static String[] getNames(List<IndexedPropDesc> props) {
@@ -224,9 +217,9 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
             return null;
         }
         return new QueryPlanIndexItem(
-                hashProps, hashTypes, null,
-                rangeProps, rangeTypes, null,
-                unique,
-                advancedIndexProvisionDesc.toRuntime());
+            hashProps, hashTypes, null, null, null,
+            rangeProps, rangeTypes, null,
+            unique,
+            advancedIndexProvisionDesc.toRuntime());
     }
 }

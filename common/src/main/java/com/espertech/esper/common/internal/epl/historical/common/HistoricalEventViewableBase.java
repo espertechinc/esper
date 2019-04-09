@@ -91,18 +91,23 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
             EventTable[] result = null;
 
             // try the threadlocal iteration cache, if set
+            Object cacheMultiKey = null;
+            if (localDataCache != null || dataCache.isActive()) {
+                cacheMultiKey = factory.lookupValueToMultiKey.transform(lookupValue);
+            }
+
             if (localDataCache != null) {
-                EventTable[] tables = localDataCache.getCached(lookupValue);
+                EventTable[] tables = localDataCache.getCached(cacheMultiKey);
                 result = tables;
             }
 
             // try the connection cache
             if (result == null) {
-                EventTable[] multi = dataCache.getCached(lookupValue);
+                EventTable[] multi = dataCache.getCached(cacheMultiKey);
                 if (multi != null) {
                     result = multi;
                     if (localDataCache != null) {
-                        localDataCache.put(lookupValue, multi);
+                        localDataCache.put(cacheMultiKey, multi);
                     }
                 }
             }
@@ -129,10 +134,10 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
                     resultPerInputRow[row] = indexTable;
 
                     // save in cache
-                    dataCache.put(lookupValue, indexTable);
+                    dataCache.put(cacheMultiKey, indexTable);
 
                     if (localDataCache != null) {
-                        localDataCache.put(lookupValue, indexTable);
+                        localDataCache.put(cacheMultiKey, indexTable);
                     }
                 } catch (EPException ex) {
                     if (strategyStarted) {

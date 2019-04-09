@@ -13,7 +13,8 @@ package com.espertech.esper.common.internal.epl.table.core;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -50,11 +51,15 @@ public abstract class TableInstanceGroupedBase extends TableInstanceBase impleme
 
         int[] groupKeyColNums = table.getMetaData().getKeyColNums();
         if (groupKeyColNums.length == 1) {
-            data[groupKeyColNums[0]] = groupKeys;
+            if (groupKeys instanceof MultiKeyArrayWrap) {
+                data[groupKeyColNums[0]] = ((MultiKeyArrayWrap) groupKeys).getArray();
+            } else {
+                data[groupKeyColNums[0]] = groupKeys;
+            }
         } else {
-            HashableMultiKey mk = (HashableMultiKey) groupKeys;
+            MultiKeyGenerated mk = (MultiKeyGenerated) groupKeys;
             for (int i = 0; i < groupKeyColNums.length; i++) {
-                data[groupKeyColNums[i]] = mk.getKeys()[i];
+                data[groupKeyColNums[i]] = mk.getKey(i);
             }
         }
 

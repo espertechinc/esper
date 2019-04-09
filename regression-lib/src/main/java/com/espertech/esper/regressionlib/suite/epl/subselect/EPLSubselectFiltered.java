@@ -59,7 +59,78 @@ public class EPLSubselectFiltered {
         execs.add(new EPLSubselectJoinFilteredTwo());
         execs.add(new EPLSubselectSubselectMixMax());
         execs.add(new EPLSubselectSubselectPrior());
+        execs.add(new EPLSubselectWhereClauseMultikeyWArrayPrimitive());
+        execs.add(new EPLSubselectWhereClauseMultikeyWArray2Field());
+        execs.add(new EPLSubselectWhereClauseMultikeyWArrayComposite());
         return execs;
+    }
+
+    private static class EPLSubselectWhereClauseMultikeyWArrayComposite implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select (select id from SupportEventWithManyArray#keepall as sm " +
+                "where sm.intOne = se.array and sm.value > se.value) as value from SupportEventWithIntArray as se";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendManyArray(env, "MA1", new int[] {1, 2}, 100);
+            sendManyArray(env, "MA2", new int[] {1, 2}, 200);
+            sendManyArray(env, "MA3", new int[] {1}, 300);
+            sendManyArray(env, "MA4", new int[] {1, 2}, 400);
+
+            env.milestone(0);
+
+            sendIntArrayAndAssert(env, "IA2", new int[] {1, 2}, 250, "MA4");
+            sendIntArrayAndAssert(env, "IA3", new int[] {1, 2}, 0, null);
+            sendIntArrayAndAssert(env, "IA4", new int[] {1}, 299, "MA3");
+            sendIntArrayAndAssert(env, "IA5", new int[] {1, 2}, 500, null);
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLSubselectWhereClauseMultikeyWArray2Field implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select (select id from SupportEventWithManyArray#keepall as sm " +
+                "where sm.intOne = se.array and sm.value = se.value) as value from SupportEventWithIntArray as se";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendManyArray(env, "MA1", new int[] {1, 2}, 10);
+            sendManyArray(env, "MA2", new int[] {1, 2}, 11);
+            sendManyArray(env, "MA3", new int[] {1}, 12);
+
+            env.milestone(0);
+
+            sendIntArrayAndAssert(env, "IA1", new int[] {1}, 12, "MA3");
+            sendIntArrayAndAssert(env, "IA2", new int[] {1, 2}, 11, "MA2");
+            sendIntArrayAndAssert(env, "IA3", new int[] {1, 2}, 10, "MA1");
+            sendIntArrayAndAssert(env, "IA4", new int[] {1}, 10, null);
+            sendIntArrayAndAssert(env, "IA5", new int[] {1, 2}, 12, null);
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLSubselectWhereClauseMultikeyWArrayPrimitive implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select (select id from SupportEventWithManyArray#keepall as sm where sm.intOne = se.array) as value from SupportEventWithIntArray as se";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendManyArray(env, "MA1", new int[] {1, 2});
+            sendIntArrayAndAssert(env, "IA1", new int[] {1, 2}, "MA1");
+
+            sendManyArray(env, "MA2", new int[] {1, 2});
+            sendManyArray(env, "MA3", new int[] {1});
+            sendManyArray(env, "MA4", new int[] {});
+            sendManyArray(env, "MA5", null);
+
+            env.milestone(0);
+
+            sendIntArrayAndAssert(env, "IA2", new int[] {}, "MA4");
+            sendIntArrayAndAssert(env, "IA3", new int[] {1}, "MA3");
+            sendIntArrayAndAssert(env, "IA4", null, "MA5");
+            sendIntArrayAndAssert(env, "IA5", new int[] {1, 2}, null);
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLSubselectSameEventCompile implements RegressionExecution {
@@ -794,5 +865,32 @@ public class EPLSubselectFiltered {
 
     private static SupportMarketDataBean makeMarketDataEvent(String symbol, double price, long volume) {
         return new SupportMarketDataBean(symbol, price, volume, null);
+    }
+
+    private static void sendManyArray(RegressionEnvironment env, String id, int[] ints, int value) {
+        env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(ints).withValue(value));
+    }
+
+    private static void sendIntArrayAndAssert(RegressionEnvironment env, String id, int[] array, int value, String expected) {
+        env.sendEventBean(new SupportEventWithIntArray(id, array, value));
+        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+    }
+
+    private static void sendIntArray(RegressionEnvironment env, String id, int[] array) {
+        env.sendEventBean(new SupportEventWithIntArray(id, array));
+    }
+
+    private static void sendManyArray(RegressionEnvironment env, String id, int[] ints) {
+        env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(ints));
+    }
+
+    private static void sendIntArrayAndAssert(RegressionEnvironment env, String id, int[] array, String expected) {
+        env.sendEventBean(new SupportEventWithIntArray(id, array));
+        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+    }
+
+    private static void sendManyArrayAndAssert(RegressionEnvironment env, String id, int[] intOne, int[] intTwo, String expected) {
+        env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(intOne).withIntTwo(intTwo));
+        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
     }
 }

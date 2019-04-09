@@ -14,17 +14,19 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.view.util.ViewMultiKeyHelper;
 
 import java.util.List;
 import java.util.Set;
-
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen.codegenEvaluators;
 
 /**
  * Factory for {@link UniqueByPropertyView} instances.
@@ -32,6 +34,7 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
 public class UniqueByPropertyViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, DataWindowViewForgeUniqueCandidate {
     protected List<ExprNode> viewParameters;
     protected ExprNode[] criteriaExpressions;
+    protected MultiKeyClassRef multiKeyClassNames;
 
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         this.viewParameters = parameters;
@@ -48,6 +51,13 @@ public class UniqueByPropertyViewForge extends ViewFactoryForgeBase implements D
         this.eventType = parentEventType;
     }
 
+    @Override
+    public List<StmtClassForgableFactory> initAdditionalForgeables() {
+        MultiKeyPlan desc = MultiKeyPlanner.planMultiKey(criteriaExpressions, false);
+        multiKeyClassNames = desc.getOptionalClassRef();
+        return desc.getMultiKeyForgables();
+    }
+
     protected Class typeOfFactory() {
         return UniqueByPropertyViewFactory.class;
     }
@@ -57,9 +67,7 @@ public class UniqueByPropertyViewForge extends ViewFactoryForgeBase implements D
     }
 
     protected void assign(CodegenMethod method, CodegenExpressionRef factory, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        method.getBlock()
-                .exprDotMethod(factory, "setCriteriaEvals", codegenEvaluators(criteriaExpressions, method, this.getClass(), classScope))
-                .exprDotMethod(factory, "setCriteriaTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions)));
+        ViewMultiKeyHelper.assign(criteriaExpressions, multiKeyClassNames, method, factory, symbols, classScope);
     }
 
     public Set<String> getUniquenessCandidatePropertyNames() {

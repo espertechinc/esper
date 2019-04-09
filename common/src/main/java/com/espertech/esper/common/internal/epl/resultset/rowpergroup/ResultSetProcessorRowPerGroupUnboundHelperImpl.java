@@ -20,6 +20,9 @@ public class ResultSetProcessorRowPerGroupUnboundHelperImpl implements ResultSet
 
     private final Map<Object, EventBean> groupReps = new LinkedHashMap<Object, EventBean>();
 
+    public ResultSetProcessorRowPerGroupUnboundHelperImpl() {
+    }
+
     public void put(Object key, EventBean event) {
         groupReps.put(key, event);
     }

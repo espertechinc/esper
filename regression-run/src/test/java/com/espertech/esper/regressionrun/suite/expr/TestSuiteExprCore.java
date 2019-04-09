@@ -147,7 +147,8 @@ public class TestSuiteExprCore extends TestCase {
             SupportBeanDynRoot.class, SupportMarketDataBean.class, SupportBeanWithEnum.class, SupportEnumTwo.class,
             SupportEventTypeErasure.class, SupportChainTop.class, SupportLevelZero.class, SupportEventNode.class,
             SupportEventNodeData.class, SupportBeanCombinedProps.class, SupportBeanNumeric.class,
-            ISupportA.class, ISupportABCImpl.class, ISupportAImpl.class, SupportBean_ST0.class, SupportBeanObject.class}) {
+            ISupportA.class, ISupportABCImpl.class, ISupportAImpl.class, SupportBean_ST0.class, SupportBeanObject.class,
+            SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

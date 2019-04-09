@@ -52,7 +52,7 @@ public class PollResultIndexingStrategyInKeywordMulti implements PollResultIndex
     public void init() {
         factories = new PropertyHashedEventTableFactory[valueGetters.length];
         for (int i = 0; i < propertyNames.length; i++) {
-            factories[i] = new PropertyHashedEventTableFactory(streamNum, new String[]{propertyNames[i]}, false, null, valueGetters[i]);
+            factories[i] = new PropertyHashedEventTableFactory(streamNum, new String[]{propertyNames[i]}, false, null, valueGetters[i], null);
         }
     }
 }

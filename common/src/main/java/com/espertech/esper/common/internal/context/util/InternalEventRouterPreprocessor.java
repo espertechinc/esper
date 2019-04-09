@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
+import com.espertech.esper.common.internal.statement.resource.StatementResourceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,11 +150,12 @@ public class InternalEventRouterPreprocessor {
         // evaluate
         Object[] values;
         if (entry.isHasSubselect()) {
-            entry.getAgentInstanceLock().acquireWriteLock();
+            StatementResourceHolder holder = entry.getStatementContext().getStatementCPCacheService().makeOrGetEntryCanNull(StatementCPCacheService.DEFAULT_AGENT_INSTANCE_ID, entry.getStatementContext());
+            holder.getAgentInstanceContext().getAgentInstanceLock().acquireWriteLock();
             try {
                 values = obtainValues(eventsPerStream, entry, exprEvaluatorContext, instrumentation);
             } finally {
-                entry.getAgentInstanceLock().releaseWriteLock();
+                holder.getAgentInstanceContext().getAgentInstanceLock().releaseWriteLock();
             }
         } else {
             values = obtainValues(eventsPerStream, entry, exprEvaluatorContext, instrumentation);

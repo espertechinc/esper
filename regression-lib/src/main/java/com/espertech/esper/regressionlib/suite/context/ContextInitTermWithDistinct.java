@@ -18,6 +18,7 @@ import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -36,7 +37,40 @@ public class ContextInitTermWithDistinct {
         execs.add(new ContextInitTermWithDistinctOverlappingMultiKey());
         execs.add(new ContextInitTermWithDistinctNullSingleKey());
         execs.add(new ContextInitTermWithDistinctNullKeyMultiKey());
+        execs.add(new ContextInitTermWithDistinctMultikeyWArray());
         return execs;
+    }
+
+    private static class ContextInitTermWithDistinctMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("create context MyContext initiated by distinct(array) SupportEventWithIntArray as se", path);
+            env.compileDeploy("@name('s0') context MyContext select context.se.id as id, sum(intPrimitive) as thesum from SupportBean", path);
+            env.addListener("s0");
+            String[] fields = "id,thesum".split(",");
+
+            env.sendEventBean(new SupportEventWithIntArray("SE1", new int[] {1, 2}, 0));
+            env.sendEventBean(new SupportBean("E1", 1));
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {{"SE1", 1}});
+
+            env.sendEventBean(new SupportEventWithIntArray("SE2", new int[] {1}, 0));
+            env.sendEventBean(new SupportEventWithIntArray("SE2", new int[] {1}, 0));
+            env.sendEventBean(new SupportEventWithIntArray("SE1", new int[] {1, 2}, 0));
+            env.sendEventBean(new SupportBean("E2", 2));
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
+                new Object[][] {{"SE1", 3}, {"SE2", 2}});
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportEventWithIntArray("SE1", new int[] {1, 2}, 0));
+            env.sendEventBean(new SupportEventWithIntArray("SE2", new int[] {1}, 0));
+            env.sendEventBean(new SupportEventWithIntArray("SE3", new int[] {}, 0));
+            env.sendEventBean(new SupportBean("E3", 4));
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
+                new Object[][] {{"SE1", 7}, {"SE2", 6}, {"SE3", 4}});
+
+            env.undeployAll();
+        }
     }
 
     private static class ContextInitTermWithDistinctInvalid implements RegressionExecution {

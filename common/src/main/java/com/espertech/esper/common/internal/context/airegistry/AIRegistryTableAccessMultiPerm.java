@@ -58,8 +58,8 @@ public class AIRegistryTableAccessMultiPerm implements AIRegistryTableAccess {
         return strategies.getArray()[context.getAgentInstanceId()].evaluateTypableSingle(eventsPerStream, isNewData, context);
     }
 
-    public AggregationRow getRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return strategies.getArray()[context.getAgentInstanceId()].getRow(eventsPerStream, isNewData, context);
+    public AggregationRow getAggregationRow(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return strategies.getArray()[context.getAgentInstanceId()].getAggregationRow(eventsPerStream, isNewData, context);
     }
 
     public int getInstanceCount() {

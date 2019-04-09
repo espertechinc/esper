@@ -11,10 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage3;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
+import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.bytecodemodel.name.*;
@@ -75,7 +72,7 @@ public class StmtClassForgableStmtFields implements StmtClassForgable {
         CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", methods);
         CodegenStackGenerator.recursiveBuildStack(unassignMethod, "unassign", methods);
 
-        return new CodegenClass(StatementFields.class, className, classScope, members, ctor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.STATEMENTFIELDS, StatementFields.class, className, classScope, members, ctor, methods, Collections.emptyList());
     }
 
     private void generateSubstitutionParamMembers(List<CodegenTypedParam> members) {

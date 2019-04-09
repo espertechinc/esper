@@ -11,10 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage3;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassMethods;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
+import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
@@ -81,7 +78,7 @@ public abstract class StmtClassForgableAIFactoryProviderBase implements StmtClas
         CodegenStackGenerator.recursiveBuildStack(setValueMethod, "setValue", methods);
         CodegenStackGenerator.recursiveBuildStack(codegenCtor, "ctor", methods);
 
-        return new CodegenClass(StatementAIFactoryProvider.class, className, classScope, members, codegenCtor, methods, Collections.emptyList());
+        return new CodegenClass(CodegenClassType.STATEMENTAIFACTORYPROVIDER, StatementAIFactoryProvider.class, className, classScope, members, codegenCtor, methods, Collections.emptyList());
     }
 
     public String getClassName() {

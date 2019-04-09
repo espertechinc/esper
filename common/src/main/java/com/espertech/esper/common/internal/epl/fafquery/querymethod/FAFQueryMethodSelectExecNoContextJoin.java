@@ -70,7 +70,7 @@ public class FAFQueryMethodSelectExecNoContextJoin implements FAFQueryMethodSele
         }
         UniformPair<EventBean[]> results = resultSetProcessor.processJoinResult(result.getFirst(), null, true);
 
-        EventBean[] distinct = EventBeanUtility.getDistinctByProp(results.getFirst(), select.getEventBeanReaderDistinct());
+        EventBean[] distinct = EventBeanUtility.getDistinctByProp(results.getFirst(), select.getDistinctKeyGetter());
 
         return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), distinct);
     }

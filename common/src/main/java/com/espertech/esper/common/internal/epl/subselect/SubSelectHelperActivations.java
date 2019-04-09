@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.compile.stage2.FilterStreamSpecCompil
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.activator.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -28,18 +29,17 @@ import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselect
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeArgs;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeDesc;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeUtil;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SubSelectHelperActivations {
 
-    public static Map<ExprSubselectNode, SubSelectActivationPlan> createSubSelectActivation(List<FilterSpecCompiled> filterSpecCompileds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, StatementBaseInfo statement, StatementCompileTimeServices services)
+    public static SubSelectActivationDesc createSubSelectActivation(List<FilterSpecCompiled> filterSpecCompileds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, StatementBaseInfo statement, StatementCompileTimeServices services)
             throws ExprValidationException {
         Map<ExprSubselectNode, SubSelectActivationPlan> result = new LinkedHashMap<>();
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
 
         // Process all subselect expression nodes
         for (ExprSubselectNode subselect : statement.getStatementSpec().getSubselectNodes()) {
@@ -56,7 +56,9 @@ public class SubSelectHelperActivations {
 
                 // Register filter, create view factories
                 ViewableActivatorForge activatorDeactivator = new ViewableActivatorFilterForge(filterStreamSpec.getFilterSpecCompiled(), false, null, true, subqueryNumber);
-                List<ViewFactoryForge> forges = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, filterStreamSpec.getFilterSpecCompiled().getResultEventType());
+                ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, filterStreamSpec.getFilterSpecCompiled().getResultEventType());
+                List<ViewFactoryForge> forges = viewForgeDesc.getForges();
+                additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                 EventType eventType = forges.isEmpty() ? filterStreamSpec.getFilterSpecCompiled().getResultEventType() : forges.get(forges.size() - 1).getEventType();
                 subselect.setRawEventType(eventType);
                 filterSpecCompileds.add(filterStreamSpec.getFilterSpecCompiled());
@@ -88,12 +90,16 @@ public class SubSelectHelperActivations {
 
                 if (!namedSpec.getFilterExpressions().isEmpty() || processorDisableIndexShare || disableIndexShare) {
                     ViewableActivatorForge activatorNamedWindow = new ViewableActivatorNamedWindowForge(namedSpec, nwinfo, null, null, true, namedSpec.getOptPropertyEvaluator());
-                    List<ViewFactoryForge> forges = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
+                    ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
+                    List<ViewFactoryForge> forges = viewForgeDesc.getForges();
+                    additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                     subselect.setRawEventType(forges.isEmpty() ? namedWindowType : forges.get(forges.size() - 1).getEventType());
                     result.put(subselect, new SubSelectActivationPlan(namedWindowType, forges, activatorNamedWindow, streamSpec));
                 } else {
                     // else if there are no named window stream filter expressions and index sharing is enabled
-                    List<ViewFactoryForge> forges = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
+                    ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
+                    List<ViewFactoryForge> forges = viewForgeDesc.getForges();
+                    additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                     subselect.setRawEventType(namedWindowType);
                     ViewableActivatorForge activatorNamedWindow = new ViewableActivatorSubselectNoneForge(namedWindowType);
                     result.put(subselect, new SubSelectActivationPlan(namedWindowType, forges, activatorNamedWindow, streamSpec));
@@ -101,6 +107,6 @@ public class SubSelectHelperActivations {
             }
         }
 
-        return result;
+        return new SubSelectActivationDesc(result, additionalForgeables);
     }
 }

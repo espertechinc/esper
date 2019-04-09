@@ -103,8 +103,8 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
             witnessedFirstHelper.setWitnessedFirst(true);
 
             if (parent.isDistinct()) {
-                newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
-                newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
+                newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getDistinctKeyGetter()));
+                newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getDistinctKeyGetter()));
             }
 
             boolean isGenerateNatural = statementResultService.isMakeNatural();
@@ -167,8 +167,8 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
             witnessedFirstHelper.setWitnessedFirst(true);
 
             if (parent.isDistinct()) {
-                newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
-                newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
+                newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getDistinctKeyGetter()));
+                newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getDistinctKeyGetter()));
             }
 
             boolean isGenerateNatural = statementResultService.isMakeNatural();
@@ -257,7 +257,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
     }
 
     public Iterator<EventBean> iterator() {
-        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct());
+        return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct(), parent.getDistinctKeyGetter());
     }
 
     public void terminated() {

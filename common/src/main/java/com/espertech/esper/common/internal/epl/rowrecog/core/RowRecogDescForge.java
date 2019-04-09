@@ -19,6 +19,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldNameMatchRecognizeAgg;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSkipEnum;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.*;
@@ -46,6 +48,7 @@ public class RowRecogDescForge {
     private final int[] multimatchStreamNumToVariable;
     private final int[] multimatchVariableToStreamNum;
     private final ExprNode[] partitionBy;
+    private final MultiKeyClassRef partitionByMultiKey;
     private final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
     private final boolean hasInterval;
     private final boolean iterateOnly;
@@ -65,7 +68,7 @@ public class RowRecogDescForge {
     private final int[] previousRandomAccessIndexes;
     private final AggregationServiceForgeDesc[] aggregationServices;
 
-    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices) {
+    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, MultiKeyClassRef partitionByMultiKey, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices) {
         this.parentEventType = parentEventType;
         this.rowEventType = rowEventType;
         this.compositeEventType = compositeEventType;
@@ -73,6 +76,7 @@ public class RowRecogDescForge {
         this.multimatchStreamNumToVariable = multimatchStreamNumToVariable;
         this.multimatchVariableToStreamNum = multimatchVariableToStreamNum;
         this.partitionBy = partitionBy;
+        this.partitionByMultiKey = partitionByMultiKey;
         this.variableStreams = variableStreams;
         this.hasInterval = hasInterval;
         this.iterateOnly = iterateOnly;
@@ -124,43 +128,44 @@ public class RowRecogDescForge {
         }
 
         method.getBlock()
-                .declareVar(RowRecogDesc.class, desc.getRef(), newInstance(RowRecogDesc.class))
-                .exprDotMethod(desc, "setParentEventType", EventTypeUtility.resolveTypeCodegen(parentEventType, init))
-                .exprDotMethod(desc, "setRowEventType", EventTypeUtility.resolveTypeCodegen(rowEventType, init))
-                .exprDotMethod(desc, "setCompositeEventType", EventTypeUtility.resolveTypeCodegen(compositeEventType, init))
-                .exprDotMethod(desc, "setMultimatchEventType", multimatchEventType == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(multimatchEventType, init))
-                .exprDotMethod(desc, "setMultimatchStreamNumToVariable", constant(multimatchStreamNumToVariable))
-                .exprDotMethod(desc, "setMultimatchVariableToStreamNum", constant(multimatchVariableToStreamNum))
-                .exprDotMethod(desc, "setPartitionEvalMayNull", partitionBy == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(ExprNodeUtilityQuery.getForges(partitionBy), null, method, this.getClass(), classScope))
-                .exprDotMethod(desc, "setPartitionEvalTypes", partitionBy == null ? constantNull() : constant(ExprNodeUtilityQuery.getExprResultTypes(partitionBy)))
-                .exprDotMethod(desc, "setVariableStreams", makeVariableStreams(method, symbols, classScope))
-                .exprDotMethod(desc, "setHasInterval", constant(hasInterval))
-                .exprDotMethod(desc, "setIterateOnly", constant(iterateOnly))
-                .exprDotMethod(desc, "setUnbound", constant(unbound))
-                .exprDotMethod(desc, "setOrTerminated", constant(orTerminated))
-                .exprDotMethod(desc, "setCollectMultimatches", constant(collectMultimatches))
-                .exprDotMethod(desc, "setDefineAsksMultimatches", constant(defineAsksMultimatches))
-                .exprDotMethod(desc, "setNumEventsEventsPerStreamDefine", constant(numEventsEventsPerStreamDefine))
-                .exprDotMethod(desc, "setMultimatchVariablesArray", constant(multimatchVariablesArray))
-                .exprDotMethod(desc, "setStatesOrdered", makeStates(method, symbols, classScope))
-                .exprDotMethod(desc, "setNextStatesPerState", makeNextStates(method, classScope))
-                .exprDotMethod(desc, "setStartStates", constant(startStateNums))
-                .exprDotMethod(desc, "setAllMatches", constant(allMatches))
-                .exprDotMethod(desc, "setSkip", constant(skip))
-                .exprDotMethod(desc, "setColumnEvaluators", ExprNodeUtilityCodegen.codegenEvaluators(columnEvaluators, method, this.getClass(), classScope))
-                .exprDotMethod(desc, "setColumnNames", constant(columnNames))
-                .exprDotMethod(desc, "setIntervalCompute", intervalCompute == null ? constantNull() : intervalCompute.makeEvaluator(method, classScope))
-                .exprDotMethod(desc, "setPreviousRandomAccessIndexes", constant(previousRandomAccessIndexes))
-                .exprDotMethod(desc, "setAggregationServiceFactories", aggregationServiceFactories)
-                .exprDotMethod(desc, "setAggregationResultFutureAssignables", aggregationServices == null ? constantNull() : makeAggAssignables(method, classScope))
-                .methodReturn(desc);
+            .declareVar(RowRecogDesc.class, desc.getRef(), newInstance(RowRecogDesc.class))
+            .exprDotMethod(desc, "setParentEventType", EventTypeUtility.resolveTypeCodegen(parentEventType, init))
+            .exprDotMethod(desc, "setRowEventType", EventTypeUtility.resolveTypeCodegen(rowEventType, init))
+            .exprDotMethod(desc, "setCompositeEventType", EventTypeUtility.resolveTypeCodegen(compositeEventType, init))
+            .exprDotMethod(desc, "setMultimatchEventType", multimatchEventType == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(multimatchEventType, init))
+            .exprDotMethod(desc, "setMultimatchStreamNumToVariable", constant(multimatchStreamNumToVariable))
+            .exprDotMethod(desc, "setMultimatchVariableToStreamNum", constant(multimatchVariableToStreamNum))
+            .exprDotMethod(desc, "setPartitionEvalMayNull", MultiKeyCodegen.codegenExprEvaluatorMayMultikey(partitionBy, null, partitionByMultiKey, method, classScope))
+            .exprDotMethod(desc, "setPartitionEvalTypes", partitionBy == null ? constantNull() : constant(ExprNodeUtilityQuery.getExprResultTypes(partitionBy)))
+            .exprDotMethod(desc, "setPartitionEvalSerde", partitionBy == null ? constantNull() : MultiKeyCodegen.codegenOptionalSerde(partitionByMultiKey))
+            .exprDotMethod(desc, "setVariableStreams", makeVariableStreams(method, symbols, classScope))
+            .exprDotMethod(desc, "setHasInterval", constant(hasInterval))
+            .exprDotMethod(desc, "setIterateOnly", constant(iterateOnly))
+            .exprDotMethod(desc, "setUnbound", constant(unbound))
+            .exprDotMethod(desc, "setOrTerminated", constant(orTerminated))
+            .exprDotMethod(desc, "setCollectMultimatches", constant(collectMultimatches))
+            .exprDotMethod(desc, "setDefineAsksMultimatches", constant(defineAsksMultimatches))
+            .exprDotMethod(desc, "setNumEventsEventsPerStreamDefine", constant(numEventsEventsPerStreamDefine))
+            .exprDotMethod(desc, "setMultimatchVariablesArray", constant(multimatchVariablesArray))
+            .exprDotMethod(desc, "setStatesOrdered", makeStates(method, symbols, classScope))
+            .exprDotMethod(desc, "setNextStatesPerState", makeNextStates(method, classScope))
+            .exprDotMethod(desc, "setStartStates", constant(startStateNums))
+            .exprDotMethod(desc, "setAllMatches", constant(allMatches))
+            .exprDotMethod(desc, "setSkip", constant(skip))
+            .exprDotMethod(desc, "setColumnEvaluators", ExprNodeUtilityCodegen.codegenEvaluators(columnEvaluators, method, this.getClass(), classScope))
+            .exprDotMethod(desc, "setColumnNames", constant(columnNames))
+            .exprDotMethod(desc, "setIntervalCompute", intervalCompute == null ? constantNull() : intervalCompute.makeEvaluator(method, classScope))
+            .exprDotMethod(desc, "setPreviousRandomAccessIndexes", constant(previousRandomAccessIndexes))
+            .exprDotMethod(desc, "setAggregationServiceFactories", aggregationServiceFactories)
+            .exprDotMethod(desc, "setAggregationResultFutureAssignables", aggregationServices == null ? constantNull() : makeAggAssignables(method, classScope))
+            .methodReturn(desc);
         return localMethod(method);
     }
 
     private CodegenExpression makeAggAssignables(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(AggregationResultFutureAssignable[].class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AggregationResultFutureAssignable[].class, "assignables", newArrayByLength(AggregationResultFutureAssignable.class, constant(aggregationServices.length)));
+            .declareVar(AggregationResultFutureAssignable[].class, "assignables", newArrayByLength(AggregationResultFutureAssignable.class, constant(aggregationServices.length)));
 
         for (int i = 0; i < aggregationServices.length; i++) {
             if (aggregationServices[i] != null) {
@@ -211,10 +216,10 @@ public class RowRecogDescForge {
     private CodegenExpression makeVariableStreams(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(LinkedHashMap.class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(LinkedHashMap.class, "vars", newInstance(LinkedHashMap.class, constant(CollectionUtil.capacityHashMap(variableStreams.size()))));
+            .declareVar(LinkedHashMap.class, "vars", newInstance(LinkedHashMap.class, constant(CollectionUtil.capacityHashMap(variableStreams.size()))));
         for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet()) {
             method.getBlock().exprDotMethod(ref("vars"), "put", constant(entry.getKey()),
-                    newInstance(Pair.class, constant(entry.getValue().getFirst()), constant(entry.getValue().getSecond())));
+                newInstance(Pair.class, constant(entry.getValue().getFirst()), constant(entry.getValue().getSecond())));
         }
         method.getBlock().methodReturn(ref("vars"));
         return localMethod(method);

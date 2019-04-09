@@ -104,8 +104,8 @@ public class InternalEventRouterImpl implements InternalEventRouter {
         }
     }
 
-    public synchronized void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect) {
-        descriptors.put(internalEventRouterDesc, new IRDescEntry(internalEventRouterDesc, outputView, agentInstanceLock, hasSubselect, internalEventRouterDesc.getOptionalWhereClauseEval()));
+    public synchronized void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementContext statementContext, boolean hasSubselect) {
+        descriptors.put(internalEventRouterDesc, new IRDescEntry(internalEventRouterDesc, outputView, statementContext, hasSubselect, internalEventRouterDesc.getOptionalWhereClauseEval()));
 
         // remove all preprocessors for this type as well as any known child types, forcing re-init on next use
         removePreprocessors(internalEventRouterDesc.getEventType());
@@ -196,7 +196,7 @@ public class InternalEventRouterImpl implements InternalEventRouter {
 
             eventPropertiesWritten.addAll(Arrays.asList(entry.getKey().getProperties()));
             EventBeanWriter writer = eventTypeSPI.getWriter(entry.getKey().getProperties());
-            desc.add(new InternalEventRouterEntry(priority, isDrop, entry.getValue().getOptionalWhereClauseEvaluator(), entry.getKey().getAssignments(), writer, entry.getValue().getWideners(), entry.getValue().getOutputView(), entry.getValue().getAgentInstanceLock(), entry.getValue().hasSubselect));
+            desc.add(new InternalEventRouterEntry(priority, isDrop, entry.getValue().getOptionalWhereClauseEvaluator(), entry.getKey().getAssignments(), writer, entry.getValue().getWideners(), entry.getValue().getOutputView(), entry.getValue().getStatementContext(), entry.getValue().hasSubselect));
         }
 
         EventBeanCopyMethodForge copyMethodForge = eventTypeSPI.getCopyMethodForge(eventPropertiesWritten.toArray(new String[eventPropertiesWritten.size()]));
@@ -209,14 +209,14 @@ public class InternalEventRouterImpl implements InternalEventRouter {
     private static class IRDescEntry {
         private final InternalEventRouterDesc internalEventRouterDesc;
         private final InternalRoutePreprocessView outputView;
-        private final StatementAgentInstanceLock agentInstanceLock;
+        private final StatementContext statementContext;
         private final boolean hasSubselect;
         private final ExprEvaluator optionalWhereClauseEvaluator;
 
-        private IRDescEntry(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect, ExprEvaluator optionalWhereClauseEvaluator) {
+        private IRDescEntry(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementContext statementContext, boolean hasSubselect, ExprEvaluator optionalWhereClauseEvaluator) {
             this.internalEventRouterDesc = internalEventRouterDesc;
             this.outputView = outputView;
-            this.agentInstanceLock = agentInstanceLock;
+            this.statementContext = statementContext;
             this.hasSubselect = hasSubselect;
             this.optionalWhereClauseEvaluator = optionalWhereClauseEvaluator;
         }
@@ -241,8 +241,8 @@ public class InternalEventRouterImpl implements InternalEventRouter {
             return outputView;
         }
 
-        public StatementAgentInstanceLock getAgentInstanceLock() {
-            return agentInstanceLock;
+        public StatementContext getStatementContext() {
+            return statementContext;
         }
 
         public boolean isHasSubselect() {

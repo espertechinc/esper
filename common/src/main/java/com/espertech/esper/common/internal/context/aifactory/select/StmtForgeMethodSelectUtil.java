@@ -39,6 +39,7 @@ import com.espertech.esper.common.internal.epl.historical.database.core.Historic
 import com.espertech.esper.common.internal.epl.historical.method.core.HistoricalEventViewableMethodForge;
 import com.espertech.esper.common.internal.epl.historical.method.core.HistoricalEventViewableMethodForgeFactory;
 import com.espertech.esper.common.internal.epl.join.analyze.OuterJoinAnalyzer;
+import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeDesc;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeForge;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeForgeFactory;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
@@ -47,6 +48,7 @@ import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanNodeForge
 import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupIndexReqKey;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryForge;
+import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryForgeDesc;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryProvider;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewForgeFactory;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
@@ -55,15 +57,12 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
-import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogDescForge;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAViewFactoryForge;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAViewPlanUtil;
+import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPlan;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationPlan;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperActivations;
-import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlanner;
+import com.espertech.esper.common.internal.epl.subselect.*;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
@@ -75,10 +74,7 @@ import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeArgs;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeUtil;
-import com.espertech.esper.common.internal.view.core.ViewForgeVisitorSchedulesCollector;
+import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.prior.PriorEventViewForge;
 
 import java.util.*;
@@ -92,6 +88,7 @@ public class StmtForgeMethodSelectUtil {
         List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         StatementSpecCompiled statementSpec = base.getStatementSpec();
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(1);
 
         String[] streamNames = determineStreamNames(statementSpec.getStreamSpecs());
         int numStreams = streamNames.length;
@@ -100,7 +97,9 @@ public class StmtForgeMethodSelectUtil {
         }
 
         // first we create streams for subselects, if there are any
-        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
+        additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 
         // verify for joins that required views are present
         StreamJoinAnalysisResultCompileTime joinAnalysisResult = verifyJoinViews(statementSpec, services.getNamedWindowCompileTimeResolver());
@@ -115,8 +114,8 @@ public class StmtForgeMethodSelectUtil {
         for (int stream = 0; stream < numStreams; stream++) {
             StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[stream];
             boolean isCanIterateUnbound = streamSpec.getViewSpecs().length == 0 &&
-                    (services.getConfiguration().getCompiler().getViewResources().isIterableUnbound() ||
-                            AnnotationUtil.findAnnotation(statementSpec.getAnnotations(), IterableUnbound.class) != null);
+                (services.getConfiguration().getCompiler().getViewResources().isIterableUnbound() ||
+                    AnnotationUtil.findAnnotation(statementSpec.getAnnotations(), IterableUnbound.class) != null);
             ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(stream, false, -1, streamSpec.getOptions(), null, base.getStatementRawInfo(), services);
 
             if (dataflowOperator) {
@@ -125,6 +124,7 @@ public class StmtForgeMethodSelectUtil {
                 eventTypeNames[stream] = dfResult.getEventTypeName();
                 viewableActivatorForges[stream] = dfResult.getViewableActivatorForge();
                 viewForges[stream] = dfResult.getViewForges();
+                additionalForgeables.addAll(dfResult.additionalForgeables);
             } else if (streamSpec instanceof FilterStreamSpecCompiled) {
                 FilterStreamSpecCompiled filterStreamSpec = (FilterStreamSpecCompiled) statementSpec.getStreamSpecs()[stream];
                 FilterSpecCompiled filterSpecCompiled = filterStreamSpec.getFilterSpecCompiled();
@@ -132,7 +132,9 @@ public class StmtForgeMethodSelectUtil {
                 eventTypeNames[stream] = filterStreamSpec.getFilterSpecCompiled().getFilterForEventTypeName();
 
                 viewableActivatorForges[stream] = new ViewableActivatorFilterForge(filterSpecCompiled, isCanIterateUnbound, stream, false, -1);
-                viewForges[stream] = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, streamEventTypes[stream]);
+                ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, streamEventTypes[stream]);
+                viewForges[stream] = viewForgeDesc.getForges();
+                additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                 filterSpecCompileds.add(filterSpecCompiled);
             } else if (streamSpec instanceof PatternStreamSpecCompiled) {
                 PatternStreamSpecCompiled patternStreamSpec = (PatternStreamSpecCompiled) streamSpec;
@@ -145,7 +147,9 @@ public class StmtForgeMethodSelectUtil {
                 PatternContext patternContext = new PatternContext(0, patternStreamSpec.getMatchedEventMapMeta(), false, -1, false);
                 viewableActivatorForges[stream] = new ViewableActivatorPatternForge(patternType, patternStreamSpec, patternContext, isCanIterateUnbound);
                 streamEventTypes[stream] = patternType;
-                viewForges[stream] = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, patternType);
+                ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, patternType);
+                viewForges[stream] = viewForgeDesc.getForges();
+                additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
             } else if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
                 NamedWindowMetaData namedWindow = services.getNamedWindowCompileTimeResolver().resolve(namedSpec.getNamedWindow().getEventType().getName());
@@ -167,7 +171,9 @@ public class StmtForgeMethodSelectUtil {
                 isNamedWindow[stream] = true;
 
                 // Consumers to named windows cannot declare a data window view onto the named window to avoid duplicate remove streams
-                viewForges[stream] = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
+                ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
+                viewForges[stream] = viewForgeDesc.getForges();
+                additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                 EPStatementStartMethodHelperValidate.validateNoDataWindowOnNamedWindow(viewForges[stream]);
             } else if (streamSpec instanceof TableQueryStreamSpec) {
                 validateNoViews(streamSpec, "Table data");
@@ -224,8 +230,9 @@ public class StmtForgeMethodSelectUtil {
             }
             boolean isUnbound = (viewForges[0].isEmpty()) && (!(statementSpec.getStreamSpecs()[0] instanceof NamedWindowConsumerStreamSpec));
             EventType eventType = viewForges[0].isEmpty() ? streamEventTypes[0] : viewForges[0].get(viewForges[0].size() - 1).getEventType();
-            RowRecogDescForge desc = RowRecogNFAViewPlanUtil.validateAndPlan(eventType, isUnbound, base, services);
-            RowRecogNFAViewFactoryForge forge = new RowRecogNFAViewFactoryForge(desc);
+            RowRecogPlan plan = RowRecogNFAViewPlanUtil.validateAndPlan(eventType, isUnbound, base, services);
+            RowRecogNFAViewFactoryForge forge = new RowRecogNFAViewFactoryForge(plan.getForge());
+            additionalForgeables.addAll(plan.getAdditionalForgeables());
             scheduleHandleCallbackProviders.add(forge);
             viewForges[0].add(forge);
         }
@@ -239,7 +246,9 @@ public class StmtForgeMethodSelectUtil {
         joinAnalysisResult.addUniquenessInfo(viewForges, statementSpec.getAnnotations());
 
         // plan sub-selects
-        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, streamNames, streamEventTypes, eventTypeNames, services);
+        SubSelectHelperForgePlan subselectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, streamNames, streamEventTypes, eventTypeNames, services);
+        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subselectForgePlan.getSubselects();
+        additionalForgeables.addAll(subselectForgePlan.getAdditionalForgeables());
         determineViewSchedules(subselectForges, scheduleHandleCallbackProviders);
 
         // determine view schedules
@@ -259,7 +268,8 @@ public class StmtForgeMethodSelectUtil {
                 continue;
             }
             scheduleHandleCallbackProviders.add(historicalEventViewable);
-            historicalEventViewable.validate(typeService, base, services);
+            List<StmtClassForgableFactory> forgables = historicalEventViewable.validate(typeService, base, services);
+            additionalForgeables.addAll(forgables);
             historicalViewableDesc.setHistorical(stream, historicalEventViewable.getRequiredStreams());
             if (historicalEventViewable.getRequiredStreams().contains(stream)) {
                 throw new ExprValidationException("Parameters for historical stream " + stream + " indicate that the stream is subordinate to itself as stream parameters originate in the same stream");
@@ -272,6 +282,7 @@ public class StmtForgeMethodSelectUtil {
 
         // Obtain result set processor
         ResultSetProcessorDesc resultSetProcessorDesc = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(statementSpec), typeService, viewResourceDelegateExpr, joinAnalysisResult.getUnidirectionalInd(), true, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
+        additionalForgeables.addAll(resultSetProcessorDesc.getAdditionalForgeables());
 
         // Handle 'prior' function nodes in terms of view requirements
         ViewResourceDelegateDesc[] viewResourceDelegateDesc = ViewResourceVerifyHelper.verifyPreviousAndPriorRequirements(viewForges, viewResourceDelegateExpr);
@@ -284,13 +295,17 @@ public class StmtForgeMethodSelectUtil {
             }
         }
 
-        OutputProcessViewFactoryForge outputProcessViewFactoryForge = OutputProcessViewForgeFactory.make(typeService.getEventTypes(), resultSetProcessorDesc.getResultEventType(), resultSetProcessorDesc.getResultSetProcessorType(), statementSpec, base.getStatementRawInfo(), services);
+        OutputProcessViewFactoryForgeDesc outputProcessDesc = OutputProcessViewForgeFactory.make(typeService.getEventTypes(), resultSetProcessorDesc.getResultEventType(), resultSetProcessorDesc.getResultSetProcessorType(), statementSpec, base.getStatementRawInfo(), services);
+        OutputProcessViewFactoryForge outputProcessViewFactoryForge = outputProcessDesc.getForge();
+        additionalForgeables.addAll(outputProcessDesc.getAdditionalForgeables());
         outputProcessViewFactoryForge.collectSchedules(scheduleHandleCallbackProviders);
 
         JoinSetComposerPrototypeForge joinForge = null;
         if (numStreams > 1) {
             boolean hasAggregations = !resultSetProcessorDesc.getAggregationServiceForgeDesc().getExpressions().isEmpty();
-            joinForge = JoinSetComposerPrototypeForgeFactory.makeComposerPrototype(statementSpec, joinAnalysisResult, typeService, historicalViewableDesc, false, hasAggregations, base.getStatementRawInfo(), services);
+            JoinSetComposerPrototypeDesc desc = JoinSetComposerPrototypeForgeFactory.makeComposerPrototype(statementSpec, joinAnalysisResult, typeService, historicalViewableDesc, false, hasAggregations, base.getStatementRawInfo(), services);
+            joinForge = desc.getForge();
+            additionalForgeables.addAll(desc.getAdditionalForgeables());
             handleIndexDependencies(joinForge.getOptionalQueryPlan(), services);
         }
 
@@ -313,7 +328,9 @@ public class StmtForgeMethodSelectUtil {
 
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
         List<StmtClassForgable> forgables = new ArrayList<>();
-
+        for (StmtClassForgableFactory additional : additionalForgeables) {
+            forgables.add(additional.make(packageScope, classPostfix));
+        }
         forgables.add(new StmtClassForgableRSPFactoryProvider(resultSetProcessorProviderClassName, resultSetProcessorDesc, packageScope, base.getStatementRawInfo()));
         forgables.add(new StmtClassForgableOPVFactoryProvider(outputProcessViewProviderClassName, outputProcessViewFactoryForge, packageScope, numStreams, base.getStatementRawInfo()));
         forgables.add(new StmtClassForgableAIFactoryProviderSelect(statementAIFactoryProviderClassName, packageScope, forge));
@@ -329,7 +346,7 @@ public class StmtForgeMethodSelectUtil {
     }
 
     private static DataFlowActivationResult handleDataflowActivation(ViewFactoryForgeArgs args, StreamSpecCompiled streamSpec)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (!(streamSpec instanceof FilterStreamSpecCompiled)) {
             throw new ExprValidationException("Dataflow operator only allows filters for event types and does not allow tables, named windows or patterns");
         }
@@ -337,9 +354,10 @@ public class StmtForgeMethodSelectUtil {
         FilterSpecCompiled filterSpecCompiled = filterStreamSpec.getFilterSpecCompiled();
         EventType eventType = filterSpecCompiled.getResultEventType();
         String typeName = filterStreamSpec.getFilterSpecCompiled().getFilterForEventTypeName();
-        List<ViewFactoryForge> views = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, eventType);
+        ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, eventType);
+        List<ViewFactoryForge> views = viewForgeDesc.getForges();
         ViewableActivatorDataFlowForge viewableActivator = new ViewableActivatorDataFlowForge(eventType);
-        return new DataFlowActivationResult(eventType, typeName, viewableActivator, views);
+        return new DataFlowActivationResult(eventType, typeName, viewableActivator, views, viewForgeDesc.getMultikeyForges());
     }
 
     private static void determineViewSchedules(Map<ExprSubselectNode, SubSelectFactoryForge> subselects, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
@@ -352,20 +370,20 @@ public class StmtForgeMethodSelectUtil {
     }
 
     private static void validateNoViews(StreamSpecCompiled streamSpec, String conceptName)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (streamSpec.getViewSpecs().length > 0) {
             throw new ExprValidationException(conceptName + " joins do not allow views onto the data, view '"
-                    + streamSpec.getViewSpecs()[0].getObjectName() + "' is not valid in this context");
+                + streamSpec.getViewSpecs()[0].getObjectName() + "' is not valid in this context");
         }
     }
 
     private static void validateTableAccessUse(IntoTableSpec intoTableSpec, Set<ExprTableAccessNode> tableNodes)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (intoTableSpec != null && tableNodes != null && tableNodes.size() > 0) {
             for (ExprTableAccessNode node : tableNodes) {
                 if (node.getTableName().equals(intoTableSpec.getName())) {
                     throw new ExprValidationException("Invalid use of table '" + intoTableSpec.getName() + "', aggregate-into requires write-only, the expression '" +
-                            ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(node) + "' is not allowed");
+                        ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(node) + "' is not allowed");
                 }
             }
         }
@@ -396,12 +414,14 @@ public class StmtForgeMethodSelectUtil {
         private final String eventTypeName;
         private final ViewableActivatorForge viewableActivatorForge;
         private final List<ViewFactoryForge> viewForges;
+        private final List<StmtClassForgableFactory> additionalForgeables;
 
-        public DataFlowActivationResult(EventType streamEventType, String eventTypeName, ViewableActivatorForge viewableActivatorForge, List<ViewFactoryForge> viewForges) {
+        public DataFlowActivationResult(EventType streamEventType, String eventTypeName, ViewableActivatorForge viewableActivatorForge, List<ViewFactoryForge> viewForges, List<StmtClassForgableFactory> additionalForgeables) {
             this.streamEventType = streamEventType;
             this.eventTypeName = eventTypeName;
             this.viewableActivatorForge = viewableActivatorForge;
             this.viewForges = viewForges;
+            this.additionalForgeables = additionalForgeables;
         }
 
         public EventType getStreamEventType() {
@@ -418,6 +438,10 @@ public class StmtForgeMethodSelectUtil {
 
         public List<ViewFactoryForge> getViewForges() {
             return viewForges;
+        }
+
+        public List<StmtClassForgableFactory> getAdditionalForgeables() {
+            return additionalForgeables;
         }
     }
 }

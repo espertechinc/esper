@@ -35,9 +35,9 @@ public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable
     public PropertyCompositeEventTableImpl(PropertyCompositeEventTableFactory factory) {
         super(factory);
         if (factory.hashGetter != null) {
-            index = new HashMap<Object, Object>();
+            index = new HashMap<>();
         } else {
-            index = new TreeMap<Object, Object>();
+            index = new TreeMap<>();
         }
     }
 

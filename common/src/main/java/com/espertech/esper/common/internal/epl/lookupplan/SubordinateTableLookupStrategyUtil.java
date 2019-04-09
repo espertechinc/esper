@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.lookupplan;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.join.queryplan.CoercionDesc;
 import com.espertech.esper.common.internal.epl.lookup.*;
@@ -22,6 +23,7 @@ public class SubordinateTableLookupStrategyUtil {
     public static SubordTableLookupStrategyFactoryForge getLookupStrategy(EventType[] outerStreamTypesZeroIndexed,
                                                                           List<SubordPropHashKeyForge> hashKeys,
                                                                           CoercionDesc hashKeyCoercionTypes,
+                                                                          MultiKeyClassRef hashMultikeyClasses,
                                                                           List<SubordPropRangeKeyForge> rangeKeys,
                                                                           CoercionDesc rangeKeyCoercionTypes,
                                                                           ExprNode[] inKeywordSingleIdxKeys,
@@ -46,12 +48,12 @@ public class SubordinateTableLookupStrategyUtil {
         } else if (hashKeys.isEmpty() && rangeKeys.isEmpty()) {
             lookupStrategy = new SubordFullTableScanLookupStrategyFactoryForge();
         } else if (hashKeys.size() > 0 && rangeKeys.isEmpty()) {
-            lookupStrategy = new SubordHashedTableLookupStrategyFactoryForge(isNWOnTrigger, numStreamsTotal, hashKeys, hashKeyCoercionTypes, isStrictKeys, hashStrictKeys, hashStrictKeyStreams, outerStreamTypesZeroIndexed);
+            lookupStrategy = new SubordHashedTableLookupStrategyFactoryForge(isNWOnTrigger, numStreamsTotal, hashKeys, hashKeyCoercionTypes, isStrictKeys, hashStrictKeys, hashStrictKeyStreams, outerStreamTypesZeroIndexed, hashMultikeyClasses);
         } else if (hashKeys.size() == 0 && rangeKeys.size() == 1) {
             lookupStrategy = new SubordSortedTableLookupStrategyFactoryForge(isNWOnTrigger, numStreamsTotal, rangeKeys.get(0), rangeKeyCoercionTypes);
         } else {
             lookupStrategy = new SubordCompositeTableLookupStrategyFactoryForge(isNWOnTrigger, numStreamsTotal, hashKeys, hashKeyCoercionTypes.getCoercionTypes(),
-                    rangeKeys, rangeKeyCoercionTypes.getCoercionTypes());
+                    hashMultikeyClasses, rangeKeys, rangeKeyCoercionTypes.getCoercionTypes());
         }
         return lookupStrategy;
     }

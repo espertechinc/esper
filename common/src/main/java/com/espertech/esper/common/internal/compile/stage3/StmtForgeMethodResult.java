@@ -19,22 +19,22 @@ import java.util.List;
 
 public class StmtForgeMethodResult {
 
-    private final List<StmtClassForgable> forgables;
+    private final List<StmtClassForgable> forgeables;
     private final List<FilterSpecCompiled> filtereds;
     private final List<ScheduleHandleCallbackProvider> scheduleds;
     private final List<NamedWindowConsumerStreamSpec> namedWindowConsumers;
     private final List<FilterSpecParamExprNodeForge> filterBooleanExpressions;
 
-    public StmtForgeMethodResult(List<StmtClassForgable> forgables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
-        this.forgables = forgables;
+    public StmtForgeMethodResult(List<StmtClassForgable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
+        this.forgeables = forgeables;
         this.filtereds = filtereds;
         this.scheduleds = scheduleds;
         this.namedWindowConsumers = namedWindowConsumers;
         this.filterBooleanExpressions = filterBooleanExpressions;
     }
 
-    public List<StmtClassForgable> getForgables() {
-        return forgables;
+    public List<StmtClassForgable> getForgeables() {
+        return forgeables;
     }
 
     public List<ScheduleHandleCallbackProvider> getScheduleds() {

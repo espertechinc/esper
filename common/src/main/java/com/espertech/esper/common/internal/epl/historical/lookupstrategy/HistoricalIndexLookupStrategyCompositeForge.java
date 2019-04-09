@@ -14,9 +14,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRange;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRangeForge;
 
@@ -26,11 +27,13 @@ public class HistoricalIndexLookupStrategyCompositeForge implements HistoricalIn
 
     private final int lookupStream;
     private final ExprForge[] evaluators;
+    private final MultiKeyClassRef multiKeyClasses;
     private final QueryGraphValueEntryRangeForge[] ranges;
 
-    public HistoricalIndexLookupStrategyCompositeForge(int lookupStream, ExprForge[] evaluators, QueryGraphValueEntryRangeForge[] ranges) {
+    public HistoricalIndexLookupStrategyCompositeForge(int lookupStream, ExprForge[] evaluators, MultiKeyClassRef multiKeyClasses, QueryGraphValueEntryRangeForge[] ranges) {
         this.lookupStream = lookupStream;
         this.evaluators = evaluators;
+        this.multiKeyClasses = multiKeyClasses;
         this.ranges = ranges;
     }
 
@@ -46,13 +49,14 @@ public class HistoricalIndexLookupStrategyCompositeForge implements HistoricalIn
             method.getBlock().assignArrayElement(ref("rangeGetters"), constant(i), ranges[i].make(null, method, symbols, classScope));
         }
 
+        CodegenExpression hashGetter = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(evaluators, null, multiKeyClasses, method, classScope);
         method.getBlock()
-                .declareVar(HistoricalIndexLookupStrategyComposite.class, "strat", newInstance(HistoricalIndexLookupStrategyComposite.class))
-                .exprDotMethod(ref("strat"), "setLookupStream", constant(lookupStream))
-                .exprDotMethod(ref("strat"), "setHashGetter", ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(evaluators, null, method, this.getClass(), classScope))
-                .exprDotMethod(ref("strat"), "setRangeProps", ref("rangeGetters"))
-                .exprDotMethod(ref("strat"), "init")
-                .methodReturn(ref("strat"));
+            .declareVar(HistoricalIndexLookupStrategyComposite.class, "strat", newInstance(HistoricalIndexLookupStrategyComposite.class))
+            .exprDotMethod(ref("strat"), "setLookupStream", constant(lookupStream))
+            .exprDotMethod(ref("strat"), "setHashGetter", hashGetter)
+            .exprDotMethod(ref("strat"), "setRangeProps", ref("rangeGetters"))
+            .exprDotMethod(ref("strat"), "init")
+            .methodReturn(ref("strat"));
         return localMethod(method);
     }
 }

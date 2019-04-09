@@ -15,9 +15,12 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.stage1.spec.MethodStreamSpec;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentifierAndStreamRefVisitor;
@@ -47,7 +50,7 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
         this.metadata = metadata;
     }
 
-    public void validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
+    public List<StmtClassForgableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
             throws ExprValidationException {
         // validate and visit
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).withAllowBindingConsumption(true).build();
@@ -90,9 +93,15 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
             this.inputParamEvaluators = ExprNodeUtilityQuery.getForges(ExprNodeUtilityQuery.toArray(validatedInputParameters));
         }
 
+        // plan multikey
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false);
+        this.multiKeyClassRef = multiKeyPlan.getOptionalClassRef();
+
         Pair<MethodTargetStrategyForge, MethodConversionStrategyForge> strategies = PollExecStrategyPlanner.plan(metadata, targetMethod, eventType);
         this.target = strategies.getFirst();
         this.conversion = strategies.getSecond();
+
+        return multiKeyPlan.getMultiKeyForgables();
     }
 
     public Class typeOfImplementation() {

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CodegenClass {
+    private final CodegenClassType classType;
     private final String packageName;
     private final String className;
     private final Class interfaceImplemented;
@@ -26,13 +27,15 @@ public class CodegenClass {
     private final CodegenClassMethods methods;
     private final List<CodegenInnerClass> innerClasses;
 
-    public CodegenClass(Class interfaceClass,
+    public CodegenClass(CodegenClassType classType,
+                        Class interfaceClass,
                         String className,
                         CodegenClassScope codegenClassScope,
                         List<CodegenTypedParam> explicitMembers,
                         CodegenCtor optionalCtor,
                         CodegenClassMethods methods,
                         List<CodegenInnerClass> innerClasses) {
+        this.classType = classType;
         this.packageName = codegenClassScope.getPackageScope().getPackageName();
         this.className = className;
         this.interfaceImplemented = interfaceClass;
@@ -75,6 +78,10 @@ public class CodegenClass {
 
     public CodegenCtor getOptionalCtor() {
         return optionalCtor;
+    }
+
+    public CodegenClassType getClassType() {
+        return classType;
     }
 
     public Set<Class> getReferencedClasses() {

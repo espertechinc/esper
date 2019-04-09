@@ -39,6 +39,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationPlan;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
+import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlan;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePlanner;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
@@ -66,7 +67,8 @@ public class OnSplitStreamUtil {
         StreamTypeService typeServiceTrigger = new StreamTypeServiceImpl(new EventType[]{activatorResult.getActivatorResultEventType()}, new String[]{streamName}, new boolean[]{true}, false, false);
 
         // materialize sub-select views
-        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, new String[]{streamSpec.getOptionalStreamName()}, new EventType[]{activatorResult.getActivatorResultEventType()}, new String[]{activatorResult.getTriggerEventTypeName()}, services);
+        SubSelectHelperForgePlan subselectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, new String[]{streamSpec.getOptionalStreamName()}, new EventType[]{activatorResult.getActivatorResultEventType()}, new String[]{activatorResult.getTriggerEventTypeName()}, services);
+        Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subselectForgePlan.getSubselects();
 
         // compile top-level split
         OnSplitItemForge[] items = new OnSplitItemForge[desc.getSplitStreams().size() + 1];
@@ -107,10 +109,10 @@ public class OnSplitStreamUtil {
 
         // build forge
         StatementAgentInstanceFactoryOnTriggerSplitStreamForge splitStreamForge = new StatementAgentInstanceFactoryOnTriggerSplitStreamForge(activatorResult.getActivator(),
-                activatorResult.getActivatorResultEventType(), subselectForges, tableAccessForges, items, desc.isFirst());
+            activatorResult.getActivatorResultEventType(), subselectForges, tableAccessForges, items, desc.isFirst());
         StmtClassForgableAIFactoryProviderOnTrigger triggerForge = new StmtClassForgableAIFactoryProviderOnTrigger(aiFactoryProviderClassName, packageScope, splitStreamForge);
 
-        return new OnTriggerPlan(triggerForge, forgables, new SelectSubscriberDescriptor());
+        return new OnTriggerPlan(triggerForge, forgables, new SelectSubscriberDescriptor(), subselectForgePlan.getAdditionalForgeables());
     }
 
     private static OnSplitItemForge onSplitValidate(StreamTypeService typeServiceTrigger, StatementSpecCompiled statementSpecCompiled, ContextPropertyRegistry contextPropertyRegistry, PropertyEvaluatorForge optionalPropertyEval, StatementRawInfo rawInfo, StatementCompileTimeServices services) throws ExprValidationException {
@@ -120,7 +122,7 @@ public class OnSplitStreamUtil {
         EPStatementStartMethodHelperValidate.validateNodes(statementSpecCompiled.getRaw(), typeServiceTrigger, null, rawInfo, services);
         ResultSetSpec spec = new ResultSetSpec(statementSpecCompiled);
         ResultSetProcessorDesc factoryDescs = ResultSetProcessorFactoryFactory.getProcessorPrototype(spec, typeServiceTrigger,
-                null, new boolean[0], false, contextPropertyRegistry, false, true, rawInfo, services);
+            null, new boolean[0], false, contextPropertyRegistry, false, true, rawInfo, services);
         return new OnSplitItemForge(statementSpecCompiled.getRaw().getWhereClause(), isNamedWindowInsert, table, factoryDescs, optionalPropertyEval);
     }
 

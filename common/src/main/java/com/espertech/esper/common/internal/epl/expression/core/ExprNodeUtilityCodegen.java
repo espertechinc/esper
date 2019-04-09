@@ -11,13 +11,11 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames;
@@ -34,6 +32,25 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 
 public class ExprNodeUtilityCodegen {
+    public static CodegenExpression codegenExpressionMayCoerce(ExprForge forge, Class targetType, CodegenMethod exprMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope classScope) {
+        CodegenExpression expr = forge.evaluateCodegen(forge.getEvaluationType(), exprMethod, exprSymbol, classScope);
+        return ExprNodeUtilityCodegen.codegenCoerce(expr, forge.getEvaluationType(), targetType, false);
+    }
+
+    public static CodegenExpression codegenCoerce(CodegenExpression expression, Class exprType, Class targetType, boolean alwaysCast) {
+        if (targetType == null) {
+            return expression;
+        }
+        if (JavaClassHelper.getBoxedType(exprType) == JavaClassHelper.getBoxedType(targetType)) {
+            return alwaysCast ? cast(targetType, expression) : expression;
+        }
+        SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(exprType, JavaClassHelper.getBoxedType(targetType));
+        if (exprType.isPrimitive() || alwaysCast) {
+            expression = cast(JavaClassHelper.getBoxedType(exprType), expression);
+        }
+        return coercer.coerceCodegen(expression, exprType);
+    }
+
     public static CodegenExpressionNewAnonymousClass codegenEvaluator(ExprForge forge, CodegenMethod method, Class originator, CodegenClassScope classScope) {
         CodegenExpressionNewAnonymousClass anonymousClass = newAnonymousClass(method.getBlock(), ExprEvaluator.class);
         CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, originator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
@@ -94,43 +111,6 @@ public class ExprNodeUtilityCodegen {
         return evaluator;
     }
 
-    public static CodegenExpressionNewAnonymousClass codegenEvaluatorMayMultiKeyWCoerce(ExprForge[] forges, Class[] optCoercionTypes, CodegenMethod method, Class generator, CodegenClassScope classScope) {
-        if (forges.length == 1) {
-            return codegenEvaluatorWCoerce(forges[0], optCoercionTypes == null ? null : optCoercionTypes[0], method, generator, classScope);
-        }
-        CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEvaluator.class);
-        CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
-        evaluator.addMethod("evaluate", evaluate);
-
-        ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
-        CodegenMethod exprMethod = evaluate.makeChildWithScope(Object.class, CodegenLegoMethodExpression.class, exprSymbol, classScope).addParam(ExprForgeCodegenNames.PARAMS);
-
-        CodegenExpression[] expressions = new CodegenExpression[forges.length];
-        for (int i = 0; i < forges.length; i++) {
-            expressions[i] = forges[i].evaluateCodegen(forges[i].getEvaluationType(), exprMethod, exprSymbol, classScope);
-        }
-        exprSymbol.derivedSymbolsCodegen(evaluate, exprMethod.getBlock(), classScope);
-
-        exprMethod.getBlock().declareVar(Object[].class, "values", newArrayByLength(Object.class, constant(forges.length)))
-                .declareVar(HashableMultiKey.class, "valuesMk", newInstance(HashableMultiKey.class, ref("values")));
-        for (int i = 0; i < forges.length; i++) {
-
-            CodegenExpression result = expressions[i];
-            if (optCoercionTypes != null && JavaClassHelper.getBoxedType(forges[i].getEvaluationType()) != JavaClassHelper.getBoxedType(optCoercionTypes[i])) {
-                SimpleNumberCoercer coercer = SimpleNumberCoercerFactory.getCoercer(forges[i].getEvaluationType(), JavaClassHelper.getBoxedType(optCoercionTypes[i]));
-                String name = "result_" + i;
-                exprMethod.getBlock().declareVar(forges[i].getEvaluationType(), name, expressions[i]);
-                result = coercer.coerceCodegen(ref(name), forges[i].getEvaluationType());
-            }
-
-            exprMethod.getBlock().assignArrayElement("values", constant(i), result);
-        }
-        exprMethod.getBlock().methodReturn(ref("valuesMk"));
-        evaluate.getBlock().methodReturn(localMethod(exprMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
-
-        return evaluator;
-    }
-
     public static CodegenExpressionNewAnonymousClass codegenEvaluatorObjectArray(ExprForge[] forges, CodegenMethod method, Class generator, CodegenClassScope classScope) {
         CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEvaluator.class);
         CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, generator, classScope).addParam(ExprForgeCodegenNames.PARAMS);
@@ -154,22 +134,6 @@ public class ExprNodeUtilityCodegen {
         evaluate.getBlock().methodReturn(localMethod(exprMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT));
 
         return evaluator;
-    }
-
-    public static CodegenExpression codegenEvaluatorMayMultiKeyPropPerStream(EventType[] outerStreamTypesZeroIndexed,
-                                                                             String[] propertyNames,
-                                                                             Class[] optionalCoercionTypes,
-                                                                             int[] keyStreamNums,
-                                                                             CodegenMethod method,
-                                                                             Class generator,
-                                                                             CodegenClassScope classScope) {
-
-        ExprForge[] forges = new ExprForge[propertyNames.length];
-        for (int i = 0; i < propertyNames.length; i++) {
-            ExprIdentNodeImpl node = new ExprIdentNodeImpl(outerStreamTypesZeroIndexed[keyStreamNums[i]], propertyNames[i], keyStreamNums[i]);
-            forges[i] = node.getForge();
-        }
-        return codegenEvaluatorMayMultiKeyWCoerce(forges, optionalCoercionTypes, method, generator, classScope);
     }
 
     public static CodegenMethod codegenMapSelect(ExprNode[] selectClause, String[] selectAsNames, Class generator, CodegenMethodScope parent, CodegenClassScope classScope) {

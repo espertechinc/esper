@@ -11,11 +11,11 @@
 package com.espertech.esper.regressionlib.suite.multithread;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtNamedWindowUpdateCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
@@ -57,7 +57,7 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
             " where sb.theString = win.theString and sb.intPrimitive = win.intPrimitive", path);
 
         // send primer events, initialize totals
-        Map<HashableMultiKey, UpdateTotals> totals = new HashMap<>();
+        Map<Pair<String, Integer>, UpdateTotals> totals = new HashMap<>();
         for (int i = 0; i < NUM_STRINGS; i++) {
             for (int j = 0; j < NUM_INTS; j++) {
                 SupportBean primer = new SupportBean(Integer.toString(i), j);
@@ -66,7 +66,7 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
                 primer.setDoublePrimitive(0);
 
                 env.sendEventBean(primer);
-                HashableMultiKey key = new HashableMultiKey(primer.getTheString(), primer.getIntPrimitive());
+                Pair<String, Integer> key = new Pair<>(primer.getTheString(), primer.getIntPrimitive());
                 totals.put(key, new UpdateTotals(0, 0));
             }
         }
@@ -94,7 +94,7 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
             }
             deltaCumulative += result.getDelta();
             for (StmtNamedWindowUpdateCallable.UpdateItem item : result.getUpdates()) {
-                HashableMultiKey key = new HashableMultiKey(item.getTheString(), item.getIntval());
+                Pair<String, Integer> key = new Pair<>(item.getTheString(), item.getIntval());
                 UpdateTotals total = totals.get(key);
                 if (total == null) {
                     throw new RuntimeException("Totals not found for key " + key);
@@ -109,7 +109,7 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
         assertEquals(rows.length, totals.size());
         long totalUpdates = 0;
         for (EventBean row : rows) {
-            UpdateTotals total = totals.get(new HashableMultiKey(row.get("theString"), row.get("intPrimitive")));
+            UpdateTotals total = totals.get(new Pair<>((String) row.get("theString"), (Integer) row.get("intPrimitive")));
             Assert.assertEquals(total.getNum(), row.get("intBoxed"));
             Assert.assertEquals(total.getSum(), row.get("doublePrimitive"));
             totalUpdates += total.getNum();

@@ -51,7 +51,7 @@ public class ExprDotNodeAggregationMethodForgeTableAccess extends ExprDotNodeAgg
 
         CodegenExpressionField future = classScope.getPackageScope().addOrGetFieldWellKnown(new CodegenFieldNameTableAccess(subprop.getTableAccessNumber()), ExprTableEvalStrategy.class);
         method.getBlock()
-            .declareVar(AggregationRow.class, "row", exprDotMethod(future, "getRow", eps, newData, evalCtx))
+            .declareVar(AggregationRow.class, "row", exprDotMethod(future, "getAggregationRow", eps, newData, evalCtx))
             .ifRefNullReturnNull("row")
             .methodReturn(CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(getReader(classScope), readerMethodName, constant(column.getColumn()), ref("row"), symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method))));
         return localMethod(method);

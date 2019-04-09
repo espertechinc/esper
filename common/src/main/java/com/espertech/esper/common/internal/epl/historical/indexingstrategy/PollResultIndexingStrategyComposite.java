@@ -40,7 +40,7 @@ public class PollResultIndexingStrategyComposite implements PollResultIndexingSt
     }
 
     public void init() {
-        factory = new PropertyCompositeEventTableFactory(streamNum, optionalKeyedProps, optKeyCoercedTypes, hashGetter,
+        factory = new PropertyCompositeEventTableFactory(streamNum, optionalKeyedProps, optKeyCoercedTypes, hashGetter, null,
                 rangeProps, optRangeCoercedTypes, rangeGetters);
     }
 

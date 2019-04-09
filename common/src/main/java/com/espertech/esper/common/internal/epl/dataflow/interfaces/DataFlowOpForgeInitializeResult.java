@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.epl.dataflow.util.GraphTypeDesc;
 public class DataFlowOpForgeInitializeResult {
 
     private GraphTypeDesc[] typeDescriptors;
-    private StmtForgeMethodResult additionalForgables;
+    private StmtForgeMethodResult additionalForgeables;
 
     public DataFlowOpForgeInitializeResult() {
     }
@@ -33,11 +33,11 @@ public class DataFlowOpForgeInitializeResult {
         this.typeDescriptors = typeDescriptors;
     }
 
-    public StmtForgeMethodResult getAdditionalForgables() {
-        return additionalForgables;
+    public StmtForgeMethodResult getAdditionalForgeables() {
+        return additionalForgeables;
     }
 
-    public void setAdditionalForgables(StmtForgeMethodResult additionalForgables) {
-        this.additionalForgables = additionalForgables;
+    public void setAdditionalForgeables(StmtForgeMethodResult additionalForgeables) {
+        this.additionalForgeables = additionalForgeables;
     }
 }

@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.annotation.Name;
 import com.espertech.esper.common.client.util.StatementType;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.bytecodemodel.util.IdentifierUtil;
@@ -35,7 +36,6 @@ import com.espertech.esper.common.internal.context.aifactory.update.StmtForgeMet
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
-import com.espertech.esper.common.internal.context.module.StatementFields;
 import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
@@ -72,14 +72,14 @@ import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator
 public class CompilerHelperStatementProvider {
 
     static CompilableItem compileItem(Compilable compilable,
-                                          String optionalModuleName,
-                                          String moduleIdentPostfix,
-                                          int statementNumber,
-                                          String packageName,
-                                          Set<String> statementNames,
-                                          StatementCompileTimeServices compileTimeServices,
-                                          CompilerOptions compilerOptions)
-            throws StatementSpecCompileException {
+                                      String optionalModuleName,
+                                      String moduleIdentPostfix,
+                                      int statementNumber,
+                                      String packageName,
+                                      Set<String> statementNames,
+                                      StatementCompileTimeServices compileTimeServices,
+                                      CompilerOptions compilerOptions)
+        throws StatementSpecCompileException {
 
         // Stage 1 - parse statement
         StatementSpecRaw raw = parseWalk(compilable, compileTimeServices);
@@ -145,7 +145,8 @@ public class CompilerHelperStatementProvider {
             // Stage 2(d) compile raw statement spec
             StatementType statementType = StatementTypeUtil.getStatementType(raw);
             StatementRawInfo statementRawInfo = new StatementRawInfo(statementNumber, statementName, annotations, statementType, contextDescriptor, raw.getIntoTableSpec() == null ? null : raw.getIntoTableSpec().getName(), compilable, optionalModuleName);
-            StatementSpecCompiled specCompiled = StatementRawCompiler.compile(raw, compilable, false, false, annotations, subselectNodes, tableAccessNodes, statementRawInfo, compileTimeServices);
+            StatementSpecCompiledDesc compiledDesc = StatementRawCompiler.compile(raw, compilable, false, false, annotations, subselectNodes, tableAccessNodes, statementRawInfo, compileTimeServices);
+            StatementSpecCompiled specCompiled = compiledDesc.getCompiled();
             String statementIdentPostfix = IdentifierUtil.getIdentifierMayStartNumeric(statementName);
 
             // get compile-time user object
@@ -198,12 +199,19 @@ public class CompilerHelperStatementProvider {
             // Stage 3(b) - forge-factory-to-forge
             String classPostfix = moduleIdentPostfix + "_" + statementIdentPostfix;
             List<StmtClassForgable> forgables = new ArrayList<>();
+
+            // add forgables from filter-related processing i.e. multikeys
+            for (StmtClassForgableFactory additional : compiledDesc.getAdditionalForgeables()) {
+                CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, false);
+                forgables.add(additional.make(packageScope, classPostfix));
+            }
+
             List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
             List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
             List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
             List<FilterSpecParamExprNodeForge> filterBooleanExpressions = new ArrayList<>();
             StmtForgeMethodResult result = forgeMethod.make(packageName, classPostfix, compileTimeServices);
-            forgables.addAll(result.getForgables());
+            forgables.addAll(result.getForgeables());
             verifyForgables(forgables);
 
             filterSpecCompileds.addAll(result.getFiltereds());
@@ -247,10 +255,10 @@ public class CompilerHelperStatementProvider {
             }
 
             // Stage 5 - sort to make the "fields" class first and all the rest later
-            List<CodegenClass> sorted = sortClasses(classes);
+            classes.sort((o1, o2) -> Integer.compare(o1.getClassType().getSortCode(), o2.getClassType().getSortCode()));
 
             String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameWithPackage(packageName, StatementProvider.class, classPostfix);
-            return new CompilableItem(statementProviderClassName, sorted);
+            return new CompilableItem(statementProviderClassName, classes);
         } catch (StatementSpecCompileException ex) {
             throw ex;
         } catch (ExprValidationException ex) {
@@ -261,21 +269,6 @@ public class CompilerHelperStatementProvider {
             String text = t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage();
             throw new StatementSpecCompileException(text, t, compilable.toEPL());
         }
-    }
-
-    private static List<CodegenClass> sortClasses(List<CodegenClass> classes) {
-        List<CodegenClass> sorted = new ArrayList<>(classes.size());
-        for (CodegenClass clazz : classes) {
-            if (clazz.getInterfaceImplemented() == StatementFields.class) {
-                sorted.add(clazz);
-            }
-        }
-        for (CodegenClass clazz : classes) {
-            if (clazz.getInterfaceImplemented() != StatementFields.class) {
-                sorted.add(clazz);
-            }
-        }
-        return sorted;
     }
 
     private static void verifyForgables(List<StmtClassForgable> forgables) {

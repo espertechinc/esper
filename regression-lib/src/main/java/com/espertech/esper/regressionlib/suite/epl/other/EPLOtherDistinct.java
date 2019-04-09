@@ -17,12 +17,15 @@ import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.soda.FilterStream;
 import com.espertech.esper.common.client.soda.FromClause;
 import com.espertech.esper.common.client.soda.SelectClause;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_N;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
@@ -52,7 +55,168 @@ public class EPLOtherDistinct {
         execs.add(new EPLOtherOutputRateSnapshotColumn());
         execs.add(new EPLOtherDistinctWildcardJoinPatternOne());
         execs.add(new EPLOtherDistinctWildcardJoinPatternTwo());
+        execs.add(new EPLOtherDistinctOutputLimitMultikeyWArraySingleArray());
+        execs.add(new EPLOtherDistinctOutputLimitMultikeyWArrayTwoArray());
+        execs.add(new EPLOtherDistinctFireAndForgetMultikeyWArray());
+        execs.add(new EPLOtherDistinctIterateMultikeyWArray());
+        execs.add(new EPLOtherDistinctOnSelectMultikeyWArray());
+        execs.add(new EPLOtherDistinctVariantStream());
         return execs;
+    }
+
+    private static class EPLOtherDistinctVariantStream implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create variant schema MyVariant as SupportEventWithManyArray;\n" +
+                "insert into MyVariant select * from SupportEventWithManyArray;\n" +
+                "@name('s0') select distinct * from MyVariant#keepall;\n" +
+                "@name('s1') select distinct intOne from MyVariant#keepall;\n" +
+                "@name('s2') select distinct intOne, intTwo from MyVariant#keepall;\n";
+            env.compileDeploy(epl);
+
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 5});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+
+            assertEquals(3, EPAssertionUtil.iteratorToArray(env.iterator("s0")).length);
+            assertEquals(2, EPAssertionUtil.iteratorToArray(env.iterator("s1")).length);
+            assertEquals(3, EPAssertionUtil.iteratorToArray(env.iterator("s2")).length);
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLOtherDistinctOnSelectMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+                "insert into MyWindow select * from SupportEventWithManyArray;\n" +
+                "@name('s0') on SupportBean_S0 select distinct intOne from MyWindow;\n" +
+                "@name('s1') on SupportBean_S1 select distinct intOne, intTwo from MyWindow;\n";
+            env.compileDeploy(epl).addListener("s0").addListener("s1");
+
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 5});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+
+            env.sendEventBean(new SupportBean_S0(0));
+            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "intOne".split(","),
+                new Object[][]{{new int[]{1, 2}}, {new int[]{3, 4}}});
+
+            env.sendEventBean(new SupportBean_S1(0));
+            EPAssertionUtil.assertPropsPerRow(env.listener("s1").getAndResetLastNewData(), "intOne,intTwo".split(","),
+                new Object[][]{
+                    {new int[]{1, 2}, new int[]{3, 4}},
+                    {new int[]{3, 4}, new int[]{1, 2}},
+                    {new int[]{1, 2}, new int[]{3, 5}}
+                });
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLOtherDistinctIterateMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "@name('s0') select distinct intOne from SupportEventWithManyArray#keepall;\n" +
+                    "@name('s1') select distinct intOne, intTwo from SupportEventWithManyArray#keepall;\n";
+            env.compileDeploy(epl);
+
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 5});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+
+            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), "intOne".split(","),
+                new Object[][]{{new int[]{1, 2}}, {new int[]{3, 4}}});
+
+            EPAssertionUtil.assertPropsPerRow(env.iterator("s1"), "intOne,intTwo".split(","),
+                new Object[][]{
+                    {new int[]{1, 2}, new int[]{3, 4}},
+                    {new int[]{3, 4}, new int[]{1, 2}},
+                    {new int[]{1, 2}, new int[]{3, 5}}
+                });
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLOtherDistinctFireAndForgetMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl = "@name('s0') create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+                "insert into MyWindow select * from SupportEventWithManyArray;\n";
+            env.compileDeploy(epl, path);
+
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 5});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+
+            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select distinct intOne from MyWindow", path);
+            EPAssertionUtil.assertPropsPerRow(result.getArray(), "intOne".split(","),
+                new Object[][]{{new int[]{1, 2}}, {new int[]{3, 4}}});
+
+            result = env.compileExecuteFAF("select distinct intOne, intTwo from MyWindow", path);
+            EPAssertionUtil.assertPropsPerRow(result.getArray(), "intOne,intTwo".split(","),
+                new Object[][]{
+                    {new int[]{1, 2}, new int[]{3, 4}},
+                    {new int[]{3, 4}, new int[]{1, 2}},
+                    {new int[]{1, 2}, new int[]{3, 5}}
+                });
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLOtherDistinctOutputLimitMultikeyWArrayTwoArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String epl = "@name('s0') select distinct intOne, intTwo from SupportEventWithManyArray output every 1 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 5});
+            sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
+
+            env.advanceTime(1000);
+
+            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "intOne,intTwo".split(","),
+                new Object[][]{
+                    {new int[]{1, 2}, new int[]{3, 4}},
+                    {new int[]{3, 4}, new int[]{1, 2}},
+                    {new int[]{1, 2}, new int[]{3, 5}}
+                });
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLOtherDistinctOutputLimitMultikeyWArraySingleArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            env.advanceTime(0);
+            String epl = "@name('s0') select distinct intOne from SupportEventWithManyArray output every 1 seconds";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendManyArray(env, new int[]{1, 2});
+            sendManyArray(env, new int[]{2, 1});
+            sendManyArray(env, new int[]{2, 3});
+            sendManyArray(env, new int[]{1, 2});
+            sendManyArray(env, new int[]{1, 2});
+
+            env.advanceTime(1000);
+
+            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "intOne".split(","),
+                new Object[][]{{new int[]{1, 2}}, {new int[]{2, 1}}, {new int[]{2, 3}}});
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherDistinctWildcardJoinPatternOne implements RegressionExecution {
@@ -536,5 +700,13 @@ public class EPLOtherDistinct {
         def.put("k1", s);
         def.put("v1", i);
         env.sendEventMap(def, "MyMapTypeKVDistinct");
+    }
+
+    private static void sendManyArray(RegressionEnvironment env, int[] intOne, int[] intTwo) {
+        env.sendEventBean(new SupportEventWithManyArray("id").withIntOne(intOne).withIntTwo(intTwo));
+    }
+
+    private static void sendManyArray(RegressionEnvironment env, int[] ints) {
+        env.sendEventBean(new SupportEventWithManyArray("id").withIntOne(ints));
     }
 }

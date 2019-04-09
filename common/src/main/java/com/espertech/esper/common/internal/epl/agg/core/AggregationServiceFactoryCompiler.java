@@ -586,7 +586,7 @@ public class AggregationServiceFactoryCompiler {
         CodegenStackGenerator.recursiveBuildStack(getValueMethod, "getValue", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getCollectionOfEventsMethod, "getCollectionOfEvents", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getEventBeanMethod, "getEventBean", innerMethods);
-        CodegenStackGenerator.recursiveBuildStack(getRowMethod, "getRow", innerMethods);
+        CodegenStackGenerator.recursiveBuildStack(getRowMethod, "getAggregationRow", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getGroupKeyMethod, "getGroupKey", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getGroupKeysMethod, "getGroupKeys", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(getCollectionScalarMethod, "getCollectionScalar", innerMethods);

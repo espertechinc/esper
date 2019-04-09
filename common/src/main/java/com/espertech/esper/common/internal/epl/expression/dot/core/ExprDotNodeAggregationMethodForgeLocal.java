@@ -38,7 +38,7 @@ public class ExprDotNodeAggregationMethodForgeLocal extends ExprDotNodeAggregati
         CodegenExpression future = agg.getAggFuture(classScope);
         CodegenMethod method = parent.makeChild(requiredType, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(AggregationRow.class, "row", exprDotMethod(future, "getRow", exprDotMethod(symbols.getAddExprEvalCtx(parent), "getAgentInstanceId"), symbols.getAddEPS(parent), symbols.getAddIsNewData(parent), symbols.getAddExprEvalCtx(parent)))
+            .declareVar(AggregationRow.class, "row", exprDotMethod(future, "getAggregationRow", exprDotMethod(symbols.getAddExprEvalCtx(parent), "getAgentInstanceId"), symbols.getAddEPS(parent), symbols.getAddIsNewData(parent), symbols.getAddExprEvalCtx(parent)))
             .ifRefNullReturnNull("row")
             .methodReturn(CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(getReader(classScope), readerMethodName, constant(agg.getColumn()), ref("row"), symbols.getAddEPS(method), symbols.getAddIsNewData(method), symbols.getAddExprEvalCtx(method))));
         return localMethod(method);

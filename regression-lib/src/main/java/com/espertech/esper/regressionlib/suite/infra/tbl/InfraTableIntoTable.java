@@ -13,13 +13,14 @@ package com.espertech.esper.regressionlib.suite.infra.tbl;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.runtime.client.EPStatement;
 
 import java.math.BigDecimal;
@@ -46,7 +47,66 @@ public class InfraTableIntoTable {
         execs.add(new InfraTableIntoTableNoKeys());
         execs.add(new InfraTableIntoTableWithKeys());
         execs.add(new InfraTableBigNumberAggregation());
+        execs.add(new InfraIntoTableMultikeyWArraySingleArrayKeyed());
+        execs.add(new InfraIntoTableMultikeyWArrayTwoKeyed());
         return execs;
+    }
+
+    private static class InfraIntoTableMultikeyWArrayTwoKeyed implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "@name('tbl') create table MyTable(k1 int[primitive] primary key, k2 int[primitive] primary key, thesum sum(int));\n" +
+                    "into table MyTable select intOne, intTwo, sum(value) as thesum from SupportEventWithManyArray group by intOne, intTwo;\n";
+            env.compileDeploy(epl);
+
+            sendEvent(env, "E1", 100, new int[]{10}, new int[]{1, 2});
+            sendEvent(env, "E2", 101, new int[]{10, 20}, new int[]{1, 2});
+            sendEvent(env, "E3", 102, new int[]{10}, new int[]{1, 1});
+            sendEvent(env, "E4", 103, new int[]{10, 20}, new int[]{1, 2});
+            sendEvent(env, "E5", 104, new int[]{10}, new int[]{1, 1});
+            sendEvent(env, "E6", 105, new int[]{10, 20}, new int[]{1, 1});
+
+            env.milestone(0);
+
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), "k1,k2,thesum".split(","), new Object[][]{
+                {new int[]{10}, new int[]{1, 2}, 100}, {new int[]{10}, new int[]{1, 1}, 102 + 104},
+                {new int[]{10, 20}, new int[]{1, 2}, 101 + 103}, {new int[]{10, 20}, new int[]{1, 1}, 105},
+            });
+
+            env.undeployAll();
+        }
+
+        private void sendEvent(RegressionEnvironment env, String id, int value, int[] intOne, int[] intTwo) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(intOne).withIntTwo(intTwo).withValue(value));
+        }
+    }
+
+    private static class InfraIntoTableMultikeyWArraySingleArrayKeyed implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                "@name('tbl') create table MyTable(k int[primitive] primary key, thesum sum(int));\n" +
+                    "into table MyTable select intOne, sum(value) as thesum from SupportEventWithManyArray group by intOne;\n";
+            env.compileDeploy(epl);
+
+            sendEvent(env, "E1", 10, new int[]{1, 2});
+            sendEvent(env, "E2", 11, new int[]{0, 2});
+            sendEvent(env, "E3", 12, new int[]{1, 1});
+            sendEvent(env, "E4", 13, new int[]{0, 2});
+            sendEvent(env, "E5", 14, new int[]{1});
+            sendEvent(env, "E6", 15, new int[]{1, 1});
+
+            env.milestone(0);
+
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), "k,thesum".split(","), new Object[][]{
+                {new int[]{1, 2}, 10}, {new int[]{0, 2}, 11 + 13}, {new int[]{1, 1}, 12 + 15}, {new int[]{1}, 14},
+            });
+
+            env.undeployAll();
+        }
+
+        private void sendEvent(RegressionEnvironment env, String id, int value, int[] array) {
+            env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(array).withValue(value));
+        }
     }
 
     private static class InfraIntoTableUnkeyedSimpleSameModule implements RegressionExecution {

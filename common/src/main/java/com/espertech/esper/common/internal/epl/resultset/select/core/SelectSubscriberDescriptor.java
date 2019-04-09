@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.select.core;
 
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
 public class SelectSubscriberDescriptor {
@@ -17,19 +18,22 @@ public class SelectSubscriberDescriptor {
     private final String[] selectClauseColumnNames;
     private final boolean forClauseDelivery;
     private final ExprNode[] groupDelivery;
+    private final MultiKeyClassRef groupDeliveryMultiKey;
 
     public SelectSubscriberDescriptor() {
         this.selectClauseTypes = null;
         this.selectClauseColumnNames = null;
         this.forClauseDelivery = false;
         this.groupDelivery = null;
+        this.groupDeliveryMultiKey = null;
     }
 
-    public SelectSubscriberDescriptor(Class[] selectClauseTypes, String[] selectClauseColumnNames, boolean forClauseDelivery, ExprNode[] groupDelivery) {
+    public SelectSubscriberDescriptor(Class[] selectClauseTypes, String[] selectClauseColumnNames, boolean forClauseDelivery, ExprNode[] groupDelivery, MultiKeyClassRef groupDeliveryMultiKey) {
         this.selectClauseTypes = selectClauseTypes;
         this.selectClauseColumnNames = selectClauseColumnNames;
         this.forClauseDelivery = forClauseDelivery;
         this.groupDelivery = groupDelivery;
+        this.groupDeliveryMultiKey = groupDeliveryMultiKey;
     }
 
     public Class[] getSelectClauseTypes() {
@@ -46,5 +50,9 @@ public class SelectSubscriberDescriptor {
 
     public ExprNode[] getGroupDelivery() {
         return groupDelivery;
+    }
+
+    public MultiKeyClassRef getGroupDeliveryMultiKey() {
+        return groupDeliveryMultiKey;
     }
 }

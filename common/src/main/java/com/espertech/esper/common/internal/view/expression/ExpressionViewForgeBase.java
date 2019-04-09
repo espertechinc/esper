@@ -106,7 +106,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         if (!aggregateNodes.isEmpty()) {
             try {
                 aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(Collections.emptyList(), Collections.emptyMap(),
-                        Collections.emptyList(), null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
+                        Collections.emptyList(), null, null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
                         viewForgeEnv.getAnnotations(), viewForgeEnv.getVariableCompileTimeResolver(), false, null, null,
                         streamTypeService.getEventTypes(), null, viewForgeEnv.getContextName(), null, null, false, false, false,
                         viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getOptionalStatementName());

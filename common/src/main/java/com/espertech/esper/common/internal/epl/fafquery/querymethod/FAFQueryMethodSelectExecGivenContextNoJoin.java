@@ -70,7 +70,7 @@ public class FAFQueryMethodSelectExecGivenContextNoJoin implements FAFQueryMetho
             }
         }
 
-        EventBean[] distinct = EventBeanUtility.getDistinctByProp(EventBeanUtility.flatten(events), select.getEventBeanReaderDistinct());
+        EventBean[] distinct = EventBeanUtility.getDistinctByProp(EventBeanUtility.flatten(events), select.getDistinctKeyGetter());
         return new EPPreparedQueryResult(select.getEventType(), distinct);
     }
 

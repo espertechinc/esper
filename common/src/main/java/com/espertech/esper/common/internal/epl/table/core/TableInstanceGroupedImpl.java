@@ -20,10 +20,7 @@ import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexRepositoryEntry;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TableInstanceGroupedImpl extends TableInstanceGroupedBase implements TableInstanceGrouped {
 
@@ -94,8 +91,28 @@ public class TableInstanceGroupedImpl extends TableInstanceGroupedBase implement
         return createRowIntoTable(groupByKey);
     }
 
-    public Set<Object> getGroupKeys() {
-        return rows.keySet();
+    public Collection<Object> getGroupKeys() {
+        Class[] keyTypes = table.getMetaData().getKeyTypes();
+        if (keyTypes.length == 1 && !keyTypes[0].isArray()) {
+            return rows.keySet();
+        }
+        List<Object> keys = new ArrayList<>(rows.size());
+        if (keyTypes.length == 1) {
+            int col = table.getMetaData().getKeyColNums()[0];
+            for (ObjectArrayBackedEventBean bean : rows.values()) {
+                keys.add(bean.getProperties()[col]);
+            }
+        } else {
+            int[] cols = table.getMetaData().getKeyColNums();
+            for (ObjectArrayBackedEventBean bean : rows.values()) {
+                Object[] mk = new Object[cols.length];
+                for (int i = 0; i < cols.length; i++) {
+                    mk[i] = bean.getProperties()[cols[i]];
+                }
+                keys.add(mk);
+            }
+        }
+        return keys;
     }
 
     public void handleRowUpdated(ObjectArrayBackedEventBean updatedEvent) {

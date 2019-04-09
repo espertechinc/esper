@@ -124,9 +124,13 @@ public class TestSuiteRowRecog extends TestCase {
         RegressionRunner.run(session, RowRecogDataSet.executions());
     }
 
+    public void testRowRecogMultikeyWArray() {
+        RegressionRunner.run(session, RowRecogMultikeyWArray.executions());
+    }
+
     private void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
-            SupportRecogBean.class, SupportBean_A.class, SupportBean_B.class}) {
+            SupportRecogBean.class, SupportBean_A.class, SupportBean_B.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

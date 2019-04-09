@@ -14,9 +14,11 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.RefCountedSet;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -80,10 +82,10 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
     public final void applyTableEnterCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (hasFilter) {
             method.getBlock()
-                    .declareVar(Object[].class, "in", cast(Object[].class, value))
-                    .declareVar(boolean.class, "pass", cast(Boolean.class, arrayAtIndex(ref("in"), constant(1))))
-                    .ifCondition(not(ref("pass"))).blockReturnNoValue()
-                    .declareVar(Object.class, "filtered", arrayAtIndex(ref("in"), constant(0)));
+                .declareVar(Object[].class, "in", cast(Object[].class, value))
+                .declareVar(boolean.class, "pass", cast(Boolean.class, arrayAtIndex(ref("in"), constant(1))))
+                .ifCondition(not(ref("pass"))).blockReturnNoValue()
+                .declareVar(Object.class, "filtered", arrayAtIndex(ref("in"), constant(0)));
             applyTableEnterFiltered(ref("filtered"), evaluationTypes, method, classScope);
         } else {
             applyTableEnterFiltered(value, evaluationTypes, method, classScope);
@@ -100,10 +102,10 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
     public void applyTableLeaveCodegen(CodegenExpressionRef value, Class[] evaluationTypes, CodegenMethod method, CodegenClassScope classScope) {
         if (hasFilter) {
             method.getBlock()
-                    .declareVar(Object[].class, "in", cast(Object[].class, value))
-                    .declareVar(boolean.class, "pass", cast(Boolean.class, arrayAtIndex(ref("in"), constant(1))))
-                    .ifCondition(not(ref("pass"))).blockReturnNoValue()
-                    .declareVar(Object.class, "filtered", arrayAtIndex(ref("in"), constant(0)));
+                .declareVar(Object[].class, "in", cast(Object[].class, value))
+                .declareVar(boolean.class, "pass", cast(Boolean.class, arrayAtIndex(ref("in"), constant(1))))
+                .ifCondition(not(ref("pass"))).blockReturnNoValue()
+                .declareVar(Object.class, "filtered", arrayAtIndex(ref("in"), constant(0)));
             applyTableLeaveFiltered(ref("filtered"), evaluationTypes, method, classScope);
         } else {
             applyTableLeaveFiltered(value, evaluationTypes, method, classScope);
@@ -124,11 +126,18 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
         writeWODistinct(row, col, output, unitKey, writer, method, classScope);
     }
 
-
     public final void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         if (distinct != null) {
             method.getBlock().assignRef(rowDotRef(row, distinct), cast(RefCountedSet.class, exprDotMethod(distinctSerde, "read", input, unitKey)));
         }
         readWODistinct(row, col, input, unitKey, method, classScope);
+    }
+
+    protected CodegenExpression toDistinctValueKey(CodegenExpression distinctValue) {
+        if (!optionalDistinctValueType.isArray()) {
+            return distinctValue;
+        }
+        Class mktype = MultiKeyPlanner.getMKClassForComponentType(optionalDistinctValueType.getComponentType());
+        return newInstance(mktype, cast(optionalDistinctValueType, distinctValue));
     }
 }

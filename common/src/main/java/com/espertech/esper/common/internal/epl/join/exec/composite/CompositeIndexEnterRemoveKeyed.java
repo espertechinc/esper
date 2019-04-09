@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.epl.join.exec.composite;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
-import com.espertech.esper.common.client.util.HashableMultiKey;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -54,8 +53,8 @@ public class CompositeIndexEnterRemoveKeyed implements CompositeIndexEnterRemove
     }
 
     public void getAll(HashSet<EventBean> result, Map parent) {
-        Map<HashableMultiKey, Map> map = parent;
-        for (Map.Entry<HashableMultiKey, Map> entry : map.entrySet()) {
+        Map<Object, Map> map = parent;
+        for (Map.Entry<Object, Map> entry : map.entrySet()) {
             next.getAll(result, entry.getValue());
         }
     }

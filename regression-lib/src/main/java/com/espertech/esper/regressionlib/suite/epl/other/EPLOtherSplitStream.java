@@ -22,6 +22,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBeanFactory;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.apache.avro.SchemaBuilder;
@@ -45,7 +46,43 @@ public class EPLOtherSplitStream {
         execs.add(new EPLOtherSplitStream3SplitOutputAll());
         execs.add(new EPLOtherSplitStream3SplitDefaultOutputFirst());
         execs.add(new EPLOtherSplitStream4Split());
+        execs.add(new EPLOtherSplitStreamSubqueryMultikeyWArray());
         return execs;
+    }
+
+    private static class EPLOtherSplitStreamSubqueryMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create schema AValue(value int);\n" +
+                "on SupportBean\n" +
+                "  insert into AValue select (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array) as value where intPrimitive > 0\n" +
+                "  insert into AValue select 0 as value where intPrimitive <= 0;\n" +
+                "@name('s0') select * from AValue;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("E2", new int[]{1, 2}, 11));
+
+            env.milestone(0);
+            assertSplitResult(env, 21);
+
+            env.sendEventBean(new SupportEventWithIntArray("E3", new int[]{1, 2}, 12));
+            assertSplitResult(env, 33);
+
+            env.milestone(1);
+
+            env.sendEventBean(new SupportEventWithIntArray("E4", new int[]{1}, 13));
+            assertSplitResult(env, null);
+
+            env.undeployAll();
+        }
+
+        private void assertSplitResult(RegressionEnvironment env, Integer expected) {
+            env.sendEventBean(new SupportBean("X", 0));
+            assertEquals(0, env.listener("s0").assertOneGetNewAndReset().get("value"));
+
+            env.sendEventBean(new SupportBean("Y", 1));
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        }
     }
 
     private static class EPLOtherSplitStreamInvalid implements RegressionExecution {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.core;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.MultiKey;
 import com.espertech.esper.common.internal.collection.UniformPair;
@@ -54,24 +55,21 @@ public class OutputStrategyUtil {
      * @param distinct              flag
      * @return iterator
      */
-    public static Iterator<EventBean> getIterator(JoinExecutionStrategy joinExecutionStrategy, ResultSetProcessor resultSetProcessor, Viewable parentView, boolean distinct) {
+    public static Iterator<EventBean> getIterator(JoinExecutionStrategy joinExecutionStrategy, ResultSetProcessor resultSetProcessor, Viewable parentView, boolean distinct, EventPropertyValueGetter distinctKeyGetter) {
         Iterator<EventBean> iterator;
         EventType eventType;
         if (joinExecutionStrategy != null) {
             Set<MultiKey<EventBean>> joinSet = joinExecutionStrategy.staticJoin();
             iterator = resultSetProcessor.getIterator(joinSet);
-            eventType = resultSetProcessor.getResultEventType();
         } else if (resultSetProcessor != null) {
             iterator = resultSetProcessor.getIterator(parentView);
-            eventType = resultSetProcessor.getResultEventType();
         } else {
             iterator = parentView.iterator();
-            eventType = parentView.getEventType();
         }
 
         if (!distinct) {
             return iterator;
         }
-        return new EventDistinctIterator(iterator, eventType);
+        return new EventDistinctIterator(iterator, distinctKeyGetter);
     }
 }

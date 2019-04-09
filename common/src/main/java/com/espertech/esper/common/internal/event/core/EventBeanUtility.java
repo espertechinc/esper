@@ -10,17 +10,13 @@
  */
 package com.espertech.esper.common.internal.event.core;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventPropertyGetter;
-import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.FragmentEventType;
-import com.espertech.esper.common.client.util.HashableMultiKey;
-import com.espertech.esper.common.internal.collection.HashableMultiKeyEventPair;
+import com.espertech.esper.common.client.*;
 import com.espertech.esper.common.internal.collection.MultiKey;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.EventBeanSummarizer;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -324,52 +320,6 @@ public class EventBeanUtility {
         return keyValues;
     }
 
-    /**
-     * Returns Multikey instance for given event and getters.
-     *
-     * @param theEvent        - event to get property values from
-     * @param propertyGetters - getters for access to properties
-     * @return MultiKey with property values
-     */
-    public static HashableMultiKey getMultiKey(EventBean theEvent, EventPropertyGetter[] propertyGetters) {
-        Object[] keyValues = getPropertyArray(theEvent, propertyGetters);
-        return new HashableMultiKey(keyValues);
-    }
-
-    public static HashableMultiKey getMultiKey(EventBean theEvent, EventPropertyGetter[] propertyGetters, Class[] coercionTypes) {
-        Object[] keyValues = getPropertyArray(theEvent, propertyGetters);
-        if (coercionTypes == null) {
-            return new HashableMultiKey(keyValues);
-        }
-        for (int i = 0; i < coercionTypes.length; i++) {
-            Object key = keyValues[i];
-            if ((key != null) && (!key.getClass().equals(coercionTypes[i]))) {
-                if (key instanceof Number) {
-                    key = JavaClassHelper.coerceBoxed((Number) key, coercionTypes[i]);
-                    keyValues[i] = key;
-                }
-            }
-        }
-        return new HashableMultiKey(keyValues);
-    }
-
-    public static HashableMultiKey getMultiKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, ExprEvaluatorContext context, Class[] coercionTypes) {
-        Object[] keyValues = getPropertyArray(eventsPerStream, evaluators, context);
-        if (coercionTypes == null) {
-            return new HashableMultiKey(keyValues);
-        }
-        for (int i = 0; i < coercionTypes.length; i++) {
-            Object key = keyValues[i];
-            if ((key != null) && (!key.getClass().equals(coercionTypes[i]))) {
-                if (key instanceof Number) {
-                    key = JavaClassHelper.coerceBoxed((Number) key, coercionTypes[i]);
-                    keyValues[i] = key;
-                }
-            }
-        }
-        return new HashableMultiKey(keyValues);
-    }
-
     private static Object[] getPropertyArray(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, ExprEvaluatorContext context) {
         Object[] keys = new Object[evaluators.length];
         for (int i = 0; i < keys.length; i++) {
@@ -560,14 +510,7 @@ public class EventBeanUtility {
         return new FragmentEventType(type, isIndexed, true);
     }
 
-    /**
-     * Returns the distinct events by properties.
-     *
-     * @param events to inspect
-     * @param reader for retrieving properties
-     * @return distinct events
-     */
-    public static EventBean[] getDistinctByProp(ArrayDeque<EventBean> events, EventBeanReader reader) {
+    public static EventBean[] getDistinctByProp(ArrayDeque<EventBean> events, EventPropertyValueGetter getter) {
         if (events == null || events.isEmpty()) {
             return new EventBean[0];
         }
@@ -575,26 +518,24 @@ public class EventBeanUtility {
             return events.toArray(new EventBean[events.size()]);
         }
 
-        Set<HashableMultiKeyEventPair> set = new LinkedHashSet<HashableMultiKeyEventPair>();
+        Map<Object, EventBean> map = new LinkedHashMap<>(CollectionUtil.capacityHashMap(events.size()));
         if (events.getFirst() instanceof NaturalEventBean) {
             for (EventBean theEvent : events) {
                 EventBean inner = ((NaturalEventBean) theEvent).getOptionalSynthetic();
-                Object[] keys = reader.read(inner);
-                HashableMultiKeyEventPair pair = new HashableMultiKeyEventPair(keys, theEvent);
-                set.add(pair);
+                Object key = getter.get(inner);
+                map.put(key, inner);
             }
         } else {
             for (EventBean theEvent : events) {
-                Object[] keys = reader.read(theEvent);
-                HashableMultiKeyEventPair pair = new HashableMultiKeyEventPair(keys, theEvent);
-                set.add(pair);
+                Object key = getter.get(theEvent);
+                map.put(key, theEvent);
             }
         }
 
-        EventBean[] result = new EventBean[set.size()];
+        EventBean[] result = new EventBean[map.size()];
         int count = 0;
-        for (HashableMultiKeyEventPair row : set) {
-            result[count++] = row.getEventBean();
+        for (EventBean row : map.values()) {
+            result[count++] = row;
         }
         return result;
     }
@@ -603,34 +544,32 @@ public class EventBeanUtility {
      * Returns the distinct events by properties.
      *
      * @param events to inspect
-     * @param reader for retrieving properties
+     * @param getter for retrieving properties
      * @return distinct events
      */
-    public static EventBean[] getDistinctByProp(EventBean[] events, EventBeanReader reader) {
-        if ((events == null) || (events.length < 2) || reader == null) {
+    public static EventBean[] getDistinctByProp(EventBean[] events, EventPropertyValueGetter getter) {
+        if ((events == null) || (events.length < 2) || getter == null) {
             return events;
         }
 
-        Set<HashableMultiKeyEventPair> set = new LinkedHashSet<HashableMultiKeyEventPair>();
+        Map<Object, EventBean> map = new LinkedHashMap<>(CollectionUtil.capacityHashMap(events.length));
         if (events[0] instanceof NaturalEventBean) {
             for (EventBean theEvent : events) {
                 EventBean inner = ((NaturalEventBean) theEvent).getOptionalSynthetic();
-                Object[] keys = reader.read(inner);
-                HashableMultiKeyEventPair pair = new HashableMultiKeyEventPair(keys, theEvent);
-                set.add(pair);
+                Object key = getter.get(inner);
+                map.put(key, theEvent);
             }
         } else {
             for (EventBean theEvent : events) {
-                Object[] keys = reader.read(theEvent);
-                HashableMultiKeyEventPair pair = new HashableMultiKeyEventPair(keys, theEvent);
-                set.add(pair);
+                Object key = getter.get(theEvent);
+                map.put(key, theEvent);
             }
         }
 
-        EventBean[] result = new EventBean[set.size()];
+        EventBean[] result = new EventBean[map.size()];
         int count = 0;
-        for (HashableMultiKeyEventPair row : set) {
-            result[count++] = row.getEventBean();
+        for (EventBean row : map.values()) {
+            result[count++] = row;
         }
         return result;
     }

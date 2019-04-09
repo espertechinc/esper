@@ -95,7 +95,7 @@ public class StmtClassForgableQueryMethodProvider implements StmtClassForgable {
             CodegenStackGenerator.recursiveBuildStack(getSubstitutionFieldSetter, "getSubstitutionFieldSetter", methods);
 
             // render and compile
-            return new CodegenClass(FAFQueryMethodProvider.class, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
+            return new CodegenClass(CodegenClassType.FAFQUERYMETHODPROVIDER, FAFQueryMethodProvider.class, className, classScope, providerExplicitMembers, providerCtor, methods, innerClasses);
         } catch (Throwable t) {
             throw new EPException("Fatal exception during code-generation for " + debugInformationProvider.get() + " : " + t.getMessage(), t);
         }

@@ -10,27 +10,32 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.util.MultiKeyGenerated;
 
 import java.util.Arrays;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
-
-public class AggregationGroupByRollupLevel {
+public abstract class AggregationGroupByRollupLevel {
     private final int levelNumber;
     private final int levelOffset;
     private final int[] rollupKeys;
+    private final MultiKeyGeneratedSerde optionalSubkeyMultikeySerde;
 
-    public AggregationGroupByRollupLevel(int levelNumber, int levelOffset, int[] rollupKeys) {
+    public abstract Object computeSubkey(Object groupKey);
+
+    public AggregationGroupByRollupLevel(int levelNumber, int levelOffset, int[] rollupKeys, MultiKeyGeneratedSerde optionalSubkeyMultikeySerde) {
         this.levelNumber = levelNumber;
         this.levelOffset = levelOffset;
         this.rollupKeys = rollupKeys;
+        this.optionalSubkeyMultikeySerde = optionalSubkeyMultikeySerde;
     }
 
     public int getLevelNumber() {
         return levelNumber;
+    }
+
+    public boolean isAggregationTop() {
+        return levelOffset == -1;
     }
 
     public int getAggregationOffset() {
@@ -40,66 +45,42 @@ public class AggregationGroupByRollupLevel {
         return levelOffset;
     }
 
-    public CodegenExpression toExpression() {
-        return newInstance(AggregationGroupByRollupLevel.class, constant(levelNumber), constant(levelOffset), constant(rollupKeys));
-    }
-
-    public boolean isAggregationTop() {
-        return levelOffset == -1;
+    public int getLevelOffset() {
+        return levelOffset;
     }
 
     public int[] getRollupKeys() {
         return rollupKeys;
     }
 
-    public Object computeSubkey(Object groupKey) {
-        if (isAggregationTop()) {
-            return null;
-        }
-        if (groupKey instanceof HashableMultiKey) {
-            HashableMultiKey mk = (HashableMultiKey) groupKey;
-            Object[] keys = mk.getKeys();
-            if (rollupKeys.length == keys.length) {
-                return mk;
-            } else if (rollupKeys.length == 1) {
-                return keys[rollupKeys[0]];
-            } else {
-                Object[] subkeys = new Object[rollupKeys.length];
-                int count = 0;
-                for (int rollupKey : rollupKeys) {
-                    subkeys[count++] = keys[rollupKey];
-                }
-                return new HashableMultiKey(subkeys);
-            }
-        } else {
-            return groupKey;
-        }
+    public MultiKeyGeneratedSerde getOptionalSubkeyMultikeySerde() {
+        return optionalSubkeyMultikeySerde;
     }
 
     public String toString() {
         return "GroupByRollupLevel{" +
-                "levelOffset=" + levelOffset +
-                ", rollupKeys=" + Arrays.toString(rollupKeys) +
-                '}';
+            "levelOffset=" + levelOffset +
+            ", rollupKeys=" + Arrays.toString(rollupKeys) +
+            '}';
     }
 
-    public HashableMultiKey computeMultiKey(Object subkey, int numExpected) {
-        if (subkey instanceof HashableMultiKey) {
-            HashableMultiKey mk = (HashableMultiKey) subkey;
-            if (mk.getKeys().length == numExpected) {
-                return mk;
+    public Object[] computeMultiKey(Object subkey, int numExpected) {
+        if (subkey instanceof MultiKeyGenerated) {
+            MultiKeyGenerated mk = (MultiKeyGenerated) subkey;
+            if (mk.getNumKeys() == numExpected) {
+                return MultiKeyGenerated.toObjectArray(mk);
             }
             Object[] keys = new Object[]{numExpected};
             for (int i = 0; i < rollupKeys.length; i++) {
-                keys[rollupKeys[i]] = mk.getKeys()[i];
+                keys[rollupKeys[i]] = mk.getKey(i);
             }
-            return new HashableMultiKey(keys);
+            return keys;
         }
         Object[] keys = new Object[numExpected];
         if (subkey == null) {
-            return new HashableMultiKey(keys);
+            return keys;
         }
         keys[rollupKeys[0]] = subkey;
-        return new HashableMultiKey(keys);
+        return keys;
     }
 }

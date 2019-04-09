@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSkipEnum;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationResultFutureAssignable;
@@ -31,6 +32,7 @@ public class RowRecogDesc {
     private int[] multimatchVariableToStreamNum;
     private ExprEvaluator partitionEvalMayNull;
     private Class[] partitionEvalTypes;
+    private MultiKeyGeneratedSerde partitionEvalSerde;
     private LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
     private boolean hasInterval;
     private boolean iterateOnly;
@@ -98,6 +100,14 @@ public class RowRecogDesc {
 
     public void setPartitionEvalTypes(Class[] partitionEvalTypes) {
         this.partitionEvalTypes = partitionEvalTypes;
+    }
+
+    public MultiKeyGeneratedSerde getPartitionEvalSerde() {
+        return partitionEvalSerde;
+    }
+
+    public void setPartitionEvalSerde(MultiKeyGeneratedSerde partitionEvalSerde) {
+        this.partitionEvalSerde = partitionEvalSerde;
     }
 
     public int[] getMultimatchStreamNumToVariable() {

@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.aifactory.ontrigger.onset;
 
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableAIFactoryProviderBase;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public class OnTriggerSetPlan {
     private final StmtClassForgableAIFactoryProviderBase forgable;
     private final List<StmtClassForgable> forgables;
     private final SelectSubscriberDescriptor selectSubscriberDescriptor;
+    private final List<StmtClassForgableFactory> additionalForgeables;
 
-    public OnTriggerSetPlan(StmtClassForgableAIFactoryProviderBase forgable, List<StmtClassForgable> forgables, SelectSubscriberDescriptor selectSubscriberDescriptor) {
+    public OnTriggerSetPlan(StmtClassForgableAIFactoryProviderBase forgable, List<StmtClassForgable> forgables, SelectSubscriberDescriptor selectSubscriberDescriptor, List<StmtClassForgableFactory> additionalForgeables) {
         this.forgable = forgable;
         this.forgables = forgables;
         this.selectSubscriberDescriptor = selectSubscriberDescriptor;
+        this.additionalForgeables = additionalForgeables;
     }
 
     public StmtClassForgableAIFactoryProviderBase getForgable() {
@@ -37,6 +40,10 @@ public class OnTriggerSetPlan {
 
     public SelectSubscriberDescriptor getSelectSubscriberDescriptor() {
         return selectSubscriberDescriptor;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }
 

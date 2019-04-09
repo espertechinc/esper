@@ -16,13 +16,14 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationGroupByLocalGroupDesc;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByPlanForge;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.support.bean.SupportThreeArrayEvent;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.util.SupportAggLevelPlanHook;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -63,7 +64,43 @@ public class ResultSetQueryTypeLocalGroupBy {
         execs.add(new ResultSetLocalUngroupedOrderBy());
         execs.add(new ResultSetLocalEnumMethods(true));
         execs.add(new ResultSetLocalUngroupedAggAdditionalAndPlugin());
+        execs.add(new ResultSetLocalMultikeyWArray());
         return execs;
+    }
+
+    public static class ResultSetLocalMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@Name('s0') select " +
+                "sum(value, group_by:(intArray)) as c0, " +
+                "sum(value, group_by:(longArray)) as c1, " +
+                "sum(value, group_by:(doubleArray)) as c2, " +
+                "sum(value, group_by:(intArray, longArray, doubleArray)) as c3, " +
+                "sum(value) as c4 " +
+                "from SupportThreeArrayEvent";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, "E1", 10, new int[]{1}, new long[]{10}, new double[]{100}, 10, 10, 10, 10, 10);
+            sendAssert(env, "E2", 11, new int[]{2}, new long[]{20}, new double[]{200}, 11, 11, 11, 11, 21);
+
+            env.milestone(0);
+
+            sendAssert(env, "E3", 12, new int[]{3}, new long[]{10}, new double[]{300}, 12, 22, 12, 12, 33);
+            sendAssert(env, "E4", 13, new int[]{1}, new long[]{20}, new double[]{200}, 10 + 13, 11 + 13, 11 + 13, 13, 33 + 13);
+            sendAssert(env, "E5", 14, new int[]{1}, new long[]{10}, new double[]{100}, 10 + 13 + 14, 10 + 12 + 14, 10 + 14, 10 + 14, 33 + 13 + 14);
+
+            env.milestone(1);
+
+            sendAssert(env, "E6", 15, new int[]{3}, new long[]{20}, new double[]{300}, 12 + 15, 11 + 13 + 15, 12 + 15, 15, 33 + 13 + 14 + 15);
+            sendAssert(env, "E7", 16, new int[]{2}, new long[]{20}, new double[]{200}, 11 + 16, 11 + 13 + 15 + 16, 11 + 13 + 16, 11 + 16, 33 + 13 + 14 + 15 + 16);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, String id, int value, int[] ints, long[] longs, double[] doubles, int c0, int c1, int c2, int c3, int c4) {
+            final String[] fields = "c0,c1,c2,c3,c4".split(",");
+            env.sendEventBean(new SupportThreeArrayEvent(id, value, ints, longs, doubles));
+            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{c0, c1, c2, c3, c4});
+        }
     }
 
     public static class ResultSetLocalUngroupedSumSimple implements RegressionExecution {

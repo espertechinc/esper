@@ -285,10 +285,6 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         return new AvroEventBeanWriterPerProp(writers);
     }
 
-    public EventBeanReader getReader() {
-        return null; // use the default reader
-    }
-
     public ExprValidationException equalsCompareType(EventType other) {
         if (!other.getName().equals(this.getName())) {
             return new ExprValidationException("Expected event type '" + this.getName() +

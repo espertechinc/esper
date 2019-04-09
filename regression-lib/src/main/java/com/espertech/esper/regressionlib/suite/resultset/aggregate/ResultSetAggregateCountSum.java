@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
@@ -46,7 +47,26 @@ public class ResultSetAggregateCountSum {
         execs.add(new ResultSetAggregateCountJoin());
         execs.add(new ResultSetAggregateCountDistinctGrouped());
         execs.add(new ResultSetAggregateSumNamedWindowRemoveGroup());
+        execs.add(new ResultSetAggregateCountDistinctMultikeyWArray());
         return execs;
+    }
+
+    private static class ResultSetAggregateCountDistinctMultikeyWArray implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select count(distinct intOne) as c0, count(distinct {intOne, intTwo}) as c1 from SupportEventWithManyArray#length(3)";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendManyArrayAssert(env, new int[] {1, 2}, new int[] {1}, 1, 1);
+            sendManyArrayAssert(env, new int[] {1, 2}, new int[] {1}, 1, 1);
+            sendManyArrayAssert(env, new int[] {1, 3}, new int[] {1}, 2, 2);
+
+            env.milestone(0);
+
+            sendManyArrayAssert(env, new int[] {1, 4}, new int[] {1}, 3, 3);
+            sendManyArrayAssert(env, new int[] {1, 3}, new int[] {2}, 2, 3);
+
+            env.undeployAll();
+        }
     }
 
     private static class ResultSetAggregateCountPlusStar implements RegressionExecution {
@@ -403,5 +423,10 @@ public class ResultSetAggregateCountSum {
 
     private static SupportMarketDataBean makeMarketDataEvent(String symbol, double price) {
         return new SupportMarketDataBean(symbol, price, 0L, null);
+    }
+
+    private static void sendManyArrayAssert(RegressionEnvironment env, int[] intOne, int[] intTwo, long expectedC0, long expectedC1) {
+        env.sendEventBean(new SupportEventWithManyArray("id").withIntOne(intOne).withIntTwo(intTwo));
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {expectedC0, expectedC1});
     }
 }

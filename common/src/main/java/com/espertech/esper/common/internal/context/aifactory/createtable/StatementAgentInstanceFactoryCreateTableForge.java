@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationClassNames;
@@ -60,21 +61,23 @@ public class StatementAgentInstanceFactoryCreateTableForge {
 
         CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateTable.class, this.getClass(), classScope);
 
-        CodegenExpression primaryKeyGetter = constantNull();
-        if (plan.getPrimaryKeyGetters() != null) {
-            primaryKeyGetter = EventTypeUtility.codegenGetterMayMultiKeyWCoerce(plan.getInternalEventType(), plan.getPrimaryKeyGetters(), plan.getPrimaryKeyTypes(), null, method, this.getClass(), classScope);
-        }
+        CodegenExpression primaryKeyGetter = MultiKeyCodegen.codegenGetterMayMultiKey(plan.getInternalEventType(), plan.getPrimaryKeyGetters(), plan.getPrimaryKeyTypes(), null, plan.getPrimaryKeyMultikeyClasses(), method, classScope);
+        CodegenExpression fafTransform = MultiKeyCodegen.codegenMultiKeyFromArrayTransform(plan.getPrimaryKeyMultikeyClasses(), method, classScope);
+        CodegenExpression intoTableTransform = MultiKeyCodegen.codegenMultiKeyFromMultiKeyTransform(plan.getPrimaryKeyMultikeyClasses(), method, classScope);
 
         method.getBlock()
-                .declareVar(StatementAgentInstanceFactoryCreateTable.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateTable.class))
-                .exprDotMethod(ref("saiff"), "setTableName", constant(tableName))
-                .exprDotMethod(ref("saiff"), "setPublicEventType", EventTypeUtility.resolveTypeCodegen(plan.getPublicEventType(), symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("saiff"), "setEventToPublic", makeEventToPublic(method, symbols, classScope))
-                .exprDotMethod(ref("saiff"), "setAggregationRowFactory", CodegenExpressionBuilder.newInstance(aggregationClassNames.getRowFactoryTop(), ref("this")))
-                .exprDotMethod(ref("saiff"), "setAggregationSerde", CodegenExpressionBuilder.newInstance(aggregationClassNames.getRowSerdeTop(), ref("this")))
-                .exprDotMethod(ref("saiff"), "setPrimaryKeyGetter", primaryKeyGetter)
-                .exprDotMethod(symbols.getAddInitSvc(method), "addReadyCallback", ref("saiff"))
-                .methodReturn(ref("saiff"));
+            .declareVar(StatementAgentInstanceFactoryCreateTable.class, "saiff", newInstance(StatementAgentInstanceFactoryCreateTable.class))
+            .exprDotMethod(ref("saiff"), "setTableName", constant(tableName))
+            .exprDotMethod(ref("saiff"), "setPublicEventType", EventTypeUtility.resolveTypeCodegen(plan.getPublicEventType(), symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("saiff"), "setEventToPublic", makeEventToPublic(method, symbols, classScope))
+            .exprDotMethod(ref("saiff"), "setAggregationRowFactory", CodegenExpressionBuilder.newInstance(aggregationClassNames.getRowFactoryTop(), ref("this")))
+            .exprDotMethod(ref("saiff"), "setAggregationSerde", CodegenExpressionBuilder.newInstance(aggregationClassNames.getRowSerdeTop(), ref("this")))
+            .exprDotMethod(ref("saiff"), "setPrimaryKeyGetter", primaryKeyGetter)
+            .exprDotMethod(ref("saiff"), "setPrimaryKeySerde", MultiKeyCodegen.codegenOptionalSerde(plan.getPrimaryKeyMultikeyClasses()))
+            .exprDotMethod(ref("saiff"), "setPrimaryKeyObjectArrayTransform", fafTransform)
+            .exprDotMethod(ref("saiff"), "setPrimaryKeyIntoTableTransform", intoTableTransform)
+            .exprDotMethod(symbols.getAddInitSvc(method), "addReadyCallback", ref("saiff"))
+            .methodReturn(ref("saiff"));
         return method;
     }
 
@@ -88,14 +91,14 @@ public class StatementAgentInstanceFactoryCreateTableForge {
         CodegenMethod convert = CodegenMethod.makeParentNode(EventBean.class, this.getClass(), classScope).addParam(EventBean.class, "event").addParam(ExprForgeCodegenNames.PARAMS);
         clazz.addMethod("convert", convert);
         convert.getBlock()
-                .declareVar(Object[].class, "data", exprDotMethod(ref("this"), "convertToUnd", ref("event"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
-                .methodReturn(exprDotMethod(factory, "adapterForTypedObjectArray", ref("data"), eventType));
+            .declareVar(Object[].class, "data", exprDotMethod(ref("this"), "convertToUnd", ref("event"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
+            .methodReturn(exprDotMethod(factory, "adapterForTypedObjectArray", ref("data"), eventType));
 
         CodegenMethod convertToUnd = CodegenMethod.makeParentNode(Object[].class, this.getClass(), classScope).addParam(EventBean.class, "event").addParam(ExprForgeCodegenNames.PARAMS);
         clazz.addMethod("convertToUnd", convertToUnd);
         convertToUnd.getBlock()
-                .declareVar(Object[].class, "props", exprDotMethod(cast(ObjectArrayBackedEventBean.class, ref("event")), "getProperties"))
-                .declareVar(Object[].class, "data", newArrayByLength(Object.class, constant(plan.getPublicEventType().getPropertyNames().length)));
+            .declareVar(Object[].class, "props", exprDotMethod(cast(ObjectArrayBackedEventBean.class, ref("event")), "getProperties"))
+            .declareVar(Object[].class, "data", newArrayByLength(Object.class, constant(plan.getPublicEventType().getPropertyNames().length)));
         for (TableMetadataColumnPairPlainCol plain : plan.getColsPlain()) {
             convertToUnd.getBlock().assignArrayElement(ref("data"), constant(plain.getDest()), arrayAtIndex(ref("props"), constant(plain.getSource())));
         }

@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenNames;
 import com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenParams;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -46,11 +47,11 @@ public class EnumDistinctEventsForgeEval implements EnumEval {
             return beans;
         }
 
-        Map<Comparable, EventBean> distinct = new LinkedHashMap<Comparable, EventBean>();
+        Map<Object, EventBean> distinct = new LinkedHashMap<>();
         for (EventBean next : beans) {
             eventsLambda[forge.streamNumLambda] = next;
 
-            Comparable comparable = (Comparable) innerExpression.evaluate(eventsLambda, isNewData, context);
+            Object comparable = innerExpression.evaluate(eventsLambda, isNewData, context);
             if (!distinct.containsKey(comparable)) {
                 distinct.put(comparable, next);
             }
@@ -66,15 +67,25 @@ public class EnumDistinctEventsForgeEval implements EnumEval {
         CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumDistinctEventsForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
-                .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
-                .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
-                .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class));
-        block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"))
-                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope))
-                .ifCondition(not(exprDotMethod(ref("distinct"), "containsKey", ref("comparable"))))
+            .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
+            .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
+            .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class));
+
+        CodegenExpression expr = forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope);
+        CodegenBlock loop = block.forEach(EventBean.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL);
+        {
+            loop.assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("next"));
+            if (!innerType.isArray()) {
+                loop.declareVar(innerType, "comparable", expr);
+            } else {
+                Class arrayMK = MultiKeyPlanner.getMKClassForComponentType(innerType.getComponentType());
+                loop.declareVar(arrayMK, "comparable", newInstance(arrayMK, expr));
+            }
+            loop.ifCondition(not(exprDotMethod(ref("distinct"), "containsKey", ref("comparable"))))
                 .expression(exprDotMethod(ref("distinct"), "put", ref("comparable"), ref("next")))
                 .blockEnd();
+        }
+
         block.methodReturn(exprDotMethod(ref("distinct"), "values"));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }

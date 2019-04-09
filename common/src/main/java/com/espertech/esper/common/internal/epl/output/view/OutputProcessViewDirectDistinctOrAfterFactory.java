@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.common.internal.epl.output.view;
 
+import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessView;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
-import com.espertech.esper.common.internal.event.core.EventBeanReader;
-import com.espertech.esper.common.internal.event.core.EventBeanReaderDefaultImpl;
-import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 
 /**
  * Output process view that does not enforce any output policies and may simply
@@ -25,26 +23,22 @@ import com.espertech.esper.common.internal.event.core.EventTypeSPI;
  */
 public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcessViewDirectFactory {
     private final boolean isDistinct;
+    private final EventPropertyValueGetter distinctKeyGetter;
+
     protected final TimePeriodCompute afterTimePeriod;
     protected final Integer afterConditionNumberOfEvents;
 
-    private EventBeanReader eventBeanReader;
-
-    public OutputProcessViewDirectDistinctOrAfterFactory(OutputStrategyPostProcessFactory postProcessFactory, boolean distinct, TimePeriodCompute afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType) {
+    public OutputProcessViewDirectDistinctOrAfterFactory(OutputStrategyPostProcessFactory postProcessFactory,
+                                                         boolean distinct,
+                                                         EventPropertyValueGetter distinctKeyGetter,
+                                                         TimePeriodCompute afterTimePeriod,
+                                                         Integer afterConditionNumberOfEvents,
+                                                         EventType resultEventType) {
         super(postProcessFactory);
         isDistinct = distinct;
+        this.distinctKeyGetter = distinctKeyGetter;
         this.afterTimePeriod = afterTimePeriod;
         this.afterConditionNumberOfEvents = afterConditionNumberOfEvents;
-
-        if (isDistinct) {
-            if (resultEventType instanceof EventTypeSPI) {
-                EventTypeSPI eventTypeSPI = (EventTypeSPI) resultEventType;
-                eventBeanReader = eventTypeSPI.getReader();
-            }
-            if (eventBeanReader == null) {
-                eventBeanReader = new EventBeanReaderDefaultImpl(resultEventType);
-            }
-        }
     }
 
     @Override
@@ -72,7 +66,7 @@ public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcess
         return isDistinct;
     }
 
-    public EventBeanReader getEventBeanReader() {
-        return eventBeanReader;
+    public EventPropertyValueGetter getDistinctKeyGetter() {
+        return distinctKeyGetter;
     }
 }

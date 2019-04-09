@@ -157,7 +157,8 @@ public class TestSuiteEPLOther extends TestCase {
             SupportCollection.class, SupportBean_A.class, SupportBean_B.class, SupportBean_N.class,
             SupportChainTop.class, SupportTemperatureBean.class, SupportBeanKeywords.class,
             SupportBeanSimple.class, SupportBeanStaticOuter.class, SupportMarketDataBean.class,
-            SupportBeanComplexProps.class, SupportBeanCombinedProps.class}) {
+            SupportBeanComplexProps.class, SupportBeanCombinedProps.class, SupportEventWithIntArray.class,
+            SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

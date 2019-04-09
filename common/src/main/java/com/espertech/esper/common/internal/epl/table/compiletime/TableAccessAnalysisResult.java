@@ -10,10 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.table.compiletime;
 
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowStateForgeDesc;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 
+import java.util.List;
 import java.util.Map;
 
 public class TableAccessAnalysisResult {
@@ -28,8 +31,10 @@ public class TableAccessAnalysisResult {
     private final EventPropertyGetterSPI[] primaryKeyGetters;
     private final Class[] primaryKeyTypes;
     private final int[] primaryKeyColNums;
+    private final MultiKeyClassRef primaryKeyMultikeyClasses;
+    private final List<StmtClassForgableFactory> additionalForgeables;
 
-    public TableAccessAnalysisResult(Map<String, TableMetadataColumn> tableColumns, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataColumnPairPlainCol[] colsPlain, TableMetadataColumnPairAggMethod[] colsAggMethod, TableMetadataColumnPairAggAccess[] colsAccess, AggregationRowStateForgeDesc aggDesc, String[] primaryKeyColumns, EventPropertyGetterSPI[] primaryKeyGetters, Class[] primaryKeyTypes, int[] primaryKeyColNums) {
+    public TableAccessAnalysisResult(Map<String, TableMetadataColumn> tableColumns, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataColumnPairPlainCol[] colsPlain, TableMetadataColumnPairAggMethod[] colsAggMethod, TableMetadataColumnPairAggAccess[] colsAccess, AggregationRowStateForgeDesc aggDesc, String[] primaryKeyColumns, EventPropertyGetterSPI[] primaryKeyGetters, Class[] primaryKeyTypes, int[] primaryKeyColNums, MultiKeyClassRef primaryKeyMultikeyClasses, List<StmtClassForgableFactory> additionalForgeables) {
         this.tableColumns = tableColumns;
         this.internalEventType = internalEventType;
         this.publicEventType = publicEventType;
@@ -41,6 +46,8 @@ public class TableAccessAnalysisResult {
         this.primaryKeyGetters = primaryKeyGetters;
         this.primaryKeyTypes = primaryKeyTypes;
         this.primaryKeyColNums = primaryKeyColNums;
+        this.primaryKeyMultikeyClasses = primaryKeyMultikeyClasses;
+        this.additionalForgeables = additionalForgeables;
     }
 
     public Map<String, TableMetadataColumn> getTableColumns() {
@@ -85,5 +92,13 @@ public class TableAccessAnalysisResult {
 
     public int[] getPrimaryKeyColNums() {
         return primaryKeyColNums;
+    }
+
+    public MultiKeyClassRef getPrimaryKeyMultikeyClasses() {
+        return primaryKeyMultikeyClasses;
+    }
+
+    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }

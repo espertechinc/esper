@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenNames;
 import com.espertech.esper.common.internal.epl.enummethod.codegen.EnumForgeCodegenParams;
@@ -50,7 +51,7 @@ public class EnumDistinctScalarLambdaForgeEval implements EnumEval {
             return enumcoll;
         }
 
-        Map<Comparable, Object> distinct = new LinkedHashMap<Comparable, Object>();
+        Map<Object, Object> distinct = new LinkedHashMap<>();
         ObjectArrayEventBean resultEvent = new ObjectArrayEventBean(new Object[1], forge.resultEventType);
         eventsLambda[forge.streamNumLambda] = resultEvent;
         Object[] props = resultEvent.getProperties();
@@ -59,7 +60,7 @@ public class EnumDistinctScalarLambdaForgeEval implements EnumEval {
         for (Object next : values) {
             props[0] = next;
 
-            Comparable comparable = (Comparable) innerExpression.evaluate(eventsLambda, isNewData, context);
+            Object comparable = innerExpression.evaluate(eventsLambda, isNewData, context);
             if (!distinct.containsKey(comparable)) {
                 distinct.put(comparable, next);
             }
@@ -75,19 +76,27 @@ public class EnumDistinctScalarLambdaForgeEval implements EnumEval {
         CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(Collection.class, EnumDistinctScalarLambdaForgeEval.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
 
         CodegenBlock block = methodNode.getBlock()
-                .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
-                .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
-                .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class))
-                .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), resultTypeMember))
-                .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
-                .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
+            .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))
+            .blockReturn(EnumForgeCodegenNames.REF_ENUMCOLL)
+            .declareVar(Map.class, "distinct", newInstance(LinkedHashMap.class))
+            .declareVar(ObjectArrayEventBean.class, "resultEvent", newInstance(ObjectArrayEventBean.class, newArrayByLength(Object.class, constant(1)), resultTypeMember))
+            .assignArrayElement(EnumForgeCodegenNames.REF_EPS, constant(forge.streamNumLambda), ref("resultEvent"))
+            .declareVar(Object[].class, "props", exprDotMethod(ref("resultEvent"), "getProperties"));
 
-        block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL)
-                .assignArrayElement("props", constant(0), ref("next"))
-                .declareVar(innerType, "comparable", forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope))
-                .ifCondition(not(exprDotMethod(ref("distinct"), "containsKey", ref("comparable"))))
+        CodegenBlock loop = block.forEach(Object.class, "next", EnumForgeCodegenNames.REF_ENUMCOLL);
+        {
+            CodegenExpression eval = forge.innerExpression.evaluateCodegen(innerType, methodNode, scope, codegenClassScope);
+            loop.assignArrayElement("props", constant(0), ref("next"));
+            if (!innerType.isArray()) {
+                loop.declareVar(innerType, "comparable", eval);
+            } else {
+                Class arrayMK = MultiKeyPlanner.getMKClassForComponentType(innerType.getComponentType());
+                loop.declareVar(arrayMK, "comparable", newInstance(arrayMK, eval));
+            }
+            loop.ifCondition(not(exprDotMethod(ref("distinct"), "containsKey", ref("comparable"))))
                 .expression(exprDotMethod(ref("distinct"), "put", ref("comparable"), ref("next")))
                 .blockEnd();
+        }
         block.methodReturn(exprDotMethod(ref("distinct"), "values"));
         return localMethod(methodNode, args.getEps(), args.getEnumcoll(), args.getIsNewData(), args.getExprCtx());
     }

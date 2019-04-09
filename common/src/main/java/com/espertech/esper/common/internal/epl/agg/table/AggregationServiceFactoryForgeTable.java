@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentUtil;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDescForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryForgeWProviderGen;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableColumnMethodPairForge;
@@ -30,9 +30,9 @@ public class AggregationServiceFactoryForgeTable implements AggregationServiceFa
     private final TableColumnMethodPairForge[] methodPairs;
     private final int[] accessColumnsZeroOffset;
     private final AggregationAgentForge[] accessAgents;
-    private final AggregationGroupByRollupDesc groupByRollupDesc;
+    private final AggregationGroupByRollupDescForge groupByRollupDesc;
 
-    public AggregationServiceFactoryForgeTable(TableMetaData metadata, TableColumnMethodPairForge[] methodPairs, int[] accessColumnsZeroOffset, AggregationAgentForge[] accessAgents, AggregationGroupByRollupDesc groupByRollupDesc) {
+    public AggregationServiceFactoryForgeTable(TableMetaData metadata, TableColumnMethodPairForge[] methodPairs, int[] accessColumnsZeroOffset, AggregationAgentForge[] accessAgents, AggregationGroupByRollupDescForge groupByRollupDesc) {
         this.metadata = metadata;
         this.methodPairs = methodPairs;
         this.accessColumnsZeroOffset = accessColumnsZeroOffset;
@@ -43,13 +43,13 @@ public class AggregationServiceFactoryForgeTable implements AggregationServiceFa
     public CodegenExpression makeProvider(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(AggregationServiceFactoryTable.class, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(AggregationServiceFactoryTable.class, "factory", newInstance(AggregationServiceFactoryTable.class))
-                .exprDotMethod(ref("factory"), "setTable", TableDeployTimeResolver.makeResolveTable(metadata, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("factory"), "setMethodPairs", TableColumnMethodPairForge.makeArray(methodPairs, method, symbols, classScope))
-                .exprDotMethod(ref("factory"), "setAccessColumnsZeroOffset", constant(accessColumnsZeroOffset))
-                .exprDotMethod(ref("factory"), "setAccessAgents", AggregationAgentUtil.makeArray(accessAgents, method, symbols, classScope))
-                .exprDotMethod(ref("factory"), "setGroupByRollupDesc", groupByRollupDesc == null ? constantNull() : groupByRollupDesc.codegen())
-                .methodReturn(ref("factory"));
+            .declareVar(AggregationServiceFactoryTable.class, "factory", newInstance(AggregationServiceFactoryTable.class))
+            .exprDotMethod(ref("factory"), "setTable", TableDeployTimeResolver.makeResolveTable(metadata, symbols.getAddInitSvc(method)))
+            .exprDotMethod(ref("factory"), "setMethodPairs", TableColumnMethodPairForge.makeArray(methodPairs, method, symbols, classScope))
+            .exprDotMethod(ref("factory"), "setAccessColumnsZeroOffset", constant(accessColumnsZeroOffset))
+            .exprDotMethod(ref("factory"), "setAccessAgents", AggregationAgentUtil.makeArray(accessAgents, method, symbols, classScope))
+            .exprDotMethod(ref("factory"), "setGroupByRollupDesc", groupByRollupDesc == null ? constantNull() : groupByRollupDesc.codegen(method, classScope))
+            .methodReturn(ref("factory"));
         return localMethod(method);
     }
 }

@@ -16,6 +16,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScopeNames;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationClassNames;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryCompiler;
@@ -23,7 +25,6 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactor
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryForge;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategyFactoryForge;
@@ -49,8 +50,9 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
     private final NamedWindowMetaData namedWindow;
     private final ExprNode namedWindowFilterExpr;
     private final QueryGraphForge namedWindowFilterQueryGraph;
+    private final MultiKeyClassRef groupByMultiKeyClasses;
 
-    public SubSelectStrategyFactoryLocalViewPreloadedForge(List<ViewFactoryForge> viewForges, ViewResourceDelegateDesc viewResourceDelegateDesc, Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> lookupStrategy, ExprNode filterExprNode, boolean correlatedSubquery, AggregationServiceForgeDesc aggregationServiceForgeDesc, int subqueryNumber, ExprNode[] groupKeys, NamedWindowMetaData namedWindow, ExprNode namedWindowFilterExpr, QueryGraphForge namedWindowFilterQueryGraph) {
+    public SubSelectStrategyFactoryLocalViewPreloadedForge(List<ViewFactoryForge> viewForges, ViewResourceDelegateDesc viewResourceDelegateDesc, Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> lookupStrategy, ExprNode filterExprNode, boolean correlatedSubquery, AggregationServiceForgeDesc aggregationServiceForgeDesc, int subqueryNumber, ExprNode[] groupKeys, NamedWindowMetaData namedWindow, ExprNode namedWindowFilterExpr, QueryGraphForge namedWindowFilterQueryGraph, MultiKeyClassRef groupByMultiKeyClasses) {
         this.viewForges = viewForges;
         this.viewResourceDelegateDesc = viewResourceDelegateDesc;
         this.lookupStrategy = lookupStrategy;
@@ -62,6 +64,7 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
         this.namedWindow = namedWindow;
         this.namedWindowFilterExpr = namedWindowFilterExpr;
         this.namedWindowFilterQueryGraph = namedWindowFilterQueryGraph;
+        this.groupByMultiKeyClasses = groupByMultiKeyClasses;
     }
 
     public List<ViewFactoryForge> getViewForges() {
@@ -71,28 +74,25 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(SubSelectStrategyFactoryLocalViewPreloaded.class, this.getClass(), classScope);
 
-        CodegenExpression groupKeyEval = constantNull();
-        if (groupKeys != null) {
-            groupKeyEval = ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(ExprNodeUtilityQuery.getForges(groupKeys), null, method, this.getClass(), classScope);
-        }
+        CodegenExpression groupKeyEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(groupKeys, null, groupByMultiKeyClasses, method, classScope);
 
         method.getBlock()
-                .declareVar(SubSelectStrategyFactoryLocalViewPreloaded.class, "factory", newInstance(SubSelectStrategyFactoryLocalViewPreloaded.class))
-                .exprDotMethod(ref("factory"), "setSubqueryNumber", constant(subqueryNumber))
-                .exprDotMethod(ref("factory"), "setViewFactories", ViewFactoryForgeUtil.codegenForgesWInit(viewForges, 0, subqueryNumber, method, symbols, classScope))
-                .exprDotMethod(ref("factory"), "setViewResourceDelegate", viewResourceDelegateDesc.toExpression())
-                .exprDotMethod(ref("factory"), "setEventTableFactoryFactory", lookupStrategy.getFirst().make(method, symbols, classScope))
-                .exprDotMethod(ref("factory"), "setLookupStrategyFactory", lookupStrategy.getSecond().make(method, symbols, classScope))
-                .exprDotMethod(ref("factory"), "setAggregationServiceFactory", makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols))
-                .exprDotMethod(ref("factory"), "setCorrelatedSubquery", constant(correlatedSubquery))
-                .exprDotMethod(ref("factory"), "setGroupKeyEval", groupKeyEval)
-                .exprDotMethod(ref("factory"), "setFilterExprEval", filterExprNode == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprNode.getForge(), method, this.getClass(), classScope));
+            .declareVar(SubSelectStrategyFactoryLocalViewPreloaded.class, "factory", newInstance(SubSelectStrategyFactoryLocalViewPreloaded.class))
+            .exprDotMethod(ref("factory"), "setSubqueryNumber", constant(subqueryNumber))
+            .exprDotMethod(ref("factory"), "setViewFactories", ViewFactoryForgeUtil.codegenForgesWInit(viewForges, 0, subqueryNumber, method, symbols, classScope))
+            .exprDotMethod(ref("factory"), "setViewResourceDelegate", viewResourceDelegateDesc.toExpression())
+            .exprDotMethod(ref("factory"), "setEventTableFactoryFactory", lookupStrategy.getFirst().make(method, symbols, classScope))
+            .exprDotMethod(ref("factory"), "setLookupStrategyFactory", lookupStrategy.getSecond().make(method, symbols, classScope))
+            .exprDotMethod(ref("factory"), "setAggregationServiceFactory", makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols))
+            .exprDotMethod(ref("factory"), "setCorrelatedSubquery", constant(correlatedSubquery))
+            .exprDotMethod(ref("factory"), "setGroupKeyEval", groupKeyEval)
+            .exprDotMethod(ref("factory"), "setFilterExprEval", filterExprNode == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprNode.getForge(), method, this.getClass(), classScope));
         if (namedWindow != null) {
             method.getBlock().exprDotMethod(ref("factory"), "setNamedWindow", NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)));
             if (namedWindowFilterExpr != null) {
                 method.getBlock()
-                        .exprDotMethod(ref("factory"), "setNamedWindowFilterQueryGraph", namedWindowFilterQueryGraph.make(method, symbols, classScope))
-                        .exprDotMethod(ref("factory"), "setNamedWindowFilterExpr", ExprNodeUtilityCodegen.codegenEvaluator(namedWindowFilterExpr.getForge(), method, this.getClass(), classScope));
+                    .exprDotMethod(ref("factory"), "setNamedWindowFilterQueryGraph", namedWindowFilterQueryGraph.make(method, symbols, classScope))
+                    .exprDotMethod(ref("factory"), "setNamedWindowFilterExpr", ExprNodeUtilityCodegen.codegenEvaluator(namedWindowFilterExpr.getForge(), method, this.getClass(), classScope));
             }
         }
         method.getBlock().methodReturn(ref("factory"));

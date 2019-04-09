@@ -19,6 +19,8 @@ import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.epl.table.update.TableUpdateStrategy;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class OnExprViewTableUpdate extends OnExprViewTableBase {
 
@@ -45,7 +47,8 @@ public class OnExprViewTableUpdate extends OnExprViewTableBase {
 
         for (EventBean triggerEvent : triggerEvents) {
             eventsPerStream[1] = triggerEvent;
-            tableUpdateStrategy.updateTable(Arrays.asList(matchingEvents), tableInstance, eventsPerStream, agentInstanceContext);
+            Collection<EventBean> matching = matchingEvents == null ? Collections.emptyList() : Arrays.asList(matchingEvents);
+            tableUpdateStrategy.updateTable(matching, tableInstance, eventsPerStream, agentInstanceContext);
         }
 
         // The on-delete listeners receive the events deleted, but only if there is interest

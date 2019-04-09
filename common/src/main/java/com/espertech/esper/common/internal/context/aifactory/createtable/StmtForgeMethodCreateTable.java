@@ -20,6 +20,8 @@ import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.AnnotationDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.ColumnDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.CreateTableColumn;
@@ -113,8 +115,11 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         StatementAgentInstanceFactoryCreateTableForge forge = new StatementAgentInstanceFactoryCreateTableForge(aiFactoryProviderClassName, tableMetaData.getTableName(), plan);
 
         // build forge list
-        List<StmtClassForgable> forgables = new ArrayList<>(2);
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        List<StmtClassForgable> forgables = new ArrayList<>(2);
+        for (StmtClassForgableFactory additional : plan.getAdditionalForgeables()) {
+            forgables.add(additional.make(packageScope, classPostfix));
+        }
 
         StmtClassForgableAIFactoryProviderCreateTable aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateTable(aiFactoryProviderClassName, packageScope, forge, tableName);
         forgables.add(aiFactoryForgable);
@@ -141,9 +146,6 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             Object type = EventTypeUtility.buildType(new ColumnDesc(col.getColumnName(), col.getOptType().toEPL()), classpathImportService);
             if (!(type instanceof Class)) {
                 throw new ExprValidationException(msg + ", received unexpected event type '" + type + "'");
-            }
-            if (((Class) type).isArray()) {
-                throw new ExprValidationException(msg + ", an array-typed column cannot become a primary key column");
             }
         }
     }
@@ -400,6 +402,8 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         }
 
         AggregationRowStateForgeDesc forgeDesc = new AggregationRowStateForgeDesc(methodFactories, null, stateFactories, accessAccessorForges, new AggregationUseFlags(false, false, false));
-        return new TableAccessAnalysisResult(columnMetadata, internalEventType, publicEventType, assignPairsPlain, assignPairsMethod, assignPairsAccess, forgeDesc, primaryKeyColumnArray, primaryKeyGetterArray, primaryKeyTypeArray, primaryKeyColNumsArray);
+
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(primaryKeyTypeArray, false);
+        return new TableAccessAnalysisResult(columnMetadata, internalEventType, publicEventType, assignPairsPlain, assignPairsMethod, assignPairsAccess, forgeDesc, primaryKeyColumnArray, primaryKeyGetterArray, primaryKeyTypeArray, primaryKeyColNumsArray, multiKeyPlan.getOptionalClassRef(), multiKeyPlan.getMultiKeyForgables());
     }
 }

@@ -14,15 +14,14 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForge;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRange;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRangeForge;
-import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupIndexReqKey;
-import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupKeyDesc;
-import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupPlanForge;
+import com.espertech.esper.common.internal.epl.join.queryplan.*;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,13 +37,17 @@ public class CompositeTableLookupPlanForge extends TableLookupPlanForge {
     private final Class[] hashCoercionTypes;
     private final List<QueryGraphValueEntryRangeForge> rangeKeyPairs;
     private final Class[] optRangeCoercionTypes;
+    private final QueryPlanIndexForge indexSpecs;
+    private final MultiKeyClassRef optionalEPLTableLookupMultiKey;
 
-    public CompositeTableLookupPlanForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyedForge> hashKeys, Class[] hashCoercionTypes, List<QueryGraphValueEntryRangeForge> rangeKeyPairs, Class[] optRangeCoercionTypes) {
+    public CompositeTableLookupPlanForge(int lookupStream, int indexedStream, boolean indexedStreamIsVDW, EventType[] typesPerStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyedForge> hashKeys, Class[] hashCoercionTypes, List<QueryGraphValueEntryRangeForge> rangeKeyPairs, Class[] optRangeCoercionTypes, QueryPlanIndexForge indexSpecs, MultiKeyClassRef optionalEPLTableLookupMultiKey) {
         super(lookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, new TableLookupIndexReqKey[]{indexNum});
         this.hashKeys = hashKeys;
         this.hashCoercionTypes = hashCoercionTypes;
         this.rangeKeyPairs = rangeKeyPairs;
         this.optRangeCoercionTypes = optRangeCoercionTypes;
+        this.indexSpecs = indexSpecs;
+        this.optionalEPLTableLookupMultiKey = optionalEPLTableLookupMultiKey;
     }
 
     public TableLookupKeyDesc getKeyDescriptor() {
@@ -58,8 +61,13 @@ public class CompositeTableLookupPlanForge extends TableLookupPlanForge {
     public Collection<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpression hashGetter = constantNull();
         if (!hashKeys.isEmpty()) {
+            QueryPlanIndexItemForge indexForge = indexSpecs.getItems().get(getIndexNum()[0]);
             ExprForge[] forges = QueryGraphValueEntryHashKeyedForge.getForges(hashKeys.toArray(new QueryGraphValueEntryHashKeyedForge[hashKeys.size()]));
-            hashGetter = ExprNodeUtilityCodegen.codegenEvaluatorMayMultiKeyWCoerce(forges, hashCoercionTypes, method, this.getClass(), classScope);
+            if (indexForge != null) {
+                hashGetter = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashCoercionTypes, indexForge.getHashMultiKeyClasses(), method, classScope);
+            } else {
+                hashGetter = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forges, hashCoercionTypes, optionalEPLTableLookupMultiKey, method, classScope);
+            }
         }
 
         CodegenMethod rangeGetters = method.makeChild(QueryGraphValueEntryRange[].class, this.getClass(), classScope);
@@ -75,8 +83,8 @@ public class CompositeTableLookupPlanForge extends TableLookupPlanForge {
 
     public String toString() {
         return "CompositeTableLookupPlan " +
-                super.toString() +
-                " directKeys=" + QueryGraphValueEntryHashKeyedForge.toQueryPlan(hashKeys) +
-                " rangeKeys=" + QueryGraphValueEntryRangeForge.toQueryPlan(rangeKeyPairs);
+            super.toString() +
+            " directKeys=" + QueryGraphValueEntryHashKeyedForge.toQueryPlan(hashKeys) +
+            " rangeKeys=" + QueryGraphValueEntryRangeForge.toQueryPlan(rangeKeyPairs);
     }
 }

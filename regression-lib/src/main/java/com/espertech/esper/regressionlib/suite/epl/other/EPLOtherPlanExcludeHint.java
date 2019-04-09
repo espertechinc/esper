@@ -118,7 +118,7 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
                 .addIndexHashSingleNonUnique(0, "i1", "p00")
                 .setIndexFullTableScan(1, "i2")
                 .setLookupPlanInner(0, new FullTableScanLookupPlanForge(0, 1, false, types, getIndexKey("i2")))
-                .setLookupPlanInner(1, new IndexedTableLookupPlanHashedOnlyForge(1, 0, false, types, getIndexKey("i1"), new QueryGraphValueEntryHashKeyedForge[]{SupportExprNodeFactory.makeKeyed("p10")}, null, null)).get();
+                .setLookupPlanInner(1, new IndexedTableLookupPlanHashedOnlyForge(1, 0, false, types, getIndexKey("i1"), new QueryGraphValueEntryHashKeyedForge[]{SupportExprNodeFactory.makeKeyed("p10")}, null, null, null)).get();
             String eplWithWhereEquals = epl + " where p00 = p10";
             tryAssertionJoin(env, "@hint('exclude_plan(from_streamnum=0)')" + eplWithWhereEquals, planEquals);
             tryAssertionJoin(env, "@hint('exclude_plan(from_streamname=\"s0\")')" + eplWithWhereEquals, planEquals);

@@ -10,6 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -18,6 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQu
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,7 +30,7 @@ import java.util.List;
  */
 public class AggregationGroupByLocalGroupByAnalyzer {
 
-    public static AggregationLocalGroupByPlanForge analyze(ExprForge[][] methodForges, AggregationForgeFactory[] methodFactories, AggregationStateFactoryForge[] accessAggregations, AggregationGroupByLocalGroupDesc localGroupDesc, ExprNode[] groupByExpressions, AggregationAccessorSlotPairForge[] accessors, ClasspathImportService classpathImportService, boolean fireAndForget, String statementName) {
+    public static AggregationLocalGroupByPlanDesc analyze(ExprForge[][] methodForges, AggregationForgeFactory[] methodFactories, AggregationStateFactoryForge[] accessAggregations, AggregationGroupByLocalGroupDesc localGroupDesc, ExprNode[] groupByExpressions, MultiKeyClassRef optionalGroupByMultiKey, AggregationAccessorSlotPairForge[] accessors, ClasspathImportService classpathImportService, boolean fireAndForget, String statementName) {
 
         if (groupByExpressions == null) {
             groupByExpressions = ExprNodeUtilityQuery.EMPTY_EXPR_ARRAY;
@@ -34,12 +39,15 @@ public class AggregationGroupByLocalGroupByAnalyzer {
         AggregationLocalGroupByColumnForge[] columns = new AggregationLocalGroupByColumnForge[localGroupDesc.getNumColumns()];
         List<AggregationLocalGroupByLevelForge> levelsList = new ArrayList<>();
         AggregationLocalGroupByLevelForge optionalTopLevel = null;
+        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
 
         // determine optional top level (level number is -1)
         for (int i = 0; i < localGroupDesc.getLevels().length; i++) {
             AggregationGroupByLocalGroupLevel levelDesc = localGroupDesc.getLevels()[i];
             if (levelDesc.getPartitionExpr().length == 0) {
-                optionalTopLevel = getLevel(-1, levelDesc, methodForges, methodFactories, accessAggregations, columns, groupByExpressions.length == 0, accessors, classpathImportService, fireAndForget, statementName);
+                AggregationGroupByLocalGroupLevelDesc top = getLevel(-1, levelDesc, methodForges, methodFactories, accessAggregations, columns, groupByExpressions.length == 0, accessors, groupByExpressions, optionalGroupByMultiKey);
+                optionalTopLevel = top.getForge();
+                additionalForgeables.addAll(top.getAdditionalForgeables());
             }
         }
 
@@ -52,8 +60,9 @@ public class AggregationGroupByLocalGroupByAnalyzer {
             }
             boolean isDefaultLevel = groupByExpressions != null && ExprNodeUtilityCompare.deepEqualsIgnoreDupAndOrder(groupByExpressions, levelDesc.getPartitionExpr());
             if (isDefaultLevel) {
-                AggregationLocalGroupByLevelForge level = getLevel(0, levelDesc, methodForges, methodFactories, accessAggregations, columns, isDefaultLevel, accessors, classpathImportService, fireAndForget, statementName);
-                levelsList.add(level);
+                AggregationGroupByLocalGroupLevelDesc level = getLevel(0, levelDesc, methodForges, methodFactories, accessAggregations, columns, isDefaultLevel, accessors, groupByExpressions, optionalGroupByMultiKey);
+                additionalForgeables.addAll(level.getAdditionalForgeables());
+                levelsList.add(level.getForge());
                 levelNumber++;
                 break;
             }
@@ -69,8 +78,9 @@ public class AggregationGroupByLocalGroupByAnalyzer {
             if (isDefaultLevel) {
                 continue;
             }
-            AggregationLocalGroupByLevelForge level = getLevel(levelNumber, levelDesc, methodForges, methodFactories, accessAggregations, columns, isDefaultLevel, accessors, classpathImportService, fireAndForget, statementName);
-            levelsList.add(level);
+            AggregationGroupByLocalGroupLevelDesc level = getLevel(levelNumber, levelDesc, methodForges, methodFactories, accessAggregations, columns, isDefaultLevel, accessors, groupByExpressions, optionalGroupByMultiKey);
+            levelsList.add(level.getForge());
+            additionalForgeables.addAll(level.getAdditionalForgeables());
             levelNumber++;
         }
 
@@ -87,14 +97,21 @@ public class AggregationGroupByLocalGroupByAnalyzer {
         }
 
         AggregationLocalGroupByLevelForge[] levels = levelsList.toArray(new AggregationLocalGroupByLevelForge[levelsList.size()]);
-        return new AggregationLocalGroupByPlanForge(numMethods, numAccesses, columns, optionalTopLevel, levels);
+        AggregationLocalGroupByPlanForge forge = new AggregationLocalGroupByPlanForge(numMethods, numAccesses, columns, optionalTopLevel, levels);
+        return new AggregationLocalGroupByPlanDesc(forge, additionalForgeables);
     }
 
     // Obtain those method and state factories for each level
-    private static AggregationLocalGroupByLevelForge getLevel(int levelNumber, AggregationGroupByLocalGroupLevel level, ExprForge[][] methodForgesAll, AggregationForgeFactory[] methodFactoriesAll, AggregationStateFactoryForge[] accessForges, AggregationLocalGroupByColumnForge[] columns, boolean defaultLevel, AggregationAccessorSlotPairForge[] accessors, ClasspathImportService classpathImportService, boolean isFireAndForget, String statementName) {
+    private static AggregationGroupByLocalGroupLevelDesc getLevel(int levelNumber, AggregationGroupByLocalGroupLevel level, ExprForge[][] methodForgesAll, AggregationForgeFactory[] methodFactoriesAll, AggregationStateFactoryForge[] accessForges, AggregationLocalGroupByColumnForge[] columns, boolean defaultLevel, AggregationAccessorSlotPairForge[] accessors, ExprNode[] groupByExpressions, MultiKeyClassRef optionalGroupByMultiKey) {
 
         ExprNode[] partitionExpr = level.getPartitionExpr();
-        ExprForge[] partitionForges = ExprNodeUtilityQuery.getForges(partitionExpr);
+        MultiKeyPlan multiKeyPlan;
+        if (defaultLevel && optionalGroupByMultiKey != null) { // use default multi-key that is already generated
+            multiKeyPlan = new MultiKeyPlan(Collections.EMPTY_LIST, optionalGroupByMultiKey);
+            partitionExpr = groupByExpressions;
+        } else {
+            multiKeyPlan = MultiKeyPlanner.planMultiKey(partitionExpr, false);
+        }
 
         List<ExprForge[]> methodForges = new ArrayList<>();
         List<AggregationForgeFactory> methodFactories = new ArrayList<>();
@@ -123,11 +140,12 @@ public class AggregationGroupByLocalGroupByAnalyzer {
                 methodAgg = false;
                 pair = new AggregationAccessorSlotPairForge(relativeSlot, accessor);
             }
-            columns[column] = new AggregationLocalGroupByColumnForge(defaultLevel, partitionForges, methodOffset, methodAgg, pair, levelNumber);
+            columns[column] = new AggregationLocalGroupByColumnForge(defaultLevel, partitionExpr, methodOffset, methodAgg, pair, levelNumber);
         }
 
-        return new AggregationLocalGroupByLevelForge(methodForges.toArray(new ExprForge[methodForges.size()][]),
-                methodFactories.toArray(new AggregationForgeFactory[methodFactories.size()]),
-                stateFactories.toArray(new AggregationStateFactoryForge[stateFactories.size()]), partitionForges, defaultLevel);
+        AggregationLocalGroupByLevelForge forge = new AggregationLocalGroupByLevelForge(methodForges.toArray(new ExprForge[methodForges.size()][]),
+            methodFactories.toArray(new AggregationForgeFactory[methodFactories.size()]),
+            stateFactories.toArray(new AggregationStateFactoryForge[stateFactories.size()]), partitionExpr, multiKeyPlan.getOptionalClassRef(), defaultLevel);
+        return new AggregationGroupByLocalGroupLevelDesc(forge, multiKeyPlan == null ? Collections.emptyList() : multiKeyPlan.getMultiKeyForgables());
     }
 }

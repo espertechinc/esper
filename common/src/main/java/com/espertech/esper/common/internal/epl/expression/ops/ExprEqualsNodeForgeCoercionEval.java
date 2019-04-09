@@ -71,7 +71,7 @@ public class ExprEqualsNodeForgeCoercionEval implements ExprEvaluator {
         Class lhsType = lhs.getForge().getEvaluationType();
         Class rhsType = rhs.getForge().getEvaluationType();
 
-        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsNodeForgeNCEvalEquals.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(Boolean.class, ExprEqualsNodeForgeNCForgeEquals.class, codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(lhsType, "l", lhs.getForge().evaluateCodegen(lhsType, methodNode, exprSymbol, codegenClassScope))
                 .declareVar(rhsType, "r", rhs.getForge().evaluateCodegen(rhsType, methodNode, exprSymbol, codegenClassScope));

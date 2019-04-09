@@ -217,8 +217,9 @@ public class TestSuiteEPLJoin extends TestCase {
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_A.class, SupportBean_B.class, SupportBean_C.class, SupportBean_D.class,
             SupportBean_S0.class, SupportBean_S1.class, SupportBean_S2.class, SupportBean_S3.class, SupportBean_S4.class,
             SupportBean_S5.class, SupportBean_S6.class, SupportBeanComplexProps.class, ISupportA.class, ISupportB.class, ISupportAImpl.class, ISupportBImpl.class,
-            SupportBeanCombinedProps.class, SupportSimpleBeanOne.class, SupportSimpleBeanTwo.class,
-            SupportMarketDataBean.class, SupportBean_ST0.class, SupportBean_ST1.class, SupportBeanRange.class}) {
+            SupportBeanCombinedProps.class, SupportSimpleBeanOne.class, SupportSimpleBeanTwo.class, SupportEventWithManyArray.class,
+            SupportMarketDataBean.class, SupportBean_ST0.class, SupportBean_ST1.class, SupportBeanRange.class,
+            SupportEventWithIntArray.class, SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

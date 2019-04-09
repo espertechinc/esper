@@ -221,8 +221,6 @@ public class InfraTableInvalid {
             // invalid primary key use
             tryInvalidCompile(env, path, "create table abc as (total count(*) primary key)",
                 "Column 'total' may not be tagged as primary key, an expression cannot become a primary key column [");
-            tryInvalidCompile(env, path, "create table abc as (arr int[] primary key)",
-                "Column 'arr' may not be tagged as primary key, an array-typed column cannot become a primary key column [");
             tryInvalidCompile(env, path, "create table abc as (arr SupportBean primary key)",
                 "Column 'arr' may not be tagged as primary key, received unexpected event type 'SupportBean' [");
             tryInvalidCompile(env, path, "create table abc as (mystr string prim key)",

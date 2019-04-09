@@ -27,6 +27,7 @@ public abstract class HistoricalEventViewableFactoryBase implements HistoricalEv
     protected boolean hasRequiredStreams;
     protected int scheduleCallbackId;
     protected ExprEvaluator evaluator;
+    protected HistoricalEventViewableLookupValueToMultiKey lookupValueToMultiKey;
 
     private static final EventBean[][] NULL_ROWS;
 
@@ -78,5 +79,13 @@ public abstract class HistoricalEventViewableFactoryBase implements HistoricalEv
 
     public void setEvaluator(ExprEvaluator evaluator) {
         this.evaluator = evaluator;
+    }
+
+    public HistoricalEventViewableLookupValueToMultiKey getLookupValueToMultiKey() {
+        return lookupValueToMultiKey;
+    }
+
+    public void setLookupValueToMultiKey(HistoricalEventViewableLookupValueToMultiKey lookupValueToMultiKey) {
+        this.lookupValueToMultiKey = lookupValueToMultiKey;
     }
 }

@@ -166,20 +166,6 @@ public class TestEventBeanUtility extends TestCase {
         assertEquals(0, properties.length);
     }
 
-    public void testMultiKey() {
-        // try 2 properties
-        EventPropertyGetter[] getters = makeGetters();
-        EventBean theEvent = SupportEventBeanFactory.createObject(new SupportBean("a", 10));
-        HashableMultiKey multikey = EventBeanUtility.getMultiKey(theEvent, getters);
-        assertEquals(2, multikey.getKeys().length);
-        assertEquals("a", multikey.getKeys()[0]);
-        assertEquals(10, multikey.getKeys()[1]);
-
-        // try no properties
-        multikey = EventBeanUtility.getMultiKey(theEvent, new EventPropertyGetter[0]);
-        assertEquals(0, multikey.getKeys().length);
-    }
-
     private EventPropertyGetter[] makeGetters() {
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         EventPropertyGetter[] getters = new EventPropertyGetter[2];

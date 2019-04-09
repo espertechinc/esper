@@ -11,6 +11,9 @@
 package com.espertech.esper.common.internal.epl.table.core;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -34,6 +37,12 @@ public interface Table {
     void setTableSerdes(TableSerdes tableSerdes);
 
     void setPrimaryKeyGetter(EventPropertyValueGetter primaryKeyGetter);
+
+    void setPrimaryKeySerde(MultiKeyGeneratedSerde serde);
+
+    void setPrimaryKeyObjectArrayTransform(MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform);
+
+    void setPrimaryKeyIntoTableTransform(MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform);
 
     void tableReady();
 
@@ -72,4 +81,10 @@ public interface Table {
     void removeUpdateStrategyCallback(TableUpdateStrategyRedoCallback callback);
 
     Collection<TableUpdateStrategyRedoCallback> getUpdateStrategyCallbacks();
+
+    MultiKeyGeneratedSerde getPrimaryKeySerde();
+
+    MultiKeyGeneratedFromMultiKey getPrimaryKeyIntoTableTransform();
+
+    MultiKeyGeneratedFromObjectArray getPrimaryKeyObjectArrayTransform();
 }

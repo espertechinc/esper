@@ -11,6 +11,8 @@
 package com.espertech.esper.regressionrun.suite.view;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptureOp;
+import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourceOp;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -71,6 +73,10 @@ public class TestSuiteView extends TestCase {
 
     public void testViewUnique() {
         RegressionRunner.run(session, ViewUnique.executions());
+    }
+
+    public void testViewMultikeyWArray() {
+        RegressionRunner.run(session, ViewMultikeyWArray.executions());
     }
 
     public void testViewFirstUnique() {
@@ -140,7 +146,8 @@ public class TestSuiteView extends TestCase {
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportMarketDataBean.class, SupportBeanComplexProps.class, SupportBean.class,
             SupportBeanWithEnum.class, SupportBeanTimestamp.class, SupportEventIdWithTimestamp.class, SupportSensorEvent.class,
-            SupportBean_S0.class, SupportBean_S1.class, SupportBean_A.class, SupportBean_N.class, SupportContextInitEventWLength.class}) {
+            SupportBean_S0.class, SupportBean_S1.class, SupportBean_A.class, SupportBean_N.class, SupportContextInitEventWLength.class,
+            SupportEventWithLongArray.class, SupportObjectArrayOneDim.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
         configuration.getCommon().addEventType("OAEventStringInt", new String[]{"p1", "p2"}, new Object[]{String.class, int.class});
@@ -150,5 +157,8 @@ public class TestSuiteView extends TestCase {
 
         configuration.getCompiler().getByteCode().setThreadPoolCompilerNumThreads(0);
         configuration.getCompiler().addPlugInSingleRowFunction("udf", ViewExpressionWindow.LocalUDF.class.getName(), "evaluateExpiryUDF");
+
+        configuration.getCommon().addImport(DefaultSupportSourceOp.class.getPackage().getName() + ".*");
+        configuration.getCommon().addImport(DefaultSupportCaptureOp.class.getPackage().getName() + ".*");
     }
 }

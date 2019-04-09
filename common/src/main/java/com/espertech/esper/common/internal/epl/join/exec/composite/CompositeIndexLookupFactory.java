@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.exec.composite;
 
+import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
 import com.espertech.esper.common.internal.epl.join.exec.util.RangeIndexLookupValue;
 
 import java.util.ArrayList;
@@ -17,11 +18,11 @@ import java.util.List;
 
 public class CompositeIndexLookupFactory {
 
-    public static CompositeIndexLookup make(Object[] keyValues, RangeIndexLookupValue[] rangeValues, Class[] rangeCoercion) {
+    public static CompositeIndexLookup make(Object[] keyValues, MultiKeyGeneratedFromObjectArray multiKeyTransform, RangeIndexLookupValue[] rangeValues, Class[] rangeCoercion) {
         // construct chain
         List<CompositeIndexLookup> queries = new ArrayList<CompositeIndexLookup>();
         if (keyValues != null && keyValues.length > 0) {
-            queries.add(new CompositeIndexLookupKeyed(keyValues));
+            queries.add(new CompositeIndexLookupKeyed(keyValues, multiKeyTransform));
         }
         for (int i = 0; i < rangeValues.length; i++) {
             queries.add(new CompositeIndexLookupRange(rangeValues[i], rangeCoercion[i]));

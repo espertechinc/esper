@@ -23,22 +23,22 @@ public class ExprTableEvalStrategyGroupedAggAccessRead extends ExprTableEvalStra
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationRow aggs = getRow(eventsPerStream, isNewData, exprEvaluatorContext);
+        AggregationRow aggs = getAggregationRow(eventsPerStream, isNewData, exprEvaluatorContext);
         return aggs == null ? null : factory.getAggregationMethod().getValue(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        AggregationRow aggs = getRow(eventsPerStream, isNewData, context);
+        AggregationRow aggs = getAggregationRow(eventsPerStream, isNewData, context);
         return aggs == null ? null : factory.getAggregationMethod().getValueCollectionEvents(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
     }
 
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        AggregationRow aggs = getRow(eventsPerStream, isNewData, context);
+        AggregationRow aggs = getAggregationRow(eventsPerStream, isNewData, context);
         return aggs == null ? null : factory.getAggregationMethod().getValueEventBean(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        AggregationRow aggs = getRow(eventsPerStream, isNewData, context);
+        AggregationRow aggs = getAggregationRow(eventsPerStream, isNewData, context);
         return aggs == null ? null : factory.getAggregationMethod().getValueCollectionScalar(factory.getAggColumnNum(), aggs, eventsPerStream, isNewData, context);
     }
 

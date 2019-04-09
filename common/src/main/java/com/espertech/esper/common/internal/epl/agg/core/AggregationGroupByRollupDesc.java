@@ -10,14 +10,6 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newArrayWithInit;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
-
 public class AggregationGroupByRollupDesc {
     private final AggregationGroupByRollupLevel[] levels;
     private final int numLevelsAggregation;
@@ -34,23 +26,6 @@ public class AggregationGroupByRollupDesc {
         numLevelsAggregation = count;
     }
 
-    public static AggregationGroupByRollupDesc make(int[][] indexes) {
-        List<AggregationGroupByRollupLevel> levels = new ArrayList<AggregationGroupByRollupLevel>();
-        int countOffset = 0;
-        int countNumber = -1;
-        for (int[] mki : indexes) {
-            countNumber++;
-            if (mki.length == 0) {
-                levels.add(new AggregationGroupByRollupLevel(countNumber, -1, null));
-            } else {
-                levels.add(new AggregationGroupByRollupLevel(countNumber, countOffset, mki));
-                countOffset++;
-            }
-        }
-        AggregationGroupByRollupLevel[] levelsarr = levels.toArray(new AggregationGroupByRollupLevel[levels.size()]);
-        return new AggregationGroupByRollupDesc(levelsarr);
-    }
-
     public AggregationGroupByRollupLevel[] getLevels() {
         return levels;
     }
@@ -61,13 +36,5 @@ public class AggregationGroupByRollupDesc {
 
     public int getNumLevels() {
         return levels.length;
-    }
-
-    public CodegenExpression codegen() {
-        CodegenExpression[] level = new CodegenExpression[levels.length];
-        for (int i = 0; i < levels.length; i++) {
-            level[i] = levels[i].toExpression();
-        }
-        return newInstance(AggregationGroupByRollupDesc.class, newArrayWithInit(AggregationGroupByRollupLevel.class, level));
     }
 }

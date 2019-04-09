@@ -13,7 +13,7 @@ package com.espertech.esper.common.client.util;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public final class HashableMultiKey implements Serializable {
+public final class HashableMultiKey implements Serializable, MultiKeyGenerated {
     private static final long serialVersionUID = -7019971786796246533L;
     private final Object[] keys;
 
@@ -99,6 +99,17 @@ public final class HashableMultiKey implements Serializable {
             return Arrays.equals(keys, otherKeys.keys);
         }
         return false;
+    }
+
+    public int getNumKeys() {
+        return size();
+    }
+
+    public Object getKey(int num) {
+        if (num >= keys.length) {
+            throw new IllegalArgumentException("Key number " + num + " larger than number of keys (" + size() + ")");
+        }
+        return keys[num];
     }
 
     /**
