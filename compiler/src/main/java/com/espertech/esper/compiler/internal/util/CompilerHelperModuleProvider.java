@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EPCompiledManifest;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.module.ModuleProperty;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.bytecodemodel.base.*;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
@@ -49,8 +50,10 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.core.TypeBeanOrUnderlying;
 import com.espertech.esper.common.internal.event.core.WrapperEventType;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.xml.SchemaXMLEventType;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.SerializerUtil;
 import com.espertech.esper.compiler.client.CompilerOptions;
@@ -317,6 +320,13 @@ public class CompilerHelperModuleProvider {
             CodegenMethod addType = registerEventTypeCodegen(eventType, initializeEventTypesMethod, classScope, symbolsEventTypeInit);
             initializeEventTypesMethod.getBlock().expression(localMethod(addType));
         }
+
+        if (compileTimeServices.getSerdeEventTypeRegistry().isTargetHA()) {
+            for (Map.Entry<EventType, DataInputOutputSerdeForge> pair : compileTimeServices.getSerdeEventTypeRegistry().getEventTypes().entrySet()) {
+                CodegenMethod addSerde = registerEventTypeSerdeCodegen(pair.getKey(), pair.getValue(), initializeEventTypesMethod, classScope, symbolsEventTypeInit);
+                initializeEventTypesMethod.getBlock().expression(localMethod(addSerde));
+            }
+        }
         return initializeEventTypesMethod;
     }
 
@@ -414,6 +424,16 @@ public class CompilerHelperModuleProvider {
             throw new IllegalStateException("Event type '" + eventType + "' cannot be registered");
         }
 
+        return method;
+    }
+
+    private static CodegenMethod registerEventTypeSerdeCodegen(EventType eventType, DataInputOutputSerdeForge serdeForge, CodegenMethodScope parent, CodegenClassScope classScope, ModuleEventTypeInitializeSymbol symbols) {
+        CodegenMethod method = parent.makeChild(void.class, EPCompilerImpl.class, classScope);
+        method.getBlock()
+            .declareVar(EventTypeMetadata.class, "metadata", eventType.getMetadata().toExpression())
+            .declareVar(EventTypeResolver.class, "resolver", exprDotMethod(symbols.getAddInitSvc(method), EPModuleEventTypeInitServices.GETEVENTTYPERESOLVER))
+            .declareVar(DataInputOutputSerde.class, "serde", serdeForge.codegen(method, classScope, ref("resolver")));
+        method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPModuleEventTypeInitServices.GETEVENTTYPECOLLECTOR).add("registerSerde", ref("metadata"), ref("serde"), constant(eventType.getUnderlyingType())));
         return method;
     }
 

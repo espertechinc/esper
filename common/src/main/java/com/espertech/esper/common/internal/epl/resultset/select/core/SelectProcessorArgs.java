@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.epl.variable.compiletime.VariableComp
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 
 import java.lang.annotation.Annotation;
@@ -147,6 +148,10 @@ public class SelectProcessorArgs {
 
     public GroupByRollupInfo getGroupByRollupInfo() {
         return groupByRollupInfo;
+    }
+
+    public SerdeCompileTimeResolver getSerdeResolver() {
+        return compileTimeServices.getSerdeResolver();
     }
 
     public String getModuleName() {

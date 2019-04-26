@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -82,13 +81,12 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
                                               boolean isUnidirectional,
                                               OutputLimitSpec outputLimitSpec,
                                               boolean isSorting,
-                                              boolean noDataWindowSingleStream,
                                               boolean isHistoricalOnly,
-                                              boolean iterateUnbounded,
                                               ResultSetProcessorOutputConditionType outputConditionType,
                                               EventType[] eventTypes,
                                               OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
-                                              MultiKeyClassRef multiKeyClassRef) {
+                                              MultiKeyClassRef multiKeyClassRef,
+                                              boolean unboundedProcessor) {
         this.resultEventType = resultEventType;
         this.typesPerStream = typesPerStream;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
@@ -97,14 +95,13 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         this.isSelectRStream = isSelectRStream;
         this.isUnidirectional = isUnidirectional;
         this.outputLimitSpec = outputLimitSpec;
-        boolean noDataWindowSingleSnapshot = iterateUnbounded || (outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.SNAPSHOT && noDataWindowSingleStream);
-        this.unboundedProcessor = noDataWindowSingleSnapshot && !isHistoricalOnly;
         this.isHistoricalOnly = isHistoricalOnly;
         this.outputConditionType = outputConditionType;
         this.eventTypes = eventTypes;
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
         this.multiKeyClassRef = multiKeyClassRef;
+        this.unboundedProcessor = unboundedProcessor;
     }
 
     public EventType getResultEventType() {
@@ -188,10 +185,10 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         if (unboundedProcessor) {
             CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
             instance.addMember(NAME_GROUPREPS, ResultSetProcessorRowPerGroupUnboundHelper.class);
-            CodegenExpression groupKeyMKSerde = MultiKeyCodegen.codegenOptionalSerde(getMultiKeyClassRef());
+            CodegenExpression groupKeySerde = getMultiKeyClassRef().getExprMKSerde(classScope.getPackageScope().getInitMethod(), classScope);
             CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.class, EventTypeUtility.resolveTypeCodegen(typesPerStream[0], EPStatementInitServices.REF));
             instance.getServiceCtor().getBlock().assignRef(NAME_GROUPREPS, exprDotMethod(factory, "makeRSRowPerGroupUnboundGroupRep",
-                constant(groupKeyTypes), groupKeyMKSerde, eventType, REF_AGENTINSTANCECONTEXT))
+                constant(groupKeyTypes), groupKeySerde, eventType, REF_AGENTINSTANCECONTEXT))
                 .exprDotMethod(REF_AGGREGATIONSVC, "setRemovedCallback", ref(NAME_GROUPREPS));
         } else {
             instance.getServiceCtor().getBlock().exprDotMethod(REF_AGGREGATIONSVC, "setRemovedCallback", ref("this"));

@@ -67,7 +67,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
         List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
 
         // create subselect information
         SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
@@ -129,7 +129,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
             // variable assignments
             OnTriggerSetDesc desc = (OnTriggerSetDesc) onTriggerDesc;
             OnTriggerSetPlan plan = OnTriggerSetUtil.handleSetVariable(aiFactoryProviderClassName, packageScope, classPostfix, activatorResult, streamSpec.getOptionalStreamName(), subselectActivation, desc, base, services);
-            onTriggerPlan = new OnTriggerPlan(plan.getForgable(), plan.getForgables(), plan.getSelectSubscriberDescriptor(), plan.getAdditionalForgeables());
+            onTriggerPlan = new OnTriggerPlan(plan.getForgeable(), plan.getForgeables(), plan.getSelectSubscriberDescriptor(), plan.getAdditionalForgeables());
         } else {
             // split-stream use case
             OnTriggerSplitStreamDesc desc = (OnTriggerSplitStreamDesc) onTriggerDesc;
@@ -139,20 +139,20 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         additionalForgeables.addAll(onTriggerPlan.getAdditionalForgeables());
 
         // build forge list
-        List<StmtClassForgable> forgables = new ArrayList<>(2);
-        for (StmtClassForgableFactory additional : additionalForgeables) {
-            forgables.add(additional.make(packageScope, classPostfix));
+        List<StmtClassForgeable> forgeables = new ArrayList<>(2);
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
+            forgeables.add(additional.make(packageScope, classPostfix));
         }
 
-        forgables.addAll(onTriggerPlan.getForgables());
-        forgables.add(onTriggerPlan.getFactory());
+        forgeables.addAll(onTriggerPlan.getForgeables());
+        forgeables.add(onTriggerPlan.getFactory());
 
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, schedules, namedWindowConsumers, true, onTriggerPlan.getSubscriberDescriptor(), packageScope, services);
-        forgables.add(new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 2));
+        forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 2));
 
-        return new StmtForgeMethodResult(forgables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()));
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()));
     }
 
     private OnTriggerActivatorDesc activatorNamedWindow(NamedWindowConsumerStreamSpec namedSpec, StatementCompileTimeServices services) {

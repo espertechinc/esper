@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowforall;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
@@ -42,7 +42,7 @@ public class ResultSetProcessorRowForAllOutputAllHelperImpl implements ResultSet
         EventBeanUtility.addToCollection(events, eventsNew);
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, boolean isGenerateSynthetic) {
         if (processor.isSelectRStream()) {
             EventBean[] events = processor.getSelectListEventsAsArray(false, isGenerateSynthetic, true);
             EventBeanUtility.addToCollection(events, eventsOld);

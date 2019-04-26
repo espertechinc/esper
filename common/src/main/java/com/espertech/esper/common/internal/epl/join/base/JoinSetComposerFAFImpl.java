@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -44,7 +44,7 @@ public class JoinSetComposerFAFImpl extends JoinSetComposerImpl {
     }
 
     @Override
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+    public UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         newResults.clear();
 
         // We add and remove data in one call to each index.
@@ -84,11 +84,11 @@ public class JoinSetComposerFAFImpl extends JoinSetComposerImpl {
             }
         }
 
-        return new UniformPair<Set<MultiKey<EventBean>>>(newResults, oldResults);
+        return new UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>(newResults, oldResults);
     }
 
     @Override
-    public Set<MultiKey<EventBean>> staticJoin() {
+    public Set<MultiKeyArrayOfKeys<EventBean>> staticJoin() {
         // no action
         return null;
     }

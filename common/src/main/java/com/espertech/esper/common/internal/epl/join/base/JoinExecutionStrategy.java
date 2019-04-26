@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 
 import java.util.Set;
 
@@ -34,5 +34,5 @@ public interface JoinExecutionStrategy {
      *
      * @return set of rows, each row with two or more events, one for each stream
      */
-    public Set<MultiKey<EventBean>> staticJoin();
+    public Set<MultiKeyArrayOfKeys<EventBean>> staticJoin();
 }

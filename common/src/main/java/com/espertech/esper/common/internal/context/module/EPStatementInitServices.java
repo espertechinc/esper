@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.module;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.PathRegistry;
@@ -42,7 +43,6 @@ import com.espertech.esper.common.internal.filterspec.FilterSharedLookupableRegi
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatableRegistry;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.schedule.TimeSourceService;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeProvider;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
@@ -58,7 +58,6 @@ public interface EPStatementInitServices {
     CodegenExpressionRef REF = ref("stmtInitSvc");
     String GETAGGREGATIONSERVICEFACTORYSERVICE = "getAggregationServiceFactoryService";
     String GETCONTEXTSERVICEFACTORY = "getContextServiceFactory";
-    String GETDATAINPUTOUTPUTSERDEPROVIDER = "getDataInputOutputSerdeProvider";
     String GETCLASSPATHIMPORTSERVICERUNTIME = "getClasspathImportServiceRuntime";
     String GETRUNTIMESETTINGSSERVICE = "getRuntimeSettingsService";
     String GETEVENTBEANTYPEDEVENTFACTORY = "getEventBeanTypedEventFactory";
@@ -91,8 +90,6 @@ public interface EPStatementInitServices {
     ContextManagementService getContextManagementService();
 
     ContextServiceFactory getContextServiceFactory();
-
-    DataInputOutputSerdeProvider getDataInputOutputSerdeProvider();
 
     ClasspathImportServiceRuntime getClasspathImportServiceRuntime();
 
@@ -158,7 +155,7 @@ public interface EPStatementInitServices {
 
     void activateNamedWindow(String name);
 
-    void activateVariable(String name);
+    void activateVariable(String name, DataInputOutputSerde<Object> serde);
 
     void activateContext(String name, ContextDefinition definition);
 

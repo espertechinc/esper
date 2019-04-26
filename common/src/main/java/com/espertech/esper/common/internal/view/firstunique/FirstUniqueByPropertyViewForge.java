@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
@@ -52,10 +52,10 @@ public class FirstUniqueByPropertyViewForge extends ViewFactoryForgeBase impleme
     }
 
     @Override
-    public List<StmtClassForgableFactory> initAdditionalForgeables() {
-        MultiKeyPlan desc = MultiKeyPlanner.planMultiKey(criteriaExpressions, false);
-        multiKeyClassNames = desc.getOptionalClassRef();
-        return desc.getMultiKeyForgables();
+    public List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
+        MultiKeyPlan desc = MultiKeyPlanner.planMultiKey(criteriaExpressions, false, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver());
+        multiKeyClassNames = desc.getClassRef();
+        return desc.getMultiKeyForgeables();
     }
 
     protected Class typeOfFactory() {

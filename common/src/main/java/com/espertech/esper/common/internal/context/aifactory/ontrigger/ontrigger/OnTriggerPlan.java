@@ -10,39 +10,39 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableAIFactoryProviderBase;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableAIFactoryProviderBase;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 
 import java.util.List;
 
 public class OnTriggerPlan {
-    private final StmtClassForgableAIFactoryProviderBase factory;
-    private final List<StmtClassForgable> forgables;
+    private final StmtClassForgeableAIFactoryProviderBase factory;
+    private final List<StmtClassForgeable> forgeables;
     private final SelectSubscriberDescriptor subscriberDescriptor;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public OnTriggerPlan(StmtClassForgableAIFactoryProviderBase factory, List<StmtClassForgable> forgables, SelectSubscriberDescriptor subscriberDescriptor, List<StmtClassForgableFactory> additionalForgeables) {
+    public OnTriggerPlan(StmtClassForgeableAIFactoryProviderBase factory, List<StmtClassForgeable> forgeables, SelectSubscriberDescriptor subscriberDescriptor, List<StmtClassForgeableFactory> additionalForgeables) {
         this.factory = factory;
-        this.forgables = forgables;
+        this.forgeables = forgeables;
         this.subscriberDescriptor = subscriberDescriptor;
         this.additionalForgeables = additionalForgeables;
     }
 
-    public StmtClassForgableAIFactoryProviderBase getFactory() {
+    public StmtClassForgeableAIFactoryProviderBase getFactory() {
         return factory;
     }
 
-    public List<StmtClassForgable> getForgables() {
-        return forgables;
+    public List<StmtClassForgeable> getForgeables() {
+        return forgeables;
     }
 
     public SelectSubscriberDescriptor getSubscriberDescriptor() {
         return subscriberDescriptor;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

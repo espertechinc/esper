@@ -32,7 +32,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprTableEvalStrategyUtil {
     public static AggregationRow getRow(ObjectArrayBackedEventBean eventBean) {
-        return (AggregationRow) eventBean.getProperties()[0];
+        return getRow(eventBean.getProperties());
+    }
+
+    public static AggregationRow getRow(Object[] underlying) {
+        return (AggregationRow) underlying[0];
     }
 
     public static CodegenExpression codegenInitMap(Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, Class generator, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

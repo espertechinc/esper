@@ -31,7 +31,7 @@ public class ContextInitTermPrioritized {
         return execs;
     }
 
-    private static class NonOverlappingSubqueryAndInvalid implements RegressionExecution {
+    public static class NonOverlappingSubqueryAndInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T10:00:00.000");
 
@@ -57,7 +57,7 @@ public class ContextInitTermPrioritized {
         }
     }
 
-    private static class AtNowWithSelectedEventEnding implements RegressionExecution {
+    public static class AtNowWithSelectedEventEnding implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString".split(",");
             String epl = "@Priority(1) create context C1 start @now end SupportBean;\n" +

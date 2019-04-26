@@ -19,13 +19,13 @@ import java.util.List;
 
 public class StmtForgeMethodResult {
 
-    private final List<StmtClassForgable> forgeables;
+    private final List<StmtClassForgeable> forgeables;
     private final List<FilterSpecCompiled> filtereds;
     private final List<ScheduleHandleCallbackProvider> scheduleds;
     private final List<NamedWindowConsumerStreamSpec> namedWindowConsumers;
     private final List<FilterSpecParamExprNodeForge> filterBooleanExpressions;
 
-    public StmtForgeMethodResult(List<StmtClassForgable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
+    public StmtForgeMethodResult(List<StmtClassForgeable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
         this.forgeables = forgeables;
         this.filtereds = filtereds;
         this.scheduleds = scheduleds;
@@ -33,7 +33,7 @@ public class StmtForgeMethodResult {
         this.filterBooleanExpressions = filterBooleanExpressions;
     }
 
-    public List<StmtClassForgable> getForgeables() {
+    public List<StmtClassForgeable> getForgeables() {
         return forgeables;
     }
 

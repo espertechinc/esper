@@ -23,15 +23,18 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.ExprFirstLa
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodAggUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class AggregationForgeFactoryFirstLastEver extends AggregationForgeFactoryBase {
     protected final ExprFirstLastEverNode parent;
     protected final Class childType;
+    protected final DataInputOutputSerdeForge serde;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryFirstLastEver(ExprFirstLastEverNode parent, Class childType) {
+    public AggregationForgeFactoryFirstLastEver(ExprFirstLastEverNode parent, Class childType, DataInputOutputSerdeForge serde) {
         this.parent = parent;
         this.childType = childType;
+        this.serde = serde;
     }
 
     public Class getResultType() {
@@ -40,9 +43,9 @@ public class AggregationForgeFactoryFirstLastEver extends AggregationForgeFactor
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         if (parent.isFirst()) {
-            aggregator = new AggregatorFirstEver(this, col, rowCtor, membersColumnized, classScope, null, parent.hasFilter(), parent.getOptionalFilter(), childType);
+            aggregator = new AggregatorFirstEver(this, col, rowCtor, membersColumnized, classScope, null, null, parent.hasFilter(), parent.getOptionalFilter(), childType, serde);
         } else {
-            aggregator = new AggregatorLastEver(this, col, rowCtor, membersColumnized, classScope, null, parent.hasFilter(), parent.getOptionalFilter(), childType);
+            aggregator = new AggregatorLastEver(this, col, rowCtor, membersColumnized, classScope, null, null, parent.hasFilter(), parent.getOptionalFilter(), childType, serde);
         }
     }
 

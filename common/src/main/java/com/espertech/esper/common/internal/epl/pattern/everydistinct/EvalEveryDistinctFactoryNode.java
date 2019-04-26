@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.everydistinct;
 
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.compile.stage2.EvalNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -25,7 +25,7 @@ public class EvalEveryDistinctFactoryNode extends EvalFactoryNodeBase {
     private TimePeriodCompute timePeriodCompute;
     protected EvalFactoryNode childNode;
     private Class[] distinctTypes;
-    private MultiKeyGeneratedSerde distinctMultiKeySerde;
+    private DataInputOutputSerde<Object> distinctSerde;
 
     public void setDistinctExpression(ExprEvaluator distinctExpression) {
         this.distinctExpression = distinctExpression;
@@ -85,12 +85,12 @@ public class EvalEveryDistinctFactoryNode extends EvalFactoryNodeBase {
         return distinctTypes;
     }
 
-    public MultiKeyGeneratedSerde getDistinctMultiKeySerde() {
-        return distinctMultiKeySerde;
+    public DataInputOutputSerde<Object> getDistinctSerde() {
+        return distinctSerde;
     }
 
-    public void setDistinctMultiKeySerde(MultiKeyGeneratedSerde distinctMultiKeySerde) {
-        this.distinctMultiKeySerde = distinctMultiKeySerde;
+    public void setDistinctSerde(DataInputOutputSerde<Object> distinctSerde) {
+        this.distinctSerde = distinctSerde;
     }
 
     public void accept(EvalFactoryNodeVisitor visitor) {

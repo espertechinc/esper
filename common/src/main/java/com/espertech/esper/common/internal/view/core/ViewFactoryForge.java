@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.view.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenMakeable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
@@ -24,7 +24,7 @@ public interface ViewFactoryForge extends CodegenMakeable<SAIFFInitializeSymbol>
 
     void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException;
 
-    default List<StmtClassForgableFactory> initAdditionalForgeables() {
+    default List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
         return Collections.emptyList();
     }
 

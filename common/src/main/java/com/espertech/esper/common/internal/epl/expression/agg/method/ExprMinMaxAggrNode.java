@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.epl.agg.method.minmax.AggregationForg
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 /**
  * Represents the min/max(distinct? ...) aggregate function is an expression tree.
@@ -63,7 +64,10 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
 
-        return new AggregationForgeFactoryMinMax(this, child.getForge().getEvaluationType(), hasDataWindows);
+        Class evaluationType = child.getForge().getEvaluationType();
+        DataInputOutputSerdeForge serde = validationContext.getSerdeResolver().serdeForAggregation(evaluationType, validationContext.getStatementRawInfo());
+        DataInputOutputSerdeForge distinctSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(evaluationType, validationContext.getStatementRawInfo()) : null;
+        return new AggregationForgeFactoryMinMax(this, evaluationType, hasDataWindows, serde, distinctSerde);
     }
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorFactoryForge;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
@@ -32,9 +32,9 @@ public class ResultSetProcessorDesc {
     private final AggregationServiceForgeDesc aggregationServiceForgeDesc;
     private final OrderByProcessorFactoryForge orderByProcessorFactoryForge;
     private final SelectSubscriberDescriptor selectSubscriberDescriptor;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public ResultSetProcessorDesc(ResultSetProcessorFactoryForge resultSetProcessorFactoryForge, ResultSetProcessorType resultSetProcessorType, SelectExprProcessorForge[] selectExprProcessorForges, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, EventType resultEventType, boolean rollup, AggregationServiceForgeDesc aggregationServiceForgeDesc, OrderByProcessorFactoryForge orderByProcessorFactoryForge, SelectSubscriberDescriptor selectSubscriberDescriptor, List<StmtClassForgableFactory> additionalForgeables) {
+    public ResultSetProcessorDesc(ResultSetProcessorFactoryForge resultSetProcessorFactoryForge, ResultSetProcessorType resultSetProcessorType, SelectExprProcessorForge[] selectExprProcessorForges, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, EventType resultEventType, boolean rollup, AggregationServiceForgeDesc aggregationServiceForgeDesc, OrderByProcessorFactoryForge orderByProcessorFactoryForge, SelectSubscriberDescriptor selectSubscriberDescriptor, List<StmtClassForgeableFactory> additionalForgeables) {
         this.resultSetProcessorFactoryForge = resultSetProcessorFactoryForge;
         this.resultSetProcessorType = resultSetProcessorType;
         this.selectExprProcessorForges = selectExprProcessorForges;
@@ -98,7 +98,7 @@ public class ResultSetProcessorDesc {
         return selectSubscriberDescriptor;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

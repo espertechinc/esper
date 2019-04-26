@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprPlugInAggNodeMarker;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -107,7 +108,9 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprPlug
             throw new ExprValidationException("Aggregation function forge returned an unrecognized mode " + mode);
         }
 
-        return new AggregationForgeFactoryPlugin(this, aggregationFunctionForge, mode);
+        Class aggregatedValueType = getPositionalParams().length == 0 ? null : getPositionalParams()[0].getForge().getEvaluationType();
+        DataInputOutputSerdeForge distinctForge = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(aggregatedValueType, validationContext.getStatementRawInfo()) : null;
+        return new AggregationForgeFactoryPlugin(this, aggregationFunctionForge, mode, aggregatedValueType, distinctForge);
     }
 
     public String getAggregationFunctionName() {

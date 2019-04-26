@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.sort;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -27,6 +28,7 @@ import java.util.Comparator;
 public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     protected ExprEvaluator[] sortCriteriaEvaluators;
     protected Class[] sortCriteriaTypes;
+    protected DataInputOutputSerde<Object>[] sortSerdes;
     protected boolean[] isDescendingValues;
     protected ExprEvaluator size;
     protected boolean useCollatorSort;
@@ -108,6 +110,10 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public void setUseCollatorSort(boolean useCollatorSort) {
         this.useCollatorSort = useCollatorSort;
+    }
+
+    public void setSortSerdes(DataInputOutputSerde<Object>[] sortSerdes) {
+        this.sortSerdes = sortSerdes;
     }
 
     public String getViewName() {

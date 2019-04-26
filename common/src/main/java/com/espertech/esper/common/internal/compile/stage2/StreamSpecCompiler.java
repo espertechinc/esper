@@ -24,7 +24,7 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForge;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -50,6 +50,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.UuidGenerator;
@@ -191,8 +192,8 @@ public class StreamSpecCompiler {
         // construct root : assigns factory node ids
         EvalForgeNode top = streamSpecRaw.getEvalForgeNode();
         EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo.getAnnotations());
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
-        recursiveCompile(top, eventTypeReferences, isInsertInto, tags, nodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
+        recursiveCompile(top, tags, nodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
 
         PatternCompileHook hook = (PatternCompileHook) ClasspathImportUtil.getAnnotationHook(statementRawInfo.getAnnotations(), HookType.INTERNAL_PATTERNCOMPILE, PatternCompileHook.class, services.getClasspathImportServiceCompileTime());
         if (hook != null) {
@@ -203,10 +204,10 @@ public class StreamSpecCompiler {
         return new StreamSpecCompiledDesc(compiled, additionalForgeables);
     }
 
-    private static void recursiveCompile(EvalForgeNode evalNode, Set<String> eventTypeReferences, boolean isInsertInto, MatchEventSpec tags, Stack<EvalForgeNode> parentNodeStack, LinkedHashSet<String> allTagNamesOrdered, int streamNum, List<StmtClassForgableFactory> additionalForgeables, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+    private static void recursiveCompile(EvalForgeNode evalNode, MatchEventSpec tags, Stack<EvalForgeNode> parentNodeStack, LinkedHashSet<String> allTagNamesOrdered, int streamNum, List<StmtClassForgeableFactory> additionalForgeables, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         parentNodeStack.push(evalNode);
         for (EvalForgeNode child : evalNode.getChildNodes()) {
-            recursiveCompile(child, eventTypeReferences, isInsertInto, tags, parentNodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
+            recursiveCompile(child, tags, parentNodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
         }
         parentNodeStack.pop();
 
@@ -261,6 +262,9 @@ public class StreamSpecCompiler {
                     newTaggedEventTypes = new LinkedHashMap<>();
                     newTaggedEventTypes.put(optionalTag, pair);
                 }
+
+                List<StmtClassForgeableFactory> forgeables = SerdeEventTypeUtility.plan(pair.getFirst(), statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                additionalForgeables.addAll(forgeables);
             }
 
             // For this filter, filter types are all known tags at this time,
@@ -302,6 +306,9 @@ public class StreamSpecCompiler {
                         filterTypes.put(tag, pair);
                         arrayCompositeEventTypes.put(tag, pair);
                     }
+
+                    List<StmtClassForgeableFactory> forgeables = SerdeEventTypeUtility.plan(mapEventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                    additionalForgeables.addAll(forgeables);
                 }
             }
 
@@ -401,9 +408,9 @@ public class StreamSpecCompiler {
                 throw new ExprValidationException("Every-distinct node requires one or more distinct-value expressions that each return non-constant result values");
             }
 
-            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(distinctExpressions.toArray(new ExprNode[0]), false);
-            distinctNode.setDistinctExpressions(distinctExpressions, multiKeyPlan.getOptionalClassRef(), timePeriodComputeForge, expiryTimeExp);
-            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(distinctExpressions.toArray(new ExprNode[0]), false, statementRawInfo, services.getSerdeResolver());
+            distinctNode.setDistinctExpressions(distinctExpressions, multiKeyPlan.getClassRef(), timePeriodComputeForge, expiryTimeExp);
+            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
         } else if (evalNode instanceof EvalMatchUntilForgeNode) {
             EvalMatchUntilForgeNode matchUntilNode = (EvalMatchUntilForgeNode) evalNode;
 

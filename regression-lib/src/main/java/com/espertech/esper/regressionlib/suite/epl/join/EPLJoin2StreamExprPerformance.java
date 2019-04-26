@@ -99,7 +99,7 @@ public class EPLJoin2StreamExprPerformance implements RegressionExecution {
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
         }
         long delta = System.currentTimeMillis() - startTime;
-        assertTrue("delta=" + delta, delta < 1500);
+        assertTrue("delta=" + delta, delta < 2000);
         log.info("delta=" + delta);
 
         env.undeployAll();

@@ -44,9 +44,9 @@ public class AggregationForgeFactoryRate extends AggregationForgeFactoryBase {
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         if (isEver) {
-            aggregator = new AggregatorRateEver(this, col, rowCtor, membersColumnized, classScope, null, false, parent.getOptionalFilter());
+            aggregator = new AggregatorRateEver(this, col, rowCtor, membersColumnized, classScope, null, null, false, parent.getOptionalFilter());
         } else {
-            aggregator = new AggregatorRate(this, col, rowCtor, membersColumnized, classScope, null, false, parent.getOptionalFilter());
+            aggregator = new AggregatorRate(this, col, rowCtor, membersColumnized, classScope, null, null, false, parent.getOptionalFilter());
         }
     }
 

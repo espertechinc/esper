@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 
 import java.util.List;
@@ -22,11 +22,11 @@ public interface OutputProcessViewConditionDeltaSet {
 
     void addView(UniformPair<EventBean[]> events);
 
-    void addJoin(UniformPair<Set<MultiKey<EventBean>>> events);
+    void addJoin(UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> events);
 
     void clear();
 
-    List<UniformPair<Set<MultiKey<EventBean>>>> getJoinEventsSet();
+    List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> getJoinEventsSet();
 
     List<UniformPair<EventBean[]>> getViewEventsSet();
 

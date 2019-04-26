@@ -49,7 +49,7 @@ public class SupportFilterSpecBuilder {
     }
 
     private static ExprFilterSpecLookupable makeLookupable(EventType eventType, String fieldName) {
-        return new ExprFilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
+        return new ExprFilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false, null);
     }
 }
 

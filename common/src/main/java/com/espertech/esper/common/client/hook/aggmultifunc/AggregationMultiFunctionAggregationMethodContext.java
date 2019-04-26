@@ -21,20 +21,38 @@ public class AggregationMultiFunctionAggregationMethodContext {
     private final ExprNode[] parameters;
     private final ExprValidationContext validationContext;
 
+    /**
+     * Ctor.
+     * @param aggregationMethodName name of aggregation method
+     * @param parameters parameter expressions
+     * @param validationContext validation context
+     */
     public AggregationMultiFunctionAggregationMethodContext(String aggregationMethodName, ExprNode[] parameters, ExprValidationContext validationContext) {
         this.aggregationMethodName = aggregationMethodName;
         this.parameters = parameters;
         this.validationContext = validationContext;
     }
 
+    /**
+     * Returns the aggregation method name.
+     * @return name
+     */
     public String getAggregationMethodName() {
         return aggregationMethodName;
     }
 
+    /**
+     * Returns the parameter expressions
+     * @return params
+     */
     public ExprNode[] getParameters() {
         return parameters;
     }
 
+    /**
+     * Returns the validation context
+     * @return validation context
+     */
     public ExprValidationContext getValidationContext() {
         return validationContext;
     }

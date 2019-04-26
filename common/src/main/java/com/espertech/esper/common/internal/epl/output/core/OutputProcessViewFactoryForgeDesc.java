@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.core;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
@@ -19,9 +19,9 @@ import java.util.List;
  */
 public class OutputProcessViewFactoryForgeDesc {
     private final OutputProcessViewFactoryForge forge;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public OutputProcessViewFactoryForgeDesc(OutputProcessViewFactoryForge forge, List<StmtClassForgableFactory> additionalForgeables) {
+    public OutputProcessViewFactoryForgeDesc(OutputProcessViewFactoryForge forge, List<StmtClassForgeableFactory> additionalForgeables) {
         this.forge = forge;
         this.additionalForgeables = additionalForgeables;
     }
@@ -30,7 +30,7 @@ public class OutputProcessViewFactoryForgeDesc {
         return forge;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

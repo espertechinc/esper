@@ -90,6 +90,11 @@ public class TestConfigurationParser extends TestCase {
         assertNull(compiler.getExpression().getMathContext());
         assertEquals("js", compiler.getScripts().getDefaultDialect());
         assertTrue(compiler.getScripts().isEnabled());
+        assertTrue(compiler.getSerde().isEnableExtendedBuiltin());
+        assertFalse(compiler.getSerde().isEnableExternalizable());
+        assertFalse(compiler.getSerde().isEnableSerializable());
+        assertFalse(compiler.getSerde().isEnableSerializationFallback());
+        assertTrue(compiler.getSerde().getSerdeProviderFactories().isEmpty());
 
         ConfigurationRuntime runtime = config.getRuntime();
         assertTrue(runtime.getThreading().isInsertIntoDispatchPreserveOrder());
@@ -495,6 +500,15 @@ public class TestConfigurationParser extends TestCase {
 
         assertEquals("abc", compiler.getScripts().getDefaultDialect());
         assertFalse(compiler.getScripts().isEnabled());
+
+        assertFalse(compiler.getSerde().isEnableExtendedBuiltin());
+        assertTrue(compiler.getSerde().isEnableExternalizable());
+        assertTrue(compiler.getSerde().isEnableSerializable());
+        assertTrue(compiler.getSerde().isEnableSerializationFallback());
+        List<String> serdeProviderFactories = compiler.getSerde().getSerdeProviderFactories();
+        assertEquals(2, serdeProviderFactories.size());
+        assertEquals("a.b.c.MySerdeProviderFactoryOne", serdeProviderFactories.get(0));
+        assertEquals("a.b.c.MySerdeProviderFactoryTwo", serdeProviderFactories.get(1));
 
         /*
          * RUNTIME

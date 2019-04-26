@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisito
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     private List<ExprNode> chainParameters;
     private transient ExprForge forge;
     private ExprNode expressionBodyCopy;
+    private transient ExprValidationContext exprValidationContext;
 
     public ExprDeclaredNodeImpl(ExpressionDeclItem prototype, List<ExprNode> chainParameters, ContextCompileTimeDescriptor contextDescriptor, ExprNode expressionBodyCopy) {
         this.prototypeWVisibility = prototype;
@@ -121,6 +123,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        this.exprValidationContext = validationContext;
         ExpressionDeclItem prototype = prototypeWVisibility;
         if (prototype.isAlias()) {
             try {
@@ -228,7 +231,8 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         }
         ExprDeclaredForgeBase declaredForge = (ExprDeclaredForgeBase) forge;
         ExprForge forge = declaredForge.getInnerForge();
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), forge.getEvaluationType(), true);
+        DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), exprValidationContext.getStatementRawInfo());
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetterForge(forge), forge.getEvaluationType(), true, serde);
     }
 
     public boolean isConstantResult() {

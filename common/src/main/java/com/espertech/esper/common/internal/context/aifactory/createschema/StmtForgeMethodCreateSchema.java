@@ -60,18 +60,18 @@ public class StmtForgeMethodCreateSchema implements StmtForgeMethod {
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryCreateSchemaForge forge = new StatementAgentInstanceFactoryCreateSchemaForge(eventType);
-        StmtClassForgableAIFactoryProviderCreateSchema aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateSchema(aiFactoryProviderClassName, packageScope, forge);
+        StmtClassForgeableAIFactoryProviderCreateSchema aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateSchema(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, spec.getSchemaName());
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
-        StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
+        StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        forgables.add(aiFactoryForgable);
-        forgables.add(stmtProvider);
-        return new StmtForgeMethodResult(forgables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        forgeables.add(aiFactoryForgeable);
+        forgeables.add(stmtProvider);
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private EventType handleCreateSchema(CreateSchemaDesc spec, StatementCompileTimeServices services)

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowforall;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
 
@@ -34,7 +34,7 @@ public class ResultSetProcessorRowForAllOutputLastHelperImpl implements ResultSe
         ResultSetProcessorUtil.applyAggViewResult(processor.getAggregationService(), processor.getExprEvaluatorContext(), newData, oldData, eventsPerStream);
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, boolean isGenerateSynthetic) {
         if (processor.isSelectRStream() && lastEventRStreamForOutputLast == null) {
             lastEventRStreamForOutputLast = processor.getSelectListEventsAsArray(false, isGenerateSynthetic, true);
         }

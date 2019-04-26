@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.derived;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 
 import java.util.Map;
@@ -18,11 +19,13 @@ public class StatViewAdditionalPropsEval {
     private final String[] additionalProps;
     private final ExprEvaluator[] additionalEvals;
     private final Class[] additionalTypes;
+    private final DataInputOutputSerde[] additionalSerdes;
 
-    public StatViewAdditionalPropsEval(String[] additionalProps, ExprEvaluator[] additionalEvals, Class[] additionalTypes) {
+    public StatViewAdditionalPropsEval(String[] additionalProps, ExprEvaluator[] additionalEvals, Class[] additionalTypes, DataInputOutputSerde[] additionalSerdes) {
         this.additionalProps = additionalProps;
         this.additionalEvals = additionalEvals;
         this.additionalTypes = additionalTypes;
+        this.additionalSerdes = additionalSerdes;
     }
 
     public String[] getAdditionalProps() {
@@ -35,6 +38,10 @@ public class StatViewAdditionalPropsEval {
 
     public Class[] getAdditionalTypes() {
         return additionalTypes;
+    }
+
+    public DataInputOutputSerde[] getAdditionalSerdes() {
+        return additionalSerdes;
     }
 
     public void addProperties(Map<String, Object> newDataMap, Object[] lastValuesEventNew) {

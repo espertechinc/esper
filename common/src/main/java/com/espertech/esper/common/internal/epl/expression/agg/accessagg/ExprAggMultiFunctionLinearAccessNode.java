@@ -17,18 +17,24 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.access.core.*;
 import com.espertech.esper.common.internal.epl.agg.access.linear.*;
-import com.espertech.esper.common.internal.epl.agg.core.*;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationStateFactoryForge;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -201,7 +207,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             if (optionalFilter != null) {
                 positionalParams = ExprNodeUtilityMake.addExpression(positionalParams, optionalFilter);
             }
-            AggregationForgeFactory factory = new AggregationForgeFactoryFirstLastUnbound(this, containedType, accessorResultType, streamNum, optionalFilter != null);
+            DataInputOutputSerdeForge serde = validationContext.getSerdeResolver().serdeForAggregation(accessorResultType, validationContext.getStatementRawInfo());
+            AggregationForgeFactory factory = new AggregationForgeFactoryFirstLastUnbound(this, accessorResultType, optionalFilter != null, serde);
             return new AggregationLinearFactoryDesc(factory, containedType, scalarCollectionComponentType, streamNum);
         }
 
@@ -213,6 +220,10 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, accessorResultType,
                 stateKey, stateFactory, AggregationAgentDefault.INSTANCE, containedType);
         EventType enumerationType = scalarCollectionComponentType == null ? containedType : null;
+
+        List<StmtClassForgeableFactory> serdeForgables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
+        validationContext.getAdditionalForgeables().addAll(serdeForgables);
+
         return new AggregationLinearFactoryDesc(factory, enumerationType, scalarCollectionComponentType, streamNum);
     }
 
@@ -232,6 +243,10 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationAccessorForge accessor = new AggregationAccessorWindowNoEvalForge(componentType);
         AggregationStateFactoryForge stateFactory = new AggregationStateLinearForge(this, 0, null);
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, JavaClassHelper.getArrayType(componentType), null, stateFactory, null, containedType);
+
+        List<StmtClassForgeableFactory> additionalForgeables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
+        validationContext.getAdditionalForgeables().addAll(additionalForgeables);
+
         return new AggregationLinearFactoryDesc(factory, containedType, null, 0);
     }
 

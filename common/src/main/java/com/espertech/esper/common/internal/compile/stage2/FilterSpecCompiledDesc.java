@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
 public class FilterSpecCompiledDesc {
     private final FilterSpecCompiled filterSpecCompiled;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public FilterSpecCompiledDesc(FilterSpecCompiled filterSpecCompiled, List<StmtClassForgableFactory> additionalForgeables) {
+    public FilterSpecCompiledDesc(FilterSpecCompiled filterSpecCompiled, List<StmtClassForgeableFactory> additionalForgeables) {
         this.filterSpecCompiled = filterSpecCompiled;
         this.additionalForgeables = additionalForgeables;
     }
@@ -27,7 +27,7 @@ public class FilterSpecCompiledDesc {
         return filterSpecCompiled;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

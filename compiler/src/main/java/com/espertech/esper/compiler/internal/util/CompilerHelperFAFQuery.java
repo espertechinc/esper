@@ -15,8 +15,8 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGe
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileException;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableStmtFields;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableStmtFields;
 import com.espertech.esper.common.internal.context.module.StatementFields;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodForge;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
@@ -32,15 +32,15 @@ public class CompilerHelperFAFQuery {
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, compileTimeServices.isInstrumented());
 
         String queryMethodProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(FAFQueryMethodProvider.class, classPostfix);
-        List<StmtClassForgable> forgablesQueryMethod = query.makeForgables(queryMethodProviderClassName, classPostfix, packageScope);
+        List<StmtClassForgeable> forgeablesQueryMethod = query.makeForgeables(queryMethodProviderClassName, classPostfix, packageScope);
 
-        List<StmtClassForgable> forgables = new ArrayList<>(forgablesQueryMethod);
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 0));
+        List<StmtClassForgeable> forgeables = new ArrayList<>(forgeablesQueryMethod);
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
 
         // forge with statement-fields last
-        List<CodegenClass> classes = new ArrayList<>(forgables.size());
-        for (StmtClassForgable forgable : forgables) {
-            CodegenClass clazz = forgable.forge(true);
+        List<CodegenClass> classes = new ArrayList<>(forgeables.size());
+        for (StmtClassForgeable forgeable : forgeables) {
+            CodegenClass clazz = forgeable.forge(true, true);
             classes.add(clazz);
         }
 

@@ -10,16 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.join.queryplanbuild;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.join.queryplanouter.LookupInstructionPlanForge;
 
 import java.util.List;
 
 public class LookupInstructionPlanDesc {
     private final List<LookupInstructionPlanForge> forges;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public LookupInstructionPlanDesc(List<LookupInstructionPlanForge> forges, List<StmtClassForgableFactory> additionalForgeables) {
+    public LookupInstructionPlanDesc(List<LookupInstructionPlanForge> forges, List<StmtClassForgeableFactory> additionalForgeables) {
         this.forges = forges;
         this.additionalForgeables = additionalForgeables;
     }
@@ -28,7 +28,7 @@ public class LookupInstructionPlanDesc {
         return forges;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

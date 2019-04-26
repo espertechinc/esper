@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.core.ExprWildcard;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 /**
  * Represents the count(...) and count(*) and count(distinct ...) aggregate function is an expression tree.
@@ -59,7 +60,8 @@ public class ExprCountNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
 
-        return new AggregationForgeFactoryCount(this, ignoreNulls, childType);
+        DataInputOutputSerdeForge distinctValueSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo()) : null;
+        return new AggregationForgeFactoryCount(this, ignoreNulls, childType, distinctValueSerde);
     }
 
     public String getAggregationFunctionName() {

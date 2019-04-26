@@ -26,10 +26,10 @@ import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStrea
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableRSPFactoryProvider;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableRSPFactoryProvider;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.OnTriggerActivatorDesc;
-import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StmtClassForgableAIFactoryProviderOnTrigger;
+import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StmtClassForgeableAIFactoryProviderOnTrigger;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -100,10 +100,10 @@ public class OnTriggerSetUtil {
         String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
 
         StatementAgentInstanceFactoryOnTriggerSetForge forge = new StatementAgentInstanceFactoryOnTriggerSetForge(activatorResult.getActivator(), eventType, subselectForges, tableAccessForges, variableReadWritePackageForge, classNameRSP);
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        forgables.add(new StmtClassForgableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
 
-        StmtClassForgableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgableAIFactoryProviderOnTrigger(className, packageScope, forge);
-        return new OnTriggerSetPlan(onTrigger, forgables, resultSetProcessor.getSelectSubscriberDescriptor(), subSelectForgePlan.getAdditionalForgeables());
+        StmtClassForgeableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgeableAIFactoryProviderOnTrigger(className, packageScope, forge);
+        return new OnTriggerSetPlan(onTrigger, forgeables, resultSetProcessor.getSelectSubscriberDescriptor(), subSelectForgePlan.getAdditionalForgeables());
     }
 }

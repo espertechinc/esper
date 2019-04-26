@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.simple;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 
@@ -24,8 +24,8 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
 
     private final Deque<EventBean> eventsNewView = new ArrayDeque<>(2);
     private final Deque<EventBean> eventsOldView = new ArrayDeque<>(2);
-    private final Deque<MultiKey<EventBean>> eventsNewJoin = new ArrayDeque<>(2);
-    private final Deque<MultiKey<EventBean>> eventsOldJoin = new ArrayDeque<>(2);
+    private final Deque<MultiKeyArrayOfKeys<EventBean>> eventsNewJoin = new ArrayDeque<>(2);
+    private final Deque<MultiKeyArrayOfKeys<EventBean>> eventsOldJoin = new ArrayDeque<>(2);
 
     public ResultSetProcessorSimpleOutputAllHelperImpl(ResultSetProcessorSimple processor) {
         this.processor = processor;
@@ -62,14 +62,14 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
         }
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents) {
         if (!processor.hasHavingClause()) {
             addToJoin(newEvents, oldEvents);
             return;
         }
 
         if (newEvents != null && newEvents.size() > 0) {
-            for (MultiKey<EventBean> theEvent : newEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> theEvent : newEvents) {
                 boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), true, processor.getAgentInstanceContext());
                 if (!passesHaving) {
                     continue;
@@ -78,7 +78,7 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
             }
         }
         if (oldEvents != null && oldEvents.size() > 0) {
-            for (MultiKey<EventBean> theEvent : oldEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> theEvent : oldEvents) {
                 boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), false, processor.getAgentInstanceContext());
                 if (!passesHaving) {
                     continue;
@@ -111,7 +111,7 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
         EventBeanUtility.addToCollection(oldData, eventsOldView);
     }
 
-    private void addToJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+    private void addToJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents) {
         EventBeanUtility.addToCollection(newEvents, eventsNewJoin);
         EventBeanUtility.addToCollection(oldEvents, eventsOldJoin);
     }

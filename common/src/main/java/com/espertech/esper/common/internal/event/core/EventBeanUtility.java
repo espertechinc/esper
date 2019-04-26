@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.event.core;
 
 import com.espertech.esper.common.client.*;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -421,7 +421,7 @@ public class EventBeanUtility {
      * @param joinPostings is the list
      * @return is the consolidate sets
      */
-    public static UniformPair<Set<MultiKey<EventBean>>> flattenBatchJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinPostings) {
+    public static UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> flattenBatchJoin(List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> joinPostings) {
         if (joinPostings.isEmpty()) {
             return new UniformPair<>(null, null);
         }
@@ -430,12 +430,12 @@ public class EventBeanUtility {
             return new UniformPair<>(joinPostings.get(0).getFirst(), joinPostings.get(0).getSecond());
         }
 
-        Set<MultiKey<EventBean>> newEvents = new LinkedHashSet<MultiKey<EventBean>>();
-        Set<MultiKey<EventBean>> oldEvents = new LinkedHashSet<MultiKey<EventBean>>();
+        Set<MultiKeyArrayOfKeys<EventBean>> newEvents = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
+        Set<MultiKeyArrayOfKeys<EventBean>> oldEvents = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
 
-        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinPostings) {
-            Set<MultiKey<EventBean>> newData = pair.getFirst();
-            Set<MultiKey<EventBean>> oldData = pair.getSecond();
+        for (UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> pair : joinPostings) {
+            Set<MultiKeyArrayOfKeys<EventBean>> newData = pair.getFirst();
+            Set<MultiKeyArrayOfKeys<EventBean>> oldData = pair.getSecond();
 
             if (newData != null) {
                 newEvents.addAll(newData);
@@ -697,7 +697,7 @@ public class EventBeanUtility {
         Collections.addAll(events, toAdd);
     }
 
-    public static void addToCollection(Set<MultiKey<EventBean>> toAdd, Collection<MultiKey<EventBean>> events) {
+    public static void addToCollection(Set<MultiKeyArrayOfKeys<EventBean>> toAdd, Collection<MultiKeyArrayOfKeys<EventBean>> events) {
         if (toAdd == null) {
             return;
         }
@@ -711,26 +711,26 @@ public class EventBeanUtility {
         return events.toArray(new EventBean[events.size()]);
     }
 
-    public static Set<MultiKey<EventBean>> toLinkedHashSetNullIfEmpty(Collection<MultiKey<EventBean>> events) {
+    public static Set<MultiKeyArrayOfKeys<EventBean>> toLinkedHashSetNullIfEmpty(Collection<MultiKeyArrayOfKeys<EventBean>> events) {
         if (events == null || events.isEmpty()) {
             return null;
         }
-        return new LinkedHashSet<MultiKey<EventBean>>(events);
+        return new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>(events);
     }
 
-    public static Set<MultiKey<EventBean>> toSingletonSetIfNotNull(MultiKey<EventBean> row) {
+    public static Set<MultiKeyArrayOfKeys<EventBean>> toSingletonSetIfNotNull(MultiKeyArrayOfKeys<EventBean> row) {
         if (row == null) {
             return null;
         }
         return Collections.singleton(row);
     }
 
-    public static MultiKey<EventBean> getLastInSet(Set<MultiKey<EventBean>> events) {
+    public static MultiKeyArrayOfKeys<EventBean> getLastInSet(Set<MultiKeyArrayOfKeys<EventBean>> events) {
         if (events.isEmpty()) {
             return null;
         }
         int count = 0;
-        for (MultiKey<EventBean> row : events) {
+        for (MultiKeyArrayOfKeys<EventBean> row : events) {
             count++;
             if (count == events.size()) {
                 return row;

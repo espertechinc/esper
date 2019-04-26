@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.access.core.*;
 import com.espertech.esper.common.internal.epl.agg.access.sorted.*;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationAccessorForge;
@@ -27,9 +28,12 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -69,7 +73,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     }
 
     private AggregationForgeFactoryAccessSorted handleNonTable(ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (positionalParams.length == 0) {
             throw new ExprValidationException("Missing the sort criteria expression");
         }
@@ -123,9 +127,16 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         ExprForge optionalFilterForge = optionalFilter == null ? null : optionalFilter.getForge();
         EventType streamEventType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
         Class[] criteriaTypes = ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions.getFirst());
+        DataInputOutputSerdeForge[] criteriaSerdes = new DataInputOutputSerdeForge[criteriaTypes.length];
+        for (int i = 0; i < criteriaTypes.length; i++) {
+            criteriaSerdes[i] = validationContext.getSerdeResolver().serdeForAggregation(criteriaTypes[i], validationContext.getStatementRawInfo());
+        }
         SortedAggregationStateDesc sortedDesc = new
-                SortedAggregationStateDesc(max, validationContext.getClasspathImportService(), criteriaExpressions.getFirst(), criteriaTypes,
-                criteriaExpressions.getSecond(), ever, streamNum, this, optionalFilterForge, streamEventType);
+            SortedAggregationStateDesc(max, validationContext.getClasspathImportService(), criteriaExpressions.getFirst(), criteriaTypes, criteriaSerdes,
+            criteriaExpressions.getSecond(), ever, streamNum, this, optionalFilterForge, streamEventType);
+
+        List<StmtClassForgeableFactory> serdeForgables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
+        validationContext.getAdditionalForgeables().addAll(serdeForgables);
 
         return new AggregationForgeFactoryAccessSorted(this, accessor, accessorResultType, containedType, stateKey, sortedDesc, AggregationAgentDefault.INSTANCE);
     }
@@ -136,10 +147,10 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     }
 
     private AggregationForgeFactoryAccessSorted handleIntoTable(ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         int streamNum;
         if (positionalParams.length == 0 ||
-                (positionalParams.length == 1 && positionalParams[0] instanceof ExprWildcard)) {
+            (positionalParams.length == 1 && positionalParams[0] instanceof ExprWildcard)) {
             ExprAggMultiFunctionUtil.validateWildcardStreamNumbers(validationContext.getStreamTypeService(), getAggregationFunctionName());
             streamNum = 0;
         } else if (positionalParams.length == 1 && positionalParams[0] instanceof ExprStreamUnderlyingNode) {
@@ -166,7 +177,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     }
 
     private AggregationForgeFactoryAccessSorted handleCreateTable(ExprValidationContext validationContext)
-            throws ExprValidationException {
+        throws ExprValidationException {
         if (positionalParams.length == 0) {
             throw new ExprValidationException("Missing the sort criteria expression");
         }
@@ -190,8 +201,16 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
         Class[] criteriaTypes = ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions.getFirst());
+        DataInputOutputSerdeForge[] criteriaSerdes = new DataInputOutputSerdeForge[criteriaTypes.length];
+        for (int i = 0; i < criteriaTypes.length; i++) {
+            criteriaSerdes[i] = validationContext.getSerdeResolver().serdeForAggregation(criteriaTypes[i], validationContext.getStatementRawInfo());
+        }
         SortedAggregationStateDesc stateDesc = new SortedAggregationStateDesc(max, validationContext.getClasspathImportService(), criteriaExpressions.getFirst(),
-                criteriaTypes, criteriaExpressions.getSecond(), ever, 0, this, null, containedType);
+            criteriaTypes, criteriaSerdes, criteriaExpressions.getSecond(), ever, 0, this, null, containedType);
+
+        List<StmtClassForgeableFactory> serdeForgables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
+        validationContext.getAdditionalForgeables().addAll(serdeForgables);
+
         return new AggregationForgeFactoryAccessSorted(this, accessor, accessorResultType, containedType, null, stateDesc, null);
     }
 

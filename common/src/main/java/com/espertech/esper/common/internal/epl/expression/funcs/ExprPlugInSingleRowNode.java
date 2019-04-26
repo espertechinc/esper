@@ -12,6 +12,8 @@ package com.espertech.esper.common.internal.epl.expression.funcs;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprDotStaticMethodWrapFactory;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -22,6 +24,7 @@ import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNodeUt
 import com.espertech.esper.common.internal.epl.expression.visitor.*;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 
 import java.io.StringWriter;
@@ -39,6 +42,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
     private final ClasspathImportSingleRowDesc config;
 
     private ExprPlugInSingleRowNodeForge forge;
+    private transient StatementCompileTimeServices compileTimeServices;
+    private transient StatementRawInfo statementRawInfo;
 
     public ExprPlugInSingleRowNode(String functionName, Class clazz, List<ExprChainedSpec> chainSpec, ClasspathImportSingleRowDesc config) {
         this.functionName = functionName;
@@ -106,7 +111,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
 
     public ExprFilterSpecLookupableForge getFilterLookupable() {
         checkValidated(forge);
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, forge.getEvaluationType(), true);
+        DataInputOutputSerdeForge filterSerde = compileTimeServices.getSerdeResolver().serdeForFilter(forge.getEvaluationType(), statementRawInfo);
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), forge, forge.getEvaluationType(), true, filterSerde);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -135,6 +141,9 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        this.compileTimeServices = validationContext.getStatementCompileTimeService();
+        this.statementRawInfo = validationContext.getStatementRawInfo();
+
         ExprNodeUtilityValidate.validate(ExprNodeOrigin.PLUGINSINGLEROWPARAM, chainSpec, validationContext);
 
         // get first chain item
@@ -177,6 +186,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprFilterO
         } else {
             forge = new ExprPlugInSingleRowNodeForgeNC(this, staticMethodForge);
         }
+
         return null;
     }
 

@@ -38,6 +38,8 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
 import com.espertech.esper.common.internal.event.core.EventTypeNameGeneratorStatement;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.view.core.ViewResolutionService;
 
@@ -186,5 +188,13 @@ public class StatementCompileTimeServices {
 
     public boolean isAttachPatternText() {
         return services.getConfiguration().getCompiler().getByteCode().isAttachPatternEPL();
+    }
+
+    public SerdeEventTypeCompileTimeRegistry getSerdeEventTypeRegistry() {
+        return services.getSerdeEventTypeRegistry();
+    }
+
+    public SerdeCompileTimeResolver getSerdeResolver() {
+        return services.getSerdeResolver();
     }
 }

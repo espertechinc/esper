@@ -80,4 +80,12 @@ public class EventTypeIdPair {
     public static EventTypeIdPair unassigned() {
         return new EventTypeIdPair(-1, -1);
     }
+
+    public String toString() {
+        return "EventTypeIdPair{" +
+            "publicId=" + publicId +
+            ", protectedId=" + protectedId +
+            ", hash=" + hash +
+            '}';
+    }
 }

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -23,9 +23,9 @@ public class GroupByViewFactory implements ViewFactory {
 
     protected ViewFactory[] groupeds;
     protected ExprEvaluator criteriaEval;
-    protected MultiKeyGeneratedSerde multiKeySerde;
     protected String[] propertyNames;
     protected Class[] criteriaTypes;
+    protected DataInputOutputSerde<Object> keySerde;
     protected EventType eventType;
     protected boolean addingProperties;  // when adding properties to the grouped-views output
     protected boolean isReclaimAged;
@@ -124,11 +124,11 @@ public class GroupByViewFactory implements ViewFactory {
         this.criteriaEval = criteriaEval;
     }
 
-    public MultiKeyGeneratedSerde getMultiKeySerde() {
-        return multiKeySerde;
+    public DataInputOutputSerde<Object> getKeySerde() {
+        return keySerde;
     }
 
-    public void setMultiKeySerde(MultiKeyGeneratedSerde multiKeySerde) {
-        this.multiKeySerde = multiKeySerde;
+    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+        this.keySerde = keySerde;
     }
 }

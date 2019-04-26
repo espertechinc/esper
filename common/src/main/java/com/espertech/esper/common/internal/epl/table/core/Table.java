@@ -11,9 +11,9 @@
 package com.espertech.esper.common.internal.epl.table.core;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromMultiKey;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyFromMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -38,11 +38,11 @@ public interface Table {
 
     void setPrimaryKeyGetter(EventPropertyValueGetter primaryKeyGetter);
 
-    void setPrimaryKeySerde(MultiKeyGeneratedSerde serde);
+    void setPrimaryKeySerde(DataInputOutputSerde<Object> primaryKeySerde);
 
-    void setPrimaryKeyObjectArrayTransform(MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform);
+    void setPrimaryKeyObjectArrayTransform(MultiKeyFromObjectArray primaryKeyObjectArrayTransform);
 
-    void setPrimaryKeyIntoTableTransform(MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform);
+    void setPrimaryKeyIntoTableTransform(MultiKeyFromMultiKey primaryKeyIntoTableTransform);
 
     void tableReady();
 
@@ -82,9 +82,9 @@ public interface Table {
 
     Collection<TableUpdateStrategyRedoCallback> getUpdateStrategyCallbacks();
 
-    MultiKeyGeneratedSerde getPrimaryKeySerde();
+    DataInputOutputSerde<Object> getPrimaryKeySerde();
 
-    MultiKeyGeneratedFromMultiKey getPrimaryKeyIntoTableTransform();
+    MultiKeyFromMultiKey getPrimaryKeyIntoTableTransform();
 
-    MultiKeyGeneratedFromObjectArray getPrimaryKeyObjectArrayTransform();
+    MultiKeyFromObjectArray getPrimaryKeyObjectArrayTransform();
 }

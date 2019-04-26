@@ -11,10 +11,11 @@
 package com.espertech.esper.common.internal.epl.table.compiletime;
 
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowStateForgeDesc;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class TableAccessAnalysisResult {
     private final Map<String, TableMetadataColumn> tableColumns;
     private final ObjectArrayEventType internalEventType;
+    private final DataInputOutputSerdeForge[] internalEventTypePropertySerdes;
     private final ObjectArrayEventType publicEventType;
     private final TableMetadataColumnPairPlainCol[] colsPlain;
     private final TableMetadataColumnPairAggMethod[] colsAggMethod;
@@ -32,11 +34,12 @@ public class TableAccessAnalysisResult {
     private final Class[] primaryKeyTypes;
     private final int[] primaryKeyColNums;
     private final MultiKeyClassRef primaryKeyMultikeyClasses;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public TableAccessAnalysisResult(Map<String, TableMetadataColumn> tableColumns, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataColumnPairPlainCol[] colsPlain, TableMetadataColumnPairAggMethod[] colsAggMethod, TableMetadataColumnPairAggAccess[] colsAccess, AggregationRowStateForgeDesc aggDesc, String[] primaryKeyColumns, EventPropertyGetterSPI[] primaryKeyGetters, Class[] primaryKeyTypes, int[] primaryKeyColNums, MultiKeyClassRef primaryKeyMultikeyClasses, List<StmtClassForgableFactory> additionalForgeables) {
+    public TableAccessAnalysisResult(Map<String, TableMetadataColumn> tableColumns, ObjectArrayEventType internalEventType, DataInputOutputSerdeForge[] internalEventTypePropertySerdes, ObjectArrayEventType publicEventType, TableMetadataColumnPairPlainCol[] colsPlain, TableMetadataColumnPairAggMethod[] colsAggMethod, TableMetadataColumnPairAggAccess[] colsAccess, AggregationRowStateForgeDesc aggDesc, String[] primaryKeyColumns, EventPropertyGetterSPI[] primaryKeyGetters, Class[] primaryKeyTypes, int[] primaryKeyColNums, MultiKeyClassRef primaryKeyMultikeyClasses, List<StmtClassForgeableFactory> additionalForgeables) {
         this.tableColumns = tableColumns;
         this.internalEventType = internalEventType;
+        this.internalEventTypePropertySerdes = internalEventTypePropertySerdes;
         this.publicEventType = publicEventType;
         this.colsPlain = colsPlain;
         this.colsAggMethod = colsAggMethod;
@@ -98,7 +101,11 @@ public class TableAccessAnalysisResult {
         return primaryKeyMultikeyClasses;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public DataInputOutputSerdeForge[] getInternalEventTypePropertySerdes() {
+        return internalEventTypePropertySerdes;
     }
 }

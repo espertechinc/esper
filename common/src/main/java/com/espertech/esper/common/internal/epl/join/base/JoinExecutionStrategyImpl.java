@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -51,7 +51,7 @@ public class JoinExecutionStrategyImpl implements JoinExecutionStrategy {
         InstrumentationCommon instrumentationCommon = staticExprEvaluatorContext.getInstrumentationProvider();
         instrumentationCommon.qJoinExecStrategy();
 
-        UniformPair<Set<MultiKey<EventBean>>> joinSet = composer.join(newDataPerStream, oldDataPerStream, staticExprEvaluatorContext);
+        UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> joinSet = composer.join(newDataPerStream, oldDataPerStream, staticExprEvaluatorContext);
 
         instrumentationCommon.aJoinExecStrategy(joinSet);
 
@@ -68,15 +68,15 @@ public class JoinExecutionStrategyImpl implements JoinExecutionStrategy {
         }
     }
 
-    public Set<MultiKey<EventBean>> staticJoin() {
-        Set<MultiKey<EventBean>> joinSet = composer.staticJoin();
+    public Set<MultiKeyArrayOfKeys<EventBean>> staticJoin() {
+        Set<MultiKeyArrayOfKeys<EventBean>> joinSet = composer.staticJoin();
         if (optionalFilter != null) {
             processFilter(joinSet, null, staticExprEvaluatorContext);
         }
         return joinSet;
     }
 
-    private void processFilter(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
+    private void processFilter(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
         filter(optionalFilter, newEvents, true, exprEvaluatorContext);
         if (oldEvents != null) {
             filter(optionalFilter, oldEvents, false, exprEvaluatorContext);

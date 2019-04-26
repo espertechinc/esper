@@ -25,7 +25,7 @@ public class FilterSpecLookupableAdvancedIndex extends ExprFilterSpecLookupable 
     private String indexType;
 
     public FilterSpecLookupableAdvancedIndex(String expression, EventPropertyGetter getter, Class returnType) {
-        super(expression, getter, returnType, true);
+        super(expression, getter, returnType, true, null);
     }
 
     public EventPropertyValueGetter getX() {

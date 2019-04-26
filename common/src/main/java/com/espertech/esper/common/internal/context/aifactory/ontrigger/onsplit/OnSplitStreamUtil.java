@@ -17,10 +17,10 @@ import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableRSPFactoryProvider;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableRSPFactoryProvider;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.OnTriggerActivatorDesc;
-import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StmtClassForgableAIFactoryProviderOnTrigger;
+import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StmtClassForgeableAIFactoryProviderOnTrigger;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger.OnTriggerPlan;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForge;
@@ -97,10 +97,10 @@ public class OnSplitStreamUtil {
         }
 
         // handle result set processor classes
-        List<StmtClassForgable> forgables = new ArrayList<>();
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
         for (int i = 0; i < items.length; i++) {
             String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix + "_" + i);
-            forgables.add(new StmtClassForgableRSPFactoryProvider(classNameRSP, items[i].getResultSetProcessorDesc(), packageScope, base.getStatementRawInfo()));
+            forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, items[i].getResultSetProcessorDesc(), packageScope, base.getStatementRawInfo()));
             items[i].setResultSetProcessorClassName(classNameRSP);
         }
 
@@ -110,9 +110,9 @@ public class OnSplitStreamUtil {
         // build forge
         StatementAgentInstanceFactoryOnTriggerSplitStreamForge splitStreamForge = new StatementAgentInstanceFactoryOnTriggerSplitStreamForge(activatorResult.getActivator(),
             activatorResult.getActivatorResultEventType(), subselectForges, tableAccessForges, items, desc.isFirst());
-        StmtClassForgableAIFactoryProviderOnTrigger triggerForge = new StmtClassForgableAIFactoryProviderOnTrigger(aiFactoryProviderClassName, packageScope, splitStreamForge);
+        StmtClassForgeableAIFactoryProviderOnTrigger triggerForge = new StmtClassForgeableAIFactoryProviderOnTrigger(aiFactoryProviderClassName, packageScope, splitStreamForge);
 
-        return new OnTriggerPlan(triggerForge, forgables, new SelectSubscriberDescriptor(), subselectForgePlan.getAdditionalForgeables());
+        return new OnTriggerPlan(triggerForge, forgeables, new SelectSubscriberDescriptor(), subselectForgePlan.getAdditionalForgeables());
     }
 
     private static OnSplitItemForge onSplitValidate(StreamTypeService typeServiceTrigger, StatementSpecCompiled statementSpecCompiled, ContextPropertyRegistry contextPropertyRegistry, PropertyEvaluatorForge optionalPropertyEval, StatementRawInfo rawInfo, StatementCompileTimeServices services) throws ExprValidationException {

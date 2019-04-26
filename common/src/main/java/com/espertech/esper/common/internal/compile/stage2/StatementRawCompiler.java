@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.compile.stage1.Compilable;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.ExpressionCopier;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -46,7 +46,7 @@ public class StatementRawCompiler {
                                                 StatementCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
         List<StreamSpecCompiled> compiledStreams;
         Set<String> eventTypeReferences = new HashSet<String>();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         if (!isOnDemandQuery && spec.getFireAndForgetSpec() != null) {
             throw new StatementSpecCompileException("Provided EPL expression is an on-demand query expression (not a continuous query)", compilable.toEPL());

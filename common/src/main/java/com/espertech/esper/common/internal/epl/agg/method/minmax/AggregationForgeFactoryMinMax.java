@@ -22,17 +22,22 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodA
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMinMaxAggrNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class AggregationForgeFactoryMinMax extends AggregationForgeFactoryBase {
     protected final ExprMinMaxAggrNode parent;
     protected final Class type;
     protected final boolean hasDataWindows;
+    protected final DataInputOutputSerdeForge serde;
+    protected final DataInputOutputSerdeForge distinctSerde;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryMinMax(ExprMinMaxAggrNode parent, Class type, boolean hasDataWindows) {
+    public AggregationForgeFactoryMinMax(ExprMinMaxAggrNode parent, Class type, boolean hasDataWindows, DataInputOutputSerdeForge serde, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
         this.type = type;
         this.hasDataWindows = hasDataWindows;
+        this.serde = serde;
+        this.distinctSerde = distinctSerde;
     }
 
     public Class getResultType() {
@@ -46,9 +51,9 @@ public class AggregationForgeFactoryMinMax extends AggregationForgeFactoryBase {
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         Class distinctType = !parent.isDistinct() ? null : type;
         if (!hasDataWindows) {
-            aggregator = new AggregatorMinMaxEver(this, col, rowCtor, membersColumnized, classScope, distinctType, parent.isHasFilter(), parent.getOptionalFilter());
+            aggregator = new AggregatorMinMaxEver(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), serde);
         } else {
-            aggregator = new AggregatorMinMax(this, col, rowCtor, membersColumnized, classScope, distinctType, parent.isHasFilter(), parent.getOptionalFilter());
+            aggregator = new AggregatorMinMax(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
         }
     }
 

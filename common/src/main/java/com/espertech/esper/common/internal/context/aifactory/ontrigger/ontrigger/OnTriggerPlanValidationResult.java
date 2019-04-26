@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -27,9 +27,9 @@ public class OnTriggerPlanValidationResult {
     private final ResultSetProcessorDesc resultSetProcessorPrototype;
     private final ExprNode validatedJoin;
     private final String zeroStreamAliasName;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public OnTriggerPlanValidationResult(Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges, ResultSetProcessorDesc resultSetProcessorPrototype, ExprNode validatedJoin, String zeroStreamAliasName, List<StmtClassForgableFactory> additionalForgeables) {
+    public OnTriggerPlanValidationResult(Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges, ResultSetProcessorDesc resultSetProcessorPrototype, ExprNode validatedJoin, String zeroStreamAliasName, List<StmtClassForgeableFactory> additionalForgeables) {
         this.subselectForges = subselectForges;
         this.tableAccessForges = tableAccessForges;
         this.resultSetProcessorPrototype = resultSetProcessorPrototype;
@@ -58,7 +58,7 @@ public class OnTriggerPlanValidationResult {
         return zeroStreamAliasName;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

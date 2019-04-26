@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 
@@ -44,7 +44,7 @@ public class OutputProcessViewAfterStateImpl implements OutputProcessViewAfterSt
      * @param newEvents is the join new events
      * @return indicator for output condition
      */
-    public boolean checkUpdateAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext) {
+    public boolean checkUpdateAfterCondition(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, StatementContext statementContext) {
         return isAfterConditionSatisfied || checkAfterCondition(newEvents == null ? 0 : newEvents.size(), statementContext);
     }
 

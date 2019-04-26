@@ -22,7 +22,7 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -57,7 +57,7 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
     private final ExprNode[] groupKeys;
     private final AggregationServiceForgeDesc aggregationServiceForgeDesc;
     private final SubordinateQueryPlanDescForge queryPlan;
-    private final List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
+    private final List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
     private final MultiKeyClassRef groupByMultiKey;
 
     public SubSelectStrategyFactoryIndexShareForge(int subqueryNumber, SubSelectActivationPlan subselectActivation, EventType[] outerEventTypesSelect, NamedWindowMetaData namedWindow, TableMetaData table, boolean fullTableScan, IndexHint indexHint, SubordPropPlan joinedPropPlan, ExprForge filterExprEval, ExprNode[] groupKeys, AggregationServiceForgeDesc aggregationServiceForgeDesc, StatementBaseInfo statement, StatementCompileTimeServices services)
@@ -109,9 +109,9 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
         if (groupKeys == null || groupKeys.length == 0) {
             groupByMultiKey = null;
         } else {
-            MultiKeyPlan mkplan = MultiKeyPlanner.planMultiKey(groupKeys, false);
-            additionalForgeables.addAll(mkplan.getMultiKeyForgables());
-            groupByMultiKey = mkplan.getOptionalClassRef();
+            MultiKeyPlan mkplan = MultiKeyPlanner.planMultiKey(groupKeys, false, statement.getStatementRawInfo(), services.getSerdeResolver());
+            additionalForgeables.addAll(mkplan.getMultiKeyForgeables());
+            groupByMultiKey = mkplan.getClassRef();
         }
     }
 
@@ -148,7 +148,7 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
         return false;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

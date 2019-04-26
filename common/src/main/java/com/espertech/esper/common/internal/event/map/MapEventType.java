@@ -43,9 +43,6 @@ public class MapEventType extends BaseNestableEventType {
                 GETTER_FACTORY, beanEventTypeFactory);
     }
 
-    protected void postUpdateNestableTypes() {
-    }
-
     public final Class getUnderlyingType() {
         return Map.class;
     }

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.subselect;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryForge;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategyFactoryForge;
 
@@ -19,9 +19,9 @@ import java.util.List;
 public class SubqueryIndexForgeDesc {
     private final EventTableFactoryFactoryForge tableForge;
     private final SubordTableLookupStrategyFactoryForge lookupForge;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public SubqueryIndexForgeDesc(EventTableFactoryFactoryForge tableForge, SubordTableLookupStrategyFactoryForge lookupForge, List<StmtClassForgableFactory> additionalForgeables) {
+    public SubqueryIndexForgeDesc(EventTableFactoryFactoryForge tableForge, SubordTableLookupStrategyFactoryForge lookupForge, List<StmtClassForgeableFactory> additionalForgeables) {
         this.tableForge = tableForge;
         this.lookupForge = lookupForge;
         this.additionalForgeables = additionalForgeables;
@@ -35,7 +35,7 @@ public class SubqueryIndexForgeDesc {
         return lookupForge;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

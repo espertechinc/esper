@@ -18,7 +18,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.DIOSerdeBigDecimalBigInteger;
+import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSerdeBigDecimalBigInteger;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -31,8 +32,8 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
  */
 public class AggregatorSumBig extends AggregatorSumBase {
 
-    public AggregatorSumBig(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter, Class sumType) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter, sumType);
+    public AggregatorSumBig(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, Class sumType) {
+        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter, sumType);
         if (sumType != BigInteger.class && sumType != BigDecimal.class) {
             throw new IllegalArgumentException("Invalid type " + sumType);
         }

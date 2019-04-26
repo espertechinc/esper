@@ -87,7 +87,7 @@ public class SelectExprProcessorHelper {
         this.insertIntoDesc = insertIntoDesc;
     }
 
-    public SelectExprProcessorForge getForge() throws ExprValidationException {
+    public SelectExprProcessorWInsertTarget getForge() throws ExprValidationException {
         boolean isUsingWildcard = args.isUsingWildcard();
         StreamTypeService typeService = args.getTypeService();
         ClasspathImportServiceCompileTime classpathImportService = args.getClasspathImportService();
@@ -460,13 +460,15 @@ public class SelectExprProcessorHelper {
                     resultEventType = WrapperEventTypeUtil.makeWrapper(metadata, underlyingEventType, selPropertyTypes, null, beanEventTypeFactoryProtected, args.getEventTypeCompileTimeResolver());
                     args.getEventTypeCompileTimeRegistry().newType(resultEventType);
 
-                    return new SelectEvalStreamWUnderlying(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard,
+                    SelectEvalStreamWUnderlying forge = new SelectEvalStreamWUnderlying(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard,
                         unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprForge, table, typeService.getEventTypes());
+                    return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                 } else {
                     EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, moduleName, EventTypeTypeClass.STATEMENTOUT, EventTypeApplicationType.MAP, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
                     resultEventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata, selPropertyTypes, null, null, null, null, beanEventTypeFactoryProtected, args.getEventTypeCompileTimeResolver());
                     args.getEventTypeCompileTimeRegistry().newType(resultEventType);
-                    return new SelectEvalStreamNoUnderlyingMap(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard);
+                    SelectEvalStreamNoUnderlyingMap forge = new SelectEvalStreamNoUnderlyingMap(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard);
+                    return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                 }
             }
 
@@ -475,13 +477,15 @@ public class SelectExprProcessorHelper {
                 EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, moduleName, EventTypeTypeClass.STATEMENTOUT, EventTypeApplicationType.WRAPPER, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
                 EventType resultEventType = WrapperEventTypeUtil.makeWrapper(metadata, eventType, selPropertyTypes, null, beanEventTypeFactoryProtected, args.getEventTypeCompileTimeResolver());
                 args.getEventTypeCompileTimeRegistry().newType(resultEventType);
+                SelectExprProcessorForge forge;
                 if (singleStreamWrapper) {
-                    return new SelectEvalInsertWildcardSSWrapper(selectExprForgeContext, resultEventType);
+                    forge = new SelectEvalInsertWildcardSSWrapper(selectExprForgeContext, resultEventType);
+                } else if (joinWildcardProcessor == null) {
+                    forge = new SelectEvalWildcard(selectExprForgeContext, resultEventType);
+                } else {
+                    forge = new SelectEvalWildcardJoin(selectExprForgeContext, resultEventType, joinWildcardProcessor);
                 }
-                if (joinWildcardProcessor == null) {
-                    return new SelectEvalWildcard(selectExprForgeContext, resultEventType);
-                }
-                return new SelectEvalWildcardJoin(selectExprForgeContext, resultEventType, joinWildcardProcessor);
+                return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
             }
 
             EventType resultEventType;
@@ -500,16 +504,19 @@ public class SelectExprProcessorHelper {
             }
             args.getEventTypeCompileTimeRegistry().newType(resultEventType);
 
+            SelectExprProcessorForge forge;
             if (selectExprForgeContext.getExprForges().length == 0) {
-                return new SelectEvalNoWildcardEmptyProps(selectExprForgeContext, resultEventType);
+                forge = new SelectEvalNoWildcardEmptyProps(selectExprForgeContext, resultEventType);
             } else {
                 if (representation == EventUnderlyingType.OBJECTARRAY) {
-                    return new SelectEvalNoWildcardObjectArray(selectExprForgeContext, resultEventType);
+                    forge = new SelectEvalNoWildcardObjectArray(selectExprForgeContext, resultEventType);
                 } else if (representation == EventUnderlyingType.AVRO) {
-                    return args.getCompileTimeServices().getEventTypeAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprForgeContext, exprForges, resultEventType, args.getTableCompileTimeResolver(), args.getStatementName());
+                    forge = args.getCompileTimeServices().getEventTypeAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprForgeContext, exprForges, resultEventType, args.getTableCompileTimeResolver(), args.getStatementName());
+                } else {
+                    forge = new SelectEvalNoWildcardMap(selectExprForgeContext, resultEventType);
                 }
-                return new SelectEvalNoWildcardMap(selectExprForgeContext, resultEventType);
             }
+            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
         }
 
         boolean singleColumnWrapOrBeanCoercion = false;       // Additional single-column coercion for non-wrapped type done by SelectExprInsertEventBeanFactory
@@ -529,13 +536,17 @@ public class SelectExprProcessorHelper {
                     ExprNode expression = unnamedStreams.get(0).getExpressionSelectedAsStream().getSelectExpression();
                     Class returnType = expression.getForge().getEvaluationType();
                     if (insertIntoTargetType instanceof ObjectArrayEventType && returnType == Object[].class) {
-                        return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceObjectArray(insertIntoTargetType, expression.getForge());
+                        SelectExprProcessorForge forge = new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceObjectArray(insertIntoTargetType, expression.getForge());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     } else if (insertIntoTargetType instanceof MapEventType && JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
-                        return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceMap(insertIntoTargetType, expression.getForge());
+                        SelectExprProcessorForge forge = new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceMap(insertIntoTargetType, expression.getForge());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     } else if (insertIntoTargetType instanceof BeanEventType && JavaClassHelper.isSubclassOrImplementsInterface(returnType, insertIntoTargetType.getUnderlyingType())) {
-                        return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceNative(insertIntoTargetType, expression.getForge());
+                        SelectExprProcessorForge forge = new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceNative(insertIntoTargetType, expression.getForge());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     } else if (insertIntoTargetType instanceof AvroSchemaEventType && returnType.getName().equals(JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME)) {
-                        return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceAvro(insertIntoTargetType, expression.getForge());
+                        SelectExprProcessorForge forge = new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceAvro(insertIntoTargetType, expression.getForge());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     } else if (insertIntoTargetType instanceof WrapperEventType) {
                         // for native event types as they got renamed, they become wrappers
                         // check if the proposed wrapper is compatible with the existing wrapper
@@ -547,8 +558,9 @@ public class SelectExprProcessorHelper {
                                 throw new ExprValidationException("Invalid expression return type '" + exprNode.getForge().getEvaluationType() + "' for transpose function, expected '" + innerType.getUnderlyingType().getSimpleName() + "'");
                             }
                             ExprForge evalExprForge = exprNode.getForge();
-                            return new SelectEvalStreamWUnderlying(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard,
+                            SelectExprProcessorForge forge = new SelectEvalStreamWUnderlying(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard,
                                 unnamedStreams, false, false, underlyingStreamNumber, null, evalExprForge, null, typeService.getEventTypes());
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         }
                     }
                     throw SelectEvalInsertUtil.makeEventTypeCastException(returnType, insertIntoTargetType);
@@ -558,22 +570,26 @@ public class SelectExprProcessorHelper {
                     // a single stream was selected via "stream.*" and there is no column name
                     // recast as a Map-type
                     if (underlyingEventType instanceof MapEventType && insertIntoTargetType instanceof MapEventType) {
-                        return SelectEvalStreamWUndRecastMapFactory.make(typeService.getEventTypes(), selectExprForgeContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, classpathImportService, args.getStatementName());
+                        SelectExprProcessorForge forge = SelectEvalStreamWUndRecastMapFactory.make(typeService.getEventTypes(), selectExprForgeContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, classpathImportService, args.getStatementName());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     }
 
                     // recast as a Object-array-type
                     if (underlyingEventType instanceof ObjectArrayEventType && insertIntoTargetType instanceof ObjectArrayEventType) {
-                        return SelectEvalStreamWUndRecastObjectArrayFactory.make(typeService.getEventTypes(), selectExprForgeContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, classpathImportService, args.getStatementName());
+                        SelectExprProcessorForge forge = SelectEvalStreamWUndRecastObjectArrayFactory.make(typeService.getEventTypes(), selectExprForgeContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, classpathImportService, args.getStatementName());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     }
 
                     // recast as a Avro-type
                     if (underlyingEventType instanceof AvroSchemaEventType && insertIntoTargetType instanceof AvroSchemaEventType) {
-                        return args.getEventTypeAvroHandler().getOutputFactory().makeRecast(typeService.getEventTypes(), selectExprForgeContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), (AvroSchemaEventType) insertIntoTargetType, exprNodes, args.getStatementName());
+                        SelectExprProcessorForge forge = args.getEventTypeAvroHandler().getOutputFactory().makeRecast(typeService.getEventTypes(), selectExprForgeContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), (AvroSchemaEventType) insertIntoTargetType, exprNodes, args.getStatementName());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     }
 
                     // recast as a Bean-type
                     if (underlyingEventType instanceof BeanEventType && insertIntoTargetType instanceof BeanEventType) {
-                        return new SelectEvalInsertBeanRecast(insertIntoTargetType, selectedStreams.get(0).getStreamSelected().getStreamNumber(), typeService.getEventTypes());
+                        SelectExprProcessorForge forge = new SelectEvalInsertBeanRecast(insertIntoTargetType, selectedStreams.get(0).getStreamSelected().getStreamNumber(), typeService.getEventTypes());
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     }
 
                     // wrap if no recast possible
@@ -591,8 +607,9 @@ public class SelectExprProcessorHelper {
                         resultEventType = insertIntoTargetType;
                     }
 
-                    return new SelectEvalStreamWUnderlying(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard,
+                    SelectEvalStreamWUnderlying forge = new SelectEvalStreamWUnderlying(selectExprForgeContext, resultEventType, namedStreams, isUsingWildcard,
                         unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprForge, table, typeService.getEventTypes());
+                    return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                 } else {
                     // there are one or more streams selected with column name such as "stream.* as columnOne"
                     if (insertIntoTargetType instanceof BeanEventType) {
@@ -614,18 +631,23 @@ public class SelectExprProcessorHelper {
                             args.getEventTypeCompileTimeRegistry().newType(proposed);
                         }
                         Set<String> propertiesToUnwrap = getEventBeanToObjectProps(selPropertyTypes, insertIntoTargetType);
+
+                        SelectExprProcessorForge forge;
                         if (propertiesToUnwrap.isEmpty()) {
-                            return new SelectEvalStreamNoUnderlyingMap(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard);
+                            forge = new SelectEvalStreamNoUnderlyingMap(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard);
                         } else {
-                            return new SelectEvalStreamNoUndWEventBeanToObj(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard, propertiesToUnwrap);
+                            forge = new SelectEvalStreamNoUndWEventBeanToObj(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard, propertiesToUnwrap);
                         }
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     } else if (insertIntoTargetType instanceof ObjectArrayEventType) {
                         Set<String> propertiesToUnwrap = getEventBeanToObjectProps(selPropertyTypes, insertIntoTargetType);
+                        SelectExprProcessorForge forge;
                         if (propertiesToUnwrap.isEmpty()) {
-                            return new SelectEvalStreamNoUnderlyingObjectArray(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard);
+                            forge = new SelectEvalStreamNoUnderlyingObjectArray(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard);
                         } else {
-                            return new SelectEvalStreamNoUndWEventBeanToObjObjArray(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard, propertiesToUnwrap);
+                            forge = new SelectEvalStreamNoUndWEventBeanToObjObjArray(selectExprForgeContext, insertIntoTargetType, namedStreams, isUsingWildcard, propertiesToUnwrap);
                         }
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     } else if (insertIntoTargetType instanceof AvroSchemaEventType) {
                         throw new ExprValidationException("Avro event type does not allow contained beans");
                     } else {
@@ -651,37 +673,44 @@ public class SelectExprProcessorHelper {
                         // handle insert-into with fast coercion (no additional properties selected)
                         if (selPropertyTypes.isEmpty()) {
                             if (insertIntoTargetType instanceof BeanEventType && eventType instanceof BeanEventType) {
-                                return new SelectEvalInsertBeanRecast(insertIntoTargetType, 0, typeService.getEventTypes());
+                                SelectExprProcessorForge forge = new SelectEvalInsertBeanRecast(insertIntoTargetType, 0, typeService.getEventTypes());
+                                return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                             }
                             if (insertIntoTargetType instanceof ObjectArrayEventType && eventType instanceof ObjectArrayEventType) {
                                 ObjectArrayEventType target = (ObjectArrayEventType) insertIntoTargetType;
                                 ObjectArrayEventType source = (ObjectArrayEventType) eventType;
                                 ExprValidationException msg = BaseNestableEventType.isDeepEqualsProperties(eventType.getName(), source.getTypes(), target.getTypes());
                                 if (msg == null) {
-                                    return new SelectEvalInsertCoercionObjectArray(insertIntoTargetType);
+                                    SelectExprProcessorForge forge = new SelectEvalInsertCoercionObjectArray(insertIntoTargetType);
+                                    return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                                 }
                             }
                             if (insertIntoTargetType instanceof MapEventType && eventType instanceof MapEventType) {
-                                return new SelectEvalInsertCoercionMap(insertIntoTargetType);
+                                SelectExprProcessorForge forge = new SelectEvalInsertCoercionMap(insertIntoTargetType);
+                                return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                             }
                             if (insertIntoTargetType instanceof AvroSchemaEventType && eventType instanceof AvroSchemaEventType) {
-                                return new SelectEvalInsertCoercionAvro(insertIntoTargetType);
+                                SelectExprProcessorForge forge = new SelectEvalInsertCoercionAvro(insertIntoTargetType);
+                                return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                             }
                             if (insertIntoTargetType instanceof WrapperEventType && eventType instanceof BeanEventType) {
                                 WrapperEventType wrapperType = (WrapperEventType) insertIntoTargetType;
                                 if (wrapperType.getUnderlyingEventType() instanceof BeanEventType) {
-                                    return new SelectEvalInsertBeanWrapRecast(wrapperType, 0, typeService.getEventTypes());
+                                    SelectExprProcessorForge forge = new SelectEvalInsertBeanWrapRecast(wrapperType, 0, typeService.getEventTypes());
+                                    return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                                 }
                             }
                             if (insertIntoTargetType instanceof WrapperEventType) {
                                 WrapperEventType wrapperEventType = (WrapperEventType) insertIntoTargetType;
                                 if (EventTypeUtility.isTypeOrSubTypeOf(eventType, wrapperEventType.getUnderlyingEventType())) {
-                                    return new SelectEvalInsertWildcardWrapper(selectExprForgeContext, insertIntoTargetType);
+                                    SelectExprProcessorForge forge = new SelectEvalInsertWildcardWrapper(selectExprForgeContext, insertIntoTargetType);
+                                    return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                                 }
                                 if (wrapperEventType.getUnderlyingEventType() instanceof WrapperEventType) {
                                     WrapperEventType nestedWrapper = (WrapperEventType) wrapperEventType.getUnderlyingEventType();
                                     if (EventTypeUtility.isTypeOrSubTypeOf(eventType, nestedWrapper.getUnderlyingEventType())) {
-                                        return new SelectEvalInsertWildcardWrapperNested(selectExprForgeContext, insertIntoTargetType, nestedWrapper);
+                                        SelectExprProcessorForge forge = new SelectEvalInsertWildcardWrapperNested(selectExprForgeContext, insertIntoTargetType, nestedWrapper);
+                                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                                     }
                                 }
                             }
@@ -690,7 +719,7 @@ public class SelectExprProcessorHelper {
                         // handle insert-into by generating the writer with possible additional properties
                         SelectExprProcessorForge existingTypeProcessor = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(insertIntoTargetType, isUsingWildcard, typeService, exprForges, columnNames, expressionReturnTypes, insertIntoDesc, columnNamesAsProvided, true, args.getStatementName(), args.getClasspathImportService(), args.getEventTypeAvroHandler());
                         if (existingTypeProcessor != null) {
-                            return existingTypeProcessor;
+                            return new SelectExprProcessorWInsertTarget(existingTypeProcessor, insertIntoTargetType);
                         }
                     }
 
@@ -719,35 +748,43 @@ public class SelectExprProcessorHelper {
 
                 if (singleStreamWrapper) {
                     if (!isVariantEvent) {
-                        return new SelectEvalInsertWildcardSSWrapper(selectExprForgeContext, resultEventType);
+                        SelectExprProcessorForge forge = new SelectEvalInsertWildcardSSWrapper(selectExprForgeContext, resultEventType);
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     } else {
-                        return new SelectEvalInsertWildcardSSWrapperRevision(selectExprForgeContext, resultEventType, variantEventType);
+                        SelectExprProcessorForge forge = new SelectEvalInsertWildcardSSWrapperRevision(selectExprForgeContext, resultEventType, variantEventType);
+                        return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                     }
                 }
                 if (joinWildcardProcessor == null) {
                     if (!isVariantEvent) {
                         if (resultEventType instanceof WrapperEventType) {
-                            return new SelectEvalInsertWildcardWrapper(selectExprForgeContext, resultEventType);
+                            SelectExprProcessorForge forge = new SelectEvalInsertWildcardWrapper(selectExprForgeContext, resultEventType);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         } else {
-                            return new SelectEvalInsertWildcardBean(selectExprForgeContext, resultEventType);
+                            SelectExprProcessorForge forge = new SelectEvalInsertWildcardBean(selectExprForgeContext, resultEventType);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         }
                     } else {
                         if (exprForges.length == 0) {
-                            return new SelectEvalInsertWildcardVariant(selectExprForgeContext, resultEventType, variantEventType);
+                            SelectExprProcessorForge forge = new SelectEvalInsertWildcardVariant(selectExprForgeContext, resultEventType, variantEventType);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         } else {
                             String eventTypeName = eventTypeNameGeneratorStatement.getAnonymousTypeName();
                             EventTypeMetadata metadata = new EventTypeMetadata(eventTypeName, moduleName, EventTypeTypeClass.STATEMENTOUT, EventTypeApplicationType.WRAPPER, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
                             resultEventType = WrapperEventTypeUtil.makeWrapper(metadata, eventType, selPropertyTypes, null, beanEventTypeFactoryProtected, args.getEventTypeCompileTimeResolver());
                             args.getEventTypeCompileTimeRegistry().newType(resultEventType);
-                            return new SelectEvalInsertWildcardVariantWrapper(selectExprForgeContext, resultEventType, variantEventType, resultEventType);
+                            SelectExprProcessorForge forge = new SelectEvalInsertWildcardVariantWrapper(selectExprForgeContext, resultEventType, variantEventType, resultEventType);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         }
                     }
                 } else {
+                    SelectExprProcessorForge forge;
                     if (!isVariantEvent) {
-                        return new SelectEvalInsertWildcardJoin(selectExprForgeContext, resultEventType, joinWildcardProcessor);
+                        forge = new SelectEvalInsertWildcardJoin(selectExprForgeContext, resultEventType, joinWildcardProcessor);
                     } else {
-                        return new SelectEvalInsertWildcardJoinVariant(selectExprForgeContext, resultEventType, joinWildcardProcessor, variantEventType);
+                        forge = new SelectEvalInsertWildcardJoinVariant(selectExprForgeContext, resultEventType, joinWildcardProcessor, variantEventType);
                     }
+                    return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                 }
             }
 
@@ -780,20 +817,26 @@ public class SelectExprProcessorHelper {
                     if (resultEventType instanceof WrapperEventType) {
                         WrapperEventType wrapper = (WrapperEventType) resultEventType;
                         if (wrapper.getUnderlyingEventType() instanceof MapEventType) {
-                            return new SelectEvalInsertNoWildcardSingleColCoercionMapWrap(selectExprForgeContext, wrapper);
+                            SelectExprProcessorForge forge = new SelectEvalInsertNoWildcardSingleColCoercionMapWrap(selectExprForgeContext, wrapper);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         } else if (wrapper.getUnderlyingEventType() instanceof ObjectArrayEventType) {
-                            return new SelectEvalInsertNoWildcardSingleColCoercionObjectArrayWrap(selectExprForgeContext, wrapper);
+                            SelectExprProcessorForge forge = new SelectEvalInsertNoWildcardSingleColCoercionObjectArrayWrap(selectExprForgeContext, wrapper);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         } else if (wrapper.getUnderlyingEventType() instanceof AvroSchemaEventType) {
-                            return new SelectEvalInsertNoWildcardSingleColCoercionAvroWrap(selectExprForgeContext, wrapper);
+                            SelectExprProcessorForge forge = new SelectEvalInsertNoWildcardSingleColCoercionAvroWrap(selectExprForgeContext, wrapper);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         } else if (wrapper.getUnderlyingEventType() instanceof VariantEventType) {
                             variantEventType = (VariantEventType) wrapper.getUnderlyingEventType();
-                            return new SelectEvalInsertNoWildcardSingleColCoercionBeanWrapVariant(selectExprForgeContext, wrapper, variantEventType);
+                            SelectExprProcessorForge forge = new SelectEvalInsertNoWildcardSingleColCoercionBeanWrapVariant(selectExprForgeContext, wrapper, variantEventType);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         } else {
-                            return new SelectEvalInsertNoWildcardSingleColCoercionBeanWrap(selectExprForgeContext, wrapper);
+                            SelectExprProcessorForge forge = new SelectEvalInsertNoWildcardSingleColCoercionBeanWrap(selectExprForgeContext, wrapper);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         }
                     } else {
                         if (resultEventType instanceof BeanEventType) {
-                            return new SelectEvalInsertNoWildcardSingleColCoercionBean(selectExprForgeContext, resultEventType);
+                            SelectExprProcessorForge forge = new SelectEvalInsertNoWildcardSingleColCoercionBean(selectExprForgeContext, resultEventType);
+                            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
                         }
                     }
                 } else {
@@ -830,7 +873,7 @@ public class SelectExprProcessorHelper {
                         selectExprInsertEventBean = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(existingType, isUsingWildcard, typeService, exprForges, columnNames, expressionReturnTypes, insertIntoDesc, columnNamesAsProvided, false, args.getStatementName(), args.getClasspathImportService(), args.getEventTypeAvroHandler());
                     }
                     if (selectExprInsertEventBean != null) {
-                        return selectExprInsertEventBean;
+                        return new SelectExprProcessorWInsertTarget(selectExprInsertEventBean, insertIntoTargetType);
                     } else {
                         // use the provided override-type if there is one
                         if (args.getOptionalInsertIntoEventType() != null) {
@@ -883,19 +926,21 @@ public class SelectExprProcessorHelper {
                 isVariantEvent = true;
             }
 
+            SelectExprProcessorForge forge;
             if (!isVariantEvent) {
                 if (resultEventType instanceof MapEventType) {
-                    return new SelectEvalNoWildcardMap(selectExprForgeContext, resultEventType);
+                    forge = new SelectEvalNoWildcardMap(selectExprForgeContext, resultEventType);
                 } else if (resultEventType instanceof ObjectArrayEventType) {
-                    return makeObjectArrayConsiderReorder(selectExprForgeContext, (ObjectArrayEventType) resultEventType, exprForges, args.getStatementRawInfo(), args.getCompileTimeServices());
+                    forge = makeObjectArrayConsiderReorder(selectExprForgeContext, (ObjectArrayEventType) resultEventType, exprForges, args.getStatementRawInfo(), args.getCompileTimeServices());
                 } else if (resultEventType instanceof AvroSchemaEventType) {
-                    return args.getEventTypeAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprForgeContext, exprForges, resultEventType, args.getTableCompileTimeResolver(), args.getStatementName());
+                    forge = args.getEventTypeAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprForgeContext, exprForges, resultEventType, args.getTableCompileTimeResolver(), args.getStatementName());
                 } else {
                     throw new IllegalStateException("Unrecognized output type " + resultEventType);
                 }
             } else {
-                return new SelectEvalInsertNoWildcardVariant(selectExprForgeContext, resultEventType, variantEventType, resultEventType);
+                forge = new SelectEvalInsertNoWildcardVariant(selectExprForgeContext, resultEventType, variantEventType, resultEventType);
             }
+            return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType);
         } catch (EventAdapterException ex) {
             log.debug("Exception provided by event adapter: " + ex.getMessage(), ex);
             throw new ExprValidationException(ex.getMessage(), ex);

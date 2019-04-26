@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.core;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
@@ -98,7 +98,7 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
      * @param newEvents - new events
      * @param oldEvents - old events
      */
-    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
+    public void process(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
         resultSetProcessor.applyJoinResult(newEvents, oldEvents);
 
         if (!super.checkAfterCondition(newEvents, agentInstanceContext.getStatementContext())) {

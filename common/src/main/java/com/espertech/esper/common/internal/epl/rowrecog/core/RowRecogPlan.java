@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
 public class RowRecogPlan {
     private final RowRecogDescForge forge;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public RowRecogPlan(RowRecogDescForge forge, List<StmtClassForgableFactory> additionalForgeables) {
+    public RowRecogPlan(RowRecogDescForge forge, List<StmtClassForgeableFactory> additionalForgeables) {
         this.forge = forge;
         this.additionalForgeables = additionalForgeables;
     }
@@ -27,7 +27,7 @@ public class RowRecogPlan {
         return forge;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

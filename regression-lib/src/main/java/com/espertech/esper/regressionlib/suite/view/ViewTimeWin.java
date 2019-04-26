@@ -14,9 +14,9 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPStatement;
@@ -376,7 +376,7 @@ public class ViewTimeWin {
                 "prevtail(symbol) as prevtail, " +
                 "prevcount(symbol) as prevCountSym, " +
                 "prevwindow(symbol) as prevWindowSym " +
-                "from  SupportMarketDataBean#time(1 sec)";
+                "from SupportMarketDataBean#time(1 sec)";
             env.compileDeployAddListenerMileZero(text, "s0");
             String[] fields = new String[]{"symbol", "prev1", "prevtail", "prevCountSym", "prevWindowSym"};
 

@@ -45,16 +45,17 @@ import com.espertech.esper.common.internal.epl.pattern.core.PatternContext;
 import com.espertech.esper.common.internal.epl.pattern.filter.EvalFilterForgeNode;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
-import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
-import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
-import com.espertech.esper.common.internal.event.core.EventTypeSPI;
-import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
 import com.espertech.esper.common.internal.schedule.ScheduleExpressionUtil;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StmtForgeMethodCreateContext implements StmtForgeMethod {
 
@@ -80,7 +81,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
 
         // compile filter specs, if any
         CreateContextValidationEnv validationEnv = new CreateContextValidationEnv(context.getContextName(), base.getStatementRawInfo(), services, filterSpecCompileds, scheduleHandleCallbackProviders, filterBooleanExpressions);
-        List<StmtClassForgableFactory> additionalForgeables = validateContextDetail(context.getContextDetail(), 0, validationEnv);
+        List<StmtClassForgeableFactory> additionalForgeables = validateContextDetail(context.getContextDetail(), 0, validationEnv);
 
         // get controller factory forges
         ContextControllerFactoryForge[] controllerFactoryForges = getForges(context.getContextName(), context.getContextDetail());
@@ -112,24 +113,24 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
 
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        for (StmtClassForgableFactory additional : additionalForgeables) {
-            forgables.add(additional.make(packageScope, classPostfix));
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
+            forgeables.add(additional.make(packageScope, classPostfix));
         }
 
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         String statementAIFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
 
         StatementAgentInstanceFactoryCreateContextForge forge = new StatementAgentInstanceFactoryCreateContextForge(context.getContextName(), statementEventType);
-        forgables.add(new StmtClassForgableAIFactoryProviderCreateContext(statementAIFactoryProviderClassName, packageScope, context.getContextName(), controllerFactoryForges, contextPropertiesType, forge));
+        forgeables.add(new StmtClassForgeableAIFactoryProviderCreateContext(statementAIFactoryProviderClassName, packageScope, context.getContextName(), controllerFactoryForges, contextPropertiesType, forge));
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, context.getContextName());
-        forgables.add(new StmtClassForgableStmtProvider(statementAIFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 0));
+        forgeables.add(new StmtClassForgeableStmtProvider(statementAIFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
 
-        return new StmtForgeMethodResult(forgables, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, filterBooleanExpressions));
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, filterBooleanExpressions));
     }
 
     private Map<String, Object> makeContextProperies(ContextControllerFactoryForge[] controllers, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
@@ -157,9 +158,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         return props;
     }
 
-    private List<StmtClassForgableFactory> validateContextDetail(ContextSpec contextSpec, int nestingLevel, CreateContextValidationEnv validationEnv) throws ExprValidationException {
+    private List<StmtClassForgeableFactory> validateContextDetail(ContextSpec contextSpec, int nestingLevel, CreateContextValidationEnv validationEnv) throws ExprValidationException {
         Set<String> eventTypesReferenced = new HashSet<>();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         if (contextSpec instanceof ContextSpecKeyed) {
             ContextSpecKeyed segmented = (ContextSpecKeyed) contextSpec;
@@ -167,21 +168,27 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             boolean partitionHasNameAssignment = false;
             Class[] getterTypes = null;
             for (ContextSpecKeyedItem partition : segmented.getItems()) {
-                Pair<FilterSpecCompiled, List<StmtClassForgableFactory>> pair = compilePartitonedFilterSpec(partition.getFilterSpecRaw(), eventTypesReferenced, validationEnv);
+                Pair<FilterSpecCompiled, List<StmtClassForgeableFactory>> pair = compilePartitonedFilterSpec(partition.getFilterSpecRaw(), eventTypesReferenced, validationEnv);
                 FilterSpecCompiled filterSpecCompiled = pair.getFirst();
                 additionalForgeables.addAll(pair.getSecond());
                 partition.setFilterSpecCompiled(filterSpecCompiled);
 
                 EventPropertyGetterSPI[] getters = new EventPropertyGetterSPI[partition.getPropertyNames().size()];
+                DataInputOutputSerdeForge[] serdes = new DataInputOutputSerdeForge[partition.getPropertyNames().size()];
                 EventTypeSPI eventType = (EventTypeSPI) filterSpecCompiled.getFilterForEventType();
                 getterTypes = new Class[partition.getPropertyNames().size()];
                 for (int i = 0; i < partition.getPropertyNames().size(); i++) {
                     String propertyName = partition.getPropertyNames().get(i);
                     EventPropertyGetterSPI getter = eventType.getGetterSPI(propertyName);
+                    if (getter == null) {
+                        throw new ExprValidationException("For context '" + validationEnv.getContextName() + "' property name '" + propertyName + "' not found on type " + eventType.getName());
+                    }
                     getters[i] = getter;
                     getterTypes[i] = eventType.getPropertyType(propertyName);
+                    serdes[i] = validationEnv.getServices().getSerdeResolver().serdeForFilter(getterTypes[i], validationEnv.getStatementRawInfo());
                 }
                 partition.setGetters(getters);
+                partition.setLookupableSerdes(serdes);
 
                 if (partition.getAliasName() != null) {
                     partitionHasNameAssignment = true;
@@ -190,12 +197,12 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             }
 
             // plan multi-key, make sure we use the same multikey for all items
-            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(getterTypes, false);
-            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(getterTypes, false, base.getStatementRawInfo(), validationEnv.getServices().getSerdeResolver());
+            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
             for (ContextSpecKeyedItem partition : segmented.getItems()) {
-                partition.setOptionalMultiKey(multiKeyPlan.getOptionalClassRef());
+                partition.setKeyMultiKey(multiKeyPlan.getClassRef());
             }
-            segmented.setMultiKeyClassRef(multiKeyPlan.getOptionalClassRef());
+            segmented.setMultiKeyClassRef(multiKeyPlan.getClassRef());
 
             if (segmented.getOptionalInit() != null) {
                 asNames.clear();
@@ -228,7 +235,10 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 for (ContextSpecKeyedItem partition : segmented.getItems()) {
                     if (partition.getAliasName() != null) {
                         allTags.add(partition.getAliasName());
-                        matchEventSpec.getTaggedEventTypes().put(partition.getAliasName(), new Pair<>(partition.getFilterSpecCompiled().getFilterForEventType(), partition.getFilterSpecRaw().getEventTypeName()));
+                        EventType eventType = partition.getFilterSpecCompiled().getFilterForEventType();
+                        matchEventSpec.getTaggedEventTypes().put(partition.getAliasName(), new Pair<>(eventType, partition.getFilterSpecRaw().getEventTypeName()));
+                        List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver());
+                        additionalForgeables.addAll(serdeForgeables);
                     }
                 }
                 if (segmented.getOptionalInit() != null) {
@@ -310,9 +320,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                     distinctExpressions[i] = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i], validationContext);
                 }
 
-                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(distinctExpressions, false);
-                def.setDistinctMultiKey(multiKeyPlan.getOptionalClassRef());
-                additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
+                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(distinctExpressions, false, base.getStatementRawInfo(), validationEnv.getServices().getSerdeResolver());
+                def.setDistinctMultiKey(multiKeyPlan.getClassRef());
+                additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
             }
         } else if (contextSpec instanceof ContextNested) {
             ContextNested nested = (ContextNested) contextSpec;
@@ -325,8 +335,8 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 }
                 namesUsed.add(nestedContext.getContextName());
 
-                List<StmtClassForgableFactory> forgables = validateContextDetail(nestedContext.getContextDetail(), level, validationEnv);
-                additionalForgeables.addAll(forgables);
+                List<StmtClassForgeableFactory> forgeables = validateContextDetail(nestedContext.getContextDetail(), level, validationEnv);
+                additionalForgeables.addAll(forgeables);
 
                 level++;
             }
@@ -337,7 +347,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         return additionalForgeables;
     }
 
-    private Pair<FilterSpecCompiled, List<StmtClassForgableFactory>> compilePartitonedFilterSpec(FilterSpecRaw filterSpecRaw, Set<String> eventTypesReferenced, CreateContextValidationEnv validationEnv) throws ExprValidationException {
+    private Pair<FilterSpecCompiled, List<StmtClassForgeableFactory>> compilePartitonedFilterSpec(FilterSpecRaw filterSpecRaw, Set<String> eventTypesReferenced, CreateContextValidationEnv validationEnv) throws ExprValidationException {
         validateNotTable(filterSpecRaw.getEventTypeName(), validationEnv.getServices());
         FilterStreamSpecRaw raw = new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
         StreamSpecCompiledDesc compiledDesc = StreamSpecCompiler.compile(raw, eventTypesReferenced, false, false, true, false, null, 0, validationEnv.getStatementRawInfo(), validationEnv.getServices());
@@ -450,7 +460,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                     allTags.add(filter.getOptionalFilterAsName());
                 }
                 validationEnv.getFilterSpecCompileds().add(compiled.getFilterSpecCompiled());
-                return new ContextDetailMatchPair(filter, matchEventSpec, allTags, compiledDesc.getAdditionalForgeables());
+                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(filter.getFilterSpecCompiled().getFilterForEventType(), validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver());
+                List<StmtClassForgeableFactory> allForgeables = Stream.concat(compiledDesc.getAdditionalForgeables().stream(), serdeForgeables.stream()).collect(Collectors.toList());
+                return new ContextDetailMatchPair(filter, matchEventSpec, allTags, allForgeables);
             }
 
             // compile as pattern if there are prior matches to consider, since this is a type of followed-by relationship
@@ -487,9 +499,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         private final ContextSpecCondition condition;
         private final MatchEventSpec matches;
         private final Set<String> allTags;
-        private final List<StmtClassForgableFactory> additionalForgeables;
+        private final List<StmtClassForgeableFactory> additionalForgeables;
 
-        public ContextDetailMatchPair(ContextSpecCondition condition, MatchEventSpec matches, Set<String> allTags, List<StmtClassForgableFactory> additionalForgeables) {
+        public ContextDetailMatchPair(ContextSpecCondition condition, MatchEventSpec matches, Set<String> allTags, List<StmtClassForgeableFactory> additionalForgeables) {
             this.condition = condition;
             this.matches = matches;
             this.allTags = allTags;
@@ -508,7 +520,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             return allTags;
         }
 
-        public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        public List<StmtClassForgeableFactory> getAdditionalForgeables() {
             return additionalForgeables;
         }
     }
@@ -516,9 +528,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
     private static class PatternValidatedDesc {
         private final MatchEventSpec matchEventSpec;
         private final Set<String> allTags;
-        private final List<StmtClassForgableFactory> additionalForgeables;
+        private final List<StmtClassForgeableFactory> additionalForgeables;
 
-        public PatternValidatedDesc(MatchEventSpec matchEventSpec, Set<String> allTags, List<StmtClassForgableFactory> additionalForgeables) {
+        public PatternValidatedDesc(MatchEventSpec matchEventSpec, Set<String> allTags, List<StmtClassForgeableFactory> additionalForgeables) {
             this.matchEventSpec = matchEventSpec;
             this.allTags = allTags;
             this.additionalForgeables = additionalForgeables;
@@ -532,7 +544,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             return allTags;
         }
 
-        public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        public List<StmtClassForgeableFactory> getAdditionalForgeables() {
             return additionalForgeables;
         }
     }

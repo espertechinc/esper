@@ -17,7 +17,8 @@ import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.IntoTableSpec;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.groupall.AggregationServiceGroupAllForge;
 import com.espertech.esper.common.internal.epl.agg.groupby.*;
@@ -40,6 +41,7 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
@@ -60,7 +62,7 @@ public class AggregationServiceFactoryFactory {
                                                          Map<ExprNode, String> selectClauseNamedNodes,
                                                          List<ExprDeclaredNode> declaredExpressions,
                                                          ExprNode[] groupByNodes,
-                                                         MultiKeyClassRef optionalGroupByMultiKey,
+                                                         MultiKeyClassRef groupByMultiKey,
                                                          List<ExprAggregateNode> havingAggregateExprNodes,
                                                          List<ExprAggregateNode> orderByAggregateExprNodes,
                                                          List<ExprAggregateNodeGroupKey> groupKeyExpressions,
@@ -79,7 +81,8 @@ public class AggregationServiceFactoryFactory {
                                                          boolean isFireAndForget,
                                                          boolean isOnSelect,
                                                          ClasspathImportServiceCompileTime classpathImportService,
-                                                         String statementName)
+                                                         StatementRawInfo raw,
+                                                         SerdeCompileTimeResolver serdeResolver)
             throws ExprValidationException {
         // No aggregates used, we do not need this service
         if ((selectAggregateExprNodes.isEmpty()) && (havingAggregateExprNodes.isEmpty())) {
@@ -149,7 +152,7 @@ public class AggregationServiceFactoryFactory {
             ExprTableNodeUtil.validateExpressions(intoTableSpec.getName(), groupByTypes, "group-by", groupByNodes, keyTypes, "group-by");
 
             // determine how this binds to existing aggregations, assign column numbers
-            BindingMatchResult bindingMatchResult = matchBindingsAssignColumnNumbers(intoTableSpec, metadata, aggregations, selectClauseNamedNodes, methodAggForgesList, declaredExpressions, classpathImportService, statementName, isFireAndForget);
+            BindingMatchResult bindingMatchResult = matchBindingsAssignColumnNumbers(intoTableSpec, metadata, aggregations, selectClauseNamedNodes, methodAggForgesList, declaredExpressions, classpathImportService, raw.getStatementName(), isFireAndForget);
 
             // return factory
             AggregationServiceFactoryForge serviceForge = new AggregationServiceFactoryForgeTable(metadata, bindingMatchResult.getMethodPairs(), bindingMatchResult.getTargetStates(), bindingMatchResult.getAgents(), groupByRollupDesc);
@@ -182,7 +185,7 @@ public class AggregationServiceFactoryFactory {
         }
 
         // handle access aggregations
-        AggregationMultiFunctionAnalysisResult multiFunctionAggPlan = AggregationMultiFunctionAnalysisHelper.analyzeAccessAggregations(aggregations, classpathImportService, isFireAndForget, statementName, groupByNodes);
+        AggregationMultiFunctionAnalysisResult multiFunctionAggPlan = AggregationMultiFunctionAnalysisHelper.analyzeAccessAggregations(aggregations, classpathImportService, isFireAndForget, raw.getStatementName(), groupByNodes);
         AggregationAccessorSlotPairForge[] accessorPairsForge = multiFunctionAggPlan.getAccessorPairsForge();
         AggregationStateFactoryForge[] accessFactories = multiFunctionAggPlan.getStateFactoryForges();
         boolean hasAccessAgg = accessorPairsForge.length > 0;
@@ -190,12 +193,12 @@ public class AggregationServiceFactoryFactory {
 
         AggregationServiceFactoryForge serviceForge;
         AggregationUseFlags useFlags = new AggregationUseFlags(isUnidirectional, isFireAndForget, isOnSelect);
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         // analyze local group by
         AggregationLocalGroupByPlanForge localGroupByPlan = null;
         if (localGroupDesc != null) {
-            AggregationLocalGroupByPlanDesc plan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggForges, methodAggFactories, accessFactories, localGroupDesc, groupByNodes, optionalGroupByMultiKey, accessorPairsForge, classpathImportService, isFireAndForget, statementName);
+            AggregationLocalGroupByPlanDesc plan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggForges, methodAggFactories, accessFactories, localGroupDesc, groupByNodes, groupByMultiKey, accessorPairsForge, raw, serdeResolver);
             localGroupByPlan = plan.getForge();
             additionalForgeables.addAll(plan.getAdditionalForgeables());
             try {
@@ -219,7 +222,7 @@ public class AggregationServiceFactoryFactory {
                 serviceForge = new AggregationServiceGroupAllForge(rowStateDesc);
             }
         } else {
-            AggGroupByDesc groupDesc = new AggGroupByDesc(rowStateDesc, isUnidirectional, isFireAndForget, isOnSelect, groupByNodes, optionalGroupByMultiKey);
+            AggGroupByDesc groupDesc = new AggGroupByDesc(rowStateDesc, isUnidirectional, isFireAndForget, isOnSelect, groupByNodes, groupByMultiKey);
             boolean hasNoReclaim = HintEnum.DISABLE_RECLAIM_GROUP.getHint(annotations) != null;
             Hint reclaimGroupAged = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             Hint reclaimGroupFrequency = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);

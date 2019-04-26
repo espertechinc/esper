@@ -125,6 +125,6 @@ public class TestFilterParamIndexNotRange extends TestCase {
     }
 
     private ExprFilterSpecLookupable makeLookupable(String fieldName) {
-        return new ExprFilterSpecLookupable(fieldName, testEventType.getGetter(fieldName), testEventType.getPropertyType(fieldName), false);
+        return new ExprFilterSpecLookupable(fieldName, testEventType.getGetter(fieldName), testEventType.getPropertyType(fieldName), false, null);
     }
 }

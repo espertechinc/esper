@@ -91,18 +91,18 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryCreateDataflowForge forge = new StatementAgentInstanceFactoryCreateDataflowForge(eventType, dataflowForge);
-        StmtClassForgableAIFactoryProviderCreateDataflow aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateDataflow(aiFactoryProviderClassName, packageScope, forge);
+        StmtClassForgeableAIFactoryProviderCreateDataflow aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateDataflow(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createDataFlowDesc.getGraphName());
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
-        StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
+        StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        forgables.add(aiFactoryForgable);
-        forgables.add(stmtProvider);
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 0));
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        forgeables.add(aiFactoryForgeable);
+        forgeables.add(stmtProvider);
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
 
         // compiled filter spec list
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
@@ -118,11 +118,11 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
 
         // add additional forgeables
         for (StmtForgeMethodResult additional : dataflowForge.getAdditionalForgeables()) {
-            forgables.addAll(0, additional.getForgeables());
+            forgeables.addAll(0, additional.getForgeables());
             scheduleds.addAll(additional.getScheduleds());
         }
 
-        return new StmtForgeMethodResult(forgables, filterSpecCompileds, scheduleds, namedWindowConsumers, filterBooleanExpr);
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleds, namedWindowConsumers, filterBooleanExpr);
     }
 
     private static DataflowDescForge buildForge(CreateDataFlowDesc desc, DataFlowOpForgeCodegenEnv codegenEnv, StatementBaseInfo base, StatementCompileTimeServices services) throws ExprValidationException {

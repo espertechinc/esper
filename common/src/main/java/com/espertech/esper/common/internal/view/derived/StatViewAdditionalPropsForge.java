@@ -19,6 +19,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNodeImpl
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprWildcard;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +35,13 @@ public class StatViewAdditionalPropsForge {
     private final String[] additionalProps;
     private final ExprNode[] additionalEvals;
     private final Class[] additionalTypes;
+    private final DataInputOutputSerdeForge[] additionalSerdes;
 
-    private StatViewAdditionalPropsForge(String[] additionalProps, ExprNode[] additionalEvals, Class[] additionalTypes) {
+    public StatViewAdditionalPropsForge(String[] additionalProps, ExprNode[] additionalEvals, Class[] additionalTypes, DataInputOutputSerdeForge[] additionalSerdes) {
         this.additionalProps = additionalProps;
         this.additionalEvals = additionalEvals;
         this.additionalTypes = additionalTypes;
+        this.additionalSerdes = additionalSerdes;
     }
 
     public String[] getAdditionalProps() {
@@ -52,7 +56,7 @@ public class StatViewAdditionalPropsForge {
         return additionalTypes;
     }
 
-    public static StatViewAdditionalPropsForge make(ExprNode[] validated, int startIndex, EventType parentEventType, int streamNumber) {
+    public static StatViewAdditionalPropsForge make(ExprNode[] validated, int startIndex, EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) {
         if (validated.length <= startIndex) {
             return null;
         }
@@ -60,6 +64,7 @@ public class StatViewAdditionalPropsForge {
         List<String> additionalProps = new ArrayList<String>();
         List<ExprNode> lastValueForges = new ArrayList<>();
         List<Class> lastValueTypes = new ArrayList<>();
+        List<DataInputOutputSerdeForge> lastSerdes = new ArrayList<>();
         boolean copyAllProperties = false;
 
         for (int i = startIndex; i < validated.length; i++) {
@@ -68,8 +73,10 @@ public class StatViewAdditionalPropsForge {
                 copyAllProperties = true;
             } else {
                 additionalProps.add(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(validated[i]));
-                lastValueTypes.add(validated[i].getForge().getEvaluationType());
+                Class evalType = validated[i].getForge().getEvaluationType();
+                lastValueTypes.add(evalType);
                 lastValueForges.add(validated[i]);
+                lastSerdes.add(viewForgeEnv.getSerdeResolver().serdeForDerivedViewAddProp(evalType, viewForgeEnv.getStatementRawInfo()));
             }
         }
 
@@ -82,13 +89,15 @@ public class StatViewAdditionalPropsForge {
                 Class type = propertyDescriptor.getPropertyType();
                 lastValueForges.add(new ExprIdentNodeImpl(parentEventType, propertyDescriptor.getPropertyName(), streamNumber));
                 lastValueTypes.add(type);
+                lastSerdes.add(viewForgeEnv.getSerdeResolver().serdeForDerivedViewAddProp(type, viewForgeEnv.getStatementRawInfo()));
             }
         }
 
         String[] addPropsArr = additionalProps.toArray(new String[additionalProps.size()]);
         ExprNode[] valueExprArr = lastValueForges.toArray(new ExprNode[lastValueForges.size()]);
         Class[] typeArr = lastValueTypes.toArray(new Class[lastValueTypes.size()]);
-        return new StatViewAdditionalPropsForge(addPropsArr, valueExprArr, typeArr);
+        DataInputOutputSerdeForge[] additionalForges = lastSerdes.toArray(new DataInputOutputSerdeForge[0]);
+        return new StatViewAdditionalPropsForge(addPropsArr, valueExprArr, typeArr, additionalForges);
     }
 
     public static void addCheckDupProperties(Map<String, Object> target, StatViewAdditionalPropsForge addProps, ViewFieldEnum... builtin) {
@@ -109,6 +118,7 @@ public class StatViewAdditionalPropsForge {
 
     public CodegenExpression codegen(CodegenMethod method, CodegenClassScope classScope) {
         return newInstance(StatViewAdditionalPropsEval.class, constant(additionalProps),
-                codegenEvaluators(additionalEvals, method, this.getClass(), classScope), constant(additionalTypes));
+                codegenEvaluators(additionalEvals, method, this.getClass(), classScope), constant(additionalTypes),
+                DataInputOutputSerdeForge.codegenArray(additionalSerdes, method, classScope, null));
     }
 }

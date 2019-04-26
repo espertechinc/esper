@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.compile.stage2.FilterStreamSpecCompil
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.activator.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -39,7 +39,7 @@ public class SubSelectHelperActivations {
     public static SubSelectActivationDesc createSubSelectActivation(List<FilterSpecCompiled> filterSpecCompileds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, StatementBaseInfo statement, StatementCompileTimeServices services)
             throws ExprValidationException {
         Map<ExprSubselectNode, SubSelectActivationPlan> result = new LinkedHashMap<>();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
 
         // Process all subselect expression nodes
         for (ExprSubselectNode subselect : statement.getStatementSpec().getSubselectNodes()) {

@@ -14,8 +14,10 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
@@ -53,8 +55,13 @@ public class RegressionLinestViewForge extends ViewFactoryForgeBase {
         expressionX = validated[0];
         expressionY = validated[1];
 
-        additionalProps = StatViewAdditionalPropsForge.make(validated, 2, parentEventType, streamNumber);
+        additionalProps = StatViewAdditionalPropsForge.make(validated, 2, parentEventType, streamNumber, viewForgeEnv);
         eventType = RegressionLinestView.createEventType(additionalProps, viewForgeEnv, streamNumber);
+    }
+
+    @Override
+    public List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
+        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
     }
 
     public Class typeOfFactory() {

@@ -137,7 +137,7 @@ public class RowRecogDescForge {
             .exprDotMethod(desc, "setMultimatchVariableToStreamNum", constant(multimatchVariableToStreamNum))
             .exprDotMethod(desc, "setPartitionEvalMayNull", MultiKeyCodegen.codegenExprEvaluatorMayMultikey(partitionBy, null, partitionByMultiKey, method, classScope))
             .exprDotMethod(desc, "setPartitionEvalTypes", partitionBy == null ? constantNull() : constant(ExprNodeUtilityQuery.getExprResultTypes(partitionBy)))
-            .exprDotMethod(desc, "setPartitionEvalSerde", partitionBy == null ? constantNull() : MultiKeyCodegen.codegenOptionalSerde(partitionByMultiKey))
+            .exprDotMethod(desc, "setPartitionEvalSerde", partitionBy == null ? constantNull() : partitionByMultiKey.getExprMKSerde(method, classScope))
             .exprDotMethod(desc, "setVariableStreams", makeVariableStreams(method, symbols, classScope))
             .exprDotMethod(desc, "setHasInterval", constant(hasInterval))
             .exprDotMethod(desc, "setIterateOnly", constant(iterateOnly))

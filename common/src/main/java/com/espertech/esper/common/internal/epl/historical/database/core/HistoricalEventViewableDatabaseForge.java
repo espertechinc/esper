@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
@@ -48,7 +48,7 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
         this.outputTypes = outputTypes;
     }
 
-    public List<StmtClassForgableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
+    public List<StmtClassForgeableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
         throws ExprValidationException {
 
         int count = 0;
@@ -75,10 +75,10 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
         this.inputParamEvaluators = ExprNodeUtilityQuery.getForges(inputParamNodes);
 
         // plan multikey
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false);
-        this.multiKeyClassRef = multiKeyPlan.getOptionalClassRef();
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false, base.getStatementRawInfo(), services.getSerdeResolver());
+        this.multiKeyClassRef = multiKeyPlan.getClassRef();
 
-        return multiKeyPlan.getMultiKeyForgables();
+        return multiKeyPlan.getMultiKeyForgeables();
     }
 
     public Class typeOfImplementation() {

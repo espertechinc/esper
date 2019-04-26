@@ -16,13 +16,14 @@ import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldName;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldNameSubqueryAgg;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRefWSerde;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryFactory;
@@ -62,6 +63,7 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
@@ -89,7 +91,7 @@ public class SubSelectHelperForgePlanner {
 
         ExprDeclaredNode[] declaredExpressions = statement.getStatementSpec().getDeclaredExpressions();
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = new LinkedHashMap<>();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         Map<ExprDeclaredNode, List<ExprDeclaredNode>> declaredExpressionCallHierarchy = null;
         if (declaredExpressions.length > 0) {
@@ -296,7 +298,7 @@ public class SubSelectHelperForgePlanner {
         AggregationServiceForgeDesc aggregationServiceForgeDesc = null;
         ExprNode[] groupByNodes = null;
         MultiKeyPlan groupByMultikeyPlan = null;
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         if (aggExprNodesSelect.size() > 0 || aggExpressionNodesHaving.size() > 0) {
             GroupByClauseExpressions groupBy = subselectSpec.getGroupByExpressions();
             if (groupBy != null && groupBy.getGroupByRollupLevels() != null) {
@@ -332,8 +334,8 @@ public class SubSelectHelperForgePlanner {
                 }
 
                 // Plan multikey
-                groupByMultikeyPlan = MultiKeyPlanner.planMultiKey(groupByNodes, false);
-                additionalForgeables.addAll(groupByMultikeyPlan.getMultiKeyForgables());
+                groupByMultikeyPlan = MultiKeyPlanner.planMultiKey(groupByNodes, false, statement.getStatementRawInfo(), services.getSerdeResolver());
+                additionalForgeables.addAll(groupByMultikeyPlan.getMultiKeyForgeables());
             }
 
             // Other stream properties, if there is aggregation, cannot be under aggregation.
@@ -374,10 +376,10 @@ public class SubSelectHelperForgePlanner {
             }
 
             aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.emptyMap(),
-                    Collections.emptyList(), groupByExpressions, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getOptionalClassRef(), aggExpressionNodesHaving, Collections.emptyList(),
+                    Collections.emptyList(), groupByExpressions, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef(), aggExpressionNodesHaving, Collections.emptyList(),
                     groupKeyExpressions, hasGroupBy, annotations, services.getVariableCompileTimeResolver(), true, subselectSpec.getRaw().getWhereClause(), subselectSpec.getRaw().getHavingClause(),
                     subselectTypeService.getEventTypes(), null, subselectSpec.getRaw().getOptionalContextName(), null, null, false, false, false,
-                    services.getClasspathImportServiceCompileTime(), statement.getStatementName());
+                    services.getClasspathImportServiceCompileTime(), statement.getStatementRawInfo(), services.getSerdeResolver());
             additionalForgeables.addAll(aggregationServiceForgeDesc.getAdditionalForgeables());
 
             // assign select-clause
@@ -525,7 +527,7 @@ public class SubSelectHelperForgePlanner {
 
         SubSelectStrategyFactoryForge strategyForge = new SubSelectStrategyFactoryLocalViewPreloadedForge(viewForges, viewResourceDelegateDesc, indexPair,
                 filterExpr, correlatedSubquery, aggregationServiceForgeDesc,  /* viewResourceDelegateVerified */ subqueryNum, groupByNodes, namedWindow,
-                namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getOptionalClassRef());
+                namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
 
         SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
         return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
@@ -671,27 +673,34 @@ public class SubSelectHelperForgePlanner {
         EventTableFactoryFactoryForge eventTableFactory;
         CoercionDesc hashCoercionDesc;
         CoercionDesc rangeCoercionDesc;
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         MultiKeyClassRef hashMultikeyClasses = null;
         if (hashKeys.size() != 0 && rangeKeys.isEmpty()) {
             String[] indexedProps = hashKeys.keySet().toArray(new String[hashKeys.keySet().size()]);
             hashCoercionDesc = CoercionUtil.getCoercionTypesHash(viewableEventType, indexedProps, hashKeyList);
             rangeCoercionDesc = new CoercionDesc(false, null);
-            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashCoercionDesc.getCoercionTypes(), false);
-            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
-            hashMultikeyClasses = multiKeyPlan.getOptionalClassRef();
-            eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, indexedProps, viewableEventType, unique, hashCoercionDesc, multiKeyPlan.getOptionalClassRef());
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashCoercionDesc.getCoercionTypes(), false, statement.getStatementRawInfo(), services.getSerdeResolver());
+            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
+            hashMultikeyClasses = multiKeyPlan.getClassRef();
+            eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, indexedProps, viewableEventType, unique, hashCoercionDesc, multiKeyPlan.getClassRef());
         } else if (hashKeys.isEmpty() && rangeKeys.isEmpty()) {
             rangeCoercionDesc = new CoercionDesc(false, null);
             if (joinPropDesc.getInKeywordSingleIndex() != null) {
                 String prop = joinPropDesc.getInKeywordSingleIndex().getIndexedProp();
-                hashCoercionDesc = new CoercionDesc(false, new Class[]{viewableEventType.getPropertyType(prop)});
-                eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, new String[]{prop}, viewableEventType, unique, hashCoercionDesc, null);
+                Class[] propTypes = new Class[]{viewableEventType.getPropertyType(prop)};
+                hashCoercionDesc = new CoercionDesc(false, propTypes);
+                DataInputOutputSerdeForge serdeForge = services.getSerdeResolver().serdeForIndexHashNonArray(propTypes[0], statement.getStatementRawInfo());
+                hashMultikeyClasses = new MultiKeyClassRefWSerde(serdeForge, propTypes);
+                eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, new String[]{prop}, viewableEventType, unique, hashCoercionDesc, hashMultikeyClasses);
                 inKeywordSingleIdxKeys = joinPropDesc.getInKeywordSingleIndex().getExpressions();
             } else if (joinPropDesc.getInKeywordMultiIndex() != null) {
                 String[] props = joinPropDesc.getInKeywordMultiIndex().getIndexedProp();
                 hashCoercionDesc = new CoercionDesc(false, EventTypeUtility.getPropertyTypes(viewableEventType, props));
-                eventTableFactory = new PropertyHashedArrayFactoryFactoryForge(0, viewableEventType, props, unique, false);
+                DataInputOutputSerdeForge[] serdes = new DataInputOutputSerdeForge[hashCoercionDesc.getCoercionTypes().length];
+                for (int i = 0; i < hashCoercionDesc.getCoercionTypes().length; i++) {
+                    serdes[i] = services.getSerdeResolver().serdeForIndexHashNonArray(hashCoercionDesc.getCoercionTypes()[i], statement.getStatementRawInfo());
+                }
+                eventTableFactory = new PropertyHashedArrayFactoryFactoryForge(0, viewableEventType, props, hashCoercionDesc.getCoercionTypes(), serdes, unique, false);
                 inKeywordMultiIdxKey = joinPropDesc.getInKeywordMultiIndex().getExpression();
             } else {
                 hashCoercionDesc = new CoercionDesc(false, null);
@@ -700,18 +709,23 @@ public class SubSelectHelperForgePlanner {
         } else if (hashKeys.isEmpty() && rangeKeys.size() == 1) {
             String indexedProp = rangeKeys.keySet().iterator().next();
             CoercionDesc coercionRangeTypes = CoercionUtil.getCoercionTypesRange(viewableEventType, rangeKeys, outerEventTypes);
-            eventTableFactory = new PropertySortedFactoryFactoryForge(0, subqueryNumber, false, indexedProp, viewableEventType, coercionRangeTypes);
+            DataInputOutputSerdeForge serde = services.getSerdeResolver().serdeForIndexBtree(coercionRangeTypes.getCoercionTypes()[0], statement.getStatementRawInfo());
+            eventTableFactory = new PropertySortedFactoryFactoryForge(0, subqueryNumber, false, indexedProp, viewableEventType, coercionRangeTypes, serde);
             hashCoercionDesc = new CoercionDesc(false, null);
             rangeCoercionDesc = coercionRangeTypes;
         } else {
             String[] indexedKeyProps = hashKeys.keySet().toArray(new String[hashKeys.keySet().size()]);
             Class[] coercionKeyTypes = SubordPropUtil.getCoercionTypes(hashKeys.values());
-            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(coercionKeyTypes, false);
-            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
-            hashMultikeyClasses = multiKeyPlan.getOptionalClassRef();
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(coercionKeyTypes, false, statement.getStatementRawInfo(), services.getSerdeResolver());
+            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
+            hashMultikeyClasses = multiKeyPlan.getClassRef();
             String[] indexedRangeProps = rangeKeys.keySet().toArray(new String[rangeKeys.keySet().size()]);
             CoercionDesc coercionRangeTypes = CoercionUtil.getCoercionTypesRange(viewableEventType, rangeKeys, outerEventTypes);
-            eventTableFactory = new PropertyCompositeEventTableFactoryFactoryForge(0, subqueryNumber, false, indexedKeyProps, coercionKeyTypes, hashMultikeyClasses, indexedRangeProps, coercionRangeTypes.getCoercionTypes(), viewableEventType);
+            DataInputOutputSerdeForge[] rangeSerdes = new DataInputOutputSerdeForge[coercionRangeTypes.getCoercionTypes().length];
+            for (int i = 0; i < coercionRangeTypes.getCoercionTypes().length; i++) {
+                rangeSerdes[i] = services.getSerdeResolver().serdeForIndexBtree(coercionRangeTypes.getCoercionTypes()[i], statement.getStatementRawInfo());
+            }
+            eventTableFactory = new PropertyCompositeEventTableFactoryFactoryForge(0, subqueryNumber, false, indexedKeyProps, coercionKeyTypes, hashMultikeyClasses, indexedRangeProps, coercionRangeTypes.getCoercionTypes(), rangeSerdes, viewableEventType);
             hashCoercionDesc = CoercionUtil.getCoercionTypesHash(viewableEventType, indexedKeyProps, hashKeyList);
             rangeCoercionDesc = coercionRangeTypes;
         }

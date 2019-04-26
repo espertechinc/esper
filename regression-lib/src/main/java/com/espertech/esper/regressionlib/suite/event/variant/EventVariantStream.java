@@ -48,7 +48,31 @@ public class EventVariantStream {
         execs.add(new EventVariantInsertWrap());
         execs.add(new EventVariantSingleStreamWrap());
         execs.add(new EventVariantWildcardJoin());
+        execs.add(new EventVariantWithLateCreateSchema());
         return execs;
+    }
+
+    private static class EventVariantWithLateCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("create variant schema MyVariants as *", path);
+            env.compileDeploy("@name('out') select * from MyVariants#length(10)", path);
+            env.compileDeploy("@public @buseventtype create map schema SomeEventOne as (id string)", path);
+            env.compileDeploy("@public @buseventtype create objectarray schema SomeEventTwo as (id string)", path);
+            env.compileDeploy("insert into MyVariants select * from SomeEventOne", path);
+            env.compileDeploy("insert into MyVariants select * from SomeEventTwo", path);
+
+            env.sendEventMap(Collections.singletonMap("id", "E1"), "SomeEventOne");
+            env.sendEventObjectArray(new Object[] {"E2"}, "SomeEventTwo");
+            env.sendEventMap(Collections.singletonMap("id", "E3"), "SomeEventOne");
+            env.sendEventObjectArray(new Object[] {"E4"}, "SomeEventTwo");
+
+            env.milestone(0);
+
+            EPAssertionUtil.assertPropsPerRow(env.iterator("out"), "id".split(","), new Object[][] {{"E1"}, {"E2"}, {"E3"}, {"E4"}});
+
+            env.undeployAll();
+        }
     }
 
     private static class EventVariantWildcardJoin implements RegressionExecution {

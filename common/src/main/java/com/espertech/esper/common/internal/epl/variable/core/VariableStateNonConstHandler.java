@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
-import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.util.NullableObject;
 
@@ -20,8 +19,6 @@ import java.util.Set;
  * Interface for a plug-in to {@link VariableManagementService} to handle variable persistent state.
  */
 public interface VariableStateNonConstHandler {
-    DataInputOutputSerde getVariableSerde(String deploymentId, VariableMetaData metaData);
-
     void addVariable(String deploymentId, String variableName, Variable variable, DataInputOutputSerde serde);
 
     /**

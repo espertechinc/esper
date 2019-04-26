@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
-import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.variable.VariableValueException;
@@ -252,16 +251,7 @@ public class VariableManagementServiceImpl implements VariableManagementService 
         }
     }
 
-    public synchronized void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext) {
-
-        DataInputOutputSerde optionalSerde = null;
-        if (optionalStateHandler != null && !metaData.isConstant()) {
-            try {
-                optionalSerde = optionalStateHandler.getVariableSerde(deploymentId, metaData);
-            } catch (Throwable t) {
-                throw new EPException("Failed to determine serde for variable '" + metaData.getVariableName() + "': " + t.getMessage(), t);
-            }
-        }
+    public synchronized void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext, DataInputOutputSerde<Object> optionalSerde) {
 
         // check if already exists
         VariableDeployment deploymentEntry = deploymentsWithVariables.get(deploymentId);
@@ -503,8 +493,8 @@ public class VariableManagementServiceImpl implements VariableManagementService 
         if (variable.getMetaData().getEventType() != null) {
             if (!JavaClassHelper.isSubclassOrImplementsInterface(newValue.getClass(), variable.getMetaData().getEventType().getUnderlyingType())) {
                 throw new VariableValueException("Variable '" + variableName
-                        + "' of declared event type '" + variable.getMetaData().getEventType().getName() + "' underlying type '" + variable.getMetaData().getEventType().getUnderlyingType().getName() +
-                        "' cannot be assigned a value of type '" + valueType.getName() + "'");
+                    + "' of declared event type '" + variable.getMetaData().getEventType().getName() + "' underlying type '" + variable.getMetaData().getEventType().getUnderlyingType().getName() +
+                    "' cannot be assigned a value of type '" + valueType.getName() + "'");
             }
             EventBean eventBean = eventBeanTypedEventFactory.adapterForTypedBean(newValue, variable.getMetaData().getEventType());
             write(variableNumber, agentInstanceId, eventBean);
@@ -523,7 +513,7 @@ public class VariableManagementServiceImpl implements VariableManagementService 
         }
 
         if ((!JavaClassHelper.isNumeric(variableType)) ||
-                (!JavaClassHelper.isNumeric(valueType))) {
+            (!JavaClassHelper.isNumeric(valueType))) {
             throw new VariableValueException(VariableUtil.getAssigmentExMessage(variableName, variableType, valueType));
         }
 

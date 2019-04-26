@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
 
@@ -82,13 +82,13 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
         }
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, boolean isGenerateSynthetic) {
         generateRemoveStreamJustOnce(isGenerateSynthetic, true);
 
         // apply to aggregates
         Object[] groupKeysPerLevel = new Object[processor.getGroupByRollupDesc().getLevels().length];
         if (newEvents != null) {
-            for (MultiKey<EventBean> newEvent : newEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> newEvent : newEvents) {
                 EventBean[] aNewData = newEvent.getArray();
                 Object groupKeyComplete = processor.generateGroupKeySingle(aNewData, true);
                 for (AggregationGroupByRollupLevel level : processor.getGroupByRollupDesc().getLevels()) {
@@ -104,7 +104,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
             }
         }
         if (oldEvents != null) {
-            for (MultiKey<EventBean> oldEvent : oldEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> oldEvent : oldEvents) {
                 EventBean[] aOldData = oldEvent.getArray();
                 Object groupKeyComplete = processor.generateGroupKeySingle(aOldData, false);
                 for (AggregationGroupByRollupLevel level : processor.getGroupByRollupDesc().getLevels()) {

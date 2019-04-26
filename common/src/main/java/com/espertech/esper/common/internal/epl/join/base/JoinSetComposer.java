@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableVisitor;
@@ -45,7 +45,7 @@ public interface JoinSetComposer {
      * @param exprEvaluatorContext expression evaluation context
      * @return join tuples
      */
-    UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext);
+    UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * For use in iteration over join statements, this must build a join tuple result set from
@@ -53,7 +53,7 @@ public interface JoinSetComposer {
      *
      * @return static join result
      */
-    Set<MultiKey<EventBean>> staticJoin();
+    Set<MultiKeyArrayOfKeys<EventBean>> staticJoin();
 
     /**
      * Destroy stateful index tables, if any.

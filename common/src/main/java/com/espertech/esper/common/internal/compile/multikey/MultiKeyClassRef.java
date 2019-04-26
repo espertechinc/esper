@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.common.internal.compile.multikey;
 
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 public interface MultiKeyClassRef {
     String getClassNameMK();
     Class[] getMKTypes();
-    CodegenExpression getExprMKSerde();
+    CodegenExpression getExprMKSerde(CodegenMethod method, CodegenClassScope classScope);
 }

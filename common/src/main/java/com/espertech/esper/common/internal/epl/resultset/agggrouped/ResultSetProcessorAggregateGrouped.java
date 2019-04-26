@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.agggrouped;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowRemovedCallback;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
@@ -38,7 +38,7 @@ public interface ResultSetProcessorAggregateGrouped extends ResultSetProcessor, 
 
     Object generateGroupKeySingle(EventBean[] eventsPerStream, boolean isNewData);
 
-    Object[] generateGroupKeyArrayJoin(Set<MultiKey<EventBean>> newData, boolean isNewData);
+    Object[] generateGroupKeyArrayJoin(Set<MultiKeyArrayOfKeys<EventBean>> newData, boolean isNewData);
 
     Object[] generateGroupKeyArrayView(EventBean[] oldData, boolean isNewData);
 
@@ -46,9 +46,9 @@ public interface ResultSetProcessorAggregateGrouped extends ResultSetProcessor, 
 
     void generateOutputBatchedViewUnkeyed(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys, EventBean[] eventsPerStream);
 
-    void generateOutputBatchedJoinUnkeyed(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys);
+    void generateOutputBatchedJoinUnkeyed(Set<MultiKeyArrayOfKeys<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys);
 
     void generateOutputBatchedViewPerKey(EventBean[] oldData, Object[] oldDataMultiKey, boolean isNewData, boolean isGenerateSynthetic, Map<Object, EventBean> outputLastUnordGroupOld, Map<Object, Object> optSortKeys, EventBean[] eventsPerStream);
 
-    void generateOutputBatchedJoinPerKey(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents, Map<Object, Object> optSortKeys);
+    void generateOutputBatchedJoinPerKey(Set<MultiKeyArrayOfKeys<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents, Map<Object, Object> optSortKeys);
 }

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.context.controller.keyed;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatable;
 
@@ -22,7 +22,7 @@ public class ContextControllerDetailKeyedItem {
     private String optionalInitConditionAsName;
     private ExprFilterSpecLookupable[] lookupables;
     private Class[] propertyTypes;
-    private MultiKeyGeneratedSerde optionalMultikeySerde;
+    private DataInputOutputSerde<Object> keySerde;
     private String aliasName;
 
     public EventPropertyValueGetter getGetter() {
@@ -73,11 +73,11 @@ public class ContextControllerDetailKeyedItem {
         this.aliasName = aliasName;
     }
 
-    public MultiKeyGeneratedSerde getOptionalMultikeySerde() {
-        return optionalMultikeySerde;
+    public DataInputOutputSerde<Object> getKeySerde() {
+        return keySerde;
     }
 
-    public void setOptionalMultikeySerde(MultiKeyGeneratedSerde optionalMultikeySerde) {
-        this.optionalMultikeySerde = optionalMultikeySerde;
+    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+        this.keySerde = keySerde;
     }
 }

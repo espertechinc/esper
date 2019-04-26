@@ -21,7 +21,7 @@ public class CodeGenerationIDGenerator {
 
     public static String generateClassNameWithUUID(Class interfaceClass, String postfix, String uuid) {
         StringWriter writer = new StringWriter();
-        writer.append(interfaceClass.getSimpleName()).append("_").append(postfix).append("_").append(uuid);
+        writer.append(interfaceClass.getSimpleName()).append("_").append(postfix.replace("(", "_").replace(")", "_")).append("_").append(uuid);
         return writer.toString();
     }
 

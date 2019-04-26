@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.epl.expression.agg.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 
 public class SortedAggregationStateDesc {
@@ -22,6 +23,7 @@ public class SortedAggregationStateDesc {
     private final ClasspathImportServiceCompileTime classpathImportService;
     private final ExprNode[] criteria;
     private final Class[] criteriaTypes;
+    private final DataInputOutputSerdeForge[] criteriaSerdes;
     private final boolean[] sortDescending;
     private final boolean ever;
     private final int streamNum;
@@ -29,11 +31,12 @@ public class SortedAggregationStateDesc {
     private final ExprForge optionalFilter;
     private final EventType streamEventType;
 
-    public SortedAggregationStateDesc(boolean max, ClasspathImportServiceCompileTime classpathImportService, ExprNode[] criteria, Class[] criteriaTypes, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprForge optionalFilter, EventType streamEventType) {
+    public SortedAggregationStateDesc(boolean max, ClasspathImportServiceCompileTime classpathImportService, ExprNode[] criteria, Class[] criteriaTypes, DataInputOutputSerdeForge[] criteriaSerdes, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent, ExprForge optionalFilter, EventType streamEventType) {
         this.max = max;
         this.classpathImportService = classpathImportService;
         this.criteria = criteria;
         this.criteriaTypes = criteriaTypes;
+        this.criteriaSerdes = criteriaSerdes;
         this.sortDescending = sortDescending;
         this.ever = ever;
         this.streamNum = streamNum;
@@ -84,5 +87,9 @@ public class SortedAggregationStateDesc {
 
     public Class[] getCriteriaTypes() {
         return criteriaTypes;
+    }
+
+    public DataInputOutputSerdeForge[] getCriteriaSerdes() {
+        return criteriaSerdes;
     }
 }

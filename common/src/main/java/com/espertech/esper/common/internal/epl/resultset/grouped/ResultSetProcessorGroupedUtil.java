@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -80,12 +80,12 @@ public class ResultSetProcessorGroupedUtil {
      * @param oldEvents            old data
      * @param oldDataMultiKey      old data keys
      */
-    public static void applyAggJoinResultKeyedJoin(AggregationService aggregationService, AgentInstanceContext agentInstanceContext, Set<MultiKey<EventBean>> newEvents, Object[] newDataMultiKey, Set<MultiKey<EventBean>> oldEvents, Object[] oldDataMultiKey) {
+    public static void applyAggJoinResultKeyedJoin(AggregationService aggregationService, AgentInstanceContext agentInstanceContext, Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Object[] newDataMultiKey, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, Object[] oldDataMultiKey) {
         // update aggregates
         if (!newEvents.isEmpty()) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> eventsPerStream : newEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> eventsPerStream : newEvents) {
                 aggregationService.applyEnter(eventsPerStream.getArray(), newDataMultiKey[count], agentInstanceContext);
                 count++;
             }
@@ -93,7 +93,7 @@ public class ResultSetProcessorGroupedUtil {
         if (oldEvents != null && !oldEvents.isEmpty()) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> eventsPerStream : oldEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> eventsPerStream : oldEvents) {
                 aggregationService.applyLeave(eventsPerStream.getArray(), oldDataMultiKey[count], agentInstanceContext);
                 count++;
             }
@@ -108,7 +108,7 @@ public class ResultSetProcessorGroupedUtil {
             }
             methodNode.getBlock().apply(instblock(classScope, "qResultSetProcessComputeGroupKeys", REF_ISNEWDATA, constant(expressions), REF_EPS));
 
-            if (optionalMultiKeyClasses != null) {
+            if (optionalMultiKeyClasses != null && optionalMultiKeyClasses.getClassNameMK() != null) {
                 CodegenMethod method = MultiKeyCodegen.codegenMethod(groupKeyExpressions, optionalMultiKeyClasses, methodNode, classScope);
                 methodNode.getBlock()
                     .declareVar(Object.class, "key", localMethod(method, REF_EPS, REF_ISNEWDATA, REF_AGENTINSTANCECONTEXT))
@@ -151,7 +151,7 @@ public class ResultSetProcessorGroupedUtil {
             method.getBlock().ifCondition(exprDotMethod(ref("resultSet"), "isEmpty")).blockReturn(constantNull())
                     .declareVar(Object[].class, "keys", newArrayByLength(Object.class, exprDotMethod(ref("resultSet"), "size")))
                     .declareVar(int.class, "count", constant(0))
-                    .forEach(MultiKey.class, "eventsPerStream", ref("resultSet"))
+                    .forEach(MultiKeyArrayOfKeys.class, "eventsPerStream", ref("resultSet"))
                     .assignArrayElement("keys", ref("count"), localMethod(generateGroupKeySingle, cast(EventBean[].class, exprDotMethod(ref("eventsPerStream"), "getArray")), REF_ISNEWDATA))
                     .increment("count")
                     .blockEnd()

@@ -35,7 +35,7 @@ public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookup
     private final String indexType;
 
     public FilterSpecLookupableAdvancedIndexForge(String expression, EventPropertyGetterSPI getter, Class returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetterSPI x, EventPropertyGetterSPI y, EventPropertyGetterSPI width, EventPropertyGetterSPI height, String indexType) {
-        super(expression, getter, returnType, true);
+        super(expression, getter, returnType, true, null);
         this.quadTreeConfig = quadTreeConfig;
         this.x = x;
         this.y = y;

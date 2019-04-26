@@ -17,6 +17,9 @@ public class TableSerdes {
     private final DataInputOutputSerde aggregations;
 
     public TableSerdes(DataInputOutputSerde[] column, DataInputOutputSerde aggregations) {
+        if (column == null || aggregations == null) {
+            throw new IllegalArgumentException("Expected serdes not received");
+        }
         this.column = column;
         this.aggregations = aggregations;
     }

@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.PropertyEvalSpec;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForge;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -103,7 +103,7 @@ public final class FilterSpecCompiler {
                                                        StatementCompileTimeServices services)
             throws ExprValidationException {
         List<ExprNode> validatedNodes = new ArrayList<ExprNode>();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, statementRawInfo, services)
                 .withAllowBindingConsumption(true).withIsFilterExpression(true).build();
@@ -118,7 +118,7 @@ public final class FilterSpecCompiler {
                 // The outer event type is the filtered-type itself
                 for (ExprSubselectNode subselect : visitor.getSubselects()) {
                     try {
-                        List<StmtClassForgableFactory> subselectAdditionalForgeables = SubSelectHelperFilters.handleSubselectSelectClauses(subselect,
+                        List<StmtClassForgeableFactory> subselectAdditionalForgeables = SubSelectHelperFilters.handleSubselectSelectClauses(subselect,
                                 streamTypeService.getEventTypes()[0], streamTypeService.getStreamNames()[0], streamTypeService.getStreamNames()[0],
                                 taggedEventTypes, arrayEventTypes, statementRawInfo, services);
                         additionalForgeables.addAll(subselectAdditionalForgeables);

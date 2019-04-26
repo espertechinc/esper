@@ -24,7 +24,7 @@ import com.espertech.esper.common.internal.collection.ArrayEventIterator;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeEventTyped;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.*;
@@ -34,7 +34,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GE;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.LINKEDHASHMAPEVENTSANDINT;
+import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.LINKEDHASHMAPEVENTSANDINT;
 import static com.espertech.esper.common.internal.util.CollectionUtil.METHOD_TOARRAYEVENTS;
 
 /**

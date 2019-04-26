@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.index.composite;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactory;
@@ -24,28 +24,30 @@ public class PropertyCompositeEventTableFactoryFactory implements EventTableFact
     private final String[] keyProps;
     private final Class[] keyTypes;
     private final EventPropertyValueGetter keyGetter;
-    private final MultiKeyGeneratedSerde optionalMultiKeySerde;
+    private final DataInputOutputSerde<Object> keySerde;
     private final String[] rangeProps;
     private final Class[] rangeTypes;
     private final EventPropertyValueGetter[] rangeGetters;
+    private final DataInputOutputSerde<Object>[] rangeKeySerdes;
 
-    public PropertyCompositeEventTableFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] keyProps, Class[] keyTypes, EventPropertyValueGetter keyGetter, MultiKeyGeneratedSerde optionalMultiKeySerde, String[] rangeProps, Class[] rangeTypes, EventPropertyValueGetter[] rangeGetters) {
+    public PropertyCompositeEventTableFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] keyProps, Class[] keyTypes, EventPropertyValueGetter keyGetter, DataInputOutputSerde<Object> keySerde, String[] rangeProps, Class[] rangeTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeKeySerdes) {
         this.indexedStreamNum = indexedStreamNum;
         this.subqueryNum = subqueryNum;
         this.isFireAndForget = isFireAndForget;
         this.keyProps = keyProps;
         this.keyTypes = keyTypes;
         this.keyGetter = keyGetter;
-        this.optionalMultiKeySerde = optionalMultiKeySerde;
+        this.keySerde = keySerde;
         this.rangeProps = rangeProps;
         this.rangeTypes = rangeTypes;
         this.rangeGetters = rangeGetters;
+        this.rangeKeySerdes = rangeKeySerdes;
     }
 
     public EventTableFactory create(EventType eventType, StatementContext statementContext) {
         return statementContext.getEventTableIndexService().createComposite(indexedStreamNum, eventType,
-                keyProps, keyTypes, keyGetter, null, optionalMultiKeySerde,
-                rangeProps, rangeTypes, rangeGetters,
+                keyProps, keyTypes, keyGetter, null, keySerde,
+                rangeProps, rangeTypes, rangeGetters, rangeKeySerdes,
                 null, isFireAndForget);
     }
 }

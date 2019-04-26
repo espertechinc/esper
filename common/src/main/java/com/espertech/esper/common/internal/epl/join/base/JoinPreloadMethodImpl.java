@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.view.util.BufferView;
@@ -57,8 +57,8 @@ public class JoinPreloadMethodImpl implements JoinPreloadMethod {
     }
 
     public void preloadAggregation(ResultSetProcessor resultSetProcessor) {
-        Set<MultiKey<EventBean>> newEvents = joinSetComposer.staticJoin();
-        Set<MultiKey<EventBean>> oldEvents = new HashSet<MultiKey<EventBean>>();
+        Set<MultiKeyArrayOfKeys<EventBean>> newEvents = joinSetComposer.staticJoin();
+        Set<MultiKeyArrayOfKeys<EventBean>> oldEvents = new HashSet<MultiKeyArrayOfKeys<EventBean>>();
         resultSetProcessor.processJoinResult(newEvents, oldEvents, false);
     }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.runtime.internal.kernel.statement;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
@@ -47,7 +48,6 @@ import com.espertech.esper.common.internal.filterspec.FilterSharedLookupableRegi
 import com.espertech.esper.common.internal.filterspec.FilterSpecActivatableRegistry;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.schedule.TimeSourceService;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeProvider;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
@@ -178,10 +178,6 @@ public class EPStatementInitServicesImpl implements EPStatementInitServices {
         return servicesContext.getContextManagementService();
     }
 
-    public DataInputOutputSerdeProvider getDataInputOutputSerdeProvider() {
-        return servicesContext.getDataInputOutputSerdeProvider();
-    }
-
     public PathRegistry<String, ExpressionDeclItem> getExprDeclaredPathRegistry() {
         return servicesContext.getExprDeclaredPathRegistry();
     }
@@ -293,7 +289,7 @@ public class EPStatementInitServicesImpl implements EPStatementInitServices {
         servicesContext.getContextManagementService().addContext(definition, this);
     }
 
-    public void activateVariable(String name) {
+    public void activateVariable(String name, DataInputOutputSerde serde) {
         VariableMetaData variable = moduleIncidentals.getVariables().get(name);
         if (variable == null) {
             throw new IllegalArgumentException("Failed to find variable information for '" + name + "'");
@@ -306,7 +302,7 @@ public class EPStatementInitServicesImpl implements EPStatementInitServices {
                     deploymentId, servicesContext.getContextPathRegistry());
         }
 
-        servicesContext.getVariableManagementService().addVariable(deploymentId, variable, contextDeploymentId);
+        servicesContext.getVariableManagementService().addVariable(deploymentId, variable, contextDeploymentId, serde);
 
         // for non-context variables we allocate the state
         if (contextDeploymentId == null) {

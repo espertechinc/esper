@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.util.StopCallback;
@@ -57,7 +57,7 @@ public interface ResultSetProcessor extends StopCallback {
      * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
      * @return pair of new events and old events
      */
-    public UniformPair<EventBean[]> processJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isSynthesize);
+    public UniformPair<EventBean[]> processJoinResult(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, boolean isSynthesize);
 
     /**
      * Returns the iterator implementing the group-by and aggregation and order-by logic
@@ -74,7 +74,7 @@ public interface ResultSetProcessor extends StopCallback {
      * @param joinSet is the join result set
      * @return iterator over join results
      */
-    public Iterator<EventBean> getIterator(Set<MultiKey<EventBean>> joinSet);
+    public Iterator<EventBean> getIterator(Set<MultiKeyArrayOfKeys<EventBean>> joinSet);
 
     /**
      * Clear out current state.
@@ -88,7 +88,7 @@ public interface ResultSetProcessor extends StopCallback {
      * @param generateSynthetic flag to indicate whether synthetic events must be generated
      * @return results for dispatch
      */
-    public UniformPair<EventBean[]> processOutputLimitedJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic);
+    public UniformPair<EventBean[]> processOutputLimitedJoin(List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> joinEventsSet, boolean generateSynthetic);
 
     /**
      * Processes batched events in case of output-rate limiting.
@@ -103,11 +103,11 @@ public interface ResultSetProcessor extends StopCallback {
 
     public void applyViewResult(EventBean[] newData, EventBean[] oldData);
 
-    public void applyJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);
+    public void applyJoinResult(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents);
 
     public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
 
-    public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic);
+    public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, boolean isGenerateSynthetic);
 
     public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedView(boolean isSynthesize);
 

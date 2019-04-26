@@ -1,6 +1,13 @@
 Esper Changelog
 ===================
 
+Changes in version 8.2.0
+------------------------
+  - Support for resolving serializers and de-serializers (aka. serde) at compile time for use with Esper High Availability.
+    There are two advantages of resolving the serde at compile time: 
+    The compiler is the best place to decide whether a serde is needed or not and therefore we are only resolving serdes when they are indeed needed for HA. 
+    At start/recovery time we can simply load compiled EPL and the serdes are already associated making recovery or startup in general faster.
+
 Changes in version 8.1.0
 ------------------------
   - Support for parallel multi-threaded compiling of multi-statement modules

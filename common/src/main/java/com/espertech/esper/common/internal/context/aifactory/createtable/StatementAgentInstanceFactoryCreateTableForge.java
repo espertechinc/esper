@@ -36,6 +36,7 @@ import com.espertech.esper.common.internal.epl.table.core.TableMetadataInternalE
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCodegenField;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.List;
 
@@ -73,7 +74,8 @@ public class StatementAgentInstanceFactoryCreateTableForge {
             .exprDotMethod(ref("saiff"), "setAggregationRowFactory", CodegenExpressionBuilder.newInstance(aggregationClassNames.getRowFactoryTop(), ref("this")))
             .exprDotMethod(ref("saiff"), "setAggregationSerde", CodegenExpressionBuilder.newInstance(aggregationClassNames.getRowSerdeTop(), ref("this")))
             .exprDotMethod(ref("saiff"), "setPrimaryKeyGetter", primaryKeyGetter)
-            .exprDotMethod(ref("saiff"), "setPrimaryKeySerde", MultiKeyCodegen.codegenOptionalSerde(plan.getPrimaryKeyMultikeyClasses()))
+            .exprDotMethod(ref("saiff"), "setPrimaryKeySerde", plan.getPrimaryKeyMultikeyClasses().getExprMKSerde(method, classScope))
+            .exprDotMethod(ref("saiff"), "setPropertyForges", DataInputOutputSerdeForge.codegenArray(plan.getInternalEventTypePropertySerdes(), method, classScope, exprDotMethod(symbols.getAddInitSvc(method), EPStatementInitServices.GETEVENTTYPERESOLVER)))
             .exprDotMethod(ref("saiff"), "setPrimaryKeyObjectArrayTransform", fafTransform)
             .exprDotMethod(ref("saiff"), "setPrimaryKeyIntoTableTransform", intoTableTransform)
             .exprDotMethod(symbols.getAddInitSvc(method), "addReadyCallback", ref("saiff"))

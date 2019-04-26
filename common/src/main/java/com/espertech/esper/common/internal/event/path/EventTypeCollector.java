@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.event.path;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -33,4 +34,6 @@ public interface EventTypeCollector {
     void registerAvro(EventTypeMetadata metadata, String schemaJson);
 
     void registerVariant(EventTypeMetadata metadata, EventType[] variants, boolean any);
+
+    void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, Class underlyingClass);
 }

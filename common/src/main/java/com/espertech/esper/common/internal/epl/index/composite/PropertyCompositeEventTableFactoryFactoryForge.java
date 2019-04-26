@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFacto
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,9 +40,10 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
     private final MultiKeyClassRef hashMultikeyClasses;
     private final String[] rangeProps;
     private final Class[] rangeTypes;
+    private final DataInputOutputSerdeForge[] rangeSerdes;
     private final EventType eventType;
 
-    public PropertyCompositeEventTableFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] optKeyProps, Class[] optKeyTypes, MultiKeyClassRef hashMultikeyClasses, String[] rangeProps, Class[] rangeTypes, EventType eventType) {
+    public PropertyCompositeEventTableFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] optKeyProps, Class[] optKeyTypes, MultiKeyClassRef hashMultikeyClasses, String[] rangeProps, Class[] rangeTypes, DataInputOutputSerdeForge[] rangeSerdes, EventType eventType) {
         this.indexedStreamNum = indexedStreamNum;
         this.subqueryNum = subqueryNum;
         this.isFireAndForget = isFireAndForget;
@@ -50,6 +52,7 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
         this.hashMultikeyClasses = hashMultikeyClasses;
         this.rangeProps = rangeProps;
         this.rangeTypes = rangeTypes;
+        this.rangeSerdes = rangeSerdes;
         this.eventType = eventType;
     }
 
@@ -89,10 +92,11 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
         params.add(constant(optKeyProps));
         params.add(constant(optKeyTypes));
         params.add(hashGetter);
-        params.add(MultiKeyCodegen.codegenOptionalSerde(hashMultikeyClasses));
+        params.add(hashMultikeyClasses.getExprMKSerde(method, classScope));
         params.add(constant(rangeProps));
         params.add(constant(rangeTypes));
         params.add(ref("rangeGetters"));
+        params.add(DataInputOutputSerdeForge.codegenArray(rangeSerdes, method, classScope, null));
 
         method.getBlock().methodReturn(newInstance(PropertyCompositeEventTableFactoryFactory.class, params.toArray(new CodegenExpression[0])));
         return localMethod(method);

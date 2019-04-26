@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.metrics.instrumentation;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerType;
@@ -352,11 +352,11 @@ public interface InstrumentationCommon {
 
     void qJoinExecStrategy();
 
-    void aJoinExecStrategy(UniformPair<Set<MultiKey<EventBean>>> joinSet);
+    void aJoinExecStrategy(UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> joinSet);
 
     void qJoinCompositionStreamToWin();
 
-    void aJoinCompositionStreamToWin(Set<MultiKey<EventBean>> newResults);
+    void aJoinCompositionStreamToWin(Set<MultiKeyArrayOfKeys<EventBean>> newResults);
 
     void qJoinCompositionStepUpdIndex(int stream, EventBean[] added, EventBean[] removed);
 
@@ -378,13 +378,13 @@ public interface InstrumentationCommon {
 
     void aJoinCompositionQueryStrategy();
 
-    void qJoinExecProcess(UniformPair<Set<MultiKey<EventBean>>> joinSet);
+    void qJoinExecProcess(UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> joinSet);
 
     void aJoinExecProcess();
 
     void qJoinCompositionWinToWin();
 
-    void aJoinCompositionWinToWin(Set<MultiKey<EventBean>> newResults, Set<MultiKey<EventBean>> oldResults);
+    void aJoinCompositionWinToWin(Set<MultiKeyArrayOfKeys<EventBean>> newResults, Set<MultiKeyArrayOfKeys<EventBean>> oldResults);
 
     void qOutputProcessWCondition(EventBean[] newData, EventBean[] oldData);
 
@@ -398,7 +398,7 @@ public interface InstrumentationCommon {
 
     void aOutputRateConditionOutputNow(boolean generate);
 
-    void qOutputProcessWConditionJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);
+    void qOutputProcessWConditionJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents);
 
     void aOutputProcessWConditionJoin(boolean buffered);
 
@@ -484,10 +484,10 @@ public interface InstrumentationCommon {
 
     void qJoinExecFilter();
 
-    void aJoinExecFilter(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);
+    void aJoinExecFilter(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents);
 
     void qJoinCompositionHistorical();
 
-    void aJoinCompositionHistorical(Set<MultiKey<EventBean>> newResults, Set<MultiKey<EventBean>> oldResults);
+    void aJoinCompositionHistorical(Set<MultiKeyArrayOfKeys<EventBean>> newResults, Set<MultiKeyArrayOfKeys<EventBean>> oldResults);
 }
 

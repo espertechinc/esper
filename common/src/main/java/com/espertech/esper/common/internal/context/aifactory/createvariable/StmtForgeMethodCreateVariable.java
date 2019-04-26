@@ -43,6 +43,8 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeNotApplicable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,19 +127,25 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
 
+        // serde
+        DataInputOutputSerdeForge serde = DataInputOutputSerdeForgeNotApplicable.INSTANCE;
+        if (metaData.getEventType() == null) {
+            serde = services.getSerdeResolver().serdeForVariable(metaData.getType(), metaData.getVariableName(), base.getStatementRawInfo());
+        }
+
         StatementAgentInstanceFactoryCreateVariableForge forge = new StatementAgentInstanceFactoryCreateVariableForge(createDesc.getVariableName(), initialValueExpr, classNameRSP);
-        StmtClassForgableAIFactoryProviderCreateVariable aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateVariable(aiFactoryProviderClassName, packageScope, forge, createDesc.getVariableName());
+        StmtClassForgeableAIFactoryProviderCreateVariable aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateVariable(aiFactoryProviderClassName, packageScope, forge, createDesc.getVariableName(), serde);
 
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), true, resultSetProcessor.getSelectSubscriberDescriptor(), packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createDesc.getVariableName());
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
-        StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
+        StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        forgables.add(new StmtClassForgableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
-        forgables.add(aiFactoryForgable);
-        forgables.add(stmtProvider);
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 0));
-        return new StmtForgeMethodResult(forgables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        forgeables.add(aiFactoryForgeable);
+        forgeables.add(stmtProvider);
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 }

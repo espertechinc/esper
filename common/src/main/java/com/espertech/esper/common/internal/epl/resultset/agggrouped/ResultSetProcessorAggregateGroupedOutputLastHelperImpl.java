@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.agggrouped;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 
 import java.util.LinkedHashMap;
@@ -62,14 +62,14 @@ public class ResultSetProcessorAggregateGroupedOutputLastHelperImpl implements R
         processor.generateOutputBatchedViewPerKey(newData, newDataMultiKey, false, isGenerateSynthetic, outputLastUnordGroupNew, null, eventsPerStream);
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newData, Set<MultiKeyArrayOfKeys<EventBean>> oldData, boolean isGenerateSynthetic) {
         Object[] newDataMultiKey = processor.generateGroupKeyArrayJoin(newData, true);
         Object[] oldDataMultiKey = processor.generateGroupKeyArrayJoin(oldData, false);
 
         if (newData != null) {
             // apply new data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> aNewData : newData) {
+            for (MultiKeyArrayOfKeys<EventBean> aNewData : newData) {
                 Object mk = newDataMultiKey[count];
                 processor.getAggregationService().applyEnter(aNewData.getArray(), mk, processor.getAgentInstanceContext());
                 count++;
@@ -78,7 +78,7 @@ public class ResultSetProcessorAggregateGroupedOutputLastHelperImpl implements R
         if (oldData != null) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> anOldData : oldData) {
+            for (MultiKeyArrayOfKeys<EventBean> anOldData : oldData) {
                 processor.getAggregationService().applyLeave(anOldData.getArray(), oldDataMultiKey[count], processor.getAgentInstanceContext());
                 count++;
             }

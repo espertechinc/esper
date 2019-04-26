@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.simple;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputHelper;
 
@@ -20,7 +20,7 @@ import java.util.Set;
 public interface ResultSetProcessorSimpleOutputAllHelper extends ResultSetProcessorOutputHelper {
     void processView(EventBean[] newData, EventBean[] oldData);
 
-    void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);
+    void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents);
 
     UniformPair<EventBean[]> outputView(boolean isSynthesize);
 

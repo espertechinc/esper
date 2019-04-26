@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.function.Consumer;
 
@@ -33,8 +34,8 @@ public class AggregatorCount extends AggregatorMethodWDistinctWFilterBase {
     private final CodegenExpressionRef cnt;
     private final boolean isEver;
 
-    public AggregatorCount(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter, boolean isEver) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
+    public AggregatorCount(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, boolean isEver) {
+        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.isEver = isEver;
         this.cnt = membersColumnized.addMember(col, long.class, "cnt");
     }

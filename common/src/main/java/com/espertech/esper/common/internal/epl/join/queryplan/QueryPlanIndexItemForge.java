@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
     private MultiKeyClassRef hashMultiKeyClasses;
     private final String[] rangeProps;
     private final Class[] rangeTypes;
+    private DataInputOutputSerdeForge[] rangeSerdes;
     private final boolean unique;
     private final EventAdvancedIndexProvisionCompileTime advancedIndexProvisionDesc;
     private final EventType eventType;
@@ -100,6 +102,10 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
 
     public void setHashMultiKeyClasses(MultiKeyClassRef hashMultiKeyClasses) {
         this.hashMultiKeyClasses = hashMultiKeyClasses;
+    }
+
+    public void setRangeSerdes(DataInputOutputSerdeForge[] rangeSerdes) {
+        this.rangeSerdes = rangeSerdes;
     }
 
     public MultiKeyClassRef getHashMultiKeyClasses() {
@@ -189,8 +195,8 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         CodegenExpression multiKeyTransform = MultiKeyCodegen.codegenMultiKeyFromArrayTransform(hashMultiKeyClasses, method, classScope);
 
         method.getBlock().methodReturn(newInstance(QueryPlanIndexItem.class,
-            constant(hashProps), constant(hashTypes), valueGetter, multiKeyTransform, MultiKeyCodegen.codegenOptionalSerde(hashMultiKeyClasses),
-            constant(rangeProps), constant(rangeTypes), rangeGetters,
+            constant(hashProps), constant(hashTypes), valueGetter, multiKeyTransform, hashMultiKeyClasses == null ? constantNull() : hashMultiKeyClasses.getExprMKSerde(method, classScope),
+            constant(rangeProps), constant(rangeTypes), rangeGetters, DataInputOutputSerdeForge.codegenArray(rangeSerdes, method, classScope, null),
             constant(unique),
             advancedIndexProvisionDesc == null ? constantNull() : advancedIndexProvisionDesc.codegenMake(method, classScope)));
         return localMethod(method);
@@ -218,7 +224,7 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         }
         return new QueryPlanIndexItem(
             hashProps, hashTypes, null, null, null,
-            rangeProps, rangeTypes, null,
+            rangeProps, rangeTypes, null, null,
             unique,
             advancedIndexProvisionDesc.toRuntime());
     }

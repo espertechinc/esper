@@ -21,11 +21,11 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.*;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE;
 
 /**
  * Aggregator for the very last value.
@@ -34,10 +34,10 @@ public class AggregatorLastEver extends AggregatorMethodWDistinctWFilterWValueBa
     private final CodegenExpressionRef lastValue;
     private final CodegenExpressionField serde;
 
-    public AggregatorLastEver(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter, Class childType) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
+    public AggregatorLastEver(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, Class childType, DataInputOutputSerdeForge serde) {
+        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         lastValue = membersColumnized.addMember(col, Object.class, "lastValue");
-        serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(VALUE_NULLABLE, childType));
+        this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE, childType, serde, classScope));
     }
 
     protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {

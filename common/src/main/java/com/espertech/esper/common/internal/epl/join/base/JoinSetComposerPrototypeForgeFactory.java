@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.OuterJoinDesc;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprAndNode;
@@ -37,6 +37,8 @@ import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexHook;
 import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexHookUtil;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.type.OuterJoinType;
 import com.espertech.esper.common.internal.util.DependencyGraph;
 import org.slf4j.Logger;
@@ -62,7 +64,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         String[] streamNames = typeService.getStreamNames();
         ExprNode whereClause = spec.getRaw().getWhereClause();
         boolean queryPlanLogging = compileTimeServices.getConfiguration().getCommon().getLogging().isEnableQueryPlan();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
 
         // Determine if there is a historical stream, and what dependencies exist
         DependencyGraph historicalDependencyGraph = new DependencyGraph(streamTypes.length, false);
@@ -145,8 +147,8 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         // plan multikeys
-        List<StmtClassForgableFactory> multikeyForgables = planMultikeys(indexSpecs);
-        additionalForgeables.addAll(multikeyForgables);
+        List<StmtClassForgeableFactory> multikeyForgeables = planMultikeys(indexSpecs, statementRawInfo, compileTimeServices);
+        additionalForgeables.addAll(multikeyForgeables);
 
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(spec.getAnnotations(), compileTimeServices.getClasspathImportServiceCompileTime());
         if (queryPlanLogging && (QUERY_PLAN_LOG.isInfoEnabled() || hook != null)) {
@@ -170,20 +172,27 @@ public class JoinSetComposerPrototypeForgeFactory {
         return new JoinSetComposerPrototypeDesc(forge, additionalForgeables);
     }
 
-    private static List<StmtClassForgableFactory> planMultikeys(QueryPlanIndexForge[] indexSpecs) {
-        List<StmtClassForgableFactory> multiKeyForgables = new ArrayList<>(2);
+    private static List<StmtClassForgeableFactory> planMultikeys(QueryPlanIndexForge[] indexSpecs, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
+        List<StmtClassForgeableFactory> multiKeyForgeables = new ArrayList<>(2);
         for (QueryPlanIndexForge spec : indexSpecs) {
             if (spec == null) {
                 continue;
             }
             for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItemForge> entry : spec.getItems().entrySet()) {
                 QueryPlanIndexItemForge forge = entry.getValue();
-                MultiKeyPlan plan = MultiKeyPlanner.planMultiKey(forge.getHashTypes(), false);
-                multiKeyForgables.addAll(plan.getMultiKeyForgables());
-                forge.setHashMultiKeyClasses(plan.getOptionalClassRef());
+
+                MultiKeyPlan plan = MultiKeyPlanner.planMultiKey(forge.getHashTypes(), false, raw, compileTimeServices.getSerdeResolver());
+                multiKeyForgeables.addAll(plan.getMultiKeyForgeables());
+                forge.setHashMultiKeyClasses(plan.getClassRef());
+
+                DataInputOutputSerdeForge[] rangeSerdes = new DataInputOutputSerdeForge[forge.getRangeTypes().length];
+                for (int i = 0; i < forge.getRangeTypes().length; i++) {
+                    rangeSerdes[i] = compileTimeServices.getSerdeResolver().serdeForIndexBtree(forge.getRangeTypes()[i], raw);
+                }
+                forge.setRangeSerdes(rangeSerdes);
             }
         }
-        return multiKeyForgables;
+        return multiKeyForgeables;
     }
 
     private static JoinSetComposerPrototypeHistorical2StreamDesc makeComposerHistorical2Stream(OuterJoinDesc[] outerJoinDescs,
@@ -349,7 +358,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         QueryGraphForge queryGraph = new QueryGraphForge(2, hint, false);
         FilterExprAnalyzer.analyze(filterForIndexing, queryGraph, false);
 
-        return determineIndexing(queryGraph, polledViewType, streamViewType, polledViewStreamNum, streamViewStreamNum);
+        return determineIndexing(queryGraph, polledViewType, streamViewType, polledViewStreamNum, streamViewStreamNum, rawInfo, services.getSerdeResolver());
     }
 
     /**
@@ -369,7 +378,9 @@ public class JoinSetComposerPrototypeForgeFactory {
                                                                            EventType polledViewType,
                                                                            EventType streamViewType,
                                                                            int polledViewStreamNum,
-                                                                           int streamViewStreamNum) {
+                                                                           int streamViewStreamNum,
+                                                                           StatementRawInfo raw,
+                                                                           SerdeCompileTimeResolver serdeResolver) {
         QueryGraphValueForge queryGraphValue = queryGraph.getGraphValue(streamViewStreamNum, polledViewStreamNum);
         QueryGraphValuePairHashKeyIndexForge hashKeysAndIndes = queryGraphValue.getHashKeyProps();
         QueryGraphValuePairRangeIndexForge rangeKeysAndIndex = queryGraphValue.getRangeProps();
@@ -408,11 +419,11 @@ public class JoinSetComposerPrototypeForgeFactory {
 
         if (rangeKeys.isEmpty()) {
             ExprForge[] hashEvals = QueryGraphValueEntryHashKeyedForge.getForges(hashKeys.toArray(new QueryGraphValueEntryHashKeyedForge[0]));
-            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashEvals, false);
-            HistoricalIndexLookupStrategyHashForge lookup = new HistoricalIndexLookupStrategyHashForge(streamViewStreamNum, hashEvals, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getOptionalClassRef());
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashEvals, false, raw, serdeResolver);
+            HistoricalIndexLookupStrategyHashForge lookup = new HistoricalIndexLookupStrategyHashForge(streamViewStreamNum, hashEvals, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
             PollResultIndexingStrategyHashForge indexing = new PollResultIndexingStrategyHashForge(polledViewStreamNum, polledViewType,
-                hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getOptionalClassRef());
-            return new JoinSetComposerPrototypeHistoricalDesc(lookup, indexing, multiKeyPlan.getMultiKeyForgables());
+                hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
+            return new JoinSetComposerPrototypeHistoricalDesc(lookup, indexing, multiKeyPlan.getMultiKeyForgeables());
         } else {
             CoercionDesc rangeCoercionTypes = CoercionUtil.getCoercionTypesRange(new EventType[]{streamViewType, polledViewType}, 1, rangeIndexes, rangeKeys);
 
@@ -423,10 +434,10 @@ public class JoinSetComposerPrototypeForgeFactory {
                 return new JoinSetComposerPrototypeHistoricalDesc(lookup, indexing, Collections.emptyList());
             } else {
                 ExprForge[] hashEvals = QueryGraphValueEntryHashKeyedForge.getForges(hashKeys.toArray(new QueryGraphValueEntryHashKeyedForge[0]));
-                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashEvals, false);
-                HistoricalIndexLookupStrategyForge strategy = new HistoricalIndexLookupStrategyCompositeForge(streamViewStreamNum, hashEvals, multiKeyPlan.getOptionalClassRef(), rangeKeys.toArray(new QueryGraphValueEntryRangeForge[0]));
-                PollResultIndexingStrategyCompositeForge indexing = new PollResultIndexingStrategyCompositeForge(polledViewStreamNum, polledViewType, hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getOptionalClassRef(), rangeIndexes, rangeCoercionTypes.getCoercionTypes());
-                return new JoinSetComposerPrototypeHistoricalDesc(strategy, indexing, multiKeyPlan.getMultiKeyForgables());
+                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashEvals, false, raw, serdeResolver);
+                HistoricalIndexLookupStrategyForge strategy = new HistoricalIndexLookupStrategyCompositeForge(streamViewStreamNum, hashEvals, multiKeyPlan.getClassRef(), rangeKeys.toArray(new QueryGraphValueEntryRangeForge[0]));
+                PollResultIndexingStrategyCompositeForge indexing = new PollResultIndexingStrategyCompositeForge(polledViewStreamNum, polledViewType, hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef(), rangeIndexes, rangeCoercionTypes.getCoercionTypes());
+                return new JoinSetComposerPrototypeHistoricalDesc(strategy, indexing, multiKeyPlan.getMultiKeyForgeables());
             }
         }
     }

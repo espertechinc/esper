@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodA
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprSumNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
@@ -33,11 +34,13 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
     protected final ExprSumNode parent;
     protected final Class resultType;
     protected final Class inputValueType;
+    protected final DataInputOutputSerdeForge distinctSerde;
     protected AggregatorMethod aggregator;
 
-    public AggregationForgeFactorySum(ExprSumNode parent, Class inputValueType) {
+    public AggregationForgeFactorySum(ExprSumNode parent, Class inputValueType, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
         this.inputValueType = inputValueType;
+        this.distinctSerde = distinctSerde;
         this.resultType = getSumAggregatorType(inputValueType);
     }
 
@@ -52,9 +55,9 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         Class distinctValueType = !parent.isDistinct() ? null : inputValueType;
         if (resultType == BigInteger.class || resultType == BigDecimal.class) {
-            aggregator = new AggregatorSumBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
+            aggregator = new AggregatorSumBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
         } else {
-            aggregator = new AggregatorSumNonBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
+            aggregator = new AggregatorSumNonBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
         }
     }
 

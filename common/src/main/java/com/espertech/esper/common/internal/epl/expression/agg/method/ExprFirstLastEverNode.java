@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.core.ExprWildcard;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 /**
  * Represents the "firstever" and "lastever: aggregate function is an expression tree.
@@ -52,7 +53,8 @@ public class ExprFirstLastEverNode extends ExprAggregateNodeBase {
         } else {
             resultType = positionalParams[0].getForge().getEvaluationType();
         }
-        return new AggregationForgeFactoryFirstLastEver(this, resultType);
+        DataInputOutputSerdeForge serde = validationContext.getSerdeResolver().serdeForAggregation(resultType, validationContext.getStatementRawInfo());
+        return new AggregationForgeFactoryFirstLastEver(this, resultType, serde);
     }
 
     public boolean hasFilter() {

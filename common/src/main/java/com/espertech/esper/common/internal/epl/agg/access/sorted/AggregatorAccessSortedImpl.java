@@ -29,8 +29,9 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeEventTyped;
-import com.espertech.esper.common.internal.serde.DIOSerdeTreeMapEventsMayDeque;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
+import com.espertech.esper.common.internal.serde.serdeset.additional.DIOSerdeTreeMapEventsMayDeque;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -40,7 +41,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenFieldSharableComparator.CodegenSharableSerdeName.COMPARATORHASHABLEMULTIKEYS;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.REFCOUNTEDSETATOMICINTEGER;
+import static com.espertech.esper.common.internal.event.path.EventTypeResolver.GETEVENTSERDEFACTORY;
+import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.REFCOUNTEDSETATOMICINTEGER;
 
 public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase implements AggregatorAccessSorted {
 
@@ -68,7 +70,8 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
 
             public CodegenExpression initCtorScoped() {
                 CodegenExpression type = EventTypeUtility.resolveTypeCodegen(forge.getSpec().getStreamEventType(), EPStatementInitServices.REF);
-                return exprDotMethodChain(EPStatementInitServices.REF).add(EPStatementInitServices.GETDATAINPUTOUTPUTSERDEPROVIDER).add("treeMapEventsMayDeque", constant(forge.getSpec().getCriteriaTypes()), type);
+                CodegenExpression criteriaSerdes = DataInputOutputSerdeForge.codegenArray(forge.getSpec().getCriteriaSerdes(), classScope.getPackageScope().getInitMethod(), classScope, null);
+                return exprDotMethodChain(EPStatementInitServices.REF).add(EPStatementInitServices.GETEVENTTYPERESOLVER).add(GETEVENTSERDEFACTORY).add("treeMapEventsMayDeque", criteriaSerdes, type);
             }
         });
 

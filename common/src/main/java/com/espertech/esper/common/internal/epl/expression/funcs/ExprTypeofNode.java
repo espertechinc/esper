@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.io.StringWriter;
 
@@ -33,6 +34,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
     private static final long serialVersionUID = -612634538694877204L;
 
     private transient ExprTypeofNodeForge forge;
+    private transient ExprValidationContext exprValidationContext;
 
     /**
      * Ctor.
@@ -50,6 +52,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        this.exprValidationContext = validationContext;
         if (this.getChildNodes().length != 1) {
             throw new ExprValidationException("Typeof node must have 1 child expression node supplying the expression to test");
         }
@@ -101,7 +104,8 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
                 return localMethod(method, beanExpression);
             }
         };
-        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eventPropertyForge, String.class, true);
+        DataInputOutputSerdeForge serde = exprValidationContext.getSerdeResolver().serdeForFilter(String.class, exprValidationContext.getStatementRawInfo());
+        return new ExprFilterSpecLookupableForge(ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(this), eventPropertyForge, String.class, true, serde);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

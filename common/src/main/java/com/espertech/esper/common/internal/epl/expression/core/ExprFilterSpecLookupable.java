@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.core;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -20,12 +21,14 @@ public class ExprFilterSpecLookupable {
     private transient final EventPropertyValueGetter getter;
     private final Class returnType;
     private final boolean isNonPropertyGetter;
+    private final DataInputOutputSerde<Object> valueSerde;
 
-    public ExprFilterSpecLookupable(String expression, EventPropertyValueGetter getter, Class returnType, boolean isNonPropertyGetter) {
+    public ExprFilterSpecLookupable(String expression, EventPropertyValueGetter getter, Class returnType, boolean isNonPropertyGetter, DataInputOutputSerde<Object> valueSerde) {
         this.expression = expression;
         this.getter = getter;
         this.returnType = JavaClassHelper.getBoxedType(returnType); // For type consistency for recovery and serde define as boxed type
         this.isNonPropertyGetter = isNonPropertyGetter;
+        this.valueSerde = valueSerde;
     }
 
     public String getExpression() {
@@ -67,6 +70,10 @@ public class ExprFilterSpecLookupable {
 
     public boolean isNonPropertyGetter() {
         return isNonPropertyGetter;
+    }
+
+    public DataInputOutputSerde<Object> getValueSerde() {
+        return valueSerde;
     }
 }
 

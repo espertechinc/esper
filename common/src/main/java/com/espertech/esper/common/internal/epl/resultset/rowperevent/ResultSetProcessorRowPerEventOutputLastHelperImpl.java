@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowperevent;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 
 import java.util.Set;
@@ -31,7 +31,7 @@ public class ResultSetProcessorRowPerEventOutputLastHelperImpl implements Result
         apply(pair);
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, boolean isGenerateSynthetic) {
         UniformPair<EventBean[]> pair = processor.processJoinResult(newEvents, oldEvents, isGenerateSynthetic);
         apply(pair);
     }

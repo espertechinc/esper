@@ -21,18 +21,21 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprCountNode;
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodAggUtil;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class AggregationForgeFactoryCount extends AggregationForgeFactoryBase {
     protected final ExprCountNode parent;
     protected final boolean ignoreNulls;
     protected final Class countedValueType;
+    protected final DataInputOutputSerdeForge distinctValueSerde;
 
     private AggregatorCount aggregator;
 
-    public AggregationForgeFactoryCount(ExprCountNode parent, boolean ignoreNulls, Class countedValueType) {
+    public AggregationForgeFactoryCount(ExprCountNode parent, boolean ignoreNulls, Class countedValueType, DataInputOutputSerdeForge distinctValueSerde) {
         this.parent = parent;
         this.ignoreNulls = ignoreNulls;
         this.countedValueType = countedValueType;
+        this.distinctValueSerde = distinctValueSerde;
     }
 
     public Class getResultType() {
@@ -41,7 +44,7 @@ public class AggregationForgeFactoryCount extends AggregationForgeFactoryBase {
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         Class distinctType = !parent.isDistinct() ? null : countedValueType;
-        aggregator = new AggregatorCount(this, col, rowCtor, membersColumnized, classScope, distinctType, parent.isHasFilter(), parent.getOptionalFilter(), false);
+        aggregator = new AggregatorCount(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctValueSerde, parent.isHasFilter(), parent.getOptionalFilter(), false);
     }
 
     public AggregatorMethod getAggregator() {

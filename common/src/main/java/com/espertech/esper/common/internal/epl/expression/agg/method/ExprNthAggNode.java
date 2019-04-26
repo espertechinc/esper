@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 /**
  * Represents the nth(...) and aggregate function is an expression tree.
@@ -51,7 +52,10 @@ public class ExprNthAggNode extends ExprAggregateNodeBase {
             this.positionalParams = ExprNodeUtilityMake.addExpression(positionalParams, optionalFilter);
         }
 
-        return new AggregationForgeFactoryNth(this, first.getForge().getEvaluationType(), size);
+        Class childType = first.getForge().getEvaluationType();
+        DataInputOutputSerdeForge serde = validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo());
+        DataInputOutputSerdeForge distinctValueSerde = isDistinct ? serde : null;
+        return new AggregationForgeFactoryNth(this, childType, serde, distinctValueSerde, size);
     }
 
     public String getAggregationFunctionName() {

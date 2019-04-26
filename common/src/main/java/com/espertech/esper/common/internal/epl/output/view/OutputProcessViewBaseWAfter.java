@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
@@ -60,7 +60,7 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessView impl
      * @param statementContext context
      * @return indicator for output condition
      */
-    public boolean checkAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext) {
+    public boolean checkAfterCondition(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, StatementContext statementContext) {
         return afterConditionState.checkUpdateAfterCondition(newEvents, statementContext);
     }
 

@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompile
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecOptions;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -36,9 +36,9 @@ import java.util.List;
 import java.util.Map;
 
 public class SubSelectHelperFilters {
-    public static List<StmtClassForgableFactory> handleSubselectSelectClauses(ExprSubselectNode subselect, EventType outerEventType, String outerEventTypeName, String outerStreamName,
-                                                                              LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                                                                              StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
+    public static List<StmtClassForgeableFactory> handleSubselectSelectClauses(ExprSubselectNode subselect, EventType outerEventType, String outerEventTypeName, String outerStreamName,
+                                                                               LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                                                               StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
             throws ExprValidationException {
 
         if (subselect.getSubselectNumber() == -1) {
@@ -50,7 +50,7 @@ public class SubSelectHelperFilters {
 
         List<ViewFactoryForge> viewForges;
         String subselecteventTypeName;
-        List<StmtClassForgableFactory> additionalForgeables;
+        List<StmtClassForgeableFactory> additionalForgeables;
 
         // construct view factory chain
         EventType eventType;

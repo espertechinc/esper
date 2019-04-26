@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.strategy;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Set;
@@ -27,5 +27,5 @@ public interface QueryStrategy {
      * @param joinSet              - result join tuples of events
      * @param exprEvaluatorContext expression evaluation context
      */
-    public void lookup(EventBean[] lookupEvents, Set<MultiKey<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext);
+    public void lookup(EventBean[] lookupEvents, Set<MultiKeyArrayOfKeys<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext);
 }

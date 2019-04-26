@@ -33,6 +33,7 @@ import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaD
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,28 +101,33 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
             table.addIndex(spec.getIndexName(), base.getModuleName(), imk, explicitIndexDesc.toRuntime());
         }
 
-        // determine Multikey class
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(explicitIndexDesc.getHashTypes(), false);
-        explicitIndexDesc.setHashMultiKeyClasses(multiKeyPlan.getOptionalClassRef());
+        // determine multikey plan
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(explicitIndexDesc.getHashTypes(), false, base.getStatementRawInfo(), services.getSerdeResolver());
+        explicitIndexDesc.setHashMultiKeyClasses(multiKeyPlan.getClassRef());
+        DataInputOutputSerdeForge[] rangeSerdes = new DataInputOutputSerdeForge[explicitIndexDesc.getRangeProps().length];
+        for (int i = 0; i < explicitIndexDesc.getRangeProps().length; i++) {
+            rangeSerdes[i] = services.getSerdeResolver().serdeForIndexBtree(explicitIndexDesc.getRangeTypes()[i], base.getStatementRawInfo());
+        }
+        explicitIndexDesc.setRangeSerdes(rangeSerdes);
 
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryCreateIndexForge forge = new StatementAgentInstanceFactoryCreateIndexForge(indexedEventType, spec.getIndexName(), base.getModuleName(), explicitIndexDesc, imk, namedWindow, table);
-        StmtClassForgableAIFactoryProviderCreateIndex aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateIndex(aiFactoryProviderClassName, packageScope, forge);
+        StmtClassForgeableAIFactoryProviderCreateIndex aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateIndex(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, spec.getIndexName());
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
-        StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
+        StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        for (StmtClassForgableFactory additional : multiKeyPlan.getMultiKeyForgables()) {
-            forgables.add(additional.make(packageScope, classPostfix));
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : multiKeyPlan.getMultiKeyForgeables()) {
+            forgeables.add(additional.make(packageScope, classPostfix));
         }
-        forgables.add(aiFactoryForgable);
-        forgables.add(stmtProvider);
-        return new StmtForgeMethodResult(forgables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        forgeables.add(aiFactoryForgeable);
+        forgeables.add(stmtProvider);
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 }

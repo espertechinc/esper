@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.common.client.serde;
 
-import com.espertech.esper.common.internal.serde.EventBeanCollatedWriter;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;

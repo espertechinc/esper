@@ -16,10 +16,10 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerExpression;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationFunction;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
-import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.client.configuration.compiler.*;
+import com.espertech.esper.common.client.serde.SerdeProvider;
+import com.espertech.esper.common.client.serde.SerdeProviderFactory;
+import com.espertech.esper.common.client.serde.SerdeProviderFactoryContext;
 import com.espertech.esper.common.internal.collection.PathException;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.collection.PathRegistryObjectType;
@@ -80,8 +80,14 @@ import com.espertech.esper.common.internal.event.eventtyperepo.*;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
+import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactoryDefault;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistryImpl;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
+import com.espertech.esper.common.internal.util.TransientConfigurationResolver;
 import com.espertech.esper.common.internal.view.core.ViewEnumHelper;
 import com.espertech.esper.common.internal.view.core.ViewResolutionService;
 import com.espertech.esper.common.internal.view.core.ViewResolutionServiceImpl;
@@ -90,10 +96,7 @@ import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.CompilerPath;
 import com.espertech.esper.compiler.client.EPCompileException;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CompilerHelperServices {
     protected static ModuleCompileTimeServices getCompileTimeServices(CompilerArguments arguments, String moduleName, Set<String> moduleUses) throws EPCompileException {
@@ -171,7 +174,7 @@ public class CompilerHelperServices {
 
             // initialize event types
             Map<String, EventType> moduleTypes = new HashMap<>();
-            EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleTypes, pathEventTypes, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate);
+            EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleTypes, pathEventTypes, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate, EventSerdeFactoryDefault.INSTANCE);
             EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, beanEventTypeFactoryPrivate, EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService, eventTypeResolver, xmlFragmentEventTypeFactory, eventTypeAvroHandler, EventBeanTypedEventFactoryCompileTime.INSTANCE);
             try {
                 provider.getModuleProvider().initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
@@ -333,14 +336,18 @@ public class CompilerHelperServices {
 
         CompilerServices compilerServices = new CompilerServicesImpl();
 
+        boolean targetHA = configuration.getClass().getName().endsWith("ConfigurationHA");
+        SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry = new SerdeEventTypeCompileTimeRegistryImpl(targetHA);
+        SerdeCompileTimeResolver serdeResolver = targetHA ? makeSerdeResolver(configuration.getCompiler().getSerde(), configuration.getCommon().getTransientConfiguration()) : SerdeCompileTimeResolverNonHA.INSTANCE;
+
         return new ModuleCompileTimeServices(compilerServices, configuration,
-                contextCompileTimeRegistry, contextCompileTimeResolver,
-                beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime,
-                exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler,
-                eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured,
-                indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry,
-                patternResolutionService, scriptCompileTimeRegistry, scriptCompileTimeResolver,
-                tableCompileTimeRegistry, tableCompileTimeResolver, variableCompileTimeRegistry, variableCompileTimeResolver, viewResolutionService, xmlFragmentEventTypeFactory);
+            contextCompileTimeRegistry, contextCompileTimeResolver,
+            beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime,
+            exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler,
+            eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured,
+            indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry,
+            patternResolutionService, scriptCompileTimeRegistry, scriptCompileTimeResolver, serdeEventTypeRegistry, serdeResolver,
+            tableCompileTimeRegistry, tableCompileTimeResolver, variableCompileTimeRegistry, variableCompileTimeResolver, viewResolutionService, xmlFragmentEventTypeFactory);
     }
 
     protected static ClasspathImportServiceCompileTime makeClasspathImportService(Configuration configuration) {
@@ -375,5 +382,33 @@ public class CompilerHelperServices {
         }
 
         return classpathImportService;
+    }
+
+    private static SerdeCompileTimeResolver makeSerdeResolver(ConfigurationCompilerSerde config, Map<String, Object> transientConfiguration) {
+        SerdeProviderFactoryContext context = new SerdeProviderFactoryContext();
+
+        List<SerdeProvider> providers = null;
+        if (config.getSerdeProviderFactories() != null) {
+            for (String factory : config.getSerdeProviderFactories()) {
+                try {
+                    SerdeProviderFactory instance = (SerdeProviderFactory) (JavaClassHelper.instantiate(SerdeProviderFactory.class, factory, TransientConfigurationResolver.resolveClassForNameProvider(transientConfiguration)));
+                    SerdeProvider provider = instance.getProvider(context);
+                    if (provider == null) {
+                        throw new ConfigurationException("Binding provider factory '" + factory + "' returned a null value");
+                    }
+                    if (providers == null) {
+                        providers = new ArrayList<>();
+                    }
+                    providers.add(provider);
+                } catch (RuntimeException ex) {
+                    throw new ConfigurationException("Binding provider factory '" + factory + "' failed to initialize: " + ex.getMessage(), ex);
+                }
+            }
+        }
+        if (providers == null) {
+            providers = Collections.emptyList();
+        }
+
+        return new SerdeCompileTimeResolverImpl(providers, config.isEnableExtendedBuiltin(), config.isEnableSerializable(), config.isEnableExternalizable(), config.isEnableSerializationFallback());
     }
 }

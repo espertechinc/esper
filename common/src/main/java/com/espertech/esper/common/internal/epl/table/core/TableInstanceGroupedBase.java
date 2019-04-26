@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.table.core;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
@@ -57,7 +57,7 @@ public abstract class TableInstanceGroupedBase extends TableInstanceBase impleme
                 data[groupKeyColNums[0]] = groupKeys;
             }
         } else {
-            MultiKeyGenerated mk = (MultiKeyGenerated) groupKeys;
+            MultiKey mk = (MultiKey) groupKeys;
             for (int i = 0; i < groupKeyColNums.length; i++) {
                 data[groupKeyColNums[i]] = mk.getKey(i);
             }

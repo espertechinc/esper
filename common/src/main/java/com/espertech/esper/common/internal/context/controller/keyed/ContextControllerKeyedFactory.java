@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 
 import com.espertech.esper.common.client.context.ContextPartitionIdentifier;
 import com.espertech.esper.common.client.context.ContextPartitionIdentifierPartitioned;
-import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.context.airegistry.*;
 import com.espertech.esper.common.internal.context.controller.core.ContextController;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryBase;
@@ -99,8 +99,8 @@ public class ContextControllerKeyedFactory extends ContextControllerFactoryBase 
     }
 
     private void populateContextPropertiesAddKeyInfo(Map<String, Object> props, Object getterKey) {
-        if (getterKey instanceof MultiKeyGenerated) {
-            MultiKeyGenerated values = (MultiKeyGenerated) getterKey;
+        if (getterKey instanceof MultiKey) {
+            MultiKey values = (MultiKey) getterKey;
             for (int i = 0; i < values.getNumKeys(); i++) {
                 String propertyName = ContextPropertyEventType.PROP_CTX_KEY_PREFIX + (i + 1);
                 props.put(propertyName, values.getKey(i));

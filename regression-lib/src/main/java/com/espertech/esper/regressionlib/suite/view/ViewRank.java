@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.util.SupportBeanAssertionUtil;
 
@@ -26,12 +26,12 @@ public class ViewRank {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new ViewRankedSceneOne());
         execs.add(new ViewRankedPrev());
         execs.add(new ViewRankPrevAndGroupWin());
         execs.add(new ViewRankMultiexpression());
         execs.add(new ViewRankRemoveStream());
         execs.add(new ViewRankRanked());
-        execs.add(new ViewRankedSceneOne());
         execs.add(new ViewRankInvalid());
         return execs;
     }

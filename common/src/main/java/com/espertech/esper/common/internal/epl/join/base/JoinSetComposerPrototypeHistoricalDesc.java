@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.join.base;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyForge;
 import com.espertech.esper.common.internal.epl.historical.lookupstrategy.HistoricalIndexLookupStrategyForge;
 
@@ -19,9 +19,9 @@ import java.util.List;
 public class JoinSetComposerPrototypeHistoricalDesc {
     private final HistoricalIndexLookupStrategyForge lookupForge;
     private final PollResultIndexingStrategyForge indexingForge;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public JoinSetComposerPrototypeHistoricalDesc(HistoricalIndexLookupStrategyForge lookupForge, PollResultIndexingStrategyForge indexingForge, List<StmtClassForgableFactory> additionalForgeables) {
+    public JoinSetComposerPrototypeHistoricalDesc(HistoricalIndexLookupStrategyForge lookupForge, PollResultIndexingStrategyForge indexingForge, List<StmtClassForgeableFactory> additionalForgeables) {
         this.lookupForge = lookupForge;
         this.indexingForge = indexingForge;
         this.additionalForgeables = additionalForgeables;
@@ -35,7 +35,7 @@ public class JoinSetComposerPrototypeHistoricalDesc {
         return indexingForge;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

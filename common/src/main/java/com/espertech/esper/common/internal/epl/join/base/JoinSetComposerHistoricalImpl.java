@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalEventViewable;
@@ -38,8 +38,8 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer {
     private final QueryStrategy[] queryStrategies;
 
     // Set semantic eliminates duplicates in result set, use Linked set to preserve order
-    private Set<MultiKey<EventBean>> oldResults = new LinkedHashSet<MultiKey<EventBean>>();
-    private Set<MultiKey<EventBean>> newResults = new LinkedHashSet<MultiKey<EventBean>>();
+    private Set<MultiKeyArrayOfKeys<EventBean>> oldResults = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
+    private Set<MultiKeyArrayOfKeys<EventBean>> newResults = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
     private EventTable[][] tables = new EventTable[0][];
     private Viewable[] streamViews;
     private ExprEvaluatorContext staticEvalExprEvaluatorContext;
@@ -89,7 +89,7 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer {
         }
     }
 
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+    public UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         InstrumentationCommon instrumentationCommon = exprEvaluatorContext.getInstrumentationProvider();
         instrumentationCommon.qJoinCompositionHistorical();
 
@@ -149,8 +149,8 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer {
         return queryStrategies;
     }
 
-    public Set<MultiKey<EventBean>> staticJoin() {
-        Set<MultiKey<EventBean>> result = new LinkedHashSet<MultiKey<EventBean>>();
+    public Set<MultiKeyArrayOfKeys<EventBean>> staticJoin() {
+        Set<MultiKeyArrayOfKeys<EventBean>> result = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
         EventBean[] lookupEvents = new EventBean[1];
 
         // Assign a local cache for the thread's evaluation of the join

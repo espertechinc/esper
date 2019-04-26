@@ -50,6 +50,7 @@
 					<xs:element name="expression" type="esper:compiler-expression-type" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="execution" type="esper:compiler-execution-type" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:scripts" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esper:serde-settings" minOccurs="0"/>
 				</xs:choice>
 			</xs:sequence>
 		</xs:complexType>
@@ -633,6 +634,24 @@
 		<xs:complexType>
 			<xs:attribute name="enabled" type="xs:boolean" use="optional"/>
 			<xs:attribute name="default-dialect" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="serde-settings">
+		<xs:complexType>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:choice>
+					<xs:element ref="esper:serde-provider-factory" minOccurs="0"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="enable-extended-builtin" type="xs:boolean" use="optional"/>
+			<xs:attribute name="enable-serializable" type="xs:boolean" use="optional"/>
+			<xs:attribute name="enable-externalizable" type="xs:boolean" use="optional"/>
+			<xs:attribute name="enable-serialization-fallback" type="xs:boolean" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="serde-provider-factory">
+		<xs:complexType>
+			<xs:attribute name="class" type="xs:string" use="required"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="patterns">

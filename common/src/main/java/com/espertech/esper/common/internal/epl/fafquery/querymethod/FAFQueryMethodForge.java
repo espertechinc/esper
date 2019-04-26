@@ -13,13 +13,13 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 
 import java.util.List;
 
 public interface FAFQueryMethodForge {
-    List<StmtClassForgable> makeForgables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope);
+    List<StmtClassForgeable> makeForgeables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope);
 
     void makeMethod(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 }

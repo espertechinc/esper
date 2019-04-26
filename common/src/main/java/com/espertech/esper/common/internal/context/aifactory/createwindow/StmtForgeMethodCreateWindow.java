@@ -135,29 +135,29 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         services.getNamedWindowCompileTimeRegistry().newNamedWindow(metaData);
 
         // build forge list
-        List<StmtClassForgable> forgables = new ArrayList<>(2);
+        List<StmtClassForgeable> forgeables = new ArrayList<>(2);
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
 
-        for (StmtClassForgableFactory additional : viewForgeDesc.getMultikeyForges()) {
-            forgables.add(additional.make(packageScope, classPostfix));
+        for (StmtClassForgeableFactory additional : viewForgeDesc.getMultikeyForges()) {
+            forgeables.add(additional.make(packageScope, classPostfix));
         }
 
-        forgables.add(new StmtClassForgableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
-        StmtClassForgableAIFactoryProviderCreateNW aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateNW(aiFactoryProviderClassName, packageScope, forge, createWindowDesc.getWindowName());
-        forgables.add(aiFactoryForgable);
+        StmtClassForgeableAIFactoryProviderCreateNW aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateNW(aiFactoryProviderClassName, packageScope, forge, createWindowDesc.getWindowName());
+        forgeables.add(aiFactoryForgeable);
 
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createWindowDesc.getWindowName());
 
-        forgables.add(new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 1));
+        forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 1));
 
-        return new StmtForgeMethodResult(forgables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList());
     }
 
     private static boolean determineBatchingDataWindow(List<ViewFactoryForge> forges) {

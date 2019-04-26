@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.rowpergroup;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 
 import java.util.*;
@@ -62,11 +62,11 @@ public class ResultSetProcessorRowPerGroupOutputAllHelperImpl implements ResultS
         }
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newData, Set<MultiKeyArrayOfKeys<EventBean>> oldData, boolean isGenerateSynthetic) {
         generateRemoveStreamJustOnce(isGenerateSynthetic, true);
 
         if (newData != null) {
-            for (MultiKey<EventBean> aNewData : newData) {
+            for (MultiKeyArrayOfKeys<EventBean> aNewData : newData) {
                 Object mk = processor.generateGroupKeySingle(aNewData.getArray(), true);
                 groupReps.put(mk, aNewData.getArray());
 
@@ -80,7 +80,7 @@ public class ResultSetProcessorRowPerGroupOutputAllHelperImpl implements ResultS
             }
         }
         if (oldData != null) {
-            for (MultiKey<EventBean> anOldData : oldData) {
+            for (MultiKeyArrayOfKeys<EventBean> anOldData : oldData) {
                 Object mk = processor.generateGroupKeySingle(anOldData.getArray(), false);
                 if (processor.isSelectRStream() && !groupRepsOutputLastUnordRStream.containsKey(mk)) {
                     EventBean event = processor.generateOutputBatchedNoSortWMap(true, mk, anOldData.getArray(), false, isGenerateSynthetic);

@@ -24,17 +24,22 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodA
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprPlugInAggNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class AggregationForgeFactoryPlugin extends AggregationForgeFactoryBase {
     protected final ExprPlugInAggNode parent;
     protected final AggregationFunctionForge aggregationFunctionForge;
     private final AggregationFunctionMode mode;
+    private final Class aggregatedValueType;
+    private final DataInputOutputSerdeForge distinctSerde;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryPlugin(ExprPlugInAggNode parent, AggregationFunctionForge aggregationFunctionForge, AggregationFunctionMode mode) {
+    public AggregationForgeFactoryPlugin(ExprPlugInAggNode parent, AggregationFunctionForge aggregationFunctionForge, AggregationFunctionMode mode, Class aggregatedValueType, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
         this.aggregationFunctionForge = aggregationFunctionForge;
         this.mode = mode;
+        this.aggregatedValueType = aggregatedValueType;
+        this.distinctSerde = distinctSerde;
     }
 
     public Class getResultType() {
@@ -52,9 +57,8 @@ public class AggregationForgeFactoryPlugin extends AggregationForgeFactoryBase {
             if (parent.getPositionalParams().length == 0) {
                 throw new IllegalArgumentException(AggregationFunctionModeManaged.class.getSimpleName() + " requires at least one positional parameter");
             }
-            Class aggregatedValueType = parent.getPositionalParams().length == 0 ? null : parent.getPositionalParams()[0].getForge().getEvaluationType();
             Class distinctType = !parent.isDistinct() ? null : aggregatedValueType;
-            aggregator = new AggregatorPlugInManaged(this, col, rowCtor, membersColumnized, classScope, distinctType, parent.getChildNodes().length > 1, parent.getOptionalFilter(), singleValue);
+            aggregator = new AggregatorPlugInManaged(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.getChildNodes().length > 1, parent.getOptionalFilter(), singleValue);
         } else if (mode instanceof AggregationFunctionModeMultiParam) {
             AggregationFunctionModeMultiParam multiParam = (AggregationFunctionModeMultiParam) mode;
             aggregator = new AggregatorPlugInMultiParam(this, col, rowCtor, membersColumnized, classScope, multiParam);

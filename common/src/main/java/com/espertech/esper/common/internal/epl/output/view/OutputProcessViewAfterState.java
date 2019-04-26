@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 
@@ -20,7 +20,7 @@ import java.util.Set;
 public interface OutputProcessViewAfterState {
     boolean checkUpdateAfterCondition(EventBean[] newEvents, StatementContext statementContext);
 
-    boolean checkUpdateAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext);
+    boolean checkUpdateAfterCondition(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, StatementContext statementContext);
 
     boolean checkUpdateAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext);
 

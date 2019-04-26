@@ -64,7 +64,7 @@ public class QueryPlanBuilder {
                 outerJoinType = outerJoinDescList[0].getOuterJoinType();
             }
 
-            QueryPlanForgeDesc queryPlan = TwoStreamQueryPlanBuilder.build(typesPerStream, queryGraph, outerJoinType, streamJoinAnalysisResult);
+            QueryPlanForgeDesc queryPlan = TwoStreamQueryPlanBuilder.build(typesPerStream, queryGraph, outerJoinType, streamJoinAnalysisResult, statementRawInfo);
             removeUnidirectionalAndTable(queryPlan.getForge(), streamJoinAnalysisResult);
 
             if (log.isDebugEnabled()) {
@@ -81,7 +81,7 @@ public class QueryPlanBuilder {
             QueryPlanForgeDesc queryPlan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream,
                     historicalViewableDesc, dependencyGraph, historicalStreamIndexLists,
                     hasForceNestedIter, streamJoinAnalysisResult.getUniqueKeys(),
-                    streamJoinAnalysisResult.getTablesPerStream(), streamJoinAnalysisResult);
+                    streamJoinAnalysisResult.getTablesPerStream(), streamJoinAnalysisResult, statementRawInfo, services.getSerdeResolver());
 
             if (queryPlan != null) {
                 removeUnidirectionalAndTable(queryPlan.getForge(), streamJoinAnalysisResult);

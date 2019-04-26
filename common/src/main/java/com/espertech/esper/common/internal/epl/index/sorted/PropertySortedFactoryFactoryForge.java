@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.epl.join.queryplan.CoercionDesc;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +32,14 @@ public class PropertySortedFactoryFactoryForge extends EventTableFactoryFactoryF
     private final String indexedProp;
     private final EventType eventType;
     private final CoercionDesc coercionDesc;
+    private final DataInputOutputSerdeForge serde;
 
-    public PropertySortedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexedProp, EventType eventType, CoercionDesc coercionDesc) {
+    public PropertySortedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexedProp, EventType eventType, CoercionDesc coercionDesc, DataInputOutputSerdeForge serde) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexedProp = indexedProp;
         this.eventType = eventType;
         this.coercionDesc = coercionDesc;
+        this.serde = serde;
     }
 
     protected Class typeOf() {
@@ -51,6 +54,7 @@ public class PropertySortedFactoryFactoryForge extends EventTableFactoryFactoryF
         EventPropertyGetterSPI getterSPI = ((EventTypeSPI) eventType).getGetterSPI(indexedProp);
         CodegenExpression getter = EventTypeUtility.codegenGetterWCoerce(getterSPI, propertyType, coercionDesc.getCoercionTypes()[0], method, this.getClass(), classScope);
         params.add(getter);
+        params.add(serde.codegen(method, classScope, null));
         return params;
     }
 

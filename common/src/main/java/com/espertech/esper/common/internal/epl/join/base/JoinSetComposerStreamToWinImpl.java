@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -38,8 +38,8 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer {
     private final boolean isResetSelfJoinRepositories;
     private final boolean[] selfJoinRepositoryResets;
 
-    private Set<MultiKey<EventBean>> emptyResults = new LinkedHashSet<MultiKey<EventBean>>();
-    private Set<MultiKey<EventBean>> newResults = new LinkedHashSet<MultiKey<EventBean>>();
+    private Set<MultiKeyArrayOfKeys<EventBean>> emptyResults = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
+    private Set<MultiKeyArrayOfKeys<EventBean>> newResults = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
 
     public JoinSetComposerStreamToWinImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, boolean isPureSelfJoin, int streamNumber, QueryStrategy queryStrategy, boolean[] selfJoinRepositoryResets) {
         this.allowInitIndex = allowInitIndex;
@@ -87,7 +87,7 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer {
         }
     }
 
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+    public UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         InstrumentationCommon instrumentationCommon = exprEvaluatorContext.getInstrumentationProvider();
         instrumentationCommon.qJoinCompositionStreamToWin();
 
@@ -127,10 +127,10 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer {
 
         exprEvaluatorContext.getInstrumentationProvider().aJoinCompositionStreamToWin(newResults);
 
-        return new UniformPair<Set<MultiKey<EventBean>>>(newResults, emptyResults);
+        return new UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>(newResults, emptyResults);
     }
 
-    public Set<MultiKey<EventBean>> staticJoin() {
+    public Set<MultiKeyArrayOfKeys<EventBean>> staticJoin() {
         throw new UnsupportedOperationException("Iteration over a unidirectional join is not supported");
     }
 

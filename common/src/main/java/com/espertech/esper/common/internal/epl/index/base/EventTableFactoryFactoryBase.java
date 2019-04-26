@@ -13,13 +13,11 @@ package com.espertech.esper.common.internal.epl.index.base;
 public abstract class EventTableFactoryFactoryBase implements EventTableFactoryFactory {
     protected final int indexedStreamNum;
     protected final Integer subqueryNum;
-    protected final Object optionalSerde;
     protected final boolean isFireAndForget;
 
-    public EventTableFactoryFactoryBase(int indexedStreamNum, Integer subqueryNum, Object optionalSerde, boolean isFireAndForget) {
+    public EventTableFactoryFactoryBase(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget) {
         this.indexedStreamNum = indexedStreamNum;
         this.subqueryNum = subqueryNum;
-        this.optionalSerde = optionalSerde;
         this.isFireAndForget = isFireAndForget;
     }
 }

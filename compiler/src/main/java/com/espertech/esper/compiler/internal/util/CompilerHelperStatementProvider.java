@@ -198,12 +198,12 @@ public class CompilerHelperStatementProvider {
 
             // Stage 3(b) - forge-factory-to-forge
             String classPostfix = moduleIdentPostfix + "_" + statementIdentPostfix;
-            List<StmtClassForgable> forgables = new ArrayList<>();
+            List<StmtClassForgeable> forgeables = new ArrayList<>();
 
-            // add forgables from filter-related processing i.e. multikeys
-            for (StmtClassForgableFactory additional : compiledDesc.getAdditionalForgeables()) {
+            // add forgeables from filter-related processing i.e. multikeys
+            for (StmtClassForgeableFactory additional : compiledDesc.getAdditionalForgeables()) {
                 CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, false);
-                forgables.add(additional.make(packageScope, classPostfix));
+                forgeables.add(additional.make(packageScope, classPostfix));
             }
 
             List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
@@ -211,8 +211,8 @@ public class CompilerHelperStatementProvider {
             List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
             List<FilterSpecParamExprNodeForge> filterBooleanExpressions = new ArrayList<>();
             StmtForgeMethodResult result = forgeMethod.make(packageName, classPostfix, compileTimeServices);
-            forgables.addAll(result.getForgeables());
-            verifyForgables(forgables);
+            forgeables.addAll(result.getForgeables());
+            verifyForgeables(forgeables);
 
             filterSpecCompileds.addAll(result.getFiltereds());
             scheduleHandleCallbackProviders.addAll(result.getScheduleds());
@@ -248,9 +248,9 @@ public class CompilerHelperStatementProvider {
             verifySubstitutionParams(raw.getSubstitutionParameters());
 
             // Stage 4 - forge-to-class (forge with statement-fields last)
-            List<CodegenClass> classes = new ArrayList<>(forgables.size());
-            for (StmtClassForgable forgable : forgables) {
-                CodegenClass clazz = forgable.forge(true);
+            List<CodegenClass> classes = new ArrayList<>(forgeables.size());
+            for (StmtClassForgeable forgeable : forgeables) {
+                CodegenClass clazz = forgeable.forge(true, false);
                 classes.add(clazz);
             }
 
@@ -271,25 +271,25 @@ public class CompilerHelperStatementProvider {
         }
     }
 
-    private static void verifyForgables(List<StmtClassForgable> forgables) {
+    private static void verifyForgeables(List<StmtClassForgeable> forgeables) {
         // there can only be one class of the same name
         Set<String> names = new HashSet<>();
-        for (StmtClassForgable forgable : forgables) {
-            if (names.contains(forgable.getClassName())) {
-                throw new IllegalStateException("Class name '" + forgable.getClassName() + "' appears twice");
+        for (StmtClassForgeable forgeable : forgeables) {
+            if (names.contains(forgeable.getClassName())) {
+                throw new IllegalStateException("Class name '" + forgeable.getClassName() + "' appears twice");
             }
-            names.add(forgable.getClassName());
+            names.add(forgeable.getClassName());
         }
 
         // there can be only one fields and statement provider
-        StmtClassForgable fields = null;
-        StmtClassForgable stmtProvider = null;
-        for (StmtClassForgable forgable : forgables) {
-            if (forgable.getForgableType() == StmtClassForgableType.STMTPROVIDER) {
+        StmtClassForgeable fields = null;
+        StmtClassForgeable stmtProvider = null;
+        for (StmtClassForgeable forgeable : forgeables) {
+            if (forgeable.getForgeableType() == StmtClassForgeableType.STMTPROVIDER) {
                 if (stmtProvider != null) {
                     throw new IllegalStateException("Multiple stmt-provider classes");
                 }
-                stmtProvider = forgable;
+                stmtProvider = forgeable;
             }
         }
     }

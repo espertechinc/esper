@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.table.core;
 
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 
 import java.util.function.BiConsumer;
@@ -31,8 +29,6 @@ public interface TableManagementService {
     void destroyTable(String deploymentId, String tableName);
 
     Table allocateTable(TableMetaData metadata);
-
-    TableSerdes getTableSerdes(Table table, DataInputOutputSerde aggregationSerde, StatementContext statementContext);
 
     TableInstance allocateTableInstance(Table table, AgentInstanceContext agentInstanceContext);
 

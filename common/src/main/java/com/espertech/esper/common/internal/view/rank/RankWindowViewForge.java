@@ -14,14 +14,15 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
-import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
-import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.view.core.*;
-import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.view.core.*;
+import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
 import com.espertech.esper.common.internal.view.util.ViewMultiKeyHelper;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
     protected ExprForge sizeForge;
     protected boolean useCollatorSort;
     protected MultiKeyClassRef multiKeyClassNames;
+    protected DataInputOutputSerdeForge[] sortSerdes;
 
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         this.viewParameters = parameters;
@@ -105,13 +107,14 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
             }
             count++;
         }
+        sortSerdes = viewForgeEnv.getSerdeResolver().serdeForDataWindowSortCriteria(ExprNodeUtilityQuery.getExprResultTypes(sortCriteriaExpressions), viewForgeEnv.getStatementRawInfo());
     }
 
     @Override
-    public List<StmtClassForgableFactory> initAdditionalForgeables() {
-        MultiKeyPlan desc = MultiKeyPlanner.planMultiKey(criteriaExpressions, false);
-        multiKeyClassNames = desc.getOptionalClassRef();
-        return desc.getMultiKeyForgables();
+    public List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
+        MultiKeyPlan desc = MultiKeyPlanner.planMultiKey(criteriaExpressions, false, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getStatementCompileTimeServices().getSerdeResolver());
+        multiKeyClassNames = desc.getClassRef();
+        return desc.getMultiKeyForgeables();
     }
 
     protected Class typeOfFactory() {
@@ -128,7 +131,8 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
                 .exprDotMethod(factory, "setSortCriteriaEvaluators", codegenEvaluators(sortCriteriaExpressions, method, this.getClass(), classScope))
                 .exprDotMethod(factory, "setSortCriteriaTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(sortCriteriaExpressions)))
                 .exprDotMethod(factory, "setIsDescendingValues", constant(isDescendingValues))
-                .exprDotMethod(factory, "setUseCollatorSort", constant(useCollatorSort));
+                .exprDotMethod(factory, "setUseCollatorSort", constant(useCollatorSort))
+                .exprDotMethod(factory, "setSortSerdes", DataInputOutputSerdeForge.codegenArray(sortSerdes, method, classScope, null));
         ViewMultiKeyHelper.assign(criteriaExpressions, multiKeyClassNames, method, factory, symbols, classScope);
     }
 

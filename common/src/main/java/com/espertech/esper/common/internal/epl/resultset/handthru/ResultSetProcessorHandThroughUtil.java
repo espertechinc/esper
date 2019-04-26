@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.handthru;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
 
@@ -60,7 +60,7 @@ public class ResultSetProcessorHandThroughUtil {
      * @param agentInstanceContext context
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectEventsNoHavingHandThruJoin(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext agentInstanceContext) {
+    public static EventBean[] getSelectEventsNoHavingHandThruJoin(SelectExprProcessor exprProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext agentInstanceContext) {
         int length = events.size();
         if (length == 0) {
             return null;
@@ -68,7 +68,7 @@ public class ResultSetProcessorHandThroughUtil {
 
         EventBean[] result = new EventBean[length];
         int count = 0;
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
             result[count] = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
             count++;

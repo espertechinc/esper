@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.agggrouped;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 
@@ -74,7 +74,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
         }
     }
 
-    public void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic) {
+    public void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newData, Set<MultiKeyArrayOfKeys<EventBean>> oldData, boolean isGenerateSynthetic) {
         Object[] newDataMultiKey = processor.generateGroupKeyArrayJoin(newData, true);
         Object[] oldDataMultiKey = processor.generateGroupKeyArrayJoin(oldData, false);
         Set<Object> keysSeenRemoved = new HashSet<>();
@@ -82,7 +82,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
         if (newData != null) {
             // apply new data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> aNewData : newData) {
+            for (MultiKeyArrayOfKeys<EventBean> aNewData : newData) {
                 Object mk = newDataMultiKey[count];
                 repsPerGroup.put(mk, aNewData.getArray());
                 lastSeenKeys.add(mk);
@@ -93,7 +93,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
         if (oldData != null) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> anOldData : oldData) {
+            for (MultiKeyArrayOfKeys<EventBean> anOldData : oldData) {
                 Object mk = oldDataMultiKey[count];
                 lastSeenKeys.add(mk);
                 keysSeenRemoved.add(mk);

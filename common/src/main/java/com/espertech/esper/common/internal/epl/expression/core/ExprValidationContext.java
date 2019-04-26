@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.annotation.AuditEnum;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.epl.enummethod.compile.EnumMethodCallStackHelperImpl;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
@@ -21,10 +22,14 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTim
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExprValidationContext {
 
@@ -43,6 +48,7 @@ public class ExprValidationContext {
     private final boolean aggregationFutureNameAlreadySet;
     private final StatementRawInfo statementRawInfo;
     private final StatementCompileTimeServices compileTimeServices;
+    private final List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
     public ExprValidationContext(StreamTypeService streamTypeService, ExprValidationContext ctx) {
         this(streamTypeService, ctx.getViewResourceDelegate(), ctx.contextDescriptor,
@@ -173,5 +179,17 @@ public class ExprValidationContext {
 
     public String getModuleName() {
         return statementRawInfo.getModuleName();
+    }
+
+    public SerdeCompileTimeResolver getSerdeResolver() {
+        return compileTimeServices.getSerdeResolver();
+    }
+
+    public SerdeEventTypeCompileTimeRegistry getSerdeEventTypeRegistry() {
+        return compileTimeServices.getSerdeEventTypeRegistry();
+    }
+
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
+        return additionalForgeables;
     }
 }

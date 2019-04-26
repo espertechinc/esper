@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamS
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -43,6 +43,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolverNonHA;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,7 @@ public class FAFQueryMethodSelectDesc {
     private final boolean isDistinct;
     private final MultiKeyClassRef distinctMultiKey;
     private Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges;
-    private final List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+    private final List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
     public FAFQueryMethodSelectDesc(StatementSpecCompiled statementSpec,
                                     Compilable compilable,
@@ -185,9 +186,9 @@ public class FAFQueryMethodSelectDesc {
             joins = null;
         }
 
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultSetProcessor.getResultEventType());
-        additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
-        this.distinctMultiKey = multiKeyPlan.getOptionalClassRef();
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultSetProcessor.getResultEventType(), statementRawInfo, SerdeCompileTimeResolverNonHA.INSTANCE);
+        additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
+        this.distinctMultiKey = multiKeyPlan.getClassRef();
     }
 
     public JoinSetComposerPrototypeForge getJoins() {
@@ -234,7 +235,7 @@ public class FAFQueryMethodSelectDesc {
         return isDistinct;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 

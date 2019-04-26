@@ -75,7 +75,7 @@ public class ViewDerived {
 
     public static class ViewSizeSceneTwo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String text = "@name('s0') select irstream * from  SupportMarketDataBean#size()";
+            String text = "@name('s0') select irstream * from SupportMarketDataBean#size()";
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("E1"));

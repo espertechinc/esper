@@ -27,9 +27,9 @@ import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMet
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassArrayTyped;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeEventTyped;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassArrayTyped;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
 
 import java.util.function.Consumer;
 
@@ -39,9 +39,9 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.util.CodegenFieldSharableComparator.CodegenSharableSerdeName.COMPARATOROBJECTARRAYNONHASHABLE;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassArrayTyped.CodegenSharableSerdeName.OBJECTARRAYMAYNULLNULL;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.EVENTNULLABLE;
+import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassArrayTyped.CodegenSharableSerdeName.OBJECTARRAYMAYNULLNULL;
+import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE;
+import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped.CodegenSharableSerdeName.NULLABLEEVENTMAYCOLLATE;
 
 /**
  * Implementation of access function for single-stream (not joins).
@@ -58,12 +58,12 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
         super(optionalFilter);
         this.forge = forge;
         currentMinMaxBean = membersColumnized.addMember(col, EventBean.class, "currentMinMaxBean");
-        currentMinMaxBeanSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeEventTyped(EVENTNULLABLE, forge.getSpec().getStreamEventType()));
+        currentMinMaxBeanSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeEventTyped(NULLABLEEVENTMAYCOLLATE, forge.getSpec().getStreamEventType()));
         currentMinMax = membersColumnized.addMember(col, Object.class, "currentMinMax");
         if (forge.getSpec().getCriteria().length == 1) {
-            currentMinMaxSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(VALUE_NULLABLE, forge.getSpec().getCriteriaTypes()[0]));
+            currentMinMaxSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(VALUE_NULLABLE, forge.getSpec().getCriteriaTypes()[0], forge.getSpec().getCriteriaSerdes()[0], classScope));
         } else {
-            currentMinMaxSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassArrayTyped(OBJECTARRAYMAYNULLNULL, forge.getSpec().getCriteriaTypes()));
+            currentMinMaxSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassArrayTyped(OBJECTARRAYMAYNULLNULL, forge.getSpec().getCriteriaTypes(), forge.getSpec().getCriteriaSerdes(), classScope));
         }
         comparator = classScope.addOrGetFieldSharable(new CodegenFieldSharableComparator(COMPARATOROBJECTARRAYNONHASHABLE, forge.getSpec().getCriteriaTypes(), forge.getSpec().isSortUsingCollator(), forge.getSpec().getSortDescending()));
     }

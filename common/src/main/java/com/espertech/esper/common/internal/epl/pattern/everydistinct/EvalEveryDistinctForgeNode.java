@@ -68,7 +68,7 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
             .exprDotMethod(ref("node"), "setChildNode", localMethod(getChildNodes().get(0).makeCodegen(method, symbols, classScope)))
             .exprDotMethod(ref("node"), "setDistinctExpression", distinctEval)
             .exprDotMethod(ref("node"), "setDistinctTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(distinctExpressions)))
-            .exprDotMethod(ref("node"), "setDistinctMultiKeySerde", MultiKeyCodegen.codegenOptionalSerde(distinctMultiKey))
+            .exprDotMethod(ref("node"), "setDistinctSerde", distinctMultiKey.getExprMKSerde(method, classScope))
             .exprDotMethod(ref("node"), "setConvertor", convertor.makeAnonymous(method, classScope))
             .exprDotMethod(ref("node"), "setTimePeriodCompute", timePeriodComputeForge == null ? constantNull() : timePeriodComputeForge.makeEvaluator(method, classScope));
     }

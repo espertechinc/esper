@@ -17,7 +17,8 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalStreamIndexListForge;
@@ -35,6 +36,7 @@ import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexU
 import com.espertech.esper.common.internal.epl.lookupplansubord.IndexKeyInfo;
 import com.espertech.esper.common.internal.epl.lookupplansubord.SubordinateQueryPlannerUtil;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.util.DependencyGraph;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
@@ -122,20 +124,22 @@ import java.util.*;
  */
 public class NStreamQueryPlanBuilder {
     protected static QueryPlanForgeDesc build(QueryGraphForge queryGraph,
-                                          EventType[] typesPerStream,
-                                          HistoricalViewableDesc historicalViewableDesc,
-                                          DependencyGraph dependencyGraph,
-                                          HistoricalStreamIndexListForge[] historicalStreamIndexLists,
-                                          boolean hasForceNestedIter,
-                                          String[][][] indexedStreamsUniqueProps,
-                                          TableMetaData[] tablesPerStream,
-                                          StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult) {
+                                              EventType[] typesPerStream,
+                                              HistoricalViewableDesc historicalViewableDesc,
+                                              DependencyGraph dependencyGraph,
+                                              HistoricalStreamIndexListForge[] historicalStreamIndexLists,
+                                              boolean hasForceNestedIter,
+                                              String[][][] indexedStreamsUniqueProps,
+                                              TableMetaData[] tablesPerStream,
+                                              StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
+                                              StatementRawInfo raw,
+                                              SerdeCompileTimeResolver serdeResolver) {
         if (log.isDebugEnabled()) {
             log.debug(".build filterQueryGraph=" + queryGraph);
         }
 
         int numStreams = queryGraph.getNumStreams();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         QueryPlanIndexForge[] indexSpecs = QueryPlanIndexBuilder.buildIndexSpec(queryGraph, typesPerStream, indexedStreamsUniqueProps);
         if (log.isDebugEnabled()) {
@@ -170,7 +174,7 @@ public class NStreamQueryPlanBuilder {
                 worstDepth = bestChainResult.depth;
             }
 
-            QueryPlanNodeForgeDesc planDesc = createStreamPlan(streamNo, bestChain, queryGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult);
+            QueryPlanNodeForgeDesc planDesc = createStreamPlan(streamNo, bestChain, queryGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), historicalStreamIndexLists, tablesPerStream, streamJoinAnalysisResult, raw, serdeResolver);
             planNodeSpecs[streamNo] = planDesc.getForge();
             additionalForgeables.addAll(planDesc.getAdditionalForgeables());
             if (log.isDebugEnabled()) {
@@ -190,7 +194,7 @@ public class NStreamQueryPlanBuilder {
                 public void visit(QueryPlanNodeForge node) {
                     if (node instanceof HistoricalDataPlanNodeForge) {
                         HistoricalDataPlanNodeForge historical = (HistoricalDataPlanNodeForge) node;
-                        JoinSetComposerPrototypeHistoricalDesc desc = historicalStreamIndexLists[historical.getStreamNum()].getStrategy(historical.getLookupStreamNum());
+                        JoinSetComposerPrototypeHistoricalDesc desc = historicalStreamIndexLists[historical.getStreamNum()].getStrategy(historical.getLookupStreamNum(), raw, serdeResolver);
                         historical.setPollResultIndexingStrategy(desc.getIndexingForge());
                         historical.setHistoricalIndexLookupStrategy(desc.getLookupForge());
                         additionalForgeables.addAll(desc.getAdditionalForgeables());
@@ -223,10 +227,12 @@ public class NStreamQueryPlanBuilder {
                                                          QueryPlanIndexForge[] indexSpecsPerStream, EventType[] typesPerStream,
                                                          boolean[] isHistorical, HistoricalStreamIndexListForge[] historicalStreamIndexLists,
                                                          TableMetaData[] tablesPerStream,
-                                                         StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult) {
+                                                         StreamJoinAnalysisResultCompileTime streamJoinAnalysisResult,
+                                                             StatementRawInfo raw,
+                                                             SerdeCompileTimeResolver serdeResolver) {
         NestedIterationNodeForge nestedIterNode = new NestedIterationNodeForge(bestChain);
         int currentLookupStream = lookupStream;
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         // Walk through each successive lookup
         for (int i = 0; i < bestChain.length; i++) {
@@ -240,7 +246,7 @@ public class NStreamQueryPlanBuilder {
                 historicalStreamIndexLists[indexedStream].addIndex(currentLookupStream);
                 node = new HistoricalDataPlanNodeForge(indexedStream, lookupStream, currentLookupStream, typesPerStream.length, null);
             } else {
-                TableLookupPlanDesc tableLookupPlan = createLookupPlan(queryGraph, currentLookupStream, indexedStream, streamJoinAnalysisResult.isVirtualDW(indexedStream), indexSpecsPerStream[indexedStream], typesPerStream, tablesPerStream[indexedStream]);
+                TableLookupPlanDesc tableLookupPlan = createLookupPlan(queryGraph, currentLookupStream, indexedStream, streamJoinAnalysisResult.isVirtualDW(indexedStream), indexSpecsPerStream[indexedStream], typesPerStream, tablesPerStream[indexedStream], raw, serdeResolver);
                 node = new TableLookupNodeForge(tableLookupPlan.getForge());
                 additionalForgeables.addAll(tableLookupPlan.getAdditionalForgeables());
             }
@@ -270,7 +276,9 @@ public class NStreamQueryPlanBuilder {
                                                         boolean indexedStreamIsVDW,
                                                         QueryPlanIndexForge indexSpecs,
                                                         EventType[] typesPerStream,
-                                                        TableMetaData indexedStreamTableMeta) {
+                                                        TableMetaData indexedStreamTableMeta,
+                                                       StatementRawInfo raw,
+                                                       SerdeCompileTimeResolver serdeResolver) {
         QueryGraphValueForge queryGraphValue = queryGraph.getGraphValue(currentLookupStream, indexedStream);
         QueryGraphValuePairHashKeyIndexForge hashKeyProps = queryGraphValue.getHashKeyProps();
         List<QueryGraphValueEntryHashKeyedForge> hashPropsKeys = hashKeyProps.getKeys();
@@ -410,11 +418,11 @@ public class NStreamQueryPlanBuilder {
             }
             Class[] coercionTypesArray = coercionTypes.getCoercionTypes();
             MultiKeyClassRef tableLookupMultiKey = null;
-            List<StmtClassForgableFactory> additionalForgeables = Collections.emptyList();
+            List<StmtClassForgeableFactory> additionalForgeables = Collections.emptyList();
             if (indexNum.getTableName() != null) {
-                MultiKeyPlan tableMultiKeyPlan = MultiKeyPlanner.planMultiKey(coercionTypesArray, true);
-                tableLookupMultiKey = tableMultiKeyPlan.getOptionalClassRef();
-                additionalForgeables = tableMultiKeyPlan.getMultiKeyForgables();
+                MultiKeyPlan tableMultiKeyPlan = MultiKeyPlanner.planMultiKey(coercionTypesArray, true, raw, serdeResolver);
+                tableLookupMultiKey = tableMultiKeyPlan.getClassRef();
+                additionalForgeables = tableMultiKeyPlan.getMultiKeyForgeables();
             }
             IndexedTableLookupPlanHashedOnlyForge forge = new IndexedTableLookupPlanHashedOnlyForge(currentLookupStream, indexedStream, indexedStreamIsVDW, typesPerStream, indexNum, hashPropsKeys.toArray(new QueryGraphValueEntryHashKeyedForge[hashPropsKeys.size()]), indexSpecs, coercionTypesArray, tableLookupMultiKey);
             return new TableLookupPlanDesc(forge, additionalForgeables);
@@ -433,11 +441,11 @@ public class NStreamQueryPlanBuilder {
             return new TableLookupPlanDesc(forge, Collections.emptyList());
         } else {
             MultiKeyClassRef tableLookupMultiKey = null;
-            List<StmtClassForgableFactory> additionalForgeables = Collections.emptyList();
+            List<StmtClassForgeableFactory> additionalForgeables = Collections.emptyList();
             if (indexNum.getTableName() != null) {
-                MultiKeyPlan tableMultiKeyPlan = MultiKeyPlanner.planMultiKey(coercionTypesHash.getCoercionTypes(), true);
-                tableLookupMultiKey = tableMultiKeyPlan.getOptionalClassRef();
-                additionalForgeables = tableMultiKeyPlan.getMultiKeyForgables();
+                MultiKeyPlan tableMultiKeyPlan = MultiKeyPlanner.planMultiKey(coercionTypesHash.getCoercionTypes(), true, raw, serdeResolver);
+                tableLookupMultiKey = tableMultiKeyPlan.getClassRef();
+                additionalForgeables = tableMultiKeyPlan.getMultiKeyForgeables();
             }
 
             // composite range and index lookup

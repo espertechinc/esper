@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.index.composite;
 
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
@@ -103,7 +103,7 @@ public abstract class PropertyCompositeEventTable implements EventTable {
         return factory.optRangeCoercedTypes;
     }
 
-    public MultiKeyGeneratedFromObjectArray getMultiKeyTransform() {
+    public MultiKeyFromObjectArray getMultiKeyTransform() {
         return factory.transformFireAndForget;
     }
 }

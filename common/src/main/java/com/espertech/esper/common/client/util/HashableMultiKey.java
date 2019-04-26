@@ -13,7 +13,10 @@ package com.espertech.esper.common.client.util;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public final class HashableMultiKey implements Serializable, MultiKeyGenerated {
+/**
+ * Multi-key made up of multiple values providing hashcode and equals semantics using {@link Arrays#hashCode()} and {@link Arrays#equals(Object[], Object[])}
+ */
+public final class HashableMultiKey implements Serializable, MultiKey {
     private static final long serialVersionUID = -7019971786796246533L;
     private final Object[] keys;
 

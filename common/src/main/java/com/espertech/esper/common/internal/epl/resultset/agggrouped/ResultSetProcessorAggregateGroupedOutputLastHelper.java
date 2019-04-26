@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.agggrouped;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputHelper;
 
@@ -21,7 +21,7 @@ public interface ResultSetProcessorAggregateGroupedOutputLastHelper extends Resu
 
     void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
 
-    void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic);
+    void processJoin(Set<MultiKeyArrayOfKeys<EventBean>> newData, Set<MultiKeyArrayOfKeys<EventBean>> oldData, boolean isGenerateSynthetic);
 
     UniformPair<EventBean[]> outputView(boolean isSynthesize);
 

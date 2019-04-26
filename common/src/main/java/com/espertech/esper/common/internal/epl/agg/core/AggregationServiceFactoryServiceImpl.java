@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimAgedEvalFuncFactory;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 
 public class AggregationServiceFactoryServiceImpl implements AggregationServiceFactoryService {
 
@@ -28,7 +27,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, Class[] groupByTypes, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, MultiKeyGeneratedSerde optionalGroupByMultiKeySerde) {
+    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, Class[] groupByTypes, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, DataInputOutputSerde<Object> groupKeySerde) {
         return nonHAFactory;
     }
 

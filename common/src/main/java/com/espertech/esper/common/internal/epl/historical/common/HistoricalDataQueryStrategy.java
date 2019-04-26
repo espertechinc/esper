@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.common;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategy;
@@ -69,7 +69,7 @@ public class HistoricalDataQueryStrategy implements QueryStrategy {
         this.pollResultIndexingStrategy = pollResultIndexingStrategy;
     }
 
-    public void lookup(EventBean[] lookupEvents, Set<MultiKey<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext) {
+    public void lookup(EventBean[] lookupEvents, Set<MultiKeyArrayOfKeys<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean[][] lookupRows;
 
         // If looking up a single event, reuse the buffered array
@@ -97,7 +97,7 @@ public class HistoricalDataQueryStrategy implements QueryStrategy {
             if (isOuterJoin && ((subsetIter == null || (!subsetIter.hasNext())))) {
                 EventBean[] resultRow = new EventBean[2];
                 resultRow[myStreamNumber] = lookupEvents[count];
-                joinSet.add(new MultiKey<EventBean>(resultRow));
+                joinSet.add(new MultiKeyArrayOfKeys<EventBean>(resultRow));
             } else {
                 boolean foundMatch = false;
                 if (subsetIter != null) {
@@ -111,11 +111,11 @@ public class HistoricalDataQueryStrategy implements QueryStrategy {
                         if (outerJoinCompareNode != null) {
                             Boolean compareResult = (Boolean) outerJoinCompareNode.evaluate(resultRow, true, exprEvaluatorContext);
                             if ((compareResult != null) && compareResult) {
-                                joinSet.add(new MultiKey<EventBean>(resultRow));
+                                joinSet.add(new MultiKeyArrayOfKeys<EventBean>(resultRow));
                                 foundMatch = true;
                             }
                         } else {
-                            joinSet.add(new MultiKey<EventBean>(resultRow));
+                            joinSet.add(new MultiKeyArrayOfKeys<EventBean>(resultRow));
                         }
                     }
                 }
@@ -123,7 +123,7 @@ public class HistoricalDataQueryStrategy implements QueryStrategy {
                 if (isOuterJoin && (!foundMatch)) {
                     EventBean[] resultRow = new EventBean[2];
                     resultRow[myStreamNumber] = lookupEvents[count];
-                    joinSet.add(new MultiKey<EventBean>(resultRow));
+                    joinSet.add(new MultiKeyArrayOfKeys<EventBean>(resultRow));
                 }
             }
             count++;

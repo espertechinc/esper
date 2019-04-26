@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVariab
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -217,7 +218,9 @@ public class FilterSpecCompilerPlanner {
         exprNode.accept(visitor);
         boolean hasVariable = visitor.isHasVariables();
 
-        ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(PROPERTY_NAME_BOOLEAN_EXPRESSION, null, exprNode.getForge().getEvaluationType(), false);
+        Class evalType = exprNode.getForge().getEvaluationType();
+        DataInputOutputSerdeForge serdeForge = args.compileTimeServices.getSerdeResolver().serdeForFilter(evalType, args.statementRawInfo);
+        ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(PROPERTY_NAME_BOOLEAN_EXPRESSION, null, evalType, false, serdeForge);
 
         return new FilterSpecParamExprNodeForge(lookupable, FilterOperator.BOOLEAN_EXPRESSION, exprNode, args.taggedEventTypes, args.arrayEventTypes, args.streamTypeService, hasSubselectFilterStream, hasTableAccess, hasVariable, args.compileTimeServices);
     }

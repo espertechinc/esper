@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactoryFactory;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactoryForge;
@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorType;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class OutputProcessViewForgeFactory {
         int streamCount = statementSpec.getStreamSpecs().length;
         boolean isDistinct = statementSpec.getRaw().getSelectClauseSpec().isDistinct();
         boolean isGrouped = statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getGroupByNodes().length > 0;
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(1);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(1);
 
         // determine routing
         boolean isRouted = false;
@@ -73,9 +74,9 @@ public class OutputProcessViewForgeFactory {
             outputStrategyPostProcessForge = new OutputStrategyPostProcessForge(isRouted, insertIntoStreamSelector, selectStreamSelector, routeToFront, table, audit);
         }
 
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultEventType);
-        MultiKeyClassRef distinctMultiKey = multiKeyPlan.getOptionalClassRef();
-        additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultEventType, statementRawInfo, services.getSerdeResolver());
+        MultiKeyClassRef distinctMultiKey = multiKeyPlan.getClassRef();
+        additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
 
         OutputProcessViewFactoryForge outputProcessViewFactoryForge;
         if (outputLimitSpec == null) {
@@ -102,6 +103,12 @@ public class OutputProcessViewForgeFactory {
                 // hint checking with order-by
                 boolean hasOptHint = ResultSetProcessorOutputConditionType.getOutputLimitOpt(statementSpec.getAnnotations(), services.getConfiguration(), hasOrderBy);
                 ResultSetProcessorOutputConditionType conditionType = ResultSetProcessorOutputConditionType.getConditionType(outputLimitSpec.getDisplayLimit(), resultSetProcessorType.isAggregated(), hasOrderBy, hasOptHint, resultSetProcessorType.isGrouped());
+
+                // plan serdes
+                for (EventType eventType : typesPerStream) {
+                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                    additionalForgeables.addAll(serdeForgeables);
+                }
 
                 boolean terminable = outputLimitSpec.getRateType() == OutputLimitRateType.TERM || outputLimitSpec.isAndAfterTerminate();
                 outputProcessViewFactoryForge = new OutputProcessViewConditionForge(outputStrategyPostProcessForge, isDistinct, distinctMultiKey, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), outputConditionFactoryForge, streamCount, conditionType, terminable, hasAfter, resultSetProcessorType.isUnaggregatedUngrouped(), selectStreamSelector, typesPerStream, resultEventType);

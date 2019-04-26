@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.queryplanbuild;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprIdentNodeImpl;
@@ -20,6 +21,7 @@ import com.espertech.esper.common.internal.epl.join.indexlookupplan.IndexedTable
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.*;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolverNonHA;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
@@ -60,7 +62,7 @@ public class TestNStreamQueryPlanBuilder extends TestCase {
     }
 
     public void testBuild() {
-        QueryPlanForgeDesc plan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream, new HistoricalViewableDesc(6), dependencyGraph, null, false, new String[queryGraph.getNumStreams()][][], new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5));
+        QueryPlanForgeDesc plan = NStreamQueryPlanBuilder.build(queryGraph, typesPerStream, new HistoricalViewableDesc(6), dependencyGraph, null, false, new String[queryGraph.getNumStreams()][][], new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5), null, SerdeCompileTimeResolverNonHA.INSTANCE);
 
         log.debug(".testBuild plan=" + plan.getForge());
     }
@@ -71,7 +73,7 @@ public class TestNStreamQueryPlanBuilder extends TestCase {
             log.debug(".testCreateStreamPlan index " + i + " = " + indexes[i]);
         }
 
-        QueryPlanNodeForgeDesc plan = NStreamQueryPlanBuilder.createStreamPlan(0, new int[]{2, 4, 3, 1}, queryGraph, indexes, typesPerStream, new boolean[5], null, new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5));
+        QueryPlanNodeForgeDesc plan = NStreamQueryPlanBuilder.createStreamPlan(0, new int[]{2, 4, 3, 1}, queryGraph, indexes, typesPerStream, new boolean[5], null, new TableMetaData[queryGraph.getNumStreams()], new StreamJoinAnalysisResultCompileTime(5), null, SerdeCompileTimeResolverNonHA.INSTANCE);
 
         log.debug(".testCreateStreamPlan plan=" + plan);
 

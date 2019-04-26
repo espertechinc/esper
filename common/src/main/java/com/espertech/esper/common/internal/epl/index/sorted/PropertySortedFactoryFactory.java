@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.index.sorted;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
@@ -21,16 +22,18 @@ public class PropertySortedFactoryFactory extends EventTableFactoryFactoryBase {
     private final String indexProp;
     private final Class indexType;
     private final EventPropertyValueGetter valueGetter;
+    private final DataInputOutputSerde<Object> indexSerde;
 
-    public PropertySortedFactoryFactory(int indexedStreamNum, Integer subqueryNum, Object optionalSerde, boolean isFireAndForget, String indexProp, Class indexType, EventPropertyValueGetter valueGetter) {
-        super(indexedStreamNum, subqueryNum, optionalSerde, isFireAndForget);
+    public PropertySortedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexProp, Class indexType, EventPropertyValueGetter valueGetter, DataInputOutputSerde<Object> indexSerde) {
+        super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexProp = indexProp;
         this.indexType = indexType;
         this.valueGetter = valueGetter;
+        this.indexSerde = indexSerde;
     }
 
     public EventTableFactory create(EventType eventType, StatementContext statementContext) {
         return statementContext.getEventTableIndexService().createSorted(indexedStreamNum, eventType, indexProp, indexType,
-                valueGetter, optionalSerde, isFireAndForget, statementContext);
+                valueGetter, indexSerde, null, isFireAndForget, statementContext);
     }
 }

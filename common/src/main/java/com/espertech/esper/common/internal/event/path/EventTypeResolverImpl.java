@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
 import com.espertech.esper.common.internal.event.core.EventTypeNameResolver;
+import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactory;
 
 import java.util.Collections;
 import java.util.Map;
@@ -29,12 +30,14 @@ public class EventTypeResolverImpl implements EventTypeResolver, EventTypeNameRe
     private final PathRegistry<String, EventType> path;
     private final EventTypeNameResolver publics;
     private final BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate;
+    private final EventSerdeFactory eventSerdeFactory;
 
-    public EventTypeResolverImpl(Map<String, EventType> locals, PathRegistry<String, EventType> path, EventTypeNameResolver publics, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate) {
+    public EventTypeResolverImpl(Map<String, EventType> locals, PathRegistry<String, EventType> path, EventTypeNameResolver publics, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, EventSerdeFactory eventSerdeFactory) {
         this.locals = locals;
         this.path = path;
         this.publics = publics;
         this.beanEventTypeFactoryPrivate = beanEventTypeFactoryPrivate;
+        this.eventSerdeFactory = eventSerdeFactory;
     }
 
     public EventType getTypeByName(String typeName) {
@@ -59,6 +62,14 @@ public class EventTypeResolverImpl implements EventTypeResolver, EventTypeNameRe
     }
 
     public EventType resolve(EventTypeMetadata metadata) {
+        return resolve(metadata, publics, locals, path);
+    }
+
+    public EventSerdeFactory getEventSerdeFactory() {
+        return eventSerdeFactory;
+    }
+
+    public static EventType resolve(EventTypeMetadata metadata, EventTypeNameResolver publics, Map<String, EventType> locals, PathRegistry<String, EventType> path) {
         EventType type;
         // public can only see public
         if (metadata.getAccessModifier() == NameAccessModifier.PRECONFIGURED) {
@@ -90,4 +101,5 @@ public class EventTypeResolverImpl implements EventTypeResolver, EventTypeNameRe
         }
         return type;
     }
+
 }

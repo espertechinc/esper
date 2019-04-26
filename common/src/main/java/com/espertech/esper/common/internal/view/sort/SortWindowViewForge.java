@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.core.ExprOrderedExpr;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
 
@@ -36,6 +37,7 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
     private ExprForge sizeForge;
     protected ExprNode[] sortCriteriaExpressions;
     protected boolean[] isDescendingValues;
+    protected DataInputOutputSerdeForge[] sortSerdes;
     private boolean useCollatorSort = false;
 
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
@@ -69,6 +71,7 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
                 sortCriteriaExpressions[i - 1] = validated[i];
             }
         }
+        sortSerdes = viewForgeEnv.getSerdeResolver().serdeForDataWindowSortCriteria(ExprNodeUtilityQuery.getExprResultTypes(sortCriteriaExpressions), viewForgeEnv.getStatementRawInfo());
     }
 
     protected Class typeOfFactory() {
@@ -85,7 +88,8 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
                 .exprDotMethod(factory, "setSortCriteriaEvaluators", codegenEvaluators(sortCriteriaExpressions, method, this.getClass(), classScope))
                 .exprDotMethod(factory, "setSortCriteriaTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(sortCriteriaExpressions)))
                 .exprDotMethod(factory, "setIsDescendingValues", constant(isDescendingValues))
-                .exprDotMethod(factory, "setUseCollatorSort", constant(useCollatorSort));
+                .exprDotMethod(factory, "setUseCollatorSort", constant(useCollatorSort))
+                .exprDotMethod(factory, "setSortSerdes", DataInputOutputSerdeForge.codegenArray(sortSerdes, method, classScope, null));
     }
 
     public String getViewName() {

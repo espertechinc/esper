@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.ExprAvgNode
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodAggUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.math.BigDecimal;
@@ -31,13 +32,15 @@ import java.math.MathContext;
 public class AggregationForgeFactoryAvg extends AggregationForgeFactoryBase {
     protected final ExprAvgNode parent;
     protected final Class childType;
+    protected final DataInputOutputSerdeForge distinctSerde;
     protected final Class resultType;
     protected final MathContext optionalMathContext;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryAvg(ExprAvgNode parent, Class childType, MathContext optionalMathContext) {
+    public AggregationForgeFactoryAvg(ExprAvgNode parent, Class childType, DataInputOutputSerdeForge distinctSerde, MathContext optionalMathContext) {
         this.parent = parent;
         this.childType = childType;
+        this.distinctSerde = distinctSerde;
         this.resultType = getAvgAggregatorType(childType);
         this.optionalMathContext = optionalMathContext;
     }
@@ -57,9 +60,9 @@ public class AggregationForgeFactoryAvg extends AggregationForgeFactoryBase {
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         Class distinctValueType = !parent.isDistinct() ? null : childType;
         if (resultType == BigInteger.class || resultType == BigDecimal.class) {
-            aggregator = new AggregatorAvgBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, parent.isHasFilter(), parent.getOptionalFilter());
+            aggregator = new AggregatorAvgBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
         } else {
-            aggregator = new AggregatorAvgNonBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, parent.isHasFilter(), parent.getOptionalFilter(), JavaClassHelper.getBoxedType(childType));
+            aggregator = new AggregatorAvgNonBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), JavaClassHelper.getBoxedType(childType));
         }
     }
 

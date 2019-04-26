@@ -12,8 +12,8 @@ package com.espertech.esper.common.internal.epl.index.hash;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
@@ -24,23 +24,23 @@ public class PropertyHashedFactoryFactory extends EventTableFactoryFactoryBase {
     private final Class[] indexTypes;
     private final boolean unique;
     private final EventPropertyValueGetter valueGetter;
-    private final MultiKeyGeneratedFromObjectArray transformFireAndForget;
-    private final MultiKeyGeneratedSerde optionalMultiKeySerde;
+    private final MultiKeyFromObjectArray transformFireAndForget;
+    private final DataInputOutputSerde<Object> keySerde;
 
-    public PropertyHashedFactoryFactory(int indexedStreamNum, Integer subqueryNum, Object optionalSerde, boolean isFireAndForget,
+    public PropertyHashedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget,
                                         String[] indexProps, Class[] indexTypes, boolean unique, EventPropertyValueGetter valueGetter,
-                                        MultiKeyGeneratedFromObjectArray transformFireAndForget, MultiKeyGeneratedSerde optionalMultiKeySerde) {
-        super(indexedStreamNum, subqueryNum, optionalSerde, isFireAndForget);
+                                        MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde) {
+        super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexProps = indexProps;
         this.indexTypes = indexTypes;
         this.unique = unique;
         this.valueGetter = valueGetter;
         this.transformFireAndForget = transformFireAndForget;
-        this.optionalMultiKeySerde = optionalMultiKeySerde;
+        this.keySerde = keySerde;
     }
 
     public EventTableFactory create(EventType eventType, StatementContext statementContext) {
         return statementContext.getEventTableIndexService().createHashedOnly(indexedStreamNum, eventType, indexProps,
-                indexTypes, transformFireAndForget, optionalMultiKeySerde, unique, null, valueGetter, optionalSerde, isFireAndForget, statementContext);
+                indexTypes, transformFireAndForget, keySerde, unique, null, valueGetter, null, isFireAndForget, statementContext);
     }
 }

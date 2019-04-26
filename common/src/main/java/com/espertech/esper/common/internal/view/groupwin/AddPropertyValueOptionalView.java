@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopCallback;
@@ -136,8 +136,8 @@ public final class AddPropertyValueOptionalView extends ViewSupport implements A
                                            EventType targetEventType,
                                            EventBeanTypedEventFactory eventAdapterService) {
         Map<String, Object> values = new HashMap<String, Object>();
-        if (propertyValues instanceof MultiKeyGenerated) {
-            MultiKeyGenerated props = (MultiKeyGenerated) propertyValues;
+        if (propertyValues instanceof MultiKey) {
+            MultiKey props = (MultiKey) propertyValues;
             for (int i = 0; i < propertyNames.length; i++) {
                 values.put(propertyNames[i], props.getKey(i));
             }

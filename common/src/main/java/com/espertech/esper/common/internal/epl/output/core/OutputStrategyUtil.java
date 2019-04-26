@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.output.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.join.base.JoinExecutionStrategy;
@@ -59,7 +59,7 @@ public class OutputStrategyUtil {
         Iterator<EventBean> iterator;
         EventType eventType;
         if (joinExecutionStrategy != null) {
-            Set<MultiKey<EventBean>> joinSet = joinExecutionStrategy.staticJoin();
+            Set<MultiKeyArrayOfKeys<EventBean>> joinSet = joinExecutionStrategy.staticJoin();
             iterator = resultSetProcessor.getIterator(joinSet);
         } else if (resultSetProcessor != null) {
             iterator = resultSetProcessor.getIterator(parentView);

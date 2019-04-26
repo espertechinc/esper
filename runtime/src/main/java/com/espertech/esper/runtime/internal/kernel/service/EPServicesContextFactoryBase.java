@@ -89,7 +89,8 @@ import com.espertech.esper.common.internal.filterspec.FilterSharedBoolExprReposi
 import com.espertech.esper.common.internal.filterspec.FilterSharedLookupableRepository;
 import com.espertech.esper.common.internal.metrics.stmtmetrics.MetricReportingService;
 import com.espertech.esper.common.internal.schedule.TimeSourceService;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeProvider;
+import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactory;
+import com.espertech.esper.common.internal.serde.runtime.eventtype.EventTypeSerdeRepository;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
@@ -160,8 +161,6 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
     protected abstract EventTableIndexService makeEventTableIndexService(RuntimeExtensionServices ext);
 
-    protected abstract DataInputOutputSerdeProvider makeSerdeProvider(RuntimeExtensionServices ext);
-
     protected abstract ResultSetProcessorHelperFactory makeResultSetProcessorHelperFactory(RuntimeExtensionServices ext);
 
     protected abstract NamedWindowDispatchService makeNamedWindowDispatchService(SchedulingServiceSPI schedulingService, Configuration configurationSnapshot, ManagedReadWriteLock eventProcessingRWLock, ExceptionHandlingService exceptionHandlingService, VariableManagementService variableManagementService, TableManagementService tableManagementService, MetricReportingService metricReportingService);
@@ -183,6 +182,10 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
     protected abstract DataFlowFilterServiceAdapter makeDataFlowFilterServiceAdapter();
 
     protected abstract ThreadingService makeThreadingService(Configuration configs);
+
+    protected abstract EventTypeSerdeRepository makeEventTypeSerdeRepository(EventTypeRepository preconfigureds, PathRegistry<String, EventType> eventTypePathRegistry);
+
+    protected abstract EventSerdeFactory makeEventSerdeFactory(RuntimeExtensionServices ext);
 
     public EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configs) {
 
@@ -256,8 +259,6 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
         ViewServicePreviousFactory viewServicePreviousFactory = makeViewServicePreviousFactory(epServicesHA.getRuntimeExtensionServices());
 
-        DataInputOutputSerdeProvider dataInputOutputSerdeProvider = makeSerdeProvider(epServicesHA.getRuntimeExtensionServices());
-
         EPStatementFactory epStatementFactory = makeEPStatementFactory();
 
         long msecTimerResolution = configs.getRuntime().getThreading().getInternalTimerMsecResolution();
@@ -277,7 +278,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         VariableUtil.configureVariables(variableRepositoryPreconfigured, configs.getCommon().getVariables(), classpathImportServiceRuntime, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate);
         VariableManagementService variableManagementService = makeVariableManagementService(configs, schedulingService, eventBeanTypedEventFactory, runtimeSettingsService, epServicesHA);
         for (Map.Entry<String, VariableMetaData> publicVariable : variableRepositoryPreconfigured.getMetadata().entrySet()) {
-            variableManagementService.addVariable(null, publicVariable.getValue(), null);
+            variableManagementService.addVariable(null, publicVariable.getValue(), null, null);
             variableManagementService.allocateVariableState(null, publicVariable.getKey(), DEFAULT_AGENT_INSTANCE_ID, false, null, eventBeanTypedEventFactory);
         }
         PathRegistry<String, VariableMetaData> variablePathRegistry = new PathRegistry<>(PathRegistryObjectType.VARIABLE);
@@ -325,6 +326,8 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
         ThreadingService threadingService = makeThreadingService(configs);
         EPRenderEventServiceImpl eventRenderer = new EPRenderEventServiceImpl();
+        EventSerdeFactory eventSerdeFactory = makeEventSerdeFactory(epServicesHA.getRuntimeExtensionServices());
+        EventTypeSerdeRepository eventTypeSerdeRepository = makeEventTypeSerdeRepository(eventTypeRepositoryPreconfigured, eventTypePathRegistry);
 
         return new EPServicesContext(aggregationServiceFactoryService,
                 beanEventTypeFactoryPrivate,
@@ -336,8 +339,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
                 contextServiceFactory,
                 dataflowService,
                 dataFlowFilterServiceAdapter,
-                dataInputOutputSerdeProvider,
-                databaseConfigServiceRuntime,
+            databaseConfigServiceRuntime,
                 deploymentLifecycleService,
                 dispatchService,
                 runtimeEnvContext,
@@ -352,12 +354,14 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
                 eventBeanService,
                 eventBeanTypedEventFactory,
                 eventRenderer,
+                eventSerdeFactory,
                 eventTableIndexService,
                 eventTypeAvroHandler,
                 eventTypeFactory,
                 eventTypePathRegistry,
                 eventTypeRepositoryPreconfigured,
                 eventTypeResolvingBeanFactory,
+                eventTypeSerdeRepository,
                 exceptionHandlingService,
                 expressionResultCacheSharable,
                 filterBooleanExpressionFactory,

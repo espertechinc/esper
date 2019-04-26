@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 
 import java.util.Arrays;
 
@@ -27,16 +26,16 @@ public class AggregationGroupByRollupLevelForge {
     private final int levelOffset;
     private final int[] rollupKeys;
     private final Class[] allGroupKeyTypes;
-    private final MultiKeyClassRef optionalAllKeysMultikey;
-    private final MultiKeyClassRef optionalSubKeyMultikey;
+    private final MultiKeyClassRef allKeysMultikey;
+    private final MultiKeyClassRef subKeyMultikey;
 
-    public AggregationGroupByRollupLevelForge(int levelNumber, int levelOffset, int[] rollupKeys, Class[] allGroupKeyTypes, MultiKeyClassRef optionalAllKeysMultikey, MultiKeyClassRef optionalSubKeyMultikey) {
+    public AggregationGroupByRollupLevelForge(int levelNumber, int levelOffset, int[] rollupKeys, Class[] allGroupKeyTypes, MultiKeyClassRef allKeysMultikey, MultiKeyClassRef subKeyMultikey) {
         this.levelNumber = levelNumber;
         this.levelOffset = levelOffset;
         this.rollupKeys = rollupKeys;
         this.allGroupKeyTypes = allGroupKeyTypes;
-        this.optionalAllKeysMultikey = optionalAllKeysMultikey;
-        this.optionalSubKeyMultikey = optionalSubKeyMultikey;
+        this.allKeysMultikey = allKeysMultikey;
+        this.subKeyMultikey = subKeyMultikey;
     }
 
     public int getAggregationOffset() {
@@ -52,9 +51,9 @@ public class AggregationGroupByRollupLevelForge {
         CodegenExpression serde = constantNull();
         if (rollupKeys != null) {
             if (allGroupKeyTypes.length == rollupKeys.length) {
-                serde = MultiKeyCodegen.codegenOptionalSerde(optionalAllKeysMultikey);
+                serde = allKeysMultikey.getExprMKSerde(method, classScope);
             } else {
-                serde = MultiKeyCodegen.codegenOptionalSerde(optionalSubKeyMultikey);
+                serde = subKeyMultikey.getExprMKSerde(method, classScope);
             }
         }
 
@@ -66,12 +65,12 @@ public class AggregationGroupByRollupLevelForge {
 
         if (isAggregationTop()) {
             computeSubkey.getBlock().methodReturn(constantNull());
-        } else if (optionalAllKeysMultikey == null || allGroupKeyTypes.length == rollupKeys.length) {
+        } else if (allKeysMultikey == null || allGroupKeyTypes.length == rollupKeys.length) {
             computeSubkey.getBlock().methodReturn(ref("groupKey"));
         } else {
             computeSubkey.getBlock()
-                .declareVar(optionalAllKeysMultikey.getClassNameMK(), "mk", cast(optionalAllKeysMultikey.getClassNameMK(), ref("groupKey")));
-            if (rollupKeys.length == 1 && optionalSubKeyMultikey == null) {
+                .declareVar(allKeysMultikey.getClassNameMK(), "mk", cast(allKeysMultikey.getClassNameMK(), ref("groupKey")));
+            if (rollupKeys.length == 1 && (subKeyMultikey == null || subKeyMultikey.getClassNameMK() == null)) {
                 computeSubkey.getBlock().methodReturn(exprDotMethod(ref("mk"), "getKey", constant(rollupKeys[0])));
             } else {
                 CodegenExpression[] expressions = new CodegenExpression[rollupKeys.length];
@@ -80,7 +79,7 @@ public class AggregationGroupByRollupLevelForge {
                     CodegenExpression keyExpr = exprDotMethod(ref("mk"), "getKey", constant(index));
                     expressions[i] = cast(allGroupKeyTypes[index], keyExpr);
                 }
-                computeSubkey.getBlock().methodReturn(newInstance(optionalSubKeyMultikey.getClassNameMK(), expressions));
+                computeSubkey.getBlock().methodReturn(newInstance(subKeyMultikey.getClassNameMK(), expressions));
             }
         }
 

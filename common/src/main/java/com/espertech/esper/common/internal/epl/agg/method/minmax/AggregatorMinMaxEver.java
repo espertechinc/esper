@@ -22,7 +22,8 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.function.Consumer;
 
@@ -31,7 +32,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LT;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.*;
 import static com.espertech.esper.common.internal.epl.expression.core.MinMaxTypeEnum.MAX;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE;
 
 /**
  * Min/max aggregator for all values, not considering events leaving the aggregation (i.e. ever).
@@ -42,11 +42,11 @@ public class AggregatorMinMaxEver extends AggregatorMethodWDistinctWFilterWValue
     private final CodegenExpressionRef currentMinMax;
     private final CodegenExpressionField serde;
 
-    public AggregatorMinMaxEver(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
+    public AggregatorMinMaxEver(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, DataInputOutputSerdeForge serde) {
+        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
         currentMinMax = membersColumnized.addMember(col, Comparable.class, "currentMinMax");
-        serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(VALUE_NULLABLE, factory.type));
+        this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE, factory.type, serde, classScope));
     }
 
     protected void applyEvalEnterNonNull(CodegenExpressionRef value, Class valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {

@@ -60,7 +60,6 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableCollectorIm
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactoryPrivate;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryRuntime;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
-import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
@@ -134,11 +133,11 @@ public class Deployer {
         Set<String> deploymentIdDependencies = resolveDependencies(moduleDependencies, services);
 
         // keep protected types
-        BeanEventTypeFactoryPrivate beanEventTypeFactory = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(services.getEventTypeAvroHandler()), EventTypeFactoryImpl.INSTANCE, services.getBeanEventTypeStemService());
+        BeanEventTypeFactoryPrivate beanEventTypeFactory = new BeanEventTypeFactoryPrivate(new EventBeanTypedEventFactoryRuntime(services.getEventTypeAvroHandler()), services.getEventTypeFactory(), services.getBeanEventTypeStemService());
 
         // initialize module event types
         Map<String, EventType> moduleEventTypes = new HashMap<>();
-        EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleEventTypes, services.getEventTypePathRegistry(), services.getEventTypeRepositoryBus(), services.getBeanEventTypeFactoryPrivate());
+        EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleEventTypes, services.getEventTypePathRegistry(), services.getEventTypeRepositoryBus(), services.getBeanEventTypeFactoryPrivate(), services.getEventSerdeFactory());
         EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleEventTypes, beanEventTypeFactory, services.getEventTypeFactory(), services.getBeanEventTypeStemService(), eventTypeResolver, services.getXmlFragmentEventTypeFactory(), services.getEventTypeAvroHandler(), services.getEventBeanTypedEventFactory());
         try {
             provider.getModuleProvider().initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
@@ -275,6 +274,10 @@ public class Deployer {
                 }
                 deploymentTypes.put(nameTypeId, eventTypeSPI);
             }
+
+            // add serde information to event types
+            epRuntime.getServicesContext().getEventTypeSerdeRepository().addSerdes(deploymentId, eventTypeCollector.getSerdes(), moduleEventTypes, beanEventTypeFactory);
+
             for (Map.Entry<String, ContextMetaData> entry : moduleContexts.entrySet()) {
                 if (entry.getValue().getContextVisibility().isNonPrivateNonTransient()) {
                     try {

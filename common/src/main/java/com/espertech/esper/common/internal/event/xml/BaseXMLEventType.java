@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.core.*;
@@ -79,6 +80,14 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
                 throw new ConfigurationException("Error configuring XPath variable resolver for XML type '" + configurationEventTypeXMLDOM.getRootElementName() + "' : " + ex.getMessage(), ex);
             }
         }
+    }
+
+    public void setUnderlyingBindingDIO(DataInputOutputSerde<Object> underlyingSerde) {
+        throw new UnsupportedOperationException("XML event type does not receive a serde");
+    }
+
+    public DataInputOutputSerde getUnderlyingBindingDIO() {
+        return null;
     }
 
     /**

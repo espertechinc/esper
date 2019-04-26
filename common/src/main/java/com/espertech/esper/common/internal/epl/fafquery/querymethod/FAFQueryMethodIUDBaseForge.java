@@ -15,7 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.compile.faf.StmtClassForgableQueryMethodProvider;
+import com.espertech.esper.common.internal.compile.faf.StmtClassForgeableQueryMethodProvider;
 import com.espertech.esper.common.internal.compile.stage1.Compilable;
 import com.espertech.esper.common.internal.compile.stage1.spec.FireAndForgetSpecDelete;
 import com.espertech.esper.common.internal.compile.stage1.spec.FireAndForgetSpecUpdate;
@@ -24,7 +24,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamS
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -116,10 +116,10 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
         tableAccessForges = ExprTableEvalHelperPlan.planTableAccess(spec.getRaw().getTableExpressions());
     }
 
-    public final List<StmtClassForgable> makeForgables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope) {
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        forgables.add(new StmtClassForgableQueryMethodProvider(queryMethodProviderClassName, packageScope, this));
-        return forgables;
+    public final List<StmtClassForgeable> makeForgeables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope) {
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        forgeables.add(new StmtClassForgeableQueryMethodProvider(queryMethodProviderClassName, packageScope, this));
+        return forgeables;
     }
 
     public final void makeMethod(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.collection.ArrayEventIterator;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -459,7 +459,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock ifNewApplyAgg = forEach.ifCondition(notEqualsNull(ref("newData")));
                     {
-                        CodegenBlock forNew = ifNewApplyAgg.forEach(MultiKey.class, "aNewData", ref("newData"))
+                        CodegenBlock forNew = ifNewApplyAgg.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                                 .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
@@ -480,7 +480,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
                     CodegenBlock ifOldApplyAgg = forEach.ifCondition(notEqualsNull(ref("oldData")));
                     {
-                        CodegenBlock forOld = ifOldApplyAgg.forEach(MultiKey.class, "anOldData", ref("oldData"))
+                        CodegenBlock forOld = ifOldApplyAgg.forEach(MultiKeyArrayOfKeys.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
                                 .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                         {
@@ -531,7 +531,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 {
                     CodegenBlock ifNewApplyAgg = forEach.ifCondition(notEqualsNull(ref("newData")));
                     {
-                        CodegenBlock forNew = ifNewApplyAgg.forEach(MultiKey.class, "aNewData", ref("newData"))
+                        CodegenBlock forNew = ifNewApplyAgg.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                                 .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
@@ -544,7 +544,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
                     CodegenBlock ifOldApplyAgg = forEach.ifCondition(notEqualsNull(ref("oldData")));
                     {
-                        CodegenBlock forOld = ifOldApplyAgg.forEach(MultiKey.class, "anOldData", ref("oldData"))
+                        CodegenBlock forOld = ifOldApplyAgg.forEach(MultiKeyArrayOfKeys.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
                                 .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                         {
@@ -557,7 +557,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
                     CodegenBlock ifNewFirst = forEach.ifCondition(notEqualsNull(ref("newData")));
                     {
-                        CodegenBlock forNewFirst = ifNewFirst.forEach(MultiKey.class, "aNewData", ref("newData"))
+                        CodegenBlock forNewFirst = ifNewFirst.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                                 .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
@@ -578,7 +578,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
                     CodegenBlock ifOldFirst = forEach.ifCondition(notEqualsNull(ref("oldData")));
                     {
-                        CodegenBlock forOldFirst = ifOldFirst.forEach(MultiKey.class, "anOldData", ref("oldData"))
+                        CodegenBlock forOldFirst = ifOldFirst.forEach(MultiKeyArrayOfKeys.class, "anOldData", ref("oldData"))
                                 .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
                                 .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                         {
@@ -885,7 +885,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             {
                 CodegenBlock ifNew = forEach.ifCondition(notEqualsNull(ref("newData")));
                 {
-                    CodegenBlock forNew = ifNew.forEach(MultiKey.class, "aNewData", ref("newData"))
+                    CodegenBlock forNew = ifNew.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                             .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                     {
@@ -903,7 +903,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
                 CodegenBlock ifOld = forEach.ifCondition(notEqualsNull(ref("oldData")));
                 {
-                    CodegenBlock forOld = ifOld.forEach(MultiKey.class, "anOldData", ref("oldData"))
+                    CodegenBlock forOld = ifOld.forEach(MultiKeyArrayOfKeys.class, "anOldData", ref("oldData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
                             .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                     {
@@ -1021,7 +1021,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             {
                 CodegenBlock ifNew = forEach.ifCondition(notEqualsNull(ref("newData")));
                 {
-                    CodegenBlock forNew = ifNew.forEach(MultiKey.class, "aNewData", ref("newData"))
+                    CodegenBlock forNew = ifNew.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                             .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()));
                     {
@@ -1039,7 +1039,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
                 CodegenBlock ifOld = forEach.ifCondition(notEqualsNull(ref("oldData")));
                 {
-                    CodegenBlock forOld = ifOld.forEach(MultiKey.class, "anOldData", ref("oldData"))
+                    CodegenBlock forOld = ifOld.forEach(MultiKeyArrayOfKeys.class, "anOldData", ref("oldData"))
                             .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
                             .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()));
                     {
@@ -1139,7 +1139,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                     .declareVar(AggregationGroupByRollupLevel[].class, "levels", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
                     .declareVar(int.class, "count", constant(-1));
             {
-                CodegenBlock forLoop = methodNode.getBlock().forEach(MultiKey.class, "eventrow", ref("events"));
+                CodegenBlock forLoop = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "eventrow", ref("events"));
                 forLoop.increment("count")
                         .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("eventrow"), "getArray")))
                         .declareVar(Object.class, "groupKeyComplete", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), REF_ISNEWDATA))
@@ -1230,7 +1230,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         {
             CodegenBlock ifNew = method.getBlock().ifCondition(notEqualsNull(REF_NEWDATA));
             {
-                ifNew.forEach(MultiKey.class, "mk", REF_NEWDATA)
+                ifNew.forEach(MultiKeyArrayOfKeys.class, "mk", REF_NEWDATA)
                         .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("mk"), "getArray")))
                         .declareVar(Object[].class, "keys", localMethod(generateGroupKeysRow, ref("eventsPerStream"), constantTrue()))
                         .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("keys"), REF_AGENTINSTANCECONTEXT);
@@ -1239,7 +1239,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         {
             CodegenBlock ifOld = method.getBlock().ifCondition(notEqualsNull(REF_OLDDATA));
             {
-                ifOld.forEach(MultiKey.class, "mk", REF_OLDDATA)
+                ifOld.forEach(MultiKeyArrayOfKeys.class, "mk", REF_OLDDATA)
                         .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("mk"), "getArray")))
                         .declareVar(Object[].class, "keys", localMethod(generateGroupKeysRow, ref("eventsPerStream"), constantFalse()))
                         .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("keys"), REF_AGENTINSTANCECONTEXT);

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.expression.agg.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -50,8 +50,8 @@ public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprForge
         method.getBlock()
             .declareVar(Object.class, "key", exprDotMethod(future, "getGroupKey", exprDotMethod(symbol.getAddExprEvalCtx(method), "getAgentInstanceId")));
 
-        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKeyGenerated.class))
-            .declareVar(MultiKeyGenerated.class, "mk", cast(MultiKeyGenerated.class, ref("key")))
+        method.getBlock().ifCondition(instanceOf(ref("key"), MultiKey.class))
+            .declareVar(MultiKey.class, "mk", cast(MultiKey.class, ref("key")))
             .blockReturn(CodegenLegoCast.castSafeFromObjectType(returnType, exprDotMethod(ref("mk"), "getKey", constant(groupKeyIndex))));
 
         method.getBlock().ifCondition(instanceOf(ref("key"), MultiKeyArrayWrap.class))

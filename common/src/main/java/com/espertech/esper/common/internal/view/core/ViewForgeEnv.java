@@ -17,6 +17,8 @@ import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRe
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 
 import java.lang.annotation.Annotation;
@@ -78,5 +80,13 @@ public class ViewForgeEnv {
 
     public String getModuleName() {
         return args.getStatementRawInfo().getModuleName();
+    }
+
+    public SerdeEventTypeCompileTimeRegistry getSerdeEventTypeRegistry() {
+        return args.getCompileTimeServices().getSerdeEventTypeRegistry();
+    }
+
+    public SerdeCompileTimeResolver getSerdeResolver() {
+        return args.getCompileTimeServices().getSerdeResolver();
     }
 }

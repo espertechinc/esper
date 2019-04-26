@@ -11,13 +11,19 @@
 package com.espertech.esper.common.internal.compile.multikey;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.collection.*;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSingleton;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
+import com.espertech.esper.common.internal.serde.serdeset.multikey.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
@@ -29,24 +35,24 @@ public class MultiKeyPlanner {
         return arrayComponentType == Object.class || arrayComponentType.isArray();
     }
 
-    public static MultiKeyPlan planMultiKeyDistinct(boolean isDistinct, EventType eventType) {
+    public static MultiKeyPlan planMultiKeyDistinct(boolean isDistinct, EventType eventType, StatementRawInfo raw, SerdeCompileTimeResolver serdeResolver) {
         if (!isDistinct) {
-            return new MultiKeyPlan(Collections.emptyList(), null);
+            return new MultiKeyPlan(Collections.emptyList(), MultiKeyClassRefEmpty.INSTANCE);
         }
         String[] propertyNames = eventType.getPropertyNames();
         Class[] props = new Class[propertyNames.length];
         for (int i = 0; i < propertyNames.length; i++) {
             props[i] = eventType.getPropertyType(propertyNames[i]);
         }
-        return planMultiKey(props, false);
+        return planMultiKey(props, false, raw, serdeResolver);
     }
 
-    public static MultiKeyPlan planMultiKey(ExprNode[] criteriaExpressions, boolean lenientEquals) {
-        return planMultiKey(ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions), lenientEquals);
+    public static MultiKeyPlan planMultiKey(ExprNode[] criteriaExpressions, boolean lenientEquals, StatementRawInfo raw, SerdeCompileTimeResolver serdeResolver) {
+        return planMultiKey(ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions), lenientEquals, raw, serdeResolver);
     }
 
-    public static MultiKeyPlan planMultiKey(ExprForge[] criteriaExpressions, boolean lenientEquals) {
-        return planMultiKey(ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions), lenientEquals);
+    public static MultiKeyPlan planMultiKey(ExprForge[] criteriaExpressions, boolean lenientEquals, StatementRawInfo raw, SerdeCompileTimeResolver serdeResolver) {
+        return planMultiKey(ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions), lenientEquals, raw, serdeResolver);
     }
 
     public static Class getMKClassForComponentType(Class componentType) {
@@ -70,42 +76,65 @@ public class MultiKeyPlanner {
         return MultiKeyArrayObject.class;
     }
 
-    public static MultiKeyPlan planMultiKey(Class[] criteriaExpressionTypes, boolean lenientEquals) {
-        if (criteriaExpressionTypes == null || criteriaExpressionTypes.length == 0) {
-            return new MultiKeyPlan(Collections.emptyList(), null);
+    public static DataInputOutputSerde getMKSerdeClassForComponentType(Class componentType) {
+        if (componentType == boolean.class) {
+            return DIOMultiKeyArrayBooleanSerde.INSTANCE;
+        } else if (componentType == byte.class) {
+            return DIOMultiKeyArrayByteSerde.INSTANCE;
+        } else if (componentType == char.class) {
+            return DIOMultiKeyArrayCharSerde.INSTANCE;
+        } else if (componentType == short.class) {
+            return DIOMultiKeyArrayShortSerde.INSTANCE;
+        } else if (componentType == int.class) {
+            return DIOMultiKeyArrayIntSerde.INSTANCE;
+        } else if (componentType == long.class) {
+            return DIOMultiKeyArrayLongSerde.INSTANCE;
+        } else if (componentType == float.class) {
+            return DIOMultiKeyArrayFloatSerde.INSTANCE;
+        } else if (componentType == double.class) {
+            return DIOMultiKeyArrayDoubleSerde.INSTANCE;
+        }
+        return DIOMultiKeyArrayObjectSerde.INSTANCE;
+    }
+
+    public static MultiKeyPlan planMultiKey(Class[] types, boolean lenientEquals, StatementRawInfo raw, SerdeCompileTimeResolver serdeResolver) {
+        if (types == null || types.length == 0) {
+            return new MultiKeyPlan(Collections.emptyList(), MultiKeyClassRefEmpty.INSTANCE);
         }
 
-        if (criteriaExpressionTypes.length == 1) {
-            Class paramType = criteriaExpressionTypes[0];
-            if (paramType == null) {
-                return new MultiKeyPlan(Collections.emptyList(), null);
-            }
-            if (!paramType.isArray()) {
-                return new MultiKeyPlan(Collections.emptyList(), null);
+        if (types.length == 1) {
+            Class paramType = types[0];
+            if (paramType == null || !paramType.isArray()) {
+                DataInputOutputSerdeForge serdeForge = serdeResolver.serdeForKeyNonArray(paramType, raw);
+                return new MultiKeyPlan(Collections.emptyList(), new MultiKeyClassRefWSerde(serdeForge, types));
             }
             Class mkClass = getMKClassForComponentType(paramType.getComponentType());
-            return new MultiKeyPlan(Collections.emptyList(), new MultiKeyClassRefPredetermined(mkClass, criteriaExpressionTypes, null));
+            DataInputOutputSerde mkSerde = getMKSerdeClassForComponentType(paramType.getComponentType());
+            return new MultiKeyPlan(Collections.emptyList(), new MultiKeyClassRefPredetermined(mkClass, types, new DataInputOutputSerdeForgeSingleton(mkSerde.getClass())));
         }
 
-        Class[] boxed = new Class[criteriaExpressionTypes.length];
+        Class[] boxed = new Class[types.length];
         for (int i = 0; i < boxed.length; i++) {
-            boxed[i] = JavaClassHelper.getBoxedType(criteriaExpressionTypes[i]);
+            boxed[i] = JavaClassHelper.getBoxedType(types[i]);
         }
         MultiKeyClassRefUUIDBased classNames = new MultiKeyClassRefUUIDBased(boxed);
-        StmtClassForgableFactory factoryMK = new StmtClassForgableFactory() {
-            public StmtClassForgable make(CodegenPackageScope packageScope, String classPostfix) {
-                return new StmtClassForgableMultiKey(classNames.getClassNameMK(classPostfix), packageScope, criteriaExpressionTypes, lenientEquals);
+        StmtClassForgeableFactory factoryMK = new StmtClassForgeableFactory() {
+
+            public StmtClassForgeable make(CodegenPackageScope packageScope, String classPostfix) {
+                return new StmtClassForgeableMultiKey(classNames.getClassNameMK(classPostfix), packageScope, types, lenientEquals);
             }
         };
 
-        StmtClassForgableFactory factoryMKSerde = new StmtClassForgableFactory() {
-            public StmtClassForgable make(CodegenPackageScope packageScope, String classPostfix) {
-                return new StmtClassForgableMultiKeySerde(classNames.getClassNameMKSerde(classPostfix), packageScope, criteriaExpressionTypes, classNames.getClassNameMK(classPostfix));
+        DataInputOutputSerdeForge[] forges = serdeResolver.serdeForMultiKey(types, raw);
+        StmtClassForgeableFactory factoryMKSerde = new StmtClassForgeableFactory() {
+
+            public StmtClassForgeable make(CodegenPackageScope packageScope, String classPostfix) {
+                return new StmtClassForgeableMultiKeySerde(classNames.getClassNameMKSerde(classPostfix), packageScope, types, classNames.getClassNameMK(classPostfix), forges);
             }
         };
 
-        List<StmtClassForgableFactory> forgables = Arrays.asList(factoryMK, factoryMKSerde);
-        return new MultiKeyPlan(forgables, classNames);
+        List<StmtClassForgeableFactory> forgeables = Arrays.asList(factoryMK, factoryMKSerde);
+        return new MultiKeyPlan(forgeables, classNames);
     }
 
     public static Object toMultiKey(Object keyValue) {

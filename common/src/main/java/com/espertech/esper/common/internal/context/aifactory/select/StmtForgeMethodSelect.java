@@ -25,7 +25,7 @@ public class StmtForgeMethodSelect implements StmtForgeMethod {
     }
 
     public StmtForgeMethodResult make(String packageName, String classPostfix, StatementCompileTimeServices services) throws ExprValidationException {
-        StmtForgeMethodSelectResult forgablesResult = StmtForgeMethodSelectUtil.make(false, packageName, classPostfix, base, services);
-        return forgablesResult.getForgeResult();
+        StmtForgeMethodSelectResult forgeablesResult = StmtForgeMethodSelectUtil.make(false, packageName, classPostfix, base, services);
+        return forgeablesResult.getForgeResult();
     }
 }

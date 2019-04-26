@@ -18,19 +18,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TestMultiKey extends TestCase {
-    MultiKey<String> keys1 = new MultiKey<String>(new String[]{"a", "b"});
-    MultiKey<String> keys2 = new MultiKey<String>(new String[]{"a", "b"});
-    MultiKey<String> keys3 = new MultiKey<String>(new String[]{"a", null});
-    MultiKey<String> keys4 = new MultiKey<String>(new String[]{null, "b"});
-    MultiKey<String> keys5 = new MultiKey<String>(new String[]{null, null});
-    MultiKey<String> keys6 = new MultiKey<String>(new String[]{"a"});
-    MultiKey<String> keys7 = new MultiKey<String>(new String[]{"a", "b", "c"});
-    MultiKey<String> keys8 = new MultiKey<String>(new String[]{"a", "b", null});
-    MultiKey<String> keys9 = new MultiKey<String>(new String[]{"a", "b", "c", "d"});
-    MultiKey<String> keys10 = new MultiKey<String>(new String[]{"a", "b", "c", "d"});
-    MultiKey<String> keys11 = new MultiKey<String>(new String[]{"espera", "esperb"});
-    MultiKey<String> keys12 = new MultiKey<String>(new String[]{"esperc", "esperd"});
-    MultiKey<String> keys13 = new MultiKey<String>(new String[]{"espere", "esperf"});
+    MultiKeyArrayOfKeys<String> keys1 = new MultiKeyArrayOfKeys<String>(new String[]{"a", "b"});
+    MultiKeyArrayOfKeys<String> keys2 = new MultiKeyArrayOfKeys<String>(new String[]{"a", "b"});
+    MultiKeyArrayOfKeys<String> keys3 = new MultiKeyArrayOfKeys<String>(new String[]{"a", null});
+    MultiKeyArrayOfKeys<String> keys4 = new MultiKeyArrayOfKeys<String>(new String[]{null, "b"});
+    MultiKeyArrayOfKeys<String> keys5 = new MultiKeyArrayOfKeys<String>(new String[]{null, null});
+    MultiKeyArrayOfKeys<String> keys6 = new MultiKeyArrayOfKeys<String>(new String[]{"a"});
+    MultiKeyArrayOfKeys<String> keys7 = new MultiKeyArrayOfKeys<String>(new String[]{"a", "b", "c"});
+    MultiKeyArrayOfKeys<String> keys8 = new MultiKeyArrayOfKeys<String>(new String[]{"a", "b", null});
+    MultiKeyArrayOfKeys<String> keys9 = new MultiKeyArrayOfKeys<String>(new String[]{"a", "b", "c", "d"});
+    MultiKeyArrayOfKeys<String> keys10 = new MultiKeyArrayOfKeys<String>(new String[]{"a", "b", "c", "d"});
+    MultiKeyArrayOfKeys<String> keys11 = new MultiKeyArrayOfKeys<String>(new String[]{"espera", "esperb"});
+    MultiKeyArrayOfKeys<String> keys12 = new MultiKeyArrayOfKeys<String>(new String[]{"esperc", "esperd"});
+    MultiKeyArrayOfKeys<String> keys13 = new MultiKeyArrayOfKeys<String>(new String[]{"espere", "esperf"});
 
     public void testHashCode() {
         assertTrue(keys11.hashCode() != keys12.hashCode());
@@ -95,31 +95,31 @@ public class TestMultiKey extends TestCase {
                 SupportEventBeanFactory.makeEvents(new String[]{"a", "b"}),
         };
 
-        Set<MultiKey> mapSet = new HashSet<MultiKey>();
+        Set<MultiKeyArrayOfKeys> mapSet = new HashSet<MultiKeyArrayOfKeys>();
 
         // Test contains
-        mapSet.add(new MultiKey<EventBean>(testEvents[0]));
-        assertTrue(mapSet.contains(new MultiKey<EventBean>(testEvents[0])));
-        assertFalse(mapSet.contains(new MultiKey<EventBean>(testEvents[1])));
-        assertFalse(mapSet.contains(new MultiKey<EventBean>(testEvents[2])));
-        assertFalse(mapSet.contains(new MultiKey<EventBean>(testEvents[3])));
+        mapSet.add(new MultiKeyArrayOfKeys<EventBean>(testEvents[0]));
+        assertTrue(mapSet.contains(new MultiKeyArrayOfKeys<EventBean>(testEvents[0])));
+        assertFalse(mapSet.contains(new MultiKeyArrayOfKeys<EventBean>(testEvents[1])));
+        assertFalse(mapSet.contains(new MultiKeyArrayOfKeys<EventBean>(testEvents[2])));
+        assertFalse(mapSet.contains(new MultiKeyArrayOfKeys<EventBean>(testEvents[3])));
 
         // Test unique
-        mapSet.add(new MultiKey<EventBean>(testEvents[0]));
+        mapSet.add(new MultiKeyArrayOfKeys<EventBean>(testEvents[0]));
         assertEquals(1, mapSet.size());
 
-        mapSet.add(new MultiKey<EventBean>(testEvents[1]));
-        mapSet.add(new MultiKey<EventBean>(testEvents[2]));
-        mapSet.add(new MultiKey<EventBean>(testEvents[3]));
+        mapSet.add(new MultiKeyArrayOfKeys<EventBean>(testEvents[1]));
+        mapSet.add(new MultiKeyArrayOfKeys<EventBean>(testEvents[2]));
+        mapSet.add(new MultiKeyArrayOfKeys<EventBean>(testEvents[3]));
         assertEquals(4, mapSet.size());
 
-        mapSet.remove(new MultiKey<EventBean>(testEvents[0]));
+        mapSet.remove(new MultiKeyArrayOfKeys<EventBean>(testEvents[0]));
         assertEquals(3, mapSet.size());
-        assertFalse(mapSet.contains(new MultiKey<EventBean>(testEvents[0])));
+        assertFalse(mapSet.contains(new MultiKeyArrayOfKeys<EventBean>(testEvents[0])));
 
-        mapSet.remove(new MultiKey<EventBean>(testEvents[1]));
-        mapSet.remove(new MultiKey<EventBean>(testEvents[2]));
-        mapSet.remove(new MultiKey<EventBean>(testEvents[3]));
+        mapSet.remove(new MultiKeyArrayOfKeys<EventBean>(testEvents[1]));
+        mapSet.remove(new MultiKeyArrayOfKeys<EventBean>(testEvents[2]));
+        mapSet.remove(new MultiKeyArrayOfKeys<EventBean>(testEvents[3]));
         assertEquals(0, mapSet.size());
     }
 }

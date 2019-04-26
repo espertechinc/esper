@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -44,7 +44,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
     // Posted events in ordered form (for applying to aggregates) and summarized per type
     // Using ArrayList as random access is a requirement.
     private List<UniformPair<EventBean[]>> viewEventsList = new ArrayList<UniformPair<EventBean[]>>();
-    private List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet = new ArrayList<UniformPair<Set<MultiKey<EventBean>>>>();
+    private List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> joinEventsSet = new ArrayList<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>>();
     private ResultSetProcessorSimpleOutputFirstHelper witnessedFirstHelper;
 
     private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionFirst.class);
@@ -140,7 +140,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
      * @param newEvents - new events
      * @param oldEvents - old events
      */
-    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
+    public void process(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".process Received update, " +
                     "  newData.length==" + ((newEvents == null) ? 0 : newEvents.size()) +
@@ -293,20 +293,20 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
         return true;
     }
 
-    private static void addToChangeSet(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
-        Set<MultiKey<EventBean>> copyNew;
+    private static void addToChangeSet(List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> joinEventsSet, Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents) {
+        Set<MultiKeyArrayOfKeys<EventBean>> copyNew;
         if (newEvents != null) {
-            copyNew = new LinkedHashSet<MultiKey<EventBean>>(newEvents);
+            copyNew = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>(newEvents);
         } else {
-            copyNew = new LinkedHashSet<MultiKey<EventBean>>();
+            copyNew = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
         }
 
-        Set<MultiKey<EventBean>> copyOld;
+        Set<MultiKeyArrayOfKeys<EventBean>> copyOld;
         if (oldEvents != null) {
-            copyOld = new LinkedHashSet<MultiKey<EventBean>>(oldEvents);
+            copyOld = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>(oldEvents);
         } else {
-            copyOld = new LinkedHashSet<MultiKey<EventBean>>();
+            copyOld = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
         }
-        joinEventsSet.add(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
+        joinEventsSet.add(new UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>(copyNew, copyOld));
     }
 }

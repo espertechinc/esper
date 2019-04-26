@@ -20,6 +20,7 @@ import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.AnnotationDesc;
@@ -48,6 +49,10 @@ import com.espertech.esper.common.internal.event.core.EventTypeNameUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.rettype.EPType;
 import com.espertech.esper.common.internal.rettype.EPTypeHelper;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyDesc;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyUtility;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.util.IntArrayUtil;
@@ -77,6 +82,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
     private StmtForgeMethodResult build(String packageName, String classPostfix, StatementCompileTimeServices services) throws ExprValidationException {
         CreateTableDesc createDesc = base.getStatementSpec().getRaw().getCreateTableDesc();
         String tableName = createDesc.getTableName();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         // determine whether already declared as table or variable
         EPLValidationUtil.validateAlreadyExistsTableOrVariable(tableName, services.getVariableCompileTimeResolver(), services.getTableCompileTimeResolver(), services.getEventTypeCompileTimeResolver());
@@ -85,10 +91,13 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         validateKeyTypes(createDesc.getColumns(), services.getClasspathImportServiceCompileTime());
 
         // check column naming, interpret annotations
-        List<TableColumnDesc> columnDescs = validateExpressions(createDesc.getColumns(), services);
+        Pair<List<TableColumnDesc>, List<StmtClassForgeableFactory>> columnsValidated = validateExpressions(createDesc.getColumns(), services);
+        List<TableColumnDesc> columnDescs = columnsValidated.getFirst();
+        additionalForgeables.addAll(columnsValidated.getSecond());
 
         // analyze and plan the state holders
         TableAccessAnalysisResult plan = analyzePlanAggregations(createDesc.getTableName(), columnDescs, base.getStatementRawInfo(), services);
+        additionalForgeables.addAll(plan.getAdditionalForgeables());
         NameAccessModifier visibility = plan.getPublicEventType().getMetadata().getAccessModifier();
 
         // determine context information
@@ -116,25 +125,25 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
 
         // build forge list
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
-        List<StmtClassForgable> forgables = new ArrayList<>(2);
-        for (StmtClassForgableFactory additional : plan.getAdditionalForgeables()) {
-            forgables.add(additional.make(packageScope, classPostfix));
+        List<StmtClassForgeable> forgeables = new ArrayList<>(2);
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
+            forgeables.add(additional.make(packageScope, classPostfix));
         }
 
-        StmtClassForgableAIFactoryProviderCreateTable aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateTable(aiFactoryProviderClassName, packageScope, forge, tableName);
-        forgables.add(aiFactoryForgable);
+        StmtClassForgeableAIFactoryProviderCreateTable aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateTable(aiFactoryProviderClassName, packageScope, forge, tableName);
+        forgeables.add(aiFactoryForgeable);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createDesc.getTableName());
-        forgables.add(new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 1));
+        forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 1));
 
-        return new StmtForgeMethodResult(forgables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private void validateKeyTypes(List<CreateTableColumn> columns, ClasspathImportServiceCompileTime classpathImportService)
-            throws ExprValidationException {
+        throws ExprValidationException {
         for (CreateTableColumn col : columns) {
             if (col.getPrimaryKey() == null || !col.getPrimaryKey()) {
                 continue;
@@ -150,12 +159,13 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         }
     }
 
-    private List<TableColumnDesc> validateExpressions(List<CreateTableColumn> columns, StatementCompileTimeServices services)
-            throws ExprValidationException {
+    private Pair<List<TableColumnDesc>, List<StmtClassForgeableFactory>> validateExpressions(List<CreateTableColumn> columns, StatementCompileTimeServices services)
+        throws ExprValidationException {
         Set<String> columnNames = new HashSet<>();
         List<TableColumnDesc> descriptors = new ArrayList<>();
 
         int positionInDeclaration = 0;
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         for (CreateTableColumn column : columns) {
             String msgprefix = "For column '" + column.getColumnName() + "'";
 
@@ -171,22 +181,23 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             // aggregation node
             TableColumnDesc descriptor;
             if (column.getOptExpression() != null) {
-                ExprAggregateNode validated = validateAggregationExpr(column.getOptExpression(), optionalEventType, services);
-                descriptor = new TableColumnDescAgg(positionInDeclaration, column.getColumnName(), validated, optionalEventType);
+                Pair<ExprAggregateNode, List<StmtClassForgeableFactory>> pair = validateAggregationExpr(column.getOptExpression(), optionalEventType, services);
+                descriptor = new TableColumnDescAgg(positionInDeclaration, column.getColumnName(), pair.getFirst(), optionalEventType);
+                additionalForgeables.addAll(pair.getSecond());
             } else {
                 Object unresolvedType = EventTypeUtility.buildType(new ColumnDesc(column.getColumnName(), column.getOptType().toEPL()),
-                        services.getClasspathImportServiceCompileTime());
+                    services.getClasspathImportServiceCompileTime());
                 descriptor = new TableColumnDescTyped(positionInDeclaration, column.getColumnName(), unresolvedType, column.getPrimaryKey() == null ? false : column.getPrimaryKey());
             }
             descriptors.add(descriptor);
             positionInDeclaration++;
         }
 
-        return descriptors;
+        return new Pair<>(descriptors, additionalForgeables);
     }
 
     private static EventType validateExpressionGetEventType(String msgprefix, List<AnnotationDesc> annotations, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         Map<String, List<AnnotationDesc>> annos = AnnotationUtil.mapByNameLowerCase(annotations);
 
         // check annotations used
@@ -208,8 +219,8 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         return optionalType;
     }
 
-    private ExprAggregateNode validateAggregationExpr(ExprNode columnExpressionType, EventType optionalProvidedType, StatementCompileTimeServices services)
-            throws ExprValidationException {
+    private Pair<ExprAggregateNode, List<StmtClassForgeableFactory>> validateAggregationExpr(ExprNode columnExpressionType, EventType optionalProvidedType, StatementCompileTimeServices services)
+        throws ExprValidationException {
         ClasspathImportServiceCompileTime classpathImportService = services.getClasspathImportServiceCompileTime();
 
         // determine validation context types and istream/irstream
@@ -266,11 +277,12 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             throw new ExprValidationException("Expression '" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(validated) + "' is not an aggregation");
         }
 
-        return (ExprAggregateNode) validated;
+        ExprAggregateNode aggregateNode = (ExprAggregateNode) validated;
+        return new Pair<>(aggregateNode, validationContext.getAdditionalForgeables());
     }
 
     private TableAccessAnalysisResult analyzePlanAggregations(String tableName, List<TableColumnDesc> columns, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // once upfront: obtains aggregation factories for each aggregation
         // we do this once as a factory may be a heavier object
         Map<TableColumnDesc, AggregationForgeFactory> aggregationFactories = new HashMap<>();
@@ -403,7 +415,24 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
 
         AggregationRowStateForgeDesc forgeDesc = new AggregationRowStateForgeDesc(methodFactories, null, stateFactories, accessAccessorForges, new AggregationUseFlags(false, false, false));
 
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(primaryKeyTypeArray, false);
-        return new TableAccessAnalysisResult(columnMetadata, internalEventType, publicEventType, assignPairsPlain, assignPairsMethod, assignPairsAccess, forgeDesc, primaryKeyColumnArray, primaryKeyGetterArray, primaryKeyTypeArray, primaryKeyColNumsArray, multiKeyPlan.getOptionalClassRef(), multiKeyPlan.getMultiKeyForgables());
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(primaryKeyTypeArray, false, statementRawInfo, services.getSerdeResolver());
+
+        DataInputOutputSerdeForge[] propertyForges = new DataInputOutputSerdeForge[internalEventType.getPropertyNames().length - 1];
+
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(multiKeyPlan.getMultiKeyForgeables());
+        for (int i = 1; i < internalEventType.getPropertyNames().length; i++) {
+            String propertyName = internalEventType.getPropertyNames()[i];
+            Object propertyType = internalEventType.getTypes().get(propertyName);
+            SerdeEventPropertyDesc desc = SerdeEventPropertyUtility.forgeForEventProperty(tableName, propertyName, propertyType, statementRawInfo, services.getSerdeResolver());
+            propertyForges[i - 1] = desc.getForge();
+
+            // plan serdes for nested types
+            for (EventType eventType : desc.getNestedTypes()) {
+                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                additionalForgeables.addAll(serdeForgeables);
+            }
+        }
+
+        return new TableAccessAnalysisResult(columnMetadata, internalEventType, propertyForges, publicEventType, assignPairsPlain, assignPairsMethod, assignPairsAccess, forgeDesc, primaryKeyColumnArray, primaryKeyGetterArray, primaryKeyTypeArray, primaryKeyColNumsArray, multiKeyPlan.getClassRef(), additionalForgeables);
     }
 }

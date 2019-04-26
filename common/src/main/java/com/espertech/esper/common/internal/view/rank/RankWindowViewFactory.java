@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.view.rank;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -28,11 +28,12 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
     protected boolean[] isDescendingValues;
     protected ExprEvaluator criteriaEval;
     protected Class[] criteriaTypes;
+    protected DataInputOutputSerde<Object> keySerde;
     protected ExprEvaluator[] sortCriteriaEvaluators;
     protected Class[] sortCriteriaTypes;
     protected ExprEvaluator size;
     protected boolean useCollatorSort;
-    protected MultiKeyGeneratedSerde multiKeySerde;
+    protected DataInputOutputSerde<Object>[] sortSerdes;
 
     protected EventType eventType;
     protected Comparator<Object> comparator;
@@ -115,11 +116,11 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return ViewEnum.RANK_WINDOW.getName();
     }
 
-    public MultiKeyGeneratedSerde getMultiKeySerde() {
-        return multiKeySerde;
+    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+        this.keySerde = keySerde;
     }
 
-    public void setMultiKeySerde(MultiKeyGeneratedSerde multiKeySerde) {
-        this.multiKeySerde = multiKeySerde;
+    public void setSortSerdes(DataInputOutputSerde<Object>[] sortSerdes) {
+        this.sortSerdes = sortSerdes;
     }
 }

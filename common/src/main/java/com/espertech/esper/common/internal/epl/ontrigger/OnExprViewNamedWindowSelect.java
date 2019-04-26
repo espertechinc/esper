@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.ontrigger;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -34,7 +34,7 @@ import java.util.Set;
 public class OnExprViewNamedWindowSelect extends OnExprViewNameWindowBase {
     private final InfraOnSelectViewFactory parent;
     private final ResultSetProcessor resultSetProcessor;
-    private final Set<MultiKey<EventBean>> oldEvents = new HashSet<>();
+    private final Set<MultiKeyArrayOfKeys<EventBean>> oldEvents = new HashSet<>();
     private final boolean audit;
     private final boolean isDelete;
     private final TableInstance tableInstanceInsertInto;
@@ -56,7 +56,7 @@ public class OnExprViewNamedWindowSelect extends OnExprViewNameWindowBase {
 
         // build join result
         // use linked hash set to retain order of join results for last/first/window to work most intuitively
-        Set<MultiKey<EventBean>> newEvents = buildJoinResult(triggerEvents, matchingEvents);
+        Set<MultiKeyArrayOfKeys<EventBean>> newEvents = buildJoinResult(triggerEvents, matchingEvents);
 
         // process matches
         UniformPair<EventBean[]> pair = resultSetProcessor.processJoinResult(newEvents, oldEvents, false);
@@ -87,8 +87,8 @@ public class OnExprViewNamedWindowSelect extends OnExprViewNameWindowBase {
         agentInstanceContext.getInstrumentationProvider().aInfraOnAction();
     }
 
-    public static Set<MultiKey<EventBean>> buildJoinResult(EventBean[] triggerEvents, EventBean[] matchingEvents) {
-        LinkedHashSet events = new LinkedHashSet<MultiKey<EventBean>>();
+    public static Set<MultiKeyArrayOfKeys<EventBean>> buildJoinResult(EventBean[] triggerEvents, EventBean[] matchingEvents) {
+        LinkedHashSet events = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
         for (int i = 0; i < triggerEvents.length; i++) {
             EventBean triggerEvent = triggerEvents[0];
             if (matchingEvents != null) {
@@ -96,7 +96,7 @@ public class OnExprViewNamedWindowSelect extends OnExprViewNameWindowBase {
                     EventBean[] eventsPerStream = new EventBean[2];
                     eventsPerStream[0] = matchingEvents[j];
                     eventsPerStream[1] = triggerEvent;
-                    events.add(new MultiKey<EventBean>(eventsPerStream));
+                    events.add(new MultiKeyArrayOfKeys<EventBean>(eventsPerStream));
                 }
             }
         }

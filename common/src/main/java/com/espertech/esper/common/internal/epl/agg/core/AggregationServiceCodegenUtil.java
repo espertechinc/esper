@@ -34,7 +34,7 @@ public class AggregationServiceCodegenUtil {
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
         Consumer<CodegenMethod> code = method -> {
 
-            if (optionalMultiKey == null) {
+            if (optionalMultiKey == null || optionalMultiKey.getClassNameMK() == null) {
                 CodegenExpression expression = partitionForges[0].getForge().evaluateCodegen(Object.class, method, exprSymbol, classScope);
                 exprSymbol.derivedSymbolsCodegen(method, method.getBlock(), classScope);
                 method.getBlock().methodReturn(expression);

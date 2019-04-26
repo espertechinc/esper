@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.subselect;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
 public class SubSelectFactoryForgeDesc {
     private final SubSelectFactoryForge subSelectFactoryForge;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public SubSelectFactoryForgeDesc(SubSelectFactoryForge subSelectFactoryForge, List<StmtClassForgableFactory> additionalForgeables) {
+    public SubSelectFactoryForgeDesc(SubSelectFactoryForge subSelectFactoryForge, List<StmtClassForgeableFactory> additionalForgeables) {
         this.subSelectFactoryForge = subSelectFactoryForge;
         this.additionalForgeables = additionalForgeables;
     }
@@ -27,7 +27,7 @@ public class SubSelectFactoryForgeDesc {
         return subSelectFactoryForge;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

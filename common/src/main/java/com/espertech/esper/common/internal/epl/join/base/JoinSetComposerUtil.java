@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -29,9 +29,9 @@ public class JoinSetComposerUtil {
                 (!isPureSelfJoin || isOuterJoins);
     }
 
-    public static void filter(ExprEvaluator filterExprNode, Set<MultiKey<EventBean>> events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        for (Iterator<MultiKey<EventBean>> it = events.iterator(); it.hasNext(); ) {
-            MultiKey<EventBean> key = it.next();
+    public static void filter(ExprEvaluator filterExprNode, Set<MultiKeyArrayOfKeys<EventBean>> events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        for (Iterator<MultiKeyArrayOfKeys<EventBean>> it = events.iterator(); it.hasNext(); ) {
+            MultiKeyArrayOfKeys<EventBean> key = it.next();
             EventBean[] eventArr = key.getArray();
 
             Boolean matched = (Boolean) filterExprNode.evaluate(eventArr, isNewData, exprEvaluatorContext);

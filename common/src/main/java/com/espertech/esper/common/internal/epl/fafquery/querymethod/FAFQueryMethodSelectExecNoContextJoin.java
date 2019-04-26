@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -64,7 +64,7 @@ public class FAFQueryMethodSelectExecNoContextJoin implements FAFQueryMethodSele
         for (int i = 0; i < numStreams; i++) {
             newDataPerStream[i] = snapshots[i].toArray(new EventBean[snapshots[i].size()]);
         }
-        UniformPair<Set<MultiKey<EventBean>>> result = joinComposer.join(newDataPerStream, oldDataPerStream, agentInstanceContext);
+        UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> result = joinComposer.join(newDataPerStream, oldDataPerStream, agentInstanceContext);
         if (joinSetComposerDesc.getPostJoinFilterEvaluator() != null) {
             JoinSetComposerUtil.filter(joinSetComposerDesc.getPostJoinFilterEvaluator(), result.getFirst(), true, agentInstanceContext);
         }

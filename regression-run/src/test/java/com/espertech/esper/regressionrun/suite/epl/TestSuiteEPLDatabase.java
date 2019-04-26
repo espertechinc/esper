@@ -103,7 +103,7 @@ public class TestSuiteEPLDatabase extends TestCase {
 
         ConfigurationCommon common = configuration.getCommon();
         common.addVariable("myvariableOCC", int.class, 10);
-        common.addVariable("myvariableIPC", Object.class, "x10");
+        common.addVariable("myvariableIPC", String.class, "x10");
         common.addVariable("myvariableORC", int.class, 10);
 
         ConfigurationCommonDBRef configDBWithRetain = new ConfigurationCommonDBRef();

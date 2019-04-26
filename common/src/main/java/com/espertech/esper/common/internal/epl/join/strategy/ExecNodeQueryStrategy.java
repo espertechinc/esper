@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.strategy;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.ArrayDeque;
@@ -38,7 +38,7 @@ public class ExecNodeQueryStrategy implements QueryStrategy {
         this.execNode = execNode;
     }
 
-    public void lookup(EventBean[] lookupEvents, Set<MultiKey<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext) {
+    public void lookup(EventBean[] lookupEvents, Set<MultiKeyArrayOfKeys<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext) {
         if (lookupEvents == null || lookupEvents.length == 0) {
             return;
         }
@@ -54,7 +54,7 @@ public class ExecNodeQueryStrategy implements QueryStrategy {
 
             // Convert results into unique set
             for (EventBean[] row : results) {
-                joinSet.add(new MultiKey<EventBean>(row));
+                joinSet.add(new MultiKeyArrayOfKeys<EventBean>(row));
             }
             results.clear();
         }

@@ -54,6 +54,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
 
         StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[0];
         UpdateDesc updateSpec = statementSpec.getRaw().getUpdateDesc();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         String triggereventTypeName;
         EventType streamEventType;
 
@@ -82,11 +83,13 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
 
         // handle subselects
         SubSelectHelperForgePlan subSelectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, typeService.getStreamNames(), typeService.getEventTypes(), new String[]{triggereventTypeName}, services);
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subSelectForgePlan.getSubselects();
+        additionalForgeables.addAll(subSelectForgePlan.getAdditionalForgeables());
 
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).build();
 
@@ -109,21 +112,21 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryUpdateForge forge = new StatementAgentInstanceFactoryUpdateForge(routerDesc, subselectForges);
-        StmtClassForgableAIFactoryProviderUpdate aiFactoryForgable = new StmtClassForgableAIFactoryProviderUpdate(aiFactoryProviderClassName, packageScope, forge);
+        StmtClassForgeableAIFactoryProviderUpdate aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderUpdate(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor(new Class[]{streamEventType.getUnderlyingType()},
                 new String[]{"*"}, false, null, null);
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, Collections.emptyList(), Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
-        StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
+        StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        for (StmtClassForgableFactory additional : subSelectForgePlan.getAdditionalForgeables()) {
-            forgables.add(additional.make(packageScope, classPostfix));
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
+            forgeables.add(additional.make(packageScope, classPostfix));
         }
-        forgables.add(aiFactoryForgable);
-        forgables.add(stmtProvider);
-        forgables.add(new StmtClassForgableStmtFields(statementFieldsClassName, packageScope, 0));
-        return new StmtForgeMethodResult(forgables, filterSpecCompileds, Collections.emptyList(), namedWindowConsumers, Collections.emptyList());
+        forgeables.add(aiFactoryForgeable);
+        forgeables.add(stmtProvider);
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, Collections.emptyList(), namedWindowConsumers, Collections.emptyList());
     }
 }

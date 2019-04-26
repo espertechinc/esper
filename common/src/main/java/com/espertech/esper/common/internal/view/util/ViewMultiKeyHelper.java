@@ -27,9 +27,7 @@ public class ViewMultiKeyHelper {
         CodegenExpression criteriaEval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(criteriaExpressions, null, multiKeyClassNames, method, classScope);
         method.getBlock()
             .exprDotMethod(factory, "setCriteriaEval", criteriaEval)
-            .exprDotMethod(factory, "setCriteriaTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions)));
-        if (multiKeyClassNames != null) {
-            method.getBlock().exprDotMethod(factory, "setMultiKeySerde", MultiKeyCodegen.codegenOptionalSerde(multiKeyClassNames));
-        }
+            .exprDotMethod(factory, "setCriteriaTypes", constant(ExprNodeUtilityQuery.getExprResultTypes(criteriaExpressions)))
+            .exprDotMethod(factory, "setKeySerde", multiKeyClassNames.getExprMKSerde(method, classScope));
     }
 }

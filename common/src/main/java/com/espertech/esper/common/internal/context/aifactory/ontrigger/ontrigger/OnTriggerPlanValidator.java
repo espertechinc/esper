@@ -24,7 +24,7 @@ import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompil
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.OnTriggerActivatorDesc;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
@@ -66,7 +66,7 @@ public class OnTriggerPlanValidator {
             streamName = "stream_1";
         }
         String namedWindowTypeName = onTriggerDesc.getWindowName();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         // Materialize sub-select views
         // 0 - named window stream

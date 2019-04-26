@@ -64,7 +64,8 @@ import com.espertech.esper.common.internal.filterspec.FilterSharedBoolExprReposi
 import com.espertech.esper.common.internal.filterspec.FilterSharedLookupableRepository;
 import com.espertech.esper.common.internal.metrics.stmtmetrics.MetricReportingService;
 import com.espertech.esper.common.internal.schedule.TimeSourceService;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeProvider;
+import com.espertech.esper.common.internal.serde.runtime.eventtype.EventTypeSerdeRepository;
+import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactory;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
@@ -96,7 +97,6 @@ public class EPServicesContext {
     private final ContextServiceFactory contextServiceFactory;
     private final EPDataFlowServiceImpl dataflowService;
     private final DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter;
-    private final DataInputOutputSerdeProvider dataInputOutputSerdeProvider;
     private final DatabaseConfigServiceRuntime databaseConfigServiceRuntime;
     private final DeploymentLifecycleService deploymentLifecycleService;
     private final DispatchService dispatchService;
@@ -112,12 +112,14 @@ public class EPServicesContext {
     private final EventBeanService eventBeanService;
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final EPRenderEventServiceImpl eventRenderer;
+    private final EventSerdeFactory eventSerdeFactory;
     private final EventTableIndexService eventTableIndexService;
     private final EventTypeAvroHandler eventTypeAvroHandler;
     private final EventTypeFactory eventTypeFactory;
     private final PathRegistry<String, EventType> eventTypePathRegistry;
     private final EventTypeRepositoryImpl eventTypeRepositoryBus;
     private final EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory;
+    private final EventTypeSerdeRepository eventTypeSerdeRepository;
     private final ExceptionHandlingService exceptionHandlingService;
     private final ExpressionResultCacheService expressionResultCacheService;
     private final FilterBooleanExpressionFactory filterBooleanExpressionFactory;
@@ -160,7 +162,7 @@ public class EPServicesContext {
     private StatementContextRuntimeServices statementContextRuntimeServices;
     private InternalEventRouteDest internalEventRouteDest;
 
-    public EPServicesContext(AggregationServiceFactoryService aggregationServiceFactoryService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, BeanEventTypeStemService beanEventTypeStemService, ClassForNameProvider classForNameProvider, Configuration configSnapshot, ContextManagementService contextManagementService, PathRegistry<String, ContextMetaData> contextPathRegistry, ContextServiceFactory contextServiceFactory, EPDataFlowServiceImpl dataflowService, DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter, DataInputOutputSerdeProvider dataInputOutputSerdeProvider, DatabaseConfigServiceRuntime databaseConfigServiceRuntime, DeploymentLifecycleService deploymentLifecycleService, DispatchService dispatchService, RuntimeEnvContext runtimeEnvContext, RuntimeSettingsService runtimeSettingsService, String runtimeURI, ClasspathImportServiceRuntime classpathImportServiceRuntime, EPStatementFactory epStatementFactory, PathRegistry<String, ExpressionDeclItem> exprDeclaredPathRegistry, ManagedReadWriteLock eventProcessingRWLock, EPServicesHA epServicesHA, EPRuntimeSPI epRuntime, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EPRenderEventServiceImpl eventRenderer, EventTableIndexService eventTableIndexService, EventTypeAvroHandler eventTypeAvroHandler, EventTypeFactory eventTypeFactory, PathRegistry<String, EventType> eventTypePathRegistry, EventTypeRepositoryImpl eventTypeRepositoryBus, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, FilterServiceSPI filterService, FilterSharedBoolExprRepository filterSharedBoolExprRepository, FilterSharedLookupableRepository filterSharedLookupableRepository, HistoricalDataCacheFactory historicalDataCacheFactory, InternalEventRouterImpl internalEventRouter, MetricReportingService metricReportingService, MultiMatchHandlerFactory multiMatchHandlerFactory, NamedWindowConsumerManagementService namedWindowConsumerManagementService, NamedWindowDispatchService namedWindowDispatchService, NamedWindowFactoryService namedWindowFactoryService, NamedWindowManagementService namedWindowManagementService, PathRegistry<String, NamedWindowMetaData> namedWindowPathRegistry, PatternFactoryService patternFactoryService, PatternSubexpressionPoolRuntimeSvc patternSubexpressionPoolEngineSvc, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, RowRecogStateRepoFactory rowRecogStateRepoFactory, RowRecogStatePoolRuntimeSvc rowRecogStatePoolEngineSvc, SchedulingServiceSPI schedulingService, PathRegistry<NameAndParamNum, ExpressionScriptProvided> scriptPathRegistry, StatementLifecycleService statementLifecycleService, StatementAgentInstanceLockFactory statementAgentInstanceLockFactory, StatementResourceHolderBuilder statementResourceHolderBuilder, TableExprEvaluatorContext tableExprEvaluatorContext, TableManagementService tableManagementService, PathRegistry<String, TableMetaData> tablePathRegistry, ThreadingService threadingService, TimeAbacus timeAbacus, TimeSourceService timeSourceService, TimerService timerService, VariableManagementService variableManagementService, PathRegistry<String, VariableMetaData> variablePathRegistry, ViewableActivatorFactory viewableActivatorFactory, ViewFactoryService viewFactoryService, ViewServicePreviousFactory viewServicePreviousFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
+    public EPServicesContext(AggregationServiceFactoryService aggregationServiceFactoryService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, BeanEventTypeStemService beanEventTypeStemService, ClassForNameProvider classForNameProvider, Configuration configSnapshot, ContextManagementService contextManagementService, PathRegistry<String, ContextMetaData> contextPathRegistry, ContextServiceFactory contextServiceFactory, EPDataFlowServiceImpl dataflowService, DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter, DatabaseConfigServiceRuntime databaseConfigServiceRuntime, DeploymentLifecycleService deploymentLifecycleService, DispatchService dispatchService, RuntimeEnvContext runtimeEnvContext, RuntimeSettingsService runtimeSettingsService, String runtimeURI, ClasspathImportServiceRuntime classpathImportServiceRuntime, EPStatementFactory epStatementFactory, PathRegistry<String, ExpressionDeclItem> exprDeclaredPathRegistry, ManagedReadWriteLock eventProcessingRWLock, EPServicesHA epServicesHA, EPRuntimeSPI epRuntime, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EPRenderEventServiceImpl eventRenderer, EventSerdeFactory eventSerdeFactory, EventTableIndexService eventTableIndexService, EventTypeAvroHandler eventTypeAvroHandler, EventTypeFactory eventTypeFactory, PathRegistry<String, EventType> eventTypePathRegistry, EventTypeRepositoryImpl eventTypeRepositoryBus, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, EventTypeSerdeRepository eventTypeSerdeRepository, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, FilterServiceSPI filterService, FilterSharedBoolExprRepository filterSharedBoolExprRepository, FilterSharedLookupableRepository filterSharedLookupableRepository, HistoricalDataCacheFactory historicalDataCacheFactory, InternalEventRouterImpl internalEventRouter, MetricReportingService metricReportingService, MultiMatchHandlerFactory multiMatchHandlerFactory, NamedWindowConsumerManagementService namedWindowConsumerManagementService, NamedWindowDispatchService namedWindowDispatchService, NamedWindowFactoryService namedWindowFactoryService, NamedWindowManagementService namedWindowManagementService, PathRegistry<String, NamedWindowMetaData> namedWindowPathRegistry, PatternFactoryService patternFactoryService, PatternSubexpressionPoolRuntimeSvc patternSubexpressionPoolEngineSvc, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, RowRecogStateRepoFactory rowRecogStateRepoFactory, RowRecogStatePoolRuntimeSvc rowRecogStatePoolEngineSvc, SchedulingServiceSPI schedulingService, PathRegistry<NameAndParamNum, ExpressionScriptProvided> scriptPathRegistry, StatementLifecycleService statementLifecycleService, StatementAgentInstanceLockFactory statementAgentInstanceLockFactory, StatementResourceHolderBuilder statementResourceHolderBuilder, TableExprEvaluatorContext tableExprEvaluatorContext, TableManagementService tableManagementService, PathRegistry<String, TableMetaData> tablePathRegistry, ThreadingService threadingService, TimeAbacus timeAbacus, TimeSourceService timeSourceService, TimerService timerService, VariableManagementService variableManagementService, PathRegistry<String, VariableMetaData> variablePathRegistry, ViewableActivatorFactory viewableActivatorFactory, ViewFactoryService viewFactoryService, ViewServicePreviousFactory viewServicePreviousFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
         this.aggregationServiceFactoryService = aggregationServiceFactoryService;
         this.beanEventTypeFactoryPrivate = beanEventTypeFactoryPrivate;
         this.beanEventTypeStemService = beanEventTypeStemService;
@@ -171,7 +173,6 @@ public class EPServicesContext {
         this.contextServiceFactory = contextServiceFactory;
         this.dataflowService = dataflowService;
         this.dataFlowFilterServiceAdapter = dataFlowFilterServiceAdapter;
-        this.dataInputOutputSerdeProvider = dataInputOutputSerdeProvider;
         this.databaseConfigServiceRuntime = databaseConfigServiceRuntime;
         this.deploymentLifecycleService = deploymentLifecycleService;
         this.dispatchService = dispatchService;
@@ -187,12 +188,14 @@ public class EPServicesContext {
         this.eventBeanService = eventBeanService;
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
         this.eventRenderer = eventRenderer;
+        this.eventSerdeFactory = eventSerdeFactory;
         this.eventTableIndexService = eventTableIndexService;
         this.eventTypeAvroHandler = eventTypeAvroHandler;
         this.eventTypeFactory = eventTypeFactory;
         this.eventTypePathRegistry = eventTypePathRegistry;
         this.eventTypeRepositoryBus = eventTypeRepositoryBus;
         this.eventTypeResolvingBeanFactory = eventTypeResolvingBeanFactory;
+        this.eventTypeSerdeRepository = eventTypeSerdeRepository;
         this.exceptionHandlingService = exceptionHandlingService;
         this.expressionResultCacheService = expressionResultCacheService;
         this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
@@ -346,10 +349,6 @@ public class EPServicesContext {
         return dataflowService;
     }
 
-    public DataInputOutputSerdeProvider getDataInputOutputSerdeProvider() {
-        return dataInputOutputSerdeProvider;
-    }
-
     public DeploymentLifecycleService getDeploymentLifecycleService() {
         return deploymentLifecycleService;
     }
@@ -402,6 +401,10 @@ public class EPServicesContext {
         return eventRenderer;
     }
 
+    public EventSerdeFactory getEventSerdeFactory() {
+        return eventSerdeFactory;
+    }
+
     public EventTableIndexService getEventTableIndexService() {
         return eventTableIndexService;
     }
@@ -420,6 +423,10 @@ public class EPServicesContext {
 
     public EventTypeResolvingBeanFactory getEventTypeResolvingBeanFactory() {
         return eventTypeResolvingBeanFactory;
+    }
+
+    public EventTypeSerdeRepository getEventTypeSerdeRepository() {
+        return eventTypeSerdeRepository;
     }
 
     public ExceptionHandlingService getExceptionHandlingService() {

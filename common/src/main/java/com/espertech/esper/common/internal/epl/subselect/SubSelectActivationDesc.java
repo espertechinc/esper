@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.subselect;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 
 import java.util.List;
@@ -19,9 +19,9 @@ import java.util.Map;
 public class SubSelectActivationDesc {
 
     private final Map<ExprSubselectNode, SubSelectActivationPlan> subselects;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public SubSelectActivationDesc(Map<ExprSubselectNode, SubSelectActivationPlan> subselects, List<StmtClassForgableFactory> additionalForgeables) {
+    public SubSelectActivationDesc(Map<ExprSubselectNode, SubSelectActivationPlan> subselects, List<StmtClassForgeableFactory> additionalForgeables) {
         this.subselects = subselects;
         this.additionalForgeables = additionalForgeables;
     }
@@ -30,7 +30,7 @@ public class SubSelectActivationDesc {
         return subselects;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

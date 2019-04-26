@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.SubordTableLookupStrategyFactoryQuadTreeForge;
@@ -42,6 +42,7 @@ import com.espertech.esper.common.internal.epl.lookupsubord.SubordWMatchExprLook
 import com.espertech.esper.common.internal.epl.lookupsubord.SubordWMatchExprLookupStrategyIndexedFilteredForge;
 import com.espertech.esper.common.internal.epl.lookupsubord.SubordWMatchExprLookupStrategyIndexedUnfilteredForge;
 import com.espertech.esper.common.internal.epl.virtualdw.SubordTableLookupStrategyFactoryForgeVDW;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.type.NameAndModule;
 
 import java.util.*;
@@ -148,7 +149,7 @@ public class SubordinateQueryPlanner {
         ExprNode inKeywordMultiIdxKey = null;
 
         SubordinateQueryIndexDescForge[] indexDescs;
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         MultiKeyClassRef multiKeyClasses = null;
         if (joinDesc.getInKeywordSingleIndex() != null) {
             SubordPropInKeywordSingleIndex single = joinDesc.getInKeywordSingleIndex();
@@ -156,7 +157,7 @@ public class SubordinateQueryPlanner {
             SubordinateQueryIndexSuggest index = findOrSuggestIndex(
                 Collections.singletonMap(single.getIndexedProp(), keyInfo),
                 Collections.emptyMap(), optionalIndexHint, indexShare, subqueryNumber,
-                indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, eventTypeIndexed);
+                indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, eventTypeIndexed, statementRawInfo, services);
 
             if (index == null) {
                 return null;
@@ -165,7 +166,7 @@ public class SubordinateQueryPlanner {
             SubordinateQueryIndexDescForge desc = new SubordinateQueryIndexDescForge(indexDesc.getOptionalIndexKeyInfo(), indexDesc.getIndexName(), indexDesc.getIndexModuleName(), indexDesc.getIndexMultiKey(), indexDesc.getOptionalQueryPlanIndexItem());
             indexDescs = new SubordinateQueryIndexDescForge[]{desc};
             inKeywordSingleIdxKeys = single.getExpressions();
-            additionalForgeables.addAll(index.getMultiKeyForgables());
+            additionalForgeables.addAll(index.getMultiKeyForgeables());
         } else if (joinDesc.getInKeywordMultiIndex() != null) {
             SubordPropInKeywordMultiIndex multi = joinDesc.getInKeywordMultiIndex();
 
@@ -175,9 +176,9 @@ public class SubordinateQueryPlanner {
                 SubordinateQueryIndexSuggest index = findOrSuggestIndex(
                     Collections.singletonMap(multi.getIndexedProp()[i], keyInfo),
                     Collections.emptyMap(), optionalIndexHint, indexShare, subqueryNumber,
-                    indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, eventTypeIndexed);
+                    indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, eventTypeIndexed, statementRawInfo, services);
                 SubordinateQueryIndexDescForge indexDesc = index.getForge();
-                additionalForgeables.addAll(index.getMultiKeyForgables());
+                additionalForgeables.addAll(index.getMultiKeyForgeables());
                 if (indexDesc == null) {
                     return null;
                 }
@@ -187,12 +188,12 @@ public class SubordinateQueryPlanner {
         } else {
             SubordinateQueryIndexSuggest index = findOrSuggestIndex(joinDesc.getHashProps(),
                 joinDesc.getRangeProps(), optionalIndexHint, false, subqueryNumber,
-                indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, eventTypeIndexed);
+                indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, eventTypeIndexed, statementRawInfo, services);
             if (index == null) {
                 return null;
             }
             SubordinateQueryIndexDescForge indexDesc = index.getForge();
-            additionalForgeables.addAll(index.getMultiKeyForgables());
+            additionalForgeables.addAll(index.getMultiKeyForgeables());
             IndexKeyInfo indexKeyInfo = indexDesc.getOptionalIndexKeyInfo();
             hashKeys = indexKeyInfo.getOrderedHashDesc();
             hashKeyCoercionTypes = indexKeyInfo.getOrderedKeyCoercionTypes();
@@ -202,9 +203,9 @@ public class SubordinateQueryPlanner {
             indexDescs = new SubordinateQueryIndexDescForge[]{desc};
 
             if (indexDesc.getOptionalQueryPlanIndexItem() == null) {
-                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashKeyCoercionTypes.getCoercionTypes(), true);
-                multiKeyClasses = multiKeyPlan.getOptionalClassRef();
-                additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
+                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashKeyCoercionTypes.getCoercionTypes(), true, statementRawInfo, services.getSerdeResolver());
+                multiKeyClasses = multiKeyPlan.getClassRef();
+                additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
             } else {
                 multiKeyClasses = indexDesc.getOptionalQueryPlanIndexItem().getHashMultiKeyClasses();
             }
@@ -248,7 +249,9 @@ public class SubordinateQueryPlanner {
         EventTableIndexMetadata indexMetadata,
         Set<String> optionalUniqueKeyProps,
         boolean onlyUseExistingIndexes,
-        EventType eventTypeIndexed) {
+        EventType eventTypeIndexed,
+        StatementRawInfo raw,
+        StatementCompileTimeServices services) {
 
         SubordinateQueryPlannerIndexPropDesc indexProps = getIndexPropDesc(hashProps, rangeProps);
         SubordinateQueryPlannerIndexPropListPair hashedAndBtreeProps = indexProps.getListPair();
@@ -312,7 +315,7 @@ public class SubordinateQueryPlanner {
                 }
             }
 
-            planned = planIndex(unique, proposedHashedProps, proposedBtreeProps, eventTypeIndexed);
+            planned = planIndex(unique, proposedHashedProps, proposedBtreeProps, eventTypeIndexed, raw, services);
         }
 
         // compile index information
@@ -320,7 +323,7 @@ public class SubordinateQueryPlanner {
             return null;
         }
         // handle existing
-        List<StmtClassForgableFactory> multiKeyForgables;
+        List<StmtClassForgeableFactory> multiKeyForgeables;
         if (existing != null) {
             indexKeyInfo = SubordinateQueryPlannerUtil.compileIndexKeyInfo(existing.getFirst(),
                 indexProps.getHashIndexPropsProvided(), indexProps.getHashJoinedProps(),
@@ -328,7 +331,7 @@ public class SubordinateQueryPlanner {
             indexName = existing.getSecond().getName();
             indexModuleName = existing.getSecond().getModuleName();
             indexMultiKey = existing.getFirst();
-            multiKeyForgables = Collections.emptyList();
+            multiKeyForgeables = Collections.emptyList();
         } else {
             // handle planned
             indexKeyInfo = SubordinateQueryPlannerUtil.compileIndexKeyInfo(planned.getIndexPropKey(),
@@ -336,11 +339,11 @@ public class SubordinateQueryPlanner {
                 indexProps.getRangeIndexPropsProvided(), indexProps.getRangeJoinedProps());
             indexMultiKey = planned.getIndexPropKey();
             planIndexItem = planned.getIndexItem();
-            multiKeyForgables = planned.getMultiKeyForgables();
+            multiKeyForgeables = planned.getMultiKeyForgeables();
         }
 
         SubordinateQueryIndexDescForge forge = new SubordinateQueryIndexDescForge(indexKeyInfo, indexName, indexModuleName, indexMultiKey, planIndexItem);
-        return new SubordinateQueryIndexSuggest(forge, multiKeyForgables);
+        return new SubordinateQueryIndexSuggest(forge, multiKeyForgeables);
     }
 
     private static SubordinateQueryPlannerIndexPropDesc getIndexPropDesc(Map<String, SubordPropHashKeyForge> hashProps, Map<String, SubordPropRangeKeyForge> rangeProps) {
@@ -378,7 +381,9 @@ public class SubordinateQueryPlanner {
     private static SubordinateQueryIndexPlan planIndex(boolean unique,
                                                        List<IndexedPropDesc> hashProps,
                                                        List<IndexedPropDesc> btreeProps,
-                                                       EventType eventTypeIndexed) {
+                                                       EventType eventTypeIndexed,
+                                                       StatementRawInfo raw,
+                                                       StatementCompileTimeServices services) {
 
         // not resolved as full match and not resolved as unique index match, allocate
         IndexMultiKey indexPropKey = new IndexMultiKey(unique, hashProps, btreeProps, null);
@@ -393,9 +398,15 @@ public class SubordinateQueryPlanner {
 
         QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, unique, null, eventTypeIndexed);
 
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(indexCoercionTypes, false);
-        indexItem.setHashMultiKeyClasses(multiKeyPlan.getOptionalClassRef());
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(indexCoercionTypes, false, raw, services.getSerdeResolver());
+        indexItem.setHashMultiKeyClasses(multiKeyPlan.getClassRef());
 
-        return new SubordinateQueryIndexPlan(indexItem, indexPropKey, multiKeyPlan.getMultiKeyForgables());
+        DataInputOutputSerdeForge[] rangeSerdes = new DataInputOutputSerdeForge[rangeCoercionTypes.length];
+        for (int i = 0; i < rangeCoercionTypes.length; i++) {
+            rangeSerdes[i] = services.getSerdeResolver().serdeForIndexBtree(rangeCoercionTypes[i], raw);
+        }
+        indexItem.setRangeSerdes(rangeSerdes);
+
+        return new SubordinateQueryIndexPlan(indexItem, indexPropKey, multiKeyPlan.getMultiKeyForgeables());
     }
 }

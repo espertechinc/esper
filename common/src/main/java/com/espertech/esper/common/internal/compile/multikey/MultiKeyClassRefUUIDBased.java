@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.common.internal.compile.multikey;
 
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.util.HashableMultiKey;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
@@ -40,10 +42,10 @@ public class MultiKeyClassRefUUIDBased implements MultiKeyClassRef {
     }
 
     public String getClassNameMKSerde(String classPostfix) {
-        return CodeGenerationIDGenerator.generateClassNameWithUUID(MultiKeyGeneratedSerde.class, classPostfix, uuid);
+        return CodeGenerationIDGenerator.generateClassNameWithUUID(DataInputOutputSerde.class, classPostfix, uuid);
     }
 
-    public CodegenExpression getExprMKSerde() {
+    public CodegenExpression getExprMKSerde(CodegenMethod method, CodegenClassScope classScope) {
         checkClassPostfix();
         return newInstance(getClassNameMKSerde(classPostfix));
     }

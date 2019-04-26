@@ -11,7 +11,8 @@
 package com.espertech.esper.common.internal.epl.historical.common;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyForge;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyMultiForge;
 import com.espertech.esper.common.internal.epl.historical.lookupstrategy.HistoricalIndexLookupStrategyForge;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForge;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueForge;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValuePairHashKeyIndexForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.*;
@@ -68,12 +70,14 @@ public class HistoricalStreamIndexListForge {
      * Get the strategies to use for polling from a given stream.
      *
      * @param streamViewStreamNum the stream providing the polling events
+     * @param raw
+     * @param serdeResolver
      * @return looking and indexing strategy
      */
-    public JoinSetComposerPrototypeHistoricalDesc getStrategy(int streamViewStreamNum) {
+    public JoinSetComposerPrototypeHistoricalDesc getStrategy(int streamViewStreamNum, StatementRawInfo raw, SerdeCompileTimeResolver serdeResolver) {
         // If there is only a single polling stream, then build a single index
         if (pollingStreams.size() == 1) {
-            return JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum);
+            return JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum, raw, serdeResolver);
         }
 
         // If there are multiple polling streams, determine if a single index is appropriate.
@@ -82,7 +86,7 @@ public class HistoricalStreamIndexListForge {
         //  (b) indexed property types are the same
         //  (c) key property types are the same (because of coercion)
         // A index lookup strategy is always specific to the providing stream.
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         if (indexesUsedByStreams == null) {
             indexesUsedByStreams = new LinkedHashMap<>();
             for (int pollingStream : pollingStreams) {
@@ -112,7 +116,7 @@ public class HistoricalStreamIndexListForge {
                 int count = 0;
                 for (Map.Entry<HistoricalStreamIndexDesc, List<Integer>> desc : indexesUsedByStreams.entrySet()) {
                     int sampleStreamViewStreamNum = desc.getValue().get(0);
-                    JoinSetComposerPrototypeHistoricalDesc indexing = JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[sampleStreamViewStreamNum], historicalStreamNum, sampleStreamViewStreamNum);
+                    JoinSetComposerPrototypeHistoricalDesc indexing = JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[sampleStreamViewStreamNum], historicalStreamNum, sampleStreamViewStreamNum, raw, serdeResolver);
                     indexingStrategies[count] = indexing.getIndexingForge();
                     additionalForgeables.addAll(indexing.getAdditionalForgeables());
                     count++;
@@ -125,7 +129,7 @@ public class HistoricalStreamIndexListForge {
 
         // there is one type of index
         if (indexesUsedByStreams.size() == 1) {
-            return JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum);
+            return JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum, raw, serdeResolver);
         }
 
         // determine which index number the polling stream must use
@@ -143,7 +147,7 @@ public class HistoricalStreamIndexListForge {
         }
 
         // Use one of the indexes built by the master index and a lookup strategy
-        JoinSetComposerPrototypeHistoricalDesc indexing = JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum);
+        JoinSetComposerPrototypeHistoricalDesc indexing = JoinSetComposerPrototypeForgeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum, raw, serdeResolver);
         HistoricalIndexLookupStrategyForge innerLookupStrategy = indexing.getLookupForge();
         HistoricalIndexLookupStrategyForge lookupStrategy = new HistoricalIndexLookupStrategyMultiForge(indexUsed, innerLookupStrategy);
         additionalForgeables.addAll(indexing.getAdditionalForgeables());

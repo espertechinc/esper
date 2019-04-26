@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -30,12 +31,14 @@ public class ExprFilterSpecLookupableForge {
     protected final EventPropertyValueGetterForge optionalEventPropForge;
     protected final Class returnType;
     protected final boolean isNonPropertyGetter;
+    protected final DataInputOutputSerdeForge valueSerde;
 
-    public ExprFilterSpecLookupableForge(String expression, EventPropertyValueGetterForge optionalEventPropForge, Class returnType, boolean isNonPropertyGetter) {
+    public ExprFilterSpecLookupableForge(String expression, EventPropertyValueGetterForge optionalEventPropForge, Class returnType, boolean isNonPropertyGetter, DataInputOutputSerdeForge valueSerde) {
         this.expression = expression;
         this.optionalEventPropForge = optionalEventPropForge;
         this.returnType = JavaClassHelper.getBoxedType(returnType); // For type consistency for recovery and serde define as boxed type
         this.isNonPropertyGetter = isNonPropertyGetter;
+        this.valueSerde = valueSerde;
     }
 
     public Class getReturnType() {
@@ -62,7 +65,7 @@ public class ExprFilterSpecLookupableForge {
 
         method.getBlock()
                 .declareVar(ExprFilterSpecLookupable.class, "lookupable", newInstance(ExprFilterSpecLookupable.class,
-                        constant(expression), ref("getter"), enumValue(returnType, "class"), constant(isNonPropertyGetter)))
+                        constant(expression), ref("getter"), enumValue(returnType, "class"), constant(isNonPropertyGetter), valueSerde.codegen(method, classScope, null)))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", symbols.getAddEventType(method), ref("lookupable")))
                 .methodReturn(ref("lookupable"));
         return method;

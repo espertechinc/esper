@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.metrics.instrumentation;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerType;
@@ -661,7 +661,7 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
 
     }
 
-    public void aJoinExecStrategy(UniformPair<Set<MultiKey<EventBean>>> joinSet) {
+    public void aJoinExecStrategy(UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> joinSet) {
 
     }
 
@@ -669,7 +669,7 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
 
     }
 
-    public void aJoinCompositionStreamToWin(Set<MultiKey<EventBean>> newResults) {
+    public void aJoinCompositionStreamToWin(Set<MultiKeyArrayOfKeys<EventBean>> newResults) {
 
     }
 
@@ -713,7 +713,7 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
 
     }
 
-    public void qJoinExecProcess(UniformPair<Set<MultiKey<EventBean>>> joinSet) {
+    public void qJoinExecProcess(UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> joinSet) {
 
     }
 
@@ -725,7 +725,7 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
 
     }
 
-    public void aJoinCompositionWinToWin(Set<MultiKey<EventBean>> newResults, Set<MultiKey<EventBean>> oldResults) {
+    public void aJoinCompositionWinToWin(Set<MultiKeyArrayOfKeys<EventBean>> newResults, Set<MultiKeyArrayOfKeys<EventBean>> oldResults) {
 
     }
 
@@ -753,7 +753,7 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
 
     }
 
-    public void qOutputProcessWConditionJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+    public void qOutputProcessWConditionJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents) {
 
     }
 
@@ -915,7 +915,7 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
 
     }
 
-    public void aJoinExecFilter(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+    public void aJoinExecFilter(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents) {
 
     }
 
@@ -923,7 +923,7 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
 
     }
 
-    public void aJoinCompositionHistorical(Set<MultiKey<EventBean>> newResults, Set<MultiKey<EventBean>> oldResults) {
+    public void aJoinCompositionHistorical(Set<MultiKeyArrayOfKeys<EventBean>> newResults, Set<MultiKeyArrayOfKeys<EventBean>> oldResults) {
 
     }
 

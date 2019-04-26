@@ -21,7 +21,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.*;
@@ -76,14 +75,15 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
         }
 
         CodegenExpressionField timeAbacus = classScope.addOrGetFieldSharable(TimeAbacusField.INSTANCE);
-        CodegenExpression multiKeySerde = MultiKeyCodegen.codegenOptionalSerde(aggGroupByDesc.getOptionalGroupByMultiKey());
+
         method.getBlock()
             .declareVar(AggregationRowFactory.class, "rowFactory", CodegenExpressionBuilder.newInstance(classNames.getRowFactoryTop(), ref("this")))
             .declareVar(DataInputOutputSerde.class, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
             .declareVar(AggregationServiceFactory.class, "svcFactory", CodegenExpressionBuilder.newInstance(classNames.getServiceFactory(), ref("this")))
+            .declareVar(DataInputOutputSerde.class, "serde", aggGroupByDesc.getGroupByMultiKey().getExprMKSerde(method, classScope))
             .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add(
                 "groupBy", ref("svcFactory"), ref("rowFactory"), aggGroupByDesc.getRowStateForgeDescs().getUseFlags().toExpression(),
-                ref("rowSerde"), constant(groupByTypes), reclaimAge, reclaimFreq, timeAbacus, multiKeySerde));
+                ref("rowSerde"), constant(groupByTypes), reclaimAge, reclaimFreq, timeAbacus, ref("serde")));
     }
 
     public void rowCtorCodegen(AggregationRowCtorDesc rowCtorDesc) {

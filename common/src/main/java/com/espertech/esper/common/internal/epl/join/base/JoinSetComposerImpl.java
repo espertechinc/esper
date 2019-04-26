@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -38,8 +38,8 @@ public class JoinSetComposerImpl implements JoinSetComposer {
     private final boolean joinRemoveStream;
 
     // Set semantic eliminates duplicates in result set, use Linked set to preserve order
-    protected Set<MultiKey<EventBean>> oldResults = new LinkedHashSet<MultiKey<EventBean>>();
-    protected Set<MultiKey<EventBean>> newResults = new LinkedHashSet<MultiKey<EventBean>>();
+    protected Set<MultiKeyArrayOfKeys<EventBean>> oldResults = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
+    protected Set<MultiKeyArrayOfKeys<EventBean>> newResults = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
 
     public JoinSetComposerImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, boolean isPureSelfJoin,
                                ExprEvaluatorContext exprEvaluatorContext, boolean joinRemoveStream) {
@@ -79,7 +79,7 @@ public class JoinSetComposerImpl implements JoinSetComposer {
         }
     }
 
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+    public UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         InstrumentationCommon instrumentationCommon = exprEvaluatorContext.getInstrumentationProvider();
         instrumentationCommon.qJoinCompositionWinToWin();
 
@@ -127,7 +127,7 @@ public class JoinSetComposerImpl implements JoinSetComposer {
         }
 
         instrumentationCommon.aJoinCompositionWinToWin(newResults, oldResults);
-        return new UniformPair<Set<MultiKey<EventBean>>>(newResults, oldResults);
+        return new UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>(newResults, oldResults);
     }
 
     /**
@@ -148,8 +148,8 @@ public class JoinSetComposerImpl implements JoinSetComposer {
         return queryStrategies;
     }
 
-    public Set<MultiKey<EventBean>> staticJoin() {
-        Set<MultiKey<EventBean>> result = new LinkedHashSet<MultiKey<EventBean>>();
+    public Set<MultiKeyArrayOfKeys<EventBean>> staticJoin() {
+        Set<MultiKeyArrayOfKeys<EventBean>> result = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
         EventBean[] lookupEvents = new EventBean[1];
 
         // for each stream, perform query strategy

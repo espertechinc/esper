@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 /**
  * Represents the avg(...) aggregate function is an expression tree.
@@ -38,7 +39,8 @@ public class ExprAvgNode extends ExprAggregateNodeBase {
             optionalFilter = positionalParams[1];
         }
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return new AggregationForgeFactoryAvg(this, childType, validationContext.getClasspathImportService().getDefaultMathContext());
+        DataInputOutputSerdeForge distinctSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo()) : null;
+        return new AggregationForgeFactoryAvg(this, childType, distinctSerde, validationContext.getClasspathImportService().getDefaultMathContext());
     }
 
     public String getAggregationFunctionName() {

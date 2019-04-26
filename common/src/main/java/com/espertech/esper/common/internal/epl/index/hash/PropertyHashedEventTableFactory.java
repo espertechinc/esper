@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.hash;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
@@ -26,9 +26,9 @@ public class PropertyHashedEventTableFactory implements EventTableFactory {
     protected final boolean unique;
     protected final String optionalIndexName;
     protected final EventPropertyValueGetter propertyGetter;
-    protected final MultiKeyGeneratedFromObjectArray multiKeyTransform;
+    protected final MultiKeyFromObjectArray multiKeyTransform;
 
-    public PropertyHashedEventTableFactory(int streamNum, String[] propertyNames, boolean unique, String optionalIndexName, EventPropertyValueGetter propertyGetter, MultiKeyGeneratedFromObjectArray multiKeyTransform) {
+    public PropertyHashedEventTableFactory(int streamNum, String[] propertyNames, boolean unique, String optionalIndexName, EventPropertyValueGetter propertyGetter, MultiKeyFromObjectArray multiKeyTransform) {
         this.streamNum = streamNum;
         this.propertyNames = propertyNames;
         this.unique = unique;

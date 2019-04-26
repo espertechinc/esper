@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariantStream;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.avro.EventTypeAvroHandler;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -30,9 +31,7 @@ import com.espertech.esper.common.internal.event.property.PropertyParser;
 import com.espertech.esper.common.internal.event.variant.VariantSpec;
 import com.espertech.esper.common.internal.event.xml.*;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class EventTypeCollectorImpl implements EventTypeCollector {
     private final Map<String, EventType> moduleEventTypes;
@@ -43,6 +42,7 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
     private final XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory;
     private final EventTypeAvroHandler eventTypeAvroHandler;
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
+    private final List<EventTypeCollectedSerde> serdes = new ArrayList<>();
 
     public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
         this.moduleEventTypes = moduleEventTypes;
@@ -113,5 +113,13 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
             throw new IllegalStateException("Event type '" + eventType.getName() + "' attempting to register multiple times");
         }
         moduleEventTypes.put(eventType.getName(), eventType);
+    }
+
+    public void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, Class underlyingClass) {
+        serdes.add(new EventTypeCollectedSerde(metadata, underlyingSerde, underlyingClass));
+    }
+
+    public List<EventTypeCollectedSerde> getSerdes() {
+        return serdes;
     }
 }

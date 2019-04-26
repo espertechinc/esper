@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.view.unique;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.view.core.*;
@@ -22,7 +22,7 @@ import com.espertech.esper.common.internal.view.core.*;
 public class UniqueByPropertyViewFactory implements DataWindowViewFactory {
     protected ExprEvaluator criteriaEval;
     protected Class[] criteriaTypes;
-    protected MultiKeyGeneratedSerde multiKeySerde;
+    protected DataInputOutputSerde<Object> keySerde;
     protected EventType eventType;
 
     public void setEventType(EventType eventType) {
@@ -60,11 +60,11 @@ public class UniqueByPropertyViewFactory implements DataWindowViewFactory {
         return ViewEnum.UNIQUE_BY_PROPERTY.getName();
     }
 
-    public MultiKeyGeneratedSerde getMultiKeySerde() {
-        return multiKeySerde;
+    public DataInputOutputSerde<Object> getKeySerde() {
+        return keySerde;
     }
 
-    public void setMultiKeySerde(MultiKeyGeneratedSerde multiKeySerde) {
-        this.multiKeySerde = multiKeySerde;
+    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+        this.keySerde = keySerde;
     }
 }

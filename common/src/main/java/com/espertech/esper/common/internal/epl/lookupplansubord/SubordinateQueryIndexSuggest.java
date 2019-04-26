@@ -10,24 +10,24 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
 public class SubordinateQueryIndexSuggest {
     private final SubordinateQueryIndexDescForge forge;
-    private final List<StmtClassForgableFactory> multiKeyForgables;
+    private final List<StmtClassForgeableFactory> multiKeyForgeables;
 
-    public SubordinateQueryIndexSuggest(SubordinateQueryIndexDescForge forge, List<StmtClassForgableFactory> multiKeyForgables) {
+    public SubordinateQueryIndexSuggest(SubordinateQueryIndexDescForge forge, List<StmtClassForgeableFactory> multiKeyForgeables) {
         this.forge = forge;
-        this.multiKeyForgables = multiKeyForgables;
+        this.multiKeyForgeables = multiKeyForgeables;
     }
 
     public SubordinateQueryIndexDescForge getForge() {
         return forge;
     }
 
-    public List<StmtClassForgableFactory> getMultiKeyForgables() {
-        return multiKeyForgables;
+    public List<StmtClassForgeableFactory> getMultiKeyForgeables() {
+        return multiKeyForgeables;
     }
 }

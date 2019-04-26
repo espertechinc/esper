@@ -22,16 +22,21 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodA
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprNthAggNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class AggregationForgeFactoryNth extends AggregationForgeFactoryBase {
     protected final ExprNthAggNode parent;
     protected final Class childType;
+    protected final DataInputOutputSerdeForge serde;
+    protected final DataInputOutputSerdeForge distinctSerde;
     protected final int size;
     protected AggregatorNth aggregator;
 
-    public AggregationForgeFactoryNth(ExprNthAggNode parent, Class childType, int size) {
+    public AggregationForgeFactoryNth(ExprNthAggNode parent, Class childType, DataInputOutputSerdeForge serde, DataInputOutputSerdeForge distinctSerde, int size) {
         this.parent = parent;
         this.childType = childType;
+        this.serde = serde;
+        this.distinctSerde = distinctSerde;
         this.size = size;
     }
 
@@ -41,7 +46,7 @@ public class AggregationForgeFactoryNth extends AggregationForgeFactoryBase {
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         Class distinctValueType = !parent.isDistinct() ? null : childType;
-        aggregator = new AggregatorNth(this, col, rowCtor, membersColumnized, classScope, distinctValueType, false, parent.getOptionalFilter());
+        aggregator = new AggregatorNth(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, false, parent.getOptionalFilter());
     }
 
     public AggregatorMethod getAggregator() {

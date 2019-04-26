@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.runtime.internal.kernel.service;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeMeta;
+import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFactory;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFactoryImpl;
 import com.espertech.esper.common.internal.context.mgr.ContextServiceFactory;
@@ -48,8 +50,10 @@ import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeReposito
 import com.espertech.esper.common.internal.filterspec.*;
 import com.espertech.esper.common.internal.metrics.stmtmetrics.MetricReportingService;
 import com.espertech.esper.common.internal.schedule.TimeSourceService;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeProvider;
-import com.espertech.esper.common.internal.serde.DataInputOutputSerdeProviderDefault;
+import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactory;
+import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactoryDefault;
+import com.espertech.esper.common.internal.serde.runtime.eventtype.EventTypeSerdeRepository;
+import com.espertech.esper.common.internal.serde.runtime.eventtype.EventTypeSerdeRepositoryDefault;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
@@ -158,12 +162,12 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
         return new EventBeanTypedEventFactoryRuntime(eventTypeAvroHandler);
     }
 
-    protected EventTableIndexService makeEventTableIndexService(RuntimeExtensionServices runtimeExtensionServices) {
-        return EventTableIndexServiceImpl.INSTANCE;
+    protected EventTypeSerdeRepository makeEventTypeSerdeRepository(EventTypeRepository preconfigureds, PathRegistry<String, EventType> eventTypePathRegistry) {
+        return EventTypeSerdeRepositoryDefault.INSTANCE;
     }
 
-    protected DataInputOutputSerdeProvider makeSerdeProvider(RuntimeExtensionServices ext) {
-        return DataInputOutputSerdeProviderDefault.INSTANCE;
+    protected EventTableIndexService makeEventTableIndexService(RuntimeExtensionServices runtimeExtensionServices) {
+        return EventTableIndexServiceImpl.INSTANCE;
     }
 
     protected ResultSetProcessorHelperFactory makeResultSetProcessorHelperFactory(RuntimeExtensionServices ext) {
@@ -212,6 +216,10 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
 
     protected ThreadingService makeThreadingService(Configuration configs) {
         return new ThreadingServiceImpl(configs.getRuntime().getThreading());
+    }
+
+    protected EventSerdeFactory makeEventSerdeFactory(RuntimeExtensionServices ext) {
+        return EventSerdeFactoryDefault.INSTANCE;
     }
 }
 

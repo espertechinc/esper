@@ -20,20 +20,20 @@ public class AggGroupByDesc {
     private final boolean isFireAndForget;
     private final boolean isOnSelect;
     private final ExprNode[] groupByNodes;
-    private final MultiKeyClassRef optionalGroupByMultiKey;
+    private final MultiKeyClassRef groupByMultiKey;
 
     private boolean refcounted;
     private boolean reclaimAged;
     private AggSvcGroupByReclaimAgedEvalFuncFactoryForge reclaimEvaluationFunctionMaxAge;
     private AggSvcGroupByReclaimAgedEvalFuncFactoryForge reclaimEvaluationFunctionFrequency;
 
-    public AggGroupByDesc(AggregationRowStateForgeDesc rowStateForgeDescs, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect, ExprNode[] groupByNodes, MultiKeyClassRef optionalGroupByMultiKey) {
+    public AggGroupByDesc(AggregationRowStateForgeDesc rowStateForgeDescs, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect, ExprNode[] groupByNodes, MultiKeyClassRef groupByMultiKey) {
         this.rowStateForgeDescs = rowStateForgeDescs;
         this.isUnidirectional = isUnidirectional;
         this.isFireAndForget = isFireAndForget;
         this.isOnSelect = isOnSelect;
         this.groupByNodes = groupByNodes;
-        this.optionalGroupByMultiKey = optionalGroupByMultiKey;
+        this.groupByMultiKey = groupByMultiKey;
     }
 
     public AggregationRowStateForgeDesc getRowStateForgeDescs() {
@@ -96,7 +96,7 @@ public class AggGroupByDesc {
         return rowStateForgeDescs.getNumAccess();
     }
 
-    public MultiKeyClassRef getOptionalGroupByMultiKey() {
-        return optionalGroupByMultiKey;
+    public MultiKeyClassRef getGroupByMultiKey() {
+        return groupByMultiKey;
     }
 }

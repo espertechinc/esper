@@ -22,15 +22,18 @@ import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodA
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprStddevNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class AggregationForgeFactoryStddev extends AggregationForgeFactoryBase {
     protected final ExprStddevNode parent;
     protected final Class aggregatedValueType;
+    protected final DataInputOutputSerdeForge distinctSerde;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryStddev(ExprStddevNode parent, Class aggregatedValueType) {
+    public AggregationForgeFactoryStddev(ExprStddevNode parent, Class aggregatedValueType, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
         this.aggregatedValueType = aggregatedValueType;
+        this.distinctSerde = distinctSerde;
     }
 
     public Class getResultType() {
@@ -43,7 +46,7 @@ public class AggregationForgeFactoryStddev extends AggregationForgeFactoryBase {
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         Class distinctType = !parent.isDistinct() ? null : aggregatedValueType;
-        aggregator = new AggregatorStddev(this, col, rowCtor, membersColumnized, classScope, distinctType, parent.isHasFilter(), parent.getOptionalFilter());
+        aggregator = new AggregatorStddev(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
     }
 
     public AggregatorMethod getAggregator() {

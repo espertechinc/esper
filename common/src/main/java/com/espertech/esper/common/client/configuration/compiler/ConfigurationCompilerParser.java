@@ -71,6 +71,8 @@ public class ConfigurationCompilerParser {
                 handleExecution(compiler, element);
             } else if (nodeName.equals("view-resources")) {
                 handleViewResources(compiler, element);
+            } else if (nodeName.equals("serde-settings")) {
+                handleSerdeSettings(compiler, element);
             }
         }
     }
@@ -165,7 +167,7 @@ public class ConfigurationCompilerParser {
                     defaultSelector = StreamSelector.RSTREAM_ISTREAM_BOTH;
                 } else {
                     throw new ConfigurationException("Value attribute for stream-selector element invalid, " +
-                            "expected one of the following keywords: istream, irstream, rstream");
+                        "expected one of the following keywords: istream, irstream, rstream");
                 }
                 compiler.getStreamSelection().setDefaultStreamSelector(defaultSelector);
             }
@@ -302,5 +304,36 @@ public class ConfigurationCompilerParser {
         String name = getRequiredAttribute(element, "name");
         String forgeClassName = getRequiredAttribute(element, "forge-class");
         configuration.addPlugInPatternObserver(namespace, name, forgeClassName);
+    }
+
+    private static void handleSerdeSettings(ConfigurationCompiler configuration, Element parentElement) {
+        String text = getOptionalAttribute(parentElement, "enable-serializable");
+        if (text != null) {
+            configuration.getSerde().setEnableSerializable(Boolean.parseBoolean(text));
+        }
+
+        text = getOptionalAttribute(parentElement, "enable-externalizable");
+        if (text != null) {
+            configuration.getSerde().setEnableExternalizable(Boolean.parseBoolean(text));
+        }
+
+        text = getOptionalAttribute(parentElement, "enable-extended-builtin");
+        if (text != null) {
+            configuration.getSerde().setEnableExtendedBuiltin(Boolean.parseBoolean(text));
+        }
+
+        text = getOptionalAttribute(parentElement, "enable-serialization-fallback");
+        if (text != null) {
+            configuration.getSerde().setEnableSerializationFallback(Boolean.parseBoolean(text));
+        }
+
+        DOMElementIterator nodeIterator = new DOMElementIterator(parentElement.getChildNodes());
+        while (nodeIterator.hasNext()) {
+            Element subElement = nodeIterator.next();
+            if (subElement.getNodeName().equals("serde-provider-factory")) {
+                text = getRequiredAttribute(subElement, "class");
+                configuration.getSerde().addSerdeProviderFactory(text);
+            }
+        }
     }
 }

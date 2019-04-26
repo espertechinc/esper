@@ -59,6 +59,7 @@ public class ConfigurationCompiler implements Serializable {
     private ConfigurationCompilerExecution execution;
     private ConfigurationCompilerScripts scripts;
     private ConfigurationCompilerLanguage language;
+    private ConfigurationCompilerSerde serde;
 
     /**
      * Constructs an empty configuration. The auto import values
@@ -405,6 +406,22 @@ public class ConfigurationCompiler implements Serializable {
     }
 
     /**
+     * Returns the serializer and de-serializer -related settings
+     * @return serde settings
+     */
+    public ConfigurationCompilerSerde getSerde() {
+        return serde;
+    }
+
+    /**
+     * Sets the serializer and de-serializer -related settings
+     * @param serde serde settings
+     */
+    public void setSerde(ConfigurationCompilerSerde serde) {
+        this.serde = serde;
+    }
+
+    /**
      * Reset to an empty configuration.
      */
     protected void reset() {
@@ -422,5 +439,6 @@ public class ConfigurationCompiler implements Serializable {
         execution = new ConfigurationCompilerExecution();
         scripts = new ConfigurationCompilerScripts();
         language = new ConfigurationCompilerLanguage();
+        serde = new ConfigurationCompilerSerde();
     }
 }

@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.ArrayEventIterator;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
@@ -108,16 +108,16 @@ public class ResultSetProcessorUtil {
      * @param newEvents            istream
      * @param oldEvents            rstream
      */
-    public static void applyAggJoinResult(AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext, Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+    public static void applyAggJoinResult(AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext, Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents) {
         if (newEvents != null) {
             // apply new data to aggregates
-            for (MultiKey<EventBean> events : newEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> events : newEvents) {
                 aggregationService.applyEnter(events.getArray(), null, exprEvaluatorContext);
             }
         }
         if (oldEvents != null) {
             // apply old data to aggregates
-            for (MultiKey<EventBean> events : oldEvents) {
+            for (MultiKeyArrayOfKeys<EventBean> events : oldEvents) {
                 aggregationService.applyLeave(events.getArray(), null, exprEvaluatorContext);
             }
         }
@@ -351,7 +351,7 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectJoinEventsNoHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectJoinEventsNoHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -360,7 +360,7 @@ public class ResultSetProcessorUtil {
         EventBean[][] eventGenerators = new EventBean[events.size()][];
 
         int count = 0;
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
             result[count] = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
             eventGenerators[count] = eventsPerStream;
@@ -381,7 +381,7 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -389,7 +389,7 @@ public class ResultSetProcessorUtil {
         EventBean[] result = new EventBean[events.size()];
         int count = 0;
 
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
             result[count] = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
             count++;
@@ -412,14 +412,14 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
 
         ArrayDeque<EventBean> result = null;
 
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
             boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
@@ -448,7 +448,7 @@ public class ResultSetProcessorUtil {
                     .ifRefNullReturnNull("events")
                     .declareVar(ArrayDeque.class, "result", constantNull());
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "generated", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
@@ -481,7 +481,7 @@ public class ResultSetProcessorUtil {
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectJoinEventsHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+    public static EventBean[] getSelectJoinEventsHavingWithOrderBy(AggregationService aggregationService, SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -489,7 +489,7 @@ public class ResultSetProcessorUtil {
         ArrayDeque<EventBean> result = null;
         ArrayDeque<EventBean[]> eventGenerators = null;
 
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
             boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
@@ -522,7 +522,7 @@ public class ResultSetProcessorUtil {
                     .declareVar(ArrayDeque.class, "result", constantNull())
                     .declareVar(ArrayDeque.class, "eventGenerators", constantNull());
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
@@ -665,12 +665,12 @@ public class ResultSetProcessorUtil {
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
-    public static void populateSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
+    public static void populateSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
 
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
             boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
@@ -690,7 +690,7 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNull("events").blockReturnNoValue();
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
@@ -704,12 +704,12 @@ public class ResultSetProcessorUtil {
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
-    public static void populateSelectJoinEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> sortKeys, ExprEvaluatorContext exprEvaluatorContext) {
+    public static void populateSelectJoinEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> sortKeys, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
 
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
             boolean passesHaving = ResultSetProcessorUtil.evaluateHavingClause(havingNode, eventsPerStream, isNewData, exprEvaluatorContext);
@@ -730,7 +730,7 @@ public class ResultSetProcessorUtil {
             methodNode.getBlock().ifRefNull("events").blockReturnNoValue();
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "key", ref("events"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "key", ref("events"));
                 forEach.declareVar(EventBean[].class, NAME_EPS, cast(EventBean[].class, exprDotMethod(ref("key"), "getArray")));
                 forEach.ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))).blockContinue();
                 forEach.declareVar(EventBean.class, "resultEvent", exprDotMethod(REF_SELECTEXPRNONMEMBER, "process", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT))
@@ -745,13 +745,13 @@ public class ResultSetProcessorUtil {
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
-    public static void populateSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
+    public static void populateSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
         int length = (events != null) ? events.size() : 0;
         if (length == 0) {
             return;
         }
 
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
             EventBean resultEvent = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
             if (resultEvent != null) {
@@ -760,13 +760,13 @@ public class ResultSetProcessorUtil {
         }
     }
 
-    public static void populateSelectJoinEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> optSortKeys, ExprEvaluatorContext exprEvaluatorContext) {
+    public static void populateSelectJoinEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKeyArrayOfKeys<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> optSortKeys, ExprEvaluatorContext exprEvaluatorContext) {
         int length = (events != null) ? events.size() : 0;
         if (length == 0) {
             return;
         }
 
-        for (MultiKey<EventBean> key : events) {
+        for (MultiKeyArrayOfKeys<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
             EventBean resultEvent = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
             if (resultEvent != null) {

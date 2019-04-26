@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.core.ExprWildcard;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 /**
  * Represents the "countever" aggregate function is an expression tree.
@@ -45,7 +46,9 @@ public class ExprCountEverNode extends ExprAggregateNodeBase {
                 optionalFilter = positionalParams[1];
             }
         }
-        return new AggregationForgeFactoryCountEver(this, ignoreNulls);
+        Class childType = getChildNodes()[0].getForge().getEvaluationType();
+        DataInputOutputSerdeForge distinctSerde = isDistinct ? validationContext.getSerdeResolver().serdeForAggregationDistinct(childType, validationContext.getStatementRawInfo()) : null;
+        return new AggregationForgeFactoryCountEver(this, ignoreNulls, childType, distinctSerde);
     }
 
     public boolean hasFilter() {

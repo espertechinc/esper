@@ -11,9 +11,9 @@
 package com.espertech.esper.common.internal.epl.table.core;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromMultiKey;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyFromMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -38,9 +38,9 @@ public abstract class TableBase implements Table {
     protected AggregationRowFactory aggregationRowFactory;
     protected TableSerdes tableSerdes;
     protected EventPropertyValueGetter primaryKeyGetter;
-    protected MultiKeyGeneratedSerde primaryKeySerde;
-    protected MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform;
-    protected MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform;
+    protected DataInputOutputSerde<Object> primaryKeySerde;
+    protected MultiKeyFromObjectArray primaryKeyObjectArrayTransform;
+    protected MultiKeyFromMultiKey primaryKeyIntoTableTransform;
     protected Set<TableUpdateStrategyRedoCallback> updateStrategyRedoCallbacks = new HashSet<>(4);
     protected PropertyHashedEventTableFactory primaryKeyIndexFactory;
 
@@ -70,15 +70,15 @@ public abstract class TableBase implements Table {
         this.primaryKeyGetter = primaryKeyGetter;
     }
 
-    public void setPrimaryKeySerde(MultiKeyGeneratedSerde primaryKeySerde) {
+    public void setPrimaryKeySerde(DataInputOutputSerde<Object> primaryKeySerde) {
         this.primaryKeySerde = primaryKeySerde;
     }
 
-    public void setPrimaryKeyObjectArrayTransform(MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform) {
+    public void setPrimaryKeyObjectArrayTransform(MultiKeyFromObjectArray primaryKeyObjectArrayTransform) {
         this.primaryKeyObjectArrayTransform = primaryKeyObjectArrayTransform;
     }
 
-    public void setPrimaryKeyIntoTableTransform(MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform) {
+    public void setPrimaryKeyIntoTableTransform(MultiKeyFromMultiKey primaryKeyIntoTableTransform) {
         this.primaryKeyIntoTableTransform = primaryKeyIntoTableTransform;
     }
 
@@ -183,15 +183,15 @@ public abstract class TableBase implements Table {
         return updateStrategyRedoCallbacks;
     }
 
-    public MultiKeyGeneratedFromMultiKey getPrimaryKeyIntoTableTransform() {
+    public MultiKeyFromMultiKey getPrimaryKeyIntoTableTransform() {
         return primaryKeyIntoTableTransform;
     }
 
-    public MultiKeyGeneratedFromObjectArray getPrimaryKeyObjectArrayTransform() {
+    public MultiKeyFromObjectArray getPrimaryKeyObjectArrayTransform() {
         return primaryKeyObjectArrayTransform;
     }
 
-    public MultiKeyGeneratedSerde getPrimaryKeySerde() {
+    public DataInputOutputSerde<Object> getPrimaryKeySerde() {
         return primaryKeySerde;
     }
 }

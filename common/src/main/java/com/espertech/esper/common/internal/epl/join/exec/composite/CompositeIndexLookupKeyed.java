@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.exec.composite;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,10 +19,10 @@ import java.util.Set;
 public class CompositeIndexLookupKeyed implements CompositeIndexLookup {
 
     private final Object[] keys;
-    private final MultiKeyGeneratedFromObjectArray multiKeyTransform;
+    private final MultiKeyFromObjectArray multiKeyTransform;
     private CompositeIndexLookup next;
 
-    public CompositeIndexLookupKeyed(Object[] keys, MultiKeyGeneratedFromObjectArray multiKeyTransform) {
+    public CompositeIndexLookupKeyed(Object[] keys, MultiKeyFromObjectArray multiKeyTransform) {
         this.keys = keys;
         this.multiKeyTransform = multiKeyTransform;
     }

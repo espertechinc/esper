@@ -12,9 +12,9 @@ package com.espertech.esper.common.internal.context.aifactory.createtable;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromMultiKey;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.collection.MultiKeyFromMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryResult;
@@ -22,11 +22,7 @@ import com.espertech.esper.common.internal.context.airegistry.AIRegistryRequirem
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRowFactory;
-import com.espertech.esper.common.internal.epl.table.core.Table;
-import com.espertech.esper.common.internal.epl.table.core.TableInstance;
-import com.espertech.esper.common.internal.epl.table.core.TableInstanceViewable;
-import com.espertech.esper.common.internal.epl.table.core.TableMetadataInternalEventToPublic;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.internal.epl.table.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +35,10 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
     private AggregationRowFactory aggregationRowFactory;
     private DataInputOutputSerde aggregationSerde;
     private EventPropertyValueGetter primaryKeyGetter;
-    private MultiKeyGeneratedSerde primaryKeySerde;
-    private MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform;
-    private MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform;
+    private DataInputOutputSerde<Object> primaryKeySerde;
+    private MultiKeyFromObjectArray primaryKeyObjectArrayTransform;
+    private MultiKeyFromMultiKey primaryKeyIntoTableTransform;
+    private DataInputOutputSerde[] propertyForges;
 
     private Table table;
 
@@ -69,16 +66,20 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         this.primaryKeyGetter = primaryKeyGetter;
     }
 
-    public void setPrimaryKeySerde(MultiKeyGeneratedSerde primaryKeySerde) {
+    public void setPrimaryKeySerde(DataInputOutputSerde<Object> primaryKeySerde) {
         this.primaryKeySerde = primaryKeySerde;
     }
 
-    public void setPrimaryKeyObjectArrayTransform(MultiKeyGeneratedFromObjectArray primaryKeyObjectArrayTransform) {
+    public void setPrimaryKeyObjectArrayTransform(MultiKeyFromObjectArray primaryKeyObjectArrayTransform) {
         this.primaryKeyObjectArrayTransform = primaryKeyObjectArrayTransform;
     }
 
-    public void setPrimaryKeyIntoTableTransform(MultiKeyGeneratedFromMultiKey primaryKeyIntoTableTransform) {
+    public void setPrimaryKeyIntoTableTransform(MultiKeyFromMultiKey primaryKeyIntoTableTransform) {
         this.primaryKeyIntoTableTransform = primaryKeyIntoTableTransform;
+    }
+
+    public void setPropertyForges(DataInputOutputSerde[] propertyForges) {
+        this.propertyForges = propertyForges;
     }
 
     public void ready(StatementContext statementContext, ModuleIncidentals moduleIncidentals, boolean recovery) {
@@ -89,7 +90,7 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         table.setStatementContextCreateTable(statementContext);
         table.setEventToPublic(eventToPublic);
         table.setAggregationRowFactory(aggregationRowFactory);
-        table.setTableSerdes(statementContext.getTableManagementService().getTableSerdes(table, aggregationSerde, statementContext));
+        table.setTableSerdes(new TableSerdes(propertyForges, aggregationSerde));
         table.setPrimaryKeyGetter(primaryKeyGetter);
         table.setPrimaryKeySerde(primaryKeySerde);
         table.setPrimaryKeyObjectArrayTransform(primaryKeyObjectArrayTransform);

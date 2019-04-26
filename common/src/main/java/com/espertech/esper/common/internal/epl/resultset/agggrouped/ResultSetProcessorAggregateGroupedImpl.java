@@ -20,9 +20,8 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.collection.ArrayEventIterator;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -46,7 +45,8 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EPS;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil.*;
-import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.*;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGJOINRESULTKEYEDJOIN;
+import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGVIEWRESULTKEYEDVIEW;
 import static com.espertech.esper.common.internal.util.CollectionUtil.*;
 
 /**
@@ -87,14 +87,14 @@ public class ResultSetProcessorAggregateGroupedImpl {
     public static void applyJoinResultCodegen(ResultSetProcessorAggregateGroupedForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         method.getBlock()
                 .ifCondition(not(exprDotMethod(REF_NEWDATA, "isEmpty")))
-                .forEach(MultiKey.class, "aNewEvent", REF_NEWDATA)
+                .forEach(MultiKeyArrayOfKeys.class, "aNewEvent", REF_NEWDATA)
                 .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewEvent"), "getArray")))
                 .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantTrue()))
                 .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("mk"), REF_AGENTINSTANCECONTEXT)
                 .blockEnd()
                 .blockEnd()
                 .ifCondition(and(notEqualsNull(REF_OLDDATA), not(exprDotMethod(REF_OLDDATA, "isEmpty"))))
-                .forEach(MultiKey.class, "anOldEvent", REF_OLDDATA)
+                .forEach(MultiKeyArrayOfKeys.class, "anOldEvent", REF_OLDDATA)
                 .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldEvent"), "getArray")))
                 .declareVar(Object.class, "mk", localMethod(forge.getGenerateGroupKeySingle(), ref("eventsPerStream"), constantFalse()))
                 .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("mk"), REF_AGENTINSTANCECONTEXT)
@@ -213,7 +213,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                     .declareVar(int.class, "cpid", exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"));
 
             {
-                CodegenBlock forLoop = methodNode.getBlock().forEach(MultiKey.class, "row", ref("resultSet"));
+                CodegenBlock forLoop = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "row", ref("resultSet"));
                 forLoop.increment("countInputRows")
                         .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("row"), "getArray")))
                         .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", arrayAtIndex(ref("groupByKeys"), ref("countInputRows")), ref("cpid"), constantNull());
@@ -358,7 +358,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                     .declareVarNoInit(EventBean[].class, "eventsPerStream");
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "row", ref("outputEvents"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "row", ref("outputEvents"));
                 forEach.exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", arrayAtIndex(ref("groupByKeys"), ref("count")), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull())
                         .assignRef("eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("row"), "getArray")));
 
@@ -429,7 +429,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                     .declareVar(int.class, "count", constant(0));
 
             {
-                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKey.class, "row", ref("outputEvents"));
+                CodegenBlock forEach = methodNode.getBlock().forEach(MultiKeyArrayOfKeys.class, "row", ref("outputEvents"));
                 forEach.declareVar(Object.class, "groupKey", arrayAtIndex(ref("groupByKeys"), ref("count")))
                         .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("groupKey"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull())
                         .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("row"), "getArray")));
@@ -476,7 +476,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
     private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorAggregateGroupedForge forge, String methodName, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
         CodegenExpression groupKeyTypes = constant(forge.getGroupKeyTypes());
-        CodegenExpression groupKeyMKSerde = MultiKeyCodegen.codegenOptionalSerde(forge.getMultiKeyClassRef());
+        CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
 
         if (forge.isOutputAll()) {
             CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType[].class, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
@@ -565,7 +565,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
         CodegenExpressionField helperFactory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
         CodegenExpressionField outputFactory = classScope.addFieldUnshared(true, OutputConditionPolledFactory.class, forge.getOptionalOutputFirstConditionFactory().make(classScope.getPackageScope().getInitMethod(), classScope));
         CodegenExpression groupKeyTypes = constant(forge.getGroupKeyTypes());
-        CodegenExpression groupKeyMKSerde = MultiKeyCodegen.codegenOptionalSerde(forge.getMultiKeyClassRef());
+        CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
         instance.addMember(NAME_OUTPUTFIRSTHELPER, ResultSetProcessorGroupedOutputFirstHelper.class);
         instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPER, exprDotMethod(helperFactory, "makeRSGroupedOutputFirst", REF_AGENTINSTANCECONTEXT, groupKeyTypes, outputFactory, constantNull(), constant(-1), groupKeyMKSerde));
 
@@ -589,7 +589,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                     CodegenBlock ifNewData = forEach.ifCondition(notEqualsNull(ref("newData")))
                             .declareVar(int.class, "count", constant(0));
                     {
-                        CodegenBlock forloop = ifNewData.forEach(MultiKey.class, "aNewData", ref("newData"));
+                        CodegenBlock forloop = ifNewData.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"));
                         forloop.declareVar(Object.class, "mk", arrayAtIndex(ref("newDataMultiKey"), ref("count")))
                                 .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                                 .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(ref(NAME_OUTPUTFIRSTHELPER), "getOrAllocate", ref("mk"), REF_AGENTINSTANCECONTEXT, outputFactory))
@@ -604,7 +604,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                     CodegenBlock ifOldData = forEach.ifCondition(notEqualsNull(ref("oldData")))
                             .declareVar(int.class, "count", constant(0));
                     {
-                        CodegenBlock forloop = ifOldData.forEach(MultiKey.class, "aOldData", ref("oldData"));
+                        CodegenBlock forloop = ifOldData.forEach(MultiKeyArrayOfKeys.class, "aOldData", ref("oldData"));
                         forloop.declareVar(Object.class, "mk", arrayAtIndex(ref("oldDataMultiKey"), ref("count")))
                                 .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aOldData"), "getArray")))
                                 .declareVar(OutputConditionPolled.class, "outputStateGroup", exprDotMethod(ref(NAME_OUTPUTFIRSTHELPER), "getOrAllocate", ref("mk"), REF_AGENTINSTANCECONTEXT, outputFactory))
@@ -632,7 +632,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                     CodegenBlock ifNewData = forEach.ifCondition(notEqualsNull(ref("newData")))
                             .declareVar(int.class, "count", constant(0));
                     {
-                        CodegenBlock forloop = ifNewData.forEach(MultiKey.class, "aNewData", ref("newData"));
+                        CodegenBlock forloop = ifNewData.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"));
                         forloop.declareVar(Object.class, "mk", arrayAtIndex(ref("newDataMultiKey"), ref("count")))
                                 .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                                 .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull())
@@ -651,7 +651,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                     CodegenBlock ifOldData = forEach.ifCondition(notEqualsNull(ref("oldData")))
                             .declareVar(int.class, "count", constant(0));
                     {
-                        CodegenBlock forloop = ifOldData.forEach(MultiKey.class, "aOldData", ref("oldData"));
+                        CodegenBlock forloop = ifOldData.forEach(MultiKeyArrayOfKeys.class, "aOldData", ref("oldData"));
                         forloop.declareVar(Object.class, "mk", arrayAtIndex(ref("oldDataMultiKey"), ref("count")))
                                 .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aOldData"), "getArray")))
                                 .exprDotMethod(REF_AGGREGATIONSVC, "setCurrentAccess", ref("mk"), exprDotMethod(REF_AGENTINSTANCECONTEXT, "getAgentInstanceId"), constantNull())
@@ -686,7 +686,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
 
         CodegenExpressionField helperFactory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
         CodegenExpression groupKeyTypes = constant(forge.getGroupKeyTypes());
-        CodegenExpression groupKeyMKSerde = MultiKeyCodegen.codegenOptionalSerde(forge.getMultiKeyClassRef());
+        CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
         CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType[].class, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
         instance.addMember(NAME_OUTPUTALLGROUPREPS, ResultSetProcessorGroupedOutputAllGroupReps.class);
         instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLGROUPREPS, exprDotMethod(helperFactory, "makeRSGroupedOutputAllNoOpt", REF_AGENTINSTANCECONTEXT, groupKeyTypes, groupKeyMKSerde, eventTypes));
@@ -711,7 +711,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                         .declareVar(int.class, "count", constant(0));
 
                 {
-                    ifNewData.forEach(MultiKey.class, "aNewData", ref("newData"))
+                    ifNewData.forEach(MultiKeyArrayOfKeys.class, "aNewData", ref("newData"))
                             .declareVar(Object.class, "mk", arrayAtIndex(ref("newDataMultiKey"), ref("count")))
                             .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("aNewData"), "getArray")))
                             .exprDotMethod(REF_AGGREGATIONSVC, "applyEnter", ref("eventsPerStream"), ref("mk"), REF_AGENTINSTANCECONTEXT)
@@ -723,7 +723,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
                 CodegenBlock ifOldData = forEach.ifCondition(notEqualsNull(ref("oldData")))
                         .declareVar(int.class, "count", constant(0));
                 {
-                    ifOldData.forEach(MultiKey.class, "anOldData", ref("oldData"))
+                    ifOldData.forEach(MultiKeyArrayOfKeys.class, "anOldData", ref("oldData"))
                             .declareVar(Object.class, "mk", arrayAtIndex(ref("oldDataMultiKey"), ref("count")))
                             .declareVar(EventBean[].class, "eventsPerStream", cast(EventBean[].class, exprDotMethod(ref("anOldData"), "getArray")))
                             .exprDotMethod(REF_AGGREGATIONSVC, "applyLeave", ref("eventsPerStream"), ref("mk"), REF_AGENTINSTANCECONTEXT)
@@ -831,7 +831,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
         CodegenExpressionField helperFactory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
         CodegenExpressionField outputFactory = classScope.addFieldUnshared(true, OutputConditionPolledFactory.class, forge.getOptionalOutputFirstConditionFactory().make(classScope.getPackageScope().getInitMethod(), classScope));
         CodegenExpression groupKeyTypes = constant(forge.getGroupKeyTypes());
-        CodegenExpression groupKeyMKSerde = MultiKeyCodegen.codegenOptionalSerde(forge.getMultiKeyClassRef());
+        CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
         instance.addMember(NAME_OUTPUTFIRSTHELPER, ResultSetProcessorGroupedOutputFirstHelper.class);
         instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPER, exprDotMethod(helperFactory, "makeRSGroupedOutputFirst", REF_AGENTINSTANCECONTEXT, groupKeyTypes, outputFactory, constantNull(), constant(-1), groupKeyMKSerde));
 
@@ -942,7 +942,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
 
         CodegenExpressionField helperFactory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
         CodegenExpression groupKeyTypes = constant(forge.getGroupKeyTypes());
-        CodegenExpression groupKeyMKSerde = MultiKeyCodegen.codegenOptionalSerde(forge.getMultiKeyClassRef());
+        CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
         CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType[].class, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
         instance.addMember(NAME_OUTPUTALLGROUPREPS, ResultSetProcessorGroupedOutputAllGroupReps.class);
         instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLGROUPREPS, exprDotMethod(helperFactory, "makeRSGroupedOutputAllNoOpt", REF_AGENTINSTANCECONTEXT, groupKeyTypes, groupKeyMKSerde, eventTypes));

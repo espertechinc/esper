@@ -38,19 +38,6 @@ public class ObjectArrayEventType extends BaseNestableEventType {
                 getGetterFactory(metadata.getName(), properyTypes, optionalSuperTypes), beanEventTypeFactory);
     }
 
-    protected void postUpdateNestableTypes() {
-        EventTypeNestableGetterFactoryObjectArray factory = (EventTypeNestableGetterFactoryObjectArray) super.getterFactory;
-        Map<String, Integer> indexPerProperty = factory.getPropertiesIndex();
-        int index = findMax(indexPerProperty) + 1;
-        for (Map.Entry<String, Object> entry : nestableTypes.entrySet()) {
-            if (indexPerProperty.containsKey(entry.getKey())) {
-                continue;
-            }
-            indexPerProperty.put(entry.getKey(), index);
-            index++;
-        }
-    }
-
     public Map<String, Integer> getPropertiesIndexes() {
         return ((EventTypeNestableGetterFactoryObjectArray) super.getterFactory).getPropertiesIndex();
     }

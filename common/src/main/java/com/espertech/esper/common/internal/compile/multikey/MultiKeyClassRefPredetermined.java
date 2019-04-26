@@ -10,25 +10,28 @@
  */
 package com.espertech.esper.common.internal.compile.multikey;
 
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class MultiKeyClassRefPredetermined implements MultiKeyClassRef {
     private final Class clazzMK;
     private final Class[] mkTypes;
-    private final CodegenExpression clazzMKSerde;
+    private final DataInputOutputSerdeForge serdeForge;
 
-    public MultiKeyClassRefPredetermined(Class clazzMK, Class[] mkTypes, CodegenExpression clazzMKSerde) {
+    public MultiKeyClassRefPredetermined(Class clazzMK, Class[] mkTypes, DataInputOutputSerdeForge serdeForge) {
         this.clazzMK = clazzMK;
         this.mkTypes = mkTypes;
-        this.clazzMKSerde = clazzMKSerde;
+        this.serdeForge = serdeForge;
     }
 
     public String getClassNameMK() {
         return clazzMK.getName();
     }
 
-    public CodegenExpression getExprMKSerde() {
-        return clazzMKSerde;
+    public CodegenExpression getExprMKSerde(CodegenMethod method, CodegenClassScope classScope) {
+        return serdeForge.codegen(method, classScope, null);
     }
 
     public Class[] getMKTypes() {

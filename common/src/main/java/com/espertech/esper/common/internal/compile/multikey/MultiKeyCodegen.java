@@ -13,15 +13,15 @@ package com.espertech.esper.common.internal.compile.multikey;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProviderEmpty;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromMultiKey;
-import com.espertech.esper.common.internal.collection.MultiKeyGeneratedFromObjectArray;
+import com.espertech.esper.common.internal.collection.MultiKeyFromMultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -79,13 +79,6 @@ public class MultiKeyCodegen {
         return evaluator;
     }
 
-    public static CodegenExpression codegenOptionalSerde(MultiKeyClassRef multiKeyClassRef) {
-        if (multiKeyClassRef == null || multiKeyClassRef.getExprMKSerde() == null) {
-            return constantNull();
-        }
-        return multiKeyClassRef.getExprMKSerde();
-    }
-
     public static CodegenExpression codegenExprEvaluatorMayMultikey(ExprNode[] expressionNodes, Class[] optionalCoercionTypes, MultiKeyClassRef multiKeyClassRef, CodegenMethod method, CodegenClassScope classScope) {
         if (expressionNodes == null || expressionNodes.length == 0) {
             return constantNull();
@@ -97,7 +90,7 @@ public class MultiKeyCodegen {
         if (forges == null || forges.length == 0) {
             return constantNull();
         }
-        if (multiKeyClassRef != null) {
+        if (multiKeyClassRef != null && multiKeyClassRef.getClassNameMK() != null) {
             return codegenMultiKeyExprEvaluator(forges, multiKeyClassRef, method, classScope);
         }
         return ExprNodeUtilityCodegen.codegenEvaluatorWCoerce(forges[0], optionalCoercionTypes == null ? null : optionalCoercionTypes[0],
@@ -127,18 +120,18 @@ public class MultiKeyCodegen {
         if (getters == null || getters.length == 0) {
             return constantNull();
         }
-        if (multiKeyClassRef != null) {
+        if (multiKeyClassRef != null && multiKeyClassRef.getClassNameMK() != null) {
             return codegenMultiKeyGetter(eventType, getters, getterResultTypes, multiKeyClassRef, method, classScope);
         }
         return EventTypeUtility.codegenGetterWCoerce(getters[0], getterResultTypes[0], optionalCoercionTypes == null ? null : optionalCoercionTypes[0], method, MultiKeyCodegen.class, classScope);
     }
 
     public static CodegenExpression codegenMultiKeyFromArrayTransform(MultiKeyClassRef optionalMultiKeyClasses, CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass fromClass = newAnonymousClass(method.getBlock(), MultiKeyGeneratedFromObjectArray.class);
+        CodegenExpressionNewAnonymousClass fromClass = newAnonymousClass(method.getBlock(), MultiKeyFromObjectArray.class);
         CodegenMethod from = CodegenMethod.makeParentNode(Object.class, MultiKeyCodegen.class, classScope).addParam(Object[].class, "keys");
         fromClass.addMethod("from", from);
 
-        if (optionalMultiKeyClasses == null) {
+        if (optionalMultiKeyClasses == null || optionalMultiKeyClasses.getClassNameMK() == null) {
             from.getBlock().methodReturn(arrayAtIndex(ref("keys"), constant(0)));
         } else if (optionalMultiKeyClasses.getMKTypes().length == 1) {
             Class paramType = optionalMultiKeyClasses.getMKTypes()[0];
@@ -159,15 +152,15 @@ public class MultiKeyCodegen {
     }
 
     public static CodegenExpression codegenMultiKeyFromMultiKeyTransform(MultiKeyClassRef optionalMultiKeyClasses, CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass fromClass = newAnonymousClass(method.getBlock(), MultiKeyGeneratedFromMultiKey.class);
+        CodegenExpressionNewAnonymousClass fromClass = newAnonymousClass(method.getBlock(), MultiKeyFromMultiKey.class);
         CodegenMethod from = CodegenMethod.makeParentNode(Object.class, MultiKeyCodegen.class, classScope).addParam(Object.class, "key");
         fromClass.addMethod("from", from);
 
-        if (optionalMultiKeyClasses == null || optionalMultiKeyClasses.getMKTypes().length == 1) {
+        if (optionalMultiKeyClasses == null || optionalMultiKeyClasses.getClassNameMK() == null || optionalMultiKeyClasses.getMKTypes().length == 1) {
             from.getBlock().methodReturn(ref("key"));
         } else {
             CodegenExpression[] expressions = new CodegenExpression[optionalMultiKeyClasses.getMKTypes().length];
-            from.getBlock().declareVar(MultiKeyGenerated.class, "mk", cast(MultiKeyGenerated.class, ref("key")));
+            from.getBlock().declareVar(MultiKey.class, "mk", cast(MultiKey.class, ref("key")));
             for (int i = 0; i < expressions.length; i++) {
                 expressions[i] = cast(optionalMultiKeyClasses.getMKTypes()[i], exprDotMethod(ref("mk"), "getKey", constant(i)));
             }
@@ -202,7 +195,7 @@ public class MultiKeyCodegen {
 
     private static CodegenExpression codegenMultiKeyExprEvaluator(ExprForge[] expressionNodes, MultiKeyClassRef multiKeyClassRef, CodegenMethod method, CodegenClassScope classScope) {
         CodegenExpressionNewAnonymousClass evaluator = newAnonymousClass(method.getBlock(), ExprEvaluator.class);
-        CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, StmtClassForgableMultiKey.class, classScope).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod evaluate = CodegenMethod.makeParentNode(Object.class, StmtClassForgeableMultiKey.class, classScope).addParam(ExprForgeCodegenNames.PARAMS);
         evaluator.addMethod("evaluate", evaluate);
 
         ExprForgeCodegenSymbol exprSymbol = new ExprForgeCodegenSymbol(true, null);
@@ -220,7 +213,7 @@ public class MultiKeyCodegen {
     }
 
     private static CodegenExpression codegenMultiKeyGetter(EventType eventType, EventPropertyGetterSPI[] getters, Class[] getterResultTypes, MultiKeyClassRef multiKeyClassRef, CodegenMethod method, CodegenClassScope classScope) {
-        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, StmtClassForgableMultiKey.class, classScope).addParam(EventBean.class, "bean");
+        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, StmtClassForgeableMultiKey.class, classScope).addParam(EventBean.class, "bean");
         CodegenExpressionNewAnonymousClass getter = newAnonymousClass(method.getBlock(), EventPropertyValueGetter.class);
         getter.addMethod("get", get);
 
@@ -239,7 +232,7 @@ public class MultiKeyCodegen {
     }
 
     private static CodegenExpression codegenMultikeyGetterBeanGet(EventPropertyGetterSPI[] getters, Class[] getterResultTypes, MultiKeyClassRef multiKeyClassRef, CodegenMethod method, CodegenClassScope classScope) {
-        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, StmtClassForgableMultiKey.class, classScope).addParam(EventBean.class, "bean");
+        CodegenMethod get = CodegenMethod.makeParentNode(Object.class, StmtClassForgeableMultiKey.class, classScope).addParam(EventBean.class, "bean");
         CodegenExpressionNewAnonymousClass getter = newAnonymousClass(method.getBlock(), EventPropertyValueGetter.class);
         getter.addMethod("get", get);
 

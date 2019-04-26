@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.InsertIntoDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseElementWildcard;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseElementCompiled;
 import com.espertech.esper.common.internal.compile.stage2.SelectClauseExprCompiledSpec;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotNode;
 import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalWildcardNonJoin;
@@ -28,7 +28,9 @@ import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalW
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
+import com.espertech.esper.common.internal.event.core.WrapperEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,17 +44,30 @@ public class SelectExprProcessorFactory {
     private static final Logger log = LoggerFactory.getLogger(SelectExprProcessorFactory.class);
 
     public static SelectExprProcessorDescriptor getProcessor(SelectProcessorArgs args, InsertIntoDesc insertIntoDesc, boolean withSubscriber)
-            throws ExprValidationException {
+        throws ExprValidationException {
 
-        SelectExprProcessorForge synthetic = getProcessorInternal(args, insertIntoDesc);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+
+        SelectExprProcessorWInsertTarget synthetic = getProcessorInternal(args, insertIntoDesc);
+
+        // plan serdes for variant event types
+        if (synthetic.getInsertIntoTargetType() instanceof VariantEventType ||
+            synthetic.getInsertIntoTargetType() instanceof WrapperEventType && (((WrapperEventType) synthetic.getInsertIntoTargetType()).getUnderlyingEventType() instanceof VariantEventType)) {
+            List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(synthetic.getForge().getResultEventType(), args.getStatementRawInfo(), args.getCompileTimeServices().getSerdeEventTypeRegistry(), args.getCompileTimeServices().getSerdeResolver());
+            additionalForgeables.addAll(serdeForgeables);
+            for (EventType eventType : args.getTypeService().getEventTypes()) {
+                serdeForgeables = SerdeEventTypeUtility.plan(eventType, args.getStatementRawInfo(), args.getCompileTimeServices().getSerdeEventTypeRegistry(), args.getCompileTimeServices().getSerdeResolver());
+                additionalForgeables.addAll(serdeForgeables);
+            }
+        }
+
         if (args.isFireAndForget() || !withSubscriber) {
-            return new SelectExprProcessorDescriptor(new SelectSubscriberDescriptor(), synthetic, Collections.emptyList());
+            return new SelectExprProcessorDescriptor(new SelectSubscriberDescriptor(), synthetic.getForge(), additionalForgeables);
         }
 
         // Handle for-clause delivery contract checking
         ExprNode[] groupedDeliveryExpr = null;
         MultiKeyClassRef groupedDeliveryMultiKey = null;
-        List<StmtClassForgableFactory> additionalForgeables = Collections.emptyList();
         boolean forDelivery = false;
         if (args.getForClauseSpec() != null) {
             for (ForClauseItemSpec item : args.getForClauseSpec().getClauses()) {
@@ -74,7 +89,7 @@ public class SelectExprProcessorFactory {
                     throw new ExprValidationException("Expected any of the " + Arrays.toString(ForClauseKeyword.values()).toLowerCase(Locale.ENGLISH) + " for-clause keywords after reserved keyword 'for'");
                 }
 
-                StreamTypeService type = new StreamTypeServiceImpl(synthetic.getResultEventType(), null, false);
+                StreamTypeService type = new StreamTypeServiceImpl(synthetic.getForge().getResultEventType(), null, false);
                 groupedDeliveryExpr = new ExprNode[item.getExpressions().size()];
                 ExprValidationContext validationContext = new ExprValidationContextBuilder(type, args.getStatementRawInfo(), args.getCompileTimeServices()).withAllowBindingConsumption(true).build();
                 for (int i = 0; i < item.getExpressions().size(); i++) {
@@ -82,9 +97,9 @@ public class SelectExprProcessorFactory {
                 }
                 forDelivery = true;
 
-                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(groupedDeliveryExpr, false);
-                groupedDeliveryMultiKey = multiKeyPlan.getOptionalClassRef();
-                additionalForgeables = multiKeyPlan.getMultiKeyForgables();
+                MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(groupedDeliveryExpr, false, args.getStatementRawInfo(), args.getSerdeResolver());
+                groupedDeliveryMultiKey = multiKeyPlan.getClassRef();
+                additionalForgeables = multiKeyPlan.getMultiKeyForgeables();
             }
             if (groupedDeliveryExpr != null && groupedDeliveryExpr.length == 0) {
                 groupedDeliveryExpr = null;
@@ -96,19 +111,19 @@ public class SelectExprProcessorFactory {
         SelectExprProcessorForge forge;
 
         if (allowSubscriber) {
-            BindProcessorForge bindProcessor = new BindProcessorForge(synthetic, args.getSelectionList(), args.getTypeService().getEventTypes(), args.getTypeService().getStreamNames(), args.getTableCompileTimeResolver());
+            BindProcessorForge bindProcessor = new BindProcessorForge(synthetic.getForge(), args.getSelectionList(), args.getTypeService().getEventTypes(), args.getTypeService().getStreamNames(), args.getTableCompileTimeResolver());
             descriptor = new SelectSubscriberDescriptor(bindProcessor.getExpressionTypes(), bindProcessor.getColumnNamesAssigned(), forDelivery, groupedDeliveryExpr, groupedDeliveryMultiKey);
-            forge = new BindSelectExprProcessorForge(synthetic, bindProcessor);
+            forge = new BindSelectExprProcessorForge(synthetic.getForge(), bindProcessor);
         } else {
             descriptor = new SelectSubscriberDescriptor();
-            forge = new ListenerOnlySelectExprProcessorForge(synthetic);
+            forge = new ListenerOnlySelectExprProcessorForge(synthetic.getForge());
         }
 
         return new SelectExprProcessorDescriptor(descriptor, forge, additionalForgeables);
     }
 
-    private static SelectExprProcessorForge getProcessorInternal(SelectProcessorArgs args, InsertIntoDesc insertIntoDesc)
-            throws ExprValidationException {
+    private static SelectExprProcessorWInsertTarget getProcessorInternal(SelectProcessorArgs args, InsertIntoDesc insertIntoDesc)
+        throws ExprValidationException {
         // Wildcard not allowed when insert into specifies column order
         if (args.isUsingWildcard() && insertIntoDesc != null && !insertIntoDesc.getColumnNames().isEmpty()) {
             throw new ExprValidationException("Wildcard not allowed when insert-into specifies column order");
@@ -121,7 +136,8 @@ public class SelectExprProcessorFactory {
             // For joins
             if (args.getTypeService().getStreamNames().length > 1 && (!(insertIntoTarget instanceof VariantEventType))) {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");
-                return SelectExprJoinWildcardProcessorFactory.create(args, insertIntoDesc, eventTypeName -> eventTypeName);
+                SelectExprProcessorForge forge = SelectExprJoinWildcardProcessorFactory.create(args, insertIntoDesc, eventTypeName -> eventTypeName);
+                return new SelectExprProcessorWInsertTarget(forge, null);
             } else if (insertIntoDesc == null) {
                 // Single-table selects with no insert-into
                 // don't need extra processing
@@ -129,10 +145,12 @@ public class SelectExprProcessorFactory {
                 if (args.getTypeService().hasTableTypes()) {
                     TableMetaData table = args.getTableCompileTimeResolver().resolveTableFromEventType(args.getTypeService().getEventTypes()[0]);
                     if (table != null) {
-                        return new SelectEvalWildcardTable(table);
+                        SelectExprProcessorForge forge = new SelectEvalWildcardTable(table);
+                        return new SelectExprProcessorWInsertTarget(forge, null);
                     }
                 }
-                return new SelectEvalWildcardNonJoin(args.getTypeService().getEventTypes()[0]);
+                SelectExprProcessorForge forge = new SelectEvalWildcardNonJoin(args.getTypeService().getEventTypes()[0]);
+                return new SelectExprProcessorWInsertTarget(forge, null);
             }
         }
 
@@ -145,8 +163,7 @@ public class SelectExprProcessorFactory {
         SelectExprBuckets buckets = getSelectExpressionBuckets(args.getSelectionList());
 
         SelectExprProcessorHelper factory = new SelectExprProcessorHelper(buckets.expressions, buckets.selectedStreams, args, insertIntoDesc);
-        SelectExprProcessorForge forge = factory.getForge();
-        return forge;
+        return factory.getForge();
     }
 
     protected static void verifyNameUniqueness(SelectClauseElementCompiled[] selectionList) throws ExprValidationException {

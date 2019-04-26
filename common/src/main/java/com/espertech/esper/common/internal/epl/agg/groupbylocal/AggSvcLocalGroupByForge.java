@@ -77,16 +77,16 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
     public void providerCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
         method.getBlock().declareVar(AggregationLocalGroupByLevel.class, "optionalTop", constantNull());
         if (localGroupByPlan.getOptionalLevelTopForge() != null) {
-            method.getBlock().assignRef("optionalTop", localGroupByPlan.getOptionalLevelTopForge().toExpression(classNames.getRowFactoryTop(), classNames.getRowSerdeTop(), constantNull()));
+            method.getBlock().assignRef("optionalTop", localGroupByPlan.getOptionalLevelTopForge().toExpression(classNames.getRowFactoryTop(), classNames.getRowSerdeTop(), constantNull(), method, classScope));
         }
 
         int numLevels = localGroupByPlan.getAllLevelsForges().length;
         method.getBlock().declareVar(AggregationLocalGroupByLevel[].class, "levels", newArrayByLength(AggregationLocalGroupByLevel.class, constant(numLevels)));
         for (int i = 0; i < numLevels; i++) {
             AggregationLocalGroupByLevelForge forge = localGroupByPlan.getAllLevelsForges()[i];
-            CodegenExpression eval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forge.getPartitionForges(), null, forge.getOptionalPartitionMKClasses(), method, classScope);
+            CodegenExpression eval = MultiKeyCodegen.codegenExprEvaluatorMayMultikey(forge.getPartitionForges(), null, forge.getPartitionMKClasses(), method, classScope);
             method.getBlock().assignArrayElement("levels", constant(i), localGroupByPlan.getAllLevelsForges()[i].toExpression(
-                classNames.getRowFactoryPerLevel(i), classNames.getRowSerdePerLevel(i), eval));
+                classNames.getRowFactoryPerLevel(i), classNames.getRowSerdePerLevel(i), eval, method, classScope));
         }
 
         method.getBlock().declareVar(AggregationLocalGroupByColumn[].class, "columns", newArrayByLength(AggregationLocalGroupByColumn.class, constant(localGroupByPlan.getColumnsForges().length)));
@@ -271,7 +271,7 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
 
             String groupKeyName = "groupKeyLvl_" + levelNum;
             String rowName = "row_" + levelNum;
-            CodegenExpression groupKeyExp = hasGroupBy && level.isDefaultLevel() ? AggregationServiceCodegenNames.REF_GROUPKEY : localMethod(AggregationServiceCodegenUtil.computeMultiKeyCodegen(levelNum, partitionForges, level.getOptionalPartitionMKClasses(), classScope, namedMethods), REF_EPS, constantTrue(), REF_EXPREVALCONTEXT);
+            CodegenExpression groupKeyExp = hasGroupBy && level.isDefaultLevel() ? AggregationServiceCodegenNames.REF_GROUPKEY : localMethod(AggregationServiceCodegenUtil.computeMultiKeyCodegen(levelNum, partitionForges, level.getPartitionMKClasses(), classScope, namedMethods), REF_EPS, constantTrue(), REF_EXPREVALCONTEXT);
             method.getBlock().declareVar(Object.class, groupKeyName, groupKeyExp)
                 .declareVar(AggregationRow.class, rowName, cast(AggregationRow.class, exprDotMethod(arrayAtIndex(REF_AGGREGATORSPERLEVELANDGROUP, constant(levelNum)), "get", ref(groupKeyName))))
                 .ifCondition(equalsNull(ref(rowName)))
@@ -301,7 +301,7 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
             }
         }
         AggregationAccessorSlotPairForge[] pairs = accessAccessors.toArray(new AggregationAccessorSlotPairForge[accessAccessors.size()]);
-        return new AggregationCodegenRowDetailDesc(new AggregationCodegenRowDetailStateDesc(level.getMethodForges(), level.getMethodFactories(), level.getAccessStateForges()), pairs, level.getOptionalPartitionMKClasses());
+        return new AggregationCodegenRowDetailDesc(new AggregationCodegenRowDetailStateDesc(level.getMethodForges(), level.getMethodFactories(), level.getAccessStateForges()), pairs, level.getPartitionMKClasses());
     }
 
     private int accessorIndex(AggregationAccessorSlotPairForge[] accessAccessors, AggregationAccessorSlotPairForge pair) {

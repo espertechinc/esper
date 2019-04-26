@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.variable.core;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
@@ -39,7 +40,7 @@ public interface VariableManagementService {
      */
     ReadWriteLock getReadWriteLock();
 
-    void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext);
+    void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext, DataInputOutputSerde<Object> optionalSerde);
 
     /**
      * Returns a reader that provides access to variable values. The reader considers the

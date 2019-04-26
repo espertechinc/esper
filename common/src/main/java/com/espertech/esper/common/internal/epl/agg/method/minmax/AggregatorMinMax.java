@@ -22,11 +22,12 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.MinMaxTypeEnum;
-import com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotRef;
-import static com.espertech.esper.common.internal.serde.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.SORTEDREFCOUNTEDSET;
+import static com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.SORTEDREFCOUNTEDSET;
 
 /**
  * Min/max aggregator for all values.
@@ -36,11 +37,11 @@ public class AggregatorMinMax extends AggregatorMethodWDistinctWFilterWValueBase
     private final CodegenExpressionRef refSet;
     private final CodegenExpressionField serde;
 
-    public AggregatorMinMax(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
+    public AggregatorMinMax(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
         this.refSet = membersColumnized.addMember(col, SortedRefCountedSet.class, "refSet");
-        this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(SORTEDREFCOUNTEDSET, factory.type));
+        this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(SORTEDREFCOUNTEDSET, factory.type, factory.serde, classScope));
         rowCtor.getBlock().assignRef(refSet, newInstance(SortedRefCountedSet.class));
     }
 

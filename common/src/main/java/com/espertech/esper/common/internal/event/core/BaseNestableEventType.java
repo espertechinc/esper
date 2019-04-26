@@ -47,8 +47,6 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     protected String startTimestampPropertyName;
     protected String endTimestampPropertyName;
 
-    protected abstract void postUpdateNestableTypes();
-
     /**
      * Constructor takes a type name, map of property names and types, for
      * use with nestable Map events.

@@ -24,21 +24,20 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.method.ExprMethodAggUtil;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 public class AggregationForgeFactoryFirstLastUnbound extends AggregationForgeFactoryBase {
     protected final ExprAggMultiFunctionLinearAccessNode parent;
-    private final EventType collectionEventType;
     private final Class resultType;
-    private final int streamNum;
     protected final boolean hasFilter;
+    protected final DataInputOutputSerdeForge serde;
     private AggregatorMethod aggregator;
 
-    public AggregationForgeFactoryFirstLastUnbound(ExprAggMultiFunctionLinearAccessNode parent, EventType collectionEventType, Class resultType, int streamNum, boolean hasFilter) {
+    public AggregationForgeFactoryFirstLastUnbound(ExprAggMultiFunctionLinearAccessNode parent, Class resultType, boolean hasFilter, DataInputOutputSerdeForge serde) {
         this.parent = parent;
-        this.collectionEventType = collectionEventType;
         this.resultType = resultType;
-        this.streamNum = streamNum;
         this.hasFilter = hasFilter;
+        this.serde = serde;
     }
 
     public Class getResultType() {
@@ -47,9 +46,9 @@ public class AggregationForgeFactoryFirstLastUnbound extends AggregationForgeFac
 
     public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         if (parent.getStateType() == AggregationAccessorLinearType.FIRST) {
-            aggregator = new AggregatorFirstEver(this, col, rowCtor, membersColumnized, classScope, null, hasFilter, parent.getOptionalFilter(), resultType);
+            aggregator = new AggregatorFirstEver(this, col, rowCtor, membersColumnized, classScope, null, null, hasFilter, parent.getOptionalFilter(), resultType, serde);
         } else if (parent.getStateType() == AggregationAccessorLinearType.LAST) {
-            aggregator = new AggregatorLastEver(this, col, rowCtor, membersColumnized, classScope, null, hasFilter, parent.getOptionalFilter(), resultType);
+            aggregator = new AggregatorLastEver(this, col, rowCtor, membersColumnized, classScope, null, null, hasFilter, parent.getOptionalFilter(), resultType, serde);
         } else {
             throw new RuntimeException("Window aggregation function is not available");
         }

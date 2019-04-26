@@ -38,7 +38,7 @@ public class TestTwoStreamQueryPlanBuilder extends TestCase {
 
     public void testBuildNoOuter() {
         QueryGraphForge graph = makeQueryGraph();
-        QueryPlanForgeDesc specDesc = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, null, new StreamJoinAnalysisResultCompileTime(2));
+        QueryPlanForgeDesc specDesc = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, null, new StreamJoinAnalysisResultCompileTime(2), null);
         QueryPlanForge spec = specDesc.getForge();
 
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"p01", "p02"}, spec.getIndexSpecs()[0].getIndexProps()[0]);
@@ -48,7 +48,7 @@ public class TestTwoStreamQueryPlanBuilder extends TestCase {
 
     public void testBuildOuter() {
         QueryGraphForge graph = makeQueryGraph();
-        QueryPlanForgeDesc specDesc = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, OuterJoinType.LEFT, new StreamJoinAnalysisResultCompileTime(2));
+        QueryPlanForgeDesc specDesc = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, OuterJoinType.LEFT, new StreamJoinAnalysisResultCompileTime(2), null);
         QueryPlanForge spec = specDesc.getForge();
 
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"p01", "p02"}, spec.getIndexSpecs()[0].getIndexProps()[0]);

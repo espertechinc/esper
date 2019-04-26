@@ -221,13 +221,20 @@ public class EventTypeUtility {
     }
 
     public static CodegenExpression resolveTypeCodegen(EventType eventType, CodegenExpression initServicesRef) {
+        return resolveTypeCodegenGivenResolver(eventType, exprDotMethodChain(initServicesRef).add(EPStatementInitServices.GETEVENTTYPERESOLVER));
+    }
+
+    public static CodegenExpression resolveTypeCodegenGivenResolver(EventType eventType, CodegenExpression typeResolver) {
         if (eventType == null) {
             throw new IllegalArgumentException("Null event type");
         }
-        if (eventType instanceof BeanEventType && eventType.getMetadata().getAccessModifier() == NameAccessModifier.TRANSIENT) {
-            return exprDotMethodChain(initServicesRef).add(EPStatementInitServices.GETEVENTTYPERESOLVER).add(EventTypeResolver.RESOLVE_PRIVATE_BEAN_METHOD, constant(eventType.getUnderlyingType()));
+        if (typeResolver == null) {
+            throw new IllegalArgumentException("Event type resolver not provided");
         }
-        return exprDotMethodChain(initServicesRef).add(EPStatementInitServices.GETEVENTTYPERESOLVER).add(EventTypeResolver.RESOLVE_METHOD, eventType.getMetadata().toExpression());
+        if (eventType instanceof BeanEventType && eventType.getMetadata().getAccessModifier() == NameAccessModifier.TRANSIENT) {
+            return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_PRIVATE_BEAN_METHOD, constant(eventType.getUnderlyingType()));
+        }
+        return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_METHOD, eventType.getMetadata().toExpression());
     }
 
     public static CodegenExpression resolveTypeArrayCodegen(EventType[] eventTypes, CodegenExpression initServicesRef) {

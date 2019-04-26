@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationStateFactoryForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -28,15 +29,15 @@ public class AggregationLocalGroupByLevelForge {
     private final AggregationForgeFactory[] methodFactories;
     private final AggregationStateFactoryForge[] accessStateForges;
     private final ExprNode[] partitionForges;
-    private final MultiKeyClassRef optionalPartitionMKClasses;
+    private final MultiKeyClassRef partitionMKClasses;
     private final boolean isDefaultLevel;
 
-    public AggregationLocalGroupByLevelForge(ExprForge[][] methodForges, AggregationForgeFactory[] methodFactories, AggregationStateFactoryForge[] accessStateForges, ExprNode[] partitionForges, MultiKeyClassRef optionalPartitionMKClasses, boolean defaultLevel) {
+    public AggregationLocalGroupByLevelForge(ExprForge[][] methodForges, AggregationForgeFactory[] methodFactories, AggregationStateFactoryForge[] accessStateForges, ExprNode[] partitionForges, MultiKeyClassRef partitionMKClasses, boolean defaultLevel) {
         this.methodForges = methodForges;
         this.methodFactories = methodFactories;
         this.accessStateForges = accessStateForges;
         this.partitionForges = partitionForges;
-        this.optionalPartitionMKClasses = optionalPartitionMKClasses;
+        this.partitionMKClasses = partitionMKClasses;
         isDefaultLevel = defaultLevel;
     }
 
@@ -60,17 +61,17 @@ public class AggregationLocalGroupByLevelForge {
         return isDefaultLevel;
     }
 
-    public MultiKeyClassRef getOptionalPartitionMKClasses() {
-        return optionalPartitionMKClasses;
+    public MultiKeyClassRef getPartitionMKClasses() {
+        return partitionMKClasses;
     }
 
-    public CodegenExpression toExpression(String rowFactory, String rowSerde, CodegenExpression groupKeyEval) {
+    public CodegenExpression toExpression(String rowFactory, String rowSerde, CodegenExpression groupKeyEval, CodegenMethod method, CodegenClassScope classScope) {
         return newInstance(AggregationLocalGroupByLevel.class,
                 CodegenExpressionBuilder.newInstance(rowFactory, ref("this")),
                 CodegenExpressionBuilder.newInstance(rowSerde, ref("this")),
                 constant(ExprNodeUtilityQuery.getExprResultTypes(partitionForges)),
                 groupKeyEval,
                 constant(isDefaultLevel),
-                MultiKeyCodegen.codegenOptionalSerde(optionalPartitionMKClasses));
+                partitionMKClasses.getExprMKSerde(method, classScope));
     }
 }

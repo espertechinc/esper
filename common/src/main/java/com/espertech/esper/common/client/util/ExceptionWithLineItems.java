@@ -16,5 +16,9 @@ import java.util.List;
  * Interface for exceptions that have a line items
  */
 public interface ExceptionWithLineItems {
+    /**
+     * Returns the line items
+     * @return items
+     */
     List<? extends ExceptionLineItem> getItems();
 }

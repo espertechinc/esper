@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.join.exec.composite;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
@@ -55,8 +55,8 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
     public Set<EventBean> getCollectKeys(EventBean theEvent, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys, CompositeIndexQueryResultPostProcessor postProcessor) {
         events[lookupStream] = theEvent;
         Object mk = hashGetter.evaluate(events, true, context);
-        if (mk instanceof MultiKey) {
-            Collections.addAll(keys, ((MultiKey) mk).getArray());
+        if (mk instanceof MultiKeyArrayOfKeys) {
+            Collections.addAll(keys, ((MultiKeyArrayOfKeys) mk).getArray());
         } else {
             Collections.addAll(keys, mk);
         }
@@ -96,8 +96,8 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         }
 
         Object mk = hashGetter.evaluate(eventsToUse, true, context);
-        if (mk instanceof MultiKey) {
-            Collections.addAll(keys, ((MultiKey) mk).getArray());
+        if (mk instanceof MultiKeyArrayOfKeys) {
+            Collections.addAll(keys, ((MultiKeyArrayOfKeys) mk).getArray());
         } else {
             Collections.addAll(keys, mk);
         }

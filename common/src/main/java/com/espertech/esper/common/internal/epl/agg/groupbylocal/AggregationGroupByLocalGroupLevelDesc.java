@@ -10,16 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
 public class AggregationGroupByLocalGroupLevelDesc {
 
     private final AggregationLocalGroupByLevelForge forge;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public AggregationGroupByLocalGroupLevelDesc(AggregationLocalGroupByLevelForge forge, List<StmtClassForgableFactory> additionalForgeables) {
+    public AggregationGroupByLocalGroupLevelDesc(AggregationLocalGroupByLevelForge forge, List<StmtClassForgeableFactory> additionalForgeables) {
         this.forge = forge;
         this.additionalForgeables = additionalForgeables;
     }
@@ -28,7 +28,7 @@ public class AggregationGroupByLocalGroupLevelDesc {
         return forge;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

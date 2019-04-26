@@ -21,7 +21,8 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.DIOSerdeBigDecimalBigInteger;
+import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSerdeBigDecimalBigInteger;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.type.MathContextCodegenField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +47,8 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
     private final CodegenExpressionRef sum;
     private final CodegenExpressionRef cnt;
 
-    public AggregatorAvgBig(AggregationForgeFactoryAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, hasFilter, optionalFilter);
+    public AggregatorAvgBig(AggregationForgeFactoryAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, Class optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
         sum = membersColumnized.addMember(col, BigDecimal.class, "sum");
         cnt = membersColumnized.addMember(col, long.class, "cnt");

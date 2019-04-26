@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.ontrigger;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -50,10 +50,10 @@ public class OnExprViewTableSelect extends OnExprViewTableBase {
 
         // build join result
         // use linked hash set to retain order of join results for last/first/window to work most intuitively
-        Set<MultiKey<EventBean>> newEvents = OnExprViewNamedWindowSelect.buildJoinResult(triggerEvents, matchingEvents);
+        Set<MultiKeyArrayOfKeys<EventBean>> newEvents = OnExprViewNamedWindowSelect.buildJoinResult(triggerEvents, matchingEvents);
 
         // process matches
-        UniformPair<EventBean[]> pair = resultSetProcessor.processJoinResult(newEvents, Collections.<MultiKey<EventBean>>emptySet(), false);
+        UniformPair<EventBean[]> pair = resultSetProcessor.processJoinResult(newEvents, Collections.<MultiKeyArrayOfKeys<EventBean>>emptySet(), false);
         EventBean[] newData = pair != null ? pair.getFirst() : null;
 
         // handle distinct and insert

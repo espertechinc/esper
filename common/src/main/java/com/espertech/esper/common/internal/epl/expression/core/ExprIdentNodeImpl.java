@@ -17,6 +17,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.common.internal.epl.streamtype.PropertyResolutionDescriptor;
@@ -25,6 +27,7 @@ import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.property.PropertyParser;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.StringValue;
 
@@ -45,7 +48,9 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
 
     private String resolvedStreamName;
     private String resolvedPropertyName;
+    private transient StatementCompileTimeServices compileTimeServices;
     private transient ExprIdentNodeEvaluator evaluator;
+    private transient StatementRawInfo statementRawInfo;
 
     /**
      * Ctor.
@@ -170,10 +175,14 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
     }
 
     public ExprFilterSpecLookupableForge getFilterLookupable() {
-        return new ExprFilterSpecLookupableForge(resolvedPropertyName, evaluator.getGetter(), evaluator.getEvaluationType(), false);
+        DataInputOutputSerdeForge serde = compileTimeServices.getSerdeResolver().serdeForFilter(evaluator.getEvaluationType(), statementRawInfo);
+        return new ExprFilterSpecLookupableForge(resolvedPropertyName, evaluator.getGetter(), evaluator.getEvaluationType(), false, serde);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        this.compileTimeServices = validationContext.getStatementCompileTimeService();
+        this.statementRawInfo = validationContext.getStatementRawInfo();
+
         // rewrite expression into a table-access expression
         if (validationContext.getStreamTypeService().hasTableTypes()) {
             ExprTableIdentNode tableIdentNode = TableCompileTimeUtil.getTableIdentNode(validationContext.getStreamTypeService(), unresolvedPropertyName, streamOrPropertyName, validationContext.getTableCompileTimeResolver());

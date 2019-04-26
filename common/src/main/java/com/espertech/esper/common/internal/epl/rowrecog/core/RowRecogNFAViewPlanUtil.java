@@ -28,7 +28,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSpe
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -74,7 +74,7 @@ public class RowRecogNFAViewPlanUtil {
         MatchRecognizeSpec matchRecognizeSpec = base.getStatementSpec().getRaw().getMatchRecognizeSpec();
         Annotation[] annotations = statementRawInfo.getAnnotations();
         boolean iterateOnly = HintEnum.ITERATE_ONLY.getHint(annotations) != null;
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         // Expand repeats and permutations
         RowRecogExprNode expandedPatternNode = RowRecogPatternExpandUtil.expand(matchRecognizeSpec.getPattern());
@@ -259,9 +259,9 @@ public class RowRecogNFAViewPlanUtil {
             }
             matchRecognizeSpec.setPartitionByExpressions(validated);
             partitionBy = ExprNodeUtilityQuery.toArray(validated);
-            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(partitionBy, false);
-            partitionMultiKey = multiKeyPlan.getOptionalClassRef();
-            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgables());
+            MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(partitionBy, false, base.getStatementRawInfo(), services.getSerdeResolver());
+            partitionMultiKey = multiKeyPlan.getClassRef();
+            additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
         } else {
             partitionBy = null;
             partitionMultiKey = null;
@@ -449,7 +449,7 @@ public class RowRecogNFAViewPlanUtil {
                     false, base.getStatementRawInfo().getAnnotations(),
                     services.getVariableCompileTimeResolver(), true, null, null,
                     typesPerStream, null, base.getContextName(), null, services.getTableCompileTimeResolver(),
-                    false, true, false, services.getClasspathImportServiceCompileTime(), base.getStatementName());
+                    false, true, false, services.getClasspathImportServiceCompileTime(), base.getStatementRawInfo(), services.getSerdeResolver());
             aggServices[entry.getKey()] = desc;
         }
 

@@ -16,10 +16,11 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage1.spec.ViewSpec;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCompare;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.view.groupwin.GroupByViewFactoryForge;
 import com.espertech.esper.common.internal.view.groupwin.MergeViewFactoryForge;
@@ -57,6 +58,7 @@ public class ViewFactoryForgeUtil {
             // Clone the view spec list to prevent parameter modification
             List<ViewSpec> viewSpecList = new ArrayList<ViewSpec>(Arrays.asList(viewSpecDefinitions));
             ViewForgeEnv viewForgeEnv = new ViewForgeEnv(args);
+            List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
             // Inspect views and add merge views if required
             // As users can specify merge views, if they are not provided they get added
@@ -64,6 +66,14 @@ public class ViewFactoryForgeUtil {
 
             // Instantiate factories, not making them aware of each other yet, we now have a chain
             List<ViewFactoryForge> forgesChain = instantiateFactories(viewSpecList, args, viewForgeEnv);
+
+            // Determine event type serdes that may be required
+            for (ViewFactoryForge forge : forgesChain) {
+                if (forge instanceof DataWindowViewForge) {
+                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(parentEventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
+                    additionalForgeables.addAll(serdeForgeables);
+                }
+            }
 
             // Build data window views that occur next to each other ("d d", "d d d") into a single intersection or union
             // Calls attach on the contained-views.
@@ -89,23 +99,25 @@ public class ViewFactoryForgeUtil {
             }
 
             // get multikey forges
-            List<StmtClassForgableFactory> multikeyForges = getMultikeyForges(forgesGrouped);
-            return new ViewFactoryForgeDesc(forgesGrouped, multikeyForges);
+            List<StmtClassForgeableFactory> multikeyForges = getMultikeyForges(forgesGrouped, viewForgeEnv);
+            additionalForgeables.addAll(multikeyForges);
+
+            return new ViewFactoryForgeDesc(forgesGrouped, additionalForgeables);
         } catch (ViewProcessingException ex) {
             throw new ExprValidationException("Failed to validate data window declaration: " + ex.getMessage(), ex);
         }
     }
 
-    private static List<StmtClassForgableFactory> getMultikeyForges(List<ViewFactoryForge> forges) {
-        List<StmtClassForgableFactory> factories = new ArrayList<>(1);
-        getMultikeyForgesRecursive(forges, factories);
+    private static List<StmtClassForgeableFactory> getMultikeyForges(List<ViewFactoryForge> forges, ViewForgeEnv viewForgeEnv) {
+        List<StmtClassForgeableFactory> factories = new ArrayList<>(1);
+        getMultikeyForgesRecursive(forges, factories, viewForgeEnv);
         return factories;
     }
 
-    private static void getMultikeyForgesRecursive(List<ViewFactoryForge> forges, List<StmtClassForgableFactory> multikeyForges) {
+    private static void getMultikeyForgesRecursive(List<ViewFactoryForge> forges, List<StmtClassForgeableFactory> multikeyForges, ViewForgeEnv viewForgeEnv) {
         for (ViewFactoryForge forge : forges) {
-            multikeyForges.addAll(forge.initAdditionalForgeables());
-            getMultikeyForgesRecursive(forge.getInnerForges(), multikeyForges);
+            multikeyForges.addAll(forge.initAdditionalForgeables(viewForgeEnv));
+            getMultikeyForgesRecursive(forge.getInnerForges(), multikeyForges, viewForgeEnv);
         }
     }
 

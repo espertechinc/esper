@@ -93,13 +93,9 @@ public class EPLOtherSelectWildcardWAdditional {
 
     private static class EPLOtherJoinInsertInto implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String eventNameOne = SupportBeanSimple.class.getSimpleName();
-            String eventNameTwo = SupportMarketDataBean.class.getSimpleName();
             RegressionPath path = new RegressionPath();
-
             String text = "@name('insert') insert into SomeJoinEvent select *, myString||myString as concat " +
-                "from " + eventNameOne + "#length(5) as eventOne, "
-                + eventNameTwo + "#length(5) as eventTwo";
+                "from SupportBeanSimple#length(5) as eventOne, SupportMarketDataBean#length(5) as eventTwo";
             env.compileDeploy(text, path).addListener("insert");
 
             String textTwo = "@name('s0') select * from SomeJoinEvent#length(5)";

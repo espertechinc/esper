@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
-import com.espertech.esper.common.client.serde.MultiKeyGeneratedSerde;
-import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.util.MultiKey;
 
 import java.util.Arrays;
 
@@ -19,15 +19,15 @@ public abstract class AggregationGroupByRollupLevel {
     private final int levelNumber;
     private final int levelOffset;
     private final int[] rollupKeys;
-    private final MultiKeyGeneratedSerde optionalSubkeyMultikeySerde;
+    private final DataInputOutputSerde<Object> subkeySerde;
 
     public abstract Object computeSubkey(Object groupKey);
 
-    public AggregationGroupByRollupLevel(int levelNumber, int levelOffset, int[] rollupKeys, MultiKeyGeneratedSerde optionalSubkeyMultikeySerde) {
+    public AggregationGroupByRollupLevel(int levelNumber, int levelOffset, int[] rollupKeys, DataInputOutputSerde<Object> subkeySerde) {
         this.levelNumber = levelNumber;
         this.levelOffset = levelOffset;
         this.rollupKeys = rollupKeys;
-        this.optionalSubkeyMultikeySerde = optionalSubkeyMultikeySerde;
+        this.subkeySerde = subkeySerde;
     }
 
     public int getLevelNumber() {
@@ -53,8 +53,8 @@ public abstract class AggregationGroupByRollupLevel {
         return rollupKeys;
     }
 
-    public MultiKeyGeneratedSerde getOptionalSubkeyMultikeySerde() {
-        return optionalSubkeyMultikeySerde;
+    public DataInputOutputSerde<Object> getSubkeySerde() {
+        return subkeySerde;
     }
 
     public String toString() {
@@ -65,10 +65,10 @@ public abstract class AggregationGroupByRollupLevel {
     }
 
     public Object[] computeMultiKey(Object subkey, int numExpected) {
-        if (subkey instanceof MultiKeyGenerated) {
-            MultiKeyGenerated mk = (MultiKeyGenerated) subkey;
+        if (subkey instanceof MultiKey) {
+            MultiKey mk = (MultiKey) subkey;
             if (mk.getNumKeys() == numExpected) {
-                return MultiKeyGenerated.toObjectArray(mk);
+                return MultiKey.toObjectArray(mk);
             }
             Object[] keys = new Object[]{numExpected};
             for (int i = 0; i < rollupKeys.length; i++) {

@@ -78,7 +78,7 @@ public class ContextSpecInitiatedTerminated implements ContextSpec {
             .exprDotMethod(ref("detail"), "setOverlapping", constant(overlapping))
             .exprDotMethod(ref("detail"), "setDistinctEval", distinctEval)
             .exprDotMethod(ref("detail"), "setDistinctTypes", distinctExpressions == null ? constantNull() : constant(ExprNodeUtilityQuery.getExprResultTypes(distinctExpressions)))
-            .exprDotMethod(ref("detail"), "setDistinctMultiKeySerde", MultiKeyCodegen.codegenOptionalSerde(distinctMultiKey));
+            .exprDotMethod(ref("detail"), "setDistinctSerde", distinctMultiKey == null ? constantNull() : distinctMultiKey.getExprMKSerde(method, classScope));
         method.getBlock().methodReturn(ref("detail"));
         return localMethod(method);
     }

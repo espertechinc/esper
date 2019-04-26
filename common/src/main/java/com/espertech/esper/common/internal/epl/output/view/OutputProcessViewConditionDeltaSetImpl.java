@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ import java.util.Set;
 
 public class OutputProcessViewConditionDeltaSetImpl implements OutputProcessViewConditionDeltaSet {
     private final List<UniformPair<EventBean[]>> viewEventsList;
-    private final List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet;
+    private final List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> joinEventsSet;
 
     public OutputProcessViewConditionDeltaSetImpl(boolean isJoin) {
         if (isJoin) {
-            joinEventsSet = new ArrayList<UniformPair<Set<MultiKey<EventBean>>>>();
+            joinEventsSet = new ArrayList<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>>();
             viewEventsList = Collections.emptyList();
         } else {
             viewEventsList = new ArrayList<UniformPair<EventBean[]>>();
@@ -41,7 +41,7 @@ public class OutputProcessViewConditionDeltaSetImpl implements OutputProcessView
         viewEventsList.add(uniformPair);
     }
 
-    public void addJoin(UniformPair<Set<MultiKey<EventBean>>> setUniformPair) {
+    public void addJoin(UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>> setUniformPair) {
         joinEventsSet.add(setUniformPair);
     }
 
@@ -54,7 +54,7 @@ public class OutputProcessViewConditionDeltaSetImpl implements OutputProcessView
         clear();
     }
 
-    public List<UniformPair<Set<MultiKey<EventBean>>>> getJoinEventsSet() {
+    public List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> getJoinEventsSet() {
         return joinEventsSet;
     }
 

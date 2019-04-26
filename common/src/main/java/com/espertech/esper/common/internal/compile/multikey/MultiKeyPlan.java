@@ -10,24 +10,24 @@
  */
 package com.espertech.esper.common.internal.compile.multikey;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
 public class MultiKeyPlan {
-    private final List<StmtClassForgableFactory> multiKeyForgables;
-    private final MultiKeyClassRef optionalClassRef;
+    private final List<StmtClassForgeableFactory> multiKeyForgeables;
+    private final MultiKeyClassRef classRef;
 
-    public MultiKeyPlan(List<StmtClassForgableFactory> multiKeyForgables, MultiKeyClassRef optionalClassRef) {
-        this.multiKeyForgables = multiKeyForgables;
-        this.optionalClassRef = optionalClassRef;
+    public MultiKeyPlan(List<StmtClassForgeableFactory> multiKeyForgeables, MultiKeyClassRef classRef) {
+        this.multiKeyForgeables = multiKeyForgeables;
+        this.classRef = classRef;
     }
 
-    public List<StmtClassForgableFactory> getMultiKeyForgables() {
-        return multiKeyForgables;
+    public List<StmtClassForgeableFactory> getMultiKeyForgeables() {
+        return multiKeyForgeables;
     }
 
-    public MultiKeyClassRef getOptionalClassRef() {
-        return optionalClassRef;
+    public MultiKeyClassRef getClassRef() {
+        return classRef;
     }
 }

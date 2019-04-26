@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableFactory;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 
 import java.util.List;
 
 public class SubordinateWMatchExprQueryPlanResult {
     private final SubordinateWMatchExprQueryPlanForge forge;
-    private final List<StmtClassForgableFactory> additionalForgeables;
+    private final List<StmtClassForgeableFactory> additionalForgeables;
 
-    public SubordinateWMatchExprQueryPlanResult(SubordinateWMatchExprQueryPlanForge forge, List<StmtClassForgableFactory> additionalForgeables) {
+    public SubordinateWMatchExprQueryPlanResult(SubordinateWMatchExprQueryPlanForge forge, List<StmtClassForgeableFactory> additionalForgeables) {
         this.forge = forge;
         this.additionalForgeables = additionalForgeables;
     }
@@ -27,7 +27,7 @@ public class SubordinateWMatchExprQueryPlanResult {
         return forge;
     }
 
-    public List<StmtClassForgableFactory> getAdditionalForgeables() {
+    public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
     }
 }

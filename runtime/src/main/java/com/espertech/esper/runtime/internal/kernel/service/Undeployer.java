@@ -182,6 +182,7 @@ public class Undeployer {
         services.getVariablePathRegistry().deleteDeployment(deploymentId);
         services.getExprDeclaredPathRegistry().deleteDeployment(deploymentId);
         services.getScriptPathRegistry().deleteDeployment(deploymentId);
+        services.getEventTypeSerdeRepository().removeSerdes(deploymentId);
     }
 
     private static <K, E> void checkDependency(PathRegistry<K, E> registry, K entityKey, String moduleName) throws EPUndeployPreconditionException {

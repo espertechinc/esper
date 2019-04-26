@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+
 public class AggregationGroupByRollupDesc {
     private final AggregationGroupByRollupLevel[] levels;
     private final int numLevelsAggregation;
@@ -36,5 +38,13 @@ public class AggregationGroupByRollupDesc {
 
     public int getNumLevels() {
         return levels.length;
+    }
+
+    public DataInputOutputSerde[] getKeySerdes() {
+        DataInputOutputSerde[] serdes = new DataInputOutputSerde[levels.length];
+        for (int i = 0; i < serdes.length; i++) {
+            serdes[i] = levels[i].getSubkeySerde();
+        }
+        return serdes;
     }
 }

@@ -78,18 +78,18 @@ public class StmtForgeMethodCreateExpression implements StmtForgeMethod {
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryCreateExpressionForge forge = new StatementAgentInstanceFactoryCreateExpressionForge(statementEventType, expressionName);
-        StmtClassForgableAIFactoryProviderCreateExpression aiFactoryForgable = new StmtClassForgableAIFactoryProviderCreateExpression(aiFactoryProviderClassName, packageScope, forge);
+        StmtClassForgeableAIFactoryProviderCreateExpression aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateExpression(aiFactoryProviderClassName, packageScope, forge);
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, expressionName);
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
-        StmtClassForgableStmtProvider stmtProvider = new StmtClassForgableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
+        StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        forgables.add(aiFactoryForgable);
-        forgables.add(stmtProvider);
-        return new StmtForgeMethodResult(forgables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        forgeables.add(aiFactoryForgeable);
+        forgeables.add(stmtProvider);
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private void checkAlreadyDeclared(String expressionName, StatementCompileTimeServices services, int numParameters)

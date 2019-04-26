@@ -19,8 +19,8 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.*;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgable;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableType;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableType;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeBuilder;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.aifactory.select.StmtForgeMethodSelectResult;
@@ -137,7 +137,7 @@ public class SelectForge implements DataFlowOperatorForge {
         StatementSpecCompiled containerStatement = context.getBase().getStatementSpec();
         context.getBase().setStatementSpec(compiled);
 
-        // make forgable
+        // make forgeable
         StmtForgeMethodSelectResult forablesResult = StmtForgeMethodSelectUtil.make(true, context.getCodegenEnv().getPackageName(), dataflowClassPostfix, context.getBase(), context.getServices());
 
         // return the statement spec
@@ -149,9 +149,9 @@ public class SelectForge implements DataFlowOperatorForge {
         initializeResult.setTypeDescriptors(new GraphTypeDesc[]{new GraphTypeDesc(false, true, outputEventType)});
         initializeResult.setAdditionalForgeables(forablesResult.getForgeResult());
 
-        for (StmtClassForgable forgable : forablesResult.getForgeResult().getForgeables()) {
-            if (forgable.getForgableType() == StmtClassForgableType.AIFACTORYPROVIDER) {
-                classNameAIFactoryProvider = forgable.getClassName();
+        for (StmtClassForgeable forgeable : forablesResult.getForgeResult().getForgeables()) {
+            if (forgeable.getForgeableType() == StmtClassForgeableType.AIFACTORYPROVIDER) {
+                classNameAIFactoryProvider = forgeable.getClassName();
             }
         }
 

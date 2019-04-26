@@ -70,6 +70,7 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
@@ -88,7 +89,7 @@ public class StmtForgeMethodSelectUtil {
         List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         StatementSpecCompiled statementSpec = base.getStatementSpec();
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(1);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(1);
 
         String[] streamNames = determineStreamNames(statementSpec.getStreamSpecs());
         int numStreams = streamNames.length;
@@ -218,6 +219,12 @@ public class StmtForgeMethodSelectUtil {
             } else {
                 throw new IllegalStateException("Unrecognized stream " + streamSpec);
             }
+
+            // plan serde for iterate-unbound
+            if (isCanIterateUnbound) {
+                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(streamEventTypes[stream], base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                additionalForgeables.addAll(serdeForgeables);
+            }
         }
 
         // handle match-recognize pattern
@@ -235,6 +242,8 @@ public class StmtForgeMethodSelectUtil {
             additionalForgeables.addAll(plan.getAdditionalForgeables());
             scheduleHandleCallbackProviders.add(forge);
             viewForges[0].add(forge);
+            List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+            additionalForgeables.addAll(serdeForgeables);
         }
 
         // Obtain event types from view factory chains
@@ -268,8 +277,8 @@ public class StmtForgeMethodSelectUtil {
                 continue;
             }
             scheduleHandleCallbackProviders.add(historicalEventViewable);
-            List<StmtClassForgableFactory> forgables = historicalEventViewable.validate(typeService, base, services);
-            additionalForgeables.addAll(forgables);
+            List<StmtClassForgeableFactory> forgeables = historicalEventViewable.validate(typeService, base, services);
+            additionalForgeables.addAll(forgeables);
             historicalViewableDesc.setHistorical(stream, historicalEventViewable.getRequiredStreams());
             if (historicalEventViewable.getRequiredStreams().contains(stream)) {
                 throw new ExprValidationException("Parameters for historical stream " + stream + " indicate that the stream is subordinate to itself as stream parameters originate in the same stream");
@@ -291,6 +300,8 @@ public class StmtForgeMethodSelectUtil {
             for (int stream = 0; stream < numStreams; stream++) {
                 if (!viewResourceDelegateDesc[stream].getPriorRequests().isEmpty()) {
                     viewForges[stream].add(new PriorEventViewForge(viewForges[stream].isEmpty(), streamEventTypes[stream]));
+                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(streamEventTypes[stream], base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                    additionalForgeables.addAll(serdeForgeables);
                 }
             }
         }
@@ -327,22 +338,22 @@ public class StmtForgeMethodSelectUtil {
         StatementAgentInstanceFactorySelectForge forge = new StatementAgentInstanceFactorySelectForge(typeService.getStreamNames(), viewableActivatorForges, resultSetProcessorProviderClassName, viewForges, viewResourceDelegateDesc, whereClauseForge, joinForge, outputProcessViewProviderClassName, subselectForges, tableAccessForges, orderByWithoutOutputLimit, joinAnalysisResult.isUnidirectional());
 
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
-        List<StmtClassForgable> forgables = new ArrayList<>();
-        for (StmtClassForgableFactory additional : additionalForgeables) {
-            forgables.add(additional.make(packageScope, classPostfix));
+        List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
+            forgeables.add(additional.make(packageScope, classPostfix));
         }
-        forgables.add(new StmtClassForgableRSPFactoryProvider(resultSetProcessorProviderClassName, resultSetProcessorDesc, packageScope, base.getStatementRawInfo()));
-        forgables.add(new StmtClassForgableOPVFactoryProvider(outputProcessViewProviderClassName, outputProcessViewFactoryForge, packageScope, numStreams, base.getStatementRawInfo()));
-        forgables.add(new StmtClassForgableAIFactoryProviderSelect(statementAIFactoryProviderClassName, packageScope, forge));
-        forgables.add(new StmtClassForgableStmtFields(packageScope.getFieldsClassNameOptional(), packageScope, numStreams));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(resultSetProcessorProviderClassName, resultSetProcessorDesc, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableOPVFactoryProvider(outputProcessViewProviderClassName, outputProcessViewFactoryForge, packageScope, numStreams, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableAIFactoryProviderSelect(statementAIFactoryProviderClassName, packageScope, forge));
+        forgeables.add(new StmtClassForgeableStmtFields(packageScope.getFieldsClassNameOptional(), packageScope, numStreams));
 
         if (!dataflowOperator) {
             StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, scheduleHandleCallbackProviders, namedWindowConsumers, true, resultSetProcessorDesc.getSelectSubscriberDescriptor(), packageScope, services);
-            forgables.add(new StmtClassForgableStmtProvider(statementAIFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
+            forgeables.add(new StmtClassForgeableStmtProvider(statementAIFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         }
 
-        StmtForgeMethodResult forgableResult = new StmtForgeMethodResult(forgables, filterSpecCompileds, scheduleHandleCallbackProviders, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()));
-        return new StmtForgeMethodSelectResult(forgableResult, resultSetProcessorDesc.getResultEventType(), numStreams);
+        StmtForgeMethodResult forgeableResult = new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleHandleCallbackProviders, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()));
+        return new StmtForgeMethodSelectResult(forgeableResult, resultSetProcessorDesc.getResultEventType(), numStreams);
     }
 
     private static DataFlowActivationResult handleDataflowActivation(ViewFactoryForgeArgs args, StreamSpecCompiled streamSpec)
@@ -414,9 +425,9 @@ public class StmtForgeMethodSelectUtil {
         private final String eventTypeName;
         private final ViewableActivatorForge viewableActivatorForge;
         private final List<ViewFactoryForge> viewForges;
-        private final List<StmtClassForgableFactory> additionalForgeables;
+        private final List<StmtClassForgeableFactory> additionalForgeables;
 
-        public DataFlowActivationResult(EventType streamEventType, String eventTypeName, ViewableActivatorForge viewableActivatorForge, List<ViewFactoryForge> viewForges, List<StmtClassForgableFactory> additionalForgeables) {
+        public DataFlowActivationResult(EventType streamEventType, String eventTypeName, ViewableActivatorForge viewableActivatorForge, List<ViewFactoryForge> viewForges, List<StmtClassForgeableFactory> additionalForgeables) {
             this.streamEventType = streamEventType;
             this.eventTypeName = eventTypeName;
             this.viewableActivatorForge = viewableActivatorForge;
@@ -440,7 +451,7 @@ public class StmtForgeMethodSelectUtil {
             return viewForges;
         }
 
-        public List<StmtClassForgableFactory> getAdditionalForgeables() {
+        public List<StmtClassForgeableFactory> getAdditionalForgeables() {
             return additionalForgeables;
         }
     }

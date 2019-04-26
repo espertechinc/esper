@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.context.controller.keyed;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.util.MultiKeyGenerated;
+import com.espertech.esper.common.client.util.MultiKey;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayWrap;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
@@ -33,8 +33,8 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 public class ContextControllerKeyedUtil {
 
     public static Object[] unpackKey(Object key) {
-        if (key instanceof MultiKeyGenerated) {
-            return MultiKeyGenerated.toObjectArray((MultiKeyGenerated) key);
+        if (key instanceof MultiKey) {
+            return MultiKey.toObjectArray((MultiKey) key);
         } else if (key instanceof MultiKeyArrayWrap) {
             return new Object[]{((MultiKeyArrayWrap) key).getArray()};
         }
@@ -171,7 +171,7 @@ public class ContextControllerKeyedUtil {
         if (lookupables.length == 1) {
             addendumFilters[0] = getFilterMayEqualOrNull(lookupables[0], getterKey);
         } else {
-            MultiKeyGenerated keyProvisioning = (MultiKeyGenerated) getterKey;
+            MultiKey keyProvisioning = (MultiKey) getterKey;
             for (int i = 0; i < lookupables.length; i++) {
                 addendumFilters[i] = getFilterMayEqualOrNull(lookupables[i], keyProvisioning.getKey(i));
             }

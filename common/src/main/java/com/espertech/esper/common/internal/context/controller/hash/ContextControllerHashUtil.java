@@ -22,6 +22,9 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSingleton;
+import com.espertech.esper.common.internal.serde.serdeset.builtin.DIONullableIntegerSerde;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 
 public class ContextControllerHashUtil {
@@ -79,7 +82,8 @@ public class ContextControllerHashUtil {
 
             // create and register expression
             String expression = item.getFunction().getName() + "(" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
-            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, getter, Integer.class, true);
+            DataInputOutputSerdeForge valueSerde = new DataInputOutputSerdeForgeSingleton(DIONullableIntegerSerde.class);
+            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, getter, Integer.class, true, valueSerde);
             item.setLookupable(lookupable);
         }
     }

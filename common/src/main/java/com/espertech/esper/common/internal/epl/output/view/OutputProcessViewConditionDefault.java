@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.MultiKey;
+import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
@@ -115,7 +115,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
      * @param newEvents - new events
      * @param oldEvents - old events
      */
-    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
+    public void process(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
         InstrumentationCommon instrumentationCommon = agentInstanceContext.getInstrumentationProvider();
         instrumentationCommon.qOutputProcessWConditionJoin(newEvents, oldEvents);
 
@@ -275,22 +275,22 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         }
     }
 
-    private static void addToChangeset(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, OutputProcessViewConditionDeltaSet joinEventsSet) {
+    private static void addToChangeset(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, OutputProcessViewConditionDeltaSet joinEventsSet) {
         // add the incoming events to the event batches
-        Set<MultiKey<EventBean>> copyNew;
+        Set<MultiKeyArrayOfKeys<EventBean>> copyNew;
         if (newEvents != null) {
-            copyNew = new LinkedHashSet<MultiKey<EventBean>>(newEvents);
+            copyNew = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>(newEvents);
         } else {
-            copyNew = new LinkedHashSet<MultiKey<EventBean>>();
+            copyNew = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
         }
 
-        Set<MultiKey<EventBean>> copyOld;
+        Set<MultiKeyArrayOfKeys<EventBean>> copyOld;
         if (oldEvents != null) {
-            copyOld = new LinkedHashSet<MultiKey<EventBean>>(oldEvents);
+            copyOld = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>(oldEvents);
         } else {
-            copyOld = new LinkedHashSet<MultiKey<EventBean>>();
+            copyOld = new LinkedHashSet<MultiKeyArrayOfKeys<EventBean>>();
         }
 
-        joinEventsSet.addJoin(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
+        joinEventsSet.addJoin(new UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>(copyNew, copyOld));
     }
 }

@@ -14,8 +14,10 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.view.core.ViewEnum;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
@@ -37,8 +39,13 @@ public class SizeViewForge extends ViewFactoryForgeBase {
 
     public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
-        additionalProps = StatViewAdditionalPropsForge.make(validated, 0, parentEventType, streamNumber);
+        additionalProps = StatViewAdditionalPropsForge.make(validated, 0, parentEventType, streamNumber, viewForgeEnv);
         eventType = SizeView.createEventType(viewForgeEnv, additionalProps, streamNumber);
+    }
+
+    @Override
+    public List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
+        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
     }
 
     protected Class typeOfFactory() {

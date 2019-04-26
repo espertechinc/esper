@@ -61,7 +61,7 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
         CodegenExpression getter = MultiKeyCodegen.codegenGetterMayMultiKey(eventType, getters, propertyTypes, hashCoercionDesc.getCoercionTypes(), multiKeyClassRef, method, classScope);
         params.add(getter);
         params.add(constantNull()); // no fire-and-forget transform for subqueries
-        params.add(MultiKeyCodegen.codegenOptionalSerde(multiKeyClassRef));
+        params.add(multiKeyClassRef.getExprMKSerde(method, classScope));
         return params;
     }
 

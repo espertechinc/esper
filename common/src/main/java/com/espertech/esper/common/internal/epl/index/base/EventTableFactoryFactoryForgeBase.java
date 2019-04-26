@@ -41,7 +41,6 @@ public abstract class EventTableFactoryFactoryForgeBase implements EventTableFac
         List<CodegenExpression> params = new ArrayList<>();
         params.add(constant(indexedStreamNum));
         params.add(constant(subqueryNum));
-        params.add(constantNull());
         params.add(constant(isFireAndForget));
         params.addAll(additionalParams(method, symbols, classScope));
         method.getBlock().methodReturn(newInstance(typeOf(), params.toArray(new CodegenExpression[params.size()])));

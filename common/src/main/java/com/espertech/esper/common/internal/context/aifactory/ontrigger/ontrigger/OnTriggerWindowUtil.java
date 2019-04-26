@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.*;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorForge;
-import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StmtClassForgableAIFactoryProviderOnTrigger;
+import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.StmtClassForgeableAIFactoryProviderOnTrigger;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
@@ -69,7 +69,7 @@ public class OnTriggerWindowUtil {
         EventType resultEventType = namedWindow != null ? namedWindow.getEventType() : table.getPublicEventType();
         NameAccessModifier infraVisibility = namedWindow != null ? namedWindow.getEventType().getMetadata().getAccessModifier() : table.getTableVisibility();
         validateOnExpressionContext(planDesc.getContextName(), infraContextName, infraTitle);
-        List<StmtClassForgableFactory> additionalForgeables = new ArrayList<>(1);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(1);
 
         // validate expressions and plan subselects
         OnTriggerPlanValidationResult validationResult = OnTriggerPlanValidator.validateOnTriggerPlan(infraEventType, planDesc.getOnTriggerDesc(), planDesc.getStreamSpec(), planDesc.getActivatorResult(), planDesc.getSubselectActivation(), base, services);
@@ -107,7 +107,7 @@ public class OnTriggerWindowUtil {
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = validationResult.getSubselectForges();
         Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges = validationResult.getTableAccessForges();
 
-        List<StmtClassForgable> forgables = new ArrayList<>(2);
+        List<StmtClassForgeable> forgeables = new ArrayList<>(2);
         StatementAgentInstanceFactoryOnTriggerInfraBaseForge forge;
         String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
         ResultSetProcessorDesc resultSetProcessor;
@@ -129,9 +129,9 @@ public class OnTriggerWindowUtil {
 
             boolean selectAndDelete = planDesc.getOnTriggerDesc().isDeleteAndSelect();
             boolean distinct = base.getStatementSpec().getSelectClauseCompiled().isDistinct();
-            MultiKeyPlan distinctMultiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(distinct, outputEventType);
-            additionalForgeables.addAll(distinctMultiKeyPlan.getMultiKeyForgables());
-            forge = new StatementAgentInstanceFactoryOnTriggerInfraSelectForge(activator, outputEventType, subselectForges, tableAccessForges, namedWindow, table, queryPlan, classNameRSP, insertInto, addToFront, optionalInsertIntoTable, selectAndDelete, distinct, distinctMultiKeyPlan.getOptionalClassRef());
+            MultiKeyPlan distinctMultiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(distinct, outputEventType, base.getStatementRawInfo(), services.getSerdeResolver());
+            additionalForgeables.addAll(distinctMultiKeyPlan.getMultiKeyForgeables());
+            forge = new StatementAgentInstanceFactoryOnTriggerInfraSelectForge(activator, outputEventType, subselectForges, tableAccessForges, namedWindow, table, queryPlan, classNameRSP, insertInto, addToFront, optionalInsertIntoTable, selectAndDelete, distinct, distinctMultiKeyPlan.getClassRef());
         } else {
             StatementSpecCompiled defaultSelectAllSpec = new StatementSpecCompiled();
             defaultSelectAllSpec.getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());
@@ -155,14 +155,14 @@ public class OnTriggerWindowUtil {
                 throw new IllegalStateException("Unrecognized trigger type " + onTriggerType);
             }
         }
-        forgables.add(new StmtClassForgableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
 
         boolean queryPlanLogging = services.getConfiguration().getCommon().getLogging().isEnableQueryPlan();
         SubordinateQueryPlannerUtil.queryPlanLogOnExpr(queryPlanLogging, QUERY_PLAN_LOG,
                 queryPlan, base.getStatementSpec().getAnnotations(), services.getClasspathImportServiceCompileTime());
 
-        StmtClassForgableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgableAIFactoryProviderOnTrigger(className, packageScope, forge);
-        return new OnTriggerPlan(onTrigger, forgables, resultSetProcessor.getSelectSubscriberDescriptor(), additionalForgeables);
+        StmtClassForgeableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgeableAIFactoryProviderOnTrigger(className, packageScope, forge);
+        return new OnTriggerPlan(onTrigger, forgeables, resultSetProcessor.getSelectSubscriberDescriptor(), additionalForgeables);
     }
 
     protected static void validateOnExpressionContext(String onExprContextName, String desiredContextName, String title)

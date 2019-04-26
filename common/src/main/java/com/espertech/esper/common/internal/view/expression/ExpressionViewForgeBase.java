@@ -26,7 +26,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldNameViewAgg;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgableRSPFactoryProvider;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableRSPFactoryProvider;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
@@ -109,7 +109,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
                         Collections.emptyList(), null, null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
                         viewForgeEnv.getAnnotations(), viewForgeEnv.getVariableCompileTimeResolver(), false, null, null,
                         streamTypeService.getEventTypes(), null, viewForgeEnv.getContextName(), null, null, false, false, false,
-                        viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getOptionalStatementName());
+                        viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver());
             } catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);
             }
@@ -167,7 +167,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         CodegenStackGenerator.recursiveBuildStack(evalMethod, "evaluate", innerMethods);
         CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", innerMethods);
 
-        CodegenCtor ctor = new CodegenCtor(StmtClassForgableRSPFactoryProvider.class, classScope, Collections.emptyList());
+        CodegenCtor ctor = new CodegenCtor(StmtClassForgeableRSPFactoryProvider.class, classScope, Collections.emptyList());
 
         return new CodegenInnerClass(classNameExpressionEval, AggregationResultFutureAssignableWEval.class, ctor, Collections.emptyList(), innerMethods);
     }
