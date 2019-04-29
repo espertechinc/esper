@@ -38,7 +38,37 @@ public class InfraTableOnMerge {
         execs.add(new InfraOnMergePlainPropsAnyKeyed());
         execs.add(new InfraMergeWhereWithMethodRead());
         execs.add(new InfraMergeSelectWithAggReadAndEnum());
+        execs.add(new InfraMergeTwoTables());
         return execs;
+    }
+
+    private static class InfraMergeTwoTables implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl =
+                    "@name('T0') create table TableZero(k0 string primary key, v0 int);\n" +
+                    "@name('T1') create table TableOne(k1 string primary key, v1 int);\n" +
+                    "on SupportBean merge TableZero " +
+                    "  where theString = k0 when not matched " +
+                    "  then insert select theString as k0, intPrimitive as v0" +
+                    "  then insert into TableOne(k1, v1) select theString, intPrimitive;\n";
+            env.compileDeploy(epl);
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            assertTables(env, new Object[][] {{"E1", 1}});
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean("E2", 2));
+            env.sendEventBean(new SupportBean("E2", 3));
+            assertTables(env, new Object[][] {{"E1", 1}, {"E2", 2}});
+
+            env.undeployAll();
+        }
+
+        private void assertTables(RegressionEnvironment env, Object[][] expected) {
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("T0"), "k0,v0".split(","), expected);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("T1"), "k1,v1".split(","), expected);
+        }
     }
 
     private static class InfraTableOnMergeSimple implements RegressionExecution {

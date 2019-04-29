@@ -65,6 +65,12 @@ public class InfraOnMergeActionIns extends InfraOnMergeAction {
             return;
         }
 
+        if (insertIntoTable != null) {
+            TableInstance tableInstance = insertIntoTable.getTableInstance(agentInstanceContext.getAgentInstanceId());
+            tableInstance.addEventUnadorned(theEvent);
+            return;
+        }
+
         if (audit) {
             agentInstanceContext.getAuditProvider().insert(theEvent, agentInstanceContext);
         }
